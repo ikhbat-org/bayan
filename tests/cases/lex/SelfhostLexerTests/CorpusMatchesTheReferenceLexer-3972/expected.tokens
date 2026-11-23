@@ -1,0 +1,37 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n'\u{1p10000}'\n fails try catch never noallo�c nosuspend suspends async await\n*/�\nlet a = "op�en\n\ne.\n/// Doc line two.\nstruct S\n//// not a doc`
+10:15 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  3 │  fails try catch never noallo�c nosuspend suspends async await
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ */�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ */�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ */�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  5 │ let a = "op�en
+    │            ^

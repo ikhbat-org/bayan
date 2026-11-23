@@ -1,0 +1,3 @@
+# The laws amended under spec 019 R18 to rest on the frozen compiler: scripts/ci/ddc.sh runs each in the frozen tree.
+# One law id per line (for example L027); # starts a comment. T31 fills it when it drafts the amendments; empty until then.
+L027

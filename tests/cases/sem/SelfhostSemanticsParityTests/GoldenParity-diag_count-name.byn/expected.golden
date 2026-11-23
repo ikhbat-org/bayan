@@ -1,0 +1,35 @@
+warning BYN5105: `linesCount` counts items; name it `lineCount`
+
+  2 │     public i64 linesCount
+    │                ^^^^^^^^^^
+    │
+  help: rename it `lineCount`
+    │ 2 │     public i64 linesCount
+    │   │                    -
+
+warning BYN5105: `numLines` counts items; name it `lineCount`
+
+  3 │     public i64 numLines
+    │                ^^^^^^^^
+    │
+  help: rename it `lineCount`
+    │ 3 │     public i64 lineCount
+    │   │                +++++++++
+
+warning BYN5105: `numberOfItems` counts items; name it `itemCount`
+
+  4 │     public i64 numberOfItems
+    │                ^^^^^^^^^^^^^
+    │
+  help: rename it `itemCount`
+    │ 4 │     public i64 itemCount
+    │   │                +++++++++
+
+warning BYN5105: `totalLinesCount` counts items; name it `totalLineCount`
+
+  7 │     public i64 totalLinesCount
+    │                ^^^^^^^^^^^^^^^
+    │
+  help: rename it `totalLineCount`
+    │ 7 │     public i64 totalLinesCount
+    │   │                         -

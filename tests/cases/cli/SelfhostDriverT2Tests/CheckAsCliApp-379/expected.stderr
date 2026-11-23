@@ -1,0 +1,30 @@
+error BYN1016: `@positional` is not allowed here
+  --> <repo>/tmp/t2/diag/positional-states/positional-states.byn:1:1
+
+  1 │ @positional
+    │ ^^^^^^^^^^^
+    │
+  help: remove `@positional`: a struct with states is built with state literals
+
+error BYN2009: `Open` must be camelCase
+  --> <repo>/tmp/t2/diag/positional-states/positional-states.byn:6:9
+
+  6 │         Open
+    │         ^^^^
+    │
+  help: rename it `open`; only types are PascalCase
+    │ 6 │         open
+    │   │         +
+
+error BYN2009: `Closed` must be camelCase
+  --> <repo>/tmp/t2/diag/positional-states/positional-states.byn:7:9
+
+  7 │         Closed
+    │         ^^^^^^
+    │
+  help: rename it `closed`; only types are PascalCase
+    │ 7 │         closed
+    │   │         +
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN1016

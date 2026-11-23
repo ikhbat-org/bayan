@@ -1,0 +1,30 @@
+error BYN2302: `f` takes 1 argument(s)
+  --> tmp/t26-tests/cli/diag_function-value-call.byn/function-value-call.byn:6:18
+
+  6 │     let a = f(x, x)
+    │                  ^
+
+error BYN2021: `f` has no parameter `x`
+  --> tmp/t26-tests/cli/diag_function-value-call.byn/function-value-call.byn:7:15
+
+  7 │     let b = f(x: x)
+    │               ^
+
+error BYN2021: `f` has no parameter `to`
+  --> tmp/t26-tests/cli/diag_function-value-call.byn/function-value-call.byn:8:15
+
+  8 │     let c = f(to: x)
+    │               ^^
+
+error BYN2602: `f` can fail; handle the error or pass it on
+  --> tmp/t26-tests/cli/diag_function-value-call.byn/function-value-call.byn:13:12
+
+  13 │     return f(1)
+     │            ^^^^
+     │
+  help: propagate the error with `try`, or handle it with `catch`
+     │ 13 │     return try f(1)
+     │    │            ++++
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2302

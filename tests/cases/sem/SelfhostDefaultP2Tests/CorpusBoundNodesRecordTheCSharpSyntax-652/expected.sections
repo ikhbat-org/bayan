@@ -1,0 +1,6 @@
+== tests/cases/diag/matches-after-v0-1.byn
+119..168 blockStmt
+125..138 localDecl
+133..138 literalExpr string
+143..166 localDecl
+152..166 callExpr

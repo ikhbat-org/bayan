@@ -1,0 +1,13 @@
+== tests/cases/diag/requires-not-bool.byn
+26..46 blockStmt
+32..44 returnStmt value 39..44
+39..44 binaryExpr div right 43..44
+39..40 nameExpr
+43..44 literalExpr integer
+48..67 globalStatement
+48..67 exprStmt
+48..67 callExpr
+54..66 interpolatedExpr
+57..64 callExpr
+62..63 literalExpr integer
+48..67 callExpr

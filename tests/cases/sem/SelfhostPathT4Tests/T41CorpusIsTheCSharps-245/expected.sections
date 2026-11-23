@@ -1,0 +1,2 @@
+== diags.diag/line-join-quiet
+BYN2605 38:25 `catch` needs a call that can fail

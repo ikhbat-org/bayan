@@ -1,0 +1,22 @@
+error BYN1021: `x = …` in a literal is an input form; write `x: …`
+  --> tmp/t26-tests/cli/diag_input-forms-one-line.byn/input-forms-one-line.byn:7:19
+
+  7 │     let p = P { x = 1, y: 2 }
+    │                   ^ the input form
+    │
+  help: write `:` after the field name
+    │ 7 │     let p = P { x: 1, y: 2 }
+    │   │                  +
+
+error BYN1021: `x = …` in a literal is an input form; write `x: …`
+  --> tmp/t26-tests/cli/diag_input-forms-one-line.byn/input-forms-one-line.byn:8:19
+
+  8 │     let q = P { x = 3, y: 4 }
+    │                   ^ the input form
+    │
+  help: write `:` after the field name
+    │ 8 │     let q = P { x: 3, y: 4 }
+    │   │                  +
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1021

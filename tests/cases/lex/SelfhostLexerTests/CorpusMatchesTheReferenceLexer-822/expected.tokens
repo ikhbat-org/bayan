@@ -1,0 +1,205 @@
+1:1 Star `*`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:10 StringLiteral `"{$"`
+2:14 OpenBrace `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 InterpolatedStringStart `$"`
+2:56 InterpolationStart `{`
+2:57 Identifier `x`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+2:60 InterpolationEnd `}`
+2:61 InterpolatedStringEnd `"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringEnd `"`
+2:72 InterpolationEnd `}`
+2:73 InterpolatedStringEnd `"`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringEnd `"`
+2:76 InterpolationEnd `}`
+2:77 InterpolatedStringEnd `"`
+2:78 InterpolationEnd `}`
+2:79 InterpolatedStringEnd `"`
+2:80 InterpolationEnd `}`
+2:81 InterpolatedStringEnd `"`
+2:82 InterpolationEnd `}`
+2:83 InterpolatedStringEnd `"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 CloseBrace `}`
+2:87 StringLiteral `"let s = $"`
+2:98 OpenBrace `{`
+2:99 InterpolatedStringStart `$"`
+2:101 InterpolationStart `{`
+2:102 InterpolatedStringStart `$"`
+2:104 InterpolationStart `{`
+2:105 InterpolatedStringStart `$"`
+2:107 InterpolationStart `{`
+2:108 InterpolatedStringStart `$"`
+2:110 InterpolationStart `{`
+2:111 InterpolatedStringStart `$"`
+2:113 InterpolationStart `{`
+2:114 InterpolatedStringStart `$"`
+2:116 InterpolationStart `{`
+2:117 InterpolatedStringStart `$"`
+2:119 InterpolationStart `{`
+2:120 InterpolatedStringStart `$"`
+2:122 InterpolationStart `{`
+2:123 InterpolatedStringStart `$"`
+2:125 InterpolationStart `{`
+2:126 InterpolatedStringStart `$"`
+2:128 InterpolationStart `{`
+2:129 InterpolatedStringStart `$"`
+2:131 InterpolationStart `{`
+2:134 StringLiteral `"{$"`
+2:138 OpenBrace `{`
+2:139 InterpolatedStringStart `$"`
+2:141 InterpolationStart `{`
+2:142 InterpolatedStringStart `$"`
+2:144 InterpolationStart `{`
+2:145 InterpolatedStringStart `$"`
+2:147 InterpolationStart `{`
+2:148 StringLiteral `$"{$"`
+2:153 OpenBrace `{`
+2:154 StringLiteral `$"{x}"`
+2:160 CloseBrace `}`
+2:161 StringLiteral `"}"`
+2:164 InterpolationEnd `}`
+2:165 InterpolatedStringEnd `"`
+2:166 InterpolationEnd `}`
+2:167 InterpolatedStringEnd `"`
+2:168 InterpolationEnd `}`
+2:169 InterpolatedStringEnd `"`
+2:170 CloseBrace `}`
+2:171 StringLiteral `"}"`
+2:174 InterpolationEnd `}`
+2:175 InterpolatedStringEnd `"`
+2:176 InterpolationEnd `}`
+2:177 InterpolatedStringEnd `"`
+2:178 InterpolationEnd `}`
+2:179 InterpolatedStringEnd `"`
+2:180 InterpolationEnd `}`
+2:181 InterpolatedStringEnd `"`
+2:182 InterpolationEnd `}`
+2:183 InterpolatedStringEnd `"`
+2:184 InterpolationEnd `}`
+2:185 InterpolatedStringEnd `"`
+2:186 InterpolationEnd `}`
+2:187 InterpolatedStringEnd `"`
+2:188 InterpolationEnd `}`
+2:189 InterpolatedStringEnd `"`
+2:190 InterpolationEnd `}`
+2:191 InterpolatedStringEnd `"`
+2:192 InterpolationEnd `}`
+2:193 InterpolatedStringEnd `"`
+2:194 InterpolationEnd `}`
+2:195 InterpolatedStringEnd `"`
+2:196 CloseBrace `}`
+2:197 StringLiteral `"`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 WithKeyword `with`
+4:21 MoveKeyword `move`
+4:26 RefKeyword `ref`
+4:30 OutKeyword `out`
+4:34 ThisKeyword `this`
+4:39 NullKeyword `null`
+4:44 TrueKeyword `true`
+4:49 FalseKeyword `false`
+4:55 ComptimeKeyword `comptime`
+4:64 CheckedKeyword `checked`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                                                     ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                                                                    ^^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                                                                                                                     ^ string
+    │                                                                                                                                                                                                       ends
+    │                                                                                                                                                                                                       at
+    │                                                                                                                                                                                                       the
+    │                                                                                                                                                                                                       end
+    │                                                                                                                                                                                                       of
+    │                                                                                                                                                                                                       the
+    │                                                                                                                                                                                                       line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  4 │ is and or not with �move ref out this null true false comptime checked
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ // ok � in comment
+    │       ^

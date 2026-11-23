@@ -1,0 +1,35 @@
+1:1 Identifier `ist`
+1:4 Less `<`
+1:5 Identifier `List`
+1:9 Less `<`
+1:10 Identifier `i64`
+1:13 Greater `>`
+1:14 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 Identifier `le`
+4:5 Identifier `ct`
+4:8 BecomeKeyword `become`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:12 RawStringLiteral `""" `
+5:16 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │  le�ct become
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  5 │ let law =  """ 
+    │            ^^^ raw string starts here
+    │
+  help: close it with `"""`

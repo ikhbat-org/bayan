@@ -1,0 +1,5 @@
+== path unknown
+module main tmp/std-cases/unknown main
+file tmp/std-cases/unknown/main.byn
+diag BYN2032 tmp/std-cases/unknown/main.byn 1:8 no std module `std.nope` |  | import one of `std.a.b`, `std.probe`, `std.zeta`
+diag BYN2032 tmp/std-cases/unknown/main.byn 2:8 no std module `std` |  | import one of `std.a.b`, `std.probe`, `std.zeta`

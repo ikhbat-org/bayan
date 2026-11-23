@@ -1,0 +1,5 @@
+struc S
+ /// 0xF__
+
+$"total {x}" $"a {f($"b {c}")} d $"{{literal}}" $"{Point { x = 1 }}!" $""
+

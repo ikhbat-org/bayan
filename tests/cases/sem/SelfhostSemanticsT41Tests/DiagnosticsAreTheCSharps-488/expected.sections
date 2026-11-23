@@ -1,0 +1,5 @@
+== diags.diag/sealed-misplaced
+BYN1016 1:1 `@sealed` is not allowed here
+  help put `@sealed` on a struct
+BYN1016 4:1 `@sealed(strict)` is not allowed here
+  help write `@sealed` with no arguments and no `because`

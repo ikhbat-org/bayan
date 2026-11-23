@@ -1,0 +1,3 @@
+test "positive" (i32 n) {
+    assert(n > 0)
+}

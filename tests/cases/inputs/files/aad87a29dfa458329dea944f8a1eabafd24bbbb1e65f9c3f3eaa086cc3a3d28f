@@ -1,0 +1,4 @@
+let n = xs
+    .map(it + 1)
+    .where(it > 0)
+    .sorted(by: it)

@@ -1,0 +1,19 @@
+2:1 CharLiteral `''`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  1 │ �
+    │ ^
+
+error BYN0007: empty char literal
+
+  2 │ ''�
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `\u{F}`
+
+  2 │ ''�
+    │   ^

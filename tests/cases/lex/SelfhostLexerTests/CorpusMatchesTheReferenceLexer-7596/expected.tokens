@@ -1,0 +1,151 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 Identifier `x`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringEnd `"`
+5:56 InterpolationEnd `}`
+5:57 InterpolatedStringEnd `"`
+5:58 InterpolationEnd `}`
+5:59 InterpolatedStringEnd `"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+6:1 Identifier `xs`
+6:3 Colon `:`
+6:5 Identifier `List`
+6:9 Less `<`
+6:10 Identifier `List`
+6:14 Less `<`
+6:15 Identifier `i64`
+6:18 Greater `>`
+6:19 Greater `>`
+7:1 Identifier `a`
+7:3 Greater `>`
+7:4 Greater `>`
+7:6 Identifier `b`
+8:1 Identifier `c`
+8:3 Greater `>`
+8:4 GreaterEquals `>=`
+8:7 IntegerLiteral `1`
+9:2 Identifier `et`
+9:5 Identifier `actor`
+9:11 Equals `=`
+9:13 IntegerLiteral `1`
+10:1 LetKeyword `let`
+10:5 EffectKeyword `effect`
+10:12 Equals `=`
+10:14 IntegerLiteral `2`
+11:1 Identifier `macro`
+11:7 Identifier `select`
+11:14 BecomeKeyword `become`
+12:1 LetKeyword `let`
+12:5 Identifier `lal`
+12:8 Identifier `et`
+12:11 EffectKeyword `effect`
+12:18 Equals `=`
+12:20 IntegerLiteral `2`
+14:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  9 │  et actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  11 │ macro select become
+     │ ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  11 │ macro select become
+     │       ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  12 │ let lal�et effect = 2
+     │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  13 │ �
+     │ ^

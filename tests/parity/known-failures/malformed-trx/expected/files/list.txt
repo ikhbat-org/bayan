@@ -1,2 +1,0 @@
-# comment
-Bayan.Tests.A.One

@@ -1,0 +1,43 @@
+1:1 Identifier `b`
+2:1 OpenBrace `{`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 Identifier `s`
+2:9 StringLiteral `"{$"`
+2:13 OpenBrace `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 RawStringLiteral `"""foo Bar _x camelCase2 بيان μετρητής x_1 é\n`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ {$"{$"{s"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"""foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ {$"{$"{s"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"""foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │                                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

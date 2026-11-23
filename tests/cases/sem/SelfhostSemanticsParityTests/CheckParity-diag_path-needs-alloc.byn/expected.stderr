@@ -1,0 +1,22 @@
+error BYN6002: `undeclaredName` uses `alloc` but does not declare it
+  --> tmp/t26-tests/cli/diag_path-needs-alloc.byn/path-needs-alloc.byn:4:12
+
+  4 │     return Path.fileName(p)
+    │            ^^^^^^^^^^^^^^^^ uses `alloc`
+    │
+  help: add `alloc` to the `uses` clause, or remove the call
+    │ 3 │ public string undeclaredName(string p) uses alloc {
+    │   │                                       +++++++++++
+
+error BYN6002: `undeclaredRelative` uses `alloc` but does not declare it
+  --> tmp/t26-tests/cli/diag_path-needs-alloc.byn/path-needs-alloc.byn:8:12
+
+  8 │     return Path.relative(from: from, to: target)
+    │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ uses `alloc`
+    │
+  help: add `alloc` to the `uses` clause, or remove the call
+    │ 7 │ public string undeclaredRelative(string from, to string target) uses alloc {
+    │   │                                                                +++++++++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN6002

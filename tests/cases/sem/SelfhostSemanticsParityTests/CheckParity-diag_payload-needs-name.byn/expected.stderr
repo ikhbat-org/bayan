@@ -1,0 +1,10 @@
+error BYN1064: payload `f64` of `.circle` needs a name
+  --> tmp/t26-tests/cli/diag_payload-needs-name.byn/payload-needs-name.byn:2:12
+
+  2 │     circle(f64)
+    │            ^^^ no name
+    │
+  help: name the payload: `.circle(f64 name)`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1064

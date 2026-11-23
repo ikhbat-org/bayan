@@ -3,6 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Release archives hold `bayan-lsp` (`bayan-lsp.exe` on Windows) beside `bayan`, the Bayān language server built by that release's own `bayan` (spec 019 R37); `scripts/dist.sh` builds it too and records it in `BUILD-INFO`.
+
+### Removed
+- `scripts/selfhost/shard-test.sh` and its test are retired (spec 019 T48b); `wp1-test.sh` takes a `scripts/test.sh` part and runs `bootstrap-build.sh` then `scripts/test.sh`.
 - sabk phase 1 (spec 024), not yet reachable from the command line: an arm64 encoder checked against the reference assembler, a Mach-O object writer, a linear-scan register allocator and an independent soundness checker under `src/sabk/`. Laws L046 (encoder output equals the assembler's) and L047 (allocation is sound) hold.
 
 ## [0.3.2] - 2026-11-16

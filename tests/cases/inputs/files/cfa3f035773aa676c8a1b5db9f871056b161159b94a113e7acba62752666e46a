@@ -1,0 +1,12 @@
+// `Time.now` reads the wall clock, so a public function calling it declares `clock` (BYN6002).
+public i64 undeclared() {
+    return Time.now().nanos
+}
+
+public i64 declared() uses clock {
+    return Time.now().nanos
+}
+
+void main() {
+    print("ok")
+}

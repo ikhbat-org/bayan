@@ -1,0 +1,143 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 Identifier `tray`
+1:9 CloseBrace `}`
+1:11 Identifier `here`
+1:15 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `ope�n `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+3:1 Identifier `et`
+3:4 Identifier `b`
+3:6 Equals `=`
+3:10 IntegerLiteral `2`
+3:13 Identifier `macro`
+3:19 Identifier `select`
+3:26 BecomeKeyword `become`
+5:1 StringLiteral `"a\u{2067}b"`
+6:1 Identifier `b`
+7:2 Identifier `각`
+7:6 InterpolatedStringStart `$"`
+7:8 InterpolationStart `{`
+7:9 InterpolatedStringStart `$"`
+7:11 InterpolationStart `{`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolationStart `{`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolationStart `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 StringLiteral `$"{$"`
+7:56 OpenBrace `{`
+7:57 Identifier `x`
+7:58 CloseBrace `}`
+7:59 StringLiteral `"}"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+7:76 InterpolationEnd `}`
+7:77 InterpolatedStringEnd `"`
+7:78 InterpolationEnd `}`
+7:79 InterpolatedStringEnd `"`
+7:80 InterpolationEnd `}`
+7:81 InterpolatedStringEnd `"`
+7:82 InterpolationEnd `}`
+7:83 InterpolatedStringEnd `"`
+7:84 InterpolationEnd `}`
+7:85 InterpolatedStringEnd `"`
+7:86 InterpolationEnd `}`
+7:87 InterpolatedStringEnd `"`
+7:88 InterpolationEnd `}`
+7:89 InterpolatedStringEnd `"`
+7:90 InterpolationEnd `}`
+7:91 InterpolatedStringEnd `"`
+7:93 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1e tray } here"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"ope�n {x
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  2 │ $"ope�n {x
+    │      ^
+
+error BYN0002: unexpected character ```
+
+  3 │ et b = ` 2$ macro select become
+    │        ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ et b = ` 2$ macro select become
+    │           ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ et b = ` 2$ macro select become
+    │             ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ et b = ` 2$ macro select become
+    │                   ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  7 │  각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │   │  +
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │  각 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                   ^^

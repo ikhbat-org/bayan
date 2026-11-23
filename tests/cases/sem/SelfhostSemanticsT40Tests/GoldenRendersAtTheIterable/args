@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/for-try-next-not-visible
+--include-path
+<repo>/tests/cases/diag/for-try-next-not-visible/main.byn

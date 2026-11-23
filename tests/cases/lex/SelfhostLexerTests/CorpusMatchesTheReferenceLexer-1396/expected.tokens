@@ -1,0 +1,124 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+4:1 Identifier `Å`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:9 StringLiteral `"open`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 StringLiteral `"{$"`
+6:27 OpenBrace `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 InterpolatedStringStart `$"`
+6:54 InterpolationStart `{`
+6:55 StringLiteral `$"{x}"`
+6:61 InterpolationEnd `}`
+6:62 InterpolatedStringEnd `"`
+6:63 InterpolationEnd `}`
+6:64 InterpolatedStringEnd `"`
+6:65 InterpolationEnd `}`
+6:66 InterpolatedStringEnd `"`
+6:67 InterpolationEnd `}`
+6:68 InterpolatedStringEnd `"`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringEnd `"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 CloseBrace `}`
+6:80 StringLiteral `"}"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��
+    │  ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å �
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å �
+    │   │ +
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ Å �
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ Å �
+    │   │   -
+
+error BYN0003: unterminated string literal
+
+  5 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                       ^^

@@ -1,0 +1,14 @@
+== tests/cases/diag/lambda-member-not-lambda.byn
+82..88 callExpr
+82..88 callExpr
+82..88 callExpr
+82..85 nameExpr
+86..87 nameExpr
+102..177 blockStmt
+108..137 localDecl
+119..137 structLiteralExpr
+132..135 literalExpr string
+142..175 localDecl
+153..175 callExpr
+159..163 nameExpr
+169..174 targetMemberExpr

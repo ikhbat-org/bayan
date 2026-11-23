@@ -1,0 +1,16 @@
+== tests/cases/diag/io-remove-needs-fs.byn
+159..183 blockStmt
+165..181 exprStmt
+165..181 tryExpr
+169..181 callExpr
+179..180 nameExpr
+244..268 blockStmt
+250..266 exprStmt
+250..266 tryExpr
+254..266 callExpr
+264..265 nameExpr
+282..301 blockStmt
+288..299 exprStmt
+288..299 callExpr
+294..298 literalExpr string
+288..299 callExpr

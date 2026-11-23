@@ -1,0 +1,6 @@
+== cases
+0 p_s.len
+1 ((int64_t)l0_n)
+2 ((int64_t)l0_n)
+3 byn_mul_i32(l0_n, ((int32_t)2), byn_file_0, 29)
+count 4

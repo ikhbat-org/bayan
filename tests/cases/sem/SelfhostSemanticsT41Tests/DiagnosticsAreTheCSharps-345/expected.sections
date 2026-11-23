@@ -1,0 +1,5 @@
+== diags.diag/interface-get-input
+BYN1060 2:16 `i64 length { get }` is an input form; write `i64 length`
+  label the input form
+  help remove `{ get }`: a field-shaped interface member is a read-only property
+  fix 2:15-2:23 

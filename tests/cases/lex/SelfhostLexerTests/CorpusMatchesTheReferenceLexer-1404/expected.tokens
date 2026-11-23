@@ -1,0 +1,34 @@
+1:1 RawStringLiteral `"""\n1_\n\nlet actor = 1\n\n{ // ok � in comment\n 0b1ms\n ����\n0xF__\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ { // ok � in comment
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  8 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  8 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │  ����
+    │     ^

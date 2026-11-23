@@ -1,0 +1,7 @@
+error BYN2401: `sign` must return `i64` on every path
+  --> <repo>/tests/cases/diag/missing-return.byn:5:1
+
+  5 │ }
+    │ ^
+    │
+  help: add a `return` (or `panic(…)`) on the paths that reach the end

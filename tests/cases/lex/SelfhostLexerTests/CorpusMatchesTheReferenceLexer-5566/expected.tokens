@@ -1,0 +1,129 @@
+1:4 Identifier `co`
+1:7 Identifier `ment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+3:1 IntegerLiteral `0xF__`
+5:1 Identifier `ment`
+5:8 Identifier `hidden`
+6:1 LetKeyword `let`
+6:5 Identifier `x`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+9:2 CharLiteral `'\u{110000}'`
+11:2 InterpolatedStringStart `$"`
+11:4 InterpolationStart `{`
+11:5 InterpolatedStringStart `$"`
+11:7 InterpolationStart `{`
+11:8 InterpolatedStringStart `$"`
+11:10 InterpolationStart `{`
+11:11 InterpolatedStringStart `$"`
+11:13 InterpolationStart `{`
+11:14 InterpolatedStringStart `$"`
+11:16 InterpolationStart `{`
+11:17 InterpolatedStringStart `$"`
+11:19 InterpolatedStringText `K`
+11:20 InterpolationStart `{`
+11:21 InterpolatedStringStart `$"`
+11:23 InterpolationStart `{`
+11:24 InterpolatedStringStart `$"`
+11:26 InterpolationStart `{`
+11:27 InterpolatedStringStart `$"`
+11:29 InterpolationStart `{`
+11:30 InterpolatedStringStart `$"`
+11:32 InterpolationStart `{`
+11:33 InterpolatedStringStart `$"`
+11:35 InterpolationStart `{`
+11:36 InterpolatedStringStart `$"`
+11:38 InterpolationStart `{`
+11:39 InterpolatedStringStart `$"`
+11:41 InterpolationStart `{`
+11:42 InterpolatedStringStart `$"`
+11:44 InterpolationStart `{`
+11:45 InterpolatedStringStart `$"`
+11:47 InterpolationStart `{`
+11:48 Identifier `x`
+11:49 InterpolationEnd `}`
+11:50 InterpolatedStringEnd `"`
+11:51 InterpolationEnd `}`
+11:52 InterpolatedStringEnd `"`
+11:53 InterpolationEnd `}`
+11:54 InterpolatedStringEnd `"`
+11:55 InterpolationEnd `}`
+11:56 InterpolatedStringEnd `"`
+11:57 InterpolationEnd `}`
+11:58 InterpolatedStringEnd `"`
+11:59 InterpolationEnd `}`
+11:60 InterpolatedStringEnd `"`
+11:61 InterpolationEnd `}`
+11:62 InterpolatedStringEnd `"`
+11:63 InterpolationEnd `}`
+11:64 InterpolatedStringEnd `"`
+11:65 InterpolationEnd `}`
+11:66 InterpolatedStringEnd `"`
+11:67 CharLiteral `'`
+13:1 EndOfFile
+
+error BYN0002: unexpected character `\u{18}`
+
+  1 │    co�ment */ a
+    │      ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ ment � hidden
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ ment � hidden
+    │   │      -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x� = 1
+    │   │      -
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  9 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  11 │ �$"{$"{$"{$"{$"{$"K{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'
+     │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  11 │ �$"{$"{$"{$"{$"{$"K{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'
+     │  ^
+
+error BYN0003: unterminated string literal
+
+  11 │ �$"{$"{$"{$"{$"{$"K{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'
+     │                 ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  11 │ �$"{$"{$"{$"{$"{$"K{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"'
+     │                                                                   ^
+     │
+  help: close it with `'`

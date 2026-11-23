@@ -1,0 +1,21 @@
+# BYN2111: struct literal bypasses a constructor
+
+**Why.** A constructor establishes invariants; a struct literal from outside the struct would skip them.
+
+**Example.**
+
+```
+struct Ratio {
+    i64 num
+    i64 den
+
+    public Ratio(i64 num, to i64 den) {
+        this.num = num
+        this.den = den
+    }
+}
+
+let r = Ratio { num: 1, den: 0 }
+```
+
+**Fix.** Call the constructor: `Ratio(1, 2)`.

@@ -1,0 +1,7 @@
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ catch never noa let b =m "bad \q escape"
+Å
+$"{}"
+et café = 1
+let café = 2
+ �$"a{b}c

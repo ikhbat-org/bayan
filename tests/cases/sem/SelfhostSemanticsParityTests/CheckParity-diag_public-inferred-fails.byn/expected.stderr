@@ -1,0 +1,8 @@
+error BYN2607: public function `parse` must list its errors
+  --> tmp/t26-tests/cli/diag_public-inferred-fails.byn/public-inferred-fails.byn:1:28
+
+  1 │ public i64 parse(string s) fails {
+    │                            ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2607

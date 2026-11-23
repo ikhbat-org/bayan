@@ -1,0 +1,17 @@
+1:1 Identifier `xs`
+1:4 Colon `:`
+1:6 Identifier `List`
+1:10 Less `<`
+1:11 Identifier `Lisu`
+1:15 Less `<`
+1:16 Identifier `i64`
+1:19 Greater `>`
+1:20 Greater `>`
+2:2 Greater `>`
+2:3 Greater `>`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{13}`
+
+  1 │ xs�: List<Lisu<i64>>
+    │   ^

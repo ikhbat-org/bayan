@@ -1,0 +1,2 @@
+== expr.probes.s7
+stackalloc:Span<u8>[3354:22]=-(u8 1048576)

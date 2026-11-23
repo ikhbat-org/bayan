@@ -1,0 +1,7 @@
+error BYN2801: `Box` does not provide `count` required by `ICount`
+  --> <repo>/tests/cases/diag/interface-field-not-method.byn:5:14
+
+  5 │ struct Box : ICount {
+    │              ^^^^^^ needs `count`
+    │
+  help: rename the field `count` and add `i64 count()` to `Box`; a field cannot provide a method

@@ -1,0 +1,60 @@
+== tests/cases/run/round2-names.byn
+0..20 globalStatement
+0..20 localDecl
+9..20 callExpr
+21..33 exprStmt
+21..33 callExpr
+21..23 nameExpr
+31..32 literalExpr integer
+34..46 exprStmt
+34..46 callExpr
+34..36 nameExpr
+44..45 literalExpr integer
+47..72 localDecl
+63..72 collectionExpr
+64..65 literalExpr integer
+67..68 literalExpr integer
+70..71 literalExpr integer
+73..99 localDecl
+81..99 callExpr
+100..117 localDecl
+109..117 callExpr
+118..137 exprStmt
+118..137 callExpr
+118..120 nameExpr
+128..136 literalExpr string
+138..156 localDecl
+149..156 memberExpr
+149..151 nameExpr
+157..236 exprStmt
+157..236 callExpr
+163..235 interpolatedExpr
+171..180 memberExpr
+171..173 nameExpr
+189..197 memberExpr
+189..190 nameExpr
+205..218 memberExpr
+205..211 memberExpr
+205..206 nameExpr
+225..233 memberExpr
+225..226 nameExpr
+157..236 callExpr
+237..284 exprStmt
+237..284 callExpr
+243..283 interpolatedExpr
+253..262 memberExpr
+253..255 nameExpr
+270..281 memberExpr
+270..274 nameExpr
+237..284 callExpr
+285..319 exprStmt
+285..319 callExpr
+291..318 interpolatedExpr
+301..316 memberExpr
+301..309 literalExpr string
+285..319 callExpr
+320..338 exprStmt
+320..338 callExpr
+326..337 callExpr
+326..328 nameExpr
+320..338 callExpr

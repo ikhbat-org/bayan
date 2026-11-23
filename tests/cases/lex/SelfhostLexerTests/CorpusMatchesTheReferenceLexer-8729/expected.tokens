@@ -1,0 +1,59 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:6 DotDot `..`
+1:9 DotDotEquals `..=`
+1:13 Colon `:`
+1:15 Question `?`
+1:17 QuestionQuestion `??`
+1:20 QuestionQuestionEquals `??=`
+1:24 QuestionDot `?.`
+1:27 FatArrow `=>`
+1:30 Arrow `->`
+1:33 At `@`
+1:35 Hash `#`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:1 CharLiteral `'\u{D800}'`
+5:1 StringLiteral `"text"`
+5:8 StringLiteral `"esc \"q\" \\ \n"`
+5:26 RawStringLiteral `"""\n�0xF__\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  1 │ , . �.. ..= : ? ?? ??= ?. => -> @ #
+    │     ^
+
+error BYN0002: unexpected character `\u{C}`
+
+  2 │  'a' '\n' '\u{1F600}'�'\'' 'é' '\\' '\0'
+    │                      ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  5 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �0xF__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �0xF__
+    │  ^

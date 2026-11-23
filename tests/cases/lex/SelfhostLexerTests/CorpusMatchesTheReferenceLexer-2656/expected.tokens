@@ -1,0 +1,22 @@
+2:3 Identifier `raw`
+2:8 Identifier `quteWd`
+2:14 StringLiteral `"`
+4:1 Identifier `b`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0002: unexpected character `\u{14}`
+
+  2 │   raw �quteWd"
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  2 │   raw �quteWd"
+    │              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

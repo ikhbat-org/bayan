@@ -1,0 +1,94 @@
+1:1 Identifier `u`
+1:2 OpenBrace `{`
+1:3 Identifier `D800`
+1:7 CloseBrace `}`
+1:8 CharLiteral `''`
+1:11 Identifier `u`
+1:12 OpenBrace `{`
+1:13 IntegerLiteral `110000`
+1:19 CloseBrace `}`
+1:20 CharLiteral `'`
+2:1 CharLiteral `'x`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Percent `%`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
+4:2 IntegerLiteral `1`
+4:3 DotDot `..`
+4:5 IntegerLiteral `2`
+4:7 IntegerLiteral `1`
+4:8 DotDotEquals `..=`
+4:11 IntegerLiteral `3`
+4:13 IntegerLiteral `5`
+4:14 NumericSuffix `e`
+4:16 FloatLiteral `3.14`
+4:21 FloatLiteral `1e5`
+4:25 FloatLiteral `2.5e-3`
+4:32 FloatLiteral `6E+2`
+4:37 FloatLiteral `1.50`
+4:41 NumericSuffix `dec`
+4:45 IntegerLiteral `1`
+4:46 DotDot `..`
+4:48 IntegerLiteral `2`
+4:50 IntegerLiteral `1`
+4:51 DotDotEquals `..=`
+4:54 IntegerLiteral `3`
+4:56 IntegerLiteral `5`
+4:57 NumericSuffix `e`
+4:59 Identifier `x`
+4:60 Dot `.`
+4:61 Identifier `y`
+4:63 Dot `.`
+4:64 IntegerLiteral `5`
+4:65 NumericSuffix `f`
+5:1 OpenBrace `{`
+5:2 IntegerLiteral `110000`
+5:8 CloseBrace `}`
+5:9 CharLiteral `'`
+6:1 CharLiteral `'x`
+8:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ u{D800}''\u{110000}'
+    │        ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `\`
+
+  1 │ u{D800}''\u{110000}'
+    │          ^
+
+error BYN0008: unterminated char literal
+
+  1 │ u{D800}''\u{110000}'
+    │                    ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  5 │ {110000}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

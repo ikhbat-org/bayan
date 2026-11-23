@@ -1,0 +1,15 @@
+== tests/cases/diag/fail-from-infallible.byn
+54..109 blockStmt
+60..94 guardedStmt
+85..94 memberExpr
+85..86 nameExpr
+60..64 failStmt
+99..107 returnStmt value 106..107
+106..107 literalExpr integer
+111..129 globalStatement
+111..129 exprStmt
+111..129 callExpr
+117..128 interpolatedExpr
+120..126 callExpr
+122..125 literalExpr string
+111..129 callExpr

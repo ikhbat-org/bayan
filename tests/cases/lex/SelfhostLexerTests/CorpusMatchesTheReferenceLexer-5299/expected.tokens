@@ -1,0 +1,67 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 OpenBrace `{`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+3:2 IfKeyword `if`
+3:5 ElseKeyword `else`
+3:10 UnlessKeyword `unless`
+3:17 SwitchKeyword `switch`
+3:24 CaseKeyword `case`
+3:29 DefaultKeyword `default`
+3:37 ForKeyword `for`
+3:41 InKeyword `in`
+3:44 WhileKeyword `while`
+3:50 DoKeyword `do`
+3:53 BreakKeyword `break`
+3:59 ContinueKeyword `continue`
+3:68 ReturnKeyword `return`
+3:75 YieldKeyword `yield`
+3:81 DeferKeyword `defer`
+3:87 ErrdeferKeyword `errdefer`
+3:96 UsingKeyword `using`
+3:102 ContextKeyword `context`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 Identifier `a`
+5:6 Identifier `foo`
+5:10 Identifier `Bar`
+5:14 Identifier `_x`
+5:17 Identifier `camelCase2`
+5:28 Identifier `بيان`
+5:33 Identifier `μετρητής`
+5:42 Identifier `x_1`
+5:46 Identifier `é`
+6:1 IntegerLiteral `0b1010`
+6:8 IntegerLiteral `0B11`
+6:13 IntegerLiteral `5`
+6:14 NumericSuffix `s`
+6:16 IntegerLiteral `250`
+6:19 NumericSuffix `ms`
+6:22 IntegerLiteral `4`
+6:23 NumericSuffix `KiB`
+6:27 IntegerLiteral `1`
+6:28 NumericSuffix `u`
+6:30 IntegerLiteral `0x`
+6:32 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{a foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0b1010 0B11 5s 250ms 4KiB 1u 0x
+    │                              ^^

@@ -1,0 +1,26 @@
+== defaults
+parameter defaults x
+literal 590..591 : i32 = 3
+parameter defaults y
+errorExpr 601..603 : ?
+BYN2001 44:34 `zz` is not defined |||
+parameter negs r
+literal 629..632 : rune = r
+parameter negs d
+literal 642..645 : f64 = 1.5
+parameter negs t
+literal 658..661 : string = "t"
+parameter Point a
+literal 190..191 : i32 = 1
+parameter Point b
+errorExpr 201..203 : ?
+BYN2001 11:30 `zz` is not defined |||
+parameter m2 k
+literal 86..90 : bool = true
+field x
+literal 27..28 : i32 = 4
+field on
+literal 43..47 : bool = true
+field bad
+errorExpr 63..64 : ?
+BYN2202 4:16 expected `bool`, found `i32` |||

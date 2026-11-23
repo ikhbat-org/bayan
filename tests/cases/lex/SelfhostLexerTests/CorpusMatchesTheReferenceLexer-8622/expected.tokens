@@ -1,0 +1,36 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `m`
+2:2 Identifier `lett`
+2:7 Identifier `a`
+2:9 Equals `=`
+2:11 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:6 Identifier `b`
+4:8 Equals `=`
+4:12 IntegerLiteral `2`
+5:1 StringLiteral `" `
+6:2 EndOfFile
+
+error BYN0011: unit suffix `m` is not allowed on a binary literal
+
+  1 │ 0b1m
+    │    ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{1F}`
+
+  4 │ let� b = ` 2
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let� b = ` 2
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │ " 
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

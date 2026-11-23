@@ -1,0 +1,46 @@
+== x-jump
+BYN2610 9:13 `break` cannot leave a `defer` or `defer failing` body |||
+BYN2407 16:22 `continue pick` refers to a `switch`, not a loop |||
+BYN2020 19:15 no enclosing loop is labeled `nowhere` |||
+BYN2406 21:5 `continue` outside a loop |||
+fn main
+block 12..403
+  forStmt 25..238
+    range 34..38 : Range<i32>
+      literal 34..35 : i32
+      literal 37..38 : i32
+    block 39..238
+      forStmt 49..171
+        range 58..62 : Range<i32>
+          literal 58..59 : i32
+          literal 61..62 : i32
+        block 63..171
+          ifStmt 77..105
+            binary 80..86 : bool
+              local 80..81 : i32
+              literal 85..86 : i32
+            block 87..105
+              continueStmt 89..89
+          ifStmt 118..143
+            binary 121..127 : bool
+              local 121..122 : i32
+              literal 126..127 : i32
+            block 128..143
+              breakStmt 130..130
+          breakStmt 156..156
+      deferStmt 180..185
+        block 186..215
+          errorStmt 200..200
+      continueStmt 224..224
+  switchStmt 249..343
+    literal 256..257 : i32
+    ifStmt 289..311
+      literal 292..296 : bool
+      block 297..311
+        breakStmt 299..299
+    errorStmt 324..324
+  whileStmt 348..388
+    literal 354..358 : bool
+    block 359..388
+      errorStmt 369..369
+  errorStmt 393..393

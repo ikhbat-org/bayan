@@ -1,0 +1,4 @@
+run
+--mode
+fast
+<repo>/tmp/t5/run/run_wrapping-fast/wrapping-fast.byn

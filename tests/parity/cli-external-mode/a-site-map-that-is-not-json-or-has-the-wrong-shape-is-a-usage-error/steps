@@ -1,0 +1,1 @@
+$ for m in notjson shape-sites shape-field shape-missing shape-null-file shape-null-operator shape-version; do $BAYAN mutate --binary $WORK/prog --sites $WORK/$m.json -- /bin/sh -c 'exit 0' > /dev/null 2> err.txt; echo "$m: $? $(grep -c 'is not a version 1 site map' err.txt)"; done

@@ -1,0 +1,10 @@
+== tests/cases/diag/open-range.byn
+0..34 globalStatement
+0..34 forStmt
+9..12 rangeExpr
+13..34 blockStmt
+19..32 exprStmt
+19..32 callExpr
+25..31 interpolatedExpr
+28..29 nameExpr
+19..32 callExpr

@@ -1,0 +1,67 @@
+1:1 CharLiteral `'`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:26 OpenBrace `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 Identifier `x`
+5:46 InterpolationEnd `}`
+5:47 InterpolatedStringEnd `"`
+5:48 InterpolationEnd `}`
+5:49 InterpolatedStringEnd `"`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  3 │ b�
+    │  ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                         ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                                 ^^ this string never ends
+    │
+  help: close the `{` and the string

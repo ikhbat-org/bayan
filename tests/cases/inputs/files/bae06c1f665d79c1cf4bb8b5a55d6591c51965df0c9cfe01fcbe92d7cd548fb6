@@ -1,0 +1,6 @@
+error set unitEdistinct type import as public private static readonly required const let var embed extern unsafe
+ let cafeÌ = 1
+
+let b = "bad \q escape"
+
+À€

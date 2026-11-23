@@ -1,0 +1,43 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:1 CharLiteral `''`
+5:1 IntegerLiteral `0b__`
+7:1 Identifier `b`
+9:1 Identifier `__`
+10:1 IntegerLiteral `0xF__`
+11:1 LetKeyword `let`
+11:5 Identifier `a`
+11:7 Equals `=`
+11:11 IntegerLiteral `1`
+12:5 Identifier `comment`
+12:13 Star `*`
+12:14 Slash `/`
+12:16 Identifier `a`
+13:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  3 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 0xF__
+     │    ^^
+     │
+     │ 10 │ 0xF__
+     │    │    --
+
+error BYN0002: unexpected character `$`
+
+  11 │ let a = $ 1
+     │         ^

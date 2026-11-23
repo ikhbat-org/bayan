@@ -1,0 +1,10 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/assert-test/assert.test.byn
+38..39 literalExpr integer
+38..39 literalExpr integer
+38..39 literalExpr integer
+60..61 literalExpr integer
+60..61 literalExpr integer
+60..61 literalExpr integer
+72..125 blockStmt
+78..98 assertStmt
+103..123 assertStmt

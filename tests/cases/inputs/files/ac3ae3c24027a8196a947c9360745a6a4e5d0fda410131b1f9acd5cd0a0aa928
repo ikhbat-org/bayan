@@ -1,0 +1,42 @@
+struct Point {
+    i64 x
+    i64 y
+}
+
+enum Color {
+    red
+    green
+}
+
+union error E {
+    bad
+}
+
+i64 twice(i64 n) => n * 2
+
+i64 apply(i64 v, by i64 -> i64 f) => f(v)
+
+i64 parsed(i64 n) fails E {
+    fail .bad if n == 0
+    return n
+}
+
+let p = Point { x: 1, y: 2 }
+let xs = [1, 2, 3]
+let o: i64? = null
+assert -3 < 0 && !(p.x == 2) && ~1 != 0
+assert (o ?? 4) == 4
+assert p.x in 0..5
+assert (p.x > 0 ? 1 : 2) == 1
+assert i32(p.y) == 2
+assert xs[0] + xs.length == 4
+assert $"{p.x}-{twice(2)}" == "1-4"
+assert (p with { x: 5 }).x == 5
+assert Color.red != Color.green
+assert apply(3, by: x => x + 1) == 4
+assert xs[1..].length == 2
+assert (p.x switch { 1 => 10, _ => 20 }) == 10
+assert (parsed(7) catch 0) == 7
+assert ((1 + 2) * 3) == 9
+assert "ab".length == 2 && true
+assert (line: 1, col: 2).line == 1 && o is { }

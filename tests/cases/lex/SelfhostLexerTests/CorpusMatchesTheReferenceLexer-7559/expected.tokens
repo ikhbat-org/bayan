@@ -1,0 +1,15 @@
+1:2 IntegerLiteral `8`
+1:4 RawStringLiteral `""" c"text"u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"�\n`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  8 """ c"text"u16"wide" "� allowed in strings" "" "\u{48}i"�
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │  8 """ c"text"u16"wide" "� allowed in strings" "" "\u{48}i"�
+    │                                                            ^

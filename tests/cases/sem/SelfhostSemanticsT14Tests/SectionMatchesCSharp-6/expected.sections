@@ -1,0 +1,21 @@
+== signatureText
+i64 r1()
+bool r2()
+static i64 s1()
+? e1()
+i64 p1(i64 a)
+i64 p2(ref i64 a)
+i64 p3(bool a)
+i64 p4(move string a, in i64 b, out i64 d)
+i64 f1() fails E
+i64 f2() fails E
+i64 f3() fails F
+i64 f4() fails E, F
+i64 f5() fails F, E
+i64 f6() fails E except .a
+i64 f7() fails
+void m1(ref this)
+void m2(ref this, i64 x)
+void m3()
+void m4(i64 x)
+i64 g { get }

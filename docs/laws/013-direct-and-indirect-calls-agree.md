@@ -6,8 +6,8 @@ release: 0.1.0
 sources: none recorded
 kind: property
 scope: csharp/Bayan.Backend.C/CEmitter.cs
-proof: csharp/tests/Bayan.Tests/L013DirectAndIndirectCallsAgreeTests.cs
-check: dotnet test --filter Law=L013
+proof: src/driver/goldenexport.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only '/l013-'
 enacted: 2026-10-25
 ---
 
@@ -27,3 +27,5 @@ Mutation 1 (stale environment): in `Lowerer.Expr`'s `BoundLambda` case, a second
 Mutation 2 (skipped capture field): in `CEmitter`'s function emitter, each capture after the first was mapped to `item1` instead of `item<N+1>`. The test failed on 12 of 48 seeds (only a lambda with two or more captures is affected): 7 `local section differs from direct (Debug)`, e.g. seed 3: `c3 true-false` against `c3 true-true`, and 5 `Debug C does not build under -Wall -Werror`, e.g. seed 1: `invalid operands to binary expression ('bool' and 'byn_str')`. Reverted, the test passes.
 
 Measured 2026-10-25 on macOS arm64 with `zig cc`: 48 seeds, all accepted and agreeing, 40 s; soak at 200 seeds, all accepted and agreeing, 3 min 30 s.
+
+Proof 2026-11-19 (spec 019 T31b): the proof is the 96 exported cases cli/L013DirectAndIndirectCallsAgreeTests/l013-seed-N-{debug,safe} (seeds 1..48, both modes), expected output from the v0.3.2 C# export, run by `goldenCli` in src/driver/goldenexport.byn (the L006–L016 comment block). Lost in the export: the standalone `-Wall -Werror` compile. Broke it by mapping every capture to `item1` (src/emitter/cprint/func.byn): 24 of 96 failed (14 on output, 10 with BYN4001), e.g. `l013-seed-1-debug`.

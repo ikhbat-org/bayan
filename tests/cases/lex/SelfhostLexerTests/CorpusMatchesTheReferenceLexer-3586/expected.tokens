@@ -1,0 +1,61 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+5:1 Identifier `foo`
+5:5 Identifier `Bar`
+5:9 Identifier `_`
+5:12 Identifier `camelCase`
+5:21 IntegerLiteral `2`
+5:23 Identifier `بيان`
+5:28 Identifier `μετρητής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{1}`
+
+  5 │ foo Bar _� camelCase�2 بيان μετρητής x_1 é
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ foo Bar _� camelCase�2 بيان μετρητής x_1 é
+    │                     ^
+
+error BYN0004: unterminated block comment
+
+  6 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

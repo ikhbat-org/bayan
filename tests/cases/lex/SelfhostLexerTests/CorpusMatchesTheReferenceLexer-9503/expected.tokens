@@ -1,0 +1,126 @@
+1:2 CharLiteral `'a'`
+1:6 CharLiteral `'\n'`
+1:11 CharLiteral `'\u{1F600}'`
+1:23 CharLiteral `'\''`
+1:28 CharLiteral `'é'`
+1:32 CharLiteral `'\\> '`
+1:39 IntegerLiteral `0`
+1:40 CharLiteral `'`
+2:2 Identifier `ạ̇`
+3:1 Identifier `b`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:6 StringLiteral `"{$"`
+4:10 OpenBrace `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 InterpolatedStringStart `$"`
+4:55 InterpolationStart `{`
+4:56 Identifier `x`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringEnd `"`
+4:73 InterpolationEnd `}`
+4:74 InterpolatedStringEnd `"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:77 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x97)
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │             ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │                                   ^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │                                         ^
+
+error BYN0008: unterminated char literal
+
+  1 │ ���'a' '\n' �'\u{1F600}' '\'' 'é' '\\> '\0'
+    │                                           ^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  2 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  ạ̇
+    │   │  ++
+
+error BYN0002: unexpected character `\u{B}`
+
+  4 │  $"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string

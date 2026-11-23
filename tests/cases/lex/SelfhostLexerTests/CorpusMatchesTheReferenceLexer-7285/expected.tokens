@@ -1,0 +1,32 @@
+1:1 Identifier `ct`
+1:4 Equals `=`
+1:6 StringLiteral `"%bad \q escape"`
+2:1 LetKeyword `let`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 StringLiteral `"$"`
+3:7 Identifier `a`
+3:8 OpenBrace `{`
+3:9 Identifier `b`
+3:10 CloseBrace `}`
+3:11 Identifier `c`
+3:13 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ ct = "%bad \q escape"
+    │            ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ let ̈́
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{"$"a{b}c 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

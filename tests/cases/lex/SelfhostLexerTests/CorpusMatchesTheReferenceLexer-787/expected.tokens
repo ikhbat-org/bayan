@@ -1,0 +1,104 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 StringLiteral `$"{x}"`
+1:67 CloseBrace `}`
+1:68 StringLiteral `"}"`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"}"`
+1:76 StructKeyword `struct`
+1:83 UniqueKeyword `unique`
+1:90 UnionKeyword `union`
+1:96 EnumKeyword `enum`
+1:101 FlagsKeyword `flags`
+1:107 OpenKeyword `open`
+1:112 ExtensibleKeyword `extensible`
+1:123 InterfaceKeyword `interface`
+1:133 DelegateKeyword `delegate`
+1:142 Identifier `ext`
+1:146 Identifier `ension`
+1:153 DerivationKeyword `derivation`
+1:164 AttributeKeyword `attribute`
+3:1 StringLiteral `$"{1_`
+5:1 CharLiteral `'`
+6:1 CharLiteral `'\u{D800}'`
+6:14 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n{ let effect = 2\n\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" struct unique union enum flags open extensible interface delegate ext�ension derivation attribute
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" struct unique union enum flags open extensible interface delegate ext�ension derivation attribute
+    │                                                 ^^
+
+error BYN0002: unexpected character `\u{11}`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" struct unique union enum flags open extensible interface delegate ext�ension derivation attribute
+    │                                                                                                                                                 ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{1_
+    │ ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  5 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  6 │ '\u{D800}'   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  6 │ '\u{D800}'   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │              ^^^ raw string starts here
+    │
+  help: close it with `"""`

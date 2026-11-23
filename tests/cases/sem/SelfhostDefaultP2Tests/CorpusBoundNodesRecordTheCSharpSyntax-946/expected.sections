@@ -1,0 +1,16 @@
+== tests/cases/diag/unknown-union-variant.byn
+56..177 blockStmt
+62..85 localDecl
+70..85 callExpr
+90..115 localDecl
+105..115 callExpr
+113..114 literalExpr integer
+120..175 ifStmt
+123..144 isExpr
+123..124 nameExpr
+128..144 variantPattern
+145..175 blockStmt
+155..169 exprStmt
+155..169 callExpr
+161..168 literalExpr string
+155..169 callExpr

@@ -1,0 +1,8 @@
+error set unit distinct type import as public private static readonly requied const let var embed extern unsafe
+ ⁧ = a /* never closed
+
+let b = ` 2
+et a = "open
+let b = "bad \q escape"
+l ‏fails try catch never noalloc nosuspend suspends async await
+ ̈́

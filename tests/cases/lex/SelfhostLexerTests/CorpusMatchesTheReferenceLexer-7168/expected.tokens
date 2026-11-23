@@ -1,0 +1,54 @@
+1:2 PlusEquals `+=`
+1:5 MinusEquals `-=`
+1:8 Star `*`
+1:11 SlashEquals `/=`
+1:14 PercentEquals `%=`
+1:17 AmpEquals `&=`
+1:20 BarEquals `|=`
+1:23 CaretEquals `^=`
+1:26 LessLessEquals `<<=`
+2:1 IntegerLiteral `1`
+2:3 CloseBrace `}`
+2:4 CloseBrace `}`
+2:5 Bang `!`
+2:6 StringLiteral `" $"`
+2:10 StringLiteral `"`
+    doc `/// Doc line one.`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����+= -= *�� /= %= &= |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����+= -= *�� /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����+= -= *�� /= %= &= |= ^= <<=
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����+= -= *�� /= %= &= |= ^= <<=
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  1 │ ����+= -= *�� /= %= &= |= ^= <<=
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ ����+= -= *�� /= %= &= |= ^= <<=
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  2 │ 1 }}!" $""
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,1 @@
+{"code":"BYN2780","severity":"error","file":"input.byn","span":{"start":111,"end":113,"line":4,"column":39,"endLine":4,"endColumn":41},"message":"implicit copy of a unique value: `List<i64>` is unique: it owns its storage","label":null,"help":"copy what the lambda needs from `xs` into `let` values first","fixes":[]}

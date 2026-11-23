@@ -1,0 +1,71 @@
+1:1 CharLiteral `'\q'`
+2:2 CharLiteral `'\u{110000}'`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCas`
+4:20 Identifier `e2`
+4:23 Identifier `بيان`
+4:28 Identifier `μετρητής`
+4:37 Identifier `x_1`
+4:41 Identifier `é`
+5:3 Equals `=`
+5:5 IntegerLiteral `2`
+7:2 Identifier `_`
+8:1 IntegerLiteral `0xF__`
+9:2 Identifier `fai4ls`
+9:9 TryKeyword `try`
+9:13 CatchKeyword `catch`
+9:19 NeverKeyword `never`
+9:25 NoallocKeyword `noalloc`
+9:33 NosuspendKeyword `nosuspend`
+9:43 SuspendsKeyword `suspends`
+9:52 AsyncKeyword `async`
+9:58 AwaitKeyword `await`
+11:1 LetKeyword `let`
+11:5 Identifier `café`
+11:11 Equals `=`
+11:13 IntegerLiteral `1`
+11:14 Semicolon `;`
+11:15 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  4 │ foo Bar _x camelCas�e2 بيان μετρητής x_1 é
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ // ok � in comment
+    │       ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 0xF__
+    │    ^^
+    │
+    │ 8 │ 0xF__
+    │   │    --
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  11 │ let café = 1;
+     │     ^^^^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 11 │ let café = 1;
+     │    │        +

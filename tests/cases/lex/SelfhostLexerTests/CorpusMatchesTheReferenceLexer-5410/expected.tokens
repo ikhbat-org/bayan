@@ -1,0 +1,153 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:1 Identifier `herre`
+3:6 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:1 IntegerLiteral `0b102`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 StringLiteral `"{$"`
+6:24 OpenBrace `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 StringLiteral `$"{$"`
+6:57 OpenBrace `{`
+6:58 StringLiteral `$"{x}"`
+6:64 CloseBrace `}`
+6:65 StringLiteral `"}"`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringEnd `"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+6:76 InterpolationEnd `}`
+6:77 InterpolatedStringEnd `"`
+6:78 InterpolationEnd `}`
+6:79 InterpolatedStringEnd `"`
+6:80 InterpolationEnd `}`
+6:81 InterpolatedStringEnd `"`
+6:82 InterpolationEnd `}`
+6:83 InterpolatedStringEnd `"`
+6:84 InterpolationEnd `}`
+6:85 InterpolatedStringEnd `"`
+6:86 CloseBrace `}`
+6:87 StringLiteral `"}"`
+6:90 InterpolationEnd `}`
+6:91 InterpolatedStringEnd `"`
+6:92 InterpolationEnd `}`
+6:93 InterpolatedStringEnd `"`
+6:94 InterpolationEnd `}`
+6:95 InterpolatedStringEnd `"`
+6:96 InterpolationEnd `}`
+6:97 InterpolatedStringEnd `"`
+6:98 InterpolationEnd `}`
+6:99 InterpolatedStringEnd `"`
+6:100 InterpolationEnd `}`
+6:101 InterpolatedStringEnd `"`
+6:102 InterpolationEnd `}`
+6:103 InterpolatedStringEnd `"`
+6:105 LetKeyword `let`
+6:109 Identifier `actor`
+6:115 Equals `=`
+6:117 IntegerLiteral `1`
+7:1 Identifier `macro`
+7:7 Identifier `select`
+7:14 BecomeKeyword `become`
+11:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ herre"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ 0b102
+    │     ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" let actor = 1
+    │                                                    ^^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │  $"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" let actor = 1
+    │                                                                                                             ^^^^^ reserved
+    │                                                                                                                   for
+    │                                                                                                                   a
+    │                                                                                                                   future
+    │                                                                                                                   version
+    │                                                                                                                   of
+    │                                                                                                                   Bayan
+    │
+  help: choose another name
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0004: unterminated block comment
+
+  9 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

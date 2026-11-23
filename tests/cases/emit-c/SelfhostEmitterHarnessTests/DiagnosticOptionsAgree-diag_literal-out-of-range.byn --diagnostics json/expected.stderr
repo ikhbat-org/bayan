@@ -1,0 +1,2 @@
+{"code":"BYN2203","severity":"error","file":"input.byn","span":{"start":12,"end":15,"line":1,"column":13,"endLine":1,"endColumn":16},"message":"300 does not fit in `u8`","label":null,"help":"use a value from 0 to 255, the range of `u8`","fixes":[]}
+{"code":"BYN2203","severity":"error","file":"input.byn","span":{"start":28,"end":32,"line":2,"column":13,"endLine":2,"endColumn":17},"message":"-129 does not fit in `i8`","label":null,"help":"use a value from -128 to 127, the range of `i8`","fixes":[]}

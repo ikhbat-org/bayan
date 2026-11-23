@@ -1,0 +1,5 @@
+== 1 exit 0
+test 0
+    byn_hash_seed_init(argc == 3 && strcmp(argv[1], "--test") == 0);
+        switch (atoi(argv[2])) {
+    byn_str* byn_argv = byn_args(&argc, argv);

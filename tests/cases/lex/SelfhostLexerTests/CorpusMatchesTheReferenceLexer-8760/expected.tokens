@@ -1,0 +1,54 @@
+1:1 Identifier `List`
+1:5 Less `<`
+1:6 Identifier `i64`
+1:9 Greater `>`
+1:10 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:1 Identifier `b`
+6:1 CharLiteral `'x`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 Identifier `er`
+7:8 Identifier `closed`
+10:1 Identifier `__`
+12:1 CharLiteral `'x`
+13:2 InterpolatedStringStart `$"`
+13:4 InterpolatedStringText `stray } here`
+13:16 InterpolatedStringEnd `"`
+14:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{er closed
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  12 │ 'x
+     │ ^^
+     │
+  help: close it with `'`
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  13 │  $"stray } here"
+     │          ^
+     │
+     │ 13 │  $"stray }} here"
+     │    │           +

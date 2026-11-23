@@ -1,0 +1,2 @@
+== become
+become: assign(local t#0:i64 call h:i64) assign(unionField 0:i64(thisRef:Order) local t#0:i64) assign(unionField 1:i64(thisRef:Order) literal 0:2:i64=0:2) assign(unionTag:i32(thisRef:Order) literal 0:1:i32=0:1) locals=1

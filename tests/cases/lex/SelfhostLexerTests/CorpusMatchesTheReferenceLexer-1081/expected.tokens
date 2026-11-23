@@ -1,0 +1,27 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never �closed\n\n  """`
+3:7 CStringLiteral `c"text"`
+3:15 U16StringLiteral `u16"wide"`
+3:24 StringLiteral `"\u{202E}allowed in strings"`
+3:46 StringLiteral `""`
+3:49 StringLiteral `"\u{48}i"`
+4:1 CharLiteral `'x`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:9 Equals `=`
+6:11 IntegerLiteral `3`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  1 │ let c = """never �closed
+    │                  ^
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

@@ -1,0 +1,31 @@
+== tests/cases/run/defer-call-named-failing.byn
+20..61 blockStmt
+26..59 exprStmt
+26..59 callExpr
+32..58 interpolatedExpr
+55..56 nameExpr
+26..59 callExpr
+85..128 blockStmt
+91..126 exprStmt
+91..126 callExpr
+97..125 interpolatedExpr
+122..123 nameExpr
+91..126 callExpr
+142..226 blockStmt
+148..162 localDecl
+161..162 literalExpr integer
+167..172 deferStmt
+173..183 exprStmt
+173..183 callExpr
+181..182 nameExpr
+188..193 deferStmt
+194..206 exprStmt
+194..206 callExpr
+204..205 nameExpr
+211..224 exprStmt
+211..224 callExpr
+217..223 literalExpr string
+211..224 callExpr
+228..234 globalStatement
+228..234 exprStmt
+228..234 callExpr

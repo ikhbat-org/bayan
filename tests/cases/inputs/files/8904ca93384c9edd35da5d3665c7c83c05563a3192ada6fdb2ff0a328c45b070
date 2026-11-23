@@ -1,0 +1,4 @@
+CompilationUnit
+  Interface I
+    Function close() -> void uses io fails
+    Function next() -> Token

@@ -1,0 +1,14 @@
+== tests/cases/run/assert-plain.byn
+0..14 globalStatement
+0..14 localDecl
+13..14 literalExpr integer
+15..29 localDecl
+28..29 literalExpr integer
+30..52 assertStmt
+37..51 binaryExpr logicalAnd right 46..51
+37..42 binaryExpr gt right 41..42
+37..38 nameExpr
+41..42 literalExpr integer
+46..51 binaryExpr lt right 50..51
+46..47 nameExpr
+50..51 literalExpr integer

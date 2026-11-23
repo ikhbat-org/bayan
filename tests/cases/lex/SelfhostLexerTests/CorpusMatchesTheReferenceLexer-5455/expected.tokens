@@ -1,0 +1,54 @@
+1:1 Identifier `b`
+3:2 Identifier `q`
+3:3 CharLiteral `'`
+4:1 CharLiteral `'\uP{D800}'`
+5:1 CharLiteral `'\u{110000`
+6:1 RawStringLiteral `"""'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'\n`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  3 │ \q'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  3 │ \q'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ '\uP{D800}'
+    │ ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u`
+
+  4 │ '\uP{D800}'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0008: unterminated char literal
+
+  5 │ '\u{110000
+    │ ^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{110000`
+
+  5 │ '\u{110000
+    │  ^^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0003: unterminated string literal
+
+  6 │ """'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

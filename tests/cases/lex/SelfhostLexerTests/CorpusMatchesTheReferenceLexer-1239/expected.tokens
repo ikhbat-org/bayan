@@ -1,0 +1,55 @@
+    doc `/// ��`
+6:1 LetKeyword `let`
+6:5 Identifier `cfé`
+6:9 Equals `=`
+6:11 IntegerLiteral `2`
+7:2 Identifier `tst`
+7:6 AssertKeyword `assert`
+7:13 PropertyKeyword `property`
+7:22 FuzzKeyword `fuzz`
+7:27 Identifier `m`
+7:29 Identifier `odel`
+7:34 ForeachKeyword `foreach`
+7:42 NewKeyword `new`
+7:46 GotoKeyword `goto`
+9:2 AsKeyword `as`
+9:5 PublicKeyword `public`
+9:12 PrivateKeyword `private`
+9:20 StaticKeyword `static`
+9:27 ReadonlyKeyword `readonly`
+9:36 RequiredKeyword `required`
+9:45 ConstKeyword `const`
+9:51 LetKeyword `let`
+9:55 VarKeyword `var`
+9:59 EmbedKeyword `embed`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ /// ��
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ /// ��
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��
+    │  ^
+
+error BYN0002: unexpected character `̈́`
+
+  5 │ ̈́
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  7 │  tst assert property fuzz m�odel foreach new goto
+    │                            ^

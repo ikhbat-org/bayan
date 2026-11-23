@@ -1,0 +1,10 @@
+error BYN2003: `gett` is not a member of `Env`
+  --> tmp/t26-tests/cli/diag_env-unknown-member.byn/env-unknown-member.byn:2:11
+
+  2 │ print(Env.gett("HOME") ?? "")
+    │           ^^^^
+    │
+  help: did you mean `get`?
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

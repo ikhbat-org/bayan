@@ -1,0 +1,4 @@
+== diags.diag/non-exhaustive-catch
+BYN2410 13:26 `switch` does not handle every `ParseError`
+  label not covered: .notDigit
+  help add the missing arms, or `_ => …` for the rest

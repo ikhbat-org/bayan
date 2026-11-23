@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "EffectDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "LiteralExpr",
+    "LocalDecl"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

@@ -1,0 +1,9 @@
+== diags.diag/input-fails-shorthand-forms
+BYN1031 4:4 `T!E` is an input form; write `T f() fails E`
+  label the input form
+  help write `fails E, F` as the last clause of the signature
+  fix 4:4-4:18  g() fails E, F
+BYN1031 5:4 `T!E` is an input form; write `T f() fails E`
+  label the input form
+  help write `fails E` as the last clause of the signature
+  fix 5:4-5:18  h() fails E

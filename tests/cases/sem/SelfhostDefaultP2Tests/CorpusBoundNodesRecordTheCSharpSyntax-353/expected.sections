@@ -1,0 +1,25 @@
+== tests/cases/diag/arguments-swapped.byn
+111..122 binaryExpr sub right 117..122
+111..122 binaryExpr sub right 117..122
+111..122 binaryExpr sub right 117..122
+111..114 nameExpr
+117..122 nameExpr
+124..142 globalStatement
+124..142 localDecl
+141..142 literalExpr integer
+143..159 localDecl
+158..159 literalExpr integer
+160..189 exprStmt
+160..189 callExpr
+166..188 interpolatedExpr
+169..186 callExpr
+175..178 nameExpr
+180..185 nameExpr
+160..189 callExpr
+190..226 exprStmt
+190..226 callExpr
+196..225 interpolatedExpr
+199..223 callExpr
+205..210 nameExpr
+219..222 nameExpr
+190..226 callExpr

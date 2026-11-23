@@ -1,0 +1,17 @@
+1:1 Identifier `L`
+1:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ L��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  1 │ L��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ L��
+    │    ^

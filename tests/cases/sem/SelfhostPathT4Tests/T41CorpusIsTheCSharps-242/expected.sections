@@ -1,0 +1,13 @@
+== diags.name-shapes
+BYN2022 4:12 generic methods is not supported in v0.1
+  help declare a generic free function, or make the struct generic
+BYN2022 5:13 generic methods is not supported in v0.1
+  help declare a generic free function, or make the struct generic
+BYN2001 10:13 `zzz` is not defined
+BYN2219 16:16 a `const` must be a compile-time constant
+BYN2202 21:21 expected `T`, found `i32`
+BYN2202 21:33 expected `T`, found `i32`
+BYN2225 21:37 `i64[2]` cannot be formatted
+BYN2780 4:23 implicit copy of a unique value: type parameter `T` may stand for a unique type
+  help declare the parameter `move x` to take ownership; pass it by `ref` to share it instead
+returns pick 0

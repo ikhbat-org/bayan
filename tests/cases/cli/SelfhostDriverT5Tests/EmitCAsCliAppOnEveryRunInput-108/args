@@ -1,0 +1,3 @@
+build
+--emit-c
+interface-associated-type-early.byn

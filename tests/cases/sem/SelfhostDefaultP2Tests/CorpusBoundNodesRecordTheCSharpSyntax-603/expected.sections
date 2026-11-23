@@ -1,0 +1,27 @@
+== tests/cases/diag/invalid-map-key.byn
+91..106 callExpr
+91..106 callExpr
+91..106 callExpr
+120..303 blockStmt
+126..159 localDecl
+139..159 callExpr
+164..196 localDecl
+178..196 callExpr
+201..233 localDecl
+214..233 callExpr
+238..271 localDecl
+250..271 callExpr
+276..301 localDecl
+288..301 callExpr
+320..417 blockStmt
+326..352 localDecl
+334..352 callExpr
+357..383 localDecl
+365..383 callExpr
+388..415 ifStmt
+391..397 binaryExpr eq right 396..397
+398..415 blockStmt
+400..413 exprStmt
+400..413 callExpr
+406..412 literalExpr string
+400..413 callExpr

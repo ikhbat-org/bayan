@@ -1,0 +1,4 @@
+build
+-o
+<repo>/tmp/t7-style/build-fail-force/tally/tally
+<repo>/tmp/t7-style/build-fail-force/tally/main.byn

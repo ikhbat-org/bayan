@@ -1,0 +1,35 @@
+error BYN2706: variant `closed` has no payload
+  --> <repo>/tests/cases/diag/error-payload-pattern.byn:17:5
+
+  17 │     .closed(let x) => x,
+     │     ^^^^^^^^^^^^^^
+     │
+  help: match it with `.closed`
+
+error BYN2703: variant `rejected` has 2 payload field(s), but the pattern lists 1
+  --> <repo>/tests/cases/diag/error-payload-pattern.byn:22:5
+
+  22 │     .rejected(let reason) => 1,
+     │     ^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: list every field: `.rejected(let reason, let code)`, or `_` to skip one
+
+error BYN2411: `QuoteError.stale` cannot match `CarrierError`
+  --> <repo>/tests/cases/diag/error-payload-pattern.byn:27:5
+
+  27 │     QuoteError.stale(let age) => age,
+     │     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error BYN2228: `timeot` is not a variant of `CarrierError`
+  --> <repo>/tests/cases/diag/error-payload-pattern.byn:32:18
+
+  32 │     CarrierError.timeot(let a) => a,
+     │                  ^^^^^^
+     │
+  help: did you mean `timeout`?
+
+error BYN2003: `after` is not a member of `CarrierError`
+  --> <repo>/tests/cases/diag/error-payload-pattern.byn:37:25
+
+  37 │     CarrierError e => e.after,
+     │                         ^^^^^

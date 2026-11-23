@@ -1,0 +1,6 @@
+== locals
+register: s t t a t t
+attempt: t t t e e
+main:
+requires: broken_name violations t
+requires: broken_city violations t

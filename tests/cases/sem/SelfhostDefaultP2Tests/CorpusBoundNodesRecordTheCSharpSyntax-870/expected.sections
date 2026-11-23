@@ -1,0 +1,12 @@
+== tests/cases/diag/style-sections-banner.byn
+122..124 blockStmt
+382..384 blockStmt
+616..618 blockStmt
+647..649 blockStmt
+663..722 blockStmt
+669..707 localDecl
+677..707 literalExpr string
+712..720 exprStmt
+712..720 callExpr
+718..719 nameExpr
+712..720 callExpr

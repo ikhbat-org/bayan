@@ -1,0 +1,4 @@
+== s37
+switchExpr|i32|3421:30
+value local:NoError=none
+arm 3435:14 binaryPattern[3435:9]:NoError(and notPattern[3435:9]:NoError(bindPattern[3435:9]:NoError(-)),bindPattern[3435:9]:NoError(e:NoError:o:-:let)) guard - value literal:i32=1

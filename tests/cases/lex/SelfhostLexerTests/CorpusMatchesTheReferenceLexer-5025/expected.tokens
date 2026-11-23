@@ -1,0 +1,17 @@
+1:1 IntegerLiteral `0x_`
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+4:1 Identifier `a`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0004: unterminated block comment
+
+  4 │ a /* neANver closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

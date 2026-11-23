@@ -1,0 +1,4 @@
+== cases
+0 byn_add_i64(p_a, p_b, byn_file_0, 1)
+1 byn_add_i64(p_a, INT64_C(1), byn_file_0, 2)
+count 2

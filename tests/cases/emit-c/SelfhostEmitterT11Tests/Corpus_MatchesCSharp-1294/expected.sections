@@ -1,0 +1,7 @@
+== helpers
+bynh_eq_main__Mode static bool bynh_eq_main__Mode(byn_main_Mode a, byn_main_Mode b) | static bool bynh_eq_main__Mode(byn_main_Mode a, byn_main_Mode b) {
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    default: return true;
+    }
+}

@@ -1,0 +1,64 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `total `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `b `
+2:25 InterpolationStart `{`
+2:26 Identifier `c`
+2:27 InterpolationEnd `}`
+2:28 InterpolatedStringEnd `"`
+2:29 CloseParen `)`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringText ` d`
+2:33 InterpolatedStringEnd `"`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolatedStringText `{{literal}}`
+2:48 InterpolatedStringEnd `"`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 Identifier `Point`
+2:59 OpenBrace `{`
+2:61 Identifier `x`
+2:63 Equals `=`
+2:65 IntegerLiteral `1`
+2:67 CloseBrace `}`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringText `!`
+2:70 InterpolatedStringEnd `"`
+2:72 InterpolatedStringStart `$"`
+2:74 InterpolatedStringEnd `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never �losed\n\nlet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n /* block\n\n '\u{1F600}' '\'' 'é' '\\' '\0'\n\nis and or not with move ref out this null true false comptime checked\n0xF__\n`
+12:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never �losed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  3 │ let c = """never �losed
+    │                  ^

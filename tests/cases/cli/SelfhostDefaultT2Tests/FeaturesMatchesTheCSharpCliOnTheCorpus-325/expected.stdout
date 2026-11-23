@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "CallExpr",
+    "ConditionalExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print",
+    "Todo"
+  ],
+  "diagnostics": [
+    "BYN2405"
+  ]
+}

@@ -1,0 +1,20 @@
+    doc `/// Doc line two.`
+3:3 RawStringLiteral `""" c"text" u16"widlet � = 2\n'\u{110000}'\n closed\nb\n\nmment */ a\n///� Doc line one\n/// Doc line two.\nst--\n& && | || ^ ~ ! = == != < <= > >= << >> >>=\n+= -= *=  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"\n`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"widlet � = 2
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │   """ c"text" u16"widlet � = 2
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  9 │ ///� Doc line one
+    │    ^

@@ -1,0 +1,35 @@
+1:1 IntegerLiteral `0x`
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+    doc `/// Doc line two.`
+5:4 Identifier `com`
+5:7 CloseParen `)`
+5:8 Identifier `ment`
+5:13 Star `*`
+5:14 Slash `/`
+5:16 Identifier `a`
+6:2 CharLiteral `' `
+6:4 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0008: unterminated char literal
+
+  6 │  ' 
+    │  ^^
+    │
+  help: close it with `'`

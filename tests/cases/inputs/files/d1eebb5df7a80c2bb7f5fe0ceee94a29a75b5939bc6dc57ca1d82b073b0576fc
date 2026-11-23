@@ -1,0 +1,59 @@
+public struct Order {
+    public i64 id
+}
+
+public struct OrderHasher {
+    i64 seed
+
+    public i64 hash(ref this, Order order) {
+        seed += order.id
+        return seed
+    }
+
+    void reseed(ref this) {
+        seed = 0
+    }
+}
+
+public struct OrderComparer {
+    i64 calls
+
+    public i64 compare(ref this, Order a, to Order b) {
+        calls += 1
+        return a.id - b.id
+    }
+
+    public void reset(ref this) {
+        calls = 0
+    }
+}
+
+public interface IOrderCodec {
+    i64 encode(ref this, Order order)
+    Order decode(i64 id)
+}
+
+public struct LineCodec {
+    i64 n
+
+    public i64 encode(Order order) => order.id + n
+}
+
+public struct OrderBuilder {
+    i64 n
+
+    public void build(ref this) {
+        n += 1
+    }
+}
+
+struct QuietHasher {
+    i64 seed
+
+    public i64 hash(ref this) {
+        seed += 1
+        return seed
+    }
+}
+
+print("ok")

@@ -1,0 +1,5 @@
+created app `local/tally` in `tally`
+
+  cd tally
+  bayan run
+  bayan test

@@ -1,0 +1,7 @@
+== associatedBinding
+Bound.Item bool stored yes
+Bound.Other string stored yes
+Bound.Bad ? stored yes
+Bound.Zip null stored no
+NoBase.Item null stored no
+diags +0

@@ -1,0 +1,14 @@
+1:2 Identifier `F`
+2:1 IntegerLiteral `1`
+2:2 Dot `.`
+2:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ �F�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  1 │ �F�
+    │   ^

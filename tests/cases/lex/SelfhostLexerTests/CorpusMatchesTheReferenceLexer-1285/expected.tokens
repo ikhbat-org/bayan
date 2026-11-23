@@ -1,0 +1,10 @@
+1:1 Identifier `b`
+2:1 RawStringLiteral `"""\n  raw "qute\u{13}d  -= *= /= %= &= |= ^= <<=\nlet a =  1\n\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,3 @@
+== expr.probes.i35
+interpolated:string[4467:7]=-(v:local:Owned<Point>[4470:2]=-(op))
+BYN2225 177:18 `Owned<Point>` cannot be formatted |||

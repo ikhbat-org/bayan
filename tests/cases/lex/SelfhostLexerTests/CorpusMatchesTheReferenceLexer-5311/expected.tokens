@@ -1,0 +1,24 @@
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 WithKeyword `with`
+4:20 MoveKeyword `move`
+4:25 RefKeyword `ref`
+4:29 OutKeyword `out`
+4:33 ThisKeyword `this`
+4:38 NullKeyword `null`
+4:43 TrueKeyword `true`
+4:48 FalseKeyword `false`
+4:54 ComptimeKeyword `comptime`
+4:63 CheckedKeyword `checked`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^

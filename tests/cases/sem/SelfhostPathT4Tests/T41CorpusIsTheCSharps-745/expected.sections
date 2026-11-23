@@ -1,0 +1,3 @@
+== diags.diag/missing-initializer
+BYN2101 1:5 `let total` needs a value
+  help give it a value, or declare it with `var` and assign it on every path before use

@@ -1,0 +1,36 @@
+1:1 Identifier `t`
+2:2 IntegerLiteral `0x_ff`
+2:8 IntegerLiteral `0`
+2:10 IntegerLiteral `1010`
+2:15 IntegerLiteral `0`
+2:16 PlusEquals `+=`
+2:19 Minus `-`
+2:21 StarEquals `*=`
+2:24 SlashEquals `/=`
+2:27 PercentEquals `%=`
+2:30 AmpEquals `&=`
+2:33 BarEquals `|=`
+2:36 CaretEquals `^=`
+2:39 LessLessEquals `<<=`
+2:45 IntegerLiteral `0x_`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  2 │  0x_ff 0�1010 0+= - *= /= %= &= |= ^= <<=� � 0x_
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  2 │  0x_ff 0�1010 0+= - *= /= %= &= |= ^= <<=� � 0x_
+    │                                          ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │  0x_ff 0�1010 0+= - *= /= %= &= |= ^= <<=� � 0x_
+    │                                            ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x_ff 0�1010 0+= - *= /= %= &= |= ^= <<=� � 0x_
+    │                                              ^^^

@@ -1,0 +1,2 @@
+== expr.probes.s1
+stackalloc:Span<i64>[3158:17]=-(i64 4)

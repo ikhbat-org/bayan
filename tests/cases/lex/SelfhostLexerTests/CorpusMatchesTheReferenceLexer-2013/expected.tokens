@@ -1,0 +1,63 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 MinusMinus `--`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Bar `|`
+3:15 StarBar `*|`
+3:18 PlusPlus `++`
+3:21 MinusMinus `--`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 LetKeyword `let`
+4:19 Identifier `c`
+4:21 Equals `=`
+4:25 IntegerLiteral `3`
+5:2 IntegerLiteral `1`
+5:3 NumericSuffix `e`
+5:4 OpenParen `(`
+5:6 CloseParen `)`
+5:8 OpenBracket `[`
+5:10 CloseBracket `]`
+5:12 OpenBrace `{`
+5:14 CloseBrace `}`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `a`
+6:4 InterpolationStart `{`
+6:5 Identifier `b`
+6:6 InterpolationEnd `}`
+6:7 InterpolatedStringText `c // line comment`
+6:24 InterpolatedStringEnd
+7:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ & && � || ^ ~ let c = � 3
+    │      ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ & && � || ^ ~ let c = � 3
+    │                       ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"a{b}c // line comment
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

@@ -1,0 +1,6 @@
+let c = """never closed
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+'\u{110000}'
+ foo Bar x� camelCase2 بيان με%�ρητής x_1 é
+ '\q'
+� 

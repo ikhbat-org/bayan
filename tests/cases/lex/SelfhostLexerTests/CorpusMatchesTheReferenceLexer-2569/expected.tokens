@@ -1,0 +1,63 @@
+1:2 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 Identifier `def`
+5:31 Identifier `ault`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 BreakKeyword `break`
+5:58 ContinueKeyword `continue`
+5:67 ReturnKeyword `return`
+5:74 YieldKeyword `yield`
+5:80 DeferKeyword `defer`
+5:86 ErrdeferKeyword `errdefer`
+5:95 Tilde `~`
+5:96 UsingKeyword `using`
+5:102 ContextKeyword `context`
+7:1 Identifier `et`
+7:4 Identifier `b`
+7:6 Equals `=`
+7:10 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:11 IntegerLiteral `3`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok �� in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  3 │ // ok �� in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  5 │ if else unless switch case def�ault for in while do break continue return yield defer errdefer ~using context
+    │                               ^
+
+error BYN0002: unexpected character ```
+
+  7 │ et b = ` 2
+    │        ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │ let c = � 3
+    │         ^

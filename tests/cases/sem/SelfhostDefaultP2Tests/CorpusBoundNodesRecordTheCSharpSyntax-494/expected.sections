@@ -1,0 +1,45 @@
+== tests/cases/diag/for-dyn-ref-span-variable-borrows.byn
+219..503 blockStmt
+225..245 localDecl
+236..245 callExpr
+250..273 exprStmt
+250..273 callExpr
+250..254 nameExpr
+262..272 structLiteralExpr
+269..270 literalExpr integer
+278..296 localDecl
+287..296 callExpr
+301..322 exprStmt
+301..322 callExpr
+301..303 nameExpr
+311..321 structLiteralExpr
+318..319 literalExpr integer
+327..361 localDecl
+345..361 callExpr
+345..347 nameExpr
+366..397 localDecl
+390..397 indexExpr
+390..397 indexExpr
+390..394 nameExpr
+395..396 literalExpr integer
+402..451 forStmt
+427..429 nameExpr
+430..451 blockStmt
+440..445 assignStmt assign target 440..441 value 444..445
+440..441 nameExpr
+444..445 nameExpr
+456..477 exprStmt
+456..477 callExpr
+456..458 nameExpr
+466..476 structLiteralExpr
+473..474 literalExpr integer
+482..501 exprStmt
+482..501 callExpr
+488..500 interpolatedExpr
+491..498 callExpr
+491..492 nameExpr
+482..501 callExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr

@@ -1,0 +1,47 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+3:1 StructKeyword `struct`
+3:8 UniqueKeyword `unique`
+3:15 UnionKeyword `union`
+3:21 EnumKeyword `enum`
+3:26 FlagsKeyword `flags`
+3:32 OpenKeyword `open`
+3:37 ExtensibleKeyword `extensible`
+3:48 InterfaceKeyword `interface`
+3:58 DelegateKeyword `delegate`
+3:67 ExtensionKeyword `extension`
+3:77 Identifier `derivat`
+3:84 Colon `:`
+3:85 Identifier `ion`
+3:89 AttributeKeyword `attribute`
+4:3 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ��
+    │   ^

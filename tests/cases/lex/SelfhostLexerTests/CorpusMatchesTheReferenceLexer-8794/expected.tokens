@@ -1,0 +1,54 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 Identifier `c`
+1:12 Identifier `tch`
+1:16 NeverKeyword `never`
+1:22 NoallocKeyword `noalloc`
+1:30 NosuspendKeyword `nosuspend`
+1:40 SuspendsKeyword `suspends`
+1:49 AsyncKeyword `async`
+1:55 AwaitKeyword `await`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c`
+2:8 InterpolatedStringEnd
+4:2 Identifier `ecome`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:2 CharLiteral `'\n'`
+6:7 CharLiteral `'\u{1F600}'`
+6:19 CharLiteral `'\''`
+6:24 CharLiteral `'é'`
+6:28 CharLiteral `'\\'`
+6:33 CharLiteral `'\0'`
+8:1 CharLiteral `'\u{D800}'`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  1 │ fails try c�tch never noalloc nosuspend suspends async await
+    │            ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  8 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

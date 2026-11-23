@@ -1,0 +1,18 @@
+error BYN3004: `l` is modified while `r` still borrows it
+  --> <repo>/tmp/t2/diag/call-result-borrows-ref-argument/call-result-borrows-ref-argument.byn:20:5
+
+  20 │     l.append(C { n: 2 })
+     │     ^^^^^^^^^^^^^^^^^^^^ `r` is used again on line 21
+     │
+  help: finish using `r` first, or copy what it needs before changing `l`
+
+error BYN3004: `l` is modified while `s` still borrows it
+  --> <repo>/tmp/t2/diag/call-result-borrows-ref-argument/call-result-borrows-ref-argument.byn:23:5
+
+  23 │     l.append(C { n: 3 })
+     │     ^^^^^^^^^^^^^^^^^^^^ `s` is used again on line 24
+     │
+  help: finish using `s` first, or copy what it needs before changing `l`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3004

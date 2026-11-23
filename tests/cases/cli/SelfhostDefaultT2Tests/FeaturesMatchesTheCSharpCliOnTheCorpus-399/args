@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/parse/interfaces.byn
+--package
+<repo>/tests/cases/parse

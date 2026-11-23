@@ -1,0 +1,208 @@
+import semantics
+import emitter.ltree
+import lexer
+
+// T29: builtin.byn's builtin calls, operators and conversions on a bound program, each emitted from the value of a
+// function's `return`.
+
+type BtOptions    = semantics.CompilationOptions
+type BtTree       = ltree.LTree
+type BtLowered    = ltree.LoweredFunction
+type BtConversion = semantics.BConversion
+
+Ctx btCompile(string source) {
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("bt.byn", from: move bytes))
+    let options = BtOptions { includeTests: false }
+    return semantics.create(from: move sources, at: Path.fullPath("tmp"), by: in options)
+}
+
+string btErrors(in Ctx c) {
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        sb.append($"{d.code} {d.span.start} {d.message}\n") if !d.isWarning
+    }
+    return sb.finish()
+}
+
+FuncId btNamed(in Ctx c, for string name) {
+    var found: FuncId = -1
+    for i in 0..c.functions.length {
+        if c.functions[i].name == name && c.functions[i].body != -1 {
+            found = i
+        }
+    }
+    return found
+}
+
+/// The value of the `return` that is the first statement of `name`.
+BExpr btReturned(in Ctx c, for string name) {
+    let first = c.bBlocks[c.functions[btNamed(in c, for: name)].body & 0xFFFFFFFF].statements[0]
+    return c.bReturns[first & 0xFFFFFFFF].value
+}
+
+/// The C text of the value `name` returns, emitted in a frame for `name`.
+string btEmit(ref CCtx cc, from ref Ctx c, for string name) {
+    let fn = btNamed(in c, for: name)
+    var locals = List<i64>()
+    for l in c.functions[fn].locals {
+        locals.append(l) if !c.locals[l].isParameter
+    }
+    let lowered = BtLowered {
+        symbol: fn,
+        locals: move locals,
+        contextSlots: 0,
+        panicSlots: 0,
+        body: c.functions[fn].body,
+    }
+    var fe = functionEmitter(ref cc, from: ref c, for: in lowered)
+    fe.lineStarts = lineStartsOf(in c, for: c.functions[fn].file)
+    let t = BtTree {}
+    return emitExpr(ref cc, for: ref fe, from: ref c, through: in t, at: btReturned(in c, for: name))
+}
+
+string btSource() {
+    return """
+        union error E {
+            bad(i64 n)
+            other
+        }
+
+        bool contains(string s) {
+            return s.contains("a")
+        }
+
+        i64 plus(i64 x) {
+            return +x
+        }
+
+        i64 complement(i64 x) {
+            return ~x
+        }
+
+        i64 bitAnd(i64 a, to i64 b) {
+            return a & b
+        }
+
+        i64 bitOr(i64 a, to i64 b) {
+            return a | b
+        }
+
+        bool boolAnd(bool a, to bool b) {
+            return a & b
+        }
+
+        bool boolOr(bool a, to bool b) {
+            return a | b
+        }
+
+        bool boolXor(bool a, to bool b) {
+            return a ^ b
+        }
+
+        f32 rem32(f32 a, to f32 b) {
+            return a % b
+        }
+
+        f64 rem64(f64 a, to f64 b) {
+            return a % b
+        }
+
+        f64 add64(f64 a, to f64 b) {
+            return a + b
+        }
+
+        bool isBad(E e) {
+            return e == .bad
+        }
+
+        bool badIs(E e) {
+            return E.bad == e
+        }
+
+        bool isBadOne(E e) {
+            return E.bad(n: 1) == e
+        }
+
+        rune toChar(i64 n) {
+            return rune(n)
+        }
+
+        i64? toOptional(i64 x) {
+            return x
+        }
+
+        void main() {}
+
+        """
+}
+
+test "builtin t29: a string contains, unary plus and complement" {
+    var c = btCompile(btSource())
+    assert btErrors(in c) == ""
+    var cc = CCtx { packageRoot: c.packageRoot }
+    assert btEmit(ref cc, from: ref c, for: "contains") == "byn_str_contains(p_s, BYN_STR(\"a\", 1))"
+    assert btEmit(ref cc, from: ref c, for: "plus") == "p_x"
+    assert btEmit(ref cc, from: ref c, for: "complement") == "((int64_t)~p_x)"
+}
+
+test "builtin t29: bit operators on integers and on bools" {
+    var c = btCompile(btSource())
+    var cc = CCtx { packageRoot: c.packageRoot }
+    assert btEmit(ref cc, from: ref c, for: "bitAnd") == "((int64_t)(p_a & p_b))"
+    assert btEmit(ref cc, from: ref c, for: "bitOr") == "((int64_t)(p_a | p_b))"
+    assert btEmit(ref cc, from: ref c, for: "boolAnd") == "(p_a & p_b)"
+    assert btEmit(ref cc, from: ref c, for: "boolOr") == "(p_a | p_b)"
+    assert btEmit(ref cc, from: ref c, for: "boolXor") == "(p_a ^ p_b)"
+}
+
+test "builtin t29: a float remainder by width, and a float operator that is not one" {
+    var c = btCompile(btSource())
+    var cc = CCtx { packageRoot: c.packageRoot }
+    assert btEmit(ref cc, from: ref c, for: "rem32") == "fmodf(p_a, p_b)"
+    assert btEmit(ref cc, from: ref c, for: "rem64") == "fmod(p_a, p_b)"
+    assert btEmit(ref cc, from: ref c, for: "add64") == "(p_a + p_b)"
+}
+
+test "builtin t29: a payload case written bare on either side, and one with its payload on the left" {
+    var c = btCompile(btSource())
+    var cc = CCtx { packageRoot: c.packageRoot }
+    assert btEmit(ref cc, from: ref c, for: "badIs") == "(((byn_err){ .code = UINT32_C(13) }).code == p_e.code)"
+    assert btEmit(ref cc, from: ref c, for: "isBad") == "(p_e.code == ((byn_err){ .code = UINT32_C(13) }).code)"
+    assert btEmit(
+        ref cc,
+        from: ref c,
+        for: "isBadOne",
+    ) == "bynh_eq_err(((byn_err){ .code = UINT32_C(13), .p.e13 = { INT64_C(1) } }), p_e)"
+}
+
+test "builtin t29: a signed integer to char, and a null to an optional" {
+    var c = btCompile(btSource())
+    var cc = CCtx { packageRoot: c.packageRoot }
+    assert btEmit(ref cc, from: ref c, for: "toChar") == "byn_to_char((int64_t)p_n, byn_file_0, 63)"
+    let opt = btReturned(in c, for: "toOptional")
+    let i = opt & 0xFFFFFFFF
+    assert c.bConversions[i].kind == .toOptional
+    let none = semantics.addConversion(
+        ref c,
+        from: BtConversion {
+            span: c.bConversions[i].span,
+            operand: c.bConversions[i].operand,
+            type: c.bConversions[i].type,
+            kind: .nullToOptional,
+        },
+    )
+    let fn = btNamed(in c, for: "toOptional")
+    let lowered = BtLowered { symbol: fn, locals: [], contextSlots: 0, panicSlots: 0, body: c.functions[fn].body }
+    var fe = functionEmitter(ref cc, from: ref c, for: in lowered)
+    let t = BtTree {}
+    assert conversion(ref cc, for: ref fe, from: ref c, through: t, at: none) == "((bynt_opt_i64){0})"
+}
+
+test "builtin t29: csName raises the first letter" {
+    assert csName("listTake") == "ListTake"
+}

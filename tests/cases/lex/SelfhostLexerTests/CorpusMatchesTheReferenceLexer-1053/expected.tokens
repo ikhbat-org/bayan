@@ -1,0 +1,32 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+    doc `/// Doc line one.\r`
+3:2 Identifier `ạ̇`
+3:6 StringLiteral `"a\u{2067}b�"`
+3:12 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �ạ̇ "a�b�" 
+    │  ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │  �ạ̇ "a�b�" 
+    │   ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  �ạ̇ "a�b�" 
+    │   │   +
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  3 │  �ạ̇ "a�b�" 
+    │           ^

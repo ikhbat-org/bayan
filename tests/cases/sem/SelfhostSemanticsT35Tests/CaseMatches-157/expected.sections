@@ -1,0 +1,3 @@
+== expr.probes.c20
+errorExpr:?[1372:5]=-()
+BYN2235 79:27 `..n` spreads a `i64`, which is not a sequence |not a `List`, `Span` or fixed array|drop the `..` to add `n` as one element|

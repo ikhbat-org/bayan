@@ -1,0 +1,10 @@
+test assert property fuzz model foreac new goto
+ â„«& && | || ^ ~ ! = == != < <= > >= <<¬>> >>=
+
+0b102
+
+= 2
+macro sel
+var xs: List<List<i64>>
+
+// line comment

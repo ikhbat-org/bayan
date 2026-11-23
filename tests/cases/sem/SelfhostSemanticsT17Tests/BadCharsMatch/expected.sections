@@ -1,0 +1,4 @@
+== badchars
+errorExpr 17..21 : ?
+errorExpr 41..51 : ?
+errorExpr 71..83 : ?

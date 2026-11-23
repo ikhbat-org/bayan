@@ -1,0 +1,5 @@
+== helpers
+bynh_at_arr3_i32 static int32_t* bynh_at_arr3_i32(bynt_arr3_i32* a, int64_t i, bool from_end, const char* file, int line) | static int32_t* bynh_at_arr3_i32(bynt_arr3_i32* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 3 - i;
+    return &a->v[byn_index(i, 3, file, line)];
+}

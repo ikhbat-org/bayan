@@ -1,0 +1,9 @@
+== cases
+0 (byn_rem_i64(p_n, INT64_C(2), byn_file_0, 3) == INT64_C(0))
+1 byn_rem_i64(p_n, INT64_C(2), byn_file_0, 3)
+2 ((bynt_opt_i64){true, byn_div_i64(p_n, INT64_C(2), byn_file_0, 3)})
+3 byn_div_i64(p_n, INT64_C(2), byn_file_0, 3)
+4 ((*self).at >= (*self).count)
+5 ((bynt_opt_i64){true, byn_mul_i64((*self).at, INT64_C(10), byn_file_0, 12)})
+6 byn_mul_i64((*self).at, INT64_C(10), byn_file_0, 12)
+count 7

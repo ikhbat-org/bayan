@@ -1,0 +1,22 @@
+dir cache
+dir cache/v1
+dir cache/v1/programs
+dir cache/v1/programs/k0
+file cache/v1/programs/k0/program 1
+x
+dir cache/v1/programs/k1
+file cache/v1/programs/k1/program 1
+x
+dir cache/v1/runtime
+dir cache/v1/runtime/r0
+file cache/v1/runtime/r0/bayan-rt.o 1
+x
+dir cache/v1/runtime/r1
+file cache/v1/runtime/r1/bayan-rt.o 1
+x
+age cache/v1/programs/k0 240
+age cache/v1/programs/k1 120
+age cache/v1/runtime/r0 300
+age cache/v1/runtime/r1 180
+evict none 9223372036854775807 3 600
+evict none 9223372036854775807 1 600

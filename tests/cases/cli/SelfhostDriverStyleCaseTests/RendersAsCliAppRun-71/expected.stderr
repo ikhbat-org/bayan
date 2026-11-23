@@ -1,0 +1,9 @@
+[1m[38;2;242;193;78mwarning BYN2311[0m: `x` is never reassigned; declare it with `let`
+[38;2;180;178;169m  -->[0m <repo>/tmp/t7-style/diag-warning-ascii/tally/main.byn:2:9
+
+  [38;2;180;178;169m2[0m [38;2;180;178;169m|[0m     var x = 1
+    [38;2;180;178;169m|[0m         [1m[38;2;242;193;78m^[0m
+    [38;2;180;178;169m|[0m
+  [1m[38;2;141;184;242mhelp:[0m declare it with `let` to tell the reader the value never changes
+    [38;2;180;178;169m|[0m [38;2;180;178;169m2[0m [38;2;180;178;169m|[0m     let x = 1
+    [38;2;180;178;169m|[0m   [38;2;180;178;169m|[0m     [38;2;141;184;242m+++[0m

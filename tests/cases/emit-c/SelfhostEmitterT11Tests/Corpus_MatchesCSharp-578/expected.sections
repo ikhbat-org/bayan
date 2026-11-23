@@ -1,0 +1,29 @@
+== helpers
+bynh_io_read_all static bynt_res_str bynh_io_read_all(int32_t fd) | static bynt_res_str bynh_io_read_all(int32_t fd) {
+    (void)fd;
+    bynt_res_str r = {0};
+    r.err.code = byn_io_read_stdin(&r.value, byn_context);
+    return r;
+}
+bynh_value_res_str static byn_str bynh_value_res_str(bynt_res_str r, const char* file, int line) | static byn_str bynh_value_res_str(bynt_res_str r, const char* file, int line) {
+    if (r.err.code) byn_panic("result holds an error", file, line);
+    return r.value;
+}
+bynh_error_res_str static byn_err bynh_error_res_str(bynt_res_str r, const char* file, int line) | static byn_err bynh_error_res_str(bynt_res_str r, const char* file, int line) {
+    if (!r.err.code) byn_panic("result holds a value", file, line);
+    return r.err;
+}
+bynh_eq_err static bool bynh_eq_err(byn_err a, byn_err b) | static bool bynh_eq_err(byn_err a, byn_err b) {
+    if (a.code != b.code) return false;
+    switch (a.code) {
+    case 10: return (a.p.e10.signal == b.p.e10.signal)
+        && byn_str_eq(a.p.e10.stdout_, b.p.e10.stdout_)
+        && byn_str_eq(a.p.e10.stderr_, b.p.e10.stderr_);
+    case 11: return (a.p.e11.after == b.p.e11.after)
+        && byn_str_eq(a.p.e11.stdout_, b.p.e11.stdout_)
+        && byn_str_eq(a.p.e11.stderr_, b.p.e11.stderr_);
+    case 12: return (a.p.e12.at == b.p.e12.at);
+    case 13: return (a.p.e13.at == b.p.e13.at);
+    }
+    return true;
+}

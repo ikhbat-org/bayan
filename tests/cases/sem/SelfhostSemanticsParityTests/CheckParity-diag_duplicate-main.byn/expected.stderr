@@ -1,0 +1,8 @@
+error BYN2013: the program has two entry points
+  --> tmp/t26-tests/cli/diag_duplicate-main.byn/duplicate-main.byn:1:1
+
+  1 │ print("a")
+    │ ^^^^^^^^^^ `main` is also declared on line 2
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2013

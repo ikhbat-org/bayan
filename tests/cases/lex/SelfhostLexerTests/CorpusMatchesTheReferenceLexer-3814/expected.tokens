@@ -1,0 +1,43 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 Amp `&`
+1:18 Equals `=`
+1:20 BarEquals `|=`
+1:23 CaretEquals `^=`
+1:26 Less `<`
+1:27 Identifier `e`
+1:28 LessEquals `<=`
+1:30 Identifier `Z`
+2:4 IntegerLiteral `1_`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  1 │ += -= *= /= %= &�= |= ^= <e<=Z
+    │                 ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │ � �1_
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ � �1_
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ � �1_
+    │   ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ � �1_
+    │     ^
+    │
+    │ 2 │ � �1_
+    │   │     -

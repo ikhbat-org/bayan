@@ -1,0 +1,467 @@
+// 019 T29 (coverage ratchet): cache.byn paths no golden case reaches: a launcher's identity and stamp, entries that cannot
+// be read, listed or removed (mode 000 and 555 directories), a dangling or failing sweep, a discard whose staging cannot be
+// made, a compiler that cannot start, and a script pointer that is unreadable, blocked or names a damaged program. The
+// expected values are the output of the self-hosted driver at the commit that added the test.
+
+/// tmp/cache-t29/<name> under the working directory, emptied.
+string t29CacheDir(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "cache-t29"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+/// Runs `/bin/<tool> args` and asserts it exits 0.
+void t29CacheRun(string tool, by List<string> args) uses alloc, process {
+    let r = Io.run($"/bin/{tool}", args.span) catch { panic($"cannot run {tool}") }
+    assert r.exitCode == 0
+}
+
+/// `t9Intact`'s value, or `fails <error>`.
+string t29Intact(string exe, by string sum) uses alloc, fs {
+    let intact = t9Intact(exe, by: sum) catch switch {
+        IoError e => return $"fails {e}",
+    }
+    return $"{intact}"
+}
+
+/// `discard` or `t9MoveAndDelete` (`move`) of `dir` through `staging`: `ok`, or `fails <error>`.
+string t29Discard(string dir, at string staging, for bool moving) uses alloc, clock, env, fs, random {
+    var d = newDCtx()
+    if moving {
+        t9MoveAndDelete(dir, at: staging, through: ref d) catch switch {
+            IoError e => return $"fails {e}",
+        }
+    } else {
+        discard(dir, at: staging, through: ref d) catch switch {
+            IoError e => return $"fails {e}",
+        }
+    }
+    return "ok"
+}
+
+test "driver t29: a launcher's identity, its stamp, and a rooted word naming no file" {
+    t29Same(t9FileStamp("/t29/no/such/cc"), as: "")
+    // the launcher is `/bin/echo` and its word `/bin/ls`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`/bin/echo` and `/bin/ls` are Unix-only")
+    }
+    let identity = t9ComputeIdentity(boundList(["/bin/echo", "x"]))
+    assert identity.startsWith("x --version\n\u{0}/bin/echo:")
+    let stamp = t9CompilerStamp(boundList(["/bin/echo", "/bin/ls"]))
+    assert stamp.startsWith("/bin/echo:") && stamp.contains("\n/bin/ls:")
+}
+
+test "driver t29: t9Intact and t9DirectoryExists on entries that cannot be read" {
+    let dir = t29CacheDir("intact")
+    let exe = Path.combine(dir, "exe")
+    let sum = Path.combine(dir, "exe.sha256")
+    goldenWrite(dir, for: "exe", as: "x")
+    goldenWrite(
+        dir,
+        for: "exe.sha256",
+        as: "\u{FEFF} 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881\n",
+    )
+    t29Same(t29Intact(exe, by: sum), as: "true")
+    t29Same(t29Intact(exe, by: Path.combine(dir, "missing")), as: "false")
+    // a directory read as a file is a permission error on Windows (.NET's `UnauthorizedAccessException`), else an IO error
+    t29Same(t29Intact(dir, by: sum), as: Target.os == "windows" ? "fails Permission denied." : "false")
+    // the unreadable entries are made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
+    t29CacheRun("chmod", by: ["000", sum])
+    t29Same(t29Intact(exe, by: sum), as: "fails Permission denied.")
+    t29CacheRun("chmod", by: ["644", sum])
+    t29CacheRun("chmod", by: ["000", exe])
+    t29Same(t29Intact(exe, by: sum), as: "fails Permission denied.")
+    t29CacheRun("chmod", by: ["644", exe])
+    let locked = Path.combine(dir, "locked")
+    t29CacheRun("mkdir", by: [locked])
+    t29CacheRun("chmod", by: ["000", locked])
+    assert t9DirectoryExists(locked) && t9DirectoryExists(Path.combine(locked, "inner"))
+    t29CacheRun("chmod", by: ["755", locked])
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimEntries keeps the newest when the listing is not oldest first" {
+    let dir = t29CacheDir("trim")
+    for name in ["a", "b", "c"] {
+        goldenWrite(dir, for: $"{name}/main.o", as: "x")
+    }
+    let hours: Map<string, i64> = ["a": 3, "b": 1, "c": 2]
+    for name in ["a", "b", "c"] {
+        let at = Time.fromNanos((1609459200 + hours[name] * 3600) * 1000000000)
+        Fs.setModified(Path.combine(dir, name), to: at) catch { panic("stamp") }
+    }
+    zigTrimEntries(dir, by: 1, until: 0) catch { panic("trim") }
+    let left = Io.listDir(dir) catch { panic("list") }
+    assert left.length == 1 && left[0] == "a"
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimEntries keeps an unreadable and an empty entry and removes the next driver object" {
+    let dir = t29CacheDir("trimlock")
+    goldenWrite(dir, for: "lock/main.o", as: "x")
+    goldenWrite(dir, for: "obj/main.o", as: "x")
+    goldenWrite(dir, for: "new/main.o", as: "x")
+    Io.createDirectory(Path.combine(dir, "empty")) catch { panic("mkdir") }
+    let hours: Map<string, i64> = ["lock": 1, "empty": 2, "obj": 3, "new": 4]
+    for name in ["lock", "empty", "obj", "new"] {
+        let at = Time.fromNanos((1609459200 + hours[name] * 3600) * 1000000000)
+        Fs.setModified(Path.combine(dir, name), to: at) catch { panic("stamp") }
+    }
+    // the unreadable entry is made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
+    let lock = Path.combine(dir, "lock")
+    t29CacheRun("chmod", by: ["000", lock])
+    zigTrimEntries(dir, by: 3, until: 0) catch { panic("trim") }
+    t29CacheRun("chmod", by: ["755", lock])
+    assert t9DirectoryExists(lock) && Fs.fileExists(Path.combine(lock, "main.o"))
+    assert t9DirectoryExists(Path.combine(dir, "empty"))
+    assert !t9DirectoryExists(Path.combine(dir, "obj"))
+    assert Fs.fileExists(Path.combine(Path.combine(dir, "new"), "main.o"))
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimEntries removes the manifest of a trimmed object, so zig cc builds it again" {
+    if ccFindOnPath("zig", for: Target.os) is null {
+        print("skipped: no zig on PATH")
+        return
+    }
+    let zig = ccFindOnPath("zig", for: Target.os) ?? ""
+    let dir = t29CacheDir("zigrebuild")
+    goldenWrite(dir, for: "src/main.c", as: "int main(void) { return 0; }\n")
+    let compiler = boundList([zig, "cc"])
+    let args = boundList(["cc", "-c", Path.combine(Path.combine(dir, "src"), "main.c"), "-o", Path.combine(dir, "main.o")])
+    // the first compile trims nothing; the second trims the `o/` entry of the first's `main.o` before zig runs
+    for limit in [100, 0] {
+        let env = zigCacheEnvFor(compiler, from: null, at: dir, by: limit, until: 0)
+        let r = Io.run(zig, args.span, env: env) catch { panic("cannot run zig") }
+        print(r.stderr) if r.exitCode != 0
+        assert r.exitCode == 0
+    }
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimManifests removes only manifests naming main.c or bayan-rt.c, and keeps a missing h" {
+    let dir = t29CacheDir("zigmanifests")
+    goldenWrite(dir, for: "h/main", as: "\u{0}/w/x/main.c\u{0}")
+    goldenWrite(dir, for: "h/rt", as: "0 1 2 abc C:\\w\\x\\bayan-rt.c\r\n")
+    goldenWrite(dir, for: "h/end", as: "0 1 2 abc main.c")
+    goldenWrite(dir, for: "h/libc", as: "\u{0}/lib/compiler_rt.zig\u{0}")
+    goldenWrite(dir, for: "h/gcc", as: "\u{0}/zig/lib/libc/mingw/crt/gccmain.c\u{0}")
+    goldenWrite(dir, for: "h/dll", as: "\u{0}/zig/lib/libc/mingw/misc/dllmain.c\n")
+    goldenWrite(dir, for: "h/musl", as: "\u{0}/zig/lib/libc/musl/src/env/__libc_start_main.c\u{0}")
+    goldenWrite(dir, for: "h/cpp", as: "\u{0}/w/x/main.cpp\u{0}")
+    goldenWrite(dir, for: "h/timestamp", as: "")
+    zigTrimManifests(Path.combine(dir, "h")) catch { panic("trim") }
+    zigTrimManifests(Path.combine(dir, "none")) catch { panic("missing") }
+    let left = Io.listDir(Path.combine(dir, "h")) catch { panic("list") }
+    assert left.length == 6
+    for name in ["libc", "gcc", "dll", "musl", "cpp", "timestamp"] {
+        assert Fs.fileExists(Path.combine(Path.combine(dir, "h"), name))
+    }
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimEntries leaves 2000 entries and trims 2001 to 1500" {
+    let dir = t29CacheDir("zigslack")
+    for i in 0..2000 {
+        goldenWrite(dir, for: $"{i}/main.o", as: "x")
+    }
+    zigTrimEntries(dir, by: 2000, until: 0) catch { panic("trim") }
+    assert (Io.listDir(dir) catch { panic("list") }).length == 2000
+    goldenWrite(dir, for: "2000/main.o", as: "x")
+    zigTrimEntries(dir, by: 2000, until: 0) catch { panic("trim") }
+    assert (Io.listDir(dir) catch { panic("list") }).length == 1500
+    deleteWorkDir(dir)
+}
+
+test "driver t29: t9Evict passes over a file among the programs" {
+    let data = t29CacheDir("evict")
+    goldenWrite(data, for: "programs/f", as: "x")
+    goldenWrite(data, for: "programs/k/exe", as: "x")
+    var d = newDCtx()
+    t9Evict(
+        "",
+        to: 9223372036854775807,
+        by: 9223372036854775807,
+        until: 0,
+        at: data,
+        through: ref d,
+    ) catch { panic("evict") }
+    assert Fs.fileExists(Path.combine(data, "programs/f")) && Fs.fileExists(Path.combine(data, "programs/k/exe"))
+    deleteWorkDir(data)
+}
+
+test "driver t29: sweepStale removes a stale link, skips a file and a tree it cannot delete" {
+    // the link and the read-only tree are made by `/bin/ln` and `/bin/chmod`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`ln -s` and `chmod` permission bits are Unix-only")
+    }
+    let root = t29CacheDir("sweep")
+    let old = Time.fromNanos(1609459200 * 1000000000)
+    goldenWrite(root, for: "target/x", as: "x")
+    Fs.setModified(Path.combine(root, "target"), to: old) catch { panic("stamp") }
+    t29CacheRun("ln", by: ["-s", Path.combine(root, "target"), Path.combine(root, "bayan-coverage-link")])
+    goldenWrite(root, for: "bayan-asan-file", as: "x")
+    goldenWrite(root, for: "bayan-mutate-ro/f", as: "x")
+    let ro = Path.combine(root, "bayan-mutate-ro")
+    Fs.setModified(ro, to: old) catch { panic("stamp") }
+    t29CacheRun("chmod", by: ["555", ro])
+    sweepStale(root, by: 3600000000000)
+    sweepStale(Path.combine(root, "missing"), by: 3600000000000)
+    assert !Fs.fileExists(Path.combine(root, "bayan-coverage-link/x"))
+    assert Fs.fileExists(Path.combine(root, "target/x")) && Fs.fileExists(Path.combine(root, "bayan-asan-file"))
+    assert Fs.fileExists(Path.combine(ro, "f"))
+    t29CacheRun("chmod", by: ["755", ro])
+    deleteWorkDir(root)
+}
+
+test "driver t29: discard and t9MoveAndDelete when staging or the delete fails" {
+    let root = t29CacheDir("discard")
+    goldenWrite(root, for: "victim/x", as: "x")
+    goldenWrite(root, for: "file", as: "x")
+    let victim = Path.combine(root, "victim")
+    t29Same(t29Discard(victim, at: Path.combine(Path.combine(root, "file"), "staging"), for: false), as: "ok")
+    // the read-only directories are made by `/bin/chmod 555`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
+    goldenWrite(root, for: "ro/keep", as: "x")
+    let ro = Path.combine(root, "ro")
+    t29CacheRun("chmod", by: ["555", ro])
+    t29Same(t29Discard(victim, at: Path.combine(ro, "staging"), for: false), as: "fails Permission denied.")
+    goldenWrite(root, for: "f-in-ro", as: "x")
+    t9DeleteFile(Path.combine(ro, "keep"))
+    assert Fs.fileExists(Path.combine(ro, "keep"))
+    let staging = Path.combine(root, "staging")
+    Io.createDirectory(staging) catch { panic("staging") }
+    t29Same(t29Discard(Path.combine(root, "missing"), at: staging, for: true), as: "ok")
+    goldenWrite(root, for: "stuck/inner/f", as: "x")
+    t29CacheRun("chmod", by: ["555", Path.combine(root, "stuck/inner")])
+    t29Same(t29Discard(Path.combine(root, "stuck"), at: staging, for: true), as: "fails Permission denied.")
+    t29CacheRun("chmod", by: ["-R", "u+w", root])
+    deleteWorkDir(root)
+}
+
+test "driver t29: t9PointerLine without a second line and after a byte order mark" {
+    let dir = t29CacheDir("pointer")
+    goldenWrite(dir, for: "one", as: "abc")
+    goldenWrite(dir, for: "bom", as: "\u{FEFF}key\nstamp\n")
+    t29Same(t9PointerLine(Path.combine(dir, "one"), for: true) catch { panic("read") }, as: "")
+    t29Same(t9PointerLine(Path.combine(dir, "bom"), for: false) catch { panic("read") }, as: "key")
+    deleteWorkDir(dir)
+}
+
+test "driver t29: t9CompileIn with a compiler that cannot start, and touch on a directory it may not stamp" {
+    let work = t29CacheDir("compile")
+    var d = newDCtx()
+    let built = t9CompileIn(
+        work,
+        by: boundList(["/t29/no/such/cc"]),
+        through: boundList([]),
+        from: "int main(void) { return 0; }\n",
+        for: "k",
+        as: "a.out",
+        until: "rt.o",
+        at: false,
+        to: ref d,
+    ) catch { panic("compile") }
+    assert !built.succeeded && !built.rejected
+    assert built.errors.startsWith("cannot run the C compiler `/t29/no/such/cc`: ")
+    deleteWorkDir(work)
+    // `/` is not the user's on Unix, so permission bits refuse its stamp; a Windows runner may stamp the drive's root
+    if Target.os == "windows" {
+        todo("the root's permission bits are Unix-only")
+    }
+    let before = Fs.modified("/") catch { panic("stat") }
+    touch("/")
+    let after = Fs.modified("/") catch { panic("stat") }
+    assert before.nanos == after.nanos
+}
+
+test "driver t29: lookupScript and rememberScript on an unreadable, a damaged and a blocked pointer" {
+    // the unreadable pointer and sum are made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
+    var d = newDCtx()
+    let scripts = t9Scripts()
+    let programs = t9Programs()
+    let tag = $"t29-drv-{Io.monotonicNanos()}"
+    Io.createDirectory(scripts) catch { panic("scripts") }
+    let unreadable = Path.combine(scripts, $"{tag}-a")
+    goldenWrite(scripts, for: $"{tag}-a", as: "k\n\n")
+    t29CacheRun("chmod", by: ["000", unreadable])
+    assert lookupScript($"{tag}-a", by: "exe", through: ref d) is null
+    t29CacheRun("chmod", by: ["644", unreadable])
+    Io.remove(unreadable) catch { panic("remove") }
+    let compiler = ccFindCompiler()
+    let stamp = compiler.length > 0 ? t9CompilerStamp(in compiler) : ""
+    goldenWrite(scripts, for: $"{tag}-b", as: $"{tag}-p\n{stamp}\n")
+    goldenWrite(programs, for: $"{tag}-p/exe", as: "x")
+    goldenWrite(programs, for: $"{tag}-p/program.sha256", as: "x\n")
+    let sum = Path.combine(Path.combine(programs, $"{tag}-p"), "program.sha256")
+    t29CacheRun("chmod", by: ["000", sum])
+    assert lookupScript($"{tag}-b", by: "exe", through: ref d) is null
+    t29CacheRun("chmod", by: ["644", sum])
+    deleteWorkDir(Path.combine(programs, $"{tag}-p"))
+    Io.remove(Path.combine(scripts, $"{tag}-b")) catch { panic("remove") }
+    goldenWrite(scripts, for: $"{tag}-c/x", as: "x")
+    rememberScript($"{tag}-c", by: "p", through: ref d)
+    assert t9DirectoryExists(Path.combine(scripts, $"{tag}-c"))
+    deleteWorkDir(Path.combine(scripts, $"{tag}-c"))
+    for name in Io.listDir(scripts) catch { panic("list") } {
+        if name.startsWith($"{tag}-c.") {
+            Io.remove(Path.combine(scripts, name)) catch { panic("remove") }
+        }
+    }
+}
+
+test "driver t29: identity of a second command, a cc that is not zig, and a launcher's flag word" {
+    var d = newDCtx()
+    t29Same(t9CompilerIdentity(boundList(["/t29/no/a"]), through: ref d), as: "/t29/no/a\u{0}")
+    assert t9CompilerIdentity(boundList(["/t29/no/b", "cc"]), through: ref d).startsWith("/t29/no/b cc\u{0}")
+    // the launcher is `/bin/echo`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`/bin/echo` is Unix-only")
+    }
+    let stamp = t9CompilerStamp(boundList(["/bin/echo", "-n"]))
+    assert stamp.startsWith("/bin/echo:") && !stamp.contains("\n")
+}
+
+test "driver t29: zigCacheEnvFor, zigTrimEntries under the limit and over a link, t3RemoveEntry on a file" {
+    let dir = t29CacheDir("zigenv")
+    assert !zigCacheEnvFor(
+        boundList(["/t29/no/x", "-c"]),
+        from: null,
+        at: dir,
+        by: 1,
+        until: 0,
+    ).contains("ZIG_GLOBAL_CACHE_DIR")
+    assert !zigCacheEnvFor(
+        boundList(["/t29/no/x", "cc"]),
+        from: null,
+        at: dir,
+        by: 1,
+        until: 0,
+    ).contains("ZIG_GLOBAL_CACHE_DIR")
+    goldenWrite(dir, for: "target", as: "x")
+    goldenWrite(dir, for: "trim/a", as: "x")
+    let trim = Path.combine(dir, "trim")
+    zigTrimEntries(trim, by: 5, until: 0) catch { panic("trim") }
+    assert Fs.fileExists(Path.combine(trim, "a"))
+    Io.remove(Path.combine(trim, "a")) catch { panic("remove") }
+    // the link is made by `/bin/ln -s`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`ln -s` is Unix-only")
+    }
+    t29CacheRun("ln", by: ["-s", Path.combine(dir, "target"), Path.combine(trim, "l")])
+    zigTrimEntries(trim, by: 0, until: 0) catch { panic("trim") }
+    let left = Io.listDir(trim) catch { panic("list") }
+    assert left.length == 0 && Fs.fileExists(Path.combine(dir, "target"))
+    t3RemoveEntry(Path.combine(dir, "target"))
+    assert !Fs.fileExists(Path.combine(dir, "target"))
+    deleteWorkDir(dir)
+}
+
+test "driver t29: t9Evict drops a dangling pointer and passes over a temporary file and a directory" {
+    let data = t29CacheDir("evict-scripts")
+    goldenWrite(data, for: "programs/k/exe", as: "x")
+    goldenWrite(data, for: "scripts/a.tmp", as: "gone\n")
+    goldenWrite(data, for: "scripts/d/f", as: "x")
+    goldenWrite(data, for: "scripts/p", as: "gone\n")
+    goldenWrite(data, for: "scripts/q", as: "k\n")
+    var d = newDCtx()
+    t9Evict(
+        "",
+        to: 9223372036854775807,
+        by: 9223372036854775807,
+        until: 0,
+        at: data,
+        through: ref d,
+    ) catch { panic("evict") }
+    let scripts = Path.combine(data, "scripts")
+    assert Fs.fileExists(Path.combine(scripts, "a.tmp")) && Fs.fileExists(Path.combine(scripts, "d/f"))
+    assert !Fs.fileExists(Path.combine(scripts, "p")) && Fs.fileExists(Path.combine(scripts, "q"))
+    deleteWorkDir(data)
+}
+
+test "driver t29: t9CompileIn when the compiler exits non-zero or leaves no program, t9LookupEntry without a sum" {
+    var d = newDCtx()
+    let entry = t29CacheDir("lookup-nosum")
+    goldenWrite(entry, for: "exe", as: "x")
+    let found = t9LookupEntry(entry, by: "exe", from: "exe.sha256", through: ref d) catch { panic("lookup") }
+    assert found is null
+    // Discard moves the entry into staging, under %LOCALAPPDATA% on Windows, and a directory move cannot cross volumes: with the
+    // checkout on another drive (D: against C: on windows-latest, ci run 44793805775) the move fails as the C# caught IOException
+    // does, and the entry stays. Cache entries live beside staging, so only this test's entry can sit on another drive.
+    let sameVolume = Target.os != "windows" || $"{t9Staging().runes.take(2)}".lowercased() == $"{entry.runes.take(2)}".lowercased()
+    if sameVolume {
+        assert !t9DirectoryExists(entry)
+    }
+    // the compiler is `/bin/sh -c 'exit N'`, and Windows has no `/bin/sh`
+    if Target.os == "windows" {
+        todo("`/bin/sh` is Unix-only")
+    }
+    let work = t29CacheDir("compile-fails")
+    for code in ["3", "0"] {
+        let built = t9CompileIn(
+            work,
+            by: boundList(["/bin/sh", "-c", $"exit {code}"]),
+            through: boundList([]),
+            from: "int main(void) { return 0; }\n",
+            for: "k",
+            as: "a.out",
+            until: "rt.o",
+            at: false,
+            to: ref d,
+        ) catch { panic("compile") }
+        assert !built.succeeded && built.rejected
+        t29Same(built.errors, as: $"C compiler failed (exit {code}):\n")
+    }
+    deleteWorkDir(work)
+}
+
+test "driver t29: t9Build of C the compiler rejects" {
+    var d = newDCtx()
+    let built = t9Build("int main(", by: "safe", to: null, for: null, through: ref d)
+    assert !built.result.succeeded && built.result.rejected
+    assert built.result.errors.startsWith("C compiler failed (exit ")
+}
+
+test "driver t29: t9CompileIn keeps the entry another build put under its key first" {
+    // the compiler is `/bin/sh -c` writing the `-o` file, and Windows has no `/bin/sh`
+    if Target.os == "windows" {
+        todo("`/bin/sh` is Unix-only")
+    }
+    var d = newDCtx()
+    let key = $"t29-race-{t9Unique(ref d)}"
+    let entry = Path.combine(t9Programs(), key)
+    goldenWrite(entry, for: "a.out", as: "won")
+    goldenWrite(entry, for: "program.sha256", as: $"{t9Hash("won")}\n")
+    let work = t29CacheDir("compile-race")
+    let built = t9CompileIn(
+        work,
+        by: boundList(
+            ["/bin/sh", "-c", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf ours > \"$2\"; fi; shift; done"],
+        ),
+        through: boundList([]),
+        from: "int main(void) { return 0; }\n",
+        for: key,
+        as: "a.out",
+        until: "rt.o",
+        at: false,
+        to: ref d,
+    ) catch { panic("compile") }
+    assert built.succeeded && !built.rejected
+    // the move failed: `work` keeps its own program and the entry the other build's
+    t29Same(t9ReadTrimmed(Path.combine(work, "a.out")) catch { panic("read work") }, as: "ours")
+    t29Same(t9ReadTrimmed(Path.combine(entry, "a.out")) catch { panic("read entry") }, as: "won")
+    deleteWorkDir(entry)
+    deleteWorkDir(work)
+}

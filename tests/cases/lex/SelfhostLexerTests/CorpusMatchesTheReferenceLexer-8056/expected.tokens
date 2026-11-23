@@ -1,0 +1,72 @@
+1:1 CharLiteral `'\u{110000}'`
+    doc `/// Doc line one.`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:15 Bang `!`
+3:17 Equals `=`
+3:19 EqualsEquals `==`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:34 Colon `:`
+3:36 LessLess `<<`
+3:39 Greater `>`
+3:40 Greater `>`
+3:43 Greater `>`
+3:44 GreaterEquals `>=`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+5:2 IntegerLiteral `0x`
+6:2 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  3 │ & && | || ^ ~ ! = == != < <= > >=: << >>��>>=
+    │                                         ^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  3 │ & && | || ^ ~ ! = == != < <= > >=: << >>��>>=
+    │                                          ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │  0x
+    │  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���
+    │   ^

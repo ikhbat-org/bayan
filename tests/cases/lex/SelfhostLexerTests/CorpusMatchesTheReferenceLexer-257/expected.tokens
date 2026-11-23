@@ -1,0 +1,106 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+3:1 OpenBrace `{`
+3:4 Identifier `ct`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolatedStringText `a`
+3:9 InterpolationStart `{`
+3:10 Identifier `b`
+3:11 InterpolationEnd `}`
+3:12 InterpolatedStringText `c$`
+3:14 InterpolatedStringEnd `"`
+3:15 OpenBrace `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 InterpolatedStringStart `$"`
+3:51 InterpolationStart `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 InterpolatedStringStart `$"`
+3:57 InterpolationStart `{`
+3:58 InterpolatedStringStart `$"`
+3:60 InterpolationStart `{`
+3:61 InterpolatedStringStart `$"`
+3:63 InterpolationStart `{`
+3:64 StringLiteral `$"{x}"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+3:82 InterpolationEnd `}`
+3:83 InterpolatedStringEnd `"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringEnd `"`
+3:88 InterpolationEnd `}`
+3:89 InterpolatedStringEnd `"`
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+3:92 InterpolationEnd `}`
+3:93 InterpolatedStringEnd `"`
+3:94 InterpolationEnd `}`
+3:95 InterpolatedStringEnd `"`
+3:96 InterpolationEnd `}`
+3:97 InterpolatedStringEnd `"`
+3:98 InterpolationEnd `}`
+3:99 InterpolatedStringEnd `"`
+3:100 InterpolationEnd `}`
+3:101 InterpolatedStringEnd `"`
+3:102 CloseBrace `}`
+3:103 StringLiteral `"}"`
+3:107 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ {� ct$"a{b}c$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ {� ct$"a{b}c$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                                ^^

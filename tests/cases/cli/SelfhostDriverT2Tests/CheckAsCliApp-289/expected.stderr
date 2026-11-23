@@ -1,0 +1,11 @@
+error BYN3001: a struct field cannot hold a borrowed `Span<u8>`
+  --> <repo>/tmp/t2/diag/borrow-field/borrow-field.byn:2:5
+
+  2 │     Span<u8> bytes
+    │     ^^^^^^^^
+    │
+  help: store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in
+        a later version
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3001

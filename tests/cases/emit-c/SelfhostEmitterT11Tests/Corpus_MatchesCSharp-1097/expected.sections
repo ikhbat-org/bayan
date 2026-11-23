@@ -1,0 +1,9 @@
+== cases
+0 ((bynt_span_u8){l0_overlongNul.v, 3})
+1 ((bynt_span_u8){l1_overlong.v, 5})
+2 ((bynt_span_u8){l2_surrogate.v, 4})
+3 ((bynt_span_u8){l3_tooLarge.v, 4})
+4 ((bynt_span_u8){l4_truncated.v, 3})
+5 ((bynt_span_u8){l5_lone.v, 2})
+6 ((bynt_span_u8){l0_overlongNul.v, 3})
+count 7

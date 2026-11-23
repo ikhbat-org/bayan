@@ -1,0 +1,11 @@
+== helpers
+bynh_try_parse_opt_f64 static bynt_opt_f64 bynh_try_parse_opt_f64(byn_str s) | static bynt_opt_f64 bynh_try_parse_opt_f64(byn_str s) {
+    double v;
+    if (!byn_float_parse(s, false, &v)) return (bynt_opt_f64){0};
+    return (bynt_opt_f64){true, (double)v};
+}
+bynh_try_parse_opt_f32 static bynt_opt_f32 bynh_try_parse_opt_f32(byn_str s) | static bynt_opt_f32 bynh_try_parse_opt_f32(byn_str s) {
+    double v;
+    if (!byn_float_parse(s, true, &v)) return (bynt_opt_f32){0};
+    return (bynt_opt_f32){true, (float)v};
+}

@@ -1,0 +1,48 @@
+1:2 Identifier `foo`
+1:6 Identifier `Bar`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:24 Identifier `بيان`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:1 StringLiteral `"text"`
+4:8 StringLiteral `"esc \"q\" \\ \n"`
+4:26 RawStringLiteral `"""\r\n 0xF__\r\n 'x\r\n\r\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

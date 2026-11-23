@@ -1,0 +1,60 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:1 Identifier `sand`
+2:6 OrKeyword `or`
+2:9 NotKeyword `not`
+2:13 WithKeyword `with`
+2:18 MoveKeyword `move`
+2:23 RefKeyword `ref`
+2:27 OutKeyword `out`
+2:31 ThisKeyword `this`
+2:36 NullKeyword `null`
+2:41 TrueKeyword `true`
+2:46 FalseKeyword `false`
+2:52 ComptimeKeyword `comptime`
+2:61 CheckedKeyword `checked`
+4:1 Identifier `é`
+5:1 CharLiteral `''`
+6:1 IntegerLiteral `1_`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ é
+    │   │ +
+
+error BYN0007: empty char literal
+
+  5 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1_
+    │  ^
+    │
+    │ 6 │ 1_
+    │   │  -

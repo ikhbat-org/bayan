@@ -1,0 +1,3 @@
+== bind.probes.k9
+flags 0
+conversion:i64[4019:6]=-(widen local:i32[4024:1]=-(a))

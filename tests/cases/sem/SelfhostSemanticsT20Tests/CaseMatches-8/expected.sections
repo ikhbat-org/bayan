@@ -1,0 +1,10 @@
+== args.a13
+literal|i64|-|-|-|2849:1|1
+errorExpr|?|-|-|-|2852:1|-
+literal|i64|-|-|-|2855:1|3
+errorExpr|?|-|-|-|2858:1|-
+BYN2305 144:23 argument for `verbose` must be named ||write `verbose: …`; a `bool` argument says nothing at the call site|fix 2852..2852 verbose: 
+BYN2202 144:23 expected `bool`, found `i32` |||
+BYN5005 144:26 `b` is passed without its particle `to:` |needs `to:`|add `to:` before the argument|fix 2855..2855 to: 
+BYN2202 144:29 expected `string`, found `i32` |||
+BYN2302 144:32 `take` takes 4 argument(s) |||

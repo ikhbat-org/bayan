@@ -1,0 +1,6 @@
+let ÿ = 2
+// ok þ in comment
+
+á„€á…¡á†¨$"total {x}" $"ü {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}Õ}" $"{Point { x = 1 }}!" $""
+ 

@@ -1,0 +1,9 @@
+# kit
+
+A Bayan library. Its code is in `src/kit/`; other packages use it with `import kit`.
+
+## Test
+
+```
+bayan test
+```

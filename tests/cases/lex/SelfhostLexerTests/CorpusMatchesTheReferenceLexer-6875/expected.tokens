@@ -1,0 +1,69 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:3 CharLiteral `' '`
+2:6 Identifier `é`
+2:7 CharLiteral `' '`
+2:12 CharLiteral `' '`
+2:16 IntegerLiteral `0`
+2:17 CharLiteral `'`
+3:2 CharLiteral `'\u{202E}'`
+4:2 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  ���' 'é' '\\' '\0'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  ���' 'é' '\\' '\0'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���' 'é' '\\' '\0'
+    │    ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  ���' 'é' '\\' '\0'
+    │            ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  ���' 'é' '\\' '\0'
+    │             ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  ���' 'é' '\\' '\0'
+    │                 ^
+
+error BYN0008: unterminated char literal
+
+  2 │  ���' 'é' '\\' '\0'
+    │                   ^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  '�'
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  '�'
+    │   │   -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ �
+    │ ^

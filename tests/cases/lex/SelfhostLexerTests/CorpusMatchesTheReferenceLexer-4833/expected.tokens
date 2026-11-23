@@ -1,0 +1,20 @@
+1:1 CloseBrace `}`
+1:3 Identifier `here`
+1:7 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `ope x`
+2:8 InterpolatedStringEnd `"`
+2:9 Semicolon `;`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ } here"
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{3}`
+
+  2 │ $"ope x";�
+    │          ^

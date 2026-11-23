@@ -1,13 +1,15 @@
 #!/bin/bash
 # guard.sh — run in a writer worktree before finishing. Prints GUARD PASS or GUARD FAIL + the items to fix.
-#   bash guard.sh --base <branch> --allow '<glob>[,<glob>…]' --filter '<dotnet test filter>' [--task T<n>] [--mutate <file.byn>[,…]] [--spec <nnn>] [--scope-only]
-# --spec picks the row of specs.tsv (default 010): its shared-state files are allowed in scope, its test-class prefix names the task;
+#   bash guard.sh --base <branch> --allow '<glob>[,<glob>…]' --filter '<word>[ <word>…]' [--task T<n>] [--mutate <file.byn>[,…]] [--spec <nnn>] [--scope-only]
+# --filter words are each a scripts/test.sh part (golden|bayan|parity|scripts|runtime), run as `scripts/test.sh --only <part>`, or a
+# `<kind>/<Class>/` selector, run as `bayan test tests/cases --only <selector>` (BAYAN_EXE, else the stage-1 binary scripts/bootstrap-build.sh prints).
+# --spec picks the row of specs.tsv (default 010): its shared-state files are allowed in scope; --task names the task for the content checks;
 # --scope-only stops after check 1 and 2 (land.sh --check-scope).
 # Changed lib/std/**/*.byn files are treated like selfhost .byn files wherever the guard selects them (coverage, banned C#-isms);
-# with one changed, the coverage run adds StdTestFilesTests to --filter, whose harness build of each std module's tests counts them,
+# with one changed, the coverage run adds the `bayan` part to --filter, whose run of each std module's tests counts them,
 # and check 5 runs the pinned `bayan format --check` over lib/std/ (skipped on Windows, as SourcesAreFormatted).
 # Checks: 1 scope (changed files match --allow, plus the questions and progress-log docs, todo and tasks), 2 no junk (binary or extensionless files),
-# 3 build 0 warnings, 4 tests pass with 0 skipped, and coverage (spec 013 T26): when the branch changes selfhost .byn files the
+# 3 build (the stage-1 bayan), 4 tests pass with 0 skipped, and coverage (spec 013 T26): when the branch changes selfhost .byn files the
 # tests run under BAYAN_COVERAGE with those files, and every line and branch of each function the branch touches (its span
 # holds a line added or changed against the merge base with --base; a new function counts) must be covered, each missed one
 # named (tools/coverage-gate.byn; `// coverage-exempt:` for code dead in the C#, `// coverage-blocked: Qnnn T<k> <fn>` for code
@@ -15,7 +17,7 @@
 # coverage: it leaves the report at tmp/guard-run/coverage/bayan-quality.json, and land.sh records it (raise-only) in
 # tests/quality-baseline.json. 5 banned C#-isms in changed .byn, 6 mutation (spec 013 R14): every
 # mutation site of the --mutate files must make the filtered tests fail (`bayan mutate --binary` over a BAYAN_SNAPSHOT
-# recording; a survivor = an untested change; `@unobservable because "…"` marks a statement whose mutants no test can see),
+# recording of the --filter selectors on the stage-1 bayan, mutation-step.sh; a survivor = an untested change; `@unobservable because "…"` marks a statement whose mutants no test can see),
 # and no file's score may fall below tests/quality-baseline.json (only with --mutate),
 # 7 content checks from tools/guard-checks.byn (C# oracle in the tests, no stubs or empty bodies left, ctx.byn only in the
 # task's own section, no open gating Question, docs: progress log entry and Question line citations that hold).
@@ -23,7 +25,6 @@
 # runs on every guard (when a selfhost .byn changed), landing included. A python helper that exits non-zero (a malformed report, manifest or baseline) is a
 # FAIL item naming its input, never a silent pass.
 set -u
-export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 BASE=""; ALLOW=""; FILTER=""; TASK=""; MUTATE=""; SPEC=010; SCOPEONLY=0
 while [ $# -gt 0 ]; do case "$1" in
   --base) BASE=$2; shift 2;; --allow) ALLOW=$2; shift 2;; --filter) FILTER=$2; shift 2;; --task) TASK=$2; shift 2;;
@@ -31,7 +32,7 @@ while [ $# -gt 0 ]; do case "$1" in
 [ -n "$BASE" ] && [ -n "$FILTER" ] || { echo "need --base and --filter"; exit 2; }
 ROW=$(awk -F'\t' -v s="$SPEC" 'NR>1 && $1==s' "$(dirname "$0")/specs.tsv")
 [ -n "$ROW" ] || { echo "no row for spec $SPEC in specs.tsv"; exit 2; }
-IFS=$'\t' read -r _ SDIR STASKS _ _ SHARED BYDIR PREFIX _ <<< "$ROW"
+IFS=$'\t' read -r _ SDIR STASKS _ _ SHARED BYDIR _ <<< "$ROW"
 FAIL=(); note() { FAIL+=("$1"); }
 mkdir -p "$PWD/tmp/guard-run"; LOG=$PWD/tmp/guard-run
 
@@ -52,26 +53,29 @@ if [ $SCOPEONLY = 1 ]; then
 fi
 # the changed selfhost .byn files still present: the files coverage is measured over
 COVER=$(while IFS= read -r f; do case "$f" in (src/*.byn|lib/std/*.byn) [ -f "$f" ] && echo "$f";; esac; done <<< "$CHANGED" | tr '\n' ',' | sed 's/,$//')
-# a changed lib/std file is covered by its module's own tests (StdTestFilesTests), whatever --filter selects
-TFILTER=$FILTER; case ",$COVER" in *,lib/std/*) TFILTER="($FILTER)|FullyQualifiedName~StdTestFilesTests";; esac
+# a changed lib/std file is covered by its module's own tests (the `bayan` part), whatever --filter selects
+TFILTER=$FILTER; case ",$COVER" in *,lib/std/*) case " $FILTER " in *" bayan "*) ;; *) TFILTER="$FILTER bayan";; esac;; esac
 rm -f "$LOG/quality-"*.json  # a mutation report left by an earlier run must not reach this run's baseline check
 COV="$LOG/coverage"; rm -f "$COV/bayan-quality.json" "$COV/functions.json"; TX=1
 
-# 3 build
-dotnet build -v q -p:UseSharedCompilation=false > "$LOG/build.txt" 2>&1
-W=$(grep -cE ' warning [A-Z]+[0-9]+' "$LOG/build.txt"); E=$(grep -cE ' error [A-Z]+[0-9]+' "$LOG/build.txt")
-[ "$E" = 0 ] && [ "$W" = 0 ] || note "build: $E errors, $W warnings — $(grep -m3 -E ' (error|warning) [A-Z]+[0-9]+' "$LOG/build.txt" | sed 's/.*\///' | tr '\n' ' ')"
+# 3 build: the stage-1 bayan, BAYAN_EXE when set
+E=0; BEXE=${BAYAN_EXE:-}
+if [ -z "$BEXE" ]; then
+  BEXE=$(bash "$PWD/scripts/bootstrap-build.sh" 2> "$LOG/build.txt" | tail -1) && [ -x "$BEXE" ] || { E=1; note "build: bootstrap-build.sh failed — $(tail -1 "$LOG/build.txt")"; }
+fi
 
-# 4 tests
+# 4 tests: each --filter word runs on its own; a failing word fails the guard
 if [ "$E" = 0 ]; then
-  # the harness writes the coverage report in a ProcessExit handler; vstest kills the test host shortly after the run unless
-  # given longer, and merging ~1,100 counter files (L022 under coverage, T41) takes more than its default
-  ( [ -n "$COVER" ] && export BAYAN_COVERAGE=$COV BAYAN_COVERAGE_FILES=$COVER VSTEST_TESTHOST_SHUTDOWN_TIMEOUT=600000
-    dotnet test --no-build -p:UseSharedCompilation=false --filter "$TFILTER" --logger "console;verbosity=normal" ) > "$LOG/test.txt" 2>&1; TX=$?
-  R=$(grep -E 'Total tests:|^ *(Passed|Failed|Skipped): *[0-9]+' "$LOG/test.txt" | tr -s ' \n' ' ')
-  [ $TX = 0 ] || note "tests: FAIL ($R) — first failure: $(grep -m1 -A8 'Error Message' "$LOG/test.txt" | grep -v '^\s*$' | tr '\n' ' ' | cut -c1-400)"
-  grep -qE 'No test matches|Total tests: 0' "$LOG/test.txt" && note "tests: filter '$TFILTER' matched no tests"
-  echo "$R" | grep -qE 'Skipped: [1-9]' && note "tests: skipped tests present ($R)"
+  TX=0; CENV=(); [ -z "$COVER" ] || CENV=(BAYAN_COVERAGE="$COV" BAYAN_COVERAGE_FILES="$COVER"); : > "$LOG/test.txt"
+  for w in $TFILTER; do
+    case $w in golden|bayan|parity|scripts|runtime) cmd=(bash "$PWD/scripts/test.sh" --only "$w");; *) cmd=("$BEXE" test tests/cases --only "$w");; esac
+    # the coverage report is written by the run itself (T29)
+    env BAYAN_EXE="$BEXE" ${CENV[@]+"${CENV[@]}"} "${cmd[@]}" > "$LOG/test-word.txt" 2>&1; rc=$?
+    { echo "== $w (exit $rc)"; cat "$LOG/test-word.txt"; } >> "$LOG/test.txt"
+    [ $rc = 0 ] || { TX=1; note "tests: FAIL '$w' (exit $rc) — first failure: $(grep -m1 -iE 'fail|error' "$LOG/test-word.txt" | cut -c1-400)"; }
+    grep -qE '^bayan: no (case|test) name contains' "$LOG/test-word.txt" && note "tests: '$w' matched no tests"
+    grep -qE '^test: +[a-z]+ +skip ' "$LOG/test-word.txt" && note "tests: skipped tests present ('$w')"
+  done
 fi
 
 # 4 coverage of the functions the branch touches in the changed selfhost .byn files (a red run's coverage proves nothing):
@@ -117,19 +121,18 @@ case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ;; *)
 esac
 
 # 7 content checks (before mutations: they are cheap)
-# the task comes from --task, else from a <prefix><n>Tests class in --filter (the row's test-class prefix; T26/T27 test classes carry no number)
-[ -n "$TASK" ] || TASK=$(echo "$FILTER" | grep -oE "${PREFIX}[0-9]+Tests" | head -1 | sed -E "s/${PREFIX%T}(T[0-9]+)Tests/\1/")
+# the task comes from --task
 if [ -n "$TASK" ]; then
   out=$(bash "$(dirname "$0")/../bayan-tool.sh" guard-checks "$BASE" "$TASK" "$ALLOW" "$SPEC" 2> "$LOG/checks.txt") || note "checks: guard-checks failed: $(tail -1 "$LOG/checks.txt")"
   while read -r l; do [ -n "$l" ] && note "$l"; done <<< "$out"
-else note "checks: no --task and --filter names no ${PREFIX}<n>Tests class, so the content checks cannot run"; fi
+else note "checks: no --task, so the content checks cannot run (pass --task T<n>)"; fi
 
 # 6 mutations (only when everything above passed: a mutation run on a red tree proves nothing)
 # the recording and the per-build runs are mutation-step.sh (shared with mutate-batch.sh); the reports are copied to
 # tmp/guard-run/ as quality-<n>-<binary>.json
 if [ ${#FAIL[@]} = 0 ] && [ -n "$MUTATE" ]; then
   . "$(dirname "$0")/mutation-step.sh"
-  if mutation_step "$LOG" "$FILTER" "$MUTATE" 1; then
+  if BAYAN_EXE=$BEXE mutation_step "$LOG" "$FILTER" "$MUTATE" 1; then
     # a score below tests/quality-baseline.json fails (mutate-batch.sh, the batch run, raises the baseline)
     if ls "$LOG/quality-"*.json > /dev/null 2>&1; then
       # exit 1 with lines: the drops; a non-zero exit without them: quality-baseline failed on its inputs

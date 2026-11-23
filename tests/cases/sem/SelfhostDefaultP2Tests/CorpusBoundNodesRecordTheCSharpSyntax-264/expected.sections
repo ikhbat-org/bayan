@@ -1,0 +1,18 @@
+== tests/cases/run/slice-from-end-min.byn
+101..119 globalStatement
+101..119 localDecl
+110..119 collectionExpr
+111..112 literalExpr integer
+114..115 literalExpr integer
+117..118 literalExpr integer
+120..153 localDecl
+133..153 unaryExpr negate operand 134..153
+154..186 exprStmt
+154..186 callExpr
+160..185 interpolatedExpr
+163..183 memberExpr
+163..176 indexExpr
+163..170 memberExpr
+163..165 nameExpr
+172..173 nameExpr
+154..186 callExpr

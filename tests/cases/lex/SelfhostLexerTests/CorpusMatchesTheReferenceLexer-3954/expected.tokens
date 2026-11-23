@@ -1,0 +1,61 @@
+1:1 Identifier `n`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+4:1 Identifier `closed`
+5:1 Identifier `b`
+6:2 FailsKeyword `fails`
+6:8 TryKeyword `try`
+6:11 CatchKeyword `catch`
+6:17 NeverKeyword `never`
+6:23 NoallocKeyword `noalloc`
+6:31 Identifier `nos`
+6:34 Identifier `spend`
+6:40 SuspendsKeyword `suspends`
+6:49 AsyncKeyword `async`
+6:55 AwaitKeyword `await`
+7:2 Identifier `ής`
+7:5 Identifier `x_1`
+7:9 Identifier `é`
+9:1 Identifier `macro`
+9:7 StructKeyword `struct`
+9:14 UniqueKeyword `unique`
+9:21 UnionKeyword `union`
+9:27 EnumKeyword `enum`
+9:32 FlagsKeyword `flags`
+9:38 OpenKeyword `open`
+9:43 ExtensibleKeyword `extensible`
+9:54 InterfaceKeyword `interface`
+9:64 DelegateKeyword `delegate`
+9:73 ExtensionKeyword `extension`
+9:83 DerivationKeyword `derivation`
+9:94 AttributeKeyword `attribute`
+11:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let x� = 1
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  6 │  fails try�catch never noalloc nos�spend suspends async await
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  6 │  fails try�catch never noalloc nos�spend suspends async await
+    │                                   ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  9 │ macro struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

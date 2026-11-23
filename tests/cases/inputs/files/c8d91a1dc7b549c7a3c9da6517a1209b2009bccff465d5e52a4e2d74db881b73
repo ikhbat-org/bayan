@@ -1,0 +1,12 @@
+ment
+/* block
+   comment */ a
+/// Doc line one.
+///^Doc line two
+literal}}" $"{Point { x = 1 }}!" $""
+
+ne comment
+/* block
+   comment */ a
+/// Doc line one.
+///D

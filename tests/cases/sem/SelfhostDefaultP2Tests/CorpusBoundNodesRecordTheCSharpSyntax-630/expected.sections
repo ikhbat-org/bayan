@@ -1,0 +1,4 @@
+== tests/cases/diag/lambda-no-target-type.byn
+12..34 blockStmt
+18..32 localDecl
+26..32 lambdaExpr

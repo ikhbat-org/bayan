@@ -1,0 +1,45 @@
+2:1 Amp `&`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 Bar `|`
+2:11 Caret `^`
+2:13 Tilde `~`
+2:15 Bang `!`
+2:17 Equals `=`
+2:19 EqualsEquals `==`
+2:22 BangEquals `!=`
+2:25 Less `<`
+2:27 LessEquals `<=`
+2:30 Greater `>`
+2:32 GreaterEquals `>=`
+2:35 LessLess `<<`
+2:38 Greater `>`
+2:41 Greater `>`
+2:42 GreaterEquals `>=`
+3:1 PlusEquals `+=`
+4:1 StringLiteral `"text"`
+4:8 StringLiteral `"esc \"q\" \\ \n"`
+4:26 RawStringLiteral `"""\n \t\n'\u{D800}'\n*/ � $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{PoiDnt { x = 1 }}!" $""\n\nạ̇ `
+9:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │ & && | |� ^ ~ ! = == != < <= > >= << >� >>=
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  2 │ & && | |� ^ ~ ! = == != < <= > >= << >� >>=
+    │                                       ^
+
+error BYN0003: unterminated string literal
+
+  4 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ */ � $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{PoiDnt { x = 1 }}!" $""
+    │    ^

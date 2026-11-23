@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/unless-negated.byn
+--package
+<repo>/tests/cases/diag

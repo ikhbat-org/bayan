@@ -1,0 +1,9 @@
+var xs: List<List<i64>>
+
+let effect = 2
+
+þ in comment
+ += -= *= /= %= &= |= ^= <<=
+ € $"stray } here"
+
+}" $

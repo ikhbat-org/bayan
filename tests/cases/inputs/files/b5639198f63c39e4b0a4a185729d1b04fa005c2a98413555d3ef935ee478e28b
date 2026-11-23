@@ -1,0 +1,5 @@
+void f() {
+    if (member == "handler" || member == "onPanic") && t15Lookup(ref b, for: "Panic") == -1 {
+        return bindOnPanic(ref b, through: ref c, for: in a.value)
+    }
+}

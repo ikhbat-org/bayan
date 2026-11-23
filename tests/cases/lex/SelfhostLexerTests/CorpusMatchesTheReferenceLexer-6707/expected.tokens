@@ -1,0 +1,87 @@
+1:1 Identifier `text`
+1:5 StringLiteral `" 16"`
+1:10 Identifier `wide`
+1:14 StringLiteral `" "`
+1:19 Identifier `allowed`
+1:27 InKeyword `in`
+1:30 Identifier `strings`
+1:37 StringLiteral `" "`
+1:40 StringLiteral `" "`
+1:44 Identifier `u`
+1:45 OpenBrace `{`
+1:46 IntegerLiteral `48`
+1:48 CloseBrace `}`
+1:49 Identifier `i`
+1:50 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:10 StructKeyword `struct`
+3:17 Identifier `S`
+    doc `/// Doc line two.`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `x`
+6:4 InterpolationStart `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+7:1 Identifier `f`
+8:1 Identifier `macro`
+8:7 Identifier `select`
+8:14 BecomeKeyword `become`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ text" 16"wide" "� allowed in strings" "" "\u{48}i"
+    │                 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ text" 16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │                 -
+
+error BYN0002: unexpected character `\`
+
+  1 │ text" 16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ text" 16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

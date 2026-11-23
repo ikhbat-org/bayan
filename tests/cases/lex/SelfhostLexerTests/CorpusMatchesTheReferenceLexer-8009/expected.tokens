@@ -1,0 +1,84 @@
+1:2 Identifier `a`
+1:4 Equals `=`
+1:6 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+4:1 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 IfKeyword `if`
+5:8 ElseKeyword `else`
+5:13 UnlessKeyword `unless`
+5:20 SwitchKeyword `switch`
+5:27 CaseKeyword `case`
+5:32 DefaultKeyword `default`
+5:40 ForKeyword `for`
+5:44 InKeyword `in`
+5:47 WhileKeyword `while`
+5:53 DoKeyword `do`
+5:56 BreakKeyword `break`
+5:62 ContinueKeyword `continue`
+5:71 ReturnKeyword `return`
+5:78 YieldKeyword `yield`
+5:84 DeferKeyword `defer`
+5:90 ErrdeferKeyword `errdefer`
+5:99 UsingKeyword `using`
+5:105 ContextKeyword `context`
+7:90 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok �  let café = 1;
+    │       ^
+
+error BYN0004: unterminated block comment
+
+  6 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  7 │ ���� � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"�"}"}"}"}" 
+    │                                                                                  ^

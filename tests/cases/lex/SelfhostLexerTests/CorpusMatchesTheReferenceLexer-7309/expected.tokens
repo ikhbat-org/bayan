@@ -1,0 +1,64 @@
+2:1 StringLiteral `"a\u{2067}b"`
+3:1 StringLiteral `"{`
+4:1 CharLiteral `''`
+6:3 StringLiteral `""`
+6:7 CStringLiteral `c"text"`
+6:15 U16StringLiteral `u16"wide"`
+6:27 Identifier `allowed`
+6:35 InKeyword `in`
+6:38 Identifier `strings`
+6:45 StringLiteral `" "`
+6:48 StringLiteral `" "`
+6:52 Identifier `u`
+6:53 OpenBrace `{`
+6:54 IntegerLiteral `48`
+6:56 CloseBrace `}`
+6:57 Identifier `i`
+6:58 StringLiteral `"`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  6 │   ""� c"text" u16"wide" � allowed in strings" "" "\u{48}i"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │   ""� c"text" u16"wide" � allowed in strings" "" "\u{48}i"
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │   ""� c"text" u16"wide" � allowed in strings" "" "\u{48}i"
+    │                          ^
+
+error BYN0002: unexpected character `\`
+
+  6 │   ""� c"text" u16"wide" � allowed in strings" "" "\u{48}i"
+    │                                                   ^
+
+error BYN0003: unterminated string literal
+
+  6 │   ""� c"text" u16"wide" � allowed in strings" "" "\u{48}i"
+    │                                                          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,113 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:14 Identifier `W`
+2:15 StringLiteral `"{$"`
+2:19 OpenBrace `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 StringLiteral `"{$"`
+2:45 OpenBrace `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:54 StringLiteral `"{x}"`
+2:59 CharLiteral `'\u{202E}'`
+2:62 Identifier `_`
+3:1 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `"ρητής x_1 é`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │     ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$W"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$�"{x}"'�'_
+    │             ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$W"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$�"{x}"'�'_
+    │                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ $"{$"{$"{$"{$W"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$�"{x}"'�'_
+    │                                                     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ $"{$"{$"{$"{$W"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$�"{x}"'�'_
+    │                                                            ^ invisible character that reorders
+    │                                                              how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ $"{$"{$"{$"{$W"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$�"{x}"'�'_
+    │   │                                                            -
+
+error BYN0003: unterminated string literal
+
+  3 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x"ρητής x_1 é
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x"ρητής x_1 é
+    │          ^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

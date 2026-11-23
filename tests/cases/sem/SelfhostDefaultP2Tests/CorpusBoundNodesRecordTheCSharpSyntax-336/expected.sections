@@ -1,0 +1,38 @@
+== tests/cases/run/untrusted-trust.byn
+0..39 globalStatement
+0..39 localDecl
+37..39 collectionExpr
+40..70 exprStmt
+40..70 callExpr
+40..45 nameExpr
+53..69 callExpr
+63..68 literalExpr string
+71..103 exprStmt
+71..103 callExpr
+71..76 nameExpr
+84..102 callExpr
+94..101 literalExpr string
+104..195 forStmt
+113..118 nameExpr
+119..195 blockStmt
+125..180 localDecl
+141..159 callExpr because
+141..142 nameExpr
+185..193 exprStmt
+185..193 callExpr
+191..192 nameExpr
+185..193 callExpr
+196..232 localDecl
+220..232 callExpr
+230..231 literalExpr integer
+233..262 exprStmt
+233..262 callExpr
+239..261 interpolatedExpr
+242..259 binaryExpr eq right 247..259
+242..243 nameExpr
+242..243 nameExpr
+247..259 callExpr
+247..259 callExpr
+247..259 callExpr
+257..258 literalExpr integer
+233..262 callExpr

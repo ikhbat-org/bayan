@@ -1,0 +1,154 @@
+3:1 Identifier `ock`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+    doc `/// Doc line one.\n/// Doc l`
+8:1 LetKeyword `let`
+8:5 Identifier `s`
+8:7 Equals `=`
+8:9 InterpolatedStringStart `$"`
+8:11 InterpolationStart `{`
+8:12 InterpolatedStringStart `$"`
+8:14 InterpolationStart `{`
+8:15 InterpolatedStringStart `$"`
+8:17 InterpolationStart `{`
+8:18 InterpolatedStringStart `$"`
+8:20 InterpolationStart `{`
+8:21 InterpolatedStringStart `$"`
+8:23 InterpolationStart `{`
+8:24 InterpolatedStringStart `$"`
+8:26 InterpolationStart `{`
+8:27 InterpolatedStringStart `$"`
+8:29 InterpolationStart `{`
+8:30 InterpolatedStringStart `$"`
+8:32 InterpolationStart `{`
+8:33 InterpolatedStringStart `$"`
+8:35 InterpolationStart `{`
+8:36 InterpolatedStringStart `$"`
+8:38 InterpolationStart `{`
+8:39 InterpolatedStringStart `$"`
+8:41 InterpolationStart `{`
+8:42 StringLiteral `"{$"`
+8:46 OpenBrace `{`
+8:47 InterpolatedStringStart `$"`
+8:49 InterpolationStart `{`
+8:50 InterpolatedStringStart `$"`
+8:52 InterpolationStart `{`
+8:53 InterpolatedStringStart `$"`
+8:55 InterpolationStart `{`
+8:56 InterpolatedStringStart `$"`
+8:58 InterpolationStart `{`
+8:59 InterpolatedStringStart `$"`
+8:61 InterpolationStart `{`
+8:62 StringLiteral `$"{$"`
+8:67 OpenBrace `{`
+8:68 Identifier `x`
+8:69 CloseBrace `}`
+8:70 StringLiteral `"}"`
+8:73 InterpolationEnd `}`
+8:74 InterpolatedStringEnd `"`
+8:75 InterpolationEnd `}`
+8:76 InterpolatedStringEnd `"`
+8:77 InterpolationEnd `}`
+8:78 InterpolatedStringEnd `"`
+8:79 InterpolationEnd `}`
+8:80 InterpolatedStringEnd `"`
+8:81 InterpolationEnd `}`
+8:82 InterpolatedStringEnd `"`
+8:83 CloseBrace `}`
+8:84 StringLiteral `"}"`
+8:87 InterpolationEnd `}`
+8:88 InterpolatedStringEnd `"`
+8:89 InterpolationEnd `}`
+8:90 InterpolatedStringEnd `"`
+8:91 InterpolationEnd `}`
+8:92 InterpolatedStringEnd `"`
+8:93 InterpolationEnd `}`
+8:94 InterpolatedStringEnd `"`
+8:95 InterpolationEnd `}`
+8:96 InterpolatedStringEnd `"`
+8:97 InterpolationEnd `}`
+8:98 InterpolatedStringEnd `"`
+8:99 InterpolationEnd `}`
+8:100 InterpolatedStringEnd `"`
+8:101 InterpolationEnd `}`
+8:102 InterpolatedStringEnd `"`
+8:103 InterpolationEnd `}`
+8:104 InterpolatedStringEnd `"`
+8:105 InterpolationEnd `}`
+8:106 InterpolatedStringEnd `"`
+8:107 InterpolationEnd `}`
+8:108 InterpolatedStringEnd `"`
+9:2 IntegerLiteral `1_`
+10:1 IntegerLiteral `110000`
+10:7 CloseBrace `}`
+10:8 CharLiteral `'`
+11:1 CharLiteral `'x`
+13:1 Comma `,`
+13:3 Dot `.`
+13:5 DotDot `..`
+13:8 DotDotEquals `..=`
+13:12 Colon `:`
+13:14 Question `?`
+13:16 QuestionQuestion `??`
+13:19 QuestionQuestionEquals `??=`
+13:23 QuestionDot `?.`
+13:26 FatArrow `=>`
+13:29 Arrow `->`
+13:32 At `@`
+13:34 Hash `#`
+    doc `///`
+15:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  7 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  8 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                          ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                               ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │  1_
+    │   ^
+    │
+    │ 9 │  1_
+    │   │   -
+
+error BYN0008: unterminated char literal
+
+  10 │ 110000}'
+     │        ^
+     │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  11 │ 'x
+     │ ^^
+     │
+  help: close it with `'`

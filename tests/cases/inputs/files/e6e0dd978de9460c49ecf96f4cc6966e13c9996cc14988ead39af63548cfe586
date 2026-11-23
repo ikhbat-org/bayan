@@ -1,0 +1,11 @@
+Booking book(
+    Carrier carrier,
+    Route route,
+    Date date,
+    Passenger passenger,
+    Seat preferredSeat,
+    Meal meal,
+    Insurance insurance
+) uses net, suspend fails BookingError {
+    return try carrier.quote(route, on: date)
+}

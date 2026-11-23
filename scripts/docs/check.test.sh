@@ -38,9 +38,9 @@ expect "(b) gap" "docs/revisions/0001-*.md is missing"
 cp "$t/repo/docs/revisions/0002-second.md" "$t/repo/docs/revisions/0002-again.md"
 expect "(b) repeat" "docs/revisions has 2 files numbered 0002"
 
-sed -i.bak 's/^}$/    public static readonly DiagnosticDescriptor Eps = Error("BYN4006", "eps");\n}/' \
-  "$t/repo/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
-grep -q BYN4006 "$t/repo/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" || fail "fixture edit did not apply"
+sed -i.bak -e 's/^    old$/    old\n    eps/' -e 's/^    \.old         => "BYN3005",$/&\n    .eps         => "BYN4006",/' \
+  -e 's/^    \.old         => "old",$/&\n    .eps         => "eps",/' "$t/repo/src/semantics/codes.byn"
+grep -q BYN4006 "$t/repo/src/semantics/codes.byn" || fail "fixture edit did not apply"
 expect "(c) new descriptor" "docs/DIAGNOSTICS.md is stale; run bash scripts/docs/gen-diagnostics.sh --write"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | none |/' "$t/repo/docs/STATUS.md"
 bash "$s" >/dev/null || fail "(c) a hand-kept STATUS row edit fails the check"

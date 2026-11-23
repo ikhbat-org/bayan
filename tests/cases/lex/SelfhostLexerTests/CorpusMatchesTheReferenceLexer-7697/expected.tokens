@@ -1,0 +1,43 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `")} d"`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolatedStringText `{{literal}}`
+1:22 InterpolatedStringEnd `"`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 Identifier `P`
+2:1 Identifier `ome`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 Identifier `macro`
+4:8 Identifier `select`
+4:15 BecomeKeyword `become`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ }")} d" $"{{literal}}" $"{P
+    │                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ �
+    │ ^

@@ -1,0 +1,56 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:3 Identifier `quoted`
+2:9 StringLiteral `"`
+3:3 RawStringLiteral `""" c"text" u16"wid let café = 1\r\n c >>= 1\r\n\r\n""never closed\r\n + - * / % +% -% *% +| -| *| ++ --\r\nlet effect = 2\r\n`
+9:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ ����� quoted"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ ����� quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����� quoted"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����� quoted"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����� quoted"
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ����� quoted"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wid let café = 1
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

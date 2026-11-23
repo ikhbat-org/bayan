@@ -1,0 +1,91 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 Identifier `b1ms`
+6:1 IntegerLiteral `0x_`
+7:1 IntegerLiteral `0b__`
+8:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `0xF__`
+10:3 Equals `=`
+10:5 IntegerLiteral `1`
+12:1 CharLiteral `''`
+13:1 LetKeyword `let`
+13:5 Identifier `c`
+13:7 Equals `=`
+13:11 IntegerLiteral `3`
+14:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  4 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 4 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  4 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ /* � */
+    │   │    -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  10 │ � = 1
+     │ ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ � = 1
+     │    │ -
+
+error BYN0007: empty char literal
+
+  12 │ ''
+     │ ^^
+     │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `\u{7}`
+
+  13 │ let c = � 3
+     │         ^

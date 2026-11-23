@@ -1,0 +1,19 @@
+== tests/cases/diag/span-views.byn
+89..207 blockStmt
+95..115 localDecl
+104..115 callExpr
+120..132 exprStmt
+120..132 callExpr
+120..122 nameExpr
+130..131 literalExpr integer
+137..151 assignStmt assign target 137..147 value 150..151
+137..147 indexExpr
+137..144 memberExpr
+137..139 nameExpr
+145..146 literalExpr integer
+150..151 literalExpr integer
+156..176 localDecl
+165..176 callExpr
+181..205 localDecl
+189..205 callExpr
+189..191 nameExpr

@@ -1,0 +1,5 @@
+== diags.panic-on-panic
+BYN2230 6:11 `onPanic` is now `handler`
+  label the old name
+  help rename it `handler`
+  fix 6:11-6:18 handler

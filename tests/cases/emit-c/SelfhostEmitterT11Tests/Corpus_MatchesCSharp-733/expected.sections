@@ -1,0 +1,35 @@
+== cases
+0 (*bynh_slot_map_str_i64(&l0_m, p_key, ((int64_t){0})))
+1 (*bynh_slot_map_str_i64(&(*p_m), p_key, ((int64_t){0})))
+3 bynh_try_get_map_str_i64((*p_m), p_key)
+4 ((bynt_res_map_str_i64){{0}, byn_main__fresh(INT64_C(5), BYN_STR("r", 1))})
+5 bynh_add_list_map_str_i64(&l6_list, byn_main__fresh(INT64_C(6), BYN_STR("u", 1)))
+6 (*bynh_slot_map_i64_map_str_i64(&l7_nested, INT64_C(1), ((bynt_map_str_i64){0})))
+7 ((bynt_opt_map_str_i64){true, byn_main__fresh(INT64_C(11), BYN_STR("n", 1))})
+8 (*bynh_slot_map_str_i64(&l0_a, BYN_STR("x2", 2), ((int64_t){0})))
+9 (*bynh_slot_map_str_i64(&l3_s.data, BYN_STR("z2", 2), ((int64_t){0})))
+10 (*bynh_slot_map_str_i64(&(*bynh_at_arr2_map_str_i64(&l9_arr, (int64_t)INT64_C(1), false, byn_file_0, 69)), BYN_STR("k", 1), ((int64_t){0})))
+11 (*bynh_at_arr2_map_str_i64(&l9_arr, (int64_t)INT64_C(1), false, byn_file_0, 69))
+12 l0_a.h.live
+13 l3_s.data.h.live
+14 (*bynh_at_arr2_map_str_i64(&l9_arr, (int64_t)INT64_C(1), false, byn_file_0, 73)).h.live
+15 (*bynh_at_arr2_map_str_i64(&l9_arr, (int64_t)INT64_C(1), false, byn_file_0, 73))
+16 (*l11_o).h.live
+17 (*l11_o)
+18 (*bynh_at_list_map_str_i64(l6_list, (int64_t)INT64_C(0), false, byn_file_0, 73)).h.live
+19 (*bynh_at_list_map_str_i64(l6_list, (int64_t)INT64_C(0), false, byn_file_0, 73))
+20 (*bynh_at_arr2_map_str_i64(&l9_arr, (int64_t)INT64_C(0), false, byn_file_0, 74))
+21 (*l11_o)
+22 bynh_value_res_map_str_i64(l12_r, byn_file_0, 78)
+23 bynh_index_map_i64_map_str_i64(l7_nested, INT64_C(1), byn_file_0, 78)
+24 l31_d.h.live
+25 l33_renamed.m.h.live
+27 (*bynh_slot_map_str_i64(&(*p_m), BYN_STR("counted", 7), ((int64_t){0})))
+28 (*p_m).h.live
+29 t2.h.len
+30 (!t2.h.dead[t3])
+31 ((bynt_tup2_str_i64){t2.keys[t3], t2.vals[t3]})
+32 t25.h.len
+33 (!t25.h.dead[t26])
+34 ((bynt_tup2_str_i64){t25.keys[t26], t25.vals[t26]})
+count 35

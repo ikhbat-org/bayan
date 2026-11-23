@@ -1,0 +1,6 @@
+"text" "esc \"q\" \\ \n" """
+ fails try catch never noalloc nosuspend suspends async await
+ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$""{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+
+*/

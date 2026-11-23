@@ -1,0 +1,96 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 FloatLiteral `2.5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:39 IntegerLiteral `3`
+1:41 IntegerLiteral `5`
+1:42 NumericSuffix `e`
+1:44 Identifier `x`
+1:45 Dot `.`
+1:46 Identifier `y`
+1:48 FloatLiteral `2.5`
+1:51 NumericSuffix `f`
+3:1 IsKeyword `is`
+3:4 AndKeyword `and`
+3:8 OrKeyword `or`
+3:11 NotKeyword `not`
+3:15 WithKeyword `with`
+3:20 MoveKeyword `move`
+3:25 RefKeyword `ref`
+3:29 OutKeyword `out`
+3:33 ThisKeyword `this`
+3:38 NullKeyword `null`
+3:43 TrueKeyword `true`
+3:48 Identifier `fase`
+3:53 ComptimeKeyword `comptime`
+3:62 CheckedKeyword `checked`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolationEnd `}`
+4:45 InterpolatedStringEnd `"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
+4:50 InterpolationEnd `}`
+4:51 InterpolatedStringEnd `"`
+4:52 InterpolationEnd `}`
+4:53 InterpolatedStringEnd `"`
+4:54 InterpolationEnd `}`
+4:55 InterpolatedStringEnd `"`
+4:56 InterpolationEnd `}`
+4:57 InterpolatedStringEnd `"`
+4:58 InterpolationEnd `}`
+4:59 InterpolatedStringEnd `"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+5:1 Identifier `et`
+5:4 LawKeyword `law`
+5:8 Equals `=`
+5:10 IntegerLiteral `3`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �is and or not with move ref out this null true fase comptime checked
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{}"}"}"}"}"}"}"}"}"
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string

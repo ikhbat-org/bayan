@@ -1,0 +1,7 @@
+== diags.run/requires
+BYN5011 2:5 this `expects` reads only `percent`; a type with `requires` checks it once
+  help declare a type with `requires` for `percent`
+BYN5011 3:5 this `expects` reads only `total`; a type with `requires` checks it once
+  help declare a type with `requires` for `total`
+BYN5011 6:27 this `expects` reads only `value`; a type with `requires` checks it once
+  help declare a type with `requires` for `value`

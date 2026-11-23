@@ -1,0 +1,9 @@
+{
+let c = """never ±closed
+
+ÿ = 2
+// ok þ in comment
+ let actor = 1
+øˆ€€€" "â€® allowed
+_000 0xFF 0x_ff 0b1010 0B11 5s ©
+ 

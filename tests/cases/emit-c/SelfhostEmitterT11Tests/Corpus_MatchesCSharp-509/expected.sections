@@ -1,0 +1,8 @@
+== cases
+0 ((bynt_span_str){l0_ls.v, 2})
+1 ((bynt_opt_str){true, p_dir})
+2 l1_r.exit_code
+3 l1_r.out
+4 ((bynt_span_u8){l1_marker.v, 2})
+7 ((bynt_span_str){l6_here.v, 2})
+count 8

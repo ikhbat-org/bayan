@@ -1,0 +1,46 @@
+1:3 Identifier `raw`
+1:7 StringLiteral `"quoted"`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+4:3 IntegerLiteral `0xF_`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:3 Identifier `U`
+7:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │  � raw "quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ � 0xF_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ � 0xF_
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ � 0xF_
+    │      ^
+    │
+    │ 4 │ � 0xF_
+    │   │      -
+
+error BYN0002: unexpected character `̈́`
+
+  7 │  ̈́U
+    │  ^

@@ -1,0 +1,8 @@
+error BYN2411: `ParseError.blank` cannot match `ParseError`
+  --> <repo>/tmp/t2/diag/assert-fails-missing-case/assert-fails-missing-case.byn:11:20
+
+  11 │ assert f("") fails ParseError.blank
+     │                    ^^^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2411

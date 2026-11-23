@@ -1,0 +1,2 @@
+== case int-u64-max-float-target
+literal 2739..2759 : f64 = 1.844674407370955E+19

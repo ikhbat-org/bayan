@@ -1,0 +1,7 @@
+error BYN3004: `buf` is modified while `f` still borrows it
+  --> <repo>/tests/cases/diag/lambda-capture-borrow-modified.byn:8:5
+
+  8 │     buf.clear()
+    │     ^^^^^^^^^^^ `f` is used again on line 9
+    │
+  help: finish using `f` first, or copy what it needs before changing `buf`

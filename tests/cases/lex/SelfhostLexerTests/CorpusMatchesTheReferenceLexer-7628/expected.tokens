@@ -1,0 +1,23 @@
+1:1 Identifier `l`
+1:2 Identifier `t`
+1:4 Identifier `c`
+1:6 Equals `=`
+1:8 RawStringLiteral `"""never closed\r\n�/// Doc line two.\r\n\r\n'ab'\r\n let b = ` 2\r\nlet c = \u{7} 3\r\n\r\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ l�t c = """never closed
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ l�t c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �/// Doc line two.
+    │ ^

@@ -1,0 +1,105 @@
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 IntegerLiteral `1`
+4:1 StringLiteral `"{} ''`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `total `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 InterpolationEnd `}`
+5:12 InterpolatedStringEnd `"`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolatedStringText `a `
+5:18 InterpolationStart `{`
+5:19 Identifier `f`
+5:20 OpenParen `(`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolatedStringText `b `
+5:25 InterpolationStart `{`
+5:26 Identifier `c`
+5:27 InterpolationEnd `}`
+5:28 InterpolatedStringEnd `"`
+5:29 CloseParen `)`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringText ` d`
+5:33 InterpolatedStringEnd `"`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolatedStringText `{{literal}}`
+5:48 InterpolatedStringEnd `"`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 Identifier `Point`
+5:59 OpenBrace `{`
+5:61 Identifier `x`
+5:63 Equals `=`
+5:65 IntegerLiteral `1`
+5:67 CloseBrace `}`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringText `!`
+5:70 InterpolatedStringEnd `"`
+5:72 InterpolatedStringStart `$"`
+5:74 InterpolatedStringEnd `"`
+7:1 Identifier `macro`
+7:7 Identifier `select`
+7:14 BecomeKeyword `become`
+8:2 Identifier `select`
+8:9 BecomeKeyword `become`
+9:1 Identifier `Nlet`
+9:6 LawKeyword `law`
+9:10 Equals `=`
+9:12 IntegerLiteral `3`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ "{} ''
+    │ ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │  select become
+    │  ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

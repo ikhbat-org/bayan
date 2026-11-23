@@ -1,0 +1,19 @@
+1:1 StringLiteral `"{ A�P�`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ A�P�
+    │ ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ "{ A�P�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  1 │ "{ A�P�
+    │       ^

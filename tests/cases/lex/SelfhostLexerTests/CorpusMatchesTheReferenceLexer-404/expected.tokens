@@ -1,0 +1,21 @@
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ ����
+    │  ^
+
+error BYN0002: unexpected character `\u{1E}`
+
+  1 │ ����
+    │   ^
+
+error BYN0002: unexpected character `\u{E}`
+
+  1 │ ����
+    │    ^

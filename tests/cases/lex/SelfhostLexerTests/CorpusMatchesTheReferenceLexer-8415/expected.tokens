@@ -1,0 +1,27 @@
+1:2 Identifier `À`
+1:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �À����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │ �À����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  1 │ �À����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �À����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �À����
+    │      ^

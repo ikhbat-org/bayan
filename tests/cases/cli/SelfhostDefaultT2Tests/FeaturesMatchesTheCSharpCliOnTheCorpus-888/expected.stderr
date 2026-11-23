@@ -1,0 +1,7 @@
+error BYN3206: `at .top` names no field of `Range`
+  --> <repo>/tests/cases/diag/rule-target-not-field.byn:4:30
+
+  4 │     requires low <= high at .top
+    │                              ^^^ `.top`
+    │
+  help: name a field of `Range`

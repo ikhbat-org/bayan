@@ -1,0 +1,3 @@
+build
+--emit-c
+typestate-order.byn

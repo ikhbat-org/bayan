@@ -1,0 +1,527 @@
+// 019 T29 (coverage ratchet): generics.byn paths no golden case reaches. Each program is compiled alone as `a.byn` and
+// summarised as its diagnostics (`code start+length message`, joined by ` | `); the expected text is the output of the
+// self-hosted checker at the commit that added the test.
+
+import lexer
+
+string t29gnDiags(string text, bool library = false) uses alloc, clock, fs {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    let c = create(from: move sources, at: ".", by: CompilationOptions { library: library })
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+bool t29gnIs(string text, as string expected, bool library = false) uses alloc, clock, console, fs {
+    let got = t29gnDiags(text, library: library)
+    if got != expected {
+        print($"T29GOT {got}")
+    }
+    return got == expected
+}
+
+test "generics t29: constraint checks on unions, interfaces, members and every argument kind" {
+    let text = """
+            interface IShape {
+                f64 area()
+                i64 sides
+            }
+
+            struct Sq : IShape {
+                f64 area() => 1.0
+                i64 sides => 4
+            }
+
+            struct Plain {
+                i64 v
+            }
+
+            union Opt<T> where T : IShape {
+                some(T value)
+                none
+            }
+
+            interface IHold<T> where T : IShape {
+                T held()
+            }
+
+            struct Box {
+                i64 n
+                i64 pick<T>(T x) where T : IShape => x.sides
+            }
+
+            interface IPick {
+                i64 choose<T>(T x) where T : IShape
+            }
+
+            union Color {
+                red
+                blue
+            }
+
+            i64 one<T>(T x) where T : IShape => x.sides
+
+            i64 viaParam<U>(U u) => one(u)
+
+            void main() {
+                let a: Opt<Sq> = .none
+                let b: Opt<Plain> = .none
+                let b2: Opt<i64> = .none
+                let b3: Opt<Color> = .none
+                var h: IHold<Plain>? = null
+                let bx = Box { n: 1 }
+                let p = bx.pick(Sq {})
+                let q = bx.pick(Plain { v: 1 })
+                let r = one(5)
+                let s = one(Color.red)
+            }
+
+            struct Half {
+                f64 area() => 2.0
+            }
+
+            interface IEmpty {}
+
+            interface IDef {
+                i64 d() => 1
+            }
+
+            i64 needEmpty<T>(T x) where T : IEmpty => 1
+
+            i64 needDef<T>(T x) where T : IDef => 1
+
+            i64 needPlain<T>(T x) where T : Plain => 1
+
+            i64 viaC<U>(U u) where U : IShape => one(u)
+
+            void more() {
+                let a = one(Half {})
+                let b = needEmpty(1)
+                let c = needDef(1)
+                let d = needPlain(1)
+                let e = viaC(Sq {})
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2804 1023+5 `Plain` is not an interface | BYN2022 296+1 generic methods is not supported in v0.1 | BYN2807 499+6 `U` does not conform to `IShape`: missing `area` | BYN2807 559+10 `Plain` does not conform to `IShape`: missing `area` | BYN2807 590+8 `i64` does not conform to `IShape`: missing `area` | BYN2807 619+10 `Color` does not conform to `IShape`: missing `area` | BYN2807 649+12 `Plain` does not conform to `IShape`: missing `area` | BYN2816 649+12 `IHold<Plain>` is an interface, not a type | BYN2202 716+5 expected `T`, found `Sq` | BYN2202 743+14 expected `T`, found `Plain` | BYN2807 771+6 `i32` does not conform to `IShape`: missing `area` | BYN2807 790+14 `Color` does not conform to `IShape`: missing `area` | BYN2807 1106+12 `Half` does not conform to `IShape`: missing `sides` | BYN2807 1131+12 `i32` does not conform to `IEmpty`: missing `: IEmpty` | BYN2807 1156+10 `i32` does not conform to `IDef`: missing `d` | BYN2311 646+1 `h` is never reassigned; declare it with `let`",
+    )
+}
+
+test "generics t29: conformance order, inferred sets of instances and defaults of generic members" {
+    let text = """
+            interface IShape {
+                i64 sides
+                f64 area()
+            }
+
+            interface IOther {
+                i64 n()
+            }
+
+            interface IDef2 {
+                i64 get(i64 a = 3)
+            }
+
+            struct Tri : IOther {
+                i64 n() => 3
+            }
+
+            struct Near {
+                i64 sides => 3
+            }
+
+            struct Gd : IDef2 {
+                i64 get(i64 a = 3) => a
+            }
+
+            struct Box<T> {
+                T v
+                i64 twice => 2
+
+                Box(T v) {
+                    this.v = v
+                }
+            }
+
+            struct P {
+                i64 v
+                i64 add(i64 a = 2) => a
+
+                P(i64 v = 0) {
+                    this.v = v
+                }
+            }
+
+            T keep<T>(T x) fails {
+                return x
+            }
+
+            T dflt<T>(T x, i64 n = 1) => x
+
+            i64 need<T>(T x) where T : IShape => 1
+
+            i64 viaOther<U>(U u) where U : IOther => need(u)
+
+            i64 useDef<T>(T x) where T : IDef2 => x.get()
+
+            void main() {
+                let a = need(Tri {})
+                let b = need(Near {})
+                let c = need(Missing {})
+                let d = keep(5) catch return
+                let e = dflt(5)
+                let bx = Box<i64>(5)
+                let t = bx.twice
+                let p = P()
+                let q = p.add()
+                let g = useDef(Gd {})
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2807 594+7 `U` does not conform to `IShape`: missing `sides` | BYN2002 732+7 unknown type `Missing` | BYN2740 727+4 cannot infer type argument `T` of `need` | BYN2807 676+12 `Tri` does not conform to `IShape`: missing `sides` | BYN2807 701+13 `Near` does not conform to `IShape`: missing `area` | BYN2780 476+1 implicit copy of a unique value: type parameter `T` may stand for a unique type | BYN2780 510+1 implicit copy of a unique value: type parameter `T` may stand for a unique type | BYN2780 334+1 implicit copy of a unique value: type parameter `T` may stand for a unique type",
+    )
+}
+
+test "generics t29: requires with defaults, inherited error sets, expansion and an error type argument" {
+    let text = """
+            union error E {
+                bad
+            }
+
+            interface IShape {
+                i64 sides
+            }
+
+            struct Gx<T> {
+                Gx<List<T>>? g
+            }
+
+            void boom() fails E {
+                fail .bad
+            }
+
+            T keep<T>(T x) fails {
+                try boom()
+                return x
+            }
+
+            i64 need<T>(T x) where T : IShape => 1
+
+            i64 h(i64 a = 0) expects a > 0 => a
+
+            i64 two(i64 a, to i64 b) expects a > 0 => a + b
+
+            i64 seven() => 7
+
+            void main() {
+                let d = keep(5) catch return
+                let w = need<Missing>(1)
+                let x = h()
+                let y = two(seven() - 7, to: 0)
+                let z = two(0, to: seven())
+                let n = i64.parse("5") catch return
+                let g: Gx<i64>? = null
+            }
+
+            void other() {
+                main()
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2745 70+2 `Gx<List<T>>` needs `Gx<List<List<T>>>`, itself with a larger type argument, without end | BYN5011 250+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN5011 295+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2002 401+7 unknown type `Missing` | BYN2321 425+3 `h()` violates `requires a > 0` of `h` | BYN2321 481+1 `0` violates `requires a > 0` of `two` | BYN2780 188+1 implicit copy of a unique value: type parameter `T` may stand for a unique type",
+    )
+}
+
+test "generics t29: a main with a declared error set, a test in the program and a bound checked on an error type" {
+    let text = """
+            union error E {
+                bad
+            }
+
+            interface IShape {
+                i64 sides()
+            }
+
+            struct Box<T> where T : IShape {
+                T v
+            }
+
+            void main() fails E {
+                let b: Box<Missing>? = null
+                fail .bad
+            }
+
+            test "t" {
+                assert true
+            }
+            """
+    assert t29gnIs(text, as: "BYN2002 146+7 unknown type `Missing`")
+}
+
+/// The diagnostics of `text` compiled as `a.byn` with `options`, or of no file at all when `text` is empty.
+string t29gnWith(string text, by CompilationOptions options) uses alloc, clock, fs {
+    var sources = List<lexer.SourceText>()
+    if !text.isEmpty {
+        var bytes = List<u8>()
+        for b in text.bytes {
+            bytes.append(b)
+        }
+        sources.append(lexer.SourceText.create("a.byn", from: move bytes))
+    }
+    let c = create(from: move sources, at: ".", by: options)
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+bool t29gnTextIs(string got, as string expected) uses alloc, console {
+    if got != expected {
+        print($"T29GOT {got}")
+    }
+    return got == expected
+}
+
+test "generics t29: no source file, ownership skipped and tests included" {
+    let text = """
+            union error E {
+                bad
+            }
+
+            T keep<T>(T x) => x
+
+            void boom() fails E {
+                fail .bad
+            }
+
+            void main() {
+                let n = keep(1)
+            }
+
+            test "t" {
+                boom()
+                assert keep(2) == 2
+            }
+            """
+    assert t29gnTextIs(t29gnWith("", by: CompilationOptions {}), as: "")
+    assert t29gnTextIs(t29gnWith(text, by: CompilationOptions { skipOwnershipCheck: true }), as: "")
+    assert t29gnTextIs(
+        t29gnWith(text, by: CompilationOptions { includeTests: true }),
+        as: "BYN2602 139+6 `boom` can fail; handle the error or pass it on | BYN2780 45+1 implicit copy of a unique value: type parameter `T` may stand for a unique type",
+    )
+}
+
+test "generics t29: a requires clause false on a constant argument while another is read but not constant" {
+    let text = """
+            i64 seven() => 7
+
+            i64 three(i64 b, to i64 a) expects a > 0 && b > 0 => a + b
+
+            void main() {
+                let n = three(seven(), to: 0)
+            }
+            """
+    assert t29gnIs(text, as: "BYN2321 123+1 `0` violates `requires a > 0 && b > 0` of `three`")
+}
+
+test "generics t29: a first pass bound again for a wide var, with an instance, a requires check and a bound pending" {
+    let text = """
+            union error E {
+                bad
+            }
+
+            interface IGo {
+                void go() fails
+            }
+
+            struct Sq : IGo {
+                void go() fails {}
+            }
+
+            struct Need<T> where T : IGo {
+                T v
+            }
+
+            i64 two(i64 a, to i64 b) expects a > 0 => a + b
+
+            i64 seven() => 7
+
+            T keep<T>(T x) => x
+
+            void wide(i64 v) {}
+
+            void first() {
+                let y = two(seven(), to: 1)
+            }
+
+            void second(i64 p) {
+                var n = 0
+                let k = keep(p)
+                let q: Need<Sq>? = null
+                wide(n)
+            }
+
+            void main() fails E {
+                fail .bad
+            }
+
+            void other() fails E {
+                try main()
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN5011 177+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2780 237+1 implicit copy of a unique value: type parameter `T` may stand for a unique type | BYN2311 340+1 `n` is never reassigned; declare it with `let`",
+    )
+}
+
+test "generics t29: where clauses per parameter, an unresolved bound, a mutating call and expects in an instance" {
+    let text = """
+            interface IA {
+                i64 a()
+            }
+
+            interface IB {
+                i64 b()
+            }
+
+            struct OnlyB : IB {
+                i64 b() => 1
+            }
+
+            struct Ctr {
+                i64 n
+
+                void bump(ref this) {
+                    this.n += 1
+                }
+            }
+
+            i64 both<T>(T x) where T : IA where T : IB => 1
+
+            i64 pair<T, U>(T x, to U y) where T : IA where U : IB => 1
+
+            i64 lost<T>(T x) where T : Missing, IB => 1
+
+            void poke<T>(T x) {
+                var c = Ctr { n: 0 }
+                c.bump()
+            }
+
+            T pick<T>(T x, to i64 a) expects a > 0 => x
+
+            void main() {
+                let p = both(OnlyB {})
+                let q = pair(OnlyB {}, to: OnlyB {})
+                let r = lost(OnlyB {})
+                poke(1)
+                let s = pick(1, to: 2)
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2002 315+7 unknown type `Missing` | BYN5011 419+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2807 465+14 `OnlyB` does not conform to `IA`: missing `a` | BYN2807 492+28 `OnlyB` does not conform to `IA`: missing `a` | BYN2780 436+1 implicit copy of a unique value: type parameter `T` may stand for a unique type",
+    )
+}
+
+test "generics t29: types that expand without end, alone, through another template and in a pair" {
+    let text = """
+            struct Wrap<T> {
+                T? w
+            }
+
+            struct Gx<T> {
+                Gx<List<T>>? g
+            }
+
+            struct Gy<T> {
+                Gy<List<T>>? g
+            }
+
+            struct Gz<T> {
+                Wrap<Gz<List<T>>>? g
+            }
+
+            union Gu<T> {
+                some(Gu<List<T>>? v)
+                none
+            }
+
+            struct Ma<T> {
+                Mb<List<T>>? b
+            }
+
+            struct Mb<T> {
+                Ma<T>? a
+            }
+
+            void main() {
+                let a: Gx<i64>? = null
+                let b: Gy<i64>? = null
+                let c: Gx<bool>? = null
+                let d: Gz<i64>? = null
+                let e: Gu<i64>? = null
+                let f: Ma<i64>? = null
+            }
+            """
+    assert t29gnIs(
+        text,
+        as: "BYN2745 152+2 `Gu<List<T>>` needs `Gu<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 36+2 `Gx<List<T>>` needs `Gx<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 73+2 `Gy<List<T>>` needs `Gy<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 110+2 `Gz<List<T>>` needs `Gz<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 241+2 `Mb<List<T>>` needs `Mb<List<List<T>>>`, itself with a larger type argument, without end | BYN2745 204+2 `Ma<T>` needs `Ma<List<T>>`, itself with a larger type argument, without end",
+    )
+}
+
+/// The diagnostics (`code file start+length message`) of `a` and `b` compiled together as `a.byn` (file 0) and `b.byn` (file 1).
+string t29gnTwo(string a, to string b) uses alloc, clock, fs {
+    var sources = List<lexer.SourceText>()
+    var ab = List<u8>()
+    for x in a.bytes {
+        ab.append(x)
+    }
+    sources.append(lexer.SourceText.create("a.byn", from: move ab))
+    var bb = List<u8>()
+    for x in b.bytes {
+        bb.append(x)
+    }
+    sources.append(lexer.SourceText.create("b.byn", from: move bb))
+    let c = create(from: move sources, at: ".", by: CompilationOptions {})
+    var sb = StrBuf()
+    var first = true
+    for d in c.diagnostics {
+        sb.append(" | ") unless first
+        first = false
+        sb.append($"{d.code} {d.file} {d.span.start}+{d.span.length} {d.message}")
+    }
+    return $"{sb.finish()}"
+}
+
+test "generics t29: a requires clause false on a default written in another file" {
+    let a = """
+            void main() {
+                let y = h2(1)
+            }
+            """
+    let b = """
+            i64 h2(i64 x, i64 a = 0) expects a > 0 => a + x
+            """
+    assert t29gnTextIs(
+        t29gnTwo(a, to: b),
+        as: "BYN5011 1 25+7 this `expects` reads only `a`; a type with `requires` checks it once | BYN2321 0 26+5 `h2(1)` violates `requires a > 0` of `h2`",
+    )
+}

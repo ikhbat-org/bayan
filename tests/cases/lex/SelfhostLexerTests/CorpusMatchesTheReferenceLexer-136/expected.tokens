@@ -1,0 +1,12 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n\n "\u{48}i"\n 'ab'\n\n'x\n$"stray } here"\n\n각.=3 5e x.y 2.5f\n\n//// not a doc comment\n`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

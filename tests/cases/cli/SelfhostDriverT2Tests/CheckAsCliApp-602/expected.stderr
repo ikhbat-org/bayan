@@ -1,0 +1,10 @@
+error BYN2003: `size` is not a member of `string`
+  --> <repo>/tmp/t2/diag/unknown-member/unknown-member.byn:2:14
+
+  2 │ let n = name.size
+    │              ^^^^
+    │
+  help: use `length` for the size of anything
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

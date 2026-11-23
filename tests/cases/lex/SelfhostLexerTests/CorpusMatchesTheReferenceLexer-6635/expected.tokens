@@ -1,0 +1,15 @@
+1:1 Identifier `tet`
+1:5 Identifier `ass`
+1:8 Identifier `rt`
+1:11 Identifier `proprty`
+1:19 FuzzKeyword `fuzz`
+1:24 ModelKeyword `model`
+1:30 ForeachKeyword `foreach`
+1:38 NewKeyword `new`
+1:42 GotoKeyword `goto`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  1 │ tet ass�rt proprty fuzz model foreach new goto
+    │        ^

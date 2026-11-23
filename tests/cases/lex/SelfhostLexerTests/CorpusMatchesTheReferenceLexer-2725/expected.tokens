@@ -1,0 +1,34 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 NotKeyword `not`
+3:5 WithKeyword `with`
+3:10 MoveKeyword `move`
+3:15 RefKeyword `ref`
+3:19 OutKeyword `out`
+3:23 ThisKeyword `this`
+3:28 NullKeyword `null`
+3:33 TrueKeyword `true`
+3:38 FalseKeyword `false`
+3:44 Identifier `co`
+3:46 Identifier `mptime`
+3:53 Identifier `checkt`
+3:60 Identifier `la`
+4:1 Identifier `_`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ let �c = � 3
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let �c = � 3
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  3 │ not with move ref out this null true false co�mptime checkt la
+    │                                              ^

@@ -1,0 +1,14 @@
+1:3 RawStringLiteral `""" c"text" u16"wide""\u{202E} allowed in strin�gs" "" "\u{48}i"\nt b = "bad \q esc\n`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │   """ c"text" u16"wide""� allowed in strin�gs" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  1 │   """ c"text" u16"wide""� allowed in strin�gs" "" "\u{48}i"
+    │                                           ^

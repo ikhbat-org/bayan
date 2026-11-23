@@ -1,0 +1,18 @@
+== types
+type sp true true false
+type ro true true false
+type tu true true true
+type pl false false false
+type bg true true true
+type oi false false false
+type ar false false false
+type dr true true false
+type sb true true false
+type xs true true true
+type b true true true
+type r true true false
+type p false false false
+type h false false false
+type q false false false
+type m true true true
+counts 0 0 0

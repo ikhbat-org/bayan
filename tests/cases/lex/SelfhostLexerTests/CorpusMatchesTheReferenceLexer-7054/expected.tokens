@@ -1,0 +1,20 @@
+1:2 Identifier `c`
+1:4 Equals `=`
+1:8 IntegerLiteral `3`
+2:2 Identifier `b`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:8 OpenBrace `{`
+3:10 CloseBrace `}`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │  c = ��3
+    │      ^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  1 │  c = ��3
+    │       ^

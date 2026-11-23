@@ -1,0 +1,7 @@
+== s24
+switchExpr|i32|2710:63
+value moveExpr:Box
+arm 2729:34 binaryPattern[2729:29]:Box(and unionPattern[2729:12]:Box(full;bindPattern[2735:3]:Ledger(l:Ledger:o:-:let)|-),unionPattern[2746:12]:Box(full;bindPattern[2752:3]:Ledger(m:Ledger:o:-:let)|-)) guard - value literal:i32=1
+arm 2765:6 bindPattern[2765:1]:Box_(-) guard - value literal:i32=0
+BYN2790 95:34 pattern `.full(let l) and .full(let m)` binds the same storage more than once in `switch move …` ||bind the whole value or its parts, not both|
+BYN2712 95:70 `_` hides future cases of `Box`, declared in this package |matches every case added later|list the cases instead: .full, .empty|

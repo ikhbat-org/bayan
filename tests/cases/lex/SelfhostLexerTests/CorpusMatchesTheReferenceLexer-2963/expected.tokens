@@ -1,0 +1,72 @@
+1:1 Identifier `b`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+3:2 IntegerLiteral `1__`
+5:1 Dot `.`
+5:2 IntegerLiteral `2`
+5:5 IntegerLiteral `1`
+5:6 DotDotEquals `..=`
+5:9 IntegerLiteral `3`
+5:11 IntegerLiteral `5`
+5:12 NumericSuffix `e`
+5:14 Identifier `x`
+5:15 Dot `.`
+5:16 Identifier `y`
+5:18 IntegerLiteral `2`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:23 Identifier `ạ̇`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 Identifier `avar`
+6:9 Identifier `xs`
+6:11 Colon `:`
+6:13 Identifier `List`
+6:17 Less `<`
+6:18 Identifier `List`
+6:22 Less `<`
+6:23 Identifier `i64`
+6:26 Greater `>`
+6:27 Greater `>`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  3 │ �1__
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ �1__
+    │   ^^
+    │
+    │ 3 │ �1__
+    │   │   --
+
+error BYN0002: unexpected character `\u{1C}`
+
+  5 │ .2 �1..=3 5e x.y 2$"{ ạ̇
+    │    ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ .2 �1..=3 5e x.y 2$"{ ạ̇
+    │                       ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ .2 �1..=3 5e x.y 2$"{ ạ̇
+    │   │                       +
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{avar xs: List<List<i64>>
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

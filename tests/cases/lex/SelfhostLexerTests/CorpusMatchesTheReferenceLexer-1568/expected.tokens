@@ -1,0 +1,31 @@
+1:2 CharLiteral `'\u{D800}'`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{18}`
+
+  1 │ �'\u{D800}'
+    │ ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ �'\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

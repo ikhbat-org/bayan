@@ -1,0 +1,26 @@
+error BYN2022: generic methods is not supported in v0.1
+  --> tmp/t26-tests/cli/diag_generic-method.byn/generic-method.byn:4:12
+
+  4 │     T echo<T>(move T value) => move value
+    │            ^
+    │
+  help: declare a generic free function, or make the struct generic
+
+error BYN2006: `T` is declared twice
+  --> tmp/t26-tests/cli/diag_generic-method.byn/generic-method.byn:7:9
+
+  7 │ T id<T, T>(move T x) => move x
+    │         ^ already declared on line 7
+
+error BYN2008: type name `item` must be PascalCase
+  --> tmp/t26-tests/cli/diag_generic-method.byn/generic-method.byn:8:12
+
+  8 │ struct Bag<item> {
+    │            ^^^^
+    │
+  help: rename it `Item`
+    │ 8 │ struct Bag<Item> {
+    │   │            +
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2022

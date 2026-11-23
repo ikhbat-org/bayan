@@ -27,20 +27,18 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
       # site/build.sh runs every example with `bayan run`, which compiles C with zig.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
-      - name: Publish the compiler
-        run: dotnet publish csharp/Bayan.Cli -c Release -r linux-x64 -o "$RUNNER_TEMP/bayan"
+      # Stage 0 from bootstrap/bayan.c, stage 1 from src/, as ci.yml does (spec 019 R24): no .NET.
+      - name: Build from the bootstrap
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
       - name: Build the site
-        run: BAYAN="$RUNNER_TEMP/bayan/bayan" sh site/build.sh
+        run: BAYAN="$BAYAN_EXE" sh site/build.sh
       # GitHub's own Pages actions, kept like upload-artifact (decision 2026-11-02-002 T4).
       - name: Upload the site
         uses: actions/upload-pages-artifact@v5

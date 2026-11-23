@@ -1,0 +1,34 @@
+error BYN2790: pattern `let x and let y` binds the same storage more than once in `switch move …`
+  --> <repo>/tests/cases/diag/switch-move-overlap.byn:16:14
+
+  16 │         case let x and let y:
+     │              ^^^^^^^^^^^^^^^
+     │
+  help: bind the whole value or its parts, not both
+
+error BYN2790: pattern `Ledger { items: let it } whole` binds the same storage more than once in
+`switch move …`
+  --> <repo>/tests/cases/diag/switch-move-overlap.byn:22:14
+
+  22 │         case Ledger { items: let it } whole:
+     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: bind the whole value or its parts, not both
+
+error BYN2790: pattern `{ items: let p, items: let q }` binds the same storage more than once in
+`switch move …`
+  --> <repo>/tests/cases/diag/switch-move-overlap.byn:28:14
+
+  28 │         case { items: let p, items: let q }:
+     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: bind each field once
+
+error BYN2790: pattern `{ items: let p, items: let q }` binds the same storage more than once in
+`switch move …`
+  --> <repo>/tests/cases/diag/switch-move-overlap.byn:35:20
+
+  35 │         case .full({ items: let p, items: let q }):
+     │                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: bind each field once

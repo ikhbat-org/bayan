@@ -1,0 +1,6 @@
+== diags.m-forms-invalid
+BYN3102 5:16 `grammar.forms` must be a map from a word to its form, e.g. `["upsert": "upserted"]`
+verbs
+nouns
+adjectives
+collectives

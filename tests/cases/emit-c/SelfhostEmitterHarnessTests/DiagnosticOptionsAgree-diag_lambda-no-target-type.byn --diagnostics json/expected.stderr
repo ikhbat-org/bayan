@@ -1,0 +1,1 @@
+{"code":"BYN2218","severity":"error","file":"input.byn","span":{"start":26,"end":32,"line":2,"column":13,"endLine":2,"endColumn":19},"message":"`x => x` needs a known type here","label":null,"help":"write the function type it has, such as `let f: i64 -> i64 = x => x`","fixes":[]}

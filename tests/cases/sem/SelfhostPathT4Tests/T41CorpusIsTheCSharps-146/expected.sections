@@ -1,0 +1,7 @@
+== diags.diag/panic-handler-reads-moved
+BYN2615 9:10 a panic handler reads `ys`, which is moved after the handler is registered
+  label the `defer panicking` on line 8 reads it after a later panic
+  help move `ys` before the `defer panicking`, or read a `let` copied from it there
+BYN2615 17:14 a panic handler reads `zs`, which is moved after the handler is registered
+  label the `defer panicking` on line 15 reads it after a later panic
+  help move `zs` before the `defer panicking`, or read a `let` copied from it there

@@ -1,0 +1,2 @@
+{"code":"BYN2006","severity":"error","file":"input.byn","span":{"start":166,"end":170,"line":8,"column":9,"endLine":8,"endColumn":13},"message":"`plus` is declared twice","label":"already declared on line 7","help":null,"fixes":[]}
+{"code":"BYN2006","severity":"error","file":"input.byn","span":{"start":40,"end":45,"line":2,"column":5,"endLine":2,"endColumn":10},"message":"`shift` is declared twice","label":"already declared on line 1","help":null,"fixes":[]}

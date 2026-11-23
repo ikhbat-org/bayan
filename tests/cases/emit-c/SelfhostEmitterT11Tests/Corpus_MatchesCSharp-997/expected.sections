@@ -1,0 +1,5 @@
+== cases
+0 byn_str_copy(BYN_STR("ann", 3), byn_arena_alloc(l0_arena))
+1 bynh_index_map_i64_str(l1_b.m, INT64_C(1), byn_file_0, 22)
+2 (*bynh_slot_map_i64_str(&(*self).m, INT64_C(1), ((byn_str){0})))
+count 3

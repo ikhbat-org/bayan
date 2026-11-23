@@ -1,0 +1,1 @@
+{"code":"BYN3202","severity":"error","file":"input.byn","span":{"start":355,"end":366,"line":14,"column":1,"endLine":14,"endColumn":12},"message":"`ValidationError<Signup>` and `SignupError` both have a case `invalid`","label":"two cases `invalid`","help":"rename one case, or compose fewer sets","fixes":[]}

@@ -1,0 +1,47 @@
+1:1 StringLiteral `" \\ \n"`
+1:10 RawStringLiteral `"""\n raw "quoted"\n  """`
+3:7 CStringLiteral `c"text"`
+3:15 U16StringLiteral `u16"wide"`
+3:25 LetKeyword `let`
+3:29 Identifier `c`
+3:31 Identifier `l`
+3:32 Equals `=`
+3:34 RawStringLiteral `"""never �closed\n\nlosed\nb\n $"{{"/* block\n\n�����\ne-3 6E+2 1.5\n$"{}"`
+11:6 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" let c l= """never �closed
+    │                                  ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  3 │   """ c"text" u16"wide" let c l= """never �closed
+    │                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  9 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  9 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ �����
+    │     ^

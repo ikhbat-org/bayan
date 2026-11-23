@@ -1,0 +1,50 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 Identifier `a`
+5:15 Identifier `a`
+    doc `/// Doc line one.\r\n/// Do\r`
+8:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │  a /* never closed
+    │    ^^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │  a // never closed
+    │   │     ++++++++++++++
+    │ 3 │  // $"x{ $"{ �
+    │   │ ++++++++++++++
+    │ 4 │  // ' ���� ck
+    │   │ +++++++++++++
+    │ 5 │  // comment
+    │   │ +++++++++++
+    │ 6 │   a
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ $"x{ $"{ �
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ' ���� ck
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ' ���� ck
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ' ���� ck
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ' ���� ck
+    │      ^

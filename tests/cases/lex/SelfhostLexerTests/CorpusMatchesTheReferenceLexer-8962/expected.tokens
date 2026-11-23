@@ -1,0 +1,80 @@
+1:1 CharLiteral `'ab'`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 IntegerLiteral `0xFF`
+4:8 NumericSuffix `s`
+6:1 Identifier `b`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolatedStringText `$`
+7:32 InterpolatedStringEnd `"`
+7:33 OpenBrace `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 StringLiteral `"{$"`
+7:50 OpenBrace `{`
+7:51 Identifier `x`
+7:52 CloseBrace `}`
+7:53 StringLiteral `"}"`
+7:56 InterpolationEnd `}`
+7:57 InterpolatedStringEnd `"`
+7:58 InterpolationEnd `}`
+7:59 InterpolatedStringEnd `"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 CloseBrace `}`
+7:65 StringLiteral `"}"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �
+    │ ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ $"{0xFFs
+    │        ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{"{$"{x}"}"}"}"}"}"}"}"}"
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string

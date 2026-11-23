@@ -1,0 +1,5 @@
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+// ok � in comment
+ 600 /* ‭ */
+E+2 /* 

@@ -1,0 +1,57 @@
+1:1 CharLiteral `'ab'`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolatedStringText `stray } here`
+4:16 InterpolatedStringEnd `"`
+5:1 Identifier `e`
+6:1 Identifier `foo`
+6:5 Identifier `Bar`
+6:9 Identifier `_x`
+6:12 Identifier `camelCase2`
+6:23 Identifier `بيان`
+6:28 Identifier `μετρητής`
+6:37 Identifier `x_1`
+6:41 Identifier `é`
+8:6 Identifier `comment`
+8:14 Star `*`
+8:15 Slash `/`
+8:17 Identifier `a`
+10:1 LetKeyword `let`
+10:5 Identifier `a`
+10:7 Equals `=`
+10:9 IntegerLiteral `1`
+11:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │  $"stray } here"
+    │          ^
+    │
+    │ 4 │  $"stray }} here"
+    │   │           +
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  8 │ �    comment */ a
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ �    comment */ a
+    │   │ -

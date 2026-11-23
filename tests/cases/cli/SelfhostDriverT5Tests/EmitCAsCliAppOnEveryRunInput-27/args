@@ -1,0 +1,3 @@
+build
+--emit-c
+defer-modifier-errdefer.byn

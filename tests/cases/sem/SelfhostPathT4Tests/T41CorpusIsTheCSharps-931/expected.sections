@@ -1,0 +1,4 @@
+== diags.diag/on-panic-not-first
+BYN2614 7:5 `Panic.handler` may be set only as the first statement of `main`
+  label not the first statement of `main`
+  help set it once, as the first statement of `main`

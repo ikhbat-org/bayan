@@ -1,0 +1,38 @@
+1:1 CharLiteral `'x;`
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+4:2 Identifier `revar`
+4:8 Identifier `xs`
+4:10 Colon `:`
+4:12 Identifier `List`
+4:16 Less `<`
+4:17 Identifier `List`
+4:21 Less `<`
+4:22 Identifier `i64`
+4:25 Greater `>`
+4:26 Greater `>`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x;
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ���revar xs: List<List<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ���revar xs: List<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���revar xs: List<List<i64>>
+    │   ^

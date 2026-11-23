@@ -1,0 +1,137 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:2 IntegerLiteral `1__`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 StringLiteral `"open`
+5:2 IntegerLiteral `0x_`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{x}"`
+6:55 InterpolationEnd `}`
+6:56 InterpolatedStringEnd `"`
+6:57 InterpolationEnd `}`
+6:58 InterpolatedStringEnd `"`
+6:59 InterpolationEnd `}`
+6:60 InterpolatedStringEnd `"`
+6:62 InterpolatedStringStart `$"`
+6:64 InterpolationStart `{`
+6:65 InterpolatedStringStart `$"`
+6:67 InterpolationStart `{`
+6:68 InterpolatedStringStart `$"`
+6:70 InterpolationStart `{`
+6:71 StringLiteral `$"{$"`
+6:76 OpenBrace `{`
+6:77 StringLiteral `$"{$"`
+6:82 OpenBrace `{`
+6:83 StringLiteral `$"{$"`
+6:88 OpenBrace `{`
+6:89 StringLiteral `$"{$"`
+6:94 OpenBrace `{`
+6:95 StringLiteral `$"{$"`
+6:100 OpenBrace `{`
+6:101 StringLiteral `$"{$"`
+6:106 OpenBrace `{`
+6:107 Identifier `x`
+6:108 CloseBrace `}`
+6:109 StringLiteral `"}"`
+6:112 CloseBrace `}`
+6:113 StringLiteral `"}"`
+6:116 CloseBrace `}`
+6:117 StringLiteral `"}"`
+6:120 CloseBrace `}`
+6:121 StringLiteral `"}"`
+6:124 CloseBrace `}`
+6:125 StringLiteral `"}"`
+6:128 CloseBrace `}`
+6:129 StringLiteral `"}"`
+6:132 InterpolationEnd `}`
+6:133 InterpolatedStringEnd `"`
+6:134 InterpolationEnd `}`
+6:135 InterpolatedStringEnd `"`
+6:136 InterpolationEnd `}`
+6:137 InterpolatedStringEnd `"`
+6:138 InterpolationEnd `}`
+6:139 InterpolatedStringEnd `"`
+7:1 Identifier `mment`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1__
+    │   ^^
+    │
+    │ 2 │  1__
+    │   │   --
+
+error BYN0003: unterminated string literal
+
+  4 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │  0x_
+    │  ^^^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ̈́
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ̈́
+    │                                                 ^^
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ̈́
+    │                                                                                                                                             ^

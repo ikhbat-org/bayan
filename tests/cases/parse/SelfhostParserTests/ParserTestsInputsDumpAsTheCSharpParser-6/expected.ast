@@ -1,0 +1,11 @@
+CompilationUnit
+  Let a = 1
+
+error BYN1040: `;` is an input form; a statement ends at the newline
+
+  1 │ let a = 1 ;
+    │           ^ remove `;`
+    │
+  help: remove the `;`
+    │ 1 │ let a = 1 ;
+    │   │          --

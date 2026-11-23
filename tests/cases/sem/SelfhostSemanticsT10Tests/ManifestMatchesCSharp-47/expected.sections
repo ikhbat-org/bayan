@@ -1,0 +1,5 @@
+== case inline/bools
+errors 1
+error BYN3102: `style.trailingCommas` must be `.multiline` or `.never`, not `true` or `false`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { trailingCommas: false } }
+    │                                                                             ^^^^^

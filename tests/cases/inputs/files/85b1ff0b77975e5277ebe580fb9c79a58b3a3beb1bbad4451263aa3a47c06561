@@ -1,0 +1,4 @@
+struct Range {
+    i64 lo
+    i64 hi requires it >= 0 at .hi
+}

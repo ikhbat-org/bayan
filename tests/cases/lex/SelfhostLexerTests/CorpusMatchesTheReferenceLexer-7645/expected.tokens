@@ -1,0 +1,49 @@
+1:1 CharLiteral `'\u{110000}'`
+3:2 Identifier `ان`
+3:5 Identifier `μετρητής`
+3:14 Identifier `x_1`
+3:18 Identifier `é`
+4:2 OpenBrace `{`
+4:3 InterpolatedStringStart `$"`
+4:5 InterpolationStart `{`
+4:6 Identifier `a`
+4:7 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // comment � hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ �{$"{a
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ �{$"{a
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ �{$"{a
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  4 │ �{$"{a
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string

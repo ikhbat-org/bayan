@@ -1,0 +1,75 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:10 IntegerLiteral `2`
+3:1 Identifier `ment`
+4:2 FloatLiteral `3.14`
+4:7 FloatLiteral `1e5`
+4:11 FloatLiteral `2.5e-3`
+4:18 FloatLiteral `6E+2`
+4:23 FloatLiteral `1.50`
+4:27 NumericSuffix `dec`
+4:31 IntegerLiteral `1`
+4:32 DotDot `..`
+4:34 IntegerLiteral `2`
+4:36 IntegerLiteral `1`
+4:37 DotDotEquals `..=`
+4:40 IntegerLiteral `3`
+4:42 IntegerLiteral `5`
+4:43 NumericSuffix `e`
+4:45 Identifier `x`
+4:46 Dot `.`
+4:47 Identifier `y`
+4:49 FloatLiteral `2.5`
+4:52 NumericSuffix `f`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `total `
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 InterpolationEnd `}`
+6:12 InterpolatedStringEnd `"`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolatedStringText `a `
+6:18 InterpolationStart `{`
+6:19 Identifier `f`
+6:20 OpenParen `(`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolatedStringText `b `
+6:25 InterpolationStart `{`
+6:26 Identifier `c`
+6:27 InterpolationEnd `}`
+6:28 InterpolatedStringEnd `"`
+6:29 CloseParen `)`
+6:30 InterpolationEnd `}`
+6:31 InterpolatedStringText ` d`
+6:33 InterpolatedStringEnd `"`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolatedStringText `{{literal}}`
+6:48 InterpolatedStringEnd `"`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 Identifier `Point`
+6:59 OpenBrace `{`
+6:61 Identifier `x`
+6:63 Equals `=`
+6:65 IntegerLiteral `1`
+6:67 CloseBrace `}`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringText `!`
+6:70 InterpolatedStringEnd `"`
+6:72 InterpolatedStringStart `$"`
+6:74 InterpolatedStringEnd `"`
+8:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n$"stray } here"\r\n 0xF__\r\n `
+11:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b =` 2
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  8 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

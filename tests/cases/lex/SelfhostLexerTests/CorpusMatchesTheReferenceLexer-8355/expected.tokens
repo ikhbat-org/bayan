@@ -1,0 +1,54 @@
+1:1 Identifier `ạ̇`
+1:5 PlusEquals `+=`
+1:8 MinusEquals `-=`
+1:11 StarEquals `*=`
+1:14 SlashEquals `/=`
+1:17 PercentEquals `%=`
+1:20 AmpEquals `&=`
+1:23 BarEquals `|=`
+1:26 CaretEquals `^=`
+1:29 LessLessEquals `<<=`
+2:1 Bar `|`
+2:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n0b102\r\n\r\n�����let a = 1\r\n struct unique union enum flags open extensible interface delegate extension derivation attribute\r\n`
+7:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ += -= *= /= %= &= |= ^= <<=
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ += -= *= /= %= &= |= ^= <<=
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  2 │ |  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ �����let a = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ �����let a = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����let a = 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����let a = 1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����let a = 1
+    │     ^

@@ -1,0 +1,13 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in stritgs" "" "\u{48}i"\n `
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │    """ c"text" u16"wide" "� allowed in stritgs" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

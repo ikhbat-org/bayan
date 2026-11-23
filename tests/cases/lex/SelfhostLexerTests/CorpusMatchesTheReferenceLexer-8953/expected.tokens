@@ -1,0 +1,58 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1600}'`
+1:21 CharLiteral `'\''`
+1:26 CharLiteral `'é'`
+1:30 CharLiteral `'\\'`
+1:35 CharLiteral `'\0'`
+2:1 CharLiteral `'\q'`
+4:1 IntegerLiteral `0b1`
+4:4 NumericSuffix `ms`
+5:3 IntegerLiteral `0x`
+6:1 Identifier `b`
+8:1 Star `*`
+8:2 Slash `/`
+9:1 LetKeyword `let`
+9:5 Identifier `café`
+9:11 Equals `=`
+9:13 IntegerLiteral `1`
+9:14 Semicolon `;`
+10:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  4 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │  ��0x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ��0x
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │  ��0x
+    │    ^^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  9 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ let café = 1;
+    │   │        +

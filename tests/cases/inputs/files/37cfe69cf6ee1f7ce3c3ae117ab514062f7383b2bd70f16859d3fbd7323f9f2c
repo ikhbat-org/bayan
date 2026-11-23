@@ -1,0 +1,6 @@
+b
+
+'\q'
+   raw "quoted"
+  "let café = 1; "a⁧b" é
+let b = ` 2

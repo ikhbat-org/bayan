@@ -1,0 +1,100 @@
+1:1 Identifier `et`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+5:1 IsKeyword `is`
+5:4 Identifier `andis`
+5:10 AndKeyword `and`
+5:14 OrKeyword `or`
+5:17 NotKeyword `not`
+5:21 WithKeyword `with`
+5:26 MoveKeyword `move`
+5:31 RefKeyword `ref`
+5:35 OutKeyword `out`
+5:39 Identifier `th`
+5:42 Identifier `s`
+5:44 NullKeyword `null`
+5:49 TrueKeyword `true`
+5:54 FalseKeyword `false`
+5:60 ComptimeKeyword `comptime`
+5:69 CheckedKeyword `checked`
+7:1 IsKeyword `is`
+7:4 AndKeyword `and`
+7:8 OrKeyword `or`
+7:11 NotKeyword `not`
+7:15 WithKeyword `with`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 NullKeyword `null`
+7:43 TrueKeyword `true`
+7:48 FalseKeyword `false`
+7:54 ComptimeKeyword `comptime`
+7:63 CheckedKeyword `checked`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolatedStringText `total `
+8:10 InterpolationStart `{`
+8:11 Identifier `x`
+8:12 InterpolationEnd `}`
+8:13 InterpolatedStringEnd `"`
+8:15 InterpolatedStringStart `$"`
+8:17 InterpolatedStringText `a `
+8:19 InterpolationStart `{`
+8:20 Identifier `f`
+8:21 OpenParen `(`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolatedStringText `b `
+8:26 InterpolationStart `{`
+8:27 Identifier `c`
+8:28 InterpolationEnd `}`
+8:29 InterpolatedStringEnd `"`
+8:30 CloseParen `)`
+8:31 InterpolationEnd `}`
+8:32 InterpolatedStringText ` d`
+8:34 InterpolatedStringEnd `"`
+8:36 InterpolatedStringStart `$"`
+8:38 InterpolatedStringText `{{literal}}`
+8:49 InterpolatedStringEnd `"`
+8:51 InterpolatedStringStart `$"`
+8:53 InterpolationStart `{`
+8:54 Identifier `Point`
+8:60 OpenBrace `{`
+8:62 Identifier `x`
+8:64 Equals `=`
+8:66 IntegerLiteral `1`
+8:68 CloseBrace `}`
+8:69 InterpolationEnd `}`
+8:70 InterpolatedStringText `!`
+8:71 InterpolatedStringEnd `"`
+8:73 InterpolatedStringStart `$"`
+8:75 InterpolatedStringEnd `"`
+9:2 LetKeyword `let`
+9:6 EffectKeyword `effect`
+9:13 Equals `=`
+9:15 IntegerLiteral `2`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ et � = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � in c�0x__
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ // ok � in c�0x__
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │ // ok � in c�0x__
+    │              ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ is andis and or not with move ref out th$s null true false comptime checked
+    │                                         ^

@@ -1,0 +1,27 @@
+== locals
+isDigit:
+treeOf: items token t t t t t members token t t t next t t t name t t value value text value
+encodeInto: value value text t value t items i t t t t members i t t t
+numberInto: t
+isNumberText: reader token t t digits t t
+separate:
+newline:
+quoteInto: r t t cp v
+unitInto: digits
+over:
+next: t t t t t t t t t b t name t t t t t
+peek:
+skipSpace: b t
+columnAt:
+finishValue: t t t
+close: _
+openContainer: t t
+readValue: b t t t t value t t t t t
+literal: t t
+readNumber: start t t t t digits value t t t
+readString: start sb escaped run t b t t at e cp t t t second low t t t t t t
+hex4: value _ t t b d t t t t t
+parse: reader first t t t value t t _ t t
+encode: sb t t
+show: parsed t t t t e e v members m t t name t t t t
+main:

@@ -1,0 +1,42 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:16 Identifier `_e`
+1:19 StringLiteral `"\u{202E} allowis and or not with move ref out this null true false comptime checked`
+2:1 Identifier `wide`
+2:5 StringLiteral `" "`
+2:8 PlusEquals `+=`
+2:11 MinusEquals `-=`
+2:14 StarEquals `*=`
+2:17 SlashEquals `/=`
+2:20 PercentEquals `%=`
+2:23 AmpEquals `&=`
+2:26 BarEquals `|=`
+2:29 CaretEquals `^=`
+2:32 LessLessEquals `<<=`
+5:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1; _e "� allowis and or not with move ref out this null true false comptime checked
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1; _e "� allowis and or not with move ref out this null true false comptime checked
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  1 │ let café = 1; _e "� allowis and or not with move ref out this null true false comptime checked
+    │                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string
+    │                                                                                                 ends
+    │                                                                                                 at
+    │                                                                                                 the
+    │                                                                                                 end
+    │                                                                                                 of
+    │                                                                                                 the
+    │                                                                                                 line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

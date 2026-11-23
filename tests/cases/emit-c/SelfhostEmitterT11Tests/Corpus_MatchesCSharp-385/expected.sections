@@ -1,0 +1,24 @@
+== cases
+0 bynh_eq_main__Pair__i64__str(l0_p, ((bynt_main__Pair__i64__str){INT64_C(1), BYN_STR("x", 1)}))
+1 bynh_eq_main__Option2__i64(l3_some, ((byn_main_Option2__i64){.tag = 0, .u.some = {INT64_C(5)}}))
+2 (!bynh_eq_main__Option2__i64(l3_some, l4_nothing))
+4 (l9_n > INT64_C(3))
+5 l17_box.history.len
+6 (*bynh_slot_map_main__Suit_i64(&l18_bySuit, ((byn_main_Suit)0), ((int64_t){0})))
+7 (*bynh_slot_map_main__Suit_i64(&l18_bySuit, ((byn_main_Suit)1), ((int64_t){0})))
+8 (*bynh_slot_map_str_i64(&l19_byName, BYN_STR("x", 1), ((int64_t){0})))
+9 ((bynt_opt_str){true, BYN_STR("s", 1)})
+10 byn_add_i64(l21_empty.useCount, l22_full.useCount, byn_file_0, 98)
+13 byn_str_eq((*self).a, p_other.a)
+14 ((*self).a == p_other.a)
+17 ((*self).a == p_other.a)
+18 ((*self).a == p_other.a)
+20 ((*self).a == p_other.a)
+21 bynh_add_list_str(&(*self).history, p_old)
+22 t2.h.len
+23 (!t2.h.dead[t3])
+24 ((bynt_tup2_main__Suit_i64){t2.keys[t3], t2.vals[t3]})
+25 t2.h.len
+26 (!t2.h.dead[t3])
+27 ((bynt_tup2_str_i64){t2.keys[t3], t2.vals[t3]})
+count 28

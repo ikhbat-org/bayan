@@ -1,0 +1,16 @@
+CompilationUnit
+  Enum E
+    Member a
+    Member b
+
+error BYN1053: `E` declares its cases on one line; write one per line
+
+  2 │     a,
+    │      ^ the first `,`
+    │
+  help: write each case on its own line
+    │ 1 │ enum E {
+    │ 2 │     a
+    │ 3 │     b
+    │   │ +++++
+    │ 4 │ }

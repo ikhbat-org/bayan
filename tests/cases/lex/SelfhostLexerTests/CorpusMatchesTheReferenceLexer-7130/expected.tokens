@@ -1,0 +1,164 @@
+1:8 Identifier `_ff`
+1:12 IntegerLiteral `0b1010`
+1:19 IntegerLiteral `0B11`
+1:24 IntegerLiteral `5`
+1:25 NumericSuffix `s`
+1:27 IntegerLiteral `250`
+1:30 NumericSuffix `ms`
+1:33 IntegerLiteral `4`
+1:34 NumericSuffix `KiB`
+1:38 IntegerLiteral `1`
+1:39 NumericSuffix `u`
+1:41 IntegerLiteral `0xFF`
+1:45 NumericSuffix `u`
+1:47 IntegerLiteral `0b1`
+1:50 NumericSuffix `ul`
+1:53 IntegerLiteral `7`
+1:54 NumericSuffix `l`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+4:1 CharLiteral `''`
+6:1 IntegerLiteral `0b102`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 InterpolatedStringStart `$"`
+8:48 InterpolationStart `{`
+8:49 StringLiteral `$"{$"`
+8:54 OpenBrace `{`
+8:55 Identifier `x`
+8:56 CloseBrace `}`
+8:57 StringLiteral `"}"`
+8:60 InterpolationEnd `}`
+8:61 InterpolatedStringEnd `"`
+8:62 InterpolationEnd `}`
+8:63 InterpolatedStringEnd `"`
+8:64 InterpolationEnd `}`
+8:65 InterpolatedStringEnd `"`
+8:66 InterpolationEnd `}`
+8:67 InterpolatedStringEnd `"`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringEnd `"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+8:76 InterpolationEnd `}`
+8:77 InterpolatedStringEnd `"`
+8:78 InterpolationEnd `}`
+8:79 InterpolatedStringEnd `"`
+8:80 InterpolationEnd `}`
+8:81 InterpolatedStringEnd `"`
+8:84 Identifier `al`
+8:86 InterpolationEnd `}`
+8:87 InterpolatedStringText `}`
+8:88 InterpolatedStringEnd `"`
+8:90 InterpolatedStringStart `$"`
+8:92 InterpolationStart `{`
+8:93 Identifier `Point`
+8:99 OpenBrace `{`
+8:101 Identifier `x`
+8:103 Equals `=`
+8:105 IntegerLiteral `1`
+8:107 CloseBrace `}`
+8:108 InterpolationEnd `}`
+8:109 InterpolatedStringText `!`
+8:110 InterpolatedStringEnd `"`
+8:112 InterpolatedStringStart `$"`
+8:114 InterpolatedStringEnd `"`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:5 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ _ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   │    -
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c = � 3
+    │          ^
+
+error BYN0007: empty char literal
+
+  4 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ 0b102
+    │     ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �al}}" $"{Point { x = 1 }}!" $""
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �al}}" $"{Point { x = 1 }}!" $""
+    │                                                                                   ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �al}}" $"{Point { x = 1 }}!" $""
+    │                                                                                       ^
+    │
+    │ 8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" �al}}}" $"{Point { x = 1 }}!" $""
+    │   │                                                                                        +
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{ 
+     │ ^^ this string never ends
+     │
+  help: close the `{` and the string

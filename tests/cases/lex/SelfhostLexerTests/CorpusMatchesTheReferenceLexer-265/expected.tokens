@@ -1,0 +1,10 @@
+1:1 Dot `.`
+1:2 Identifier `y`
+1:4 FloatLiteral `2.5`
+1:7 NumericSuffix `of`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB8)
+
+  1 │ .y 2.5of�
+    │         ^

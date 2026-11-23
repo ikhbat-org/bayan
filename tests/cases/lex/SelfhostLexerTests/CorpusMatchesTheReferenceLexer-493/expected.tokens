@@ -1,0 +1,68 @@
+1:2 Identifier `x_1`
+1:6 Identifier `é`
+2:2 LetKeyword `let`
+2:6 Identifier `café`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+2:15 Semicolon `;`
+2:16 IntegerLiteral `0b102`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+6:2 UnitKeyword `unit`
+6:7 DistinctKeyword `distinct`
+6:16 TypeKeyword `type`
+6:21 ImportKeyword `import`
+6:28 AsKeyword `as`
+6:31 PublicKeyword `public`
+6:38 PrivateKeyword `private`
+7:1 IntegerLiteral `0x`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB2)
+
+  1 │  �x_1 é
+    │  ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ ̈́let café = 1;0b102
+    │ ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ ̈́let café = 1;0b102
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ ̈́let café = 1;0b102
+    │   │         +
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ ̈́let café = 1;0b102
+    │                    ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x
+    │ ^^

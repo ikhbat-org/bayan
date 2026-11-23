@@ -1,0 +1,74 @@
+struct S {
+    i64 x requires it > 0
+    i64 y requires it < 9
+    static i64 sf
+    static const i64 sc = 1
+    void m1(ref this) { }
+    static void m2(ref this) { }
+    void m3() becomes .open { }
+    void m4(move this is .closed, i64 a) becomes .open { }
+    void m5(this is .closed) becomes .open { }
+    void m6(i64 a) becomes .open { }
+    void m7(move this) becomes .open { }
+    void m8(ref this) becomes .open { }
+    static void m9() becomes .open { }
+    void m10(this is .closed) { }
+    (i64) -> i64 m11() { }
+    static void m12(ref this) becomes .open { }
+}
+struct R {
+    i64 y
+    requires y >= 0
+}
+struct G<T> {
+    T v requires it > 0
+}
+type distinct P = i64 requires it > 0
+struct Rec {
+    Rec inner
+}
+struct A1 {
+    B1 b
+}
+struct B1 {
+    A1 a
+}
+struct O {
+    O? o
+}
+struct Tu {
+    (i64, Tu) t
+}
+struct Bo {
+    ReadOnlySpan<i64> s
+    string st
+}
+struct Ok {
+    List<Ok> xs
+}
+struct Ar {
+    Ar[2] a
+}
+struct Fn {
+    (i64) -> i64 f
+    StrBuf sb
+}
+struct Tb {
+    (i64, ReadOnlySpan<i64>) t
+}
+union U {
+    a(U inner)
+    b(ReadOnlySpan<i64> s)
+    c(string t)
+}
+union V {
+    a(W w)
+}
+union Q {
+    a(Q? q)
+    b(StrBuf sb)
+}
+struct W {
+    V v
+}
+void vf() fails ValidationError<S>, ValidationError<R> { }

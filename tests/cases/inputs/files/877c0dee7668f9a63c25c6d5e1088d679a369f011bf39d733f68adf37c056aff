@@ -1,0 +1,70 @@
+enum Tint {
+    red
+    green
+    blue
+}
+
+Tint tint(i64 c) {
+    if c < 1 {
+        return .red
+    }
+    if c < 2 {
+        return .green
+    }
+    return .blue
+}
+
+struct K0 {
+    Tint f0
+    string f1
+}
+
+K0 make(i64 code) uses alloc {
+    return K0 { f0: tint(code / 1 % 3), f1: $"s{code / 3 % 8}" }
+}
+
+void main() {
+    var m = Map<K0, i64>()
+    var n = Map<K0, i64>()
+    m[K0 { f0: Tint.red, f1: "s0" }] = 1
+    m[make(0)] = 0
+    n[make(0)] = 1
+    n[K0 { f0: Tint.red, f1: "s0" }] = 0
+    m[K0 { f0: Tint.green, f1: "s0" }] = 1
+    m[make(1)] = 1
+    n[make(1)] = 1
+    n[K0 { f0: Tint.green, f1: "s0" }] = 1
+    m[K0 { f0: Tint.red, f1: "s1" }] = 1
+    m[make(3)] = 3
+    n[make(3)] = 1
+    n[K0 { f0: Tint.red, f1: "s1" }] = 3
+    m[K0 { f0: Tint.blue, f1: "s0" }] = 1
+    m[make(2)] = 2
+    n[make(2)] = 1
+    n[K0 { f0: Tint.blue, f1: "s0" }] = 2
+    m[K0 { f0: Tint.blue, f1: "s3" }] = 1
+    m[make(11)] = 11
+    n[make(11)] = 1
+    n[K0 { f0: Tint.blue, f1: "s3" }] = 11
+    m[K0 { f0: Tint.red, f1: "s6" }] = 1
+    m[make(18)] = 18
+    n[make(18)] = 1
+    n[K0 { f0: Tint.red, f1: "s6" }] = 18
+    m[K0 { f0: Tint.blue, f1: "s1" }] = 1
+    m[make(5)] = 5
+    n[make(5)] = 1
+    n[K0 { f0: Tint.blue, f1: "s1" }] = 5
+    m[K0 { f0: Tint.green, f1: "s5" }] = 1
+    m[make(16)] = 16
+    n[make(16)] = 1
+    n[K0 { f0: Tint.green, f1: "s5" }] = 16
+    print($"{m.length} {n.length}")
+    print($"{m[make(0)]} {n[K0 { f0: Tint.red, f1: "s0" }]} {m.contains(K0 { f0: Tint.red, f1: "s0" })}")
+    print($"{m[make(1)]} {n[K0 { f0: Tint.green, f1: "s0" }]} {m.contains(K0 { f0: Tint.green, f1: "s0" })}")
+    print($"{m[make(3)]} {n[K0 { f0: Tint.red, f1: "s1" }]} {m.contains(K0 { f0: Tint.red, f1: "s1" })}")
+    print($"{m[make(2)]} {n[K0 { f0: Tint.blue, f1: "s0" }]} {m.contains(K0 { f0: Tint.blue, f1: "s0" })}")
+    print($"{m[make(11)]} {n[K0 { f0: Tint.blue, f1: "s3" }]} {m.contains(K0 { f0: Tint.blue, f1: "s3" })}")
+    print($"{m[make(18)]} {n[K0 { f0: Tint.red, f1: "s6" }]} {m.contains(K0 { f0: Tint.red, f1: "s6" })}")
+    print($"{m[make(5)]} {n[K0 { f0: Tint.blue, f1: "s1" }]} {m.contains(K0 { f0: Tint.blue, f1: "s1" })}")
+    print($"{m[make(16)]} {n[K0 { f0: Tint.green, f1: "s5" }]} {m.contains(K0 { f0: Tint.green, f1: "s5" })}")
+}

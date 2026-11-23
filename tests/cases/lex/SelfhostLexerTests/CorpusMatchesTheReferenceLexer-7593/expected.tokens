@@ -1,0 +1,89 @@
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolatedStringText `�`
+1:10 InterpolatedStringEnd `"`
+1:13 IntegerLiteral `0xFF`
+1:18 IntegerLiteral `0x_ff`
+1:24 IntegerLiteral `0`
+1:25 NumericSuffix `bM010`
+1:31 IntegerLiteral `0B11`
+1:36 IntegerLiteral `5`
+1:37 NumericSuffix `s`
+1:39 IntegerLiteral `250`
+1:42 NumericSuffix `ms`
+1:45 IntegerLiteral `4`
+1:46 NumericSuffix `KiB`
+1:50 IntegerLiteral `1`
+1:51 NumericSuffix `u`
+1:53 IntegerLiteral `0xFF`
+1:58 IntegerLiteral `0b1`
+1:61 NumericSuffix `ul`
+1:64 IntegerLiteral `7`
+1:65 NumericSuffix `l`
+2:2 IntegerLiteral `1`
+2:3 NumericSuffix `e`
+2:7 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */$"�"  0xFF 0x_ff 0bM010 0B11 5s 250ms 4KiB 1u 0xFF 0b1ul 7l
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ $"�"  0xFF 0x_ff 0bM010 0B11 5s 250ms 4KiB 1u 0xFF 0b1ul 7l
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */$"�"  0xFF 0x_ff 0bM010 0B11 5s 250ms 4KiB 1u 0xFF 0b1ul 7l
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */$"�"  0xFF 0x_ff 0bM010 0B11 5s 250ms 4KiB 1u 0xFF 0b1ul 7l
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  1 │ /* � */$"�"  0xFF 0x_ff 0bM010 0B11 5s 250ms 4KiB 1u 0xFF 0b1ul 7l
+    │          ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │  1e �������
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  1e �������
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  1e �������
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  1e �������
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  1e �������
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  1e �������
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  1e �������
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  1e �������
+    │           ^

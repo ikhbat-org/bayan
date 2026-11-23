@@ -1,0 +1,3 @@
+== tests/cases/diag/void-value.byn
+0..17 globalStatement
+0..17 localDecl

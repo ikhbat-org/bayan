@@ -1,0 +1,7 @@
+i64 stock(Map<string, i64> m) => m.length
+
+void main() {
+    var total: i64 = 0
+    total += stock(["a": 1, "b": total])
+    print($"{total}")
+}

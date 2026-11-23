@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BinaryPattern",
+    "BlockStmt",
+    "CallExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "RelationalPattern",
+    "SwitchExpr",
+    "SwitchStmt",
+    "UnaryExpr",
+    "VarPattern"
+  ],
+  "builtins": [
+    "Print",
+    "StringLength"
+  ],
+  "diagnostics": []
+}

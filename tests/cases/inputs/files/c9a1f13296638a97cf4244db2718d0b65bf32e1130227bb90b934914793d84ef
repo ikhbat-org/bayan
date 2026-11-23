@@ -1,0 +1,18 @@
+struct P {
+    i64 x
+    i64[3] ys
+}
+
+void places(ref P p, through ref List<i64> xs, at ref i64[4] a, for i64 n) {
+    p.x = n
+    p.x += n
+    p.ys[1] = n
+    p.ys[n] += n
+    a[n] = 1
+    a[n + 1] -= 2
+    xs[n] = 3
+    xs[n] += 1
+    xs[n + 1] *= 2
+}
+
+void main() { }

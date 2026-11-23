@@ -1,0 +1,8 @@
+open {x";
+ "text" "esc \"q\" \\ \n" """
+
+tS
+//ê/ not a doc comment
+b
+'x
+

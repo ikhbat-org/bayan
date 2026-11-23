@@ -1,0 +1,32 @@
+== stmts
+fn branches locals=2 ctx=0 panic=0
+  local r:i64
+  local t:i64
+  block
+    assign - r lit:i64 0:0
+    if (13 a b):bool
+      block
+        lreturn a
+    if (17 a b):bool
+      block
+        assign - r lit:i64 0:1
+    else
+      block
+        assign - r lit:i64 0:2
+    assign - t (0 a b):i64
+    assign - r t
+    assign - r (2 r b):i64
+    if (17 r lit:i64 0:9):bool
+      block
+        assign - r lit:i64 0:1
+        expr call panic(-; lit:string "`if never` condition was true"):never
+    assign - r lit:i64 0:2
+    label switch_end_1
+    if (17 r lit:i64 0:3):bool
+      block
+        lreturn b
+    else
+      block
+        lreturn r
+fn main locals=0 ctx=0 panic=0
+  block

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "IndexExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "StructDecl",
+    "StructLiteralExpr"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "MapIndex",
+    "MapIndexSet",
+    "Print",
+    "StringCopy"
+  ],
+  "diagnostics": []
+}

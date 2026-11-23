@@ -1,0 +1,128 @@
+1:2 StringLiteral `"{$"`
+1:6 OpenBrace `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 Identifier `x`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:58 InterpolationEnd `}`
+1:59 InterpolatedStringEnd `"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 CloseBrace `}`
+1:90 StringLiteral `"}"`
+1:94 FailsKeyword `fails`
+1:100 TryKeyword `try`
+1:104 CatchKeyword `catch`
+1:110 NeverKeyword `never`
+1:116 NoallocKeyword `noalloc`
+1:124 NosuspendKeyword `nosuspend`
+1:134 SuspendsKeyword `suspends`
+1:143 AsyncKeyword `async`
+1:149 AwaitKeyword `await`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+4:1 IntegerLiteral `0x`
+5:2 Equals `=`
+5:6 IntegerLiteral `3`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+8:1 VarKeyword `var`
+8:5 Identifier `xs`
+8:7 Colon `:`
+8:9 Identifier `List`
+8:13 Less `<`
+8:14 Identifier `List`
+8:18 Less `<`
+8:19 Identifier `i64`
+8:22 Greater `>`
+8:23 Greater `>`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ �"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" fails try catch never noalloc nosuspend suspends async await
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ �"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"�}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" fails try catch never noalloc nosuspend suspends async await
+    │                                                              ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │  = � 3
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^

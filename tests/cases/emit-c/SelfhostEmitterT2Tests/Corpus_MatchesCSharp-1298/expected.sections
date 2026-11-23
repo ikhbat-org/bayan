@@ -1,0 +1,25 @@
+== lines
+line 14 loc byn_file_0, 14
+#line 14 "a.byn"
+    a;
+#line 14 "a.byn"
+        b;
+line 14 loc byn_file_0, 14
+    a;
+        b;
+line 21 loc byn_file_0, 21
+#line 21 "a.byn"
+    a;
+#line 21 "a.byn"
+        b;
+line 21 loc byn_file_0, 21
+    a;
+        b;
+line 32 loc byn_file_0, 32
+#line 32 "a.byn"
+    a;
+#line 32 "a.byn"
+        b;
+line 32 loc byn_file_0, 32
+    a;
+        b;

@@ -1,0 +1,81 @@
+    doc `/// Doc line one.\r`
+2:1 FailsKeyword `fails`
+2:7 TryKeyword `try`
+2:11 CatchKeyword `catch`
+2:17 NeverKeyword `never`
+2:23 NoallocKeyword `noalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+4:3 StringLiteral `"{let c = "`
+4:14 StringLiteral `""`
+4:16 NeverKeyword `never`
+4:22 Identifier `closed`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `x`
+5:5 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+6:1 IfKeyword `if`
+6:4 ElseKeyword `else`
+6:9 UnlessKeyword `unless`
+6:16 SwitchKeyword `switch`
+6:23 CaseKeyword `case`
+6:28 DefaultKeyword `default`
+6:36 ForKeyword `for`
+6:40 InKeyword `in`
+6:43 WhileKeyword `while`
+6:49 DoKeyword `do`
+6:52 Identifier `b`
+6:54 Identifier `reak`
+6:59 ContinueKeyword `continue`
+6:68 ReturnKeyword `return`
+6:75 YieldKeyword `yield`
+6:81 DeferKeyword `defer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  �
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ � "{let c = """never closed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ � "{let c = """never closed
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ � "{let c = """never closed
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"x{ $"{
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  6 │ if else unless switch case default for in while do b�reak continue return yield� defer errdefer using context
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  6 │ if else unless switch case default for in while do b�reak continue return yield� defer errdefer using context
+    │                                                                                ^

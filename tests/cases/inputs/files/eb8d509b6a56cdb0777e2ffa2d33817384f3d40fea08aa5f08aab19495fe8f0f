@@ -1,0 +1,4 @@
+'\u{D800}'
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\{48}i"
+  raw "quoted"
+

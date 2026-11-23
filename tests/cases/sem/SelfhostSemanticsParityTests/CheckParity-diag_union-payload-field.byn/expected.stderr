@@ -1,0 +1,10 @@
+error BYN2704: the payload of a `Shape` is read with a pattern, not `.r`
+  --> tmp/t26-tests/cli/diag_union-payload-field.byn/union-payload-field.byn:8:13
+
+  8 │     print(s.r)
+    │             ^
+    │
+  help: match the variant and bind the field, as in `case .Variant(let x):`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2704

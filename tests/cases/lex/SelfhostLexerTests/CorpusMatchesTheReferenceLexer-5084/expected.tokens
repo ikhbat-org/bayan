@@ -1,0 +1,18 @@
+1:1 Identifier `각foo`
+1:8 Identifier `Bar`
+1:12 Identifier `_x`
+1:15 Identifier `camelCase2`
+1:26 Identifier `بيان`
+1:31 Identifier `μετρητής`
+1:40 Identifier `x_1`
+1:44 Identifier `é`
+3:1 EndOfFile
+
+error BYN0005: identifier `각foo` is not in Unicode normalization form C
+
+  1 │ 각foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   │ +

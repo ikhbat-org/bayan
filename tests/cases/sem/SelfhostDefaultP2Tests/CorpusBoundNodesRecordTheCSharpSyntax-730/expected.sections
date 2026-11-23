@@ -1,0 +1,50 @@
+== tests/cases/diag/panic-handler-reads.byn
+21..155 blockStmt
+27..40 localDecl
+39..40 literalExpr integer
+45..58 localDecl
+57..58 literalExpr integer
+63..82 deferStmt
+83..138 exprStmt
+83..138 callExpr
+89..137 interpolatedExpr
+92..101 memberExpr
+92..93 nameExpr
+105..110 nameExpr
+116..121 nameExpr
+125..130 nameExpr
+83..138 callExpr
+143..153 assignStmt add target 143..148 value 152..153
+143..148 nameExpr
+152..153 literalExpr integer
+179..322 blockStmt
+185..251 ifStmt
+188..202 isExpr
+188..193 nameExpr
+197..200 varPattern
+203..251 blockStmt
+213..228 deferStmt
+229..245 exprStmt
+229..245 callExpr
+235..244 interpolatedExpr
+241..242 nameExpr
+229..245 callExpr
+256..320 forStmt
+265..269 rangeExpr
+265..266 literalExpr integer
+268..269 literalExpr integer
+270..320 blockStmt
+280..295 deferStmt
+296..314 exprStmt
+296..314 callExpr
+302..313 interpolatedExpr
+310..311 nameExpr
+296..314 callExpr
+324..338 globalStatement
+324..338 exprStmt
+324..338 callExpr
+336..337 literalExpr integer
+339..353 exprStmt
+339..353 callExpr
+351..352 literalExpr integer
+351..352 literalExpr integer

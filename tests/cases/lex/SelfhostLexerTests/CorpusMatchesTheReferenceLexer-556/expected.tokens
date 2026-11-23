@@ -1,0 +1,26 @@
+1:1 IntegerLiteral `0x_`
+3:1 TestKeyword `test`
+3:6 Identifier `a`
+3:8 Identifier `ssert`
+3:14 PropertyKeyword `property`
+3:23 FuzzKeyword `fuzz`
+3:28 Identifier `modelfore`
+3:38 Identifier `ach`
+3:42 NewKeyword `new`
+3:46 GotoKeyword `goto`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  3 │ test a�ssert property fuzz modelfore�ach new goto
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  3 │ test a�ssert property fuzz modelfore�ach new goto
+    │                                     ^

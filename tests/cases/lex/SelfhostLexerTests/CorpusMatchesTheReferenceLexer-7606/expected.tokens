@@ -1,0 +1,49 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:2 IntegerLiteral `1__`
+4:2 IntegerLiteral `0x`
+    doc `///`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ����1__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ����1__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����1__
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����1__
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ ����1__
+    │      ^^
+    │
+    │ 2 │ ����1__
+    │   │      --
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ �0x
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ �0x
+    │  ^^

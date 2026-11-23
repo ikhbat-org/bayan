@@ -1,0 +1,36 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:4 VarKeyword `var`
+1:8 Identifier `xs`
+1:10 Colon `:`
+1:12 Identifier `Lis`
+1:15 Star `*`
+1:16 Less `<`
+1:17 Identifier `Listbi64`
+1:25 Greater `>`
+1:26 Greater `>`
+3:1 IntegerLiteral `0x`
+5:2 StringLiteral `"`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  �
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x�
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  3 │ 0x�
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  5 │  "
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

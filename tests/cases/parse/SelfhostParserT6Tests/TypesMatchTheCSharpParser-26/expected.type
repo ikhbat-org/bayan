@@ -1,0 +1,4 @@
+(ptr 0..4 false (ptr 1..4 false (named 2..4 2..4 < >))) at 3
+BYN1066 1+1 `*u8` is an input form; write `u8*` [the input form] [write the pointer after the type: `u8*`] fix 1+3 'u8*'
+BYN1067 1+3 pointer types are allowed only in `extern` declarations [a pointer type] [wrap the C call in an `extern` declaration]
+BYN1066 0+1 `**u8` is an input form; write `u8**` [the input form] [write the pointer after the type: `u8**`]

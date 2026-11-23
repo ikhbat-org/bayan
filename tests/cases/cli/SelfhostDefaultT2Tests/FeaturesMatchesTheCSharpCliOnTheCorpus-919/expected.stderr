@@ -1,0 +1,5 @@
+error BYN2003: `nope` is not a member of `StrBuf`
+  --> <repo>/tests/cases/diag/strbuf-unknown-static-member.byn:3:20
+
+  3 │     let x = StrBuf.nope
+    │                    ^^^^

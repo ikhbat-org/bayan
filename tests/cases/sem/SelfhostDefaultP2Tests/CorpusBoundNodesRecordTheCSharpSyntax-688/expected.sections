@@ -1,0 +1,18 @@
+== tests/cases/diag/non-exhaustive.byn
+55..93 globalStatement
+55..93 localDecl
+75..93 memberExpr
+94..133 localDecl
+102..133 switchExpr
+102..103 nameExpr
+117..125 constantPattern
+117..125 targetMemberExpr
+129..130 literalExpr integer
+134..147 localDecl
+143..147 literalExpr trueKeyword
+148..184 localDecl
+156..184 switchExpr
+156..158 nameExpr
+172..176 constantPattern
+172..176 literalExpr trueKeyword
+180..181 literalExpr integer

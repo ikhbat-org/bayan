@@ -1,0 +1,14 @@
+error BYN2006: `shift` is declared twice
+  --> <repo>/tmp/t2/diag/overload-overlap/overload-overlap.byn:2:5
+
+  2 │ i64 shift(i64 y, by i64 d, to i64 limit = 0) => y - d
+    │     ^^^^^ already declared on line 1
+
+error BYN2006: `plus` is declared twice
+  --> <repo>/tmp/t2/diag/overload-overlap/overload-overlap.byn:8:9
+
+  8 │     Pos plus(by i64 e) => Pos { x: x - e }
+    │         ^^^^ already declared on line 7
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2006

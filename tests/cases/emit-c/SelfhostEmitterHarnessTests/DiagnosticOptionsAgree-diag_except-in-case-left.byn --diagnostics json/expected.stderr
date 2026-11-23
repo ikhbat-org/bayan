@@ -1,0 +1,1 @@
+{"code":"BYN1051","severity":"error","file":"input.byn","span":{"start":58,"end":64,"line":3,"column":22,"endLine":3,"endColumn":28},"message":"`except` is not allowed in a `case` pattern","label":"not allowed here","help":"write the arm as `case not .circle`","fixes":[]}

@@ -1,0 +1,3 @@
+== structd.probes.s3
+bound
+BYN2003 214:22 `z` is not a member of `Point` ||did you mean `x`?|

@@ -1,0 +1,8 @@
+== 1
+== 2
+== 3
+== 4
+bayan: branches 25% < 100%
+uncovered branch: src/app/main.byn:7:16 never false
+uncovered branch: src/app/main.byn:8:16 never true
+uncovered branch: src/app/main.byn:8:16 never false

@@ -1,0 +1,6 @@
+== tests/cases/diag/label-not-on-loop.byn
+0..5 globalStatement
+6..16 exprStmt
+6..16 callExpr
+12..15 literalExpr string
+6..16 callExpr

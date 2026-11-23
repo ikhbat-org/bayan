@@ -1,0 +1,92 @@
+1:1 Identifier `Å`
+1:3 CloseBrace `}`
+1:4 StringLiteral `"}"`
+1:7 CloseBrace `}`
+1:8 StringLiteral `"}"`
+1:11 CloseBrace `}`
+1:12 StringLiteral `"}"`
+1:15 CloseBrace `}`
+1:16 StringLiteral `"}"`
+1:19 CloseBrace `}`
+1:20 StringLiteral `"}"`
+1:23 CloseBrace `}`
+1:24 StringLiteral `"}"`
+1:27 CloseBrace `}`
+1:29 CloseBrace `}`
+1:30 StringLiteral `"}"`
+1:33 CloseBrace `}`
+1:34 StringLiteral `"}"`
+1:37 CloseBrace `}`
+1:38 StringLiteral `"}"`
+1:41 CloseBrace `}`
+1:42 StringLiteral `"`
+2:2 IntegerLiteral `0x`
+3:2 Identifier `here`
+3:6 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+6:1 ExtensibleKeyword `extensible`
+6:12 InterfaceKeyword `interface`
+6:22 DelegateKeyword `delegate`
+6:31 Identifier `extenion`
+6:40 DerivationKeyword `derivation`
+6:51 AttributeKeyword `attribute`
+7:1 Identifier `err`
+8:1 CharLiteral `'a'`
+8:5 CharLiteral `'\n'`
+8:10 CharLiteral `'\u{1F600}'`
+8:22 CharLiteral `'\''`
+8:27 CharLiteral `'é'`
+8:31 CharLiteral `'\\'`
+8:36 CharLiteral `'\0'`
+9:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å }"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"}"}"
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å }"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"}"}"
+    │   │ +
+
+error BYN0002: unexpected character `\u{16}`
+
+  1 │ Å }"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"}"}"
+    │                            ^
+
+error BYN0003: unterminated string literal
+
+  1 │ Å }"}"}"}"}"}"}"}"}"}"}"}"}�}"}"}"}"}"}"}"
+    │                                          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  3 │  here"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,2 @@
+== flow.Order.pay
+BYN7009 19:5 `pay` declares `becomes .paid` but returns here without `become` ||add `become .paid(…)` before returning, or fail|

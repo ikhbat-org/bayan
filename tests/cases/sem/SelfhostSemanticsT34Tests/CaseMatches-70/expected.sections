@@ -1,0 +1,6 @@
+== s9
+switchExpr|i64|1945:55
+value local:i64=n
+arm 1956:11 binaryPattern[1956:6]:i64(or constantPattern[1956:1]:i64(literal:i64=1),constantPattern[1961:1]:i64(literal:i64=2)) guard - value literal:i64=1
+arm 1969:21 bindPattern[1969:3]:i64(x:i64:b:-:let) guard binary:bool value local:i64=x
+arm 1992:6 bindPattern[1992:1]:i64_(-) guard - value literal:i64=0

@@ -1,0 +1,10 @@
+1:1 StringLiteral `"quoted"`
+2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in s\r\na >> b\r\nlet b = "bad \q esape"\r\n\u{0}\r\n0x\r\n$"open {x";\r\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wide" "� allowed in s
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

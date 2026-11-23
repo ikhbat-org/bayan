@@ -1,0 +1,51 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 IfKeyword `if`
+2:5 ElseKeyword `else`
+2:10 UnlessKeyword `unless`
+2:17 SwitchKeyword `switch`
+2:24 CaseKeyword `case`
+2:29 DefaultKeyword `default`
+2:37 ForKeyword `for`
+2:41 InKeyword `in`
+2:44 WhileKeyword `while`
+2:50 DoKeyword `do`
+2:53 BreakKeyword `break`
+2:59 ContinueKeyword `continue`
+2:68 ReturnKeyword `return`
+2:75 YieldKeyword `yield`
+2:81 DeferKeyword `defer`
+2:87 ErrdeferKeyword `errdefer`
+2:96 UsingKeyword `using`
+2:102 ContextKeyword `context`
+4:1 Identifier `acro`
+4:6 Identifier `select`
+4:13 BecomeKeyword `become`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:2 LetKeyword `let`
+6:6 Identifier `a`
+6:8 Equals `=`
+6:12 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ acro select become
+    │      ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `$`
+
+  6 │  let a = $ 1
+    │          ^

@@ -1,0 +1,9 @@
+error BYN5005: `end` is passed without its particle `until:`
+  --> <repo>/tests/cases/diag/argument-needs-particle.byn:4:19
+
+  4 │ print($"{width(2, 5)}")
+    │                   ^ needs `until:`
+    │
+  help: add `until:` before the argument
+    │ 4 │ print($"{width(2, until: 5)}")
+    │   │                   +++++++

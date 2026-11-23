@@ -1,0 +1,45 @@
+== tests/cases/diag/state-switch-not-exhaustive.byn
+127..259 blockStmt
+133..257 switchStmt
+140..145 nameExpr
+161..167 constantPattern
+181..195 exprStmt
+181..195 callExpr
+187..194 literalExpr string
+181..195 callExpr
+209..216 variantPattern
+230..251 exprStmt
+230..251 callExpr
+236..250 interpolatedExpr
+239..248 memberExpr
+239..240 nameExpr
+230..251 callExpr
+286..329 switchExpr
+286..329 switchExpr
+286..329 switchExpr
+286..291 nameExpr
+301..307 constantPattern
+311..312 literalExpr integer
+314..322 variantPattern
+320..321 discardPattern
+326..327 literalExpr integer
+378..452 blockStmt
+384..450 switchStmt
+391..396 nameExpr
+412..417 constantPattern
+431..444 exprStmt
+431..444 callExpr
+437..443 literalExpr string
+431..444 callExpr
+476..596 blockStmt
+482..594 switchStmt
+489..494 nameExpr
+510..516 constantPattern
+530..544 exprStmt
+530..544 callExpr
+536..543 literalExpr string
+530..544 callExpr
+574..588 exprStmt
+574..588 callExpr
+580..587 literalExpr string
+574..588 callExpr

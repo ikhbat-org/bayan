@@ -1,0 +1,30 @@
+== tests/cases/diag/missing-become.byn
+144..234 blockStmt
+154..199 ifStmt
+157..168 binaryExpr le right 167..168
+157..163 nameExpr
+167..168 literalExpr integer
+169..199 blockStmt
+183..189 returnStmt
+208..228 becomeStmt
+221..227 nameExpr
+297..371 blockStmt
+307..365 ifStmt
+310..320 binaryExpr gt right 319..320
+310..316 nameExpr
+319..320 literalExpr integer
+321..365 blockStmt
+335..355 becomeStmt
+348..354 nameExpr
+435..569 blockStmt
+445..548 ifStmt
+448..458 binaryExpr gt right 457..458
+448..454 nameExpr
+457..458 literalExpr integer
+459..503 blockStmt
+473..493 becomeStmt
+486..492 nameExpr
+509..548 blockStmt
+523..538 becomeStmt
+536..537 literalExpr integer
+557..563 returnStmt

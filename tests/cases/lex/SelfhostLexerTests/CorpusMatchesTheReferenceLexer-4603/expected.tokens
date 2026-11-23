@@ -1,0 +1,9 @@
+1:2 CharLiteral `'$"a{b}c`
+1:10 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 	'$"a{b}c
+    │ 	^^^^^^^^
+    │
+  help: close it with `'`

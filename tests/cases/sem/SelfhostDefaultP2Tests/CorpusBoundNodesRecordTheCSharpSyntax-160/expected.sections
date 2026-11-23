@@ -1,0 +1,109 @@
+== tests/cases/run/lambda-non-capturing.byn
+39..43 callExpr
+39..43 callExpr
+39..43 callExpr
+39..40 nameExpr
+41..42 nameExpr
+85..89 callExpr
+85..89 callExpr
+85..89 callExpr
+85..86 nameExpr
+87..88 nameExpr
+149..156 callExpr
+149..156 callExpr
+149..156 callExpr
+149..150 nameExpr
+151..152 nameExpr
+154..155 nameExpr
+186..189 callExpr
+186..189 callExpr
+186..189 callExpr
+186..187 nameExpr
+203..512 blockStmt
+209..246 exprStmt
+209..246 callExpr
+215..245 interpolatedExpr
+218..243 callExpr
+224..234 lambdaExpr
+240..242 literalExpr integer
+209..246 callExpr
+251..304 exprStmt
+251..304 callExpr
+257..303 interpolatedExpr
+260..279 callExpr
+265..266 literalExpr integer
+272..278 binaryExpr gt right 277..278
+282..301 callExpr
+287..288 literalExpr integer
+294..300 binaryExpr gt right 299..300
+251..304 callExpr
+309..341 exprStmt
+309..341 callExpr
+315..340 interpolatedExpr
+318..338 callExpr
+324..330 binaryExpr add right 329..330
+336..337 literalExpr integer
+309..341 callExpr
+346..401 exprStmt
+346..401 callExpr
+352..400 interpolatedExpr
+355..398 callExpr
+363..364 literalExpr integer
+370..371 literalExpr integer
+377..397 lambdaExpr
+346..401 callExpr
+406..432 exprStmt
+406..432 callExpr
+412..431 interpolatedExpr
+415..429 callExpr
+421..428 lambdaExpr
+406..432 callExpr
+437..470 localDecl
+460..470 lambdaExpr
+475..510 exprStmt
+475..510 callExpr
+481..509 interpolatedExpr
+484..491 callExpr
+484..488 nameExpr
+489..490 literalExpr integer
+494..507 callExpr
+494..498 nameExpr
+499..506 callExpr
+499..503 nameExpr
+504..505 literalExpr integer
+475..510 callExpr
+229..234 binaryExpr mul right 233..234
+229..234 binaryExpr mul right 233..234
+229..234 binaryExpr mul right 233..234
+229..230 nameExpr
+233..234 literalExpr integer
+272..278 binaryExpr gt right 277..278
+272..278 binaryExpr gt right 277..278
+272..278 binaryExpr gt right 277..278
+272..274 nameExpr
+277..278 literalExpr integer
+294..300 binaryExpr gt right 299..300
+294..300 binaryExpr gt right 299..300
+294..300 binaryExpr gt right 299..300
+294..296 nameExpr
+299..300 literalExpr integer
+324..330 binaryExpr add right 329..330
+324..330 binaryExpr add right 329..330
+324..330 binaryExpr add right 329..330
+324..326 nameExpr
+329..330 literalExpr integer
+387..397 binaryExpr add right 396..397
+387..397 binaryExpr add right 396..397
+387..397 binaryExpr add right 396..397
+387..393 binaryExpr mul right 391..393
+387..388 nameExpr
+391..393 literalExpr integer
+396..397 nameExpr
+427..428 literalExpr integer
+427..428 literalExpr integer
+427..428 literalExpr integer
+465..470 binaryExpr add right 469..470
+465..470 binaryExpr add right 469..470
+465..470 binaryExpr add right 469..470
+465..466 nameExpr
+469..470 nameExpr

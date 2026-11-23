@@ -1,0 +1,8 @@
+let b = ` 2
+
+foo Bar _x camelCase2 بيان μετρητΊς x_1 é
+ ''
+$"{{"
+x́́
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+각

@@ -1,0 +1,24 @@
+i32 main(ReadOnlySpan<string> args) {
+    print("== all")
+    var i: i64 = 0
+    while i + 2 < args.length {
+        let kind = args[i]
+        let a = args[i + 1]
+        let b = args[i + 2]
+        if kind == "dir" {
+            print($"dir {a} {t11DirectoryName(a)}")
+        } else if kind == "full" {
+            print($"full {a} {t11FullPath(a)}")
+        } else if kind == "combine" {
+            print($"combine {a} {b} {t11Combine(a, by: b)}")
+        } else if kind == "rel" {
+            print($"rel {a} {b} {t11RelativePath(a, to: b)}")
+        } else if kind == "relslash" {
+            print($"relslash {a} {b} {t11RelativePath(a, to: b).replaced("\\", by: "/")}")
+        } else if kind == "dirpanic" {
+            print($"dirpanic {a} {t11DirectoryName(a)}")
+        }
+        i += 3
+    }
+    return 0
+}

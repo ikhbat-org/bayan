@@ -1,0 +1,3 @@
+void main() {
+    let x: i64 = "s"
+}

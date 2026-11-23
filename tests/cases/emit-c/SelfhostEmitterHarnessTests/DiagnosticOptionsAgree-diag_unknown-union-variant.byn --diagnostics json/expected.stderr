@@ -1,0 +1,2 @@
+{"code":"BYN2700","severity":"error","file":"input.byn","span":{"start":76,"end":82,"line":7,"column":19,"endLine":7,"endColumn":25},"message":"`square` is not a variant of union `Shape`","label":null,"help":null,"fixes":[]}
+{"code":"BYN2700","severity":"error","file":"input.byn","span":{"start":129,"end":137,"line":9,"column":14,"endLine":9,"endColumn":22},"message":"`Triangle` is not a variant of union `Shape`","label":null,"help":null,"fixes":[]}

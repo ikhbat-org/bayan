@@ -1,0 +1,12 @@
+== path lint-user
+module main tmp/std-cases/lintuser main
+file tmp/std-cases/lintuser/main.byn
+diag BYN5104 tmp/std-cases/lintuser/main.byn 3:23 `line` holds a collection; name it with a plural, `lines` |  | rename it `lines`
+diag BYN5105 tmp/std-cases/lintuser/main.byn 4:16 `linesCount` counts items; name it `lineCount` |  | rename it `lineCount`
+diag BYN5106 tmp/std-cases/lintuser/main.byn 21:15 `CsvParser` is named for the act `parse` but has no `parse` member |  | add a member named `parse`, or rename the type for what it is
+diag BYN5104 tmp/std-cases/lintuser/main.byn 7:29 `line` holds a collection; name it with a plural, `lines` |  | rename it `lines`
+diag BYN5104 tmp/std-cases/lintuser/main.byn 10:16 `item` holds a collection; name it with a plural, `items` |  | rename it `items`
+diag BYN5104 tmp/std-cases/lintuser/main.byn 14:24 `item` holds a collection; name it with a plural, `items` |  | rename it `items`
+diag BYN5105 tmp/std-cases/lintuser/main.byn 14:34 `numBoxes` counts items; name it `boxCount` |  | rename it `boxCount`
+diag BYN5104 tmp/std-cases/lintuser/main.byn 18:25 `line` holds a collection; name it with a plural, `lines` |  | rename it `lines`
+diag BYN2014 tmp/std-cases/lintuser/main.byn 1:1 the program has no entry point |  | 

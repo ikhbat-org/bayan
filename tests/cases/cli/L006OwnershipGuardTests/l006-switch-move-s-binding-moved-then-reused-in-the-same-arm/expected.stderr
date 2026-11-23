@@ -1,0 +1,10 @@
+error BYN2781: `items` is used after it was moved
+  --> <repo>/tmp/l006/switch-move-s-binding-moved-then-reused-in-the-same-arm/main.byn:18:22
+
+  18 │             print($"{items.length}")
+     │                      ^^^^^ moved on line 17
+     │
+  help: assign `items` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2781

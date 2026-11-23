@@ -1,0 +1,100 @@
+1:1 IntegerLiteral `0x`
+2:1 Identifier `x́́`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{x}"`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:58 InterpolatedStringStart `$"`
+3:60 InterpolationStart `{`
+3:61 StringLiteral `$"{$"`
+3:66 OpenBrace `{`
+3:67 StringLiteral `$"{$"`
+3:72 OpenBrace `{`
+3:73 StringLiteral `$"{$"`
+3:78 OpenBrace `{`
+3:79 StringLiteral `$"{$"`
+3:84 OpenBrace `{`
+3:85 StringLiteral `$"{$c{$"`
+3:93 OpenBrace `{`
+3:94 StringLiteral `$"{$"`
+3:99 OpenBrace `{`
+3:100 StringLiteral `$"{$"`
+3:105 OpenBrace `{`
+3:106 StringLiteral `$"{x}"`
+3:112 CloseBrace `}`
+3:113 StringLiteral `"}"`
+3:116 CloseBrace `}`
+3:117 StringLiteral `"}"`
+3:120 CloseBrace `}`
+3:121 StringLiteral `"}"`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x �
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ 0x �
+    │    ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$c{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"// �x
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$c{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"// �x
+    │                                                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$c{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"// �x
+    │                                                                                                                               ^ invisible
+    │                                                                                                                                 character
+    │                                                                                                                                 that
+    │                                                                                                                                 reorders
+    │                                                                                                                                 how
+    │                                                                                                                                 the
+    │                                                                                                                                 text
+    │                                                                                                                                 displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$c{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"// �x
+    │   │                                                                                                                               -

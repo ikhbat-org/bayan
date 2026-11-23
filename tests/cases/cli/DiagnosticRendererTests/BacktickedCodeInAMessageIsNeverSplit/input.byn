@@ -1,0 +1,7 @@
+bool g(i32 x, at string s) uses net, fs fails IoError, Utf8Error => true
+
+bool t1(((i64, string) -> bool uses net, fs fails IoError, Utf8Error) p) => true
+
+void main() {
+    let a = t1(g)
+}

@@ -1,0 +1,9 @@
+== case inline/equals-then-fail
+errors 1
+error BYN3104: `package.byn` uses `field: value`
+  1 │ Package { name = "local/a", version: 1 + 2 }
+    │                ^ the input form
+    │
+  help: write `:` after the field name
+    │ 1 │ Package { name: "local/a", version: 1 + 2 }
+    │   │               +

@@ -1,0 +1,5 @@
+build
+-v
+-o
+<repo>/tmp/t7-style/build-ok-verbose-force/tally/tally
+<repo>/tmp/t7-style/build-ok-verbose-force/tally/main.byn

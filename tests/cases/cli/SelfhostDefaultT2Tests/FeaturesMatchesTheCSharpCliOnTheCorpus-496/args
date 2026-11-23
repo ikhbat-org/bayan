@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/defer-failing-without-fails.byn
+--package
+<repo>/tests/cases/diag

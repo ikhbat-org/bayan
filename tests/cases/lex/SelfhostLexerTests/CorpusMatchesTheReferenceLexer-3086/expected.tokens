@@ -1,0 +1,85 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 Identifier `interf`
+1:55 Identifier `ace`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 Identifier `de`
+1:80 CharLiteral `'rivation attribute`
+3:1 IntegerLiteral `1__`
+    doc `///`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolationEnd `}`
+5:5 InterpolatedStringEnd `"`
+5:6 LetKeyword `let`
+5:10 Identifier `a`
+5:12 Equals `=`
+5:14 IntegerLiteral `1`
+6:2 CharLiteral `'\u{D800}'`
+7:1 LetKeyword `let`
+7:5 Identifier `x`
+7:8 Equals `=`
+7:10 IntegerLiteral `1`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  1 │ struct unique union enum flags open extensible interf�ace delegate extension de'rivation attribute
+    │                                                      ^
+
+error BYN0008: unterminated char literal
+
+  1 │ struct unique union enum flags open extensible interf�ace delegate extension de'rivation attribute
+    │                                                                                ^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  6 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ let x� = 1
+    │   │      -
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  8 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 8 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  8 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ /* � */
+    │   │    -

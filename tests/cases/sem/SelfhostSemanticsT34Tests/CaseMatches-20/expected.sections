@@ -1,0 +1,5 @@
+== c3
+catchExpr|i64|1068:24
+operand call:i64 binding - variant - handler literal:i64=0
+variantSpan 1084:5
+BYN2228 63:31 `nope` is not a variant of `NetError` |||

@@ -1,0 +1,48 @@
+== tests/cases/diag/style-guards-postfix.byn
+219..291 blockStmt
+225..269 ifStmt
+228..241 memberExpr
+228..233 nameExpr
+242..269 blockStmt
+252..256 failStmt
+257..263 targetMemberExpr
+274..289 returnStmt value 281..289
+281..289 indexExpr
+281..286 nameExpr
+287..288 literalExpr integer
+321..538 blockStmt
+327..336 localDecl
+335..336 literalExpr integer
+341..423 whileStmt
+347..352 binaryExpr lt right 351..352
+347..348 nameExpr
+351..352 literalExpr integer
+353..423 blockStmt
+363..369 assignStmt add target 363..364 value 368..369
+363..364 nameExpr
+368..369 literalExpr integer
+378..417 ifStmt
+381..387 binaryExpr eq right 386..387
+381..382 nameExpr
+386..387 literalExpr integer
+388..417 blockStmt
+402..402 breakStmt
+428..468 ifStmt
+431..437 binaryExpr eq right 436..437
+431..432 nameExpr
+436..437 literalExpr integer
+438..468 blockStmt
+448..462 exprStmt
+448..462 callExpr
+454..461 literalExpr string
+448..462 callExpr
+473..499 localDecl
+496..499 collectionExpr
+497..498 literalExpr integer
+504..536 exprStmt
+504..536 callExpr
+510..535 interpolatedExpr
+513..533 tryExpr
+517..533 callExpr
+527..532 nameExpr
+504..536 callExpr

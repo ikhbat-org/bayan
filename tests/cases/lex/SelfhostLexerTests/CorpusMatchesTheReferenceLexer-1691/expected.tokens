@@ -1,0 +1,35 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:2 CharLiteral `' '`
+2:6 CharLiteral `''`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `}`
+3:4 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  ' '\''
+    │     ^
+
+error BYN0007: empty char literal
+
+  2 │  ' '\''
+    │      ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"}"
+    │   ^
+    │
+    │ 3 │ $"}}"
+    │   │    +

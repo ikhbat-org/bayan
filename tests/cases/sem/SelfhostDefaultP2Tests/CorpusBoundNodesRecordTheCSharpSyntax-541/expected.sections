@@ -1,0 +1,21 @@
+== tests/cases/diag/immutable-assignment.byn
+43..60 blockStmt
+49..58 assignStmt assign target 49..50 value 53..58
+49..50 nameExpr
+53..58 binaryExpr add right 57..58
+53..54 nameExpr
+57..58 literalExpr integer
+0..13 globalStatement
+0..13 localDecl
+12..13 literalExpr integer
+14..24 assignStmt add target 14..19 value 23..24
+14..19 nameExpr
+23..24 literalExpr integer
+62..89 forStmt
+71..75 rangeExpr
+71..72 literalExpr integer
+74..75 literalExpr integer
+76..89 blockStmt
+82..87 assignStmt assign target 82..83 value 86..87
+82..83 nameExpr
+86..87 literalExpr integer

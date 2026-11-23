@@ -1,0 +1,11 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/assign/assign.byn diagnostics
+BYN2104 11:5 `p` is immutable
+BYN2104 12:5 `p` is immutable
+BYN3216 16:5 `S.n` can be written only by `S`'s own methods or with `with`: `S` is `@sealed`
+BYN2210 21:5 `??` needs an optional value on the left, found `i32`
+BYN2001 22:10 `nope` is not defined
+BYN2208 25:5 `<<` cannot be applied to `f64` and `i32`
+BYN2209 27:5 strings cannot be joined with `+`; use interpolation
+BYN2208 29:5 `+` cannot be applied to `bool` and `i32`
+BYN2207 30:5 `++` cannot be applied to `bool`
+BYN2001 31:5 `nope` is not defined

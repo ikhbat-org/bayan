@@ -1,0 +1,10 @@
+error BYN2410: `switch` does not handle every `EmailError | DbError`
+  --> tmp/t26-tests/cli/diag_non-exhaustive-catch-switch.byn/non-exhaustive-catch-switch.byn:20:25
+
+  20 │ let r = signUp(1) catch switch {
+     │                         ^^^^^^ not covered: EmailError, DbError.lost
+     │
+  help: add the missing arms, or `_ => …` for the rest
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2410

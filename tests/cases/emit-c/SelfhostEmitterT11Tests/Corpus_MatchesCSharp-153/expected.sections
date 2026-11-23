@@ -1,0 +1,12 @@
+== cases
+0 ((byn_dyn_main__IStack){&l0_s, &bynh_vtab_main__Stack_main__IStack})
+1 ((byn_dyn_main__IStack){&l0_s, &bynh_vtab_main__Stack_main__IStack})
+2 ((byn_dyn_main__IStack){&l0_s, &bynh_vtab_main__Stack_main__IStack})
+3 ((byn_dyn_main__IStack){&l0_s, &bynh_vtab_main__Stack_main__IStack})
+4 l0_s.items.len
+5 (*self).items.len
+6 bynh_add_list_i64(&(*self).items, p_v)
+7 (*bynh_at_list_i64((*self).items, (int64_t)byn_sub_i64((*self).items.len, INT64_C(1), byn_file_0, 16), false, byn_file_0, 16))
+8 byn_sub_i64((*self).items.len, INT64_C(1), byn_file_0, 16)
+9 (*self).items.len
+count 10

@@ -1,0 +1,7 @@
+warning BYN5011: this `expects` reads only `value`; a type with `requires` checks it once
+  --> tmp/t26-tests/cli/diag_expects-single-parameter.byn/expects-single-parameter.byn:1:24
+
+  1 │ i64 percent(i64 value) expects value in 0..=100 {
+    │                        ^^^^^^^
+    │
+  help: declare a type with `requires` for `value`

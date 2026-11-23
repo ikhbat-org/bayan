@@ -1,0 +1,4 @@
+== cases
+0 byn_add_i64(p_x, ((int64_t)((bynt_tup1_i32*)env)->item1), byn_file_0, 9)
+1 ((int64_t)((bynt_tup1_i32*)env)->item1)
+count 2

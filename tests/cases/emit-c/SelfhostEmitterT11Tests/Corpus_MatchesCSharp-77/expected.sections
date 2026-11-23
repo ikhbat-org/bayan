@@ -1,0 +1,11 @@
+== cases
+0 ((int64_t)l1_i)
+1 (l9_n > ((int32_t)0))
+2 (l9_n == ((int32_t)1))
+3 (l9_n < ((int32_t)4))
+4 (l13_j > l10_i)
+5 (l10_i == ((int32_t)3))
+6 (l0_sum > INT64_C(100))
+7 (l0_sum > INT64_C(5))
+8 (l0_sum > INT64_C(5))
+count 9

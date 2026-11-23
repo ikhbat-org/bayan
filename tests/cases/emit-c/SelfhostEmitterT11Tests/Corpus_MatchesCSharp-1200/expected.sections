@@ -1,0 +1,10 @@
+== locals
+code: t
+addText: sum t t t t e t t
+tryAdd:
+main: tax t t t t
+plus: t t
+minus: t
+times:
+atRate: t
+formatInto: whole t

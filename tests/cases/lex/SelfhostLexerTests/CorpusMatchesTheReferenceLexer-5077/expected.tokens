@@ -1,0 +1,25 @@
+1:1 CharLiteral `'\q'`
+2:2 Identifier `E`
+2:3 Plus `+`
+2:4 IntegerLiteral `2`
+2:6 FloatLiteral `1.50`
+2:10 NumericSuffix `dec`
+2:14 IntegerLiteral `1`
+2:15 DotDot `..`
+2:17 IntegerLiteral `2`
+2:22 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n let café = 1;\nstruct S\n+ - * / % +% -% *% +| -| *| ++ --\n '\q'\n`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │  E+2 1.50dec 1..2    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                      ^^^ raw string starts here
+    │
+  help: close it with `"""`

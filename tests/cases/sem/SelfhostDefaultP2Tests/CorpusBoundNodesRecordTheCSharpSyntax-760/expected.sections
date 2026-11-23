@@ -1,0 +1,4 @@
+== tests/cases/diag/public-inferred-fails.byn
+33..49 blockStmt
+39..47 returnStmt value 46..47
+46..47 literalExpr integer

@@ -1,0 +1,24 @@
+2:2 Plus `+`
+2:4 Minus `-`
+2:6 Star `*`
+2:8 Slash `/`
+2:10 Percent `%`
+2:12 PlusPercent `+%`
+2:15 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:33 MinusMinus `--`
+3:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -

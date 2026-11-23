@@ -1,0 +1,15 @@
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tests/cases/diag/stray-tokens.byn:1:1
+
+  1 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1001: expected a statement, found keyword `else`
+  --> <repo>/tests/cases/diag/stray-tokens.byn:3:1
+
+  3 │ else { }
+    │ ^^^^
+    │
+  help: remove this `else`; it has no matching `if`

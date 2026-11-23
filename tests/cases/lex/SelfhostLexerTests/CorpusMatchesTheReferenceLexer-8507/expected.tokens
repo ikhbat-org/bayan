@@ -1,0 +1,153 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolatedStringText `\u{10}`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 Identifier `x`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 StringLiteral `$"{$"`
+5:12 OpenBrace `{`
+5:13 StringLiteral `$"{$"`
+5:18 OpenBrace `{`
+5:19 StringLiteral `$"{$"`
+5:24 OpenBrace `{`
+5:25 StringLiteral `$"{$"`
+5:30 OpenBrace `{`
+5:31 StringLiteral `$"{$"`
+5:36 OpenBrace `{`
+5:37 StringLiteral `$"{$"`
+5:42 OpenBrace `{`
+5:43 StringLiteral `$"{$"`
+5:48 OpenBrace `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"{$"`
+5:60 OpenBrace `{`
+5:61 StringLiteral `$"{x}"`
+5:67 CloseBrace `}`
+5:68 StringLiteral `"}"`
+5:71 CloseBrace `}`
+5:72 StringLiteral `"}"`
+5:75 CloseBrace `}`
+5:76 StringLiteral `"}"`
+5:79 CloseBrace `}`
+5:80 StringLiteral `"}"`
+5:83 CloseBrace `}`
+5:84 StringLiteral `"}"`
+5:87 CloseBrace `}`
+5:88 StringLiteral `"}"`
+5:91 CloseBrace `}`
+5:92 StringLiteral `"}u"`
+6:2 CloseBrace `}`
+6:4 Identifier `here`
+6:8 StringLiteral `"`
+7:1 StringLiteral `$"ope`
+8:1 LetKeyword `let`
+8:5 Identifier `café`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+9:1 StringLiteral `$"{a    comment */ a`
+11:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │       ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │                                                                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │                                                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │                                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │                                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}u" �����
+    │                                                                                                     ^
+
+error BYN0003: unterminated string literal
+
+  6 │  } here"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"ope
+    │ ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  8 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{a    comment */ a
+    │ ^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

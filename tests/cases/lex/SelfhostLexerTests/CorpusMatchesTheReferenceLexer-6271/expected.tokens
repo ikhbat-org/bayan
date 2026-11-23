@@ -1,0 +1,130 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:1 Identifier `str`
+2:4 Identifier `ct`
+2:7 UniqueKeyword `unique`
+2:14 UnionKeyword `union`
+2:20 EnumKeyword `enum`
+2:25 FlagsKeyword `flags`
+2:31 OpenKeyword `open`
+2:36 Identifier `ext`
+2:40 Identifier `ensible`
+2:48 InterfaceKeyword `interface`
+2:58 DelegateKeyword `delegate`
+2:67 ExtensionKeyword `extension`
+2:77 DerivationKeyword `derivation`
+2:88 AttributeKeyword `attribute`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 Identifier `x`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 StringLiteral `$"{$"`
+5:24 OpenBrace `{`
+5:25 StringLiteral `$"{$"`
+5:30 OpenBrace `{`
+5:31 StringLiteral `$"{$"`
+5:36 OpenBrace `{`
+5:37 StringLiteral `$"{$"`
+5:42 OpenBrace `{`
+5:43 StringLiteral `$"{$"`
+5:48 OpenBrace `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"{x}"`
+5:61 CloseBrace `}`
+5:62 StringLiteral `"}"`
+5:65 CloseBrace `}`
+5:66 StringLiteral `"}"`
+5:69 CloseBrace `}`
+5:70 StringLiteral `"}"`
+5:73 CloseBrace `}`
+5:74 StringLiteral `"}"`
+5:77 CloseBrace `}`
+5:78 StringLiteral `"}"`
+5:81 CloseBrace `}`
+5:82 StringLiteral `" \u{0} `
+5:86 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB0)
+
+  2 │ str�ct unique union enum flags open ext�ensible interface delegate extension derivation attribute
+    │    ^
+
+error BYN0002: unexpected character `\u{8}`
+
+  2 │ str�ct unique union enum flags open ext�ensible interface delegate extension derivation attribute
+    │                                        ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" � 
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" � 
+    │                   ^^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" � 
+    │                                                                                  ^^^^ string
+    │                                                                                       ends at
+    │                                                                                       the end
+    │                                                                                       of the
+    │                                                                                       line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

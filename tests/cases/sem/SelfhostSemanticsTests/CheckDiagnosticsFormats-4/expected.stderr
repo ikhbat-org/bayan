@@ -1,0 +1,1 @@
+{"code":"BYN3100","severity":"error","file":"package.byn","span":{"start":19,"end":31,"line":2,"column":10,"endLine":2,"endColumn":22},"message":"`package.byn` is data only: expected `field: value` or `}`","label":null,"help":"write strings, integers, `true`/`false`, `.names`, `[lists]` or `Type { field: value }`; no calls or expressions","fixes":[]}

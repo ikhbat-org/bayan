@@ -1,0 +1,40 @@
+i64 inc(i64 n) {
+    var y = n
+    @unobservable because "no test can see it"
+    y += 0
+    return n + 1
+}
+
+i64 spin(i64 n) {
+    var i: i64 = 0
+    while i < n {
+        i += 1
+    }
+    return i
+}
+
+i64 unused(i64 n) => n * 2
+
+u8 top() {
+    return (250 + 4) + 1
+}
+
+test "inc" {
+    assert inc(1) > 0
+}
+
+test "spin" {
+    assert spin(2) == 2
+}
+
+test "nothing" {
+    assert true
+}
+
+test "later" {
+    todo("x")
+}
+
+test "broken" {
+    assert inc(1) == 3
+}

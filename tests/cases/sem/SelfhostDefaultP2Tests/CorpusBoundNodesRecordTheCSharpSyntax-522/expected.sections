@@ -1,0 +1,24 @@
+== tests/cases/diag/function-value-call.byn
+70..150 blockStmt
+76..91 localDecl
+84..91 callExpr
+84..85 nameExpr
+86..87 nameExpr
+96..111 localDecl
+104..111 callExpr
+104..105 nameExpr
+104..111 callExpr
+116..132 localDecl
+124..132 callExpr
+124..125 nameExpr
+124..132 callExpr
+137..148 returnStmt value 144..148
+144..148 callExpr
+144..145 nameExpr
+146..147 nameExpr
+191..210 blockStmt
+197..208 returnStmt value 204..208
+204..208 callExpr
+204..205 nameExpr
+206..207 literalExpr integer
+224..227 blockStmt

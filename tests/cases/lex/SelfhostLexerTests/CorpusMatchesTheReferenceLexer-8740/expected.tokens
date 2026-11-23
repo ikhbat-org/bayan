@@ -1,0 +1,91 @@
+1:1 Identifier `comme`
+1:7 CharLiteral `'\u{110000}'`
+2:2 LetKeyword `let`
+2:6 EffectKeyword `effect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 Identifier `Y`
+4:33 MinusMinus `--`
+6:1 CharLiteral `'\u{110000}'`
+7:1 StringLiteral `"$"`
+7:4 OpenBrace `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 Identifier `x`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+7:51 InterpolationEnd `}`
+7:52 InterpolatedStringEnd `"`
+7:53 InterpolationEnd `}`
+7:54 InterpolatedStringEnd `"`
+7:55 InterpolationEnd `}`
+7:56 InterpolatedStringEnd `"`
+7:57 InterpolationEnd `}`
+7:58 InterpolatedStringEnd `"`
+7:59 InterpolationEnd `}`
+7:60 InterpolatedStringEnd `"`
+7:61 InterpolationEnd `}`
+7:62 InterpolatedStringEnd `"`
+    doc `///`
+8:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ comme '\u{110000}'
+    │        ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  6 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  7 │ "$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"///
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string

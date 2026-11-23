@@ -1,0 +1,60 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:1 CharLiteral `'x�`
+5:1 CharLiteral `'`
+6:1 Equals `=`
+6:2 LetKeyword `let`
+6:6 EffectKeyword `effect`
+6:13 Equals `=`
+6:15 IntegerLiteral `2`
+7:1 CharLiteral `'\u{D800}'`
+9:2 Equals `=`
+9:4 IntegerLiteral `1`
+10:1 LetKeyword `let`
+10:5 Identifier `a`
+10:7 Equals `=`
+10:11 IntegerLiteral `1`
+12:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x�
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  3 │ 'x�
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  5 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  7 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  9 │ � = 1
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  10 │ let a = $ 1
+     │         ^

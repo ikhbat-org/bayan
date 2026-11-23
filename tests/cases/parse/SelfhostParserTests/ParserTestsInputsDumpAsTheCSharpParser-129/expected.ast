@@ -1,0 +1,12 @@
+CompilationUnit
+  Var x: i64 = 1
+  Assign x += 1
+
+error BYN1043: `i64 x` is an input form; write `var x: i64`
+
+  1 │ i64 x = 1
+    │ ^^^^^ type before name
+    │
+  help: write `var x: i64`; local bindings put the name first
+    │ 1 │ var x: i64 = 1
+    │   │ ++++++++++

@@ -1,0 +1,6 @@
+== member twice
+first none
+block 127..128
+  returnStmt 127..128
+    literal 127..128 : i32 = 8
+requires 0 infers false

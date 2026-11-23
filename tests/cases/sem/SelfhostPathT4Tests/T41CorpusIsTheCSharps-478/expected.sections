@@ -1,0 +1,5 @@
+== diags.diag/fail-in-defer
+BYN2610 7:9 `fail` cannot leave a `defer` or `defer failing` body
+BYN2602 11:1 `f` can fail; handle the error or pass it on
+  help propagate the error with `try`, or handle it with `catch`
+  fix 11:1-11:1 try 

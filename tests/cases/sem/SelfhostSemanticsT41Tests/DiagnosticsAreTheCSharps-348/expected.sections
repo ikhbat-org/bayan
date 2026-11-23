@@ -1,0 +1,10 @@
+== diags.diag/union-value-not-integer
+BYN2709 2:12 a case value must be an integer constant
+  label not an `i32` integer literal
+  help write the value as an integer literal, or remove it
+BYN2709 3:13 a case value must be an integer constant
+  label not an `i32` integer literal
+  help write the value as an integer literal, or remove it
+BYN2709 4:11 a case value must be an integer constant
+  label not an `i32` integer literal
+  help write the value as an integer literal, or remove it

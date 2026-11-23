@@ -1,0 +1,35 @@
+2:1 Identifier `letc`
+2:6 Equals `=`
+2:10 IntegerLiteral `3`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ letc = � 3
+    │        ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ '\
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\`
+
+  5 │ '\
+    │  ^

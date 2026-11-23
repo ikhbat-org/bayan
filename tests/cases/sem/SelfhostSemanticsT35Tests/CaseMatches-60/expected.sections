@@ -1,0 +1,4 @@
+== inl.probes.n1
+false
+true
+BYN2821 216:26 `this` cannot be captured: a lambda does not capture `this` ||copy the fields you need into `let` values first|

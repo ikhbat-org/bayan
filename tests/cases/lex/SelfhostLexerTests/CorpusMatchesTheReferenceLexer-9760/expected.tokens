@@ -1,0 +1,54 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:4 Identifier `foo`
+3:8 Identifier `Bar`
+3:12 Identifier `_x`
+3:15 Identifier `caelCase2`
+3:25 Identifier `بيانμετρητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
+5:2 RawStringLiteral `""" c"\n/* \u{202D} */\n`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  // comment � hidden
+    │   │             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │  ���� foo Bar _x caelCase2 بيانμετρητής x_1 é
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │  ���� foo Bar _x caelCase2 بيانμετρητής x_1 é
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���� foo Bar _x caelCase2 بيانμετρητής x_1 é
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���� foo Bar _x caelCase2 بيانμετρητής x_1 é
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  5 │  """ c"
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

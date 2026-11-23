@@ -1,0 +1,4 @@
+== cases
+0 ((int64_t)byn_mul_i32(p_n, ((int32_t)2), byn_file_0, 1))
+1 byn_mul_i32(p_n, ((int32_t)2), byn_file_0, 1)
+count 2

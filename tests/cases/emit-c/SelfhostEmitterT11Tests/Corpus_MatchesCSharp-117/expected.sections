@@ -1,0 +1,9 @@
+== cases
+0 ((byn_dyn_main__IShape){&l0_s, &bynh_vtab_main__Square_main__IShape})
+1 ((byn_dyn_main__IShape){&l1_c, &bynh_vtab_main__Circle_main__IShape})
+2 byn_mul_i64((*self).side, (*self).side, byn_file_0, 11)
+3 byn_mul_i64(byn_main__Square__area(&(*self)), p_by, byn_file_0, 15)
+4 byn_mul_i64(byn_mul_i64(INT64_C(3), (*self).r, byn_file_0, 21), (*self).r, byn_file_0, 21)
+5 byn_mul_i64(INT64_C(3), (*self).r, byn_file_0, 21)
+6 byn_mul_i64(byn_main__Circle__area(&(*self)), p_by, byn_file_0, 25)
+count 7

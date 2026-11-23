@@ -1,0 +1,121 @@
+== lines
+line 12 loc byn_file_0, 12
+#line 12 "a.byn"
+    a;
+#line 12 "a.byn"
+        b;
+line 12 loc byn_file_0, 12
+    a;
+        b;
+line 109 loc byn_file_0, 109
+#line 109 "a.byn"
+    a;
+#line 109 "a.byn"
+        b;
+line 109 loc byn_file_0, 109
+    a;
+        b;
+line 137 loc byn_file_0, 137
+#line 137 "a.byn"
+    a;
+#line 137 "a.byn"
+        b;
+line 137 loc byn_file_0, 137
+    a;
+        b;
+line 150 loc byn_file_0, 150
+#line 150 "a.byn"
+    a;
+#line 150 "a.byn"
+        b;
+line 150 loc byn_file_0, 150
+    a;
+        b;
+line 162 loc byn_file_0, 162
+#line 162 "a.byn"
+    a;
+#line 162 "a.byn"
+        b;
+line 162 loc byn_file_0, 162
+    a;
+        b;
+line 169 loc byn_file_0, 169
+#line 169 "a.byn"
+    a;
+#line 169 "a.byn"
+        b;
+line 169 loc byn_file_0, 169
+    a;
+        b;
+line 176 loc byn_file_0, 176
+#line 176 "a.byn"
+    a;
+#line 176 "a.byn"
+        b;
+line 176 loc byn_file_0, 176
+    a;
+        b;
+line 185 loc byn_file_0, 185
+#line 185 "a.byn"
+    a;
+#line 185 "a.byn"
+        b;
+line 185 loc byn_file_0, 185
+    a;
+        b;
+line 187 loc byn_file_0, 187
+#line 187 "a.byn"
+    a;
+#line 187 "a.byn"
+        b;
+line 187 loc byn_file_0, 187
+    a;
+        b;
+line 28 loc byn_file_0, 28
+#line 28 "a.byn"
+    a;
+#line 28 "a.byn"
+        b;
+line 28 loc byn_file_0, 28
+    a;
+        b;
+line 34 loc byn_file_0, 34
+#line 34 "a.byn"
+    a;
+#line 34 "a.byn"
+        b;
+line 34 loc byn_file_0, 34
+    a;
+        b;
+line 39 loc byn_file_0, 39
+#line 39 "a.byn"
+    a;
+#line 39 "a.byn"
+        b;
+line 39 loc byn_file_0, 39
+    a;
+        b;
+line 42 loc byn_file_0, 42
+#line 42 "a.byn"
+    a;
+#line 42 "a.byn"
+        b;
+line 42 loc byn_file_0, 42
+    a;
+        b;
+line 48 loc byn_file_0, 48
+#line 48 "a.byn"
+    a;
+#line 48 "a.byn"
+        b;
+line 48 loc byn_file_0, 48
+    a;
+        b;
+line 94 loc byn_file_0, 94
+#line 94 "a.byn"
+    a;
+#line 94 "a.byn"
+        b;
+line 94 loc byn_file_0, 94
+    a;
+        b;

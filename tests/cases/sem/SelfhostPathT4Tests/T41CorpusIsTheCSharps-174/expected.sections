@@ -1,0 +1,4 @@
+== diags.diag/effect-bound-exceeded
+BYN6005 10:9 `price` uses `console`, beyond the bound `pure` declared by `IPricer.price`
+  label uses `console`
+  help declare `console` on `IPricer.price`, or pass a function without it

@@ -1,0 +1,12 @@
+error BYN2305: argument for `verbose` must be named
+  --> input.byn:6:6
+
+  6 │ show(true)
+    │      ^^^^
+    │
+  help: write `verbose: …`; a `bool` argument says nothing at the call site
+    │ 6 │ show(verbose: true)
+    │   │      +++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2305

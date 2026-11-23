@@ -1,0 +1,69 @@
+1:1 StringLiteral `" Å �let c = "`
+1:15 StringLiteral `""`
+1:17 NeverKeyword `never`
+1:23 Identifier `clo`
+1:27 Identifier `ed`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+3:1 IntegerLiteral `0xFF`
+3:5 NumericSuffix `s`
+5:2 IsKeyword `is`
+5:5 AndKeyword `and`
+5:9 OrKeyword `or`
+5:12 NotKeyword `not`
+5:16 WithKeyword `with`
+5:21 MoveKeyword `move`
+5:26 RefKeyword `ref`
+5:30 OutKeyword `out`
+5:34 ThisKeyword `this`
+5:39 NullKeyword `null`
+5:44 TrueKeyword `true`
+5:49 FalseKeyword `false`
+5:55 ComptimeKeyword `comptime`
+5:64 CheckedKeyword `checked`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ " Å �let c = """never clo�ed
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ " Å �let c = """never clo�ed
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ " Å �let c = """never clo�ed
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ " Å �let c = """never clo�ed
+    │                          ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  3 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │ �is and or not with move ref out this null true false comptime checked
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �is and or not with move ref out this null true false comptime checked
+    │   │ -

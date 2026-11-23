@@ -1,0 +1,13 @@
+CompilationUnit
+  Function f() -> void where T : I uses io
+    Block
+
+error BYN1065: `where` must come before `uses`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+
+  1 │ void f() uses io where T : I {
+    │                  ^^^^^ out of order
+    │
+  help: move `where` before `uses`
+    │ 1 │ void f() where T : I uses io {
+    │   │          +++++++++++++++++++

@@ -1,0 +1,46 @@
+== tests/cases/diag/assignment-changes-state.byn
+242..278 blockStmt
+248..276 assignStmt assign target 248..249 value 252..276
+327..374 blockStmt
+333..372 assignStmt assign target 333..334 value 337..372
+406..453 blockStmt
+412..451 assignStmt assign target 412..413 value 416..451
+412..413 nameExpr
+416..451 structLiteralExpr
+433..437 memberExpr
+433..434 nameExpr
+448..449 literalExpr integer
+484..520 blockStmt
+490..518 assignStmt assign target 490..491 value 494..518
+549..602 blockStmt
+555..567 localDecl
+566..567 nameExpr
+572..600 assignStmt assign target 572..576 value 579..600
+572..576 nameExpr
+579..600 structLiteralExpr
+597..598 literalExpr integer
+628..661 blockStmt
+634..659 assignStmt assign target 634..635 value 638..659
+634..635 nameExpr
+638..659 structLiteralExpr
+656..657 literalExpr integer
+696..740 blockStmt
+702..738 assignStmt assign target 702..703 value 706..738
+702..703 nameExpr
+706..738 structLiteralExpr
+723..724 literalExpr integer
+735..736 literalExpr integer
+768..788 blockStmt
+774..786 exprStmt
+774..786 callExpr
+784..785 nameExpr
+823..847 blockStmt
+829..845 exprStmt
+829..845 callExpr
+843..844 nameExpr
+161..215 blockStmt
+171..186 exprStmt
+171..186 callExpr
+181..185 thisExpr
+195..209 returnStmt value 202..209
+202..209 nameExpr

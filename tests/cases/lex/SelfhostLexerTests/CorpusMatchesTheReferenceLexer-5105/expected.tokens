@@ -1,0 +1,47 @@
+1:2 Identifier `maco`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+    doc `///`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+5:1 IntegerLiteral `0b__`
+6:2 IntegerLiteral `0`
+6:4 IntegerLiteral `42`
+6:7 IntegerLiteral `1_000_000`
+6:17 IntegerLiteral `0xF`
+6:22 IntegerLiteral `0x_ff`
+6:28 IntegerLiteral `0b1010`
+6:35 IntegerLiteral `0B11`
+6:40 Identifier `s`
+6:42 IntegerLiteral `250`
+6:45 NumericSuffix `ms`
+6:48 IntegerLiteral `4`
+6:49 NumericSuffix `KiB`
+6:53 IntegerLiteral `1`
+6:54 NumericSuffix `u`
+6:56 IntegerLiteral `0xFF`
+6:60 NumericSuffix `u`
+6:62 IntegerLiteral `0b1`
+6:65 NumericSuffix `ul`
+6:68 IntegerLiteral `7`
+6:69 NumericSuffix `l`
+7:2 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ 	maco select become
+    │ 	     ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  6 │  0 42 1_000_000 0xF� 0x_ff 0b1010 0B11 s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                    ^

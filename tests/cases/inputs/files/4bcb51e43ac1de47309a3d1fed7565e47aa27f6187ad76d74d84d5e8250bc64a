@@ -1,0 +1,7 @@
+let c = """never closed
+ �/// Doc line one.
+b
+0b__
+ ' foo Bar _x camelCase2 بيان μετ�ητής x_1 é
+ let a = $ 1
+ 

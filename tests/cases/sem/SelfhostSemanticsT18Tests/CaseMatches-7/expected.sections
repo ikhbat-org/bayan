@@ -1,0 +1,3 @@
+== member.probes.-.m29
+variantGroup|?|-|-|circle|-|-|2164:12|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

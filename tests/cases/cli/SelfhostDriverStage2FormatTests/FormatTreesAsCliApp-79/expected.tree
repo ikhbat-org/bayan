@@ -1,0 +1,2 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+i64 f(Box b) => b.long

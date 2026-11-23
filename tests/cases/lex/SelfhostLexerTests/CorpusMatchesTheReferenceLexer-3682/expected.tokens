@@ -1,0 +1,15 @@
+1:1 Identifier `sQruc`
+1:8 Identifier `S`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  1 │ sQruc� S
+    │      ^
+
+error BYN0004: unterminated block comment
+
+  2 │ /* lock
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

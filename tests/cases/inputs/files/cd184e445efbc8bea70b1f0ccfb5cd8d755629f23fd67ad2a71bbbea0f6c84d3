@@ -1,0 +1,25 @@
+union error ParseError {
+    empty
+}
+
+i64 digit(string s) fails ParseError {
+    defer failing (e) print($"failed: {e}")
+    fail .empty if s.isEmpty
+    return 1
+}
+
+i64 total(List<i64> xs) {
+    const k = 2
+    var sum: i64 = 0
+    for x in xs { sum += x * k }
+    let first: i64? = xs.length > 0 ? xs[0] : null
+    if (first is { } f) { sum += f }
+    let d = digit("") catch 0
+    return sum + d
+}
+
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    print($"{total(xs)}")
+}

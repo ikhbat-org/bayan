@@ -1,0 +1,12 @@
+) because "stray"
+(1) because "group"
+foo(1) because "call"
+let é = bar(2, (3)) because "unicode"
+x because y
+@a(1) because "attr"
+unsafe because "b" {
+}
+unsafe fn f() {
+}
+extern
+unsafe

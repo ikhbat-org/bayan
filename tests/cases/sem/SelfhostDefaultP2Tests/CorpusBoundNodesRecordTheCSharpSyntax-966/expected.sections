@@ -1,0 +1,30 @@
+== tests/cases/diag/validation-error-bare.byn
+199..202 blockStmt
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+138..153 requiresRule
+138..153 requiresRule
+147..153 binaryExpr gt right 152..153
+147..149 nameExpr
+147..149 nameExpr
+152..153 literalExpr integer
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+138..153 requiresRule
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl
+106..155 structDecl

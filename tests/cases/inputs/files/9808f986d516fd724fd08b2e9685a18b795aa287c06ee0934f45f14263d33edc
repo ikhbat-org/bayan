@@ -1,0 +1,5 @@
+struct DistSource {
+    string? commit = null
+    bool    dirty  = false
+    i64     count
+}

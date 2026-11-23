@@ -1,0 +1,72 @@
+1:1 IntegerLiteral `1__`
+3:2 Identifier `Å`
+4:2 Identifier `u`
+4:3 OpenBrace `{`
+4:4 IntegerLiteral `110000`
+4:10 CloseBrace `}`
+4:11 CharLiteral `'`
+5:2 OpenParen `(`
+5:4 CloseParen `)`
+5:6 OpenBracket `[`
+5:8 CloseBracket `]`
+5:10 OpenBrace `{`
+5:12 CloseBrace `}`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolatedStringText `a`
+6:5 InterpolationStart `{`
+6:6 Identifier `b`
+6:7 InterpolationEnd `}`
+6:8 InterpolatedStringText `c\u{2066} let law = 3`
+6:22 InterpolatedStringEnd
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  3 │ �Å
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  3 │ �Å
+    │  ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ �Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ �Å
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  4 │ �\u{110000}'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ �\u{110000}'
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  4 │ �\u{110000}'
+    │            ^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  6 │  $"a{b}c� let law = 3
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

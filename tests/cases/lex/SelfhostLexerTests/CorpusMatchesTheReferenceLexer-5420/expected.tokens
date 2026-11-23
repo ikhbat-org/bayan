@@ -1,0 +1,146 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+2:56 StringLiteral `$"{$"`
+2:61 OpenBrace `{`
+2:62 StringLiteral `$"{x}"`
+2:68 CloseBrace `}`
+2:69 StringLiteral `" ver `
+3:1 Identifier `se2`
+3:5 Identifier `بيان`
+3:10 Identifier `μετρητής`
+3:19 Identifier `x_`
+3:22 LetKeyword `let`
+3:26 Identifier `x`
+3:29 Equals `=`
+3:31 IntegerLiteral `1`
+4:2 StringLiteral `$"{$"`
+4:7 OpenBrace `{`
+4:8 StringLiteral `$"{$"`
+4:13 OpenBrace `{`
+4:14 StringLiteral `$"{$"`
+4:19 OpenBrace `{`
+4:20 StringLiteral `$"{$"`
+4:25 OpenBrace `{`
+4:26 StringLiteral `$"{$"`
+4:31 OpenBrace `{`
+4:32 StringLiteral `$"{$"`
+4:37 OpenBrace `{`
+4:38 StringLiteral `$"{$"`
+4:43 OpenBrace `{`
+4:44 StringLiteral `$"{$"`
+4:49 OpenBrace `{`
+4:50 StringLiteral `$"{$"`
+4:55 OpenBrace `{`
+4:56 StringLiteral `$"{x}"`
+4:62 CloseBrace `}`
+4:63 StringLiteral `"}"`
+4:66 CloseBrace `}`
+4:67 StringLiteral `"}"`
+4:71 StringLiteral `"}"`
+4:74 CloseBrace `}`
+4:75 StringLiteral `"}"`
+4:78 CloseBrace `}`
+4:79 StringLiteral `"}"`
+4:82 CloseBrace `}`
+4:83 StringLiteral `"}"`
+4:86 CloseBrace `}`
+4:87 StringLiteral `" $"`
+4:91 OpenBrace `{`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │                                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │                                                     ^^
+
+error BYN0003: unterminated string literal
+
+  2 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" ver 
+    │                                                                        ^^^^^^ string ends at
+    │                                                                               the end of the
+    │                                                                               line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ se2 بيان μετρητής x_ let x� = 1
+    │                           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ se2 بيان μετρητής x_ let x� = 1
+    │   │                           -
+
+error BYN0015: source is not valid UTF-8 (byte 0xEC)
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"�"}"}"}"}"}"}"}"}" $"{
+    │                                                                      ^

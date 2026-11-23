@@ -1,0 +1,85 @@
+1:1 StringLiteral `"}"`
+1:4 CloseBrace `}`
+1:5 StringLiteral `"`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+4:2 IntegerLiteral `5`
+4:3 NumericSuffix `s`
+4:5 IntegerLiteral `250`
+4:8 NumericSuffix `ms`
+4:11 IntegerLiteral `4`
+4:12 NumericSuffix `KiB`
+4:16 IntegerLiteral `1`
+4:17 NumericSuffix `u`
+4:19 IntegerLiteral `0xFF`
+4:23 NumericSuffix `u`
+4:25 IntegerLiteral `0b1`
+4:28 NumericSuffix `ul`
+4:31 IntegerLiteral `7`
+4:32 NumericSuffix `l`
+5:1 CharLiteral `'\u{202E}'`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolatedStringText `{{`
+5:8 InterpolatedStringEnd `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+7:2 Plus `+`
+7:4 Minus `-`
+7:6 Star `*`
+7:8 Slash `/`
+7:10 Percent `%`
+7:12 PlusPercent `+%`
+7:15 MinusPercent `-%`
+7:18 StarPercent `*%`
+7:21 PlusBar `+|`
+7:24 MinusBar `-|`
+7:27 Identifier `Q`
+7:28 StarBar `*|`
+7:31 PlusPlus `++`
+7:34 MinusMinus `--`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:6 Identifier `b`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "}"}"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  4 │  5s 250ms 4KiB 1u 0xFFu 0b1ul 7l�
+    │                                 ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�'$"{{"
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�'$"{{"
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

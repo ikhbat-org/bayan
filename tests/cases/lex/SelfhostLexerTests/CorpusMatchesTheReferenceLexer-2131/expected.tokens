@@ -1,0 +1,44 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:2 Slash `/`
+4:1 ExtensibleKeyword `extensible`
+4:12 InterfaceKeyword `interface`
+4:22 LetKeyword `let`
+4:26 Identifier `b`
+4:28 Equals `=`
+4:30 StringLiteral `"bad \� escape"`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x97)
+
+  2 │  /�// Doc line one.
+    │   ^
+
+error BYN0006: invalid escape sequence `\�`
+
+  4 │ extensible interface let b = "bad \� escape"
+    │                                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  4 │ extensible interface let b = "bad \� escape"
+    │                                    ^

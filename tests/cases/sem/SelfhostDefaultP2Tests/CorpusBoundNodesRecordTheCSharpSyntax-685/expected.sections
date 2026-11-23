@@ -1,0 +1,38 @@
+== tests/cases/diag/non-exhaustive-union-guard.byn
+88..185 switchExpr
+88..185 switchExpr
+88..185 switchExpr
+88..89 nameExpr
+103..117 variantPattern
+111..114 varPattern
+123..127 literalExpr trueKeyword
+131..132 nameExpr
+138..157 variantPattern
+144..147 varPattern
+151..154 varPattern
+161..166 binaryExpr mul right 165..166
+161..162 nameExpr
+165..166 nameExpr
+172..177 constantPattern
+181..182 literalExpr integer
+210..364 blockStmt
+216..362 switchStmt
+223..224 nameExpr
+240..254 variantPattern
+248..251 varPattern
+260..265 binaryExpr gt right 264..265
+260..261 nameExpr
+264..265 literalExpr integer
+279..294 exprStmt
+279..294 callExpr
+285..293 literalExpr string
+279..294 callExpr
+308..328 binaryPattern
+308..319 variantPattern
+314..315 discardPattern
+317..318 discardPattern
+323..328 constantPattern
+342..356 exprStmt
+342..356 callExpr
+348..355 literalExpr string
+342..356 callExpr

@@ -1,0 +1,87 @@
+1:1 StringLiteral `" \u{FEFF}`
+2:1 IntegerLiteral `0x`
+2:3 NumericSuffix `각`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolatedStringText `q`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 StringLiteral `"{$"`
+3:36 OpenBrace `{`
+3:37 StringLiteral `"{$"`
+3:41 OpenBrace `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 InterpolatedStringStart `$"`
+3:53 InterpolationStart `{`
+3:54 Identifier `x`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 CloseBrace `}`
+3:64 StringLiteral `"}"`
+3:67 CloseBrace `}`
+3:68 StringLiteral `"}"`
+3:71 InterpolationEnd `}`
+3:72 InterpolatedStringEnd `"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ " ﻿
+    │ ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x각
+    │ ^^
+
+error BYN0011: unit suffix `각` is not allowed on a hexadecimal literal
+
+  2 │ 0x각
+    │   ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"q{$"{"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"q{$"{"{$"{�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"
+    │                                     ^

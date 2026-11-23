@@ -1,0 +1,19 @@
+1:1 Identifier `a`
+7:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │                          -

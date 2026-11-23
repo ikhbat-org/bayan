@@ -1,0 +1,46 @@
+1:1 Identifier `é`
+1:4 FailsKeyword `fails`
+1:10 TryKeyword `try`
+1:14 CatchKeyword `catch`
+1:20 Identifier `neer`
+1:26 NoallocKeyword `noalloc`
+1:34 NosuspendKeyword `nosuspend`
+1:44 SuspendsKeyword `suspends`
+1:53 AsyncKeyword `async`
+1:59 AwaitKeyword `await`
+    doc `///`
+3:1 Identifier `ạ̇`
+5:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é fails try catch neer �noalloc nosuspend suspends async await
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é fails try catch neer �noalloc nosuspend suspends async await
+    │   │ +
+
+error BYN0002: unexpected character `\u{2}`
+
+  1 │ é fails try catch neer �noalloc nosuspend suspends async await
+    │                         ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ +
+
+error BYN0002: unexpected character `̇`
+
+  4 │ ̣̇ 	
+    │ ^
+
+error BYN0002: unexpected character `̣`
+
+  4 │ ̣̇ 	
+    │  ^

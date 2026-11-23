@@ -1,0 +1,37 @@
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+3:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nlet a = "open\n `
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  3 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

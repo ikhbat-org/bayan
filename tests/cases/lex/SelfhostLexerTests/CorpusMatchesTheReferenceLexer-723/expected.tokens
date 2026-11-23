@@ -1,0 +1,103 @@
+1:1 Identifier `b`
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_000`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0xFF`
+2:60 NumericSuffix `u`
+2:62 IntegerLiteral `0b1`
+2:65 NumericSuffix `ul`
+2:68 IntegerLiteral `7`
+2:69 NumericSuffix `l`
+3:2 Identifier `D800`
+3:6 CloseBrace `}`
+3:7 CharLiteral `'`
+4:1 CharLiteral `'\u{1100 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" \q'`
+5:1 CharLiteral `'\u{D800}'`
+6:1 CharLiteral `'\u{1100 �� 0b1ms`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │  D800}'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ '\u{1100 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" \q'
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{1100`
+
+  4 │ '\u{1100 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" \q'
+    │  ^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\u{1100 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" \q'
+    │                                                                                         ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ '\u{1100 �� 0b1ms
+    │ ^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{1100`
+
+  6 │ '\u{1100 �� 0b1ms
+    │  ^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ '\u{1100 �� 0b1ms
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ '\u{1100 �� 0b1ms
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ '\u{1100 �� 0b1ms
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ '\u{1100 �� 0b1ms
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ '\u{1100 �� 0b1ms
+    │            ^

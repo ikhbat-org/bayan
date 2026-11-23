@@ -1,0 +1,3 @@
+== field.probes.-.f1
+errorExpr|1694:8
+BYN7002 68:14 `amount` is a payload of `.paid`; `o` is not known to be `.paid` ||match `.paid` with `is` or `switch` before reading `amount`|

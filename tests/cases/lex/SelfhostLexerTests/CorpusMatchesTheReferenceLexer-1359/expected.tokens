@@ -1,0 +1,15 @@
+1:1 Dot `.`
+1:3 FatArrow `=>`
+1:6 Arrow `->`
+1:9 At `@`
+1:11 Hash `#`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:22 EndOfFile

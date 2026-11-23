@@ -1,0 +1,10 @@
+struct Cart {
+    List<Line> lines
+    public i32 count => lines.length
+    public void add(ref this, Line line) {
+        lines.append(line)
+    }
+    public void clear(ref this) {
+        lines = []
+    }
+}

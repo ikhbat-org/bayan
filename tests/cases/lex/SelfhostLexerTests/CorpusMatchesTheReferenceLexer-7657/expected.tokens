@@ -1,0 +1,68 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 Identifier `typ`
+1:28 CloseBrace `}`
+1:29 Identifier `e`
+1:31 ImportKeyword `import`
+1:38 AsKeyword `as`
+1:41 PublicKeyword `public`
+1:48 Identifier `privJte`
+1:56 StaticKeyword `static`
+1:63 ReadonlyKeyword `readonly`
+1:72 RequiredKeyword `required`
+1:81 ConstKeyword `const`
+1:87 LetKeyword `let`
+1:91 VarKeyword `var`
+1:95 EmbedKeyword `embed`
+1:101 ExternKeyword `extern`
+1:108 UnsafeKeyword `unsafe`
+2:1 IntegerLiteral `0x`
+4:3 LetKeyword `let`
+4:7 Identifier `c`
+4:9 Equals `=`
+4:11 RawStringLiteral `"""never closed\n\n/// Doc line two.\n $"{�\n`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ ����� let c = """never closed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ ����� let c = """never closed
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� let c = """never closed
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� let c = """never closed
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� let c = """never closed
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ����� let c = """never closed
+    │               ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  7 │  $"{�
+    │     ^

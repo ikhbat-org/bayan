@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "JumpExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "IoReadFile",
+    "IoReadText",
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

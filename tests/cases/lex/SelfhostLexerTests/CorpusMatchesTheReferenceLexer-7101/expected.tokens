@@ -1,0 +1,79 @@
+3:1 Identifier `b`
+4:2 Identifier `ot`
+4:5 Identifier `a`
+4:7 Identifier `voc`
+4:11 Identifier `comment`
+5:1 Identifier `b`
+6:2 IfKeyword `if`
+6:5 ElseKeyword `else`
+6:10 UnlessKeyword `unless`
+6:17 SwitchKeyword `switch`
+6:24 CaseKeyword `case`
+6:29 DefaultKeyword `default`
+6:37 ForKeyword `for`
+6:41 InKeyword `in`
+6:44 WhileKeyword `while`
+6:50 DoKeyword `do`
+6:53 BreakKeyword `break`
+6:59 ContinueKeyword `continue`
+6:68 ReturnKeyword `return`
+6:75 YieldKeyword `yield`
+6:81 DeferKeyword `defer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolatedStringText `a`
+7:5 InterpolationStart `{`
+7:6 Identifier `b`
+7:7 InterpolationEnd `}`
+7:8 InterpolatedStringText `c`
+7:9 InterpolatedStringEnd
+7:9 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���// �x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���// �x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���// �x
+    │   ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ ���// �x
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ ���// �x
+    │   │       -
+
+error BYN0003: unterminated string literal
+
+  7 │  $"a{b}c
+    │  ^^ this string never ends
+    │
+  help: close it with `"`

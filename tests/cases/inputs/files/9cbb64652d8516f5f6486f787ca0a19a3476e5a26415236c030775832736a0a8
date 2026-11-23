@@ -1,0 +1,6 @@
+void main() {
+    let y = 1
+    let z: i64 = i64(y)
+    let a = i32.tryFrom(y)
+    let b = i64.max
+}

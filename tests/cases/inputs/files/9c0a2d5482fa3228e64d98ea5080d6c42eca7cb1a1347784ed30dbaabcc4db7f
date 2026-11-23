@@ -1,0 +1,10 @@
+let a = $ 1
+$"open {x";
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+let c =  3
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i ray } here"
+$"ope {x";
+ let b = "bad \q escape"
+ (�) [{] { }
+

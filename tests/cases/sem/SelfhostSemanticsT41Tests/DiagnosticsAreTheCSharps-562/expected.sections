@@ -1,0 +1,7 @@
+== diags.diag/lambda-typed-parameter
+BYN1001 2:14 expected a lambda parameter name, found `i32 x`
+  label not a bare name
+  help write the parameter's name only; a lambda takes its parameter types from the function type it is passed to
+BYN1001 3:14 expected a lambda parameter name, found `by x`
+  label not a bare name
+  help write the parameter's name only; a lambda takes its parameter types from the function type it is passed to

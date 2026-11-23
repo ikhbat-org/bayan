@@ -1,0 +1,43 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:33 CharLiteral `' '`
+1:37 IntegerLiteral `0`
+1:38 CharLiteral `'`
+2:1 IntegerLiteral `7`
+2:2 NumericSuffix `l`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x92)
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' �\\' '\0'
+    │                               ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' �\\' '\0'
+    │                                ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' �\\' '\0'
+    │                                 ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' �\\' '\0'
+    │                                     ^
+
+error BYN0008: unterminated char literal
+
+  1 │ 'a' '\n' '\u{1F600}' '\'' 'é' �\\' '\0'
+    │                                       ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │  �
+    │  ^

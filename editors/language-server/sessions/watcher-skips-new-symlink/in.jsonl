@@ -1,0 +1,6 @@
+{"fs":"symlink","path":"src/link.byn","target":"real/a.byn"}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":null,"capabilities":{}}}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/src/link.byn","type":1}]}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/real/a.byn","type":1}]}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

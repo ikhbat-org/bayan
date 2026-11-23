@@ -1,0 +1,6 @@
+== tests/cases/diag/target-unknown-member.byn
+83..100 globalStatement
+83..100 exprStmt
+83..100 callExpr
+89..99 memberExpr
+83..100 callExpr

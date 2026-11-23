@@ -1,0 +1,9 @@
+== bindFunction
+get Method body yes
+side Getter body yes
+top Function body yes
+bad Function body yes
+local z ?
+BYN2002 10:12 unknown type `Nope` |  | 
+invoke Invoke body no
+instantiationErrors +0

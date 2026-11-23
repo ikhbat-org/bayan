@@ -1,0 +1,101 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolatedStringText `�$`
+2:9 InterpolatedStringEnd `"`
+2:10 OpenBrace `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 Identifier `x`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+4:1 Slash `/`
+4:3 NotKeyword `not`
+4:7 Identifier `a`
+4:9 Identifier `doc`
+4:13 Identifier `comment`
+5:1 Identifier `b`
+7:1 OrKeyword `or`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `stray } ere`
+8:14 InterpolatedStringEnd `"`
+10:1 LetKeyword `let`
+10:5 Identifier `ef`
+10:7 InterpolationEnd `}`
+10:8 InterpolatedStringText `fect = 2`
+10:16 InterpolatedStringEnd
+12:1 Identifier `b`
+13:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  2 │  $"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                      ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́
+    │ ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  8 │ $"stray } ere"
+    │         ^
+    │
+    │ 8 │ $"stray }} ere"
+    │   │          +

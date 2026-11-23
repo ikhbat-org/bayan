@@ -1,0 +1,6 @@
+== tests/cases/diag/number-agreement-exempt.byn
+863..874 globalStatement
+863..874 exprStmt
+863..874 callExpr
+869..873 literalExpr string
+863..874 callExpr

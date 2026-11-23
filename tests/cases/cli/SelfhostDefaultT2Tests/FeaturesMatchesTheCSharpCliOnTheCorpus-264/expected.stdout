@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "Print",
+    "SpanLength"
+  ],
+  "diagnostics": []
+}

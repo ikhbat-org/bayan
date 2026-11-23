@@ -1,0 +1,8 @@
+error BYN2609: error enum `NoError` has no variants
+  --> <repo>/tmp/t2/diag/empty-error-set/empty-error-set.byn:1:13
+
+  1 │ union error NoError {
+    │             ^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2609

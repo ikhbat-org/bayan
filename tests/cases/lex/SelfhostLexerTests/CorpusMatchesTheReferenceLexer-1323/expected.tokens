@@ -1,0 +1,45 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+6:1 CharLiteral `'x`
+8:1 Identifier `wo`
+9:1 Identifier `strNct`
+9:8 Identifier `S`
+11:1 Identifier `b`
+13:1 RawStringLiteral `""" let b = ` 2\n `
+14:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // comment � hidden
+    │   │            -
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  12 │ �
+     │ ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 12 │ �
+     │    │ -
+
+error BYN0003: unterminated string literal
+
+  13 │ """ let b = ` 2
+     │ ^^^ raw string starts here
+     │
+  help: close it with `"""`

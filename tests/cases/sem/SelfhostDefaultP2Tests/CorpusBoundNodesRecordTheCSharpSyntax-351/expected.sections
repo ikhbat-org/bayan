@@ -1,0 +1,14 @@
+== tests/cases/diag/argument-needs-particle.byn
+118..129 binaryExpr sub right 124..129
+118..129 binaryExpr sub right 124..129
+118..129 binaryExpr sub right 124..129
+118..121 nameExpr
+124..129 nameExpr
+131..154 globalStatement
+131..154 exprStmt
+131..154 callExpr
+137..153 interpolatedExpr
+140..151 callExpr
+146..147 literalExpr integer
+149..150 literalExpr integer
+131..154 callExpr

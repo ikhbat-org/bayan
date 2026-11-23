@@ -1,0 +1,44 @@
+1:1 CharLiteral `''`
+2:1 Identifier `e0b102`
+4:1 Semicolon `;`
+5:1 CharLiteral `'\u{D800}'`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+7:2 IntegerLiteral `0xFF`
+7:6 NumericSuffix `s`
+9:1 StructKeyword `struct`
+9:8 Identifier `S`
+10:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ;̈́
+    │  ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

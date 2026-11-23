@@ -1,0 +1,5 @@
+$"{a// line comment
+Å var xs: List<List<i64>>
+
+q$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+

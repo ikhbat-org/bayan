@@ -1,0 +1,15 @@
+error BYN1016: `@sealed` is not allowed here
+  --> <repo>/tests/cases/diag/sealed-misplaced.byn:1:1
+
+  1 │ @sealed
+    │ ^^^^^^^
+    │
+  help: put `@sealed` on a struct
+
+error BYN1016: `@sealed(strict)` is not allowed here
+  --> <repo>/tests/cases/diag/sealed-misplaced.byn:4:1
+
+  4 │ @sealed(strict)
+    │ ^^^^^^^^^^^^^^^
+    │
+  help: write `@sealed` with no arguments and no `because`

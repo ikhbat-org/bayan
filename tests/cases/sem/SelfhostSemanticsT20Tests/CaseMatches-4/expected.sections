@@ -1,0 +1,3 @@
+== cov.p3
+call|i64|-1|risky|-|2194:8|local:i64
+covered 2194:8 risky

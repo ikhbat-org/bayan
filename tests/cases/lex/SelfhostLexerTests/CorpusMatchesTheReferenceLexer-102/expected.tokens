@@ -1,0 +1,26 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:6 IntegerLiteral `0x`
+1:9 Identifier `a`
+4:153 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ "a�b"0x a /* never closed
+    │      ^^
+
+error BYN0004: unterminated block comment
+
+  1 │ "a�b"0x a /* never closed
+    │           ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // �x
+    │   │    -

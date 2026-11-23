@@ -1,0 +1,18 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 Identifier `Pecome`
+2:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select Pecome
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select Pecome
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

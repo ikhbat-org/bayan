@@ -1,0 +1,8 @@
+is and or not with move ref out this null true false comptime !checked
+
+"a⁧b"let café = 1
+
+// comment ‮ hidden
+/// Doc line two.
+x́́let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+a /* never closed

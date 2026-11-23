@@ -1,0 +1,2 @@
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":102,"end":103,"line":7,"column":9,"endLine":7,"endColumn":10},"message":"`switch` does not handle every `MoneyError`","label":"not covered: .tooPrecise","help":"add the missing arms, or `_ => …` for the rest","fixes":[]}
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":156,"end":158,"line":11,"column":9,"endLine":11,"endColumn":11},"message":"`switch` does not handle every `bool`","label":"not covered: false","help":"add the missing arms, or `_ => …` for the rest","fixes":[]}

@@ -1,0 +1,47 @@
+== a.byn
+errors
+== b.byn
+count 43 statements 19 branches 8 errors 5
+0 line b.byn 16:5 - - - -
+1 branch b.byn 16:8 - - - true
+2 branch b.byn 16:8 - - - false
+3 branch b.byn 16:28 - - - true
+4 branch b.byn 16:28 - - - false
+5 branch b.byn 16:8 - - - true
+6 branch b.byn 16:8 - - - false
+7 branch b.byn 16:17 - - - true
+8 branch b.byn 16:17 - - - false
+9 line b.byn 16:37 - - - -
+10 error b.byn 16:37 f E.a fail -
+11 line b.byn 17:5 - - - -
+12 branch b.byn 17:16 - - - true
+13 branch b.byn 17:16 - - - false
+14 error b.byn 17:5 f E.b fail -
+15 line b.byn 18:5 - - - -
+16 branch b.byn 18:16 - - - true
+17 branch b.byn 18:16 - - - false
+18 error b.byn 18:5 f F.c fail -
+19 line b.byn 19:5 - - - -
+20 line b.byn 23:5 - - - -
+21 error b.byn 23:13 g E.a try -
+22 error b.byn 23:13 g E.b try -
+23 error b.byn 23:13 g F.c try -
+24 line b.byn 24:5 - - - -
+25 error b.byn 24:13 g E.b catch -
+26 error b.byn 24:13 g F.c catch -
+27 line b.byn 25:5 - - - -
+28 branch b.byn 26:16 - - - true
+29 branch b.byn 26:16 - - - false
+30 line b.byn 29:5 - - - -
+31 branch b.byn 30:21 - - - true
+32 branch b.byn 30:21 - - - false
+33 line b.byn 31:13 - - - -
+34 line b.byn 33:13 - - - -
+35 line b.byn 40:5 - - - -
+36 line b.byn 41:5 - - - -
+37 line b.byn 42:5 - - - -
+38 line b.byn 43:5 - - - -
+39 line b.byn 47:5 - - - -
+40 line b.byn 48:5 - - - -
+41 line b.byn 49:5 - - - -
+42 line b.byn 50:5 - - - -

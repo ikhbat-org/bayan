@@ -1,0 +1,2 @@
+let s = pick(c ? a : b, by: x)
+let u = f(c ? a : b, by: d ? e : g)

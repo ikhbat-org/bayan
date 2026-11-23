@@ -1,0 +1,2 @@
+== diags.diag/positional-after-named
+BYN2304 2:20 a positional argument cannot follow a named one

@@ -1,0 +1,15 @@
+1:1 StringLiteral `""`
+2:1 CharLiteral `'x�" 1__`
+3:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x�" 1__
+    │ ^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  2 │ 'x�" 1__
+    │   ^

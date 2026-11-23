@@ -1,0 +1,7 @@
+error BYN1016: `@positional` is not allowed here
+  --> <repo>/tests/cases/diag/positional-off-struct.byn:1:1
+
+  1 │ @positional
+    │ ^^^^^^^^^^^
+    │
+  help: put `@positional` on a struct

@@ -1,0 +1,43 @@
+1:1 StringLiteral `"{`
+2:1 Identifier `s`
+2:3 IntegerLiteral `250`
+2:6 NumericSuffix `ms`
+2:9 IntegerLiteral `4`
+2:10 NumericSuffix `KiB`
+2:14 IntegerLiteral `1`
+2:15 NumericSuffix `u`
+2:17 IntegerLiteral `0xFF`
+2:21 NumericSuffix `u`
+2:23 IntegerLiteral `0b1`
+2:27 Identifier `l`
+2:29 IntegerLiteral `7`
+2:30 NumericSuffix `l`
+4:1 LetKeyword `let`
+4:5 Identifier `ca`
+4:7 Comma `,`
+4:8 Identifier `é`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+4:14 Semicolon `;`
+4:16 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{5}`
+
+  2 │ s 250ms 4KiB 1u 0xFFu 0b1�l 7l
+    │                          ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ let ca,é = 1; 
+    │        ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ let ca,é = 1; 
+    │   │        +

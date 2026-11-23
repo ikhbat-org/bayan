@@ -1,0 +1,7 @@
+i64 orZero(i64? n) => n ?? 0
+
+void main() {
+    var total: i64 = 0
+    total += orZero(null)
+    print($"{total}")
+}

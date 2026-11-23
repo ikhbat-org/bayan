@@ -1,0 +1,25 @@
+1:1 IntegerLiteral `0b102`
+3:1 Identifier `b`
+5:1 LetKeyword `let`
+5:5 Identifier `cf́`
+5:9 Equals `=`
+5:11 IntegerLiteral `1`
+5:12 Semicolon `;`
+5:14 Identifier `c`
+5:16 Greater `>`
+5:17 GreaterEquals `>=`
+5:20 IntegerLiteral `1`
+6:1 IntegerLiteral `0x`
+7:2 StringLiteral `"a\u{2067}b"`
+7:8 IntegerLiteral `3`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x	
+    │ ^^

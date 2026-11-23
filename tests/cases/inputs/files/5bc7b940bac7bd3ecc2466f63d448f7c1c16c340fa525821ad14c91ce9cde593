@@ -1,0 +1,11 @@
+b
+let b = "bad \q escape"
+
+_ += -= *==/= % &= |= ^= <<=
+0x_
+
+0}'
+'\u{110000}'
+'x
+ í € let b = "bad \q escape"
+ 

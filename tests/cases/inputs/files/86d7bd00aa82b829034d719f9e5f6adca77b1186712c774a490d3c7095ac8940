@@ -1,0 +1,6 @@
+i64 twice(i64 x) => x * 2
+
+void main() {
+    let n = try twice(2)
+    print($"{n}")
+}

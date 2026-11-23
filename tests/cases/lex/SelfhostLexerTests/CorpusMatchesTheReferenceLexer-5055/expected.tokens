@@ -1,0 +1,54 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `open `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 StringLiteral `";`
+3:1 Identifier `et`
+3:4 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `1`
+4:1 Identifier `et`
+4:4 Identifier `café`
+4:9 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ et café = 1
+    │    ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ et café = 1
+    │   │       +

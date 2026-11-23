@@ -1,0 +1,30 @@
+== broken
+block 12..110
+  block 18..19
+  localDecl 24..42
+    literal 38..42 : bool = true
+  localDecl 47..56
+    literal 55..56 : i32 = 3
+  errorStmt 61..65
+  exprStmt 70..71
+    local 70..71 : bool p
+  ifStmt 76..82
+    local 81..82 : bool p
+    exprStmt 76..77
+      local 76..77 : bool p
+  ifStmt 87..97
+    unary 96..97 : bool
+      local 96..97 : bool p
+    exprStmt 87..88
+      local 87..88 : bool p
+  ifStmt 102..108
+    errorExpr 107..108 : ?
+    exprStmt 102..103
+      local 102..103 : bool p
+local p 0 0 bool using false keyword 24..27 const -
+local t 1 0 i32 using false keyword - const -
+BYN3201 6:5 the value of this `p` is unused |value dropped|assign it with `let _ = …`, or remove the expression|
+BYN3201 7:5 the value of this `p` is unused |value dropped|assign it with `let _ = …`, or remove the expression|
+BYN3201 8:5 the value of this `p` is unused |value dropped|assign it with `let _ = …`, or remove the expression|
+BYN2202 9:10 expected `bool`, found `i32` |||
+BYN3201 9:5 the value of this `p` is unused |value dropped|assign it with `let _ = …`, or remove the expression|

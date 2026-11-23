@@ -1,0 +1,10 @@
+error BYN1041: `else` must follow `}` on the same line
+  --> <repo>/tests/cases/diag/else-on-new-line.byn:5:5
+
+  5 │     else {
+    │     ^^^^ on a new line
+    │
+  help: move `else` up to the line of `}`
+    │ 4 │     }
+    │ 5 │     else {
+    │   │ ---

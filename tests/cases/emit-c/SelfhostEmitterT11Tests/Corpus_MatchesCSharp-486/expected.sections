@@ -1,0 +1,4 @@
+== helpers
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}

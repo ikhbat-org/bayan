@@ -1,0 +1,4 @@
+== bind.probes.u17
+flags 2
+errorExpr:?[1588:5]=-()
+BYN2207 107:15 `-` cannot be applied to `bool` |||

@@ -1,0 +1,40 @@
+== tests/cases/run/errors-catch-struct-literal.byn
+85..129 blockStmt
+91..107 guardedStmt
+104..107 unaryExpr notKeyword operand 105..107
+105..107 nameExpr
+91..95 failStmt
+96..100 targetMemberExpr
+112..127 returnStmt value 119..127
+119..127 structLiteralExpr
+124..125 literalExpr integer
+131..170 globalStatement
+131..170 localDecl
+142..170 catchExpr
+142..155 callExpr
+149..154 literalExpr falseKeyword
+162..170 structLiteralExpr
+167..168 literalExpr integer
+171..209 localDecl
+182..209 catchExpr
+182..194 callExpr
+189..193 literalExpr trueKeyword
+201..209 structLiteralExpr
+206..207 literalExpr integer
+210..244 localDecl
+221..244 catchExpr
+221..234 callExpr
+228..233 literalExpr falseKeyword
+241..244 structLiteralExpr
+52..53 literalExpr integer
+245..272 exprStmt
+245..272 callExpr
+251..271 interpolatedExpr
+254..257 memberExpr
+254..255 nameExpr
+260..263 memberExpr
+260..261 nameExpr
+266..269 memberExpr
+266..267 nameExpr
+245..272 callExpr
+52..53 literalExpr integer

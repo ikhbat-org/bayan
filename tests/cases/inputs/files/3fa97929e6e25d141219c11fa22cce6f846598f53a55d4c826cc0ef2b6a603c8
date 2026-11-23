@@ -1,0 +1,8 @@
+union error E {
+    bad
+}
+
+i32 main(ReadOnlySpan<string> args) fails E {
+    fail .bad if args.length > 5
+    return 0
+}

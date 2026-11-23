@@ -1,0 +1,56 @@
+// 019 T29 (coverage ratchet): declare2.byn's rejected modifiers, generic states and `requires`, repeated `fails` sets,
+// duplicate parameters and cycles through tuples, which no golden case reaches. The expected text is the output of the
+// self-hosted code at the commit that added the test.
+
+test "declare2 t29: rejected field modifiers, an interface field and `ref this` outside a method" {
+    let text = "struct S {\n    static i64 b\n}\n\ninterface I {\n    i64 n\n}\n\nvoid f(ref this) {}\n\nstruct T {\n    i64 n\n    static void g(ref this) {}\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2800 41+1 `I` must start with `I` and an uppercase letter;BYN2022 15+12 `static` on fields is not supported in v0.1;BYN2022 118+8 `ref this` on a static method is not supported in v0.1;BYN2022 65+8 `ref this` outside a struct is not supported in v0.1;",
+    )
+}
+
+test "declare2 t29: a generic struct's states and `requires`" {
+    let text = "struct G<T> {\n    T v\n    i64 n requires it > 0\n    states {\n        open\n        shut\n    }\n    static i64 total => 1\n}\n\ni64 read(G<i64> g) => g.n\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2022 32+15 `requires` on a generic struct is not supported in v0.1;")
+}
+
+test "declare2 t29: a set named twice in `fails` and a duplicate parameter" {
+    let text = "union error E {\n    bad\n    worse\n}\n\nunion error R = E except .bad\n\nvoid f() fails R, E {}\nvoid g() fails E, R {}\nvoid k() fails R, R {}\nvoid h(i64 n, by i64 n) {}\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2006 158+1 `n` is declared twice;")
+}
+
+test "declare2 t29: a struct that holds itself through a tuple" {
+    let text = "struct R {\n    (i64, R) t\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2761 7+1 `R` contains itself by value: R → R;")
+}
+
+test "declare2 t29: a generic struct's states and a static property beside them" {
+    let text = "struct G<T> {\n    T v\n    states {\n        open\n        shut\n    }\n    static i64 total => 1\n}\n\ni64 read(G<i64> g) => G<i64>.total\nbool isOpen(G<i64> g) => g is .open\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2003 125+5 `total` is not a member of `G`;")
+}
+
+test "declare2 t29: an interface that names a type, a method and a property twice" {
+    let text = "interface IDup<T> {\n    type Item\n    type Item\n    void m()\n    void m()\n    i64 n\n    i64 n\n    void p<T>(T x)\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2006 43+4 `Item` is declared twice;BYN2006 70+1 `m` is declared twice;BYN2006 92+1 `n` is declared twice;",
+    )
+}
+
+test "declare2 t29: `requires` before the fields and on a distinct type, and a cycle through two structs" {
+    let text = "struct S {\n    requires a < b\n    i64 a requires it > 0\n    i64 b\n}\n\ntype distinct Id = i64 requires it > 0 requires it < 9\n\nstruct A {\n    B b\n}\n\nstruct B {\n    (i64, A) a\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "BYN2761 132+1 `A` contains itself by value: A → B → A;")
+}
+
+test "declare2 t29: an interface holding a field and a nested type, and two rejected modifiers at once" {
+    let text = "interface IOdd {\n    i64 x = 1\n    struct Inner {\n        i64 a\n    }\n    enum K {\n        a\n    }\n    i64 size()\n}\n\nstruct S {\n    static readonly unique i64 n\n}\n\nstatic required interface IQ {\n    i64 q()\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN1001 21+3 expected a method, getter or `type Name`, found `i64`;BYN1001 35+6 expected a method, getter or `type Name`, found keyword `struct`;BYN1016 164+6 `static` is not allowed here;",
+    )
+}
+
+test "declare2 t29: the text of two modifiers set at once" {
+    assert t38ModifierText(u16(4 | 32)) == "static, const"
+}

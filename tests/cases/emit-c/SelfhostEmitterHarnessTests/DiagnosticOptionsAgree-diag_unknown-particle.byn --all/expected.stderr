@@ -1,0 +1,10 @@
+error BYN5008: `over` is not a particle
+  --> input.byn:1:11
+
+  1 │ void copy(over Buf src, to Buf dst) {
+    │           ^^^^ not a particle
+    │
+  help: choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN5008

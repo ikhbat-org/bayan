@@ -1,0 +1,9 @@
+test assert property fuzz model foreach �new goto
+   """ c"text" u16"wide" "‮ allowed in strings""" "\u{48}i"
+ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+
+  raw "quo var xs: List<List<i64>>
+
+/* block
+'ab'
+ é

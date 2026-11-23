@@ -1,6 +1,6 @@
 # Crypto and auth API checklist
 
-Version: 0.3.3-dev (matches `bayan --version`)
+Version: 0.4.0-dev (matches `bayan --version`)
 
 Date: 2026-11-07. Source: plan `docs/plans/2026-11-07-006-in-band-errors-and-c-boundary.md` (the sshole lessons: an error returned as a valid-looking value).
 

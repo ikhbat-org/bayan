@@ -1,0 +1,3 @@
+i64 compute() => 2
+
+const n: i64 = compute()

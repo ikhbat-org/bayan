@@ -1,0 +1,29 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 Identifier `m`
+1:21 Identifier `ove`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:2 Identifier `a`
+11:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ is and or not with m�ove ref out this null true false comptime checked
+    │                     ^
+
+error BYN0004: unterminated block comment
+
+  2 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

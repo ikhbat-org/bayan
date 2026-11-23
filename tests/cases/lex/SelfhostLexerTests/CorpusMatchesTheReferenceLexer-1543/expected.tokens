@@ -1,0 +1,49 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:29 Arrow `->`
+1:32 At `@`
+1:34 Hash `#`
+2:1 CharLiteral `''`
+3:2 Identifier `comme`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 ConstKeyword `const`
+4:86 LetKeyword `let`
+4:90 VarKeyword `var`
+4:94 EmbedKeyword `embed`
+4:100 ExternKeyword `extern`
+4:107 UnsafeKeyword `unsafe`
+5:2 IntegerLiteral `0x`
+6:3 Identifier `_x`
+6:6 Identifier `camelCas`
+6:15 EndOfFile
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │  0x
+    │  ^^

@@ -1,0 +1,28 @@
+== unique
+diag BYN2800 11:11 `T5` must start with `I` and an uppercase letter | an interface name | rename it to `IT5`
+diag BYN2006 16:8 `T1` is declared twice | already declared on line 1 | 
+diag BYN2009 17:6 `T2` must be camelCase |  | rename it `t2`; only types are PascalCase
+diag BYN2006 17:6 `T2` is declared twice | already declared on line 2 | 
+diag BYN2006 18:7 `T3` is declared twice | already declared on line 5 | 
+diag BYN2009 18:7 `T3` must be camelCase |  | rename it `t3`; only types are PascalCase
+diag BYN2006 19:8 `fn1` is declared twice | already declared on line 15 | 
+diag BYN2008 19:8 type name `fn1` must be PascalCase |  | rename it `Fn1`
+diag BYN2006 20:8 `k` is declared twice | already declared on line 14 | 
+diag BYN2008 20:8 type name `k` must be PascalCase |  | rename it `K`
+diag BYN2009 21:6 `T4` must be camelCase |  | rename it `t4`; only types are PascalCase
+diag BYN2006 21:6 `T4` is declared twice | already declared on line 8 | 
+diag BYN2009 22:6 `T5` must be camelCase |  | rename it `t5`; only types are PascalCase
+diag BYN2006 22:6 `T5` is declared twice | already declared on line 11 | 
+diag BYN2009 23:6 `T6` must be camelCase |  | rename it `t6`; only types are PascalCase
+diag BYN2006 23:6 `T6` is declared twice | already declared on line 12 | 
+diag BYN2009 24:6 `T7` must be camelCase |  | rename it `t7`; only types are PascalCase
+diag BYN2006 24:6 `T7` is declared twice | already declared on line 13 | 
+diag BYN2006 1:8 `T1` is declared twice | already declared on tmp/t12-cases/unique/a.byn:1 | 
+diag BYN2006 2:7 `fn1` is declared twice | already declared on tmp/t12-cases/unique/a.byn:15 | 
+set T2
+enum T3
+union T4
+struct T1
+struct T7
+fn fn1 1
+all fn1 function module static=False at=15:6 file=tmp/t12-cases/unique/a.byn map=[]

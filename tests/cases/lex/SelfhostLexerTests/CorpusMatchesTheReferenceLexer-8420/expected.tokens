@@ -1,0 +1,83 @@
+1:1 StringLiteral `"����`
+2:2 Identifier `q`
+2:3 CharLiteral `'`
+3:1 CharLiteral `'\u{D801e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�}"}"}"}"}" c = \u{7} 3`
+5:2 BarBar `||`
+5:5 Caret `^`
+5:7 Tilde `~`
+5:9 Bang `!`
+5:11 Equals `=`
+5:13 EqualsEquals `==`
+5:16 BangEquals `!=`
+5:19 Less `<`
+5:21 Less `<`
+5:22 LetKeyword `let`
+5:26 Identifier `actor`
+5:32 Equals `=`
+5:34 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "����
+    │ ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ "����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ "����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ "����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ "����
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ \q'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  2 │ \q'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  3 │ '\u{D801e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�}"}"}"}"}" c = � 3
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{D801e`
+
+  3 │ '\u{D801e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�}"}"}"}"}" c = � 3
+    │  ^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  3 │ '\u{D801e $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}�}"}"}"}"}" c = � 3
+    │                                                                        ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  5 │  || ^ ~ ! = == != < <let actor = 1
+    │                          ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

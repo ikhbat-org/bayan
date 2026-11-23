@@ -1,0 +1,28 @@
+2:2 IntegerLiteral `0b102`
+3:2 IsKeyword `is`
+3:5 AndKeyword `and`
+3:9 OrKeyword `or`
+3:12 NotKeyword `not`
+3:16 WithKeyword `with`
+3:21 MoveKeyword `move`
+3:26 RefKeyword `ref`
+3:30 OutKeyword `out`
+3:34 ThisKeyword `this`
+3:39 NullKeyword `null`
+3:44 Identifier `re`
+3:47 FalseKeyword `false`
+3:53 ComptimeKeyword `comptime`
+3:62 CheckedKeyword `checked`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │  0b102
+    │      ^
+
+error BYN0004: unterminated block comment
+
+  4 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

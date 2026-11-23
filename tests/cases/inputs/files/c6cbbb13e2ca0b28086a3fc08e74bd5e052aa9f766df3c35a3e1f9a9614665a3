@@ -1,0 +1,14 @@
+   comment */ a
+ let effect = 2
+ ''
+
+ = "bad \q escape"
+let c = """never closed
+
+) [ ] { }
+, . .. ..= : ? ?? ??= ?. => -> @ #
++
+}
+let actor = 1
+
+ 

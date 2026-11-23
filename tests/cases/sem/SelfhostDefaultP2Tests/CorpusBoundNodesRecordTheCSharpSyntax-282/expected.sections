@@ -1,0 +1,20 @@
+== tests/cases/run/string-padded-too-long.byn
+0..35 globalStatement
+0..35 exprStmt
+0..35 callExpr
+6..34 callExpr
+6..9 literalExpr string
+21..22 literalExpr integer
+28..33 literalExpr char
+0..35 callExpr
+36..90 localDecl
+44..90 callExpr
+44..47 literalExpr string
+59..78 literalExpr integer
+84..89 literalExpr char
+91..111 exprStmt
+91..111 callExpr
+97..110 interpolatedExpr
+100..108 memberExpr
+100..101 nameExpr
+91..111 callExpr

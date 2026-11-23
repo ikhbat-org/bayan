@@ -1,0 +1,87 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:2 Identifier `Å`
+3:1 IntegerLiteral `3`
+4:2 OpenBrace `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolatedStringText `g$`
+4:35 InterpolatedStringEnd `"`
+4:36 OpenBrace `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 Identifier `x`
+4:50 InterpolationEnd `}`
+4:51 InterpolatedStringEnd `"`
+4:52 InterpolationEnd `}`
+4:53 InterpolatedStringEnd `"`
+4:54 InterpolationEnd `}`
+4:55 InterpolatedStringEnd `"`
+4:56 InterpolationEnd `}`
+4:57 InterpolatedStringEnd `"`
+4:58 CloseBrace `}`
+4:59 StringLiteral `"}"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+4:70 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ �Å
+    │ ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  2 │ �Å
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ �Å
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  4 │  { $"{$"{$"{$"{$"{$"{$"{$"{$"{$"g$"{�$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  4 │  { $"{$"{$"{$"{$"{$"{$"{$"{$"{$"g$"{�$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                                     ^

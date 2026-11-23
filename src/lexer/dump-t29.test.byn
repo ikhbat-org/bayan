@@ -1,0 +1,58 @@
+// 019 T29 (coverage ratchet): dump.byn's JSON form (`bayan-lex --json`), which no golden case reaches, and the text form's
+// escapes of CR and tab. The expected text is the output of the self-hosted lexer at the commit that added the test.
+
+test "lexer t29: the text and JSON dumps escape token text and list diagnostics" {
+    var bytes = List<u8>()
+    for b in "/// d\nx \"\\\"\\\\\t\r\u{1}\u{7F}\" /* c */ \"\"\"a\nb\"\"\" '\\q'".bytes {
+        bytes.append(b)
+    }
+    var result = lex(SourceText.create("t.byn", from: move bytes), by: Keywords.build())
+    var text = StrBuf()
+    dump(ref result, to: ref text)
+    var expected = StrBuf()
+    expected.append("    doc `/// d`\n")
+    expected.append("2:1 Identifier `x`\n")
+    expected.append("2:3 StringLiteral `\"\\\"\\\\\\t\\r\\u{1}\\u{7F}\"`\n")
+    expected.append("2:22 RawStringLiteral `\"\"\"a\\nb\"\"\"`\n")
+    expected.append("3:6 CharLiteral `'\\q'`\n")
+    expected.append("3:10 EndOfFile\n")
+    expected.append("\n")
+    expected.append("error BYN1047: `/* */` is an input form; write `//` lines\n")
+    expected.append("\n")
+    expected.append("  2 │ x \"\\\"\\\\\t\u{FFFD}\u{FFFD}\u{FFFD}\" /* c */ \"\"\"a\n")
+    expected.append("    │        \t     ^^^^^^^ block comment\n")
+    expected.append("    │\n")
+    expected.append("  help: write each line with `//`\n")
+    expected.append("    │ 2 │ x \"\\\"\\\\\t\u{FFFD}\u{FFFD}\u{FFFD}\" // c\n")
+    expected.append("    │   │        \t      +++\n")
+    expected.append("    │ 3 │  \"\"\"a\n")
+    expected.append("\n")
+    expected.append("error BYN0006: invalid escape sequence `\\q`\n")
+    expected.append("\n")
+    expected.append("  3 │ b\"\"\" '\\q'\n")
+    expected.append("    │       ^^\n")
+    expected.append("    │\n")
+    expected.append("  help: use a valid escape: \\n \\r \\t \\0 \\\\ \\\" \\' and \\u{…}\n")
+    assert text.finish() == expected.finish()
+    var json = StrBuf()
+    dumpJson(ref result, to: ref json)
+    var expectedJson = StrBuf()
+    expectedJson.append(
+        "{\"tokens\":[{\"kind\":\"Identifier\",\"start\":6,\"end\":7,\"text\":\"x\",\"doc\":{\"start\":0,\"end\":5}}",
+    )
+    expectedJson.append(
+        ",{\"kind\":\"StringLiteral\",\"start\":8,\"end\":18,\"text\":\"\\\"\\\\\\\"\\\\\\\\\\t\\r\\u0001\\u007F\\\"\",\"doc\":null}",
+    )
+    expectedJson.append(
+        ",{\"kind\":\"RawStringLiteral\",\"start\":27,\"end\":36,\"text\":\"\\\"\\\"\\\"a\\nb\\\"\\\"\\\"\",\"doc\":null}",
+    )
+    expectedJson.append(",{\"kind\":\"CharLiteral\",\"start\":37,\"end\":41,\"text\":\"'\\\\q'\",\"doc\":null}")
+    expectedJson.append(",{\"kind\":\"EndOfFile\",\"start\":41,\"end\":41,\"text\":\"\",\"doc\":null}")
+    expectedJson.append(
+        "],\"diagnostics\":[{\"code\":\"BYN1047\",\"severity\":\"error\",\"start\":19,\"end\":26,\"message\":\"`/* */` is an input form; write `//` lines\",\"label\":\"block comment\",\"help\":\"write each line with `//`\",\"fixes\":[{\"start\":19,\"end\":26,\"replacement\":\"// c\\n\"}]}",
+    )
+    expectedJson.append(
+        ",{\"code\":\"BYN0006\",\"severity\":\"error\",\"start\":38,\"end\":40,\"message\":\"invalid escape sequence `\\\\q`\",\"label\":null,\"help\":\"use a valid escape: \\\\n \\\\r \\\\t \\\\0 \\\\\\\\ \\\\\\\" \\\\' and \\\\u{…}\",\"fixes\":[]}]}\n",
+    )
+    assert json.finish() == expectedJson.finish()
+}

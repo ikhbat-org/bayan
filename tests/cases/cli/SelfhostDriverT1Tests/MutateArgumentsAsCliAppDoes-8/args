@@ -1,0 +1,5 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/args/prog
+--
+true

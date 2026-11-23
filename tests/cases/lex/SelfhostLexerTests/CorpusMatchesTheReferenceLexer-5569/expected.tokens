@@ -1,0 +1,98 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+3:2 Identifier `foo`
+3:6 Identifier `Bar`
+3:10 Identifier `_x`
+3:13 Identifier `camelCase2`
+3:24 Identifier `بيان`
+3:29 Identifier `μετρητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
+5:1 Identifier `각`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 InterpolatedStringStart `$"`
+5:51 InterpolatedStringText `\u{2}$`
+5:53 InterpolatedStringEnd `"`
+5:54 OpenBrace `{`
+5:55 InterpolatedStringStart `$"`
+5:57 InterpolationStart `{`
+5:58 Identifier `x`
+5:59 InterpolationEnd `}`
+5:60 InterpolatedStringEnd `"`
+5:61 CloseBrace `}`
+5:62 StringLiteral `"}"`
+5:65 InterpolationEnd `}`
+5:66 InterpolatedStringEnd `"`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringEnd `"`
+5:69 InterpolationEnd `}`
+5:70 InterpolatedStringEnd `"`
+5:71 InterpolationEnd `}`
+5:72 InterpolatedStringEnd `"`
+5:73 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c = � 3
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  5 │ 각$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{x}"}"}"}"}"}"}"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ 각$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{x}"}"}"}"}"}"}"
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  5 │ 각$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{$"{x}"}"}"}"}"}"}"
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string

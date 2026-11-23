@@ -1,0 +1,36 @@
+== tests/cases/diag/lambda-capture-rule-it.byn
+46..51 literalExpr falseKeyword
+46..51 literalExpr falseKeyword
+46..51 literalExpr falseKeyword
+138..140 blockStmt
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+86..122 requiresRule
+86..122 requiresRule
+95..122 callExpr
+99..101 nameExpr
+99..101 nameExpr
+107..121 lambdaExpr
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+86..122 requiresRule
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+53..124 structDecl
+112..121 binaryExpr lt right 116..121
+112..121 binaryExpr lt right 116..121
+112..121 binaryExpr lt right 116..121

@@ -1,0 +1,51 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+3:3 RawStringLiteral `"""c"text" u16"wide" "\u{202E} allowed in sutrings" "" "\u{48}i"\n\na = "open\nlet b = "bad \q escape"\nlet c = """`
+7:12 Identifier `nev`
+8:1 Amp `&`
+8:3 AmpAmp `&&`
+8:6 Bar `|`
+8:8 BarBar `||`
+8:11 Caret `^`
+8:13 Tilde `~`
+8:15 Bang `!`
+8:17 Equals `=`
+8:19 EqualsEquals `==`
+8:22 BangEquals `!=`
+8:25 Less `<`
+8:27 LessEquals `<=`
+8:30 Greater `>`
+8:32 GreaterEquals `>=`
+8:35 LessLess `<<`
+8:38 Greater `>`
+8:39 Greater `>`
+8:41 Greater `>`
+8:42 GreaterEquals `>=`
+9:2 Identifier `est`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^

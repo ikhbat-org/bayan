@@ -1,0 +1,1 @@
+{"code":"BYN2002","severity":"error","file":"input.byn","span":{"start":11,"end":15,"line":1,"column":12,"endLine":1,"endColumn":16},"message":"unknown type `Mony`","label":null,"help":null,"fixes":[]}

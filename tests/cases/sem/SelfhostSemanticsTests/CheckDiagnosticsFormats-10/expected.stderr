@@ -1,0 +1,5 @@
+error BYN2202: expected `i32`, found `string`
+  --> tmp/t26-tests/json-wrong/wrong.byn:2:18
+
+  2 │     let n: i32 = "éé"
+    │                  ^^^^

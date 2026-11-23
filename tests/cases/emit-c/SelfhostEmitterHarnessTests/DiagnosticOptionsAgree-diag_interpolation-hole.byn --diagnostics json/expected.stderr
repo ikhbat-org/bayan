@@ -1,0 +1,1 @@
+{"code":"BYN1001","severity":"error","file":"input.byn","span":{"start":19,"end":20,"line":1,"column":20,"endLine":1,"endColumn":21},"message":"expected `}` to end the interpolated expression, found `y`","label":null,"help":null,"fixes":[]}

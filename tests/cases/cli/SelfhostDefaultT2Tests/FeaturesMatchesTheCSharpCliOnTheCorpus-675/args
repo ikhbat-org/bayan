@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/invalid-map-key.byn
+--package
+<repo>/tests/cases/diag

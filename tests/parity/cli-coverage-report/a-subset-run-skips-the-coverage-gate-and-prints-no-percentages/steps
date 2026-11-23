@@ -1,0 +1,5 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+$ T='lines: 100, branches: 100, errorPaths: 100' perl -0pi -e 's/,?\s*\}\s*\z/,\n    test: Tests { $ENV{T} }\n}\n/' tally/package.byn; tail -3 tally/package.byn
+test	--coverage	--only	negative	tally
+$ cat tally/out/test/src/app/main.byn.cov.txt

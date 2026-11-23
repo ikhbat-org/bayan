@@ -1,0 +1,93 @@
+1:1 Identifier `é`
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 ExtensibleKeyword `extensible`
+2:48 InterfaceKeyword `interface`
+2:58 Identifier `delega`
+2:64 Identifier `e`
+2:66 ExtensionKeyword `extension`
+2:76 DerivationKeyword `derivation`
+2:87 AttributeKeyword `attribute`
+3:2 Identifier `k`
+3:3 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open �  raw `
+4:15 InterpolatedStringEnd `"`
+4:16 Identifier `quoted`
+4:22 StringLiteral `"`
+5:2 IntegerLiteral `0b1`
+5:5 NumericSuffix `ms`
+7:1 Identifier `Å`
+8:1 FloatLiteral `3.14`
+8:6 FloatLiteral `1e5`
+8:10 FloatLiteral `2.5e-3`
+8:17 FloatLiteral `6E+2`
+8:22 FloatLiteral `1.50`
+8:26 NumericSuffix `dec`
+8:30 IntegerLiteral `1`
+8:31 DotDot `..`
+8:33 IntegerLiteral `2`
+8:35 IntegerLiteral `1`
+8:36 DotDotEquals `..=`
+8:39 IntegerLiteral `3`
+8:41 IntegerLiteral `5`
+8:42 NumericSuffix `e`
+8:44 Identifier `x`
+8:45 Dot `.`
+8:46 Identifier `y`
+8:48 FloatLiteral `2.5`
+8:51 NumericSuffix `f`
+9:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  2 │ struct unique union enum flags open extensible interface delega�e extension derivation attribute
+    │                                                                ^
+
+error BYN0003: unterminated string literal
+
+  3 │  k"
+    │   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ $"open �  raw "quoted"
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open �  raw "quoted"
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  7 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ Å
+    │   │ +

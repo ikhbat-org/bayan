@@ -1,0 +1,29 @@
+== cases
+0 p_table.len
+1 (l0_lo < l1_hi)
+2 byn_add_i64(l0_lo, byn_div_i64(byn_sub_i64(l1_hi, l0_lo, byn_file_0, 11), INT64_C(2), byn_file_0, 11), byn_file_0, 11)
+3 byn_div_i64(byn_sub_i64(l1_hi, l0_lo, byn_file_0, 11), INT64_C(2), byn_file_0, 11)
+4 byn_sub_i64(l1_hi, l0_lo, byn_file_0, 11)
+5 ((*bynh_at_span_u32(p_table, (int64_t)l2_mid, false, byn_file_0, 12)) < p_key)
+6 (*bynh_at_span_u32(p_table, (int64_t)l2_mid, false, byn_file_0, 12))
+7 byn_add_i64(l2_mid, INT64_C(1), byn_file_0, 13)
+8 ((l0_lo < p_table.len) && ((*bynh_at_span_u32(p_table, (int64_t)l0_lo, false, byn_file_0, 18)) == p_key))
+9 (l0_lo < p_table.len)
+10 p_table.len
+11 ((*bynh_at_span_u32(p_table, (int64_t)l0_lo, false, byn_file_0, 18)) == p_key)
+12 (*bynh_at_span_u32(p_table, (int64_t)l0_lo, false, byn_file_0, 18))
+13 bynh_slice_arr12_u32(&(*(bynt_arr12_u32*)&byn_main__primes), (int64_t)INT64_C(0), 0, (int64_t)INT64_C(3), 0, false, byn_file_0, 21)
+14 ((bynt_span_u32){(*(bynt_arr12_u32*)&byn_main__primes).v, 12})
+15 ((void)(*(bynt_arr12_u32*)&byn_main__primes), INT64_C(12))
+16 (*bynh_at_arr12_u32(&(*(bynt_arr12_u32*)&byn_main__primes), (int64_t)INT64_C(1), true, byn_file_0, 27))
+17 (*bynh_at_arr12_u32(&(*(bynt_arr12_u32*)&byn_main__primes), (int64_t)INT64_C(0), false, byn_file_0, 27))
+18 bynh_slice_arr12_u32(&(*(bynt_arr12_u32*)&byn_main__primes), (int64_t)INT64_C(4), 0, (int64_t)INT64_C(8), 0, false, byn_file_0, 28)
+19 l3_middle.len
+20 (*bynh_at_span_u32(l3_middle, (int64_t)INT64_C(0), false, byn_file_0, 29))
+21 (*bynh_at_span_u32(byn_main__head(), (int64_t)INT64_C(2), false, byn_file_0, 30))
+22 ((bynt_span_u32){(*(bynt_arr12_u32*)&byn_main__primes).v, 12})
+23 (*bynh_at_arr3_bool(&(*(bynt_arr3_bool*)&byn_main__bits), (int64_t)INT64_C(1), false, byn_file_0, 31))
+24 (*bynh_at_arr3_rune(&(*(bynt_arr3_rune*)&byn_main__letters), (int64_t)INT64_C(2), false, byn_file_0, 31))
+25 (*bynh_at_arr2_f64(&(*(bynt_arr2_f64*)&byn_main__halves), (int64_t)INT64_C(1), false, byn_file_0, 31))
+26 ((uint64_t)l8_p)
+count 27

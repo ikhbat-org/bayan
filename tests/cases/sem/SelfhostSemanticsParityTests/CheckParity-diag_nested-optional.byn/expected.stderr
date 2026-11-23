@@ -1,0 +1,8 @@
+error BYN2024: `i64??` is already optional
+  --> tmp/t26-tests/cli/diag_nested-optional.byn/nested-optional.byn:2:8
+
+  2 │ let x: MaybeCount? = null
+    │        ^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2024

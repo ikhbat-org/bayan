@@ -1,0 +1,88 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+3:1 IntegerLiteral `0x`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `total `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 InterpolationEnd `}`
+5:12 InterpolatedStringEnd `"`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolatedStringText `a `
+5:18 InterpolationStart `{`
+5:19 Identifier `f`
+5:20 OpenParen `(`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolatedStringText `b `
+5:25 InterpolationStart `{`
+5:26 Identifier `c`
+5:27 InterpolationEnd `}`
+5:28 InterpolatedStringEnd `"`
+5:29 CloseParen `)`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringText ` d`
+5:33 InterpolatedStringEnd `"`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolatedStringText `{{literal}}`
+5:48 InterpolatedStringEnd `"`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 Identifier `Point`
+5:59 OpenBrace `{`
+5:61 Identifier `x`
+5:63 Equals `=`
+5:65 IntegerLiteral `1`
+5:67 CloseBrace `}`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringText `!`
+5:70 InterpolatedStringEnd `"`
+5:72 InterpolatedStringStart `$"`
+5:74 InterpolatedStringEnd `"`
+6:2 LetKeyword `let`
+6:6 Identifier `effec`
+6:12 Equals `=`
+6:14 IntegerLiteral `2`
+7:1 CharLiteral `'\V{110000}'`
+8:1 Identifier `é`
+9:1 Identifier `sed`
+10:1 Identifier `b`
+11:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ �
+    │ ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  7 │ '\V{110000}'
+    │ ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\V`
+
+  7 │ '\V{110000}'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  8 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ é
+    │   │ +

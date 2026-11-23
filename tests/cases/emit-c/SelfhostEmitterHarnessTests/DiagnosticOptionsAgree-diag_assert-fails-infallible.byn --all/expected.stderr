@@ -1,0 +1,8 @@
+error BYN2605: `assert … fails` needs a call that can fail
+  --> input.byn:9:8
+
+  9 │ assert f() fails ParseError.empty
+    │        ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2605

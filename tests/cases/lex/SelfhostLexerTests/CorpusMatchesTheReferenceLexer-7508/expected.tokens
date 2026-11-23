@@ -1,0 +1,70 @@
+1:2 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 LetKeyword `let`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+5:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strngs" "" "\u{48}i"\n + - * / % +% -% *% +| -| *| ++ --\n'ab'\n ���0b1ms\n���� `
+9:3 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{1}`
+
+  5 │ � """ c"text" u16"wide" "� allowed in strngs" "" "\u{48}i"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ � """ c"text" u16"wide" "� allowed in strngs" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  8 │  ���0b1ms
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  8 │  ���0b1ms
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │  ���0b1ms
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  9 │ ���� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  9 │ ���� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ���� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ���� 
+    │    ^

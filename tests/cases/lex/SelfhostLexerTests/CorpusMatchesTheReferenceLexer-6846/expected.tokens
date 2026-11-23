@@ -1,0 +1,35 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:3 Identifier `ᅡᆨlet`
+2:9 Identifier `c`
+2:11 Equals `=`
+2:13 RawStringLiteral `"""n#ever closed\n `
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │  ���ᅡᆨlet c = """n#ever closed
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  2 │  ���ᅡᆨlet c = """n#ever closed
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���ᅡᆨlet c = """n#ever closed
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │  ���ᅡᆨlet c = """n#ever closed
+    │               ^^^ raw string starts here
+    │
+  help: close it with `"""`

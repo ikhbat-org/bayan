@@ -1,0 +1,26 @@
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> <repo>/tmp/t2/diag/block-comment/block-comment.byn:1:1
+
+  1 │ /* Prices are in cents.
+    │ ^^^^^^^^^^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // Prices are in cents.
+    │   │  ++++++++++++++++++++++
+    │ 2 │ // Discounts round down.
+    │   │ ++++++++++++++++++++++++
+
+error BYN1047: `/* */` is an input form; write `//` lines
+  --> <repo>/tmp/t2/diag/block-comment/block-comment.byn:6:15
+
+  6 │     let x = 1 /* inline */ + 2
+    │               ^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │     let x = 1 // inline
+    │   │                ++++++++
+    │ 7 │      + 2
+    │   │ ++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1047

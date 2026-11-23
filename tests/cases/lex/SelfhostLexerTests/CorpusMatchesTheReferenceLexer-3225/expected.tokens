@@ -1,0 +1,57 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 Identifier `yied`
+1:79 DeferKeyword `defer`
+1:85 ErrdeferKeyword `errdefer`
+1:94 UsingKeyword `using`
+1:100 ContextKeyword `context`
+2:1 Identifier `b1ul`
+2:6 Identifier `l`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+4:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n\r\n� let c =�\u{7} 3\r\n 0b102\r\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ � let c =�� 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ � let c =�� 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ � let c =�� 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  6 │ � let c =�� 3
+    │          ^

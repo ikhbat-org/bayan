@@ -1,0 +1,12 @@
+1:1 Identifier `oc`
+1:4 Identifier `lin`
+1:8 Identifier `e`
+1:10 Identifier `one`
+1:13 Dot `.`
+    doc `/// Doc`l `
+2:11 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ oc lin�e one.
+    │       ^

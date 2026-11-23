@@ -1,0 +1,195 @@
+// 019 T29 (coverage ratchet): `formatInto` and `formatIntoWithSpec` on structs whose `formatInto` methods are static,
+// failing, by value, of the wrong arity or of the wrong parameter types. The expected values are the output of the
+// self-hosted emitter at the commit that added the test. `equalHelper` on untrusted, state, array and field-less struct types.
+
+import semantics
+
+test "cprint t29: formatInto picks only the instance formatInto(ref StrBuf[, FormatSpec]) with the fewest parameters" {
+    var c = t29Ctx(
+        """
+        union error E {
+            bad
+        }
+
+        struct S1 {
+            i64 x = 0
+
+            static void formatInto(ref StrBuf sb) {
+                sb.append("s1")
+            }
+        }
+
+        struct S2 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb) fails E {
+                fail .bad if this.x < 0
+                sb.append("s2")
+            }
+        }
+
+        struct S3 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, by i64 a, at i64 b) {
+                sb.append("s3")
+            }
+        }
+
+        struct S4 {
+            i64 x = 0
+
+            void formatInto(StrBuf sb) {}
+        }
+
+        struct S5 {
+            i64 x = 0
+
+            void formatInto(ref i64 n) {
+                n = 1
+            }
+        }
+
+        struct S6 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, by i64 n) {
+                sb.append("s6")
+            }
+        }
+
+        struct S7 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, as FormatSpec spec) {
+                sb.append("s7")
+            }
+
+            void formatInto(ref StrBuf sb) {
+                sb.append("s7")
+            }
+        }
+
+        void main() {}
+        """,
+    )
+    var plain = StrBuf()
+    var spec = StrBuf()
+    for name in ["S1", "S2", "S3", "S4", "S5", "S6", "S7"] {
+        var s: i64 = 0
+        while c.structs[s].name != name {
+            s += 1
+        }
+        let f = formatInto(ref c, for: s)
+        plain.append(f == -1 ? "- " : $"{c.functions[f].parameters.length} ")
+        let g = formatIntoWithSpec(ref c, for: s)
+        spec.append(g == -1 ? "- " : $"{c.functions[g].parameters.length} ")
+    }
+    assert plain.finish() == "- - - - - - 1 "
+    assert spec.finish() == "- - - - - - 2 "
+}
+
+test "cprint t29: formatInto and formatIntoWithSpec skip other methods and a ref spec, a by-value or non-StrBuf first" {
+    var c = t29Ctx(
+        """
+        struct S8 {
+            i64 x = 0
+
+            void formatInto(ref StrBuf sb, ref FormatSpec spec) {
+                sb.append("s8")
+            }
+        }
+
+        struct S9 {
+            i64 x = 0
+
+            void formatInto(StrBuf sb, as FormatSpec spec) {}
+        }
+
+        struct S10 {
+            i64 x = 0
+
+            void formatInto(ref i64 n, as FormatSpec spec) {
+                n = 1
+            }
+        }
+
+        struct S11 {
+            i64 x = 0
+
+            void other(ref StrBuf sb) {
+                sb.append("s11")
+            }
+        }
+
+        void main() {}
+        """,
+    )
+    var plain = StrBuf()
+    var spec = StrBuf()
+    for name in ["S8", "S9", "S10", "S11"] {
+        var s: i64 = 0
+        while c.structs[s].name != name {
+            s += 1
+        }
+        let f = formatInto(ref c, for: s)
+        plain.append(f == -1 ? "- " : $"{c.functions[f].parameters.length} ")
+        let g = formatIntoWithSpec(ref c, for: s)
+        spec.append(g == -1 ? "- " : $"{c.functions[g].parameters.length} ")
+    }
+    assert plain.finish() == "- - - - "
+    assert spec.finish() == "- - - - "
+}
+
+test "cprint t29: equalHelper of untrusted, state, array and field-less struct types" {
+    var c = t29Ctx(
+        """
+        union error E {
+            bad
+        }
+
+        struct P {
+            i64 x = 0
+        }
+
+        struct Q {}
+
+        void main() {}
+        """,
+    )
+    var cc = CCtx {}
+    var p: i64 = 0
+    while c.structs[p].name != "P" {
+        p += 1
+    }
+    var q: i64 = 0
+    while c.structs[q].name != "Q" {
+        q += 1
+    }
+    let untrusted = semantics.internUntrusted(ref c, by: semantics.prim(.i64))
+    assert equalHelper(ref cc, from: ref c, for: untrusted, at: "a", to: "b") == "(a == b)"
+    let state = semantics.internState(ref c, by: p, for: in List<semantics.VariantId>())
+    assert equalHelper(ref cc, from: ref c, for: state, at: "a", to: "b") == "bynh_eq_main__P(a, b)"
+    let array = semantics.internArray(ref c, by: semantics.prim(.i64), at: 3)
+    assert equalHelper(ref cc, from: ref c, for: array, at: "a", to: "b") == "bynh_eq_arr3_i64(a, b)"
+    assert equalHelper(ref cc, from: ref c, for: semantics.structTypeOf(q), at: "a", to: "b") == "bynh_eq_main__Q(a, b)"
+    let pBody = cc.helpers["bynh_eq_main__P"].body
+    assert pBody.startsWith("static bool bynh_eq_main__P(bynt_main__P a, bynt_main__P b)")
+    assert pBody.endsWith("{\n    return (a.x == b.x);\n}\n")
+    let arrayBody = cc.helpers["bynh_eq_arr3_i64"].body
+    assert arrayBody.endsWith(
+        "{\n    for (int64_t i = 0; i < 3; i++)\n        if (!(a.v[i] == b.v[i])) return false;\n    return true;\n}\n",
+    )
+    assert cc.helpers["bynh_eq_main__Q"].body.endsWith("{\n    return true;\n}\n")
+}
+
+test "cprint t29: equalHelper and format of a builtin with no inline form call its helper once it is reserved" {
+    var c = t29Ctx("void main() {}\n")
+    var cc = CCtx {}
+    let time = semantics.builtinType(.time)
+    assert helperReserve(ref cc, for: "bynh_eq_time", from: "static bool bynh_eq_time(t a, t b)")
+    assert helperReserve(ref cc, for: "bynh_fmt_time", from: "static void bynh_fmt_time(byn_writer* w, t v)")
+    assert equalHelper(ref cc, from: ref c, for: time, at: "a", to: "b") == "bynh_eq_time(a, b)"
+    assert format(ref cc, from: ref c, for: time, at: "v", to: "w") == "bynh_fmt_time(w, v);"
+    assert cc.helperOrder.length == 2
+}

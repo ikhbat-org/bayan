@@ -1,0 +1,16 @@
+== x-onpanic
+BYN2202 7:21 expected `void f(Panic p)`, found `i32` ||name a function declared `void f(Panic p)`|
+BYN2614 7:5 `Panic.handler` may be set only as the first statement of `main` |not the first statement of `main`|set it once, as the first statement of `main`|
+fn main
+block 58..105
+  exprStmt 64..81
+    call 64..81 : void
+      literal 70..80 : string
+      enumMember 64..81 : Stream
+  errorStmt 86..103
+fn onCrash
+block 22..44
+  exprStmt 28..42
+    call 28..42 : void
+      literal 34..41 : string
+      enumMember 28..42 : Stream

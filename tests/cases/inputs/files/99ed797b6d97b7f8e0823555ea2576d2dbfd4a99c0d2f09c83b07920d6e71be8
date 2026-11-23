@@ -1,0 +1,4 @@
+_let c =  3
+
+// ok þ in comment
+let b = "bad \q escape"

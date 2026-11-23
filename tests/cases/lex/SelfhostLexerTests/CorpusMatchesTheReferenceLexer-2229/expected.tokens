@@ -1,0 +1,61 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:11 IntegerLiteral `3`
+2:2 CharLiteral `'\{D800}'`
+3:1 CloseBrace `}`
+3:2 CharLiteral `'`
+4:1 CharLiteral `'\u{110000}`
+5:1 CharLiteral `' `
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  1 │ let c � � 3
+    │       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c � � 3
+    │         ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  '\{D800}'
+    │  ^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\{`
+
+  2 │  '\{D800}'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0008: unterminated char literal
+
+  3 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ '\u{110000}
+    │ ^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ ' 
+    │ ^^
+    │
+  help: close it with `'`

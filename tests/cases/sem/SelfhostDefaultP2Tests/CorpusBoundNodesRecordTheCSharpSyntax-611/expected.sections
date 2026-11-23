@@ -1,0 +1,3 @@
+== tests/cases/diag/jump-outside-loop.byn
+0..0 globalStatement
+0..0 breakStmt

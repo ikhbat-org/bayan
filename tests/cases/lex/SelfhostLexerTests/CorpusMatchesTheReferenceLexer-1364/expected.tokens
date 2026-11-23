@@ -1,0 +1,95 @@
+1:1 Identifier `S`
+3:1 Identifier `b`
+4:1 Identifier `ن`
+4:3 Identifier `μετρητής`
+4:12 Identifier `x_1`
+4:16 Identifier `é`
+5:1 LetKeyword `let`
+5:5 Identifier `s`
+5:7 Equals `=`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolatedStringText `$`
+5:30 InterpolatedStringEnd `"`
+5:31 OpenBrace `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 InterpolatedStringStart `$"`
+5:55 InterpolationStart `{`
+5:56 InterpolatedStringStart `$"`
+5:58 InterpolationStart `{`
+5:59 InterpolatedStringStart `$"`
+5:61 InterpolationStart `{`
+5:62 StringLiteral `$"{$"`
+5:67 OpenBrace `{`
+5:68 Identifier `x`
+5:69 CloseBrace `}`
+5:70 StringLiteral `"}"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+5:93 CloseBrace `}`
+5:94 StringLiteral `"}"`
+5:97 InterpolationEnd `}`
+5:98 InterpolatedStringEnd `"`
+5:99 InterpolationEnd `}`
+5:100 InterpolatedStringEnd `"`
+5:101 InterpolationEnd `}`
+5:102 InterpolatedStringEnd `"`
+5:103 InterpolationEnd `}`
+5:104 InterpolatedStringEnd `"`
+5:105 InterpolationEnd `}`
+5:106 InterpolatedStringEnd `"`
+5:107 InterpolationEnd `}`
+5:108 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  4 │ �ن μετρητής x_1 é
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                              ^^

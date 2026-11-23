@@ -1,0 +1,8 @@
+== tests/cases/diag/unknown-label.byn
+0..33 globalStatement
+0..33 forStmt
+9..13 rangeExpr
+9..10 literalExpr integer
+12..13 literalExpr integer
+14..33 blockStmt
+20..20 breakStmt

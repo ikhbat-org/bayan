@@ -1,0 +1,3 @@
+== exh.e24
+result false
+BYN2410 145:24 `switch` does not handle every `Suit?` |not covered: null|add the missing arms, or `_ => …` for the rest|

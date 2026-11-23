@@ -1,0 +1,11 @@
+struct Bag {
+    i64 buffer => 1
+    i64 history => 1
+    i64 catalog => 1
+    i64 metadata => 1
+    i64 matrices => 1
+    i64 people => 1
+    i64 criteria => 1
+    i64 indices => 1
+    bool isOverdue => true
+}

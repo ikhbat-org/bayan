@@ -1,0 +1,1 @@
+{"code":"BYN3004","severity":"error","file":"input.byn","span":{"start":83,"end":93,"line":5,"column":5,"endLine":5,"endColumn":15},"message":"`sb` is modified while `s` still borrows it","label":"`s` is used again on line 6","help":"finish using `s` first, or copy what it needs before changing `sb`","fixes":[]}

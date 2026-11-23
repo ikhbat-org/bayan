@@ -1,0 +1,44 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+    doc `/// Doc line one.`
+3:2 CharLiteral `'\u{202E}'`
+3:6 Identifier `ew`
+3:9 GotoKeyword `goto`
+5:2 Star `*`
+5:4 Slash `/`
+5:6 Percent `%`
+5:8 PlusPercent `+%`
+5:11 MinusPercent `-%`
+5:14 StarPercent `*%`
+5:17 PlusBar `+|`
+5:20 MinusBar `-|`
+5:23 StarBar `*|`
+5:26 PlusPlus `++`
+5:29 MinusMinus `--`
+6:1 Amp `&`
+6:3 AmpAmp `&&`
+9:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  '�' ew goto
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  '�' ew goto
+    │   │   -
+
+error BYN0004: unterminated block comment
+
+  6 │ & && /*
+    │      ^^ comment starts here
+    │
+  help: close it with `*/`

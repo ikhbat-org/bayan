@@ -1,0 +1,26 @@
+1:1 Identifier `ạ̇b`
+2:2 LetKeyword `let`
+2:6 Identifier `cafe`
+2:11 Plus `+`
+2:13 Equals `=`
+2:15 IntegerLiteral `1`
+3:1 EndOfFile
+
+error BYN0005: identifier `ạ̇b` is not in Unicode normalization form C
+
+  1 │ ạ̇b
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇b
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  2 │  let cafe�+� = 1
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │  let cafe�+� = 1
+    │            ^

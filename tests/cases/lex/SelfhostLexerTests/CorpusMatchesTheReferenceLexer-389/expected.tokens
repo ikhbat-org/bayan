@@ -1,0 +1,30 @@
+1:1 Identifier `Å`
+1:4 IntegerLiteral `1`
+1:5 NumericSuffix `e`
+2:1 StringLiteral `"각  "`
+2:8 StringLiteral `""`
+2:11 CStringLiteral `c"text"`
+2:19 U16StringLiteral `u16"wide"`
+2:29 StringLiteral `"\u{202E} allowed in strings"`
+2:52 StringLiteral `""`
+2:55 StringLiteral `"\u{48}i"`
+4:2 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å 1e
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å 1e
+    │   │ +
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -

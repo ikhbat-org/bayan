@@ -1,0 +1,3 @@
+== cases
+0 byn_mul_i64((*self).s, (*self).s, byn_file_0, 8)
+count 1

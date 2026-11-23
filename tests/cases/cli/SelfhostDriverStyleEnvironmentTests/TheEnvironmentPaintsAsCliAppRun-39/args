@@ -1,0 +1,4 @@
+--color
+always
+audit
+<repo>/tmp/t7-env/audit/main.byn

@@ -1,0 +1,15 @@
+1:1 Identifier `b`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `a`
+3:4 InterpolationStart `{`
+3:5 Identifier `b`
+3:6 InterpolationEnd `}`
+3:7 InterpolatedStringText `c le� a = `
+3:17 InterpolatedStringEnd `"`
+3:18 OpenKeyword `open`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ $"a{b}c le� a = "open
+    │           ^

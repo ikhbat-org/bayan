@@ -1,0 +1,7 @@
+== iface touch
+first none
+block 280..284
+  exprStmt 280..284
+    thisRef 280..284 : Self
+requires 0 infers false
+BYN3201 17:21 the value of this `this` is unused |value dropped|assign it with `let _ = …`, or remove the expression|

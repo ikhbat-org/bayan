@@ -1,0 +1,10 @@
+error BYN2606: `defer failing` in a function that cannot fail
+  --> input.byn:2:5
+
+  2 │     defer failing print("x")
+    │     ^^^^^^^^^^^^^
+    │
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2606

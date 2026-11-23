@@ -1,0 +1,18 @@
+// 019 T29 (coverage ratchet): features.byn name-table arms no golden case reaches (the compile fails before the walk). The
+// expected values are the output of the self-hosted driver at the commit that added the test.
+
+import semantics
+
+test "driver t29: t2ExprName and t2NodeName name the kinds the walk never sees" {
+    assert t2ExprName(semantics.ExprSyntaxKind.castExpr) == "CastExpr"
+    assert t2ExprName(semantics.ExprSyntaxKind.exceptExpr) == "ExceptExpr"
+    assert t2ExprName(semantics.ExprSyntaxKind.mapEntryExpr) == "MapEntryExpr"
+    assert t2ExprName(semantics.ExprSyntaxKind.patternExpr) == "PatternExpr"
+    assert t2ExprName(semantics.ExprSyntaxKind.errorExpr) == "ErrorExpr"
+    assert t2NodeName(semantics.NodeSyntaxKind.labeledStmt) == "LabeledStmt"
+    assert t2NodeName(semantics.NodeSyntaxKind.emptyStmt) == "EmptyStmt"
+    assert t2NodeName(semantics.NodeSyntaxKind.errorStmt) == "ErrorStmt"
+    assert t2NodeName(semantics.NodeSyntaxKind.slicePattern) == "SlicePattern"
+    assert t2NodeName(semantics.NodeSyntaxKind.listPattern) == "ListPattern"
+    assert t2NodeName(semantics.NodeSyntaxKind.functionDecl) == "FunctionDecl"
+}

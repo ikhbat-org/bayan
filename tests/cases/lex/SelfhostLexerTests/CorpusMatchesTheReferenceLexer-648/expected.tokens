@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `0xF__`
+2:2 RawStringLiteral `"""$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n�macro select become\n $"{$"{$"{$"{$"{$"{$"{$"{:$"{$"{$"{$"{$"{$"{$"{$"{�"{x}"i"}"}"}"\n`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  2 │  """$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ �macro select become
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{:$"{$"{$"{$"{$"{$"{$"{$"{�"{x}"i"}"}"}"
+    │                                                   ^

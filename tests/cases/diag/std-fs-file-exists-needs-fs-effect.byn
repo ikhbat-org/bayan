@@ -1,0 +1,4 @@
+// StdFsTests.FileExistsNeedsFsEffect: `Fs.fileExists` needs `fs` (BYN6002).
+void f() uses console {
+    print($"{Fs.fileExists("a")}")
+}

@@ -1,0 +1,22 @@
+1:1 Identifier `gs`
+1:3 StringLiteral `" "`
+1:6 StringLiteral `" "`
+1:10 Identifier `u`
+1:11 OpenBrace `{`
+1:12 IntegerLiteral `48`
+1:14 CloseBrace `}`
+1:15 Identifier `i`
+1:16 StringLiteral `"`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ gs" "" "\u{48}i"
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  1 │ gs" "" "\u{48}i"
+    │                ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,99 @@
+1:1 CharLiteral `'\u{D800}'`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:41 Greater `>`
+4:42 GreaterEquals `>=`
+5:2 Identifier `line`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolatedStringText `$`
+6:25 InterpolatedStringEnd `"`
+6:26 OpenBrace `{`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolationStart `{`
+6:30 InterpolatedStringStart `$"`
+6:32 InterpolationStart `{`
+6:33 InterpolatedStringStart `$"`
+6:35 InterpolationStart `{`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolationStart `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 InterpolatedStringStart `$"`
+6:44 InterpolationStart `{`
+6:45 InterpolatedStringStart `$"`
+6:47 InterpolationStart `{`
+6:48 Identifier `x`
+6:49 InterpolationEnd `}`
+6:50 InterpolatedStringEnd `"`
+6:51 InterpolationEnd `}`
+6:52 InterpolatedStringEnd `"`
+6:53 InterpolationEnd `}`
+6:54 InterpolatedStringEnd `"`
+6:55 InterpolationEnd `}`
+6:56 InterpolatedStringEnd `"`
+6:57 InterpolationEnd `}`
+6:58 InterpolatedStringText `\u{0}`
+6:59 InterpolatedStringEnd `"`
+6:60 InterpolationEnd `}`
+6:61 InterpolatedStringEnd `"`
+6:62 InterpolationEnd `}`
+6:63 InterpolatedStringEnd `"`
+6:64 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}�"}"}"
+    │                   ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,25 @@
+== x-context
+BYN2022 3:13 the `net` handler is not supported in v0.1 |||
+fn main
+block 12..193
+  localDecl 18..37
+    call 30..37 : Arena
+  block 61..87
+    exprStmt 71..81
+      call 71..81 : void
+        literal 77..80 : string
+        enumMember 71..81 : Stream
+  contextStmt 92..143
+    local 111..116 : Arena
+    block 117..143
+      exprStmt 127..137
+        call 127..137 : void
+          literal 133..136 : string
+          enumMember 127..137 : Stream
+  contextStmt 148..191
+    errorExpr 163..164 : ?
+    block 165..191
+      exprStmt 175..185
+        call 175..185 : void
+          literal 181..184 : string
+          enumMember 175..185 : Stream

@@ -1,0 +1,45 @@
+1:1 Identifier `f`
+3:1 Identifier `strut`
+3:7 Identifier `S`
+4:1 Identifier `b`
+7:2 VarKeyword `var`
+7:6 Identifier `xs`
+7:8 Colon `:`
+7:10 Identifier `List`
+7:14 Less `<`
+7:15 Identifier `List`
+7:19 Less `<`
+7:20 Identifier `i64`
+7:23 Greater `>`
+7:24 Greater `>`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │ �var xs: List<List<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │ �var xs: List<List<i64>>
+    │  ^

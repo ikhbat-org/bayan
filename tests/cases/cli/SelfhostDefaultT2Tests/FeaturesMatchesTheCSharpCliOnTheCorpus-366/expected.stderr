@@ -1,0 +1,158 @@
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/bases-where.byn:1:17
+
+  1 │ struct Circle : IShape {
+    │                 ^^^^^^
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/bases-where.byn:7:21
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                     ^^^^^^
+
+error BYN2002: unknown type `m.IDescribe`
+  --> <repo>/tests/cases/parse/bases-where.byn:7:29
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                             ^^^^^^^^^^^
+    │
+  help: add `import m`; `m` is not an imported module
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/bases-where.byn:7:51
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                                                   ^^^^^^
+
+error BYN2002: unknown type `IOrder`
+  --> <repo>/tests/cases/parse/bases-where.byn:7:59
+
+  7 │ struct Wrapper<T> : IShape, m.IDescribe where T : IShape, IOrder<T> {
+    │                                                           ^^^^^^
+
+error BYN2801: `Stream` does not provide `moveNext` required by `IEnumerator`
+  --> <repo>/tests/cases/parse/bases-where.byn:11:17
+
+  11 │ struct Stream : IEnumerator {
+     │                 ^^^^^^^^^^^ needs `moveNext`
+     │
+  help: add `bool moveNext(ref this)` to `Stream`
+     │ 14 │     bool moveNext(ref this) => todo("moveNext")
+     │    │ +++++++++++++++++++++++++++++++++++++++++++++++
+     │ 15 │ }
+
+error BYN2801: `Stream` does not provide `current` required by `IEnumerator`
+  --> <repo>/tests/cases/parse/bases-where.byn:11:17
+
+  11 │ struct Stream : IEnumerator {
+     │                 ^^^^^^^^^^^ needs `current`
+     │
+  help: add `? current { get }` to `Stream`
+     │ 14 │     ? current => todo("current")
+     │    │ ++++++++++++++++++++++++++++++++
+     │ 15 │ }
+
+error BYN2002: unknown type `Token`
+  --> <repo>/tests/cases/parse/bases-where.byn:12:17
+
+  12 │     type Item = Token
+     │                 ^^^^^
+
+error BYN2815: `Shape` is a union; only structs can conform yet
+  --> <repo>/tests/cases/parse/bases-where.byn:16:15
+
+  16 │ union Shape : IShape {
+     │               ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2815: `Box` is a union; only structs can conform yet
+  --> <repo>/tests/cases/parse/bases-where.byn:21:16
+
+  21 │ union Box<T> : IShape where T : IShape {
+     │                ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/bases-where.byn:21:33
+
+  21 │ union Box<T> : IShape where T : IShape {
+     │                                 ^^^^^^
+
+error BYN2815: `Color` is an enum; only structs can conform yet
+  --> <repo>/tests/cases/parse/bases-where.byn:26:14
+
+  26 │ enum Color : IShape {
+     │              ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2815: `Planet` is an enum; only structs can conform yet
+  --> <repo>/tests/cases/parse/bases-where.byn:31:25
+
+  31 │ enum Planet(f64 mass) : IShape where T : IShape {
+     │                         ^^^^^^ listed here
+     │
+  help: wrap it in a struct that conforms
+
+error BYN2812: `where` names `T`, which is not a type parameter
+  --> <repo>/tests/cases/parse/bases-where.byn:31:38
+
+  31 │ enum Planet(f64 mass) : IShape where T : IShape {
+     │                                      ^ not a type parameter of `Planet`
+     │
+  help: remove the `where` clause; `Planet` has no type parameters
+
+error BYN5004: `max` has 2 unlabeled parameters; give each but one a particle
+  --> <repo>/tests/cases/parse/bases-where.byn:36:3
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │   ^^^ 2 unlabeled parameters
+     │
+  help: keep one unlabeled parameter, the object
+
+error BYN5006: `b` is a required parameter besides the object and needs a particle
+  --> <repo>/tests/cases/parse/bases-where.byn:36:17
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                 ^ needs a particle
+     │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2002: unknown type `IOrder`
+  --> <repo>/tests/cases/parse/bases-where.byn:36:30
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                              ^^^^^^
+
+error BYN2780: implicit copy of a unique value: type parameter `T` may stand for a unique type
+  --> <repo>/tests/cases/parse/bases-where.byn:36:43
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                                           ^^^^^^^^^^^^^^^^^
+     │
+  help: pass it by `ref` to share it instead
+
+error BYN2744: `less` is not a member of type parameter `T`
+  --> <repo>/tests/cases/parse/bases-where.byn:36:45
+
+  36 │ T max<T>(T a, T b) where T : IOrder<T> => a.less(b) ? b : a
+     │                                             ^^^^
+     │
+  help: add `where T : …` naming an interface that declares `less`, or use a concrete type
+
+error BYN2002: unknown type `IParse`
+  --> <repo>/tests/cases/parse/bases-where.byn:38:32
+
+  38 │ T parse<T>(string s) where T : IParse<T> fails {
+     │                                ^^^^^^
+
+warning BYN5011: this `expects` reads only `s`; a type with `requires` checks it once
+  --> <repo>/tests/cases/parse/bases-where.byn:42:66
+
+  42 │ T read<T>(string s) where T : IParse<T>, IShape where U : IShape expects s.length > 0 fails IoError {
+     │                                                                  ^^^^^^^
+     │
+  help: declare a type with `requires` for `s`
+… and 5 more errors (use --all to show them)

@@ -1,0 +1,27 @@
+== tests/cases/run/path-is-rooted.byn
+122..138 callExpr
+122..138 callExpr
+122..138 callExpr
+136..137 nameExpr
+140..253 globalStatement
+140..253 forStmt
+149..217 collectionExpr
+150..153 literalExpr string
+155..159 literalExpr string
+161..168 literalExpr string
+170..175 literalExpr string
+177..180 literalExpr string
+182..187 literalExpr string
+189..194 literalExpr string
+196..202 literalExpr string
+204..207 literalExpr string
+209..211 literalExpr string
+213..216 literalExpr string
+218..253 blockStmt
+224..251 exprStmt
+224..251 callExpr
+230..250 interpolatedExpr
+234..235 nameExpr
+239..248 callExpr
+246..247 nameExpr
+224..251 callExpr

@@ -1,0 +1,9 @@
+struct S {
+    string s
+
+    static void g(ref this) {}
+}
+
+void main() {
+    S.g()
+}

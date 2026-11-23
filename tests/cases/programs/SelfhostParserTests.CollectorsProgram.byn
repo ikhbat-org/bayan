@@ -1,0 +1,13 @@
+import lexer
+
+i32 main(ReadOnlySpan<string> args) {
+    let keywords = Keywords.build()
+    var bytes = Io.readFile(args[0]) catch return 4
+    var p = Parser.create(lexer.lex(SourceText.create(args[0], from: move bytes), by: keywords))
+    var unit = parseCompilationUnit(ref p)
+    var sb = StrBuf()
+    for n in typeNames(in unit, from: ref p) { sb.append($"type {n.start} {n.length}\n") }
+    for n in calleeAndReceiverNames(in unit, from: ref p) { sb.append($"callee {n.start} {n.length}\n") }
+    Io.stdout.write(sb.finish())
+    return 0
+}

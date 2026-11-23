@@ -1,0 +1,4 @@
+== check.through
+counts 1 1 0
+mut xs 2127..2128 false x
+loan xs - 2105 2161

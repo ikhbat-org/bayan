@@ -1,0 +1,140 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:12 PercentEquals `%=`
+1:15 AmpEquals `&=`
+1:18 BarEquals `|=`
+1:21 CaretEquals `^=`
+1:24 LessLessEquals `<<=`
+2:2 CharLiteral `'\uc{D800}'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `"{$"`
+5:59 OpenBrace `{`
+5:60 StringLiteral `$"{x}"`
+5:66 CloseBrace `}`
+5:67 StringLiteral `"}"`
+5:70 CloseBrace `}`
+5:71 StringLiteral `"}"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+5:96 InterpolationEnd `}`
+5:97 InterpolatedStringEnd `"`
+5:98 InterpolationEnd `}`
+5:99 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  1 │ += -= *= /=�%= &= |= ^= <<=
+    │            ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  '\uc{D800}'
+    │  ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u`
+
+  2 │  '\uc{D800}'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ����
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ����
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ����
+    │                                                                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ����
+    │                                                                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ����
+    │                                                                                                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" ����
+    │                                                                                                        ^

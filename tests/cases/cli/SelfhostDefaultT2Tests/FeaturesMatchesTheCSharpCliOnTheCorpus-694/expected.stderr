@@ -1,0 +1,9 @@
+error BYN6002: `undeclared` uses `console` but does not declare it
+  --> <repo>/tests/cases/diag/lambda-effects-local-value.byn:7:5
+
+  7 │     run(by: g)
+    │     ^^^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 5 │ public void undeclared() uses console {
+    │   │                         +++++++++++++

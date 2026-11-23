@@ -1,0 +1,33 @@
+== tests/cases/run/print-stderr.byn
+128..179 blockStmt
+134..177 exprStmt
+134..177 callExpr
+140..163 interpolatedExpr
+152..161 memberExpr
+152..153 nameExpr
+169..176 targetMemberExpr
+193..391 blockStmt
+199..222 assignStmt assign target 199..212 value 215..222
+227..236 localDecl
+235..236 literalExpr integer
+241..257 exprStmt
+241..257 callExpr
+247..256 literalExpr string
+241..257 callExpr
+262..293 exprStmt
+262..293 callExpr
+268..279 literalExpr string
+285..292 targetMemberExpr
+298..334 exprStmt
+298..334 callExpr
+304..320 interpolatedExpr
+311..312 nameExpr
+326..333 targetMemberExpr
+339..369 exprStmt
+339..369 callExpr
+345..355 interpolatedExpr
+352..353 nameExpr
+361..368 targetMemberExpr
+374..389 exprStmt
+374..389 callExpr
+380..388 literalExpr string

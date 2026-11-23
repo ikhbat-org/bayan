@@ -1,0 +1,92 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:2 Identifier `nos`
+2:6 Identifier `a`
+2:8 Identifier `doc`
+2:12 Identifier `comment`
+3:1 Identifier `b`
+4:1 Identifier `ent`
+4:7 Identifier `hidden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+6:1 Identifier `b`
+8:1 IsKeyword `is`
+8:4 AndKeyword `and`
+8:8 OrKeyword `or`
+8:11 NotKeyword `not`
+8:15 WithKeyword `with`
+8:20 MoveKeyword `move`
+8:25 RefKeyword `ref`
+8:29 OutKeyword `out`
+8:33 ThisKeyword `this`
+8:38 NullKeyword `null`
+8:43 TrueKeyword `true`
+8:48 FalseKeyword `false`
+8:54 ComptimeKeyword `comptime`
+8:63 CheckedKeyword `checked`
+9:3 ErrorKeyword `error`
+9:9 SetKeyword `set`
+9:13 UnitKeyword `unit`
+9:18 DistinctKeyword `distinct`
+9:27 TypeKeyword `type`
+9:32 ImportKeyword `import`
+9:39 AsKeyword `as`
+9:42 PublicKeyword `public`
+9:49 PrivateKeyword `private`
+9:57 StaticKeyword `static`
+9:64 ReadonlyKeyword `readonly`
+9:73 RequiredKeyword `required`
+9:82 ConstKeyword `const`
+9:88 LetKeyword `let`
+9:92 VarKeyword `var`
+9:96 EmbedKeyword `embed`
+9:102 ExternKeyword `extern`
+9:109 UnsafeKeyword `unsafe`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ ent � hidden
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ ent � hidden
+    │   │     -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� =
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� =
+    │   │      -
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  9 │  �error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  �error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   │  -

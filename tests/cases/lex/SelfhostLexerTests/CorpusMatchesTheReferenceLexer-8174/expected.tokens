@@ -1,0 +1,10 @@
+1:1 IntegerLiteral `0`
+1:2 NumericSuffix `b`
+1:4 Identifier `Hms`
+1:7 Greater `>`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\u{C}`
+
+  1 │ 0b�Hms>
+    │   ^

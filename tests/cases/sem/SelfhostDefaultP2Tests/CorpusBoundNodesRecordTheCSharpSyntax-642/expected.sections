@@ -1,0 +1,42 @@
+== tests/cases/diag/loop-item-field-list-cleared.byn
+195..196 nameExpr
+195..196 nameExpr
+195..196 nameExpr
+221..541 blockStmt
+227..250 localDecl
+236..250 callExpr
+255..271 exprStmt
+255..271 callExpr
+255..257 nameExpr
+265..270 literalExpr string
+276..306 localDecl
+291..306 callExpr
+311..353 exprStmt
+311..353 callExpr
+311..319 nameExpr
+327..352 structLiteralExpr
+343..347 moveExpr
+348..350 nameExpr
+358..399 localDecl
+371..399 callExpr
+404..473 forStmt
+413..421 nameExpr
+422..473 blockStmt
+432..467 exprStmt
+432..467 callExpr
+432..438 nameExpr
+446..466 callExpr
+451..465 memberExpr
+451..465 memberExpr
+451..452 nameExpr
+478..510 exprStmt
+478..510 callExpr
+478..502 memberExpr
+478..489 indexExpr
+478..486 nameExpr
+487..488 literalExpr integer
+515..539 localDecl
+523..539 memberExpr
+523..532 indexExpr
+523..529 nameExpr
+530..531 literalExpr integer

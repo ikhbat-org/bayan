@@ -2,23 +2,25 @@
 # Local compiler builds kept by target and version (dist/ is gitignored).
 #   scripts/dist.sh [--rid <rid>]... [--label <version>] [--from <publish-dir> [--commit <sha>]] [--dist <dir>]
 # Layout:
-#   dist/<target>/<version>/bayan[.exe]   one directory per version, with BUILD-INFO
+#   dist/<target>/<version>/bayan[.exe]   one directory per version, with BUILD-INFO and bayan-lsp[.exe] (019 R37)
 #   dist/<target>/latest/                 a copy of the most recent build for that target, replaced on every build
 # Targets use the release names (scripts/release/package.sh): osx-arm64 -> macos-arm64, win-x64 -> windows-x64.
-# <version> is Toolchain.CompilerVersion; a prerelease (0.2.0-dev) gets +<12-hex commit>, and a tree with
+# <version> is VERSION (scripts/release/version.sh); a prerelease (0.2.0-dev) gets +<12-hex commit>, and a tree with
 # any change not yet committed, untracked files included (the binary embeds docs/diagnostics too), gets .dirty:
 # each commit has its own directory, a release keeps its plain number, and .dirty builds of one commit replace each other.
-# NativeAOT does not cross-compile between operating systems: run this on each OS (mb1, wlt1, wp1), or publish
-# elsewhere and import the binary with --from <dir> --rid <rid> (its label is this checkout's unless --label is given;
-# its BUILD-INFO commit is "unknown" unless --commit names the commit it was built from).
+# Each rid is built from src/ by a compiler built from src/ (scripts/bootstrap-build.sh, no .NET; spec 019 R25); a rid
+# other than the host's cross-builds through zig (--target). --from <dir> --rid <rid> imports a binary built elsewhere
+# (BUILD-INFO commit "unknown" unless --commit). bayan-lsp is built from editors/language-server by the same compiler,
+# or --from takes <dir>/bayan-lsp; BUILD-INFO `lsp` is built, imported or none (--from without one, with a warning).
 set -euo pipefail
-export MSBUILDDISABLENODEREUSE=1 DOTNET_CLI_USE_MSBUILD_SERVER=0  # no MSBuild worker or build server outlives the run
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=release/version.sh
+. "$root/scripts/release/version.sh"
 lock="" plock=""
 trap '[ -z "$plock" ] || rmdir "$plock" 2>/dev/null || :; [ -z "$lock" ] || rmdir "$lock" 2>/dev/null || :' EXIT
 die() { echo "dist: $*" >&2; exit 1; }
-usage() { sed -n '2,13p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 host_rid() {
   local arch
@@ -43,8 +45,7 @@ target() {
 
 label() {
   local v sha dirty=""
-  v="$(sed -nE 's/.*const string CompilerVersion = "([^"]+)";.*/\1/p' "$root/csharp/Bayan.Backend.C/Toolchain.cs")"
-  [ -n "$v" ] || die "no CompilerVersion in csharp/Bayan.Backend.C/Toolchain.cs"
+  v="$(bayan_version "$root")" || die "no version in $root/VERSION"
   [ -z "$(git -C "$root" status --porcelain 2>/dev/null)" ] || dirty=.dirty
   case "$v" in
     *-*) sha="$(git -C "$root" rev-parse --short=12 HEAD 2>/dev/null)" || die "a prerelease label needs a git checkout"
@@ -80,9 +81,11 @@ if [ -z "$commit" ]; then
   if [ -n "$from" ]; then commit=unknown; else commit="$(git -C "$root" rev-parse HEAD 2>/dev/null || echo unknown)"; fi
 fi
 
+compiler="" hrid="$(host_rid "$(uname -s)" "$(uname -m)" 2>/dev/null || :)"
 for rid in "${rids[@]}"; do
   t="$(target "$rid")" || die "unknown rid $rid"
   tgt="${t% *}" exe="${t#* }"
+  lsp="bayan-lsp${exe#bayan}"
   # One run per target at a time, taken before publishing: two runs would share tmp/dist-publish/<rid> and obj/.
   mkdir -p "$dist/$tgt" 2>/dev/null || die "cannot create $dist/$tgt"
   lock="$dist/$tgt/.lock"
@@ -90,26 +93,42 @@ for rid in "${rids[@]}"; do
   if [ -n "$from" ]; then
     pub="$from"
   else
-    command -v dotnet >/dev/null || die "dotnet not on PATH"
     mkdir -p "$root/tmp"
-    # Every rid shares csharp/*/obj/ (restore writes project.assets.json there): one publish at a time per checkout.
+    # The compiler in tmp/dist-compiler is shared by every run in this checkout: one build at a time.
     plock="$root/tmp/dist-publish.lock"
-    mkdir "$plock" 2>/dev/null || { plock=""; die "another dist run is publishing in this checkout (remove $root/tmp/dist-publish.lock if none is)"; }
+    mkdir "$plock" 2>/dev/null || { plock=""; die "another dist run is building in this checkout (remove $root/tmp/dist-publish.lock if none is)"; }
+    if [ -z "$compiler" ]; then
+      echo "dist: building the compiler from bootstrap/bayan.c" >&2
+      compiler="$(bash "$root/scripts/bootstrap-build.sh" --out "$root/tmp/dist-compiler" 2>"$root/tmp/dist-compiler.log")" \
+        || die "bootstrap build failed, see tmp/dist-compiler.log and tmp/dist-compiler/stage*.log"
+    fi
     pub="$root/tmp/dist-publish/$rid"
     rm -rf "$pub"
-    echo "dist: publishing $rid" >&2
-    dotnet publish "$root/csharp/Bayan.Cli" -c Release -r "$rid" -o "$pub" >"$root/tmp/dist-publish-$rid.log" 2>&1 \
-      || die "dotnet publish -r $rid failed, see tmp/dist-publish-$rid.log"
+    mkdir -p "$pub"
+    tflag=(--target "$tgt"); [ "$rid" != "$hrid" ] || tflag=()
+    echo "dist: building $rid" >&2
+    (cd "$root" && "$compiler" build --mode safe --package src ${tflag[@]+"${tflag[@]}"} -o "$pub/$exe" src/driver) \
+      >"$root/tmp/dist-publish-$rid.log" 2>&1 || die "building $rid failed, see tmp/dist-publish-$rid.log"
+    echo "dist: building $lsp for $rid" >&2
+    (cd "$root" && "$compiler" build --package editors/language-server/src ${tflag[@]+"${tflag[@]}"} -o "$pub/$lsp" \
+      editors/language-server/src/app) >"$root/tmp/dist-lsp-$rid.log" 2>&1 || die "building $lsp for $rid failed, see tmp/dist-lsp-$rid.log"
     rmdir "$plock"; plock=""
   fi
   [ -f "$pub/$exe" ] || die "$pub/$exe not found"
+  lspinfo=built; [ -z "$from" ] || lspinfo=imported
+  if [ ! -f "$pub/$lsp" ]; then
+    [ -n "$from" ] || die "$pub/$lsp not found"
+    echo "dist: warning: $from has no $lsp; this build has none" >&2
+    lspinfo=none
+  fi
 
   dir="$dist/$tgt/$lbl"
   mkdir -p "$dir"
   cp "$pub/$exe" "$dir/$exe"
   chmod +x "$dir/$exe"
-  printf 'version %s\ntarget %s\nrid %s\ncommit %s\nbuilt %s\nhost %s\nsource %s\n' \
-    "$lbl" "$tgt" "$rid" "$commit" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(uname -n)" "${from:-dotnet publish}" > "$dir/BUILD-INFO"
+  if [ "$lspinfo" != none ]; then cp "$pub/$lsp" "$dir/$lsp"; chmod +x "$dir/$lsp"; fi
+  printf 'version %s\ntarget %s\nrid %s\ncommit %s\nbuilt %s\nhost %s\nsource %s\nlsp %s\n' \
+    "$lbl" "$tgt" "$rid" "$commit" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(uname -n)" "${from:-bootstrap build}" "$lspinfo" > "$dir/BUILD-INFO"
 
   # latest: copy beside it, move the old one aside, move the copy in. A failed step leaves the old latest in place
   # (Windows refuses to move a folder holding a running bayan.exe).

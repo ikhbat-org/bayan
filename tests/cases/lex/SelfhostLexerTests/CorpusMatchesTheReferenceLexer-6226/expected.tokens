@@ -1,0 +1,55 @@
+2:1 Identifier `b`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+    doc `///`
+8:1 StringLiteral `"a�;�b"`
+8:7 Equals `=`
+8:9 IntegerLiteral `1`
+9:1 LetKeyword `let`
+9:7 Equals `=`
+9:9 IntegerLiteral `2`
+11:1 CharLiteral `'\q'`
+12:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  8 │ "a�;�b"= 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  8 │ "a�;�b"= 1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  8 │ "a�;�b"= 1
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  9 │ let � = 2
+    │     ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  11 │ '\q'
+     │  ^^
+     │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

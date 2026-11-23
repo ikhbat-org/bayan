@@ -1,0 +1,42 @@
+1:1 Identifier `ctor`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 Identifier `c`
+4:13 Greater `>`
+4:14 GreaterEquals `>=`
+4:17 IntegerLiteral `1`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+7:1 CharLiteral `'x`
+10:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  7 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

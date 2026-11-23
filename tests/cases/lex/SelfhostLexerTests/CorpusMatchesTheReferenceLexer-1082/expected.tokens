@@ -1,0 +1,78 @@
+1:1 CharLiteral `'\u{110000}'`
+3:1 IntegerLiteral `1_`
+4:2 Identifier `line`
+4:7 Identifier `two`
+4:10 Dot `.`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+7:1 Identifier `b`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+8:46 InterpolatedStringStart `$"`
+8:48 InterpolationStart `{`
+8:49 Identifier `x`
+8:50 InterpolationEnd `}`
+8:51 InterpolatedStringEnd `"`
+8:52 InterpolationEnd `}`
+8:53 InterpolatedStringEnd `"`
+8:54 InterpolationEnd `}`
+8:55 InterpolatedStringEnd `"`
+8:56 InterpolationEnd `}`
+8:57 InterpolatedStringEnd `"`
+8:58 InterpolationEnd `}`
+8:59 InterpolatedStringEnd `"`
+8:60 InterpolationEnd `}`
+8:61 InterpolatedStringEnd `"`
+8:62 InterpolationEnd `}`
+8:63 InterpolatedStringEnd `"`
+8:65 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1_
+    │  ^
+    │
+    │ 3 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                         ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,4 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; $BAYAN build tally > /dev/null; echo "build $?"
+$ $BAYAN cache stats > stats.txt; echo "stats $?"; head -1 stats.txt; sed -n 2p stats.txt | sed 's/(.*/(/'; tail -1 stats.txt
+$ $BAYAN cache > /dev/null 2>&1; echo "cache $?"; ls cache/v1/runtime | wc -l | tr -d ' '
+$ $BAYAN clean --cache > /dev/null; echo "clean $?"; ls cache/v1/programs 2>/dev/null | wc -l | tr -d ' '; ls cache/v1/runtime 2>/dev/null | wc -l | tr -d ' '; ls tally/out/safe/*/tally > /dev/null && echo "executable kept"

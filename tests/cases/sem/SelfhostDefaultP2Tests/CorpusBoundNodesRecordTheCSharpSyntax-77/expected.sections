@@ -1,0 +1,18 @@
+== tests/cases/run/for-indexable-field-count.byn
+156..183 globalStatement
+156..183 localDecl
+164..183 structLiteralExpr
+180..181 literalExpr integer
+184..216 forStmt
+193..194 nameExpr
+195..216 blockStmt
+201..214 exprStmt
+201..214 callExpr
+207..213 interpolatedExpr
+210..211 nameExpr
+201..214 callExpr
+142..152 binaryExpr mul right 150..152
+142..152 binaryExpr mul right 150..152
+142..152 binaryExpr mul right 150..152
+142..147 nameExpr
+150..152 literalExpr integer

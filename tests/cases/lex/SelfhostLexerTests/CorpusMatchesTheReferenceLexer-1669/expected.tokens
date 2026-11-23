@@ -1,0 +1,7 @@
+1:1 IntegerLiteral `5`
+1:2 NumericSuffix `ms`
+1:5 IntegerLiteral `4`
+1:6 NumericSuffix `KC`
+1:9 IntegerLiteral `1`
+1:10 NumericSuffix `u`
+1:12 EndOfFile

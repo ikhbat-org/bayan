@@ -1,0 +1,10 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"escH \"q\"� \\ \n"`
+1:27 StringLiteral `""`
+    doc `/// `
+3:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x96)
+
+  1 │ "text" "escH \"q\"� \\ \n" ""
+    │                   ^

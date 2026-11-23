@@ -1,0 +1,8 @@
+== diags.diag/input-catch-binding
+BYN1025 14:30 `catch (e)` is an input form; bind the error in a `catch switch` arm
+  label the input form
+  help remove `(e)` and bind the error in each arm: `E e => …`
+  fix 14:30-14:34 
+BYN1025 18:29 `catch (e)` is an input form; bind the error in a `catch switch` arm
+  label the input form
+  help write `catch switch { E e => … }`, binding the error in each arm

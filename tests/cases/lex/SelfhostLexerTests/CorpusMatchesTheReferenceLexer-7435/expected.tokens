@@ -1,0 +1,134 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 Identifier `x`
+3:62 CloseBrace `}`
+3:63 StringLiteral `"}"`
+3:66 CloseBrace `}`
+3:67 StringLiteral `"}"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 StringLiteral `" let law = 3`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 StringLiteral `$"{$"`
+4:21 OpenBrace `{`
+4:22 StringLiteral `$"{$"`
+4:27 OpenBrace `{`
+4:28 StringLiteral `$"{$"`
+4:33 OpenBrace `{`
+4:34 StringLiteral `$"{$"`
+4:39 OpenBrace `{`
+4:40 StringLiteral `$"{$"`
+4:45 OpenBrace `{`
+4:46 StringLiteral `$"{$"`
+4:51 OpenBrace `{`
+4:52 StringLiteral `$"{$"`
+4:57 OpenBrace `{`
+4:58 Identifier `x`
+4:59 CloseBrace `}`
+4:60 StringLiteral `"}"`
+4:63 CloseBrace `}`
+4:64 StringLiteral `"}"`
+4:67 CloseBrace `}`
+4:68 StringLiteral `"}"`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}"`
+4:75 CloseBrace `}`
+4:76 StringLiteral `" /* `
+4:81 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"" let law = 3
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"" let law = 3
+    │                                                                                ^^^^^^^^^^^^^ string
+    │                                                                                              ends
+    │                                                                                              at
+    │                                                                                              the
+    │                                                                                              end
+    │                                                                                              of
+    │                                                                                              the
+    │                                                                                              line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" /* 
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" /* 
+    │                                                                            ^^^^^ string ends
+    │                                                                                  at the end of
+    │                                                                                  the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

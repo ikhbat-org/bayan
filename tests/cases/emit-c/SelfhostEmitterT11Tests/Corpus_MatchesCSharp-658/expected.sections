@@ -1,0 +1,21 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_remove_range_list_i64 static void bynh_remove_range_list_i64(bynt_list_i64* l, int64_t start, int64_t end, const char* file, int line) | static void bynh_remove_range_list_i64(bynt_list_i64* l, int64_t start, int64_t end, const char* file, int line) {
+    byn_slice_check(start, end, l->len, file, line);
+    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    l->len -= end - start;
+}
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_remove_range_list_str static void bynh_remove_range_list_str(bynt_list_str* l, int64_t start, int64_t end, const char* file, int line) | static void bynh_remove_range_list_str(bynt_list_str* l, int64_t start, int64_t end, const char* file, int line) {
+    byn_slice_check(start, end, l->len, file, line);
+    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    l->len -= end - start;
+}

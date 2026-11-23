@@ -1,0 +1,58 @@
+1:1 Identifier `ạ̇`
+1:7 Identifier `Å`
+1:10 IntegerLiteral `0xF__`
+3:1 CharLiteral `'\u{110000}'`
+4:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇	���� Å 0xF__
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇	���� Å 0xF__
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ạ̇	���� Å 0xF__
+    │    	^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ạ̇	���� Å 0xF__
+    │    	 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ạ̇	���� Å 0xF__
+    │    	  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ạ̇	���� Å 0xF__
+    │    	   ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ ạ̇	���� Å 0xF__
+    │    	     ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇	���� Å 0xF__
+    │   │    	     +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ ạ̇	���� Å 0xF__
+    │    	           ^^
+    │
+    │ 1 │ ạ̇	���� Å 0xF__
+    │   │    	           --
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

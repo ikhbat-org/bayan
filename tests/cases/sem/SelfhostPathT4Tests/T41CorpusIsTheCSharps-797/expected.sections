@@ -1,0 +1,3 @@
+== diags.diag/borrow-own-field
+returns rest -1
+returns tokens -1

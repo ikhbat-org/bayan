@@ -1,0 +1,66 @@
+1:1 Identifier `x́́`
+1:6 Identifier `aw`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+4:1 CharLiteral `'a'`
+4:5 CharLiteral `'\n'`
+4:10 CharLiteral `'\u{1Fh00}'`
+4:22 CharLiteral `'\''`
+4:27 CharLiteral `'é '`
+4:33 CharLiteral `' '`
+4:37 IntegerLiteral `0`
+4:38 CharLiteral `'\r`
+5:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │          ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{1F`
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │           ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │                           ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │                               ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │                                ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │                                    ^
+
+error BYN0008: unterminated char literal
+
+  4 │ 'a' '\n' '\u{1Fh00}' '\'' 'é '\\' '\0'
+    │                                      ^
+    │
+  help: close it with `'`

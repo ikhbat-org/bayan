@@ -1,0 +1,82 @@
+1:1 StringLiteral `"a {f($"`
+1:9 Identifier `b`
+1:11 OpenBrace `{`
+1:12 Identifier `c`
+1:13 CloseBrace `}`
+1:14 StringLiteral `")} d"`
+1:23 CharLiteral `'`
+2:1 CharLiteral `'ab'`
+3:1 CharLiteral `'\q'`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{110000}'`
+6:1 CharLiteral `'x`
+7:2 Identifier `le`
+7:5 Identifier `x`
+7:8 Equals `=`
+7:10 IntegerLiteral `1`
+8:1 CharLiteral `'\u{D800}'`
+9:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ "a {f($"b {c}")} d" $ '
+    │                     ^
+
+error BYN0008: unterminated char literal
+
+  1 │ "a {f($"b {c}")} d" $ '
+    │                       ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │  le x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  le x� = 1
+    │   │      -
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  8 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

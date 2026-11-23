@@ -1,0 +1,5 @@
+== all
+combine tmp/t7-path/helpers src tmp/t7-path/helpers/src
+combine tmp/t7-path/helpers/ src tmp/t7-path/helpers/src
+combine tmp/t7-path/helpers tmp/t7-path/helpers/other tmp/t7-path/helpers/other
+combine rel x.byn rel/x.byn

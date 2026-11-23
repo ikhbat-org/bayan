@@ -1,0 +1,39 @@
+== tests/cases/diag/catch-block-completes.byn
+101..146 blockStmt
+107..131 guardedStmt
+122..131 memberExpr
+122..123 nameExpr
+107..111 failStmt
+112..118 targetMemberExpr
+136..144 returnStmt value 143..144
+143..144 literalExpr integer
+185..217 blockStmt
+191..215 guardedStmt
+206..215 memberExpr
+206..207 nameExpr
+191..195 failStmt
+196..202 targetMemberExpr
+238..254 blockStmt
+244..252 exprStmt
+244..252 callExpr
+250..251 nameExpr
+244..252 callExpr
+256..292 globalStatement
+256..292 localDecl
+264..292 catchExpr
+264..273 callExpr
+270..272 literalExpr string
+280..292 blockExpr
+280..292 blockStmt
+282..290 exprStmt
+282..290 callExpr
+286..289 literalExpr string
+293..320 exprStmt
+293..320 catchExpr
+293..301 callExpr
+298..300 literalExpr string
+308..320 blockExpr
+308..320 blockStmt
+310..318 exprStmt
+310..318 callExpr
+314..317 literalExpr string

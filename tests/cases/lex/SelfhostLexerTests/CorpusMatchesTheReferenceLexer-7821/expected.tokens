@@ -1,0 +1,21 @@
+    doc `///`
+3:2 Identifier `b`
+4:2 TestKeyword `test`
+4:7 AssertKeyword `assert`
+4:14 PropertyKeyword `property`
+4:23 FuzzKeyword `fuzz`
+4:28 ModelKeyword `model`
+4:34 ForeachKeyword `foreach`
+4:42 NewKeyword `new`
+4:46 GotoKeyword `goto`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // �x
+    │   │    -

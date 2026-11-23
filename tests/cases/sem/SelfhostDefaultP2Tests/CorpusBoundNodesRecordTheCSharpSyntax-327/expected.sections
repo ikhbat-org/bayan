@@ -1,0 +1,102 @@
+== tests/cases/run/tryfrom-float-bounds.byn
+115..155 globalStatement
+115..155 localDecl
+133..155 unaryExpr negate operand 134..155
+156..198 localDecl
+176..198 unaryExpr negate operand 177..198
+199..238 localDecl
+217..238 literalExpr floatKeyword
+239..280 localDecl
+259..280 literalExpr floatKeyword
+281..402 exprStmt
+281..402 callExpr
+287..401 interpolatedExpr
+290..314 binaryExpr coalesce right 313..314
+290..309 callExpr
+302..308 nameExpr
+313..314 literalExpr integer
+317..343 binaryExpr coalesce right 342..343
+317..338 callExpr
+329..337 nameExpr
+342..343 literalExpr integer
+346..370 binaryExpr coalesce right 369..370
+346..365 callExpr
+358..364 nameExpr
+369..370 literalExpr integer
+373..399 binaryExpr coalesce right 398..399
+373..394 callExpr
+385..393 nameExpr
+398..399 literalExpr integer
+281..402 callExpr
+403..434 localDecl
+421..434 unaryExpr negate operand 422..434
+435..468 localDecl
+455..468 unaryExpr negate operand 456..468
+469..499 localDecl
+487..499 literalExpr floatKeyword
+500..532 localDecl
+520..532 literalExpr floatKeyword
+533..654 exprStmt
+533..654 callExpr
+539..653 interpolatedExpr
+542..566 binaryExpr coalesce right 565..566
+542..561 callExpr
+554..560 nameExpr
+565..566 literalExpr integer
+569..595 binaryExpr coalesce right 594..595
+569..590 callExpr
+581..589 nameExpr
+594..595 literalExpr integer
+598..622 binaryExpr coalesce right 621..622
+598..617 callExpr
+610..616 nameExpr
+621..622 literalExpr integer
+625..651 binaryExpr coalesce right 650..651
+625..646 callExpr
+637..645 nameExpr
+650..651 literalExpr integer
+533..654 callExpr
+655..686 localDecl
+673..686 unaryExpr negate operand 674..686
+687..720 localDecl
+707..720 unaryExpr negate operand 708..720
+721..751 localDecl
+739..751 literalExpr floatKeyword
+752..784 localDecl
+772..784 literalExpr floatKeyword
+785..906 exprStmt
+785..906 callExpr
+791..905 interpolatedExpr
+794..818 binaryExpr coalesce right 817..818
+794..813 callExpr
+806..812 nameExpr
+817..818 literalExpr integer
+821..847 binaryExpr coalesce right 846..847
+821..842 callExpr
+833..841 nameExpr
+846..847 literalExpr integer
+850..874 binaryExpr coalesce right 873..874
+850..869 callExpr
+862..868 nameExpr
+873..874 literalExpr integer
+877..903 binaryExpr coalesce right 902..903
+877..898 callExpr
+889..897 nameExpr
+902..903 literalExpr integer
+785..906 callExpr
+907..940 localDecl
+927..940 unaryExpr negate operand 928..940
+941..973 localDecl
+961..973 literalExpr floatKeyword
+974..1041 exprStmt
+974..1041 callExpr
+980..1040 interpolatedExpr
+983..1009 binaryExpr coalesce right 1008..1009
+983..1004 callExpr
+995..1003 nameExpr
+1008..1009 literalExpr integer
+1012..1038 binaryExpr coalesce right 1037..1038
+1012..1033 callExpr
+1024..1032 nameExpr
+1037..1038 literalExpr integer
+974..1041 callExpr

@@ -1,0 +1,2 @@
+{"code":"BYN2223","severity":"error","file":"input.byn","span":{"start":25,"end":26,"line":1,"column":26,"endLine":1,"endColumn":27},"message":"tuple element `y` is named `x` in the target type","label":null,"help":null,"fixes":[]}
+{"code":"BYN2223","severity":"error","file":"input.byn","span":{"start":31,"end":32,"line":1,"column":32,"endLine":1,"endColumn":33},"message":"tuple element `x` is named `y` in the target type","label":null,"help":null,"fixes":[]}

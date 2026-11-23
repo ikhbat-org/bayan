@@ -1,0 +1,26 @@
+== tests/cases/run/string-rune-count.byn
+108..291 blockStmt
+114..138 localDecl
+122..138 literalExpr string
+143..209 exprStmt
+143..209 callExpr
+149..208 interpolatedExpr
+152..160 memberExpr
+152..153 nameExpr
+170..181 memberExpr
+170..171 nameExpr
+197..206 memberExpr
+197..198 nameExpr
+143..209 callExpr
+214..289 exprStmt
+214..289 callExpr
+220..288 interpolatedExpr
+223..235 memberExpr
+223..225 literalExpr string
+238..248 memberExpr
+238..240 literalExpr string
+251..268 memberExpr
+251..258 literalExpr string
+271..286 memberExpr
+271..278 literalExpr string
+214..289 callExpr

@@ -1,0 +1,2 @@
+== named diagnostics
+BYN2608 22:17 `FileError | NetError except .denied` is not an error enum

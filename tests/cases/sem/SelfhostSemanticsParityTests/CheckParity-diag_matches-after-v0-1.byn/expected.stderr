@@ -1,0 +1,8 @@
+error BYN2003: `matches` is not a member of `string`
+  --> tmp/t26-tests/cli/diag_matches-after-v0-1.byn/matches-after-v0-1.byn:4:16
+
+  4 │     let ok = s.matches("a")
+    │                ^^^^^^^ `matches` arrives with `std.regex` after v0.1
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

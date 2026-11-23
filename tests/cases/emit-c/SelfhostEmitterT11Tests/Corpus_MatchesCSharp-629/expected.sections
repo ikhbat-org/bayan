@@ -1,0 +1,9 @@
+== cases
+0 byn_mul_i64(p_x, INT64_C(2), byn_file_0, 10)
+1 (p_it > INT64_C(3))
+2 (p_it > INT64_C(3))
+3 byn_add_i64(p_it, INT64_C(1), byn_file_0, 12)
+4 byn_add_i64(byn_mul_i64(p_a, INT64_C(10), byn_file_0, 13), p_b, byn_file_0, 13)
+5 byn_mul_i64(p_a, INT64_C(10), byn_file_0, 13)
+6 byn_add_i64(p_x, p_x, byn_file_0, 15)
+count 7

@@ -1,0 +1,79 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"ope`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:2 CharLiteral `''`
+5:4 Identifier `macro`
+5:10 Identifier `sel`
+5:13 Amp `&`
+5:14 Identifier `ct`
+5:17 Identifier `becmome`
+6:1 Identifier `Å`
+6:4 RawStringLiteral `"""\u{0} `
+6:9 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "ope
+    │         ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0007: empty char literal
+
+  4 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │  �� macro sel&ct becmome
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �� macro sel&ct becmome
+    │   ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │  �� macro sel&ct becmome
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │ Å """� 
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ Å """� 
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  6 │ Å """� 
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

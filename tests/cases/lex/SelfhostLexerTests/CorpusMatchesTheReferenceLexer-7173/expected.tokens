@@ -1,0 +1,50 @@
+1:1 IntegerLiteral `0b__`
+4:5 Identifier `n`
+4:6 StringLiteral `" "`
+4:9 StringLiteral `""`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+6:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allow+= -= *= /= %= &= |= ^= <<=\nKclosed\nb\n `
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���
+    │   ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ \\ \n" """
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ \\ \n" """
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ \\ \n" """
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wide" "� allow+= -= *= /= %= &= |= ^= <<=
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,18 @@
+== tests/cases/diag/unused-value.byn
+13..14 literalExpr integer
+13..14 literalExpr integer
+13..14 literalExpr integer
+28..121 blockStmt
+34..39 exprStmt
+34..39 callExpr
+44..57 localDecl
+52..57 callExpr
+62..82 localDecl
+71..82 callExpr
+87..99 exprStmt
+87..99 callExpr
+87..89 nameExpr
+97..98 literalExpr integer
+104..119 exprStmt
+104..119 callExpr
+104..106 nameExpr

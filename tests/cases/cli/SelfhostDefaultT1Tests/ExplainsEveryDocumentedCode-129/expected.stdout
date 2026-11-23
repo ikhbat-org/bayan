@@ -1,0 +1,15 @@
+# BYN2112: no constructor
+
+**Why.** Structs without a constructor are built with a struct literal, which names each field.
+
+**Example.**
+
+```
+struct Point {
+    i64 x
+    i64 y
+}
+let p = Point(1, 2)
+```
+
+**Fix.** Use a struct literal: `Point { x: 1, y: 2 }`.

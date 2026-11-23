@@ -1,0 +1,49 @@
+1:2 CharLiteral `''`
+2:3 Amp `&`
+2:5 AmpAmp `&&`
+2:8 Bar `|`
+2:10 BarBar `||`
+2:13 Caret `^`
+2:15 Tilde `~`
+2:17 Bang `!`
+2:19 Equals `=`
+2:21 EqualsEquals `==`
+2:24 BangEquals `!=`
+2:27 Less `<`
+2:29 LessEquals `<=`
+2:32 Greater `>`
+2:34 GreaterEquals `>=`
+2:37 LessLess `<<`
+2:40 Greater `>`
+2:41 Greater `>`
+2:43 Greater `>`
+2:44 GreaterEquals `>=`
+    doc `/// Doc line two.`
+7:1 CharLiteral `'\u{D800}'`
+9:1 StringLiteral `"a\u{2067}b"`
+10:1 OpenParen `(`
+10:3 CloseParen `)`
+10:5 OpenBracket `[`
+10:7 CloseBracket `]`
+10:9 OpenBrace `{`
+10:11 CloseBrace `}`
+11:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ �''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  2 │ � & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  7 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

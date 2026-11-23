@@ -1,0 +1,4 @@
+== member.probes.-.v31
+errorExpr|?|-|-|-|-|-|3173:16|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 159:20 `removeRange` is now `remove(from:until:)` |the old name|write `remove(from:until:)`|

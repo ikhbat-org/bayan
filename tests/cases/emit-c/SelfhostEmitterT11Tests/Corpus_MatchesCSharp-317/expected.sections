@@ -1,0 +1,6 @@
+== cases
+0 (l1_seen == ((int32_t)2))
+1 (l1_seen == ((int32_t)2))
+2 byn_mul_i64(p_index, INT64_C(10), byn_file_0, 8)
+3 ((*self).left >= INT64_C(0))
+count 4

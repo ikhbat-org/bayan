@@ -1,0 +1,4 @@
+macro select become
+ let a = $ 1
+
+⁩

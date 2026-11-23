@@ -1,0 +1,100 @@
+1:1 Identifier `ạ̇`
+    doc `/// Doc line two.`
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 ExtensibleKeyword `extensible`
+2:48 InterfaceKeyword `interface`
+2:58 DelegateKeyword `delegate`
+2:67 ExtensionKeyword `extension`
+2:77 Identifier `deriva`
+2:84 Identifier `ion`
+2:88 AttributeKeyword `attribute`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolatedStringText `s�ray } here`
+4:15 InterpolatedStringEnd `"`
+6:1 CharLiteral `''`
+9:2 Identifier `comment`
+9:12 Identifier `hidden`
+10:1 LetKeyword `let`
+10:5 Identifier `x`
+10:8 Equals `=`
+10:10 IntegerLiteral `1`
+11:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ /// Doc line two.
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ /// Doc line two.
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �����$"s�ray } here"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ �����$"s�ray } here"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����$"s�ray } here"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����$"s�ray } here"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����$"s�ray } here"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  4 │ �����$"s�ray } here"
+    │         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ �����$"s�ray } here"
+    │              ^
+    │
+    │ 4 │ �����$"s�ray }} here"
+    │   │               +
+
+error BYN0007: empty char literal
+
+  6 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │  comment � hidden
+    │          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  comment � hidden
+    │   │          -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  10 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ let x� = 1
+     │    │      -

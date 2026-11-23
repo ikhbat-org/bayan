@@ -1,0 +1,12 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+5:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

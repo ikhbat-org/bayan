@@ -1,0 +1,6 @@
+0b__
+ 0b__
+// comment â€® hidden
+let b = "bad \q escape"
+
+let ÿ = 2

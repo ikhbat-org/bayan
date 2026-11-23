@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "PathIsRooted",
+    "Print"
+  ],
+  "diagnostics": []
+}

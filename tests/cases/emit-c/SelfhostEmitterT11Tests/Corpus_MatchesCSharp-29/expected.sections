@@ -1,0 +1,5 @@
+== cases
+0 ((l0_a > INT64_C(1)) && (l1_b < INT64_C(3)))
+1 (l0_a > INT64_C(1))
+2 (l1_b < INT64_C(3))
+count 3

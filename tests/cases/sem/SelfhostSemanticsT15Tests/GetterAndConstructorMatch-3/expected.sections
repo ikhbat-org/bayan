@@ -1,0 +1,7 @@
+== member wrong
+first none
+block 170..171
+  returnStmt 170..171
+    errorExpr 170..171 : ?
+requires 0 infers false
+BYN2202 10:19 expected `bool`, found `i32` |||

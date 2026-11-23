@@ -1,0 +1,15 @@
+== tests/cases/diag/while-let-not-optional.byn
+14..15 literalExpr integer
+14..15 literalExpr integer
+14..15 literalExpr integer
+17..37 globalStatement
+17..37 whileLetStmt
+17..37 whileLetStmt
+31..37 callExpr
+27..28 name
+38..59 blockStmt
+44..57 exprStmt
+44..57 callExpr
+50..56 interpolatedExpr
+53..54 nameExpr
+44..57 callExpr

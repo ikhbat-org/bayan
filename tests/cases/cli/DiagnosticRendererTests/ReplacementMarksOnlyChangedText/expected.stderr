@@ -1,0 +1,22 @@
+warning BYN2311: `xs` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t27-diag/ReplacementMarksOnlyChangedText/input.byn:2:9
+
+  2 │     var xs = List<i64>()
+    │         ^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let xs = List<i64>()
+    │   │     +++
+
+error BYN2230: `add` is now `append`
+  --> <repo>/tmp/t27-diag/ReplacementMarksOnlyChangedText/input.byn:3:8
+
+  3 │     xs.add(1)
+    │        ^^^ the old name
+    │
+  help: rename it `append`
+    │ 3 │     xs.append(1)
+    │   │         ++++
+
+✗ build failed: 1 error, 1 warning
+  explain: bayan explain BYN2230

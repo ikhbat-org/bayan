@@ -1,0 +1,6 @@
+== locals
+check: t t
+positive:
+require: v t t t
+size: t
+main: t t t t t t t t t t t t t t t t

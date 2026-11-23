@@ -1,0 +1,53 @@
+1:1 TrueKeyword `true`
+1:6 FalseKeyword `false`
+1:12 ComptimeKeyword `comptime`
+1:21 CheckedKeyword `checked`
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 Identifier `f`
+2:24 LetKeyword `let`
+2:28 Identifier `café`
+2:34 Equals `=`
+2:36 IntegerLiteral `1`
+3:2 LetKeyword `let`
+3:6 Identifier `x`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+4:2 Identifier `b`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:9 RawStringLiteral `"""never closed\n\n\r\n/// Doc line one.\n\nlet � = 2\n`
+12:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ test assert property f let café = 1
+    │                            ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ test assert property f let café = 1
+    │   │                               +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │  let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  let x� = 1
+    │   │       -
+
+error BYN0003: unterminated string literal
+
+  6 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  11 │ let � = 2
+     │     ^

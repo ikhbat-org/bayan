@@ -1,0 +1,8 @@
+== all
+name tmp/t8-path/work/proj proj
+name tmp/t8-path/work/proj/tool.v2.byn tool.v2
+name tmp/t8-path/work/proj/ proj
+name tmp/t8-path/work/proj// proj
+name tmp/t8-path/work/proj/main.byn proj
+name tmp/t8-path/work/app.d app.d
+name tmp/t8-path/work/missing/x.byn x

@@ -1,0 +1,4 @@
+== diags.diag/value-casing
+BYN2009 1:5 `Total` must be camelCase
+  help rename it `total`; only types are PascalCase
+  fix 1:5-1:10 total

@@ -1,0 +1,14 @@
+== tests/cases/diag/codec-renames.byn
+154..336 blockStmt
+160..188 localDecl
+176..188 collectionExpr
+177..181 literalExpr integer
+183..187 literalExpr integer
+193..225 localDecl
+205..225 callExpr
+230..266 localDecl
+242..266 callExpr
+271..302 localDecl
+279..302 callExpr
+307..334 localDecl
+315..334 tryExpr

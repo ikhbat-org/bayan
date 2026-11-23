@@ -1,0 +1,85 @@
+1:1 IntegerLiteral `0x`
+1:5 CharLiteral `' '`
+1:9 Identifier `n`
+1:10 CharLiteral `' '`
+1:14 Identifier `u`
+1:15 OpenBrace `{`
+1:16 IntegerLiteral `1`
+1:17 NumericSuffix `F600`
+1:21 CloseBrace `}`
+1:22 CharLiteral `' '`
+1:26 CharLiteral `''`
+1:29 CharLiteral `'�`
+3:1 Identifier `struc`
+3:7 Identifier `t`
+3:9 UniqueKeyword `unique`
+3:16 UnionKeyword `union`
+3:22 EnumKeyword `enum`
+3:27 FlagsKeyword `flags`
+3:33 OpenKeyword `open`
+3:38 ExtensibleKeyword `extensible`
+3:49 InterfaceKeyword `interface`
+3:59 DelegateKeyword `delegate`
+3:68 ExtensionKeyword `extension`
+3:78 DerivationKeyword `derivation`
+3:89 AttributeKeyword `attribute`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │ ^^
+
+error BYN0002: unexpected character `﻿`
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │    ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │        ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │                ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │                          ^
+
+error BYN0007: empty char literal
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │                           ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │                              ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ 0x ﻿' '\n' '\u{�1F600}' '\'' '�
+    │                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  3 │ struc�t unique union enum flags open extensible interface delegate extension derivation attribute
+    │      ^

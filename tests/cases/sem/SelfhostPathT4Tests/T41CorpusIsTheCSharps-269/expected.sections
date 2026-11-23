@@ -1,0 +1,4 @@
+== diags.diag/unhandled-failure
+BYN2602 10:9 `parse` can fail; handle the error or pass it on
+  help propagate the error with `try`, or handle it with `catch`
+  fix 10:9-10:9 try 

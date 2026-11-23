@@ -1,0 +1,14 @@
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+3:5 Identifier `comment`
+3:13 Star `*`
+3:14 Slash `/`
+3:16 Identifier `a`
+4:1 EndOfFile

@@ -1,0 +1,34 @@
+error BYN2774: each `@cases` value must be a constant
+  --> tmp/t26-tests/cli/diag_cases-not-constant.byn/cases-not-constant.byn:7:8
+
+  7 │ @cases(limit, next(), 1 + 1, 2)
+    │        ^^^^^ cases from a const list are not supported yet
+    │
+  help: write each case as a tuple literal, such as `@cases((0, false), (1, true))`
+
+error BYN2774: each `@cases` value must be a constant
+  --> tmp/t26-tests/cli/diag_cases-not-constant.byn/cases-not-constant.byn:7:15
+
+  7 │ @cases(limit, next(), 1 + 1, 2)
+    │               ^^^^^^
+    │
+  help: write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+
+error BYN2774: each `@cases` value must be a constant
+  --> tmp/t26-tests/cli/diag_cases-not-constant.byn/cases-not-constant.byn:7:23
+
+  7 │ @cases(limit, next(), 1 + 1, 2)
+    │                       ^^^^^
+    │
+  help: write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+
+error BYN2774: each `@cases` value must be a constant
+  --> tmp/t26-tests/cli/diag_cases-not-constant.byn/cases-not-constant.byn:12:8
+
+  12 │ @cases(discountCases)
+     │        ^^^^^^^^^^^^^ cases from a const list are not supported yet
+     │
+  help: write each case as a tuple literal, such as `@cases((0, false), (1, true))`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2774

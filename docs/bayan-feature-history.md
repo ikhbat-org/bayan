@@ -1,6 +1,6 @@
 # Bayān feature history
 
-Version: 0.3.3-dev (matches `bayan --version`)
+Version: 0.4.0-dev (matches `bayan --version`)
 Revisions applied: 0001–0024
 
 Where each numbered section of `docs/bayan-spec.md` came from, how it changed, and which release built it.

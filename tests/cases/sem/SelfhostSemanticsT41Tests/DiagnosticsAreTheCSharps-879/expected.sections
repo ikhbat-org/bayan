@@ -1,0 +1,9 @@
+== diags.diag/return-on-new-line
+BYN1042 3:9 `return` takes its value on the same line
+  label on the next line
+  help move the value to the line of `return`
+  fix 2:11-3:9  
+BYN1042 10:17 `break` takes its value on the same line
+  label on the next line
+  help move the value to the line of `break`
+  fix 9:18-10:17  

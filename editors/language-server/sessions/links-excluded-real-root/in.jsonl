@@ -1,0 +1,7 @@
+{"fs":"symlink","path":"links/root","target":"root"}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@/root","capabilities":{}}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}
+{"fs":"write","path":"root/src/a.byn","text":"struct Bilal {}\n"}
+{"fs":"write","path":"root/tmp/a.byn","text":"struct Hidden {}\n"}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/links/root/src/a.byn","type":1},{"uri":"file://@WS@/links/root/tmp/a.byn","type":1}]}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

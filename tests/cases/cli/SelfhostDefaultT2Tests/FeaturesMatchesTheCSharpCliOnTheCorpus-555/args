@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/fail-from-infallible.byn
+--package
+<repo>/tests/cases/diag

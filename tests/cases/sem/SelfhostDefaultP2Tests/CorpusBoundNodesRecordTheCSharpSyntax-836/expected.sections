@@ -1,0 +1,5 @@
+== tests/cases/diag/state-shadows-static.byn
+107..130 structLiteralExpr
+107..130 structLiteralExpr
+107..130 structLiteralExpr
+127..128 literalExpr integer

@@ -1,0 +1,3 @@
+tool.byn	--color	sometimes
+--color	never	tool.byn	--color	sometimes
+--ascii	tool.byn	--color	sometimes

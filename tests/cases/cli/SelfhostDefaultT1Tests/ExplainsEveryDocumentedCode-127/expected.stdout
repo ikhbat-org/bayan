@@ -1,0 +1,14 @@
+# BYN2110: field set twice
+
+**Why.** Each field gets one value in a struct literal; a second one would silently win.
+
+**Example.**
+
+```
+struct Point {
+    i64 x
+}
+let p = Point { x: 1, x: 2 }
+```
+
+**Fix.** Remove one of them.

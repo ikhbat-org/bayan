@@ -1,0 +1,437 @@
+// 019 T29 (coverage ratchet): quality.byn paths no golden case reaches in process: the coverage report of a counter map with
+// some counters hit, finished and timed out, its JSON, listing and summary, `gatesFmt` and `qualityJsonNumber` on each digit
+// shape, and the mark warnings for a mark outside the sources and one past a multi-byte character. The expected values are
+// the output of the self-hosted driver at the commit that added the test.
+
+import emitter
+import lexer
+import semantics
+
+/// `emitter.CoverageCounter`, named here so a test can build a counter map by hand.
+type T29CoverageCounter = emitter.CoverageCounter
+
+/// A program with a line, a branch and an error path on each of its first lines.
+const t29QualityText: string = "union error E {\n    bad\n}\n\ni64 check(i64 n) fails E {\n    fail .bad if n < 0\n    return n\n}\n\nlet r = check(1) catch switch {\n    E.bad => 0\n}\nprint(r > 0 ? \"pos\" : \"neg\")\n"
+
+/// The counter map of `t29QualityText` and the hits of every other counter.
+emitter.CoverageMap t29QualityMap(ref Map<i64, u64> hits) uses alloc, clock, fs {
+    let dir = Path.combine(Path.fullPath("tmp"), "quality-t29")
+    goldenWrite(dir, for: "main.byn", as: t29QualityText)
+    var c = semantics.fromPath(Path.combine(dir, "main.byn"), by: T5CompilationOptions {}, wholeDirectory: false)
+    var l = T11LCtx {}
+    let map = t5Instrument(ref c, to: ref l)
+    for k in 0..map.counters.length {
+        if k % 2 == 0 {
+            hits[map.counters[k].id] = 1
+        }
+    }
+    return map
+}
+
+test "driver t29: qualityCoverage, its JSON, listing and summary with some counters hit" {
+    var hits: Map<i64, u64> = []
+    let map = t29QualityMap(ref hits)
+    let f = Path.combine(Path.combine(Path.fullPath("tmp"), "quality-t29"), "main.byn")
+    // the path as JSON writes it: a Windows path's `\` is escaped
+    let fj = f.replaced("\\", by: "\\\\")
+    let report = qualityCoverage("t29", by: in map, from: in hits, for: false, through: 1500000000, as: 2500000000)
+    let json = """
+        {
+          "version": 1,
+          "kind": "coverage",
+          "tool": "t29",
+          "timing": {
+            "build_s": 1.5,
+            "total_s": 2.5
+          },
+          "files": [
+            {
+              "path": "<f>",
+              "lines": {
+                "covered": 3,
+                "total": 4,
+                "missed": [
+                  10
+                ],
+                "unknown": []
+              },
+              "branches": {
+                "covered": 2,
+                "total": 4,
+                "missed": [
+                  {
+                    "line": 6,
+                    "column": 18,
+                    "outcome": true
+                  },
+                  {
+                    "line": 13,
+                    "column": 7,
+                    "outcome": true
+                  }
+                ],
+                "unknown": []
+              },
+              "errorPaths": [
+                {
+                  "function": "check",
+                  "variant": "E.bad",
+                  "hit": false,
+                  "origins": []
+                }
+              ]
+            }
+          ],
+          "totals": {
+            "lines": {
+              "covered": 3,
+              "total": 4
+            },
+            "branches": {
+              "covered": 2,
+              "total": 4
+            },
+            "errorPaths": {
+              "covered": 0,
+              "total": 1
+            }
+          }
+        }
+
+        """
+    t29Same(qualityJson(in report).replaced(fj, by: "<f>"), as: json)
+    t29Same(
+        qualityCoverageSummary(in report).replaced(f, by: "<f>"),
+        as: "coverage: lines 3/4 (75%), branches 2/4 (50%), error paths 0/1 (0%)\n  <f>: lines 3/4, branches 2/4, error paths 0/1\nuncovered branch: <f>:6:18 never true\nuncovered branch: <f>:13:7 never true\nuncovered error path: <f>: check E.bad\n",
+    )
+    let listing = "  union error E {\n      bad\n  }\n  \n  i64 check(i64 n) fails E {\n+     fail .bad if n < 0\n+     return n\n  }\n  \n- let r = check(1) catch switch {\n      E.bad => 0\n  }\n+ print(r > 0 ? \"pos\" : \"neg\")\n"
+    t29Same(qualityListing(in report.files[0], from: t11ReadAllLines(t29QualityText)), as: listing)
+    let timedOut = qualityCoverage("t29", by: in map, from: in hits, for: true, through: 0, as: 0)
+    let timedOutJson = """
+        {
+          "version": 1,
+          "kind": "coverage",
+          "tool": "t29",
+          "timing": {
+            "build_s": 0,
+            "total_s": 0
+          },
+          "files": [
+            {
+              "path": "<f>",
+              "lines": {
+                "covered": 3,
+                "total": 4,
+                "missed": [],
+                "unknown": [
+                  10
+                ]
+              },
+              "branches": {
+                "covered": 2,
+                "total": 4,
+                "missed": [],
+                "unknown": [
+                  {
+                    "line": 6,
+                    "column": 18,
+                    "outcome": true
+                  },
+                  {
+                    "line": 13,
+                    "column": 7,
+                    "outcome": true
+                  }
+                ]
+              },
+              "errorPaths": [
+                {
+                  "function": "check",
+                  "variant": "E.bad",
+                  "hit": false,
+                  "unknown": true,
+                  "origins": []
+                }
+              ]
+            }
+          ],
+          "totals": {
+            "lines": {
+              "covered": 3,
+              "total": 4
+            },
+            "branches": {
+              "covered": 2,
+              "total": 4
+            },
+            "errorPaths": {
+              "covered": 0,
+              "total": 1
+            }
+          }
+        }
+
+        """
+    t29Same(qualityJson(in timedOut).replaced(fj, by: "<f>"), as: timedOutJson)
+    t29Same(
+        qualityCoverageSummary(in timedOut).replaced(f, by: "<f>"),
+        as: "coverage: lines 3/4 (75%), branches 2/4 (50%), error paths 0/1 (0%)\n  <f>: lines 3/4, branches 2/4, error paths 0/1\nunknown branch: <f>:6:18 never true\nunknown branch: <f>:13:7 never true\nunknown error path: <f>: check E.bad\n",
+    )
+    t29Same(
+        qualityListing(in timedOut.files[0], from: t11ReadAllLines(t29QualityText)),
+        as: "  union error E {\n      bad\n  }\n  \n  i64 check(i64 n) fails E {\n+     fail .bad if n < 0\n+     return n\n  }\n  \n~ let r = check(1) catch switch {\n      E.bad => 0\n  }\n+ print(r > 0 ? \"pos\" : \"neg\")\n",
+    )
+    let none: Map<i64, u64> = []
+    let noneReport = qualityCoverage("t29", by: in map, from: in none, for: false, through: 0, as: 0)
+    t29Same(
+        qualityCoverageSummary(in noneReport).replaced(f, by: "<f>"),
+        as: "coverage: lines 0/4 (0%), branches 0/4 (0%), error paths 0/1 (0%)\n  <f>: lines 0/4, branches 0/4, error paths 0/1\nuncovered branch: <f>:6:18 never true\nuncovered branch: <f>:6:18 never false\nuncovered branch: <f>:13:7 never true\nuncovered branch: <f>:13:7 never false\nuncovered error path: <f>: check E.bad\n",
+    )
+    deleteWorkDir(Path.combine(Path.fullPath("tmp"), "quality-t29"))
+}
+
+test "driver t29: gatesFmt and t11Has on each digit shape" {
+    t29Same(gatesFmt(1, by: 3), as: "33.333")
+    t29Same(gatesFmt(1, by: 200), as: "0.5")
+    t29Same(gatesFmt(1, by: 2000), as: "0.05")
+    t29Same(gatesFmt(1, by: 20000), as: "0.005")
+    t29Same(gatesFmt(1, by: 1), as: "100")
+    var xs = List<i64>()
+    xs.append(1)
+    xs.append(2)
+    assert t11Has(in xs, for: 2) && !t11Has(in xs, for: 3)
+}
+
+test "driver t29: qualityJsonNumber in exponent form and with trailing zeros" {
+    t29Same(qualityJsonNumber(0.0000001), as: "1E-07")
+    t29Same(qualityJsonNumber(1.5e17), as: "1.5E+17")
+    t29Same(qualityJsonNumber(1e20), as: "1E+20")
+    t29Same(qualityJsonNumber(100000.0), as: "100000")
+    t29Same(qualityJsonNumber(0.0), as: "0")
+    t29Same(qualityJsonNumber(0.25), as: "0.25")
+}
+
+test "driver t29: qualityWarnings for a mark outside the sources and one past a multi-byte character" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let empty = List<lexer.SourceText>()
+    t29Same(
+        qualityWarnings(in qrResults(in schema, by: false), by: in schema, for: in c, from: in empty).joined(by: "\n"),
+        as: "warning: lib.test.byn:0:0: the mark covers no mutant (`no test can see it`)\nwarning: lib.test.byn:0:0: the mark covers no mutant (`nothing to mutate`)",
+    )
+    let text = "i64 f(i64 n) {\n    @unobservable(literal) because \"é\"\n    let k = \"é\".length > n ? 1 : 2\n    return k\n}\n"
+    var marked = qrBuild(text)
+    let markedSchema = emitter.buildSchema(ref marked, for: in none)
+    t29Same(
+        qualityWarnings(
+            in qrResults(in markedSchema, by: false),
+            by: in markedSchema,
+            for: in marked,
+            from: in qrSources(text),
+        )
+            .joined(by: "\n"),
+        as: "",
+    )
+}
+
+test "driver t29: qualityCoverage of a hand-built map over two files, a std file and hit error paths" {
+    var counters = List<T29CoverageCounter>()
+    counters.append(T29CoverageCounter { id: 1, kind: "line", file: "<std>/s.byn", line: 1, column: 1 })
+    counters.append(T29CoverageCounter { id: 2, kind: "line", file: "a.byn", line: 1, column: 1 })
+    counters.append(T29CoverageCounter { id: 3, kind: "line", file: "a.byn", line: 2, column: 1 })
+    counters.append(T29CoverageCounter { id: 4, kind: "line", file: "a.byn", line: 2, column: 5 })
+    counters.append(T29CoverageCounter { id: 5, kind: "line", file: "b.byn", line: 1, column: 1 })
+    counters.append(T29CoverageCounter { id: 6, kind: "branch", file: "a.byn", line: 1, column: 5, outcome: true })
+    counters.append(T29CoverageCounter { id: 7, kind: "branch", file: "b.byn", line: 1, column: 3, outcome: false })
+    counters.append(
+        T29CoverageCounter {
+            id: 8,
+            kind: "error",
+            file: "a.byn",
+            line: 1,
+            column: 1,
+            function: "f",
+            variant: "E.x",
+            origin: "fail",
+        },
+    )
+    counters.append(
+        T29CoverageCounter {
+            id: 9,
+            kind: "error",
+            file: "a.byn",
+            line: 2,
+            column: 3,
+            function: "f",
+            variant: "E.x",
+            origin: "try",
+        },
+    )
+    counters.append(T29CoverageCounter { id: 10, kind: "error", file: "b.byn", line: 1, column: 1 })
+    let map = T11CoverageMap { counters: move counters }
+    let hits: Map<i64, u64> = [2: 1, 4: 1, 6: 1, 8: 1, 9: 1]
+    let report = qualityCoverage("t29", by: in map, from: in hits, for: false, through: 0, as: 0)
+    let json = """
+        {
+          "version": 1,
+          "kind": "coverage",
+          "tool": "t29",
+          "timing": {
+            "build_s": 0,
+            "total_s": 0
+          },
+          "files": [
+            {
+              "path": "a.byn",
+              "lines": {
+                "covered": 1,
+                "total": 2,
+                "missed": [
+                  2
+                ],
+                "unknown": []
+              },
+              "branches": {
+                "covered": 1,
+                "total": 1,
+                "missed": [],
+                "unknown": []
+              },
+              "errorPaths": [
+                {
+                  "function": "f",
+                  "variant": "E.x",
+                  "hit": true,
+                  "origins": [
+                    "fail 1:1",
+                    "try 2:3"
+                  ]
+                }
+              ]
+            },
+            {
+              "path": "b.byn",
+              "lines": {
+                "covered": 0,
+                "total": 1,
+                "missed": [
+                  1
+                ],
+                "unknown": []
+              },
+              "branches": {
+                "covered": 0,
+                "total": 1,
+                "missed": [
+                  {
+                    "line": 1,
+                    "column": 3,
+                    "outcome": false
+                  }
+                ],
+                "unknown": []
+              },
+              "errorPaths": [
+                {
+                  "function": "",
+                  "variant": "",
+                  "hit": false,
+                  "origins": []
+                }
+              ]
+            }
+          ],
+          "totals": {
+            "lines": {
+              "covered": 1,
+              "total": 3
+            },
+            "branches": {
+              "covered": 1,
+              "total": 2
+            },
+            "errorPaths": {
+              "covered": 1,
+              "total": 2
+            }
+          }
+        }
+
+        """
+    t29Same(qualityJson(in report), as: json)
+    let timedOut = qualityCoverage("t29", by: in map, from: in hits, for: true, through: 0, as: 0)
+    t29Same(
+        $"{qualityCoverageSummary(in report)}--\n{qualityCoverageSummary(in timedOut)}",
+        as: "coverage: lines 1/3 (33.333%), branches 1/2 (50%), error paths 1/2 (50%)\n  a.byn: lines 1/2, branches 1/1, error paths 1/1\n  b.byn: lines 0/1, branches 0/1, error paths 0/1\nuncovered branch: b.byn:1:3 never false\nuncovered error path: b.byn:  \n--\ncoverage: lines 1/3 (33.333%), branches 1/2 (50%), error paths 1/2 (50%)\n  a.byn: lines 1/2, branches 1/1, error paths 1/1\n  b.byn: lines 0/1, branches 0/1, error paths 0/1\nunknown branch: b.byn:1:3 never false\nunknown error path: b.byn:  \n",
+    )
+}
+
+test "driver t29: qualityWarnings finds the marked file among other sources" {
+    let text = "i64 f(i64 n) {\n    @unobservable(literal) because \"x\"\n    let k = 7 > n ? 1 : 2\n    return k\n}\n"
+    var marked = qrBuild(text)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref marked, for: in none)
+    var sources = List<lexer.SourceText>()
+    let paths = ["other.byn", "lib.test.byn", "later.byn"]
+    let bodies = ["x", text, "x"]
+    for i in 0..3 {
+        var bytes = List<u8>()
+        for b in bodies[i].bytes {
+            bytes.append(b)
+        }
+        sources.append(lexer.SourceText.create(paths[i], from: move bytes))
+    }
+    t29Same(
+        qualityWarnings(
+            in qrResults(in schema, by: false),
+            by: in schema,
+            for: in marked,
+            from: in sources,
+        ).joined(by: "\n"),
+        as: "",
+    )
+}
+
+/// `emitter.Schema` and `emitter.SchemaSite`, named here so a test can build a schema by hand.
+type T29Schema     = emitter.Schema
+type T29SchemaSite = emitter.SchemaSite
+
+test "driver t29: qrResults of not-emitted marked sites and qualityInMark across files and past the end of the source" {
+    let text = "i64 f(i64 n) {\n    @unobservable(literal) because \"x\"\n    let k = 7 > n ? 1 : 2\n    return k\n}\n"
+    var marked = qrBuild(text)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref marked, for: in none)
+    var hidden = T29Schema {}
+    for s in schema.sites {
+        hidden.sites.append(T29SchemaSite { id: s.id, site: s.site, emitted: false, unobservable: "x" })
+    }
+    var statuses = List<string>()
+    for m in qrResults(in hidden, by: true).mutants {
+        statuses.append($"{m.site.op}={m.status}")
+    }
+    t29Same(
+        statuses.joined(by: " "),
+        as: "boundary=survived relational=killed literal=notEmitted literal=notEmitted literal=notEmitted literal=notEmitted literal=notEmitted literal=notEmitted emptyReturn=notEmitted",
+    )
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var source = lexer.SourceText.create("lib.test.byn", from: move bytes)
+    let mark = marked.unobservable[0]
+    var elsewhere = schema.sites[2].site
+    elsewhere.file = "other.byn"
+    var past = schema.sites[2].site
+    past.column = 1000
+    var inside = List<string>()
+    for s in schema.sites {
+        inside.append($"{s.site.line}:{s.site.column}={qualityInMark(in mark, for: in s.site, through: ref source)}")
+    }
+    inside.append($"elsewhere={qualityInMark(in mark, for: in elsewhere, through: ref source)}")
+    inside.append($"past={qualityInMark(in mark, for: in past, through: ref source)}")
+    t29Same(
+        inside.joined(by: " "),
+        as: "3:13=false 3:13=false 3:13=true 3:13=true 3:21=true 3:21=true 3:25=true 3:25=true 4:12=false elsewhere=false past=false",
+    )
+}

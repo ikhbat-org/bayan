@@ -1,0 +1,4 @@
+== const SA
+const SA i32[3] value - static false elements 0
+errorExpr 804..806 : ?
+BYN2001 58:20 `zz` is not defined |||

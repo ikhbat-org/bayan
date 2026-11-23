@@ -1,0 +1,19 @@
+== tests/cases/run/slice-inclusive-max.byn
+107..125 globalStatement
+107..125 localDecl
+116..125 collectionExpr
+117..118 literalExpr integer
+120..121 literalExpr integer
+123..124 literalExpr integer
+126..158 localDecl
+139..158 literalExpr integer
+159..192 exprStmt
+159..192 callExpr
+165..191 interpolatedExpr
+168..189 memberExpr
+168..182 indexExpr
+168..175 memberExpr
+168..170 nameExpr
+176..177 literalExpr integer
+180..181 nameExpr
+159..192 callExpr

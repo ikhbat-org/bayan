@@ -1,0 +1,11 @@
+CompilationUnit
+  ErrorEnum ConfigError
+    Variant zero @exitCode 0 doc `Zero means success.`
+    Variant large @exitCode 300 doc `Too large.`
+    Variant missing @exitCode doc `No argument.`
+    Variant text @exitCode "x" doc `Not an integer.`
+    Variant two @exitCode 1 2 doc `Two arguments.`
+    Variant repeated @exitCode 4 @exitCode 5 doc `Repeated.`
+  Function main() -> void fails ConfigError
+    Block
+      Fail .zero

@@ -1,0 +1,21 @@
+1:1 Identifier `i`
+1:2 StringLiteral `"`
+    doc `/// Doc line one.`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ i"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ // comment �� hiddnW
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  3 │ // comment �� hiddnW
+    │             ^

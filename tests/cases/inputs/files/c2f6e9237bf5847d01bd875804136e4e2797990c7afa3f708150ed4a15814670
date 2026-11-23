@@ -1,0 +1,5 @@
+let a = 'x'
+let b = '\n'
+let c = '\u{1F600}'
+let d = ''
+let e = 'ab'

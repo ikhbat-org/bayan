@@ -1,0 +1,5 @@
+== cases
+2 bynh_try_parse_opt_f64(l0_s)
+3 bynh_try_parse_opt_f64(l3_s)
+4 bynh_try_parse_opt_f32(l6_s)
+count 5

@@ -1,0 +1,10 @@
+error BYN1052: `except` takes a pattern, not a condition
+  --> tmp/t26-tests/cli/diag_except-not-pattern.byn/except-not-pattern.byn:2:22
+
+  2 │     if n is 0 except n > 3 {
+    │                      ^^^^^ a condition
+    │
+  help: use `where` for a condition
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1052

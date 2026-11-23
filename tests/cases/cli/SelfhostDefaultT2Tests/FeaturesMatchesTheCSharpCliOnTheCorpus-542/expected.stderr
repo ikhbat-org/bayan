@@ -1,0 +1,5 @@
+error BYN2208: `==` cannot be applied to `ListError` and `ListError`
+  --> <repo>/tests/cases/diag/error-equality-list-payload.byn:9:14
+
+  9 │     print($"{l == m}")
+    │              ^^^^^^

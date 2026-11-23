@@ -1,0 +1,8 @@
+void main() uses alloc {
+    let d: string? = Path.directoryName("/a/b")
+    let c = Path.combine("/a", "b")
+    let f = Path.fullPath("x")
+    print(c)
+    print(f)
+    print(d ?? "")
+}

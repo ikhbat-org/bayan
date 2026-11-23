@@ -1,0 +1,3 @@
+== bag io-read-escapes-context
+BYN3002 9:20 arena `arena` does not live as long as `text`, which borrows it |arena `arena` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|
+BYN3002 10:21 arena `arena` does not live as long as `bytes`, which borrows it |arena `arena` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

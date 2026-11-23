@@ -1,0 +1,2 @@
+== diags.diag/coalesce-break-outside-loop
+BYN2406 3:20 `break` outside a loop

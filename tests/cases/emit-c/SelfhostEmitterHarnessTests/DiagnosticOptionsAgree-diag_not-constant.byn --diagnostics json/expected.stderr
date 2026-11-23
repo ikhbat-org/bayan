@@ -1,0 +1,1 @@
+{"code":"BYN2219","severity":"error","file":"input.byn","span":{"start":35,"end":44,"line":3,"column":16,"endLine":3,"endColumn":25},"message":"a `const` must be a compile-time constant","label":null,"help":null,"fixes":[]}

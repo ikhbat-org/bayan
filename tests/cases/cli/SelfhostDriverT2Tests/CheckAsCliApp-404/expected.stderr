@@ -1,0 +1,22 @@
+error BYN2209: strings cannot be joined with `+`; use interpolation
+  --> <repo>/tmp/t2/diag/string-concat-literals/string-concat-literals.byn:1:19
+
+  1 │ const a: string = "a" + "b"
+    │                   ^^^^^^^^^
+    │
+  help: write one literal: `"ab"`
+    │ 1 │ const a: string = "a" + "b"
+    │   │                     -----
+
+error BYN2209: strings cannot be joined with `+`; use interpolation
+  --> <repo>/tmp/t2/diag/string-concat-literals/string-concat-literals.byn:2:19
+
+  2 │ const b: string = "x{" + "}\n"
+    │                   ^^^^^^^^^^^^
+    │
+  help: write one literal: `"x{}\n"`
+    │ 2 │ const b: string = "x{" + "}\n"
+    │   │                      -----
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2209

@@ -1,0 +1,8 @@
+4:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ /*struct S
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

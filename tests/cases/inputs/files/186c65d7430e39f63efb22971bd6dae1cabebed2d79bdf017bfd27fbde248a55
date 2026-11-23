@@ -1,0 +1,4 @@
+1_
+ 'a' '\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'
+ $"x{ $"{fails try catch never noalloc nosuspend suspends asyn­c await
+

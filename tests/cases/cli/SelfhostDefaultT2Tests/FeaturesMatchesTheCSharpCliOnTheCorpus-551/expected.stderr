@@ -1,0 +1,7 @@
+error BYN8006: `expects` reads `name`, which is `Untrusted`; a violation would trap on outside data
+  --> <repo>/tests/cases/diag/expects-reads-untrusted.byn:1:55
+
+  1 │ i64 fit(Untrusted<string> name, by i64 limit) expects name.length <= limit {
+    │                                                       ^^^^
+    │
+  help: validate `name` with a type that has `requires` before the call

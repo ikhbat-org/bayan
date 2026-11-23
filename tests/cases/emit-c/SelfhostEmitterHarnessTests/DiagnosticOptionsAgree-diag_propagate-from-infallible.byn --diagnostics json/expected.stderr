@@ -1,0 +1,1 @@
+{"code":"BYN2604","severity":"error","file":"input.byn","span":{"start":155,"end":167,"line":11,"column":12,"endLine":11,"endColumn":24},"message":"`total` cannot fail, so it cannot pass on `ParseError`","label":null,"help":"handle the error with `catch`, or declare `fails ParseError`","fixes":[]}

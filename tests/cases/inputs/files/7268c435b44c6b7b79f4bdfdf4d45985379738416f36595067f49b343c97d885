@@ -1,0 +1,10 @@
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    grammar: Grammar {
+        nouns: ["criterion", "sku", "box", "quiz", "batch", "wish", "story", "tray", "torch"],
+        verbs: ["ship"],
+        collectives: ["Ledger"],
+        forms: ["criterion": "criteria", "sku": "skus", "ship": "shipped"],
+    },
+}

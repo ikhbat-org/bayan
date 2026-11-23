@@ -1,0 +1,61 @@
+== structs
+diag BYN2805 4:20 `S` lists `IShape` twice | already listed | remove the second `IShape`
+diag BYN2002 4:36 unknown type `Missing` |  | 
+diag BYN2804 4:45 `NotI` is not an interface | a struct | list an `interface` here
+diag BYN2108 5:18 required field `r` has a default value |  | 
+diag BYN2006 8:9 `x` is declared twice | already declared on line 7 | 
+diag BYN2006 12:9 `area` is declared twice | already declared on line 11 | 
+diag BYN2006 15:10 `m` is declared twice | already declared on line 14 | 
+diag BYN2022 17:12 generic methods is not supported in v0.1 |  | declare a generic free function, or make the struct generic
+diag BYN2022 18:5 this kind of struct member is not supported in v0.1 |  | 
+diag BYN2022 20:5 overloaded constructors is not supported in v0.1 |  | 
+diag BYN2006 21:9 `m` is declared twice | already declared on line 14 | 
+diag BYN2009 22:10 `Bad` must be camelCase |  | rename it `bad`; only types are PascalCase
+diag BYN2009 23:9 `Bad2` must be camelCase |  | rename it `bad2`; only types are PascalCase
+diag BYN2022 28:12 generic methods is not supported in v0.1 |  | declare a generic free function, or make the struct generic
+diag BYN2022 29:12 generic methods is not supported in v0.1 |  | declare a generic free function, or make the struct generic
+diag BYN2805 35:21 `H` lists `IG<i64>` twice | already listed | remove the second `IG<i64>`
+struct NotI
+struct S
+  base IShape 4:12+6
+  base IOther 4:28+6
+  field r i64 module required=True default=True at=5:18
+  field r2 i64 module required=True default=False at=6:18
+  field x i64 module required=False default=False at=7:9
+  field pub i64 public required=False default=False at=9:16
+  field priv i64 private required=False default=False at=10:17
+  field Bad2 i64 module required=False default=False at=23:9
+  property area i64 module at=11:9 getter=area getter module static=False at=11:9 file=tmp/t12-cases/structs/main.byn map=[] ret=i64 ()
+  property label string public at=13:19 getter=label getter public static=False at=13:19 file=tmp/t12-cases/structs/main.byn map=[] ret=string ()
+  method m method module static=False at=14:10 file=tmp/t12-cases/structs/main.byn map=[]
+  method sm method public static=True at=16:24 file=tmp/t12-cases/structs/main.byn map=[]
+  method g method module static=False at=17:10 file=tmp/t12-cases/structs/main.byn map=[T]
+  method Bad method module static=False at=22:10 file=tmp/t12-cases/structs/main.byn map=[]
+  constructor S constructor module static=False at=19:5 file=tmp/t12-cases/structs/main.byn map=[] ret=S ()
+struct G
+  field v T module required=False default=False at=26:7
+  property all List<T> module at=30:13 getter=all getter module static=False at=30:13 file=tmp/t12-cases/structs/main.byn map=[T] ret=List<T> ()
+  method h method module static=False at=27:10 file=tmp/t12-cases/structs/main.byn map=[T]
+  method k method module static=False at=28:10 file=tmp/t12-cases/structs/main.byn map=[T,U]
+  method t method module static=False at=29:10 file=tmp/t12-cases/structs/main.byn map=[T]
+  constructor G constructor module static=False at=31:5 file=tmp/t12-cases/structs/main.byn map=[T] ret=G<T> ()
+struct E
+struct H
+  base IG 35:12+7
+  constructor H constructor public static=False at=36:12 file=tmp/t12-cases/structs/main.byn map=[] ret=H ()
+all area getter module static=False at=11:9 file=tmp/t12-cases/structs/main.byn map=[] ret=i64 ()
+all area getter module static=False at=12:9 file=tmp/t12-cases/structs/main.byn map=[] ret=i64 ()
+all label getter public static=False at=13:19 file=tmp/t12-cases/structs/main.byn map=[] ret=string ()
+all m method module static=False at=14:10 file=tmp/t12-cases/structs/main.byn map=[]
+all m method module static=False at=15:10 file=tmp/t12-cases/structs/main.byn map=[]
+all sm method public static=True at=16:24 file=tmp/t12-cases/structs/main.byn map=[]
+all g method module static=False at=17:10 file=tmp/t12-cases/structs/main.byn map=[T]
+all S constructor module static=False at=19:5 file=tmp/t12-cases/structs/main.byn map=[] ret=S ()
+all S constructor module static=False at=20:5 file=tmp/t12-cases/structs/main.byn map=[] ret=S ()
+all Bad method module static=False at=22:10 file=tmp/t12-cases/structs/main.byn map=[]
+all h method module static=False at=27:10 file=tmp/t12-cases/structs/main.byn map=[T]
+all k method module static=False at=28:10 file=tmp/t12-cases/structs/main.byn map=[T,U]
+all t method module static=False at=29:10 file=tmp/t12-cases/structs/main.byn map=[T]
+all all getter module static=False at=30:13 file=tmp/t12-cases/structs/main.byn map=[T] ret=List<T> ()
+all G constructor module static=False at=31:5 file=tmp/t12-cases/structs/main.byn map=[T] ret=G<T> ()
+all H constructor public static=False at=36:12 file=tmp/t12-cases/structs/main.byn map=[] ret=H ()

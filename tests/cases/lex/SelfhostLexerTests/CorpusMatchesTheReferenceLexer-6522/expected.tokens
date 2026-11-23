@@ -1,0 +1,54 @@
+1:1 CharLiteral `'\u{202E}'`
+    doc `/// Doc line two.`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `str\u{2}y } he=e`
+2:16 InterpolatedStringEnd `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolationEnd `}`
+5:5 InterpolatedStringEnd `"`
+5:7 Greater `>`
+5:9 GreaterEquals `>=`
+5:12 LessLess `<<`
+5:15 Greater `>`
+5:16 Greater `>`
+5:18 Greater `>`
+5:19 GreaterEquals `>=`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'/// Doc line two.
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'/// Doc line two.
+    │   │  -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │  $"str�y } he=e"
+    │          ^
+    │
+    │ 2 │  $"str�y }} he=e"
+    │   │           +
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │ += -= *=  �
+    │           ^

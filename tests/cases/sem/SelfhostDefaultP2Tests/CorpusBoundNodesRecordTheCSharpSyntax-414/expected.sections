@@ -1,0 +1,4 @@
+== tests/cases/diag/default-reads-field.byn
+53..61 binaryExpr mul right 60..61
+53..61 binaryExpr mul right 60..61
+53..61 binaryExpr mul right 60..61

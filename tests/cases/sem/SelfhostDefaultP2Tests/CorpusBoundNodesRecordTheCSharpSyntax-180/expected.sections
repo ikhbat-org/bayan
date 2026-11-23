@@ -1,0 +1,16 @@
+== tests/cases/run/main-args.byn
+112..195 blockStmt
+118..151 exprStmt
+118..151 callExpr
+124..150 interpolatedExpr
+127..138 memberExpr
+127..131 nameExpr
+118..151 callExpr
+156..193 forStmt
+167..171 nameExpr
+172..193 blockStmt
+174..191 exprStmt
+174..191 callExpr
+180..190 interpolatedExpr
+184..187 nameExpr
+174..191 callExpr

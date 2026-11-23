@@ -1,0 +1,7 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+3:1 EndOfFile

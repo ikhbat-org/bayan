@@ -1,0 +1,62 @@
+error BYN1001: expected a struct name, found keyword `union`
+  --> input.byn:1:15
+
+  1 │ struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │               ^^^^^
+
+error BYN1029: an error set is declared `union error unit = A, B`
+  --> input.byn:2:1
+
+  2 │ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^^^^^^^^ the input form
+    │
+  help: write `union error`, with `,` between the members
+    │ 2 │ union error unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   │ +++++++++++
+
+error BYN1005: expected a line break after the statement
+  --> input.byn:2:15
+
+  2 │ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │               ^ found keyword `distinct`
+    │
+  help: put the next statement on its own line
+    │ 2 │ error set unit
+    │ 3 │ distinct type import as public private static readonly required const let var embed extern unsafe
+
+error BYN1001: expected `=`, found keyword `distinct`
+  --> input.byn:2:16
+
+  2 │ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                ^^^^^^^^
+
+error BYN1004: expected a field, property, constructor or method, found keyword `if`
+  --> input.byn:3:1
+
+  3 │ if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │ ^^
+
+warning BYN5103: a line starting with `fails` joins the statement above; indent it deeper
+  --> input.byn:4:1
+
+  4 │ fails try catch never noalloc nosuspend suspends async await
+    │ ^^^^^ joins the statement on line 3
+    │
+  help: indent it deeper than the line its statement starts on
+    │ 4 │     fails try catch never noalloc nosuspend suspends async await
+    │   │ ++++
+
+error BYN1004: expected a field, property, constructor or method, found keyword `test`
+  --> input.byn:6:1
+
+  6 │ test assert property fuzz model foreach new goto
+    │ ^^^^
+
+error BYN1001: expected `}`, found end of file
+  --> input.byn:7:1
+
+  7 │ 
+    │ ^
+
+✗ build failed: 7 errors, 1 warning
+  explain: bayan explain BYN1001

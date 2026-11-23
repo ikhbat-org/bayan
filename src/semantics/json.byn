@@ -93,7 +93,7 @@ string t26DiagnosticJson(in Ctx c, for in Diag d) {
 }
 
 /// DiagnosticJson.cs:61 `RenderAll`: one object per line, each line ending in `\n`.
-string t26DiagnosticJsonAll(in Ctx c, from in List<Diag> diags) {
+public string t26DiagnosticJsonAll(in Ctx c, from in List<Diag> diags) uses alloc {
     var sb = StrBuf()
     for d in diags {
         sb.append(t26DiagnosticJson(in c, for: in d))

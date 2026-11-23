@@ -1,0 +1,15 @@
+== tests/cases/diag/lambda-arity.byn
+34..41 callExpr
+34..41 callExpr
+34..41 callExpr
+34..35 nameExpr
+36..37 literalExpr integer
+39..40 literalExpr integer
+55..157 blockStmt
+61..84 localDecl
+71..84 callExpr
+77..83 lambdaExpr
+89..117 localDecl
+111..117 lambdaExpr
+122..155 localDecl
+144..155 lambdaExpr

@@ -1,0 +1,53 @@
+== tests/cases/run/string-copies.byn
+67..361 blockStmt
+73..111 exprStmt
+73..111 callExpr
+79..110 callExpr
+79..86 literalExpr string
+96..99 literalExpr string
+105..109 literalExpr string
+73..111 callExpr
+116..152 exprStmt
+116..152 callExpr
+122..151 callExpr
+122..127 literalExpr string
+137..141 literalExpr string
+147..150 literalExpr string
+116..152 callExpr
+157..208 exprStmt
+157..208 callExpr
+163..207 interpolatedExpr
+167..183 callExpr
+167..171 literalExpr string
+181..182 literalExpr integer
+188..204 callExpr
+188..192 literalExpr string
+202..203 literalExpr integer
+157..208 callExpr
+213..236 localDecl
+222..236 callExpr
+241..255 exprStmt
+241..255 callExpr
+241..243 nameExpr
+251..254 literalExpr string
+260..274 exprStmt
+260..274 callExpr
+260..262 nameExpr
+270..273 literalExpr string
+279..293 exprStmt
+279..293 callExpr
+279..281 nameExpr
+289..292 literalExpr string
+298..325 exprStmt
+298..325 callExpr
+304..324 callExpr
+304..306 nameExpr
+318..323 literalExpr string
+298..325 callExpr
+330..359 exprStmt
+330..359 callExpr
+336..358 callExpr
+336..343 memberExpr
+336..338 nameExpr
+355..357 literalExpr string
+330..359 callExpr

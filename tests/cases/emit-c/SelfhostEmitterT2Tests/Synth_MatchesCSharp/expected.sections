@@ -1,0 +1,69 @@
+== synth
+bool 741 1 false false false false true false false effect=1 spill=1 temps=1 same=false
+i64 741 1 true true true false true false false effect=0 spill=1 temps=1 same=false
+i64 604 3 false false false true true false false effect=1 spill=1 temps=1 same=false
+i64 842 5 false false true false true false false effect=1 spill=1 temps=1 same=false
+i64 620 12 false false false true true true true effect=1 spill=1 temps=1 same=false
+i32 755 6 true true false false true false false effect=0 spill=1 temps=1 same=false
+i64 755 6 true true false false true false false effect=0 spill=1 temps=1 same=false
+u32 778 7 true true false false true false false effect=0 spill=1 temps=1 same=false
+i64 778 7 true true false false true false false effect=0 spill=1 temps=1 same=false
+i64 576 1 false false false true true true true effect=1 spill=1 temps=1 same=false
+i32 590 1 false false false true true false false effect=1 spill=1 temps=1 same=false
+i32 668 3 false false false true true true true effect=1 spill=1 temps=1 same=false
+i64 842 5 false false true false true false false effect=1 spill=1 temps=1 same=false
+rune 800 3 false false false true true false false effect=1 spill=1 temps=1 same=false
+i64 942 11 false false false false true false false effect=0 spill=0 temps=0 same=true
+fn0_i64 891 1 false false false false true false false effect=1 spill=1 temps=1 same=false
+void 719 3 true true false false true false false effect=0 spill=0 temps=0 same=true
+i64 719 3 true true true false true false false effect=0 spill=1 temps=1 same=false
+i64 741 1 true false false false true false false effect=0 spill=1 temps=1 same=false
+i64 668 3 true false false false true false false effect=0 spill=1 temps=1 same=false
+str 576 1 false false false true true false true effect=1 spill=1 temps=1 same=false
+i64 576 1 false false false true true false false effect=1 spill=1 temps=1 same=false
+i64 958 6 false false true true true false false effect=1 spill=1 temps=1 same=false
+i64 973 16 false false true true true false false effect=1 spill=1 temps=1 same=false
+stmt 576 1 false false
+stmt 590 1 false false
+stmt 604 3 false false
+stmt 620 12 false false
+stmt 668 3 false false
+stmt 719 3 false true
+stmt 741 1 false false
+stmt 755 6 false false
+stmt 778 7 false false
+stmt 800 3 false false
+stmt 817 11 false false
+stmt 842 5 false false
+stmt 891 1 false false
+note 1 1
+label loop_1 end_2
+i64 i64 5 0
+i64 i64 18446744073709551611 18446744073709551615
+i64 i64 0 0
+and b a new new bool 590 1 bool 590 1 bool 590 1 true false
+assign 0 1 0 1
+operands true BoundAssign temps=1 true false
+operands true BoundAssign temps=1 true false
+operands true BoundAssign temps=1 false true false
+operands true temps=0 false false
+operands true BoundAssign temps=1 false true false
+type iostream bynt_iostream
+type iostream bynt_iostream
+type iostream bynt_iostream
+type iostream int32_t
+type iostream int32_t
+type iostream bynt_iostream
+type textview byn_text_view
+guard true
+guard false true then=true else=true temp=true out=1
+guard false true then=true else=true temp=true out=1
+guard true true then=true else=true temp=false out=0
+guard true true then=true else=false temp=false out=0
+guard true false out=0
+cleanup LPopPanicHandler LFreeArena LSetContext locals=0 scopes=2
+cleanup LPopPanicHandler LFreeArena LSetContext BoundAssign locals=1 scopes=2
+become pay BoundAssign BoundAssign BoundAssign locals=1
+become repay BoundAssign BoundAssign locals=0
+become reset BoundAssign locals=0
+nofile 0

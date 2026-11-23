@@ -1,0 +1,146 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 Identifier `x`
+1:40 InterpolationEnd `}`
+1:41 InterpolatedStringEnd `"`
+1:42 InterpolationEnd `}`
+1:43 InterpolatedStringEnd `"`
+1:44 InterpolationEnd `}`
+1:45 InterpolatedStringEnd `"`
+1:46 InterpolationEnd `}`
+1:47 InterpolatedStringEnd `"`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:2 Identifier `é`
+5:1 IntegerLiteral `0b102`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0xF__`
+12:2 Identifier `idden`
+13:1 LetKeyword `let`
+13:5 Identifier `x`
+13:8 Equals `=`
+13:10 IntegerLiteral `1`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `₀`
+
+  4 │ ₀é
+    │ ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ ₀é
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ₀é
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �0b102
+    │ ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │ �0b102
+    │      ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 0xF__
+     │    ^^
+     │
+     │ 11 │ 0xF__
+     │    │    --
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  13 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 13 │ let x� = 1
+     │    │      -

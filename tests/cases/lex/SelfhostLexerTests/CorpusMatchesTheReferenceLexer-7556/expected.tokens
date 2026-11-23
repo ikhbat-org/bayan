@@ -1,0 +1,36 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\nạ̇& && | || ^ ~ ! = == != < <=�> >= << >> >>=\n� test as�sert property fuzz model� foreach new goto\n /* never closed\nb\n 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l\n\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  2 │ ạ̇& && | || ^ ~ ! = == != < <=�> >= << >> >>=
+    │                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ � test as�sert property fuzz model� foreach new goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ � test as�sert property fuzz model� foreach new goto
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ � test as�sert property fuzz model� foreach new goto
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  3 │ � test as�sert property fuzz model� foreach new goto
+    │                                   ^

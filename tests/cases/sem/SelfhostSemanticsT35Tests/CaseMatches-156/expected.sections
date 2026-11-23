@@ -1,0 +1,3 @@
+== expr.probes.l12
+errorExpr:?[3003:6]=-()
+BYN2218 130:21 `x => x` needs a known type here ||write the function type it has, such as `let f: i64 -> i64 = x => x`|

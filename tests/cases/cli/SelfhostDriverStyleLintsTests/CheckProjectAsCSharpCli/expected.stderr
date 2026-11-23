@@ -1,0 +1,12 @@
+error BYN1072: an early exit in a block can be a postfix guard
+  --> src/app/main.byn:7:5
+
+  7 │     if lines.isEmpty {
+    │     ^^^^^^^^^^^^^^^^^ an early exit in a block
+    │
+  help: write it as a postfix guard
+    │ 7 │     fail .empty if lines.isEmpty
+    │   │     ++++++++++++++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1072

@@ -1,0 +1,2 @@
+== analyzeOwnership.useAfterMove
+BYN2781 76:5 `a` is used after it was moved |moved on line 75|assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead|

@@ -1,0 +1,10 @@
+== tests/cases/diag/bad-binary-operands.byn
+0..14 globalStatement
+0..14 localDecl
+13..14 literalExpr integer
+15..29 localDecl
+28..29 literalExpr integer
+30..43 localDecl
+38..43 binaryExpr add right 42..43
+44..60 localDecl
+52..60 binaryExpr add right 59..60

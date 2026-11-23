@@ -1,0 +1,14 @@
+string make(Arena a) => "x".copy(to: a)
+
+string apply((string -> string) f, string s) => f(s)
+
+void main() {
+    var kept = ""
+    {
+        using let arena = Arena()
+        kept = make(arena)
+        let t = "y".copy(to: arena)
+        kept = apply(x => t, "z")
+    }
+    print(kept)
+}

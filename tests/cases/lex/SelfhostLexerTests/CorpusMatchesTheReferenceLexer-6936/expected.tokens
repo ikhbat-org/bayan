@@ -1,0 +1,84 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `alet`
+1:9 EffectKeyword `effect`
+1:16 Equals `=`
+1:18 IntegerLiteral `2`
+2:2 Identifier `b`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolatedStringText `�$`
+6:26 InterpolatedStringEnd `"`
+6:27 OpenBrace `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 StringLiteral `$"{$"`
+6:57 OpenBrace `{`
+6:58 StringLiteral `$"{x}"`
+6:65 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  6 │ $"{$"{�$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  6 │ $"{$"{�$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │                         ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{�$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │                                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{�$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" 
+    │                                                     ^^

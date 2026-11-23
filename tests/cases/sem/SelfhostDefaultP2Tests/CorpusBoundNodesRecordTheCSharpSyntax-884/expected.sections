@@ -1,0 +1,14 @@
+== tests/cases/diag/target-os-arch.byn
+111..198 blockStmt
+117..133 exprStmt
+117..133 callExpr
+123..132 memberExpr
+117..133 callExpr
+138..156 exprStmt
+138..156 callExpr
+144..155 memberExpr
+138..156 callExpr
+161..196 localDecl
+172..196 binaryExpr eq right 185..196
+172..181 memberExpr
+185..196 memberExpr

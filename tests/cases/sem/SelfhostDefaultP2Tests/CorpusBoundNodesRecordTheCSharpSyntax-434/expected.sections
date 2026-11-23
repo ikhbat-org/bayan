@@ -1,0 +1,2 @@
+== tests/cases/diag/dyn-by-value.byn
+61..64 blockStmt

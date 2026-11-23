@@ -1,0 +1,83 @@
+1:3 LetKeyword `let`
+1:7 Identifier `b`
+1:9 Equals `=`
+1:13 IntegerLiteral `2`
+3:2 OpenBrace `{`
+3:3 Identifier `total`
+3:9 OpenBrace `{`
+3:10 Identifier `x`
+3:11 CloseBrace `}`
+3:12 StringLiteral `" \u{1A}"`
+3:16 Identifier `a`
+3:18 OpenBrace `{`
+3:19 Identifier `f`
+3:20 OpenParen `(`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolatedStringText `b `
+3:25 InterpolationStart `{`
+3:26 Identifier `c`
+3:27 InterpolationEnd `}`
+3:28 InterpolatedStringEnd `"`
+3:29 CloseParen `)`
+3:30 CloseBrace `}`
+3:32 Identifier `d`
+3:33 StringLiteral `" $"`
+3:37 OpenBrace `{`
+3:38 OpenBrace `{`
+3:39 Identifier `literal`
+3:46 CloseBrace `}`
+3:47 CloseBrace `}`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 Identifier `Point`
+3:59 OpenBrace `{`
+3:61 Identifier `x`
+3:63 Equals `=`
+3:65 IntegerLiteral `1`
+3:67 CloseBrace `}`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringText `!`
+3:70 InterpolatedStringEnd `"`
+3:72 InterpolatedStringStart `$"`
+3:74 InterpolatedStringEnd `"`
+    doc `/// Doc line two.`
+7:1 CharLiteral `'\u{D800}'`
+9:1 IntegerLiteral `50`
+9:3 NumericSuffix `dec`
+9:7 IntegerLiteral `11__`
+10:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � let b = ` 2
+    │ ^
+
+error BYN0002: unexpected character ```
+
+  1 │ � let b = ` 2
+    │           ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ ${total {x}" �"a {f($"b {c}")} d" $"{{literal}}� $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  3 │ ${total {x}" �"a {f($"b {c}")} d" $"{{literal}}� $"{Point { x = 1 }}!" $""
+    │                                                ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  7 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 50dec 11__
+    │         ^^
+    │
+    │ 9 │ 50dec 11__
+    │   │         --

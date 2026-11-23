@@ -1,0 +1,39 @@
+== tests/cases/run/loan-starts-at-stored-borrow.byn
+321..322 nameExpr
+321..322 nameExpr
+321..322 nameExpr
+336..493 blockStmt
+342..374 localDecl
+350..374 structLiteralExpr
+361..372 callExpr
+379..396 exprStmt
+379..396 callExpr
+379..386 memberExpr
+379..380 nameExpr
+394..395 literalExpr integer
+401..470 localDecl
+409..470 callExpr
+416..435 memberExpr
+416..428 memberExpr
+416..423 memberExpr
+416..417 nameExpr
+441..449 callExpr
+441..442 nameExpr
+457..469 memberExpr
+457..464 memberExpr
+457..458 nameExpr
+475..491 exprStmt
+475..491 callExpr
+481..490 interpolatedExpr
+484..488 indexExpr
+484..485 nameExpr
+486..487 literalExpr integer
+475..491 callExpr
+198..246 blockStmt
+208..223 exprStmt
+208..223 callExpr
+208..213 nameExpr
+208..213 nameExpr
+221..222 literalExpr integer
+232..240 returnStmt value 239..240
+239..240 literalExpr integer

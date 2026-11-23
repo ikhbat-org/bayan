@@ -1,0 +1,23 @@
+1:1 Identifier `ver`
+1:5 Identifier `closejd`
+2:1 Identifier `b`
+4:1 Identifier `t`
+4:3 Identifier `café`
+4:9 IntegerLiteral `2`
+6:1 CharLiteral `'ab'`
+7:2 IntegerLiteral `1`
+7:3 Dot `.`
+    doc `/// `
+7:9 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │  1.�/// 
+    │    ^

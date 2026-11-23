@@ -1,0 +1,32 @@
+1:2 Equals `=`
+1:4 StringLiteral `"open`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never cl $"{{"let a = 1$ 1\n0b_\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\n, . .. ..= : ? ?? ??= ?. => -> @ #\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  = "open
+    │    ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never cl $"{{"let a = 1$ 1
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

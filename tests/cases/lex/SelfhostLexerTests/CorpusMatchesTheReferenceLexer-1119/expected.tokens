@@ -1,0 +1,36 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+1:6 IntegerLiteral `0b1`
+1:9 NumericSuffix `m`
+1:11 Identifier `s`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringText `\u{7}`
+2:6 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+3:1 EndOfFile
+
+error BYN0011: unit suffix `m` is not allowed on a binary literal
+
+  1 │ $"{{"0b1m�s
+    │         ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\u{E}`
+
+  1 │ $"{{"0b1m�s
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ � $"�{ $"{
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ � $"�{ $"{
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string

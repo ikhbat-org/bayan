@@ -1,0 +1,10 @@
+1:1 Identifier `et`
+1:4 LawKeyword `law`
+1:8 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  1 │ et law =� 3
+    │         ^

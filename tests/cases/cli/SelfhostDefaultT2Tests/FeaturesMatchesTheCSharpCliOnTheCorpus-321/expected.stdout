@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "LiteralExpr",
+    "TestDecl"
+  ],
+  "builtins": [
+    "Log",
+    "Print"
+  ],
+  "diagnostics": []
+}

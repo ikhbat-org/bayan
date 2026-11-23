@@ -1,0 +1,10 @@
+== 1
+cache/
+cache/v1/
+cache/v1/programs/
+cache/v1/programs/a/
+cache/v1/programs/a/program
+cache/v1/programs/b/
+cache/v1/programs/b/program
+cache/v1/programs/c/
+cache/v1/programs/c/program

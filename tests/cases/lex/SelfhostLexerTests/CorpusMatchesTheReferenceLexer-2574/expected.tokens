@@ -1,0 +1,24 @@
+1:1 StringLiteral `"{ /*0b__`
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+3:1 IntegerLiteral `0b__`
+5:1 CharLiteral `'a'`
+5:5 CharLiteral `'\n'`
+5:10 CharLiteral `'\u{1F600}'`
+5:22 CharLiteral `'\''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ /*0b__
+    │ ^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^

@@ -1,0 +1,43 @@
+== helpers
+bynh_at_list_std_json__JsonValue static byn_std_json_JsonValue* bynh_at_list_std_json__JsonValue(bynt_list_std_json__JsonValue s, int64_t i, bool from_end, const char* file, int line) | static byn_std_json_JsonValue* bynh_at_list_std_json__JsonValue(bynt_list_std_json__JsonValue s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_at_list_std_json__JsonMember static bynt_std_json__JsonMember* bynh_at_list_std_json__JsonMember(bynt_list_std_json__JsonMember s, int64_t i, bool from_end, const char* file, int line) | static bynt_std_json__JsonMember* bynh_at_list_std_json__JsonMember(bynt_list_std_json__JsonMember s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_strbuf_repeat static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) | static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) {
+    if (n < 0) byn_panic("repeated a negative number of times", file, line);
+    for (int64_t i = 0; i < n; i++) byn_w_char(w, c);
+}
+bynh_at_span_u8 static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) | static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}
+bynh_slice_str static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);
+    return byn_str_slice(s, from, to, file, line);
+}
+bynh_at_list_bool static bool* bynh_at_list_bool(bynt_list_bool s, int64_t i, bool from_end, const char* file, int line) | static bool* bynh_at_list_bool(bynt_list_bool s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_pop_list_bool static bool bynh_pop_list_bool(bynt_list_bool* l, const char* file, int line) | static bool bynh_pop_list_bool(bynt_list_bool* l, const char* file, int line) {
+    if (l->len == 0) byn_panic("removeLast on an empty list", file, line);
+    return l->ptr[--l->len];
+}
+bynh_add_list_bool static void bynh_add_list_bool(bynt_list_bool* l, bool v) | static void bynh_add_list_bool(bynt_list_bool* l, bool v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bool), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_try_parse_opt_f64 static bynt_opt_f64 bynh_try_parse_opt_f64(byn_str s) | static bynt_opt_f64 bynh_try_parse_opt_f64(byn_str s) {
+    double v;
+    if (!byn_float_parse(s, false, &v)) return (bynt_opt_f64){0};
+    return (bynt_opt_f64){true, (double)v};
+}

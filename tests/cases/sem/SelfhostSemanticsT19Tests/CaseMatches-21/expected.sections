@@ -1,0 +1,4 @@
+== bind.probes.k6
+flags 0
+errorExpr:?[3954:7]=-()
+BYN2002 203:15 unknown type `Nope` |||

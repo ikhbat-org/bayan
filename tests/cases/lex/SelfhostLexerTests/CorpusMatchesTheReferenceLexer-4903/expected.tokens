@@ -1,0 +1,52 @@
+1:2 OrKeyword `or`
+1:5 NotKeyword `not`
+1:9 WithKeyword `with`
+1:14 MoveKeyword `move`
+1:19 RefKeyword `ref`
+1:23 OutKeyword `out`
+1:27 FloatLiteral `3.14`
+1:32 FloatLiteral `1e5`
+1:36 FloatLiteral `2.5e-3`
+1:43 FloatLiteral `6E+2`
+1:48 FloatLiteral `1.50`
+1:52 NumericSuffix `dec`
+1:56 IntegerLiteral `1`
+1:57 DotDot `..`
+1:59 IntegerLiteral `2`
+1:61 IntegerLiteral `1`
+1:62 DotDotEquals `..=`
+1:65 IntegerLiteral `3`
+1:67 IntegerLiteral `5`
+1:68 NumericSuffix `e`
+1:70 Identifier `x`
+1:71 Dot `.`
+1:72 Identifier `y`
+1:74 FloatLiteral `2.5`
+1:77 NumericSuffix `f`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1
+    │   │        +

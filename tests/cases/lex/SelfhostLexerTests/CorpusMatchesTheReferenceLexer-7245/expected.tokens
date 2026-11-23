@@ -1,0 +1,37 @@
+1:1 IntegerLiteral `1__`
+2:3 Star `*`
+2:4 Slash `/`
+2:5 CloseBrace `}`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+2:9 StringLiteral `"3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=35e x.y 2.5f`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ � */}$"{"3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=35e x.y 2.5f
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ � */}$"{"3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=35e x.y 2.5f
+    │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

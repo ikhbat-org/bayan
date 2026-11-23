@@ -1,0 +1,58 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 UnlessKeyword `unless`
+3:16 SwitchKeyword `switch`
+3:23 CaseKeyword `case`
+3:28 DefaultKeyword `default`
+3:36 ForKeyword `for`
+3:40 InKeyword `in`
+3:43 WhileKeyword `while`
+3:49 DoKeyword `do`
+3:52 BreakKeyword `break`
+3:58 Identifier `cQontinue`
+3:68 ReturnKeyword `return`
+3:75 YieldKeyword `yield`
+3:81 DeferKeyword `defer`
+3:87 ErrdeferKeyword `errdefer`
+3:96 UsingKeyword `using`
+3:102 ContextKeyword `context`
+4:1 IntegerLiteral `3`
+4:3 FloatLiteral `6E+2`
+4:8 FloatLiteral `1.50`
+4:12 NumericSuffix `dec`
+4:16 IntegerLiteral `1`
+4:17 DotDot `..`
+4:19 IntegerLiteral `2`
+4:21 IntegerLiteral `1`
+4:22 DotDotEquals `..=`
+4:25 IntegerLiteral `3`
+4:27 IntegerLiteral `5`
+4:28 NumericSuffix `e`
+4:30 Identifier `x`
+4:31 Dot `.`
+4:32 Identifier `y`
+4:34 FloatLiteral `2.5`
+4:37 NumericSuffix `f`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:14 MinusPercent `-%`
+6:17 StarPercent `*%`
+6:20 PlusBar `+|`
+6:23 MinusBar `-|`
+6:26 StarBar `*|`
+6:29 PlusPlus `++`
+6:32 MinusMinus `--`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

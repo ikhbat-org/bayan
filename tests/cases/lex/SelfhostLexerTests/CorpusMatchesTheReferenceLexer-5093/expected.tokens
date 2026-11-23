@@ -1,0 +1,41 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n   """`
+2:8 CStringLiteral `c"text"`
+2:16 U16StringLiteral `u16"wide"`
+2:26 StringLiteral `"\u{202E} allowed in strings"`
+2:49 StringLiteral `""`
+2:52 StringLiteral `"\u48}i"`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+5:2 Identifier `strings`
+5:9 StringLiteral `" "`
+5:12 StringLiteral `" "`
+5:16 Identifier `u`
+5:17 OpenBrace `{`
+5:18 IntegerLiteral `48`
+5:20 CloseBrace `}`
+5:21 Identifier `i`
+5:22 StringLiteral `"`
+6:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\u`
+
+  2 │    """ c"text" u16"wide" "� allowed in strings" "" "\u48}i"
+    │                                                     ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `\`
+
+  5 │  strings" "" "\u{48}i"
+    │               ^
+
+error BYN0003: unterminated string literal
+
+  5 │  strings" "" "\u{48}i"
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

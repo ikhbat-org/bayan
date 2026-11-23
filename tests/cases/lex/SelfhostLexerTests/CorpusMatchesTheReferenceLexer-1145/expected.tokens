@@ -1,0 +1,17 @@
+1:1 Identifier `et`
+1:4 Identifier `c`
+1:6 Equals `=`
+1:8 RawStringLiteral `"""neve� losed\r\n`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ et c = """neve� losed
+    │        ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  1 │ et c = """neve� losed
+    │               ^

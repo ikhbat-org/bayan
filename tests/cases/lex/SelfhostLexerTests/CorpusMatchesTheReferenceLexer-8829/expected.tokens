@@ -1,0 +1,24 @@
+1:1 StringLiteral `"1__ $"`
+1:8 Identifier `a`
+1:9 OpenBrace `{`
+1:10 Identifier `b`
+1:11 CloseBrace `}`
+1:12 Identifier `c`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1
+    │   │        +

@@ -1,0 +1,3 @@
+== diags.diag/missing-return
+BYN2401 5:1 `sign` must return `i64` on every path
+  help add a `return` (or `panic(…)`) on the paths that reach the end

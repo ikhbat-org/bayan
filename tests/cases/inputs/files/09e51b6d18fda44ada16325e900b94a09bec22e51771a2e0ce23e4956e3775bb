@@ -1,0 +1,8 @@
+����
+et b = "bad \q escape"
+let c = """ne
+$"{"
+ let x�r� = 1
+foo Bar _x cmelCase2 بيان μετρητής x_1 é
+1_
+

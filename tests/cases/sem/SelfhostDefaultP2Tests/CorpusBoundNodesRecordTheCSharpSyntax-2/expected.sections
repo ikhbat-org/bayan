@@ -1,0 +1,210 @@
+== tests/cases/run/arithmetic.byn
+0..15 globalStatement
+0..15 localDecl
+13..15 literalExpr integer
+16..30 localDecl
+29..30 literalExpr integer
+31..80 exprStmt
+31..80 callExpr
+37..79 interpolatedExpr
+40..45 binaryExpr add right 44..45
+40..41 nameExpr
+44..45 nameExpr
+48..53 binaryExpr sub right 52..53
+48..49 nameExpr
+52..53 nameExpr
+56..61 binaryExpr mul right 60..61
+56..57 nameExpr
+60..61 nameExpr
+64..69 binaryExpr div right 68..69
+64..65 nameExpr
+68..69 nameExpr
+72..77 binaryExpr rem right 76..77
+72..73 nameExpr
+76..77 nameExpr
+31..80 callExpr
+81..117 exprStmt
+81..117 callExpr
+87..116 interpolatedExpr
+90..96 binaryExpr div right 95..96
+90..92 unaryExpr negate operand 91..92
+91..92 nameExpr
+95..96 nameExpr
+99..105 binaryExpr rem right 104..105
+99..101 unaryExpr negate operand 100..101
+100..101 nameExpr
+104..105 nameExpr
+108..114 binaryExpr div right 112..114
+108..109 nameExpr
+112..114 unaryExpr negate operand 113..114
+113..114 nameExpr
+81..117 callExpr
+118..133 localDecl
+130..133 literalExpr integer
+134..197 exprStmt
+134..197 callExpr
+140..196 interpolatedExpr
+143..150 binaryExpr addWrap right 148..150
+143..144 nameExpr
+148..150 literalExpr integer
+153..160 binaryExpr addSat right 158..160
+153..154 nameExpr
+158..160 literalExpr integer
+163..177 binaryExpr subSat right 172..177
+166..167 literalExpr integer
+175..176 literalExpr integer
+180..194 binaryExpr subWrap right 189..194
+183..184 literalExpr integer
+192..193 literalExpr integer
+134..197 callExpr
+198..223 localDecl
+213..223 literalExpr integer
+224..266 exprStmt
+224..266 callExpr
+230..265 interpolatedExpr
+233..241 binaryExpr addSat right 240..241
+233..236 nameExpr
+240..241 literalExpr integer
+244..252 binaryExpr addWrap right 251..252
+244..247 nameExpr
+251..252 literalExpr integer
+255..263 binaryExpr mulSat right 262..263
+255..258 nameExpr
+262..263 literalExpr integer
+224..266 callExpr
+267..338 exprStmt
+267..338 callExpr
+273..337 interpolatedExpr
+276..282 binaryExpr shl right 281..282
+276..277 literalExpr integer
+281..282 literalExpr integer
+285..293 binaryExpr shr right 292..293
+285..288 literalExpr integer
+292..293 literalExpr integer
+296..307 binaryExpr bitAnd right 303..307
+296..300 literalExpr integer
+303..307 literalExpr integer
+310..321 binaryExpr bitOr right 317..321
+310..314 literalExpr integer
+317..321 literalExpr integer
+324..335 binaryExpr bitXor right 331..335
+324..328 literalExpr integer
+331..335 literalExpr integer
+267..338 callExpr
+339..361 localDecl
+352..361 binaryExpr div right 358..361
+352..355 literalExpr floatKeyword
+358..361 literalExpr floatKeyword
+362..411 exprStmt
+362..411 callExpr
+368..410 interpolatedExpr
+371..372 nameExpr
+375..384 binaryExpr add right 381..384
+375..378 literalExpr floatKeyword
+381..384 literalExpr floatKeyword
+387..396 binaryExpr mul right 393..396
+387..390 literalExpr floatKeyword
+393..396 literalExpr floatKeyword
+399..408 binaryExpr rem right 405..408
+399..402 literalExpr floatKeyword
+405..408 literalExpr floatKeyword
+362..411 callExpr
+412..433 localDecl
+430..433 literalExpr floatKeyword
+434..466 exprStmt
+434..466 callExpr
+440..465 interpolatedExpr
+443..449 nameExpr
+452..463 callExpr
+456..462 nameExpr
+434..466 callExpr
+467..530 exprStmt
+467..530 callExpr
+473..529 interpolatedExpr
+476..485 callExpr
+480..484 literalExpr floatKeyword
+488..498 callExpr
+492..497 unaryExpr negate operand 493..497
+501..510 callExpr
+504..509 literalExpr floatKeyword
+513..527 callExpr
+517..526 binaryExpr div right 523..526
+517..520 literalExpr floatKeyword
+523..526 literalExpr floatKeyword
+467..530 callExpr
+531..551 localDecl
+547..551 literalExpr integer
+552..585 exprStmt
+552..585 callExpr
+558..584 interpolatedExpr
+561..570 callExpr
+565..569 nameExpr
+573..582 callExpr
+577..581 nameExpr
+552..585 callExpr
+586..597 localDecl
+594..597 literalExpr char
+598..644 exprStmt
+598..644 callExpr
+604..643 interpolatedExpr
+607..608 nameExpr
+611..618 memberExpr
+611..612 nameExpr
+621..634 callExpr
+626..633 literalExpr integer
+637..641 literalExpr char
+598..644 callExpr
+645..660 localDecl
+655..660 literalExpr string
+661..731 exprStmt
+661..731 callExpr
+667..730 interpolatedExpr
+670..674 literalExpr trueKeyword
+677..682 literalExpr falseKeyword
+685..690 binaryExpr lt right 689..690
+685..686 literalExpr integer
+689..690 literalExpr integer
+693..699 binaryExpr le right 698..699
+693..694 literalExpr integer
+698..699 literalExpr integer
+702..713 binaryExpr lt right 708..713
+702..705 nameExpr
+708..713 literalExpr string
+716..728 binaryExpr eq right 723..728
+716..719 nameExpr
+723..728 literalExpr string
+661..731 callExpr
+732..767 localDecl
+747..767 unaryExpr negate operand 748..767
+768..804 localDecl
+784..804 literalExpr integer
+805..837 exprStmt
+805..837 callExpr
+811..836 interpolatedExpr
+814..817 nameExpr
+820..824 nameExpr
+827..834 binaryExpr sub right 833..834
+827..830 nameExpr
+833..834 literalExpr integer
+805..837 callExpr
+838..861 localDecl
+854..861 literalExpr floatKeyword
+862..885 localDecl
+879..885 literalExpr floatKeyword
+886..920 localDecl
+902..920 literalExpr floatKeyword
+921..955 localDecl
+938..955 literalExpr floatKeyword
+956..1035 exprStmt
+956..1035 callExpr
+962..1034 interpolatedExpr
+965..969 nameExpr
+972..977 nameExpr
+980..984 nameExpr
+987..992 nameExpr
+995..999 unaryExpr negate operand 996..999
+1002..1009 literalExpr floatKeyword
+1012..1015 literalExpr floatKeyword
+1018..1022 unaryExpr negate operand 1019..1022
+1025..1032 literalExpr floatKeyword
+956..1035 callExpr

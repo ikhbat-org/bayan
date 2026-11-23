@@ -1,0 +1,2 @@
+CompilationUnit
+  Let a = (call f 1 2)

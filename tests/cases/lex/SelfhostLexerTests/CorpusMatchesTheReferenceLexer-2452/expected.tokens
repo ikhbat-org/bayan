@@ -1,0 +1,8 @@
+1:1 Identifier `b`
+2:1 IntegerLiteral `0x`
+2:3 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^

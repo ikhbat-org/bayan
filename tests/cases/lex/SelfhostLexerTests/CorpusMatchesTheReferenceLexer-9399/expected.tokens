@@ -1,0 +1,108 @@
+1:2 CloseBrace `}`
+1:4 Identifier `here`
+1:8 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `" $"`
+2:14 Identifier `total`
+2:20 OpenBrace `{`
+2:21 Identifier `x`
+2:22 CloseBrace `}`
+2:23 StringLiteral `" $"`
+2:27 Identifier `a`
+2:29 OpenBrace `{`
+2:30 Identifier `f`
+2:31 OpenParen `(`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolatedStringText `b `
+2:36 InterpolationStart `{`
+2:37 Identifier `c`
+2:38 InterpolationEnd `}`
+2:39 InterpolatedStringEnd `"`
+2:40 CloseParen `)`
+2:41 CloseBrace `}`
+2:43 Identifier `d`
+2:44 StringLiteral `" $"`
+2:48 OpenBrace `{`
+2:49 OpenBrace `{`
+2:50 Identifier `literal`
+2:57 CloseBrace `}`
+2:58 CloseBrace `}`
+2:59 StringLiteral `" $"`
+2:63 OpenBrace `{`
+2:64 Identifier `Point`
+2:70 OpenBrace `{`
+2:72 Identifier `x`
+2:74 Equals `=`
+2:76 IntegerLiteral `1`
+2:78 CloseBrace `}`
+2:79 CloseBrace `}`
+2:80 Bang `!`
+2:81 StringLiteral `" $"`
+2:85 StringLiteral `"`
+4:2 StructKeyword `struct`
+4:9 Identifier `S`
+4:11 StructKeyword `struct`
+4:18 Identifier `S`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 Bar `|`
+5:10 Caret `^`
+5:12 Tilde `~`
+5:14 Bang `!`
+5:16 Equals `=`
+5:18 EqualsEquals `==`
+5:21 BangEquals `!=`
+5:24 Less `<`
+5:26 LessEquals `<=`
+5:29 Greater `>`
+5:31 GreaterEquals `>=`
+5:34 LessLess `<<`
+5:37 Greater `>`
+5:38 Greater `>`
+5:40 Greater `>`
+5:41 GreaterEquals `>=`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  } here"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                                                     ^ string
+    │                                                                                       ends at
+    │                                                                                       the end
+    │                                                                                       of the
+    │                                                                                       line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ � 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � 
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  4 │  struct S�struct S
+    │          ^

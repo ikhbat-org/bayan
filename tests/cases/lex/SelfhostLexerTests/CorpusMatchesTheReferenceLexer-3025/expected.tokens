@@ -1,0 +1,5 @@
+1:1 LetKeyword `let`
+1:5 Identifier `afé`
+1:9 Equals `=`
+1:11 IntegerLiteral `2`
+2:1 EndOfFile

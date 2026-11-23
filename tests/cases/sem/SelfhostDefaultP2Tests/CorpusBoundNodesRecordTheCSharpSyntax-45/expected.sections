@@ -1,0 +1,39 @@
+== tests/cases/run/error-equality-other-set.byn
+188..224 globalStatement
+188..224 localDecl
+208..224 callExpr
+222..223 literalExpr integer
+225..261 localDecl
+245..261 callExpr
+259..260 literalExpr integer
+262..298 localDecl
+282..298 callExpr
+296..297 literalExpr integer
+299..325 localDecl
+319..325 targetMemberExpr
+326..371 exprStmt
+326..371 callExpr
+332..370 interpolatedExpr
+335..341 binaryExpr eq right 340..341
+335..336 nameExpr
+340..341 nameExpr
+344..350 binaryExpr eq right 349..350
+344..345 nameExpr
+349..350 nameExpr
+353..359 binaryExpr ne right 358..359
+353..354 nameExpr
+358..359 nameExpr
+362..368 binaryExpr eq right 367..368
+362..363 nameExpr
+367..368 nameExpr
+326..371 callExpr
+372..415 localDecl
+391..415 callExpr
+403..414 callExpr
+416..437 exprStmt
+416..437 callExpr
+422..436 interpolatedExpr
+425..434 binaryExpr eq right 430..434
+425..426 nameExpr
+430..434 targetMemberExpr
+416..437 callExpr

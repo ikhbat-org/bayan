@@ -1,0 +1,60 @@
+2:1 Identifier `a`
+2:3 OpenBrace `{`
+2:4 Identifier `f`
+2:5 OpenParen `(`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolatedStringText `b `
+2:10 InterpolationStart `{`
+2:11 Identifier `c`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:14 CloseParen `)`
+2:15 CloseBrace `}`
+2:17 Identifier `d`
+2:18 StringLiteral `" $"`
+2:22 OpenBrace `{`
+2:23 OpenBrace `{`
+2:24 Identifier `literal`
+2:31 CloseBrace `}`
+2:32 CloseBrace `}`
+2:33 StringLiteral `" $"`
+2:37 OpenBrace `{`
+2:38 Identifier `Point`
+2:44 OpenBrace `{`
+2:46 Identifier `x`
+2:48 Equals `=`
+2:50 IntegerLiteral `1`
+2:52 CloseBrace `}`
+2:53 CloseBrace `}`
+2:54 Bang `!`
+2:55 StringLiteral `" $"`
+2:59 StringLiteral `"`
+    doc `///}1e `
+3:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │ a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

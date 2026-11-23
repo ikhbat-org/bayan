@@ -1,0 +1,6 @@
+== tests/cases/diag/enum-argument-not-constant.byn
+20..25 binaryExpr mul right 24..25
+20..25 binaryExpr mul right 24..25
+20..25 binaryExpr mul right 24..25
+20..21 nameExpr
+24..25 literalExpr integer

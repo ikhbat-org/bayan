@@ -1,0 +1,84 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolatedStringText `�`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolatedStringText `s$`
+3:48 InterpolatedStringEnd `"`
+3:49 OpenBrace `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 Identifier `x`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 CloseBrace `}`
+3:57 StringLiteral `"}"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:63 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c = � 3
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ � $"{$"{$"{$"{$"{�$"{$"{$"�{$"{$"{$"{$"{$"{$"s$"{$"{x}"}"}"}" 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │ � $"{$"{$"{$"{$"{�$"{$"{$"�{$"{$"{$"{$"{$"{$"s$"{$"{x}"}"}"}" 
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │ � $"{$"{$"{$"{$"{�$"{$"{$"�{$"{$"{$"{$"{$"{$"s$"{$"{x}"}"}"}" 
+    │                           ^
+
+error BYN0003: unterminated string literal
+
+  3 │ � $"{$"{$"{$"{$"{�$"{$"{$"�{$"{$"{$"{$"{$"{$"s$"{$"{x}"}"}"}" 
+    │                                      ^^ this string never ends
+    │
+  help: close the `{` and the string

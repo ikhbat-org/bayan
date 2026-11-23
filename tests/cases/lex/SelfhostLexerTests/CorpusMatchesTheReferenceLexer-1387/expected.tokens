@@ -1,0 +1,128 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+4:1 LetKeyword `let`
+4:5 Identifier `s`
+4:7 Equals `=`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 InterpolatedStringStart `$"`
+4:20 InterpolationStart `{`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolationStart `{`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolationStart `{`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 InterpolatedStringStart `$"`
+4:32 InterpolationStart `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 StringLiteral `$"$"`
+4:61 OpenBrace `{`
+4:62 StringLiteral `$"{$"`
+4:67 OpenBrace `{`
+4:68 Identifier `x`
+4:69 CloseBrace `}`
+4:70 StringLiteral `"}"`
+4:73 CloseBrace `}`
+4:74 StringLiteral `"}"`
+4:77 InterpolationEnd `}`
+4:78 InterpolatedStringEnd `"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+4:87 InterpolationEnd `}`
+4:88 InterpolatedStringEnd `"`
+4:89 InterpolationEnd `}`
+4:90 InterpolatedStringEnd `"`
+4:91 InterpolationEnd `}`
+4:92 InterpolatedStringEnd `"`
+4:93 InterpolationEnd `}`
+4:94 InterpolatedStringEnd `"`
+4:95 InterpolationEnd `}`
+4:96 InterpolatedStringEnd `"`
+4:97 InterpolationEnd `}`
+4:98 InterpolatedStringEnd `"`
+4:99 InterpolationEnd `}`
+4:100 InterpolatedStringEnd `"`
+4:101 InterpolationEnd `}`
+4:102 InterpolatedStringEnd `"`
+4:103 InterpolationEnd `}`
+4:104 InterpolatedStringEnd `"`
+4:105 InterpolationEnd `}`
+4:106 InterpolatedStringEnd `"`
+4:107 InterpolationEnd `}`
+4:108 InterpolatedStringEnd `"`
+6:1 StringLiteral `""`
+6:4 CStringLiteral `c"text"`
+6:12 U16StringLiteral `u16"wide"`
+6:22 StringLiteral `"\u{202E} allowed in strings"`
+6:45 OpenBrace `{`
+6:46 Identifier `Point`
+6:52 OpenBrace `{`
+6:54 Identifier `x`
+6:56 Equals `=`
+6:58 IntegerLiteral `1`
+6:60 CloseBrace `}`
+6:61 CloseBrace `}`
+6:62 Bang `!`
+6:63 StringLiteral `" $"`
+6:67 StringLiteral `"`
+8:1 Star `*`
+8:2 Slash `/`
+8:4 CharLiteral `'\u{D800}'`
+9:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ "" c"text" u16"wide" "� allowed in strings" {Point { x = 1 }}!" $""
+    │                                                                   ^ string ends at the end of
+    │                                                                     the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  8 │ */ '\u{D800}'
+    │     ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "StackallocExpr",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TargetMemberExpr"
+  ],
+  "builtins": [
+    "FormatSpecAlign",
+    "FormatSpecDebug",
+    "FormatSpecDigits",
+    "FormatSpecFill",
+    "FormatSpecRadix",
+    "FormatSpecWidth",
+    "Print",
+    "StrBufAppend",
+    "StrBufAppendRepeated",
+    "StrBufAsString",
+    "StrBufGrow",
+    "StrBufLength",
+    "StrBufOver"
+  ],
+  "diagnostics": []
+}

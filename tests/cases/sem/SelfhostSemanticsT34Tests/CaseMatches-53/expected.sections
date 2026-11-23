@@ -1,0 +1,5 @@
+== s54
+switchExpr|i32|4342:35
+value local:i64=n
+arm 4353:14 notPattern[4353:3]:i64(bindPattern[4357:3]:i64(x:i64:b:-:let)) guard - value literal:i32=1
+arm 4369:6 bindPattern[4369:1]:i64_(-) guard - value literal:i32=0

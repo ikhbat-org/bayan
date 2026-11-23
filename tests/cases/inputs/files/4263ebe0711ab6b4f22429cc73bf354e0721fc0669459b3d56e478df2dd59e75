@@ -1,0 +1,26 @@
+struct Order {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+        shipped
+    }
+    i64 receipt(this is .paid) => id
+    i64 total(this is .draft) => receipt()
+    i64 plain() => receipt()
+}
+
+struct Other {
+    i64 n
+}
+
+i64 refund(Order.paid order) => order.id
+
+i64 archive(Order order is .paid or .shipped) => order.id
+
+i64 run(Order any, Order.paid sure, Other other) {
+    let a = refund(sure)
+    let b = refund(other)
+    let c = archive(any)
+    return a + b + c
+}

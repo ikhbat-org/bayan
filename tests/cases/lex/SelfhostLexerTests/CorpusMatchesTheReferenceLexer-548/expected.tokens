@@ -1,0 +1,60 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:2 StringLiteral `"text"`
+2:9 StringLiteral `"esc \"q\" \\ \n"`
+2:27 RawStringLiteral `"""\r\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}\u{4}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\r\nạ̇ ����\r\n�� `
+5:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{// comment � hidddn
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ $"{// comment � hidddn
+    │               ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ $"{// comment � hidddn
+    │   │               -
+
+error BYN0003: unterminated string literal
+
+  2 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ạ̇ ����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ạ̇ ����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ạ̇ ����
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ạ̇ ����
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ �� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �� 
+    │  ^

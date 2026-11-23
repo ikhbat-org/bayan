@@ -1,0 +1,15 @@
+== 1 exit 0
+created .editorconfig
+created .gitattributes
+created .gitignore
+skipped README.md (already exists)
+created docs/.gitkeep
+created package.byn
+created src/app/main.byn
+created testdata/.gitkeep
+created tests/app.test.byn
+== 2 exit 0
+# mine
+== 3 exit 0
+◆ checked tally in #s
+== 4 exit 2

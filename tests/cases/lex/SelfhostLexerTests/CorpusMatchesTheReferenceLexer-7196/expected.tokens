@@ -1,0 +1,10 @@
+1:1 Equals `=`
+1:5 IntegerLiteral `3`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ = � 3
+    │   ^

@@ -1,0 +1,21 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\r\n` 2\r\nlet c = \u{7} 3\r\n \u{FEFF}\r\n// ok � in comment\r\n\r\n� let  = \u{7} 3L\r\n0xFFs\r\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │ � let  = � 3L
+    │ ^

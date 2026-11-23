@@ -1,0 +1,45 @@
+1:1 IntegerLiteral `0x_`
+2:2 IntegerLiteral `1__`
+4:1 LetKeyword `let`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+7:2 NeverKeyword `never`
+7:8 Identifier `closed`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:9 RawStringLiteral `"""never closed\n\n`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1__
+    │   ^^
+    │
+    │ 2 │  1__
+    │   │   --
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `﻿`
+
+  6 │ ﻿
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  8 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

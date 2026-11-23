@@ -1,0 +1,30 @@
+CompilationUnit
+  ErrorEnum ParseError
+    Variant empty doc `No digits.`
+    Variant bad doc `Not a digit.`
+  Function parse(string s) -> i64 fails ParseError
+    Block
+      Guarded if (== (. s length) 0)
+        Fail .empty
+      Return 1
+  Function main() -> void
+    Block
+      Let a = (catch (call parse "1") (e) (switch e ((. ParseError empty) => 0) (_ => 1)))
+      Let b = (catch (call parse "") (e) 0)
+      Expr (call print (interp (+ a b)))
+
+error BYN1025: `catch (e)` is an input form; bind the error in a `catch switch` arm
+
+  14 │     let a = parse("1") catch (e) switch {
+     │                              ^^^ the input form
+     │
+  help: remove `(e)` and bind the error in each arm: `E e => …`
+     │ 14 │     let a = parse("1") catch (e) switch {
+     │    │                              ----
+
+error BYN1025: `catch (e)` is an input form; bind the error in a `catch switch` arm
+
+  18 │     let b = parse("") catch (e) 0
+     │                             ^^^ the input form
+     │
+  help: write `catch switch { E e => … }`, binding the error in each arm

@@ -1,0 +1,2 @@
+== analyzeOwnership.withCopy
+BYN2780 58:17 implicit copy of a unique value: `Bag` is unique because field `items` is a `List<i64>` ||write `move bag with { … }` to give up `bag`|

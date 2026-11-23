@@ -1,0 +1,7 @@
+error BYN1001: expected `}`, found `void`
+  --> <repo>/tests/cases/diag/unclosed-brace.byn:5:1
+
+  5 │ void g() {}
+    │ ^^^^
+    │
+  help: close the block opened on line 2

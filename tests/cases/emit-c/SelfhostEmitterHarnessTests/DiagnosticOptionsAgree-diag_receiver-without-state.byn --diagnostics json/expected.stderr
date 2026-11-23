@@ -1,0 +1,1 @@
+{"code":"BYN1061","severity":"error","file":"input.byn","span":{"start":41,"end":45,"line":4,"column":14,"endLine":4,"endColumn":18},"message":"`this` without a state is the default receiver","label":"the default receiver","help":"remove `this`, or add a state: `this is .s`","fixes":[{"span":{"start":41,"end":45,"line":4,"column":14,"endLine":4,"endColumn":18},"replacement":""}]}

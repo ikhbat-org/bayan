@@ -1,0 +1,17 @@
+1:4 Identifier `c`
+1:6 Identifier `mment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:4 Identifier `_`
+2:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │    c�mment */ a
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  � _
+    │  ^

@@ -1,0 +1,71 @@
+3:15 Identifier `a`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `total `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 InterpolationEnd `}`
+5:12 InterpolatedStringEnd `"`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolatedStringText `a `
+5:18 InterpolationStart `{`
+5:19 Identifier `f`
+5:20 OpenParen `(`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolatedStringText `b `
+5:25 InterpolationStart `{`
+5:26 Identifier `c`
+5:27 InterpolationEnd `}`
+5:28 InterpolatedStringEnd `"`
+5:29 CloseParen `)`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringText ` d`
+5:33 InterpolatedStringEnd `"`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolatedStringText `{{literal}}`
+5:48 InterpolatedStringEnd `"`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 Identifier `Point`
+5:59 OpenBrace `{`
+5:61 Identifier `x`
+5:63 Equals `=`
+5:65 IntegerLiteral `1`
+5:67 CloseBrace `}`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringText `!`
+5:70 InterpolatedStringEnd `"`
+5:72 InterpolatedStringStart `$"`
+5:74 InterpolatedStringEnd `"`
+6:1 Identifier `str`
+7:17 Identifier `a`
+8:1 Identifier `foo`
+8:5 Identifier `Bar`
+8:9 Identifier `_x`
+8:12 Identifier `camelCase2`
+8:23 Identifier `بيان`
+8:28 Identifier `μετρητής`
+8:37 Identifier `x_1`
+8:41 Identifier `é`
+9:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // block
+    │   │  +++++++
+    │ 3 │ // comment
+    │   │ ++++++++++
+    │ 4 │  a
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │ /*   comment */ a
+    │ ^^^^^^^^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │ // comment
+    │   │  +++++++++
+    │ 8 │  a

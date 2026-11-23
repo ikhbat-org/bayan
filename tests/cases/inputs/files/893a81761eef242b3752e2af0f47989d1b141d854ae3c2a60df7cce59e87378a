@@ -1,0 +1,8 @@
+void main() {
+    switch k {
+        case .pair(
+            let firstValue,
+            let secondValue
+        ): go()
+    }
+}

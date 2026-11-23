@@ -1,0 +1,10 @@
+== diags.diag/unknown-effect
+BYN6003 2:15 `loop` is not an effect
+  label the alias refers to itself
+  help choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias
+BYN6003 3:20 `disk` is not an effect
+  label not an effect or an `effect` alias of this module
+  help choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias
+BYN6003 5:18 `disk` is not an effect
+  label not an effect or an `effect` alias of this module
+  help choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias

@@ -1,0 +1,51 @@
+1:1 Identifier `ommen`
+1:7 Star `*`
+1:8 Slash `/`
+1:10 Identifier `a`
+    doc `/// """`
+3:2 Identifier `u`
+3:3 OpenBrace `{`
+3:4 IntegerLiteral `110000`
+3:10 CloseBrace `}`
+3:11 CharLiteral `'`
+4:1 CharLiteral `'�x`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 Identifier `__`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  1 │ ommen� */ a
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  3 │ �u{110000}'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  3 │ �u{110000}'
+    │           ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ '�x
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB6)
+
+  4 │ '�x
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{__
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

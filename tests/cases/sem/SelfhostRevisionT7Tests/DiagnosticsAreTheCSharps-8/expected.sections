@@ -1,0 +1,7 @@
+== diags.declare
+BYN5104 12:22 `key` holds a collection; name it with a plural, `keys`
+  help rename it `keys`
+  fix 12:22-12:25 keys
+BYN5104 19:28 `item` holds a collection; name it with a plural, `items`
+  help rename it `items`
+  fix 19:28-19:32 items

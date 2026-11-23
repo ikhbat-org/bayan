@@ -1,0 +1,78 @@
+1:1 Identifier `élet`
+1:7 Identifier `café`
+1:13 Equals `=`
+1:15 IntegerLiteral `1`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:2 IntegerLiteral `1__`
+4:1 Identifier `o`
+4:3 Identifier `select`
+4:10 BecomeKeyword `become`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:8 Equals `=`
+5:10 IntegerLiteral `3`
+6:2 LetKeyword `let`
+6:6 Identifier `café`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 EffectKeyword `effect`
+7:11 Equals `=`
+7:13 IntegerLiteral `2`
+8:2 EndOfFile
+
+error BYN0005: identifier `élet` is not in Unicode normalization form C
+
+  1 │ élet café = 1
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ élet café = 1
+    │   │ +
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ élet café = 1
+    │       ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ élet café = 1
+    │   │          +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  1__
+    │   ^^
+    │
+    │ 3 │  1__
+    │   │   --
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ o select become
+    │   ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  5 │ let law�= 3
+    │        ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  let café = 1
+    │   │         +

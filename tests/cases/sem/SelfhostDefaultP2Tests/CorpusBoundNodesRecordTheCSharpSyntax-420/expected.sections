@@ -1,0 +1,28 @@
+== tests/cases/diag/doer-without-verb-clean.byn
+820..831 globalStatement
+820..831 exprStmt
+820..831 callExpr
+826..830 literalExpr string
+820..831 callExpr
+111..132 structLiteralExpr
+111..132 structLiteralExpr
+111..132 structLiteralExpr
+129..130 literalExpr integer
+252..273 structLiteralExpr
+252..273 structLiteralExpr
+252..273 structLiteralExpr
+270..271 literalExpr integer
+397..401 literalExpr nullKeyword
+397..401 literalExpr nullKeyword
+397..401 literalExpr nullKeyword
+482..489 blockStmt
+554..556 literalExpr string
+554..556 literalExpr string
+554..556 literalExpr string
+724..726 literalExpr string
+724..726 literalExpr string
+724..726 literalExpr string
+795..816 structLiteralExpr
+795..816 structLiteralExpr
+795..816 structLiteralExpr
+813..814 literalExpr integer

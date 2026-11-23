@@ -1,0 +1,228 @@
+struct P {
+    i64 a = 0
+    string b = "x"
+
+    void bump(ref this) {
+        a += 1
+    }
+
+    i64 get() => a
+
+    void add(ref this, i64 x, by i64 y) {
+        a += x + y
+    }
+}
+
+P mk() => P { a: 1 }
+
+List<i64> mkl() uses alloc => List<i64>()
+
+StrBuf mksb() uses alloc => StrBuf()
+
+i64 id(i64 v) => v
+
+i64 pair(i64 x, by i64 y) => x
+
+string ids(string s) => s
+
+enum Color {
+    red
+    green
+}
+
+void inc(ref i64 v) {
+    v += 1
+}
+
+void kinds(i64 a, from f64 b, to bool c, by string d, as Color e, for P f) { }
+
+void calls(i64 k, from ref P p, to i64 -> i64 fv, by ref Map<string, P> m, as ref List<P> ps) {
+    let c1 = id(k)
+    let c2 = pair(id(k), by: id(k))
+    let c3 = mk().get()
+    let c4 = p.get()
+    let c5 = fv(k)
+    m["a"].bump()
+    p.bump()
+    var kk = 1
+    inc(ref kk)
+    let c6 = ps.removeLast().get()
+    ps[k].add(id(k), by: id(k))
+}
+
+void builtins(ref List<i64> xs, to ref Map<string, P> m, by ref StrBuf sb, as ref Map<string, i64> mi, for string name) uses alloc {
+    let k = 1
+    xs.append(k)
+    let r = xs.removeLast()
+    let tk = xs.take()
+    sb.append($"a{k}b")
+    let ts = sb.take()
+    let v = sb.finish()
+    let rm = m.remove("a")
+    let sl = m.slot("q")
+    let sm = mi.slot("q")
+    let mt = m.take()
+    let sp = xs.span
+    xs.append(id(k))
+    let sn = (id(k)) switch { 1 => 10, _ => 20 }
+    let sp2 = mkl().span
+    let v2 = mksb().finish()
+    sb.append(name)
+    let ln = mkl().length
+    xs.sort()
+    xs.replace(at: 0..1, by: xs)
+}
+
+void opts(ref Owned<P>? o, to ref Map<string, List<i64>> ml, by ref Map<string, Owned<P>?> mo, as ref Map<string, P> m) uses alloc {
+    let t = o.take()
+    let t2 = ml["a"].take()
+    let t3 = mo.slot("b").take()
+    m.slot("c").bump()
+}
+
+void compound(ref Map<string, i64> mi, to ref List<i64> xs, by i64 k) uses alloc {
+    mi["a"] += 1
+    mi[ids("a")] += k
+    xs[id(k)] += 1
+    xs[k] += 1
+    xs[0] = 1
+    mi.slot("d") += 1
+    mi.slot(ids("e")) += k
+}
+
+void arrs(ref i64[3] arr) {
+    let k = 1
+    arr[1] = 1
+    arr[id(k)] = 2
+}
+
+void writes(i64 k, from Symbol sy, to string s) uses alloc, console {
+    print($"a{k}b{s}")
+    print($"x{sy}")
+    print($"{id(k)}{id(k)}")
+    print($"{k + 1}")
+}
+
+void places(ref List<P> ps, to ref Map<string, P> m, by ref List<i64> xs, as ref (i64 q, i64 r) t) {
+    let k = 1
+    ps[id(k)].a = 1
+    m["a"] = mk()
+    xs[id(k)] = 1
+    t.q = 1
+    xs[k] = 1
+    m[ids("a")] = mk()
+}
+
+void tries(i64 k, from f64 d, to f32 f, by u8 b, as u64 u) {
+    let t1 = u8.tryFrom(k)
+    let t2 = i64.tryFrom(k)
+    let t3 = u8.tryFrom(b)
+    let t4 = i64.tryFrom(d)
+    let t5 = i32.tryFrom(d)
+    let t6 = i32.tryFrom(f)
+    let t7 = u64.tryFrom(d)
+    let t8 = i64.tryFrom(b)
+    let t9 = u64.tryFrom(k)
+    let t10 = i64.tryFrom(u)
+    let t11 = u8.tryFrom(id(k))
+    let t12 = u8.tryFrom(f)
+    let sw = k switch { 1 => 10, _ => 20 }
+    let t13 = f64.tryFrom(k)
+}
+
+void narrows(P? op, to i64 k) {
+    if op is null { return }
+    let n1 = op.get()
+    let s1 = k switch { let x when x > 3 => x, _ => 0 }
+    let s2 = k switch { let x when (x switch { 1 => true, _ => false }) => x, _ => 0 }
+}
+
+i64[3] mka() => [1, 2, 3]
+
+void spans() {
+    let a = mka().span
+}
+
+void nevers(i64 k) {
+    let s3 = k switch { 1 => panic("a"), _ => panic("b") }
+}
+
+union Mode {
+    read = 1
+    none = -1
+}
+
+struct Bill {
+    i64 id
+    states {
+        card(i64 amount)
+        cash(i64 amount)
+    }
+}
+
+Bill mk(i64 k) => Bill.card { id: 0, amount: k }
+
+void unions(Mode m, to i64 k) uses alloc {
+    let u1 = m switch { .read => 1, .none => 2 }
+    assert mk(k).amount == 3
+}
+
+union error AE {
+    bad
+    worse
+}
+
+union error BE {
+    other
+}
+
+struct Q {
+    i64 a = 0
+
+    i64 get() => a
+
+    i64 load() fails AE => a
+}
+
+i64 failing(i64 k) fails AE {
+    if k > 0 { fail AE.bad }
+    return k
+}
+
+void voidFailing(i64 k) fails AE, BE {
+    if k > 0 { fail BE.other }
+}
+
+void asserts(i64 k, from Q q, to List<i64> xs, by i64? o, as bool f, for string s, at i32 n, through i64 -> i64 g) uses alloc {
+    assert k == 1
+    assert f && k > 2
+    assert f || id(k) == 3
+    assert (f ? k : 2) == 3
+    assert (o ?? 4) == k
+    assert q.get() == xs[k]
+    assert o is null
+    assert -1 == (k)
+    assert true
+    assert s == "日本"
+        && k >
+          +0
+    assert failing(k) fails AE
+    assert failing(k) fails AE.bad
+    assert voidFailing(k) fails AE
+    assert q.load() fails AE
+    assert k == n
+    assert k == (1)
+    assert k	== 1
+    assert k== 1
+    assert (f ? g : g)(k) == 3
+    assert !f || -k == -(1)
+    assert s.isEmpty == f
+    assert f || id(panic("x")) == 3
+    assert panic("x")
+}
+
+void assertsNever() {
+    assert failing(panic("x")) fails AE
+}
+
+void main() { }

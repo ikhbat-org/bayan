@@ -1,0 +1,16 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+3:1 StringLiteral `" "`
+3:4 StringLiteral `""`
+4:3 Identifier `raw`
+4:7 StringLiteral `"quoted `
+4:15 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │   raw "quoted 
+    │       ^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,43 @@
+2:1 Identifier `x́`
+2:4 Amp `&`
+2:6 AmpAmp `&&`
+2:9 Bar `|`
+2:11 BarBar `||`
+2:14 Caret `^`
+2:16 Tilde `~`
+2:18 Bang `!`
+2:20 Equals `=`
+2:22 EqualsEquals `==`
+2:25 BangEquals `!=`
+2:28 Less `<`
+2:30 LessEquals `<=`
+2:33 Greater `>`
+2:35 GreaterEquals `>=`
+2:38 LessLess `<<`
+2:41 Greater `>`
+2:42 Greater `>`
+2:44 Greater `>`
+2:45 GreaterEquals `>=`
+3:2 Identifier `macro`
+3:8 Identifier `select`
+3:15 BecomeKeyword `become`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  2 │ x́�& && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

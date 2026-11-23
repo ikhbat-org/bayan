@@ -1,0 +1,8 @@
+error BYN2018: `this` is only available inside instance methods
+  --> input.byn:1:15
+
+  1 │ i64 size() => this.length
+    │               ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2018

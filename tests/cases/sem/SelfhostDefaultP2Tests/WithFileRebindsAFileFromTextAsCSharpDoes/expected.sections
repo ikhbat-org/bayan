@@ -1,0 +1,2 @@
+== main broken
+diag BYN2003 tests/cases/run/alias-field-default-import/main.byn 12:22 `zz` is not a member of `L` |  | 

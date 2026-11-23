@@ -1,0 +1,31 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{3`
+1:6 InterpolatedStringEnd `"`
+1:8 IntegerLiteral `0b1`
+1:11 NumericSuffix `ms`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 PlusEquals `+=`
+3:5 MinusEquals `-=`
+3:8 StarEquals `*=`
+3:11 SlashEquals `/=`
+3:14 PercentEquals `%=`
+3:17 AmpEquals `&=`
+3:20 BarEquals `|=`
+3:23 CaretEquals `^=`
+3:26 LessLessEquals `<<=`
+4:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ $"{{3" 0b1ms
+    │           ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character ```
+
+  2 │  let b = ` 2
+    │          ^

@@ -1,0 +1,3 @@
+== call.c24
+call|i64|-1|twice|-|2047:9|errorExpr:?
+BYN2202 118:21 expected `i64`, found `Untrusted<string>` |||

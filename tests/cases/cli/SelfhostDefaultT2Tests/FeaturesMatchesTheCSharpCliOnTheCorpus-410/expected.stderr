@@ -1,0 +1,29 @@
+error BYN7007: `Order` has no state `.placed`
+  --> <repo>/tests/cases/parse/receiver-pattern-property.byn:9:34
+
+  9 │     public void pay(ref this is .placed, i64 amount) {
+    │                                  ^^^^^^
+    │
+  help: check the states declared in `Order`
+
+error BYN7007: `Order` has no state `.shipped`
+  --> <repo>/tests/cases/parse/receiver-pattern-property.byn:13:34
+
+  13 │     public i64 tracking(this is .shipped) => total
+     │                                  ^^^^^^^
+     │
+  help: check the states declared in `Order`
+
+error BYN2022: a named pattern is not supported in v0.1
+  --> <repo>/tests/cases/parse/receiver-pattern-property.byn:16:18
+
+  16 │ const inactive = pattern Order { total: 0 or 1 }
+     │                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error BYN1016: `i32 input, bool valid` is not allowed here
+  --> <repo>/tests/cases/parse/receiver-pattern-property.byn:19:16
+
+  19 │ test "bounds" (i32 input, bool valid) {
+     │                ^^^^^^^^^^^^^^^^^^^^^ a test without `@cases` takes no parameters
+     │
+  help: add `@cases(...)` with one value per parameter for each case, or remove the parameters

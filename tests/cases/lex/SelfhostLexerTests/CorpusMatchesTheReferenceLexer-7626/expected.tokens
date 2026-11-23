@@ -1,0 +1,99 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCae2`
+1:22 Identifier `بيان`
+1:27 Identifier `μετρητής`
+1:36 Identifier `x_1`
+1:40 Identifier `é`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+5:1 Identifier `ạ̇`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:9 StringLiteral `"bad \q escape"`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 InterpolatedStringStart `$"`
+7:49 InterpolationStart `{`
+7:50 StringLiteral `$"{$"`
+7:55 OpenBrace `{`
+7:56 Identifier `x`
+7:57 CloseBrace `}`
+7:58 StringLiteral `"}"`
+7:61 InterpolationEnd `}`
+7:62 InterpolatedStringEnd `"`
+7:63 InterpolationEnd `}`
+7:64 InterpolatedStringEnd `"`
+7:65 InterpolationEnd `}`
+7:66 InterpolatedStringEnd `"`
+7:67 InterpolationEnd `}`
+7:68 InterpolatedStringEnd `"`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringEnd `"`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringEnd `"`
+7:74 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇
+    │   │ +
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 
+    │                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 
+    │                                                  ^^

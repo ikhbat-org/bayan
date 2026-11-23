@@ -1,0 +1,73 @@
+1:1 CharLiteral `'`
+2:1 CharLiteral `'ab'`
+3:1 CharLiteral `'\q'`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{110000}'`
+6:1 CharLiteral `'x`
+8:1 ErrorKeyword `error`
+8:7 SetKeyword `set`
+8:11 UnitKeyword `unit`
+8:16 DistinctKeyword `distinct`
+8:25 TypeKeyword `type`
+8:30 ImportKeyword `import`
+8:37 AsKeyword `as`
+8:40 PublicKeyword `public`
+8:47 Identifier `pr`
+8:50 Identifier `ivate`
+8:56 StaticKeyword `static`
+8:63 ReadonlyKeyword `readonly`
+8:72 RequiredKeyword `required`
+8:81 ConstKeyword `const`
+8:87 LetKeyword `let`
+8:91 VarKeyword `var`
+8:95 EmbedKeyword `embed`
+8:101 ExternKeyword `extern`
+8:108 UnsafeKeyword `unsafe`
+9:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{16}`
+
+  8 │ error set unit distinct type import as public pr�ivate static readonly required const let var embed extern unsafe
+    │                                                 ^

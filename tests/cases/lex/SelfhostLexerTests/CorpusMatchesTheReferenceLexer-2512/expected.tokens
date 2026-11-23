@@ -1,0 +1,40 @@
+1:1 CharLiteral `''`
+4:1 Identifier `b`
+6:1 Comma `,`
+6:3 Dot `.`
+6:5 DotDot `..`
+6:8 DotDotEquals `..=`
+6:12 Colon `:`
+6:14 Question `?`
+6:16 QuestionQuestion `??`
+6:19 QuestionQuestionEquals `??=`
+6:23 QuestionDot `?.`
+6:26 FatArrow `=>`
+6:29 Arrow `->`
+6:32 At `@`
+6:34 Hash `#`
+7:3 Identifier `escpe`
+7:8 StringLiteral `"`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+10:1 IntegerLiteral `0b__`
+11:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  7 │   escpe"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  10 │ 0b__
+     │ ^^^^

@@ -1,0 +1,4 @@
+== diags.diag/type-casing
+BYN2008 1:8 type name `point` must be PascalCase
+  help rename it `Point`
+  fix 1:8-1:13 Point

@@ -1,0 +1,3 @@
+== diags.shadowed-names
+BYN2003 10:20 `over` is not a member of `StrBuf`
+BYN2003 11:17 `debug` is not a member of `Log`

@@ -1,0 +1,13 @@
+let b = "aô \q escape"
+ x
+1_
+0b102
+0xFFs
+0b1ms
+0x_
+0b__
+__
+0xF__
+
+a >> b
+

@@ -1,0 +1,5 @@
+error BYN2002: unknown type `Mony`
+  --> <repo>/tests/cases/diag/unknown-type.byn:1:12
+
+  1 │ var price: Mony
+    │            ^^^^

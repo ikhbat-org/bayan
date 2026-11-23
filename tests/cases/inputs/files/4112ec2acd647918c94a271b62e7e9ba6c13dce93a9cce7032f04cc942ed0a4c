@@ -1,0 +1,1359 @@
+import lexer
+import parser
+
+const source: string = "interface IReset { void reset(ref this) }\n\nconst table: i64[3] = [1, 2, 3]\n\nstruct Plain : IReset {\n    i64 n\n\n    void reset(ref this) {\n        n = 0\n    }\n}\n\nstruct Counter {\n    i64 n\n\n    void bump(ref this) {\n        n += 1\n    }\n}\n\nstruct Bag : IReset {\n    List<i64> items\n    List<i64> extra\n    Counter inner\n    i64 count\n\n    void reset(ref this) {\n        items.clear()\n    }\n\n    void grow(ref this) {\n        items.append(1)\n        add()\n    }\n\n    void add(ref this) {\n        extra.append(2)\n        grow()\n    }\n\n    void refill(ref this) {\n        grow()\n        fill(to: ref items)\n        inner.bump()\n        whole(for: ref this)\n        set()\n        this.count = 2\n        items[0] = 3\n    }\n\n    void set(ref this) {\n        count = 1\n    }\n\n    void outer(ref this) {\n        refill()\n        reset()\n    }\n}\n\nvoid fill(to ref List<i64> xs) {\n    xs.append(1)\n}\n\nvoid whole(for ref Bag b) {\n    b.count = 0\n}\n\nvoid two(ref List<i64> a, by ref List<i64> b) {\n    a.append(b.length)\n}\n\nvoid one(ref List<i64> a, by i64 v) {\n    a.append(v)\n}\n\nvoid poke(ref List<i64> a, by ref i64 v) {\n    v = a.length\n}\n\nvoid keep(ref List<i64> a, by List<i64> b) {\n    a.append(b.length)\n}\n\nvoid clear(dyn ref IReset r) {\n    r.reset()\n}\n\nvoid spend(Arena a) {\n}\n\nvoid fa(Span<i64> sp, from ReadOnlySpan<i64> ro, to (i64, List<i64>) tu, until Plain pl, through Bag bg, at i64? oi, by Arena ar, for dyn ref IReset dr, as StrBuf sb) {\n    var xs = List<i64>()\n    two(ref xs, by: ref xs)\n    one(ref xs, by: xs[0])\n    keep(ref xs, by: xs)\n    var b = Bag { items: List<i64>(), extra: List<i64>(), inner: Counter { n: 0 }, count: 0 }\n    b.grow()\n    clear(b)\n    let r: dyn ref IReset = b\n    clear(r)\n    r.reset()\n    sp[0] = 1\n    xs[0] = 2\n    let q = 1\n    let h = 0\n    var p = Plain { n: 1 }\n    let r3: dyn ref IReset = p\n    let r2: dyn ref IReset = r\n    spend(ar)\n    switch bg {\n        case { items: let its }:\n            print(\"x\")\n    }\n    var m = Map<string, i64>()\n    m[\"a\"] = 1\n    let ts = table\n    poke(ref xs, by: ref xs[0])\n}\n\nvoid fc(List<i64> xs) {\n    var h = 0\n    for x in xs {\n        h = x\n    }\n    print($\"{h}\")\n    var k = 0\n    while k < 3 {\n        k += 1\n    }\n    print($\"{k}\")\n}\n\nunion error Bad {\n    oops\n}\n\nunion Slot {\n    empty\n    full(List<i64> items)\n}\n\nunion Mark {\n    none\n    some(i64 n)\n}\n\nunion Cell {\n    none\n    some(i64[2] a)\n}\n\nstruct unique Token {\n    i64 n\n}\n\nvoid ft<T>(string s, from Untrusted<string> u, to Untrusted<List<i64>> ul, until Result<string, Bad> rs, through Result<List<i64>, Bad> rl, at i64[2] ai, by List<i64>[2] al, as T tv) {\n}\n\nvoid fu(Slot sl, from Mark mk, to Token tk, until Bag bg, through Cell ce) {\n    switch sl {\n        case .full w:\n            print(\"w\")\n        default:\n            print(\"d\")\n    }\n    switch bg {\n        case { items: let its } whole:\n            print(\"x\")\n    }\n}\n"
+
+void tcDiags(in Ctx c, from i64 start) {
+    for i in start..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+FuncId tcFunc(in Ctx c, by string name) {
+    for f in 0..c.functions.length {
+        if c.functions[f].name == name && c.functions[f].body != -1 { return f }
+    }
+    return -1
+}
+
+BExpr tcStmt(in Ctx c, for FuncId f, by i64 i) {
+    let s = c.bBlocks[boundIndex(c.functions[f].body)].statements[i]
+    let k = boundKind(s)
+    let x = boundIndex(s)
+    if k == .exprStmt { return c.bExprStmts[x].expr }
+    if k == .localDecl { return c.bLocalDecls[x].initializer }
+    if k == .assign { return c.bAssigns[x].target }
+    if k == .returnStmt { return c.bReturns[x].value }
+    if k == .switchStmt { return c.bSwitches[x].value }
+    return -1
+}
+
+BPattern tcPattern(in Ctx c, for FuncId f, by i64 i) {
+    let s = c.bBlocks[boundIndex(c.functions[f].body)].statements[i]
+    return c.bSwitches[boundIndex(s)].sections[0].pattern
+}
+
+/// A parameter, or a local the body declares, by name.
+LocalId tcLocal(in Ctx c, for FuncId f, by string name) {
+    for p in c.functions[f].parameters {
+        if c.locals[p].name == name { return p }
+    }
+    let nodes = descendants(in c, for: c.functions[f].body)
+    for node in nodes {
+        var l: LocalId = -1
+        let k = boundKind(node)
+        if k == .localDecl { l = c.bLocalDecls[boundIndex(node)].local }
+        if k == .bindPattern { l = c.bBindPatterns[boundIndex(node)].local }
+        if k == .forStmt { l = c.bFors[boundIndex(node)].variable }
+        if l != -1 && c.locals[l].name == name { return l }
+    }
+    return -1
+}
+
+string tcName(in Ctx c, for LocalId l) => l == -1 ? "-" : c.locals[l].name
+
+void tcTypes(ref Ctx c, for LocalId l) {
+    let t = c.locals[l].type
+    let name = c.locals[l].name
+    var s1 = List<Type>()
+    var s2 = List<Type>()
+    var s3 = List<Type>()
+    let b = mayBorrow(ref c, for: t, by: ref s1)
+    let m = mayLend(ref c, for: t, by: ref s2)
+    let k = containsList(ref c, for: t, by: ref s3)
+    print($"type {name} {b} {m} {k}")
+}
+
+void tcRoot(ref Regions r, through ref Ctx c, for BExpr e) {
+    let root = rootLocal(ref c, for: e)
+    let store = storeRoot(in c, for: e)
+    let field = thisField(ref r, through: ref c, for: e)
+    let rooted = isThisRooted(in c, for: e)
+    print($"root {tcName(in c, for: root)} {tcName(in c, for: store)} {tcName(in c, for: field)} {rooted}")
+}
+
+void tcBorrow(in Ctx c, by in Borrow b) {
+    let ordered = t37Ordered(in b.regions)
+    var regions = ""
+    for x in ordered {
+        regions = regions.length > 0 ? $"{regions},{x.depth}:{x.name}" : $"{x.depth}:{x.name}"
+    }
+    var owners = List<string>()
+    for o in b.owners {
+        var at = -1
+        if (b.lends is { } lends) {
+            if lends.contains(o) { at = lends[o] }
+        }
+        owners.append(at == -1 ? c.locals[o].name : $"{c.locals[o].name}={at}")
+    }
+    owners.sort()
+    var joined = ""
+    for o in owners {
+        joined = joined.length > 0 ? $"{joined},{o}" : o
+    }
+    print($"borrow [{regions}] [{joined}]")
+}
+
+void tcReferent(in Regions r, for LocalId l, by string name) {
+    if r.referentMayBorrow.contains(l) {
+        print($"referent {name} {r.referentMayBorrow[l]}")
+    } else {
+        print($"referent {name} -")
+    }
+}
+
+void tcDump(in Regions r, through in Ctx c, from i64 start) {
+    print($"counts {r.mutations.length} {r.loans.length} {c.diagnostics.length - start}")
+    for m in r.mutations {
+        print($"mut {c.locals[m.target].name} {m.span.start}..{m.span.end} {m.moved} {tcName(in c, for: m.through)}")
+    }
+    for l in r.loans {
+        print($"loan {c.locals[l.owner].name} {tcName(in c, for: l.holder)} {l.created} {l.loopEnd}")
+    }
+}
+
+void tcCase(ref Ctx c, by string name) {
+    if name == "types" { tcCase0(ref c) }
+    if name == "types.more" { tcCase1(ref c) }
+    if name == "types.union" { tcCase2(ref c) }
+    if name == "root.index" { tcCase3(ref c) }
+    if name == "root.span" { tcCase4(ref c) }
+    if name == "root.arg" { tcCase5(ref c) }
+    if name == "root.map" { tcCase6(ref c) }
+    if name == "root.call" { tcCase7(ref c) }
+    if name == "root.this" { tcCase8(ref c) }
+    if name == "root.field" { tcCase9(ref c) }
+    if name == "root.recv" { tcCase10(ref c) }
+    if name == "call.ref" { tcCase11(ref c) }
+    if name == "call.quiet" { tcCase12(ref c) }
+    if name == "call.elem" { tcCase13(ref c) }
+    if name == "call.value" { tcCase14(ref c) }
+    if name == "call.refelem" { tcCase15(ref c) }
+    if name == "call.recv" { tcCase16(ref c) }
+    if name == "call.dyn" { tcCase17(ref c) }
+    if name == "call.dynlocal" { tcCase18(ref c) }
+    if name == "call.dynrecv" { tcCase19(ref c) }
+    if name == "call.dynquiet" { tcCase20(ref c) }
+    if name == "call.this" { tcCase21(ref c) }
+    if name == "call.thisquiet" { tcCase22(ref c) }
+    if name == "call.cached" { tcCase23(ref c) }
+    if name == "call.field" { tcCase24(ref c) }
+    if name == "call.inner" { tcCase25(ref c) }
+    if name == "call.whole" { tcCase26(ref c) }
+    if name == "call.set" { tcCase27(ref c) }
+    if name == "call.outer" { tcCase28(ref c) }
+    if name == "call.outer2" { tcCase29(ref c) }
+    if name == "lend.static" { tcCase30(ref c) }
+    if name == "lend.staticempty" { tcCase31(ref c) }
+    if name == "alloc.flat" { tcCase32(ref c) }
+    if name == "alloc.deep" { tcCase33(ref c) }
+    if name == "pattern" { tcCase34(ref c) }
+    if name == "pattern.empty" { tcCase35(ref c) }
+    if name == "pattern.union" { tcCase36(ref c) }
+    if name == "pattern.property" { tcCase37(ref c) }
+    if name == "store.loan" { tcCase38(ref c) }
+    if name == "store.lendlate" { tcCase39(ref c) }
+    if name == "store.lendearly" { tcCase40(ref c) }
+    if name == "store.self" { tcCase41(ref c) }
+    if name == "store.outlives" { tcCase42(ref c) }
+    if name == "store.order" { tcCase43(ref c) }
+    if name == "store.repeat" { tcCase44(ref c) }
+    if name == "store.rest" { tcCase45(ref c) }
+    if name == "store.quiet" { tcCase46(ref c) }
+    if name == "store.empty" { tcCase47(ref c) }
+    if name == "into.local" { tcCase48(ref c) }
+    if name == "into.span" { tcCase49(ref c) }
+    if name == "into.spanlow" { tcCase50(ref c) }
+    if name == "into.spannone" { tcCase51(ref c) }
+    if name == "into.map" { tcCase52(ref c) }
+    if name == "into.this" { tcCase53(ref c) }
+    if name == "into.quiet" { tcCase54(ref c) }
+    if name == "outlives" { tcCase55(ref c) }
+    if name == "outlives.none" { tcCase56(ref c) }
+    if name == "ret" { tcCase57(ref c) }
+    if name == "ret.caller" { tcCase58(ref c) }
+    if name == "ret.rest" { tcCase59(ref c) }
+    if name == "ret.quiet" { tcCase60(ref c) }
+    if name == "mutate.local" { tcCase61(ref c) }
+    if name == "mutate.moved" { tcCase62(ref c) }
+    if name == "mutate.field" { tcCase63(ref c) }
+    if name == "mutate.this" { tcCase64(ref c) }
+    if name == "mutate.none" { tcCase65(ref c) }
+    if name == "mutate.quiet" { tcCase66(ref c) }
+    if name == "owners.local" { tcCase67(ref c) }
+    if name == "owners.lent" { tcCase68(ref c) }
+    if name == "owners.skip" { tcCase69(ref c) }
+    if name == "owners.other" { tcCase70(ref c) }
+    if name == "owners.quiet" { tcCase71(ref c) }
+    if name == "refer.conv" { tcCase72(ref c) }
+    if name == "refer.plain" { tcCase73(ref c) }
+    if name == "refer.local" { tcCase74(ref c) }
+    if name == "refer.unknown" { tcCase75(ref c) }
+    if name == "refer.other" { tcCase76(ref c) }
+    if name == "refer.keep" { tcCase77(ref c) }
+    if name == "refer.value" { tcCase78(ref c) }
+    if name == "check.used" { tcCase79(ref c) }
+    if name == "check.moved" { tcCase80(ref c) }
+    if name == "check.after" { tcCase81(ref c) }
+    if name == "check.declared" { tcCase82(ref c) }
+    if name == "check.inloop" { tcCase83(ref c) }
+    if name == "check.loopext" { tcCase84(ref c) }
+    if name == "check.loopnoext" { tcCase85(ref c) }
+    if name == "check.edge" { tcCase86(ref c) }
+    if name == "check.late" { tcCase87(ref c) }
+    if name == "check.loop" { tcCase88(ref c) }
+    if name == "check.loopmoved" { tcCase89(ref c) }
+    if name == "check.loopdone" { tcCase90(ref c) }
+    if name == "check.through" { tcCase91(ref c) }
+    if name == "check.throughother" { tcCase92(ref c) }
+    if name == "check.once" { tcCase93(ref c) }
+    if name == "check.other" { tcCase94(ref c) }
+    if name == "check.noloans" { tcCase95(ref c) }
+    if name == "check.unused" { tcCase96(ref c) }
+    if name == "check.quiet" { tcCase97(ref c) }
+}
+void tcCase0(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "sp"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "ro"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "tu"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "pl"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "bg"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "oi"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "ar"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "dr"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "sb"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "xs"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "b"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "r"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "p"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "h"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "q"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "m"))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase1(ref Ctx c) {
+    let f = tcFunc(in c, by: "ft")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "s"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "u"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "ul"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "rs"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "rl"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "ai"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "al"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "tv"))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase2(ref Ctx c) {
+    let f = tcFunc(in c, by: "fu")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "sl"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "mk"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "tk"))
+    tcTypes(ref c, for: tcLocal(in c, for: f, by: "ce"))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase3(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: tcStmt(in c, for: f, by: 11))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase4(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: tcStmt(in c, for: f, by: 10))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase5(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: c.bCalls[boundIndex(tcStmt(in c, for: f, by: 2))].arguments[1])
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase6(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: tcStmt(in c, for: f, by: 20))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase7(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: tcStmt(in c, for: f, by: 1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase8(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: tcStmt(in c, for: f, by: 5))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase9(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: tcStmt(in c, for: f, by: 6))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase10(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    tcRoot(ref r, through: ref c, for: c.bCalls[boundIndex(tcStmt(in c, for: f, by: 2))].receiver)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase11(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase12(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase13(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 2))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase14(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 3))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase15(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 22))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase16(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 5))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase17(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 6))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase18(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 8))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase19(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 9))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase20(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 9))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase21(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 0))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase22(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 0))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase23(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 0))
+    let call1 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 0))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase24(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase25(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 2))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase26(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 3))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase27(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 4))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase28(ref Ctx c) {
+    let f = tcFunc(in c, by: "outer")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 0))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase29(ref Ctx c) {
+    let f = tcFunc(in c, by: "outer")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let call0 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 1))
+    let call1 = callBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 0))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase30(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 2, name: "`a`" })
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    b0l[tcLocal(in c, for: f, by: "xs")] = 7
+    let b0 = Borrow { regions: move b0r, owners: move b0o, lends: move b0l }
+    let a1 = lendBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 21), by: in b0, at: 9)
+    tcBorrow(in c, by: in a1)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase31(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    let a1 = lendBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 21), by: in b0, at: 9)
+    tcBorrow(in c, by: in a1)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase32(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let a0 = allocatedFrom(ref r, through: ref c, for: c.bCalls[boundIndex(tcStmt(in c, for: f, by: 17))].arguments[0])
+    tcBorrow(in c, by: in a0)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase33(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.depthOf[tcLocal(in c, for: f, by: "ar")] = 2
+    let a0 = allocatedFrom(ref r, through: ref c, for: c.bCalls[boundIndex(tcStmt(in c, for: f, by: 17))].arguments[0])
+    tcBorrow(in c, by: in a0)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase34(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`bg`" })
+    b0o.append(tcLocal(in c, for: f, by: "bg"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    t37BindPattern(ref r, through: ref c, for: tcPattern(in c, for: f, by: 18), by: in b0)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase35(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    t37BindPattern(ref r, through: ref c, for: tcPattern(in c, for: f, by: 18), by: in b0)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase36(ref Ctx c) {
+    let f = tcFunc(in c, by: "fu")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`sl`" })
+    b0o.append(tcLocal(in c, for: f, by: "sl"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    t37BindPattern(ref r, through: ref c, for: tcPattern(in c, for: f, by: 0), by: in b0)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase37(ref Ctx c) {
+    let f = tcFunc(in c, by: "fu")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`bg`" })
+    b0o.append(tcLocal(in c, for: f, by: "bg"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    t37BindPattern(ref r, through: ref c, for: tcPattern(in c, for: f, by: 1), by: in b0)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase38(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.depthOf[tcLocal(in c, for: f, by: "h")] = 2
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`x`" })
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    b0l[tcLocal(in c, for: f, by: "xs")] = 50
+    let b0 = Borrow { regions: move b0r, owners: move b0o, lends: move b0l }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 0, length: 100 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase39(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    b0l[tcLocal(in c, for: f, by: "xs")] = 150
+    let b0 = Borrow { regions: move b0r, owners: move b0o, lends: move b0l }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 0, length: 100 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase40(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    b0l[tcLocal(in c, for: f, by: "xs")] = 5
+    let b0 = Borrow { regions: move b0r, owners: move b0o, lends: move b0l }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 10, length: 30 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase41(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "xs"), by: in b0, at: TextSpan { start: 942, length: 3 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase42(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.depthOf[tcLocal(in c, for: f, by: "h")] = 1
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 3, name: "`y`" })
+    b0r.append(Region { depth: 2, name: "`z`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 1772, length: 5 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase43(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 3, name: "`c`" })
+    b0r.append(Region { depth: 3, name: "`a`" })
+    b0r.append(Region { depth: 2, name: "`b`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 1772, length: 5 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase44(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 2, name: "`a`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 1772, length: 5 })
+    var b1r = List<Region>()
+    var b1o = List<LocalId>()
+    var b1l: Map<LocalId, i64> = []
+    b1r.append(Region { depth: 2, name: "`b`" })
+    let b1 = Borrow { regions: move b1r, owners: move b1o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "q"), by: in b1, at: TextSpan { start: 1772, length: 5 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase45(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.restTails.append(RestTail { region: Region { depth: 1, name: "`ro`" }, tail: "ro" })
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`ro`" })
+    b0r.append(Region { depth: 1, name: "`zz`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 1772, length: 5 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase46(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 2, name: "`a`" })
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 1772, length: 5 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase47(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeBorrow(ref r, through: ref c, for: tcLocal(in c, for: f, by: "h"), by: in b0, at: TextSpan { start: 1772, length: 5 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase48(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 2, name: "`a`" })
+    b0o.append(tcLocal(in c, for: f, by: "b"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 11), by: in b0, at: TextSpan { start: 1517, length: 8 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase49(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 3, name: "`s`" })
+    b0r.append(Region { depth: 2, name: "`t`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    r.locals[tcLocal(in c, for: f, by: "sp")] = move b0
+    var b1r = List<Region>()
+    var b1o = List<LocalId>()
+    var b1l: Map<LocalId, i64> = []
+    b1r.append(Region { depth: 3, name: "`u`" })
+    let b1 = Borrow { regions: move b1r, owners: move b1o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 10), by: in b1, at: TextSpan { start: 1730, length: 8 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase50(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`s`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    r.locals[tcLocal(in c, for: f, by: "sp")] = move b0
+    var b1r = List<Region>()
+    var b1o = List<LocalId>()
+    var b1l: Map<LocalId, i64> = []
+    b1r.append(Region { depth: 2, name: "`u`" })
+    b1r.append(Region { depth: 1, name: "`v`" })
+    let b1 = Borrow { regions: move b1r, owners: move b1o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 10), by: in b1, at: TextSpan { start: 1730, length: 8 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase51(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`u`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 10), by: in b0, at: TextSpan { start: 1730, length: 8 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase52(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`u`" })
+    b0o.append(tcLocal(in c, for: f, by: "q"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 20), by: in b0, at: TextSpan { start: 1998, length: 8 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase53(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`u`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 5), by: in b0, at: TextSpan { start: 675, length: 10 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase54(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`u`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    storeIntoBorrow(ref r, through: ref c, for: tcStmt(in c, for: f, by: 5), by: in b0, at: TextSpan { start: 675, length: 10 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase55(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 2, name: "`a`" })
+    b0r.append(Region { depth: 1, name: "`b`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    checkOutlives(ref r, through: ref c, for: in b0, by: 1, as: "holder", at: TextSpan { start: 0, length: 4 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase56(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`a`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    checkOutlives(ref r, through: ref c, for: in b0, by: 1, as: "holder", at: TextSpan { start: 0, length: 4 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase57(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 0, name: "`a`" })
+    b0r.append(Region { depth: 1, name: "`b`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    checkReturn(ref r, through: ref c, for: in b0, at: TextSpan { start: 7, length: 3 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase58(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 0, name: "`a`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    checkReturn(ref r, through: ref c, for: in b0, at: TextSpan { start: 7, length: 3 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase59(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.restTails.append(RestTail { region: Region { depth: 1, name: "`ro`" }, tail: "ro" })
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`ro`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    checkReturn(ref r, through: ref c, for: in b0, at: TextSpan { start: 7, length: 3 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase60(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0r.append(Region { depth: 1, name: "`b`" })
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    checkReturn(ref r, through: ref c, for: in b0, at: TextSpan { start: 7, length: 3 })
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase61(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let e0 = tcStmt(in c, for: f, by: 11)
+    mutateBorrow(ref r, through: ref c, for: e0, at: nodeSpan(in c, for: e0), moved: false)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase62(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let e0 = tcStmt(in c, for: f, by: 11)
+    mutateBorrow(ref r, through: ref c, for: e0, at: nodeSpan(in c, for: e0), moved: true)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase63(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let e0 = tcStmt(in c, for: f, by: 6)
+    mutateBorrow(ref r, through: ref c, for: e0, at: nodeSpan(in c, for: e0), moved: false)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase64(ref Ctx c) {
+    let f = tcFunc(in c, by: "refill")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let e0 = tcStmt(in c, for: f, by: 5)
+    mutateBorrow(ref r, through: ref c, for: e0, at: nodeSpan(in c, for: e0), moved: false)
+    let e1 = tcStmt(in c, for: f, by: 5)
+    mutateBorrow(ref r, through: ref c, for: e1, at: nodeSpan(in c, for: e1), moved: true)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase65(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let e0 = tcStmt(in c, for: f, by: 10)
+    mutateBorrow(ref r, through: ref c, for: e0, at: nodeSpan(in c, for: e0), moved: false)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase66(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    let e0 = tcStmt(in c, for: f, by: 11)
+    mutateBorrow(ref r, through: ref c, for: e0, at: nodeSpan(in c, for: e0), moved: false)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase67(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "b"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    let e1 = c.bCalls[boundIndex(tcStmt(in c, for: f, by: 9))].receiver
+    mutateOwners(ref r, through: ref c, for: e1, by: in b0, at: nodeSpan(in c, for: e1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase68(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.referentMayBorrow[tcLocal(in c, for: f, by: "r")] = true
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "xs"))
+    b0l[tcLocal(in c, for: f, by: "xs")] = 3
+    let b0 = Borrow { regions: move b0r, owners: move b0o, lends: move b0l }
+    let e1 = c.bCalls[boundIndex(tcStmt(in c, for: f, by: 9))].receiver
+    mutateOwners(ref r, through: ref c, for: e1, by: in b0, at: nodeSpan(in c, for: e1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase69(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.referentMayBorrow[tcLocal(in c, for: f, by: "r")] = false
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "b"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    let e1 = c.bCalls[boundIndex(tcStmt(in c, for: f, by: 9))].receiver
+    mutateOwners(ref r, through: ref c, for: e1, by: in b0, at: nodeSpan(in c, for: e1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase70(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.referentMayBorrow[tcLocal(in c, for: f, by: "r")] = false
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "b"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    let e1 = tcStmt(in c, for: f, by: 7)
+    mutateOwners(ref r, through: ref c, for: e1, by: in b0, at: nodeSpan(in c, for: e1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase71(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    var b0r = List<Region>()
+    var b0o = List<LocalId>()
+    var b0l: Map<LocalId, i64> = []
+    b0o.append(tcLocal(in c, for: f, by: "b"))
+    let b0 = Borrow { regions: move b0r, owners: move b0o }
+    let e1 = c.bCalls[boundIndex(tcStmt(in c, for: f, by: 9))].receiver
+    mutateOwners(ref r, through: ref c, for: e1, by: in b0, at: nodeSpan(in c, for: e1))
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase72(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let l0 = tcLocal(in c, for: f, by: "r")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 7))
+    tcReferent(in r, for: l0, by: "r")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase73(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let l0 = tcLocal(in c, for: f, by: "r3")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 15))
+    tcReferent(in r, for: l0, by: "r3")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase74(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.referentMayBorrow[tcLocal(in c, for: f, by: "r")] = false
+    let l0 = tcLocal(in c, for: f, by: "r2")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 16))
+    tcReferent(in r, for: l0, by: "r2")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase75(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let l0 = tcLocal(in c, for: f, by: "r2")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 16))
+    tcReferent(in r, for: l0, by: "r2")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase76(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let l0 = tcLocal(in c, for: f, by: "r3")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 15))
+    tcReferent(in r, for: l0, by: "r3")
+    let l1 = tcLocal(in c, for: f, by: "r3")
+    referBorrow(ref r, through: ref c, for: l1, by: tcStmt(in c, for: f, by: 1))
+    tcReferent(in r, for: l1, by: "r3")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase77(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let l0 = tcLocal(in c, for: f, by: "r")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 7))
+    tcReferent(in r, for: l0, by: "r")
+    let l1 = tcLocal(in c, for: f, by: "r")
+    referBorrow(ref r, through: ref c, for: l1, by: tcStmt(in c, for: f, by: 15))
+    tcReferent(in r, for: l1, by: "r")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase78(ref Ctx c) {
+    let f = tcFunc(in c, by: "fa")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    let l0 = tcLocal(in c, for: f, by: "h")
+    referBorrow(ref r, through: ref c, for: l0, by: tcStmt(in c, for: f, by: 13))
+    tcReferent(in r, for: l0, by: "h")
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase79(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase80(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: true, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase81(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2161, length: 3 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase82(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.declaredAt[tcLocal(in c, for: f, by: "h")] = 2127
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 0, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2105, length: 3 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase83(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.declaredAt[tcLocal(in c, for: f, by: "x")] = 2109
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "x"), created: 0, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2105, length: 3 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase84(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "x"), created: 0, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase85(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.declaredAt[tcLocal(in c, for: f, by: "x")] = 2109
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "x"), created: 0, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase86(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 0, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2151, length: 1 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase87(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 2143, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2105, length: 3 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase88(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: -1, created: 2105, loopEnd: 2161 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 1 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase89(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: -1, created: 2105, loopEnd: 2161 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 1 }, moved: true, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase90(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: -1, created: 2105, loopEnd: 2127 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase91(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.declaredAt[tcLocal(in c, for: f, by: "x")] = 2105
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: -1, created: 2105, loopEnd: 2161 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 1 }, moved: false, through: tcLocal(in c, for: f, by: "x") })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase92(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.declaredAt[tcLocal(in c, for: f, by: "x")] = 1
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: -1, created: 2105, loopEnd: 2161 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2127, length: 1 }, moved: false, through: tcLocal(in c, for: f, by: "x") })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase93(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 2105, loopEnd: 0 })
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "k"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase94(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "k"), holder: tcLocal(in c, for: f, by: "h"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase95(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase96(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "xs"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+void tcCase97(ref Ctx c) {
+    let f = tcFunc(in c, by: "fc")
+    var r = Regions { fn: f, source: c.functions[f].file, reporting: true }
+    let start = c.diagnostics.length
+    r.reporting = false
+    r.loans.append(Loan { owner: tcLocal(in c, for: f, by: "xs"), holder: tcLocal(in c, for: f, by: "h"), created: 2105, loopEnd: 0 })
+    r.mutations.append(Mutation { target: tcLocal(in c, for: f, by: "xs"), span: TextSpan { start: 2143, length: 5 }, moved: false, through: -1 })
+    checkMutations(ref r, through: ref c)
+    tcDump(in r, through: in c, from: start)
+    tcDiags(in c, from: start)
+}
+
+
+i32 main(ReadOnlySpan<string> args) {
+    for i in 0..args.length {
+        var bytes = List<u8>()
+        for x in source.bytes { bytes.append(x) }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("tmp/t37-cases/main.byn", from: move bytes))
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+            library: true,
+            packageRoot: "tmp/t37-cases",
+            displayRoot: "tmp/t37-cases",
+        }
+        c.entryModule = loadModule(ref c, for: "main", at: "tmp/t37-cases", from: move sources, by: -1)
+        buildLexicon(ref c)
+        declare(ref c)
+        bindAll(ref c)
+        // bindAll ran the region analysis (T25); start the per-method cache afresh, as the C# side does (Q738).
+        c.changedFields.clear()
+        print($"== {args[i]}")
+        tcCase(ref c, by: args[i])
+    }
+    return 0
+}

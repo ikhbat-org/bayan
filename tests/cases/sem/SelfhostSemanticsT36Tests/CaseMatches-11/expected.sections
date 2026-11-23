@@ -1,0 +1,69 @@
+== x-defer
+BYN2612 11:9 `return` is not allowed in a panic handler ||remove it; panic handlers can't recover|
+BYN2612 15:13 `break` is not allowed in a panic handler ||remove it; panic handlers can't recover|
+BYN2606 23:5 `defer failing` in a function that cannot fail ||remove `failing` to run it on every exit, or add a `fails` clause to the function|
+BYN2612 27:9 `fail` is not allowed in a panic handler ||remove it; panic handlers can't recover|
+BYN2614 39:5 `Panic.handler` may be set only as the first statement of `main` |`setUp` is not the program's entry function|set it once, as the first statement of `main`|
+BYN2230 43:11 `onPanic` is now `handler` |the old name|rename it `handler`|fix 566..573 handler
+BYN2614 44:5 `Panic.handler` may be set only as the first statement of `main` |set again here|set it once, as the first statement of `main`|
+BYN2202 45:21 expected `void f(Panic p)`, found `void twoArgs(Panic, i64)` ||name a function declared `void f(Panic p)`|
+BYN2614 45:5 `Panic.handler` may be set only as the first statement of `main` |set again here|set it once, as the first statement of `main`|
+fn main
+block 554..653
+  setOnPanic 560..583
+  errorStmt 588..611
+  errorStmt 616..639
+  exprStmt 644..651
+    call 644..651 : void
+fn onCrash
+block 438..460
+  exprStmt 444..458
+    call 444..458 : void
+      literal 450..457 : string
+      enumMember 444..458 : Stream
+fn plain
+block 316..414
+  errdeferStmt 322..335
+    block 336..366
+      exprStmt 346..360
+        call 346..360 : void
+          literal 352..359 : string
+          enumMember 346..360 : Stream
+  panicDefer 371..386
+    block 387..412
+      errorStmt 397..401
+fn setUp
+block 509..540
+  errorStmt 515..538
+fn twoArgs
+block 491..494
+fn work
+block 52..301
+  errdeferStmt 58..75
+    block 76..107
+      exprStmt 86..101
+        call 86..101 : void
+          literal 92..100 : string
+          enumMember 86..101 : Stream
+  panicDefer 112..131
+    block 132..183
+      exprStmt 142..160
+        call 142..160 : void
+          literal 148..159 : string
+          enumMember 142..160 : Stream
+      errorStmt 169..177
+  forStmt 188..263
+    range 197..201 : Range<i32>
+      literal 197..198 : i32
+      literal 200..201 : i32
+    block 202..263
+      panicDefer 212..227
+        block 228..257
+          errorStmt 242..242
+  ifStmt 268..286
+    local 271..272 : bool
+    block 273..286
+      failStmt 275..279
+        errorVariant 280..284 : E
+  returnStmt 291..299
+    literal 298..299 : i64

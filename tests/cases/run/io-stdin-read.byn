@@ -1,0 +1,47 @@
+// `Io.stdin.read(to:)` fills a buffer the caller owns and returns the count: framed messages (a `Content-Length` header,
+// a blank line, then that many bytes) read through a 5-byte buffer, so each read returns at most 5 bytes and the
+// program loops; at the end of input it returns 0, and the program goes on after each message and after the end.
+void main() {
+    var chunk: u8[5] = [0, 0, 0, 0, 0]
+    var pending = List<u8>()
+    var reads = 0
+    while true {
+        let n = Io.stdin.read(to: chunk.mutableSpan()) catch {
+            print("read failed")
+            return
+        }
+        reads += 1
+        if n == 0 {
+            print($"read returned 0 after {reads} reads")
+            break
+        }
+        for i in 0..n { pending.append(chunk[i]) }
+        while true {
+            let header = headerEnd(pending.span)
+            if header < 0 { break }
+            let length = contentLength(pending.span[0..header])
+            if pending.length < header + length { break }
+            print($"message of {length} bytes: {Utf8.decode(pending.span[header..header + length], invalid: .replace)}")
+            pending.remove(from: 0, until: header + length)
+        }
+    }
+    print($"{pending.length} bytes left; still running")
+}
+
+// The index just past the first `\r\n\r\n`, or -1.
+i64 headerEnd(ReadOnlySpan<u8> bytes) {
+    for i in 3..bytes.length {
+        if bytes[i - 3] == 13 && bytes[i - 2] == 10 && bytes[i - 1] == 13 && bytes[i] == 10 { return i + 1 }
+    }
+    return -1
+}
+
+// The digits after `Content-Length: ` up to the `\r`.
+i64 contentLength(ReadOnlySpan<u8> header) {
+    var n: i64 = 0
+    for i in 16..header.length {
+        if header[i] == 13 { break }
+        n = n * 10 + i64(header[i]) - 48
+    }
+    return n
+}

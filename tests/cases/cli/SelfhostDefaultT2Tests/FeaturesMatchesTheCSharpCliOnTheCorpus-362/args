@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/typed/symbol-type.byn
+--package
+<repo>/tests/cases/typed

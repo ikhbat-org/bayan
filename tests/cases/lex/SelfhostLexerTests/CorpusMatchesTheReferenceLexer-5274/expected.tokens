@@ -1,0 +1,43 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:8 LetKeyword `let`
+1:12 EffectKeyword `effect`
+1:19 Equals `=`
+1:21 IntegerLiteral `2`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 Plus `+`
+2:30 Identifier `c`
+2:32 MinusMinus `--`
+3:2 LetKeyword `let`
+3:8 Equals `=`
+3:10 IntegerLiteral `2`
+4:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ "a�b"� let effect = 2
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ "a�b"� let effect = 2
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  let � = 2
+    │      ^
+
+error BYN0002: unexpected character `̈́`
+
+  4 │ ̈́
+    │ ^

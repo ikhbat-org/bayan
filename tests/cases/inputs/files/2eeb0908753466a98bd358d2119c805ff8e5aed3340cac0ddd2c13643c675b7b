@@ -1,0 +1,33 @@
+import lexer
+import parser
+
+string t7At(Ctx c, for FileId file, at i64 offset) {
+    if file < 0 { return "?" }
+    let p = linePosition(c.files[file].text.span, at: offset)
+    return $"{p.line}:{p.column}"
+}
+
+void showProgram(string name, at string dir) {
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("main.byn", from: t11ReadAllBytes($"{dir}/main.byn")))
+    let options = CompilationOptions { includeTests: true, library: false, skipOwnershipCheck: false, capabilities: null, packageName: null }
+    var c = create(from: move sources, at: dir, by: options)
+    print($"== diags.{name}")
+    for d in c.diagnostics {
+        print($"{d.code} {t7At(c, for: d.file, at: d.span.start)} {d.message}")
+        if d.label.length > 0 { print($"  label {d.label}") }
+        if d.help.length > 0 { print($"  help {d.help}") }
+        if d.hasFix { print($"  fix {t7At(c, for: d.file, at: d.fixSpan.start)}-{t7At(c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
+    }
+    print($"== grammar.{name}")
+    print($"{c.grammarKnown}")
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 1 < args.length {
+        showProgram(args[i], at: args[i + 1])
+        i += 2
+    }
+    return 0
+}

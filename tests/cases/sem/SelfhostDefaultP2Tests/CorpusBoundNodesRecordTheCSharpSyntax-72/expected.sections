@@ -1,0 +1,29 @@
+== tests/cases/run/for-enumerator-field-current.byn
+229..264 globalStatement
+229..264 localDecl
+237..264 structLiteralExpr
+248..250 unaryExpr negate operand 249..250
+261..262 literalExpr integer
+265..297 forStmt
+274..275 nameExpr
+276..297 blockStmt
+282..295 exprStmt
+282..295 callExpr
+288..294 interpolatedExpr
+291..292 nameExpr
+282..295 callExpr
+159..225 blockStmt
+169..176 assignStmt add target 169..171 value 175..176
+169..171 nameExpr
+169..171 nameExpr
+175..176 literalExpr integer
+185..197 assignStmt assign target 185..192 value 195..197
+185..192 nameExpr
+185..192 nameExpr
+195..197 nameExpr
+195..197 nameExpr
+206..219 returnStmt value 213..219
+213..219 binaryExpr lt right 218..219
+213..215 nameExpr
+213..215 nameExpr
+218..219 literalExpr integer

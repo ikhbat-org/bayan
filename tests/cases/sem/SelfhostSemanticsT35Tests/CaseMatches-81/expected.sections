@@ -1,0 +1,3 @@
+== expr.probes.c26
+collection:i32[2][1558:8]=-(literal:i32[1559:1]=1(1) errorExpr:?[1562:3]=-())
+BYN2202 85:19 expected `i32`, found `string` |||

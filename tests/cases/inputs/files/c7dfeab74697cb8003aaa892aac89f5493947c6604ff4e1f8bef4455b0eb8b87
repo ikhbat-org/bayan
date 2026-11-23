@@ -1,0 +1,33 @@
+struct Digits : IIndexable {
+    type Item = i64
+    i64 count => 3
+    i64 get(i64 index) => index * 10
+}
+
+struct Sized : IIndexable {
+    type Item = i64
+    i64 count
+    i64 get(i64 index) => index
+}
+
+struct Countdown : IEnumerator {
+    type Item = i64
+    i64 left
+    bool moveNext(ref this) {
+        left -= 1
+        return left >= 0
+    }
+    i64 current => left
+}
+
+void users(Digits d, by Sized s, to ref Countdown cd) {
+    var t = 0
+    for x in d { t = x }
+    for x in s {
+        if x == 1 { break }
+        t = x
+    }
+    for x in cd { t = x }
+}
+
+void main() { }

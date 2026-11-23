@@ -1,0 +1,2 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\nen\r\nlet x\u{2067} = 1 '\u{D800}'\r\n"""`
+4:5 EndOfFile

@@ -1,0 +1,6 @@
+== tests/cases/diag/not-a-struct.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..37 localDecl
+18..37 withExpr

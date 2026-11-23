@@ -1,0 +1,81 @@
+== tests/cases/run/ref-and-value-element-copy.byn
+144..157 binaryExpr add right 148..157
+144..157 binaryExpr add right 148..157
+144..157 binaryExpr add right 148..157
+144..145 nameExpr
+148..157 memberExpr
+148..150 nameExpr
+197..206 binaryExpr add right 201..206
+197..206 binaryExpr add right 201..206
+197..206 binaryExpr add right 201..206
+197..198 nameExpr
+201..206 indexExpr
+201..203 nameExpr
+204..205 literalExpr integer
+237..247 blockStmt
+239..245 assignStmt add target 239..240 value 244..245
+239..240 nameExpr
+244..245 nameExpr
+261..538 blockStmt
+267..287 localDecl
+276..287 callExpr
+292..304 exprStmt
+292..304 callExpr
+292..294 nameExpr
+302..303 literalExpr integer
+309..321 exprStmt
+309..321 callExpr
+309..311 nameExpr
+319..320 literalExpr integer
+326..360 exprStmt
+326..360 callExpr
+332..359 interpolatedExpr
+335..357 callExpr
+339..344 indexExpr
+339..341 nameExpr
+342..343 literalExpr integer
+354..356 nameExpr
+326..360 callExpr
+365..390 exprStmt
+365..390 callExpr
+369..374 indexExpr
+369..371 nameExpr
+372..373 literalExpr integer
+384..389 indexExpr
+384..386 nameExpr
+387..388 literalExpr integer
+395..412 exprStmt
+395..412 callExpr
+401..411 interpolatedExpr
+404..409 indexExpr
+404..406 nameExpr
+407..408 literalExpr integer
+395..412 callExpr
+417..442 localDecl
+434..442 collectionExpr
+435..437 literalExpr integer
+439..441 literalExpr integer
+447..484 exprStmt
+447..484 callExpr
+453..483 interpolatedExpr
+456..481 callExpr
+463..468 indexExpr
+463..465 nameExpr
+466..467 literalExpr integer
+478..480 nameExpr
+447..484 callExpr
+489..514 exprStmt
+489..514 callExpr
+493..498 indexExpr
+493..495 nameExpr
+496..497 literalExpr integer
+508..513 indexExpr
+508..510 nameExpr
+511..512 literalExpr integer
+519..536 exprStmt
+519..536 callExpr
+525..535 interpolatedExpr
+528..533 indexExpr
+528..530 nameExpr
+531..532 literalExpr integer
+519..536 callExpr

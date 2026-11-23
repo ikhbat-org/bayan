@@ -1,0 +1,72 @@
+1:2 Identifier `b`
+3:1 TestKeyword `test`
+3:6 AssertKeyword `assert`
+3:13 PropertyKeyword `property`
+3:22 FuzzKeyword `fuzz`
+3:27 Identifier `mo`
+3:30 Identifier `del`
+3:34 Identifier `foreach9`
+3:43 NewKeyword `new`
+3:47 GotoKeyword `goto`
+4:2 IntegerLiteral `0000`
+4:6 CloseBrace `}`
+4:7 CharLiteral `'`
+5:1 CharLiteral `'x`
+6:4 Identifier `cmment`
+6:11 Star `*`
+6:12 Slash `/`
+6:14 Identifier `a`
+7:1 Identifier `macro`
+7:7 Identifier `select`
+7:14 BecomeKeyword `become`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `x`
+8:4 InterpolationStart `{`
+8:6 InterpolatedStringStart `$"`
+8:8 InterpolationStart `{`
+8:10 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �b
+    │ ^
+
+error BYN0002: unexpected character `\u{17}`
+
+  3 │ test assert property fuzz mo�del foreach9 new goto
+    │                             ^
+
+error BYN0008: unterminated char literal
+
+  4 │  0000}'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  8 │ $"x{ $"{ 
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

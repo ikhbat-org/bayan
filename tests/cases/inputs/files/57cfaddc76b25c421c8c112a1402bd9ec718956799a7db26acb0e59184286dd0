@@ -1,0 +1,4 @@
+struct Order { i64 total }
+
+type OrderFilter = Order -> bool
+type F           = i32 -> bool

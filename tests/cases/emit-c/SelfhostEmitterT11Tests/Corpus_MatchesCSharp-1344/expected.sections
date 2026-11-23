@@ -1,0 +1,5 @@
+== locals
+half:
+readAll: lines t t line
+main: n t h t
+next:

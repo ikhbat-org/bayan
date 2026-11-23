@@ -1,0 +1,44 @@
+error BYN2021: `string` has no parameter `as: .hex`
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:5:17
+
+  5 │     print($"{s, as: .hex}")
+    │                 ^^^
+
+error BYN2203: 99 does not fit in a format spec's `digits` (0 to 15)
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:6:27
+
+  6 │     print($"{1.5, digits: 99}")
+    │                           ^^
+
+error BYN2021: `i32` has no parameter `digits`
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:7:17
+
+  7 │     print($"{7, digits: 2}")
+    │                 ^^^^^^^
+
+error BYN2219: a format spec's `width` must be a compile-time constant
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:8:24
+
+  8 │     print($"{s, width: w}")
+    │                        ^
+
+error BYN2720: `middle` is not a member of `align`
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:9:24
+
+  9 │     print($"{s, align: .middle}")
+    │                        ^^^^^^^
+
+error BYN2021: `string` has no parameter `color`
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:10:17
+
+  10 │     print($"{s, color: .red}")
+     │                 ^^^^^^
+
+error BYN2303: `width` is passed twice
+  --> <repo>/tmp/t2/diag/format-spec-errors/format-spec-errors.byn:11:27
+
+  11 │     print($"{s, width: 2, width: 3}")
+     │                           ^^^^^^
+
+✗ build failed: 7 errors, 0 warnings
+  explain: bayan explain BYN2021

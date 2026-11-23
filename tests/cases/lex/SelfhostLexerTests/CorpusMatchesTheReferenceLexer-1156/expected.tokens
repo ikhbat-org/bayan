@@ -1,0 +1,59 @@
+1:1 StringLiteral `"a\u{2067}b"`
+2:2 Identifier `here`
+2:6 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open \u{11}x`
+3:10 InterpolatedStringEnd `"`
+3:11 Semicolon `;`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+6:2 Star `*`
+6:3 Slash `/`
+6:6 OpenParen `(`
+6:8 CloseParen `)`
+6:11 CloseBracket `]`
+6:13 OpenBrace `{`
+6:15 CloseBrace `}`
+6:17 IntegerLiteral `0b102`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  here"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  6 │ �*/ �( )  ] { } 0b102
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ �*/ �( )  ] { } 0b102
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �*/ �( )  ] { } 0b102
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �*/ �( )  ] { } 0b102
+    │      ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ �*/ �( )  ] { } 0b102
+    │                     ^

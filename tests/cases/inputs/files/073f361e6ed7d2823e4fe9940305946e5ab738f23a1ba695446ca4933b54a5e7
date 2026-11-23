@@ -1,0 +1,6 @@
+struct S {
+    i32 a
+    // the rest
+    string bb
+    i64 c
+}

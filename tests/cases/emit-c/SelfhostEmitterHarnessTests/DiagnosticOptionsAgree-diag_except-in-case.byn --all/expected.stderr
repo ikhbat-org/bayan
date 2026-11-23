@@ -1,0 +1,12 @@
+error BYN1051: `except` is not allowed in a `case` pattern
+  --> input.byn:3:16
+
+  3 │         case _ except .circle: return s
+    │                ^^^^^^ not allowed here
+    │
+  help: write the arm as `case not .circle`
+    │ 3 │         case not .circle: return s
+    │   │              ++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1051

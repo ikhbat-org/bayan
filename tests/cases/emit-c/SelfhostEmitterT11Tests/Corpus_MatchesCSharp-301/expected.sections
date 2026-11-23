@@ -1,0 +1,4 @@
+== cases
+0 (p_index == INT64_C(0))
+1 (p_index == INT64_C(1))
+count 2

@@ -1,0 +1,34 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 Identifier `_000_000`
+4:10 IntegerLiteral `0xFF`
+4:15 IntegerLiteral `0x_ff`
+4:21 IntegerLiteral `0b1010`
+4:28 IntegerLiteral `0B11`
+4:33 IntegerLiteral `5`
+4:34 NumericSuffix `s`
+4:36 IntegerLiteral `250`
+4:39 NumericSuffix `ms`
+4:42 IntegerLiteral `4`
+4:43 NumericSuffix `KiB`
+4:47 IntegerLiteral `1`
+4:48 NumericSuffix `u`
+4:50 IntegerLiteral `0`
+4:52 IntegerLiteral `0x`
+4:54 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ _000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0�0x
+    │                                                   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ _000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0�0x
+    │                                                    ^^

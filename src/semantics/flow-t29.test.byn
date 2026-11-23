@@ -1,0 +1,59 @@
+// 019 T29 (coverage ratchet): flow.byn paths no golden case reaches: `continue` in a `do`-`while`, constant loop
+// conditions, several statements after a `return`, `main` returning `i32` without a `return`, and `try` in `main`.
+// The expected values are the output of the self-hosted checker at the commit that added the test.
+
+test "flow t29: loops and unreachable statements" {
+    let text = """
+        union error CarrierError {
+            closed
+        }
+
+        i64 send(i64 n) fails CarrierError {
+            fail .closed if n == 0
+            return n
+        }
+
+        i64 loops(i64 n) {
+            var i: i64 = 0
+            do {
+                i += 1
+                if i == 2 {
+                    continue
+                }
+                i += n
+            } while i < 10
+            while false {
+                i += 1
+            }
+            do {
+                break
+            } while true
+            return i
+        }
+
+        i64 after(i64 n) {
+            return n
+            nope = 1
+            {}
+            {
+                print("x")
+            }
+            print("y")
+        }
+
+        i32 main() {
+            let _ = try send(1)
+        }
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2001 `nope` is not defined
+        BYN2405 unreachable code
+        BYN2405 unreachable code
+        BYN2405 unreachable code
+        BYN2604 `main` cannot fail, so it cannot pass on `CarrierError`
+        BYN2401 `main` must return `i32` on every path
+
+        """
+    assert t29s2bDiags(in c) == expected
+}

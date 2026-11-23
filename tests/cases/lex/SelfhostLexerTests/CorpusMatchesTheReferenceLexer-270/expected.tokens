@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `etest`
+1:8 AssertKeyword `assert`
+1:15 PropertyKeyword `property`
+1:24 FuzzKeyword `fuzz`
+1:29 ModelKeyword `model`
+1:35 ForeachKeyword `foreach`
+1:43 NewKeyword `new`
+1:47 GotoKeyword `goto`
+2:2 Identifier `c`
+2:4 Greater `>`
+2:5 GreaterEquals `>=`
+2:8 IntegerLiteral `1`
+4:1 Identifier `i64`
+4:4 Greater `>`
+4:5 Greater `>`
+5:1 Identifier `a`
+5:3 Greater `>`
+5:4 Greater `>`
+5:6 Identifier `b`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+7:2 StringLiteral `"� `
+7:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │  "� 
+    │  ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  7 │  "� 
+    │   ^

@@ -1,0 +1,121 @@
+4:3 LetKeyword `let`
+4:7 Identifier `aL`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+6:1 IntegerLiteral `2`
+7:1 Identifier `macro`
+7:7 Identifier `select`
+7:14 BecomeKeyword `become`
+8:1 LetKeyword `let`
+8:5 Identifier `l`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 InterpolatedStringStart `$"`
+9:48 InterpolationStart `{`
+9:49 StringLiteral `$"{$"`
+9:54 OpenBrace `{`
+9:55 StringLiteral `$"{$"`
+9:60 OpenBrace `{`
+9:61 Identifier `x`
+9:62 CloseBrace `}`
+9:63 StringLiteral `"}"`
+9:66 CloseBrace `}`
+9:67 StringLiteral `"}"`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 InterpolationEnd `}`
+9:83 InterpolatedStringEnd `"`
+9:84 InterpolationEnd `}`
+9:85 InterpolatedStringEnd `"`
+9:86 InterpolationEnd `}`
+9:87 InterpolatedStringEnd `"`
+9:88 InterpolationEnd `}`
+9:89 InterpolatedStringEnd `"`
+9:90 InterpolationEnd `}`
+9:91 InterpolatedStringEnd `"`
+9:92 InterpolationEnd `}`
+9:93 InterpolatedStringEnd `"`
+9:94 InterpolationEnd `}`
+9:95 InterpolatedStringEnd `"`
+9:96 InterpolationEnd `}`
+9:97 InterpolatedStringEnd `"`
+9:99 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `﻿`
+
+  4 │ ﻿ let aL �= 1
+    │ ^
+
+error BYN0002: unexpected character `\u{10}`
+
+  4 │ ﻿ let aL �= 1
+    │          ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                 ^^

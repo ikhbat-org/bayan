@@ -1,0 +1,3 @@
+== case name-symbol
+errorExpr 1671..1677 : ?
+BYN2019 85:17 `Symbol` is a type, not a value |||

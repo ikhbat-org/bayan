@@ -1,0 +1,26 @@
+== tests/cases/run/assert-conditional-branch.byn
+20..47 blockStmt
+26..32 assignStmt add target 26..27 value 31..32
+26..27 nameExpr
+31..32 literalExpr integer
+37..45 returnStmt value 44..45
+44..45 nameExpr
+49..63 globalStatement
+49..63 localDecl
+62..63 literalExpr integer
+64..82 localDecl
+81..82 literalExpr integer
+83..136 assertStmt
+90..136 binaryExpr eq right 135..136
+91..130 conditionalExpr
+91..96 binaryExpr gt right 95..96
+91..92 nameExpr
+95..96 literalExpr integer
+99..118 binaryExpr add right 117..118
+99..114 callExpr
+108..113 nameExpr
+117..118 nameExpr
+121..130 binaryExpr sub right 125..130
+121..122 nameExpr
+125..130 nameExpr
+135..136 literalExpr integer

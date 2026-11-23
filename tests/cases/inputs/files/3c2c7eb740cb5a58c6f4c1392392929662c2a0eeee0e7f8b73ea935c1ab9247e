@@ -1,0 +1,10 @@
+union error ParseError {
+    empty
+}
+
+i64 parse(string s) fails ParseError {
+    fail .empty if s.isEmpty
+    return 1
+}
+
+let n = parse("1")

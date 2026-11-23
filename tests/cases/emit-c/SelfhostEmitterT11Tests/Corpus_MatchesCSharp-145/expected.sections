@@ -1,0 +1,3 @@
+== cases
+0 (*bynh_slot_map_i64_main__S(&l0_b.items, INT64_C(1), ((bynt_main__S){0})))
+count 3

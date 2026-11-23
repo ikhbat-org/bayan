@@ -1,0 +1,34 @@
+== declare wheres
+module main tmp/t11-cases/wheres main
+file tmp/t11-cases/wheres/main.byn source
+diag BYN2812 tmp/t11-cases/wheres/main.byn 6:49 `where` names `U`, which is not a type parameter | not a type parameter of `Box` | name one of `T`
+diag BYN2812 tmp/t11-cases/wheres/main.byn 9:23 `where` names `T`, which is not a type parameter | not a type parameter of `NoParams` | remove the `where` clause; `NoParams` has no type parameters
+diag BYN2812 tmp/t11-cases/wheres/main.byn 12:18 `where` names `T`, which is not a type parameter | not a type parameter of `Color` | remove the `where` clause; `Color` has no type parameters
+diag BYN2804 tmp/t11-cases/wheres/main.byn 15:26 `Point` is not an interface | a struct | list an `interface` here
+diag BYN2002 tmp/t11-cases/wheres/main.byn 18:30 unknown type `Missing` |  | 
+diag BYN2804 tmp/t11-cases/wheres/main.byn 19:34 `T` is not an interface | a type parameter | list an `interface` here
+diag BYN2812 tmp/t11-cases/wheres/main.byn 20:16 `where` names `Q`, which is not a type parameter | not a type parameter of `g` | remove the `where` clause; `g` has no type parameters
+diag BYN2831 tmp/t11-cases/wheres/main.byn 29:9 `Bad` cannot be a `Map` key: field `x` is a `f64` |  | use a field that identifies the value as the key, such as an id or a `Symbol`
+where Box T: IShape IOrder
+where Maybe T:
+where IOrder T:
+where IWrap T:
+where f T: IShape
+variant IoError.notFound 1 
+variant IoError.permissionDenied 2 
+variant IoError.invalidUtf8 3 
+variant IoError.notADirectory 4 
+variant IoError.other 5 
+variant IoError.invalidInput 6 
+variant IoError.unsupported 7 
+variant IoError.crossDevice 8 
+variant IoError.isDirectory 9 
+variant IoError.signaled 10 signal:i32,stdout:string,stderr:string
+variant IoError.timeout 11 after:Millis,stdout:string,stderr:string
+variant Utf8Error.invalidSequence 12 at:i64
+variant ParseError.badDigit 13 at:i64
+variant ParseError.overflow 14 
+rule length 0 bounds:Range<i64>
+rule range 1 bounds:Range<i64>
+rule custom 2 
+members declared True

@@ -1,0 +1,10 @@
+error BYN2211: `x` is not a member of `Point?`; the value may be null
+  --> input.byn:6:11
+
+  6 │ let x = p.x
+    │           ^
+    │
+  help: check it first: `if (p is { } value) { … value.x … }`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2211

@@ -1,0 +1,4 @@
+== subj.w5
+field|List<i64>|-|-|2506:7|-
+owns false
+BYN2789 109:19 `switch move …` needs a local or a `move` parameter, not field `items` ||drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first|

@@ -1,0 +1,1 @@
+{"code":"BYN2222","severity":"error","file":"input.byn","span":{"start":17,"end":23,"line":1,"column":18,"endLine":1,"endColumn":24},"message":"`i64[3]` needs exactly its length in elements, found 2","label":null,"help":null,"fixes":[]}

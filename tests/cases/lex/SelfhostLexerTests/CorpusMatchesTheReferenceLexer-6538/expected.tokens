@@ -1,0 +1,62 @@
+1:1 IntegerLiteral `0b102`
+3:4 Identifier `hidden`
+4:1 LetKeyword `let`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+6:2 Identifier `b`
+6:4 Equals `=`
+6:6 StringLiteral `"bad \q escape"`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""never closed\n� 'x\n\n`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  � hidden
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  � hidden
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  4 │ let �� = 1
+    │     ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let �� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let �� = 1
+    │   │      -
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │  b = "bad \q escape"
+    │           ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  7 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ � 'x
+    │ ^

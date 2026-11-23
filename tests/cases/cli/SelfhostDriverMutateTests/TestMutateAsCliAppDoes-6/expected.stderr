@@ -1,0 +1,3 @@
+bayan: mutation 50% < 100%
+survived mutant: src/inc/a.test.byn:2:16 literal `1` -> `2`
+survived mutant: src/inc/a.test.byn:2:16 literal `1` -> `0`

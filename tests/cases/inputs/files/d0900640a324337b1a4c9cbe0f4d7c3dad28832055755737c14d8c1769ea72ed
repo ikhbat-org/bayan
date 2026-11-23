@@ -1,0 +1,7 @@
+1e /// Doc line one.
+ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+/* block
+
+{$"{ ( ) [ ] { }
+ // line comment
+ 

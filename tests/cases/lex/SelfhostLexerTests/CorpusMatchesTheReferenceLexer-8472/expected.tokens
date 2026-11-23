@@ -1,0 +1,51 @@
+1:1 CharLiteral `'\u{110000}'`
+3:1 Identifier `ct`
+3:4 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 OpenParen `(`
+5:4 CloseParen `)`
+5:6 OpenBracket `[`
+5:8 CloseBracket `]`
+5:10 OpenBrace `{`
+5:12 CloseBrace `}`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+8:2 LetKeyword `let`
+8:6 Identifier `c`
+8:8 Equals `=`
+8:10 RawStringLiteral `"""never closed\n`
+9:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │  // �x
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  // �x
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  8 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

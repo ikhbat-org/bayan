@@ -1,0 +1,84 @@
+== data
+byn_main_Kind_names
+byn_main_Kind_names
+byn_main_Kind_values
+byn_main_Kind_values
+byn_main_Planet_names
+byn_main_Planet_names
+byn_main_Planet_values
+byn_main_Planet_values
+byn_main_Planet_f_mass
+byn_main_Planet_f_mass
+byn_main_Planet_f_gee
+byn_main_Planet_f_gee
+byn_main_Planet_f_label
+byn_main_Planet_f_label
+byn_main_Planet_f_kind
+byn_main_Planet_f_kind
+gravity (6.673E-11)
+half ((float)0.5)
+lowest INT64_MIN
+top UINT64_C(18446744073709551615)
+small ((uint8_t)200)
+yes true
+letter UINT32_C(120)
+label BYN_STR("a\042b\134c\077\011 \303\251\342\234\223", 13)
+(*(bynt_arr3_u32*)&byn_main__primes)
+(*(bynt_arr3_u32*)&byn_main__primes)
+(*(bynt_arr2_str*)&byn_main__names)
+(*(bynt_arr2_str*)&byn_main__names)
+(*(bynt_arr2_f64*)&byn_main__ratios)
+(*(bynt_arr2_f64*)&byn_main__ratios)
+(*(bynt_arr10_u32*)&byn_main__many)
+(*(bynt_arr10_u32*)&byn_main__many)
+static byn_main_Kind_names
+static const byn_str byn_main_Kind_names[] = {
+    BYN_STR("word", 4),
+    BYN_STR("symbol", 6),
+};
+static byn_main_Kind_values
+static const byn_main_Kind byn_main_Kind_values[] = {0, 1};
+static byn_main_Planet_names
+static const byn_str byn_main_Planet_names[] = {
+    BYN_STR("mercury", 7),
+    BYN_STR("earth", 5),
+};
+static byn_main_Planet_values
+static const byn_main_Planet byn_main_Planet_values[] = {0, 1};
+static byn_main_Planet_f_mass
+static const double byn_main_Planet_f_mass[] = {
+    (3.303E+23),
+    (5.976E+24),
+};
+static byn_main_Planet_f_gee
+static const float byn_main_Planet_f_gee[] = {
+    ((float)3.700000047683716),
+    ((float)9.800000190734863),
+};
+static byn_main_Planet_f_label
+static const byn_str byn_main_Planet_f_label[] = {
+    BYN_STR("swift", 5),
+    BYN_STR("home", 4),
+};
+static byn_main_Planet_f_kind
+static const byn_main_Kind byn_main_Planet_f_kind[] = {
+    ((byn_main_Kind)0),
+    ((byn_main_Kind)1),
+};
+static byn_main__primes
+static const bynt_arr3_u32 byn_main__primes = {{
+    ((uint32_t)2), ((uint32_t)3), ((uint32_t)5),
+}};
+static byn_main__names
+static const bynt_arr2_str byn_main__names = {{
+    BYN_STR("x\011y", 3), BYN_STR("\303\251", 2),
+}};
+static byn_main__ratios
+static const bynt_arr2_f64 byn_main__ratios = {{
+    (0.5), (3.0),
+}};
+static byn_main__many
+static const bynt_arr10_u32 byn_main__many = {{
+    ((uint32_t)1), ((uint32_t)2), ((uint32_t)3), ((uint32_t)4), ((uint32_t)5), ((uint32_t)6), ((uint32_t)7), ((uint32_t)8),
+    ((uint32_t)9), ((uint32_t)10),
+}};

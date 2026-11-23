@@ -1,0 +1,4 @@
+== expr.probes.t9
+errorExpr:?[2449:10]=-()
+BYN2019 115:15 `inc` is a function, not a value ||call it: `inc(…)`|
+BYN2019 115:20 `inc` is a function, not a value ||call it: `inc(…)`|

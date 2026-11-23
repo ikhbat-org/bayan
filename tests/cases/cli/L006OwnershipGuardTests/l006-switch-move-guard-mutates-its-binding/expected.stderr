@@ -1,0 +1,11 @@
+error BYN2791: `items` is mutated in the guard of `switch move …`; a guard that fails gives the
+value back
+  --> <repo>/tmp/l006/switch-move-guard-mutates-its-binding/main.byn:16:36
+
+  16 │         case .full(var items) when items.removeLast() > 0:
+     │                                    ^^^^^ `removeLast` modifies it
+     │
+  help: read it in the guard and change it in the arm's body
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2791

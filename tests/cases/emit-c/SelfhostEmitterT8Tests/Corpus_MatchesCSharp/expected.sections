@@ -1,0 +1,94 @@
+== corpus
+eq0 (a == b)
+eq1 (a == b)
+eq2 (a == b)
+eq3 (a == b)
+eq4 (a == b)
+eq5 byn_str_eq(a, b)
+eq6 (a == b)
+eq7 ((a).id == (b).id)
+eq8 bynh_eq_err(a, b)
+eq9 bynh_eq_opt_i64(a, b)
+eq10 bynh_eq_opt_str(a, b)
+eq11 bynh_eq_res_i64(a, b)
+eq12 bynh_eq_tup2_i64_str(a, b)
+eq13 bynh_eq_arr3_i64(a, b)
+eq14 bynh_eq_tup2_i64_tup2_bool_str(a, b)
+eq15 bynh_eq_main__Nothing(a, b)
+eq16 ((*a) == (*b))
+eq17 bynh_eq_opt_err(a, b)
+eq18 bynh_eq_res_main__Nothing(a, b)
+eq19 bynh_eq_arr2_main__Nothing(a, b)
+eq20 bynh_eq_tup2_i64_sym(a, b)
+eq21 byn_str_eq(a, b)
+fmt22 byn_w_i64(w, (int64_t)(v));
+fmt23 byn_w_u64(w, (uint64_t)(v));
+fmt24 byn_w_i64(w, (int64_t)(v));
+fmt25 byn_w_i64(w, (int64_t)(v));
+fmt26 byn_w_u64(w, (uint64_t)(v));
+fmt27 byn_w_u64(w, (uint64_t)(v));
+fmt28 byn_w_f64(w, v);
+fmt29 byn_w_f32(w, v);
+fmt30 byn_w_bool(w, v);
+fmt31 byn_w_char(w, v);
+fmt32 byn_w_str(w, v);
+fmt33 byn_w_i64(w, (int64_t)(v));
+fmt34 byn_w_u64(w, (uint64_t)(v));
+fmt35 byn_w_error(w, v.code);
+fmt36 byn_w_i64(w, (int64_t)((*v)));
+fmt37 bynh_fmt_opt_i64(w, v);
+fmt38 bynh_fmt_opt_str(w, v);
+fmt39 bynh_fmt_res_i64(w, v);
+fmt40 bynh_fmt_res_str(w, v);
+fmt41 bynh_fmt_opt_i64(w, (*v));
+fmt42 byn_w_str(w, byn_main_Color_names[v]);
+fmt43 byn_w_str(w, byn_sym_text(v));
+map44 (*bynh_slot_map_i64_str(&m, k, ((byn_str){0})))
+map44 (*bynh_slot_map_i64_str(&m, k, d))
+map44 bynh_index_map_i64_str(m, k, L)
+map44 bynh_try_get_map_i64_str(m, k)
+map44 bynh_has_map_i64_str(m, k)
+map44 bynh_remove_map_i64_str(&m, k)
+map45 (*bynh_slot_map_str_i64(&m, k, ((int64_t){0})))
+map45 (*bynh_slot_map_str_i64(&m, k, d))
+map45 bynh_index_map_str_i64(m, k, L)
+map45 bynh_try_get_map_str_i64(m, k)
+map45 bynh_has_map_str_i64(m, k)
+map45 bynh_remove_map_str_i64(&m, k)
+map46 (*bynh_slot_map_tup2_i64_str_bool(&m, k, ((bool){0})))
+map46 (*bynh_slot_map_tup2_i64_str_bool(&m, k, d))
+map46 bynh_index_map_tup2_i64_str_bool(m, k, L)
+map46 bynh_try_get_map_tup2_i64_str_bool(m, k)
+map46 bynh_has_map_tup2_i64_str_bool(m, k)
+map46 bynh_remove_map_tup2_i64_str_bool(&m, k)
+map47 (*bynh_slot_map_sym_i64(&m, k, ((int64_t){0})))
+map47 (*bynh_slot_map_sym_i64(&m, k, d))
+map47 bynh_index_map_sym_i64(m, k, L)
+map47 bynh_try_get_map_sym_i64(m, k)
+map47 bynh_has_map_sym_i64(m, k)
+map47 bynh_remove_map_sym_i64(&m, k)
+map48 (*bynh_slot_map_bool_f64(&m, k, ((double){0})))
+map48 (*bynh_slot_map_bool_f64(&m, k, d))
+map48 bynh_index_map_bool_f64(m, k, L)
+map48 bynh_try_get_map_bool_f64(m, k)
+map48 bynh_has_map_bool_f64(m, k)
+map48 bynh_remove_map_bool_f64(&m, k)
+map49 (*bynh_slot_map_main__Nothing_i64(&m, k, ((int64_t){0})))
+map49 (*bynh_slot_map_main__Nothing_i64(&m, k, d))
+map49 bynh_index_map_main__Nothing_i64(m, k, L)
+map49 bynh_try_get_map_main__Nothing_i64(m, k)
+map49 bynh_has_map_main__Nothing_i64(m, k)
+map49 bynh_remove_map_main__Nothing_i64(&m, k)
+map50 (*bynh_slot_map_i64_opt_i64(&m, k, ((bynt_opt_i64){0})))
+map50 (*bynh_slot_map_i64_opt_i64(&m, k, d))
+map50 bynh_index_map_i64_opt_i64(m, k, L)
+map50 bynh_try_get_map_i64_opt_i64(m, k)
+map50 bynh_has_map_i64_opt_i64(m, k)
+map50 bynh_remove_map_i64_opt_i64(&m, k)
+map51 (*bynh_slot_map_u8_map_i64_i64(&m, k, ((bynt_map_i64_i64){0})))
+map51 (*bynh_slot_map_u8_map_i64_i64(&m, k, d))
+map51 bynh_index_map_u8_map_i64_i64(m, k, L)
+map51 bynh_try_get_map_u8_map_i64_i64(m, k)
+map51 bynh_has_map_u8_map_i64_i64(m, k)
+map51 bynh_remove_map_u8_map_i64_i64(&m, k)
+hashes true

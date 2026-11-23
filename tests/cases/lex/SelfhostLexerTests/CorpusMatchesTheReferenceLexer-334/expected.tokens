@@ -1,0 +1,68 @@
+3:1 IntegerLiteral `0x_`
+5:1 Identifier `_`
+6:2 PlusEquals `+=`
+6:5 MinusEquals `-=`
+6:8 StarEquals `*=`
+6:11 SlashEquals `/=`
+6:14 PercentEquals `%=`
+6:17 Amp `&`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:1 StructKeyword `struct`
+7:8 UniqueKeyword `unique`
+7:15 UnionKeyword `union`
+7:21 EnumKeyword `enum`
+7:26 FlagsKeyword `flags`
+7:32 OpenKeyword `open`
+7:37 ExtensibleKeyword `extensible`
+7:48 Identifier `inteface`
+7:57 DelegateKeyword `delegate`
+7:66 ExtensionKeyword `extension`
+7:76 Identifier `derivationOattribute`
+8:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ _����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ _����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ _����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ _����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │ ��+= -= *= /= %= & |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ��+= -= *= /= %= & |= ^= <<=
+    │  ^

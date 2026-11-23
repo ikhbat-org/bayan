@@ -1,0 +1,8 @@
+== tests/cases/run/main-exit-code.byn
+56..100 blockStmt
+62..85 exprStmt
+62..85 callExpr
+68..84 literalExpr string
+62..85 callExpr
+90..98 returnStmt value 97..98
+97..98 literalExpr integer

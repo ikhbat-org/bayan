@@ -1,0 +1,12 @@
+error BYN6002: `undeclaredFull` uses `alloc` but does not declare it
+  --> tmp/t26-tests/cli/diag_path-full-path-needs-alloc.byn/path-full-path-needs-alloc.byn:3:12
+
+  3 │     return Path.fullPath(p)
+    │            ^^^^^^^^^^^^^^^^ uses `alloc`
+    │
+  help: add `alloc` to the `uses` clause, or remove the call
+    │ 2 │ public string undeclaredFull(string p) uses alloc {
+    │   │                                       +++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6002

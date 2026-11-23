@@ -1,0 +1,102 @@
+== stmts
+fn loops locals=13 ctx=0 panic=0
+  local i:i64
+  local k:i64
+  local t:i64
+  local t:i64
+  local k:i64
+  local t:i64
+  local t:i64
+  local k:i64
+  local t:i64
+  local t:i64
+  local j:i64
+  local t:i64
+  local t:i64
+  block
+    assign - i lit:i64 0:0
+    loop
+      block
+        if un(2 (13 i n):bool)
+          block
+            goto break_1
+        assign - i (0 i lit:i64 0:1):i64
+        label continue_2
+    label break_1
+    loop
+      block
+        assign - i (1 i lit:i64 0:1):i64
+        label continue_4
+        if un(2 (14 i lit:i64 0:0):bool)
+          block
+            goto break_3
+    label break_3
+    loop
+      block
+        if un(2 (13 i n):bool)
+          block
+            goto break_5
+        if (17 i lit:i64 0:3):bool
+          block
+            goto break_5
+        if (17 i lit:i64 0:4):bool
+          block
+            goto continue_6
+        assign - i (0 i lit:i64 0:1):i64
+        label continue_6
+    label break_5
+    assign - t lit:i64 0:0
+    assign - t n
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_7
+        assign - k t
+        assign - i k
+        label continue_8
+        assign - t (5 t lit:i64 0:1):i64
+    label break_7
+    assign - t lit:i64 0:0
+    assign - t n
+    loop
+      block
+        if un(2 (15 t t):bool)
+          block
+            goto break_9
+        assign - k t
+        if (17 k lit:i64 0:2):bool
+          block
+            goto continue_10
+        assign - i k
+        label continue_10
+        if (17 t t):bool
+          block
+            goto break_9
+        assign - t (5 t lit:i64 0:1):i64
+    label break_9
+    assign - t lit:i64 0:0
+    assign - t n
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_11
+        assign - k t
+        assign - t lit:i64 0:0
+        assign - t k
+        loop
+          block
+            if un(2 (13 t t):bool)
+              block
+                goto break_13
+            assign - j t
+            assign - i j
+            label continue_14
+            assign - t (5 t lit:i64 0:1):i64
+        label break_13
+        label continue_12
+        assign - t (5 t lit:i64 0:1):i64
+    label break_11
+fn main locals=0 ctx=0 panic=0
+  block

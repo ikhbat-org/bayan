@@ -1,0 +1,53 @@
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 Identifier `enu`
+2:24 Colon `:`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 ExtensibleKeyword `extensible`
+2:48 Identifier `inerface`
+2:57 DelegateKeyword `delegate`
+2:66 ExtensionKeyword `extension`
+2:76 DerivationKeyword `derivation`
+2:87 AttributeKeyword `attribute`
+4:1 Identifier `ate`
+4:5 StaticKeyword `static`
+4:12 ReadonlyKeyword `readonly`
+4:21 RequiredKeyword `required`
+4:30 ConstKeyword `const`
+4:36 LetKeyword `let`
+4:40 VarKeyword `var`
+4:44 EmbedKeyword `embed`
+4:50 Identifier `elet`
+4:55 Identifier `c`
+4:57 Equals `=`
+4:59 RawStringLiteral `"""never closed\n\n'\u{110000}'\n\n$"stray } here"\n\nitch case default for in while do�break `
+10:41 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ate static readonly required const let var embed elet c = """never closed
+    │                                                           ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  10 │ itch case default for in while do�break 
+     │                                  ^

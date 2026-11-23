@@ -1,0 +1,68 @@
+== tests/cases/diag/for-dyn-ref-variable-borrows.byn
+206..630 blockStmt
+212..232 localDecl
+223..232 callExpr
+237..260 exprStmt
+237..260 callExpr
+237..241 nameExpr
+249..259 structLiteralExpr
+256..257 literalExpr integer
+265..283 localDecl
+274..283 callExpr
+288..309 exprStmt
+288..309 callExpr
+288..290 nameExpr
+298..308 structLiteralExpr
+305..306 literalExpr integer
+314..345 localDecl
+338..345 indexExpr
+338..345 indexExpr
+338..342 nameExpr
+343..344 literalExpr integer
+350..399 forStmt
+375..377 nameExpr
+378..399 blockStmt
+388..393 assignStmt assign target 388..389 value 392..393
+388..389 nameExpr
+392..393 nameExpr
+404..457 forStmt
+413..419 rangeExpr
+413..414 literalExpr integer
+416..419 literalExpr integer
+420..457 blockStmt
+430..451 exprStmt
+430..451 callExpr
+430..432 nameExpr
+440..450 structLiteralExpr
+447..448 nameExpr
+447..448 nameExpr
+462..481 exprStmt
+462..481 callExpr
+468..480 interpolatedExpr
+471..478 callExpr
+471..472 nameExpr
+462..481 callExpr
+486..526 localDecl
+519..526 indexExpr
+519..526 indexExpr
+519..523 nameExpr
+524..525 literalExpr integer
+531..589 forStmt
+565..567 nameExpr
+568..589 blockStmt
+578..583 assignStmt assign target 578..579 value 582..583
+578..579 nameExpr
+582..583 nameExpr
+594..604 exprStmt
+594..604 callExpr
+594..596 nameExpr
+609..628 exprStmt
+609..628 callExpr
+615..627 interpolatedExpr
+618..625 callExpr
+618..619 nameExpr
+609..628 callExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr

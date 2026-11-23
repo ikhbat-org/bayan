@@ -1,0 +1,47 @@
+1:1 Identifier `b102`
+2:1 IntegerLiteral `0xF`
+    doc `/// not a doc comment`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:9 IntegerLiteral `1`
+8:2 OpenBrace `{`
+8:3 Identifier `x`
+8:4 StringLiteral `";`
+9:2 LetKeyword `let`
+9:6 LawKeyword `law`
+9:10 Equals `=`
+9:12 IntegerLiteral `3`
+11:1 Identifier `macro`
+11:7 Identifier `select`
+11:14 BecomeKeyword `become`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  8 │  {x";
+    │    ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  11 │ macro select become
+     │ ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  11 │ macro select become
+     │       ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name

@@ -1,0 +1,17 @@
+== cases
+0 bynh_add_list_i64(&l0_a, INT64_C(1))
+1 bynh_add_list_i64(&l0_a, INT64_C(2))
+2 l1_b.len
+3 bynh_add_list_i64(&l2_bag.items, INT64_C(3))
+4 l2_bag.items.len
+5 bynh_add_list_i64(&l4_c, INT64_C(4))
+6 bynh_add_list_list_i64(&l3_lists, l4_c)
+7 l3_lists.len
+8 (*bynh_at_list_list_i64(l3_lists, (int64_t)INT64_C(0), false, byn_file_0, 28)).len
+9 (*bynh_at_list_list_i64(l3_lists, (int64_t)INT64_C(0), false, byn_file_0, 28))
+10 bynh_add_list_i64(&l6_d, INT64_C(5))
+11 bynh_add_list_i64(&l6_d, INT64_C(6))
+12 bynh_add_list_i64(&l6_d, INT64_C(7))
+13 l6_d.len
+14 (*bynh_at_list_i64(l6_d, (int64_t)INT64_C(0), false, byn_file_0, 37))
+count 15

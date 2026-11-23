@@ -1,0 +1,5 @@
+--ascii
+--color
+always
+run
+<repo>/tmp/t7-style/run-fail-ascii/tally/main.byn

@@ -1,0 +1,2 @@
+CompilationUnit
+  ErrorSet S = A, B except .x, .y

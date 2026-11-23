@@ -1,0 +1,10 @@
+== diags.diag/unique-move-in-failed-guard
+BYN2712 23:9 `_` hides future cases of `U`, declared in this package
+  label matches every case added later
+  help list the cases instead: .a, .b
+BYN2781 15:22 `x` is used after it was moved
+  label moved on line 12
+  help assign `x` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+BYN2781 23:14 `x` is used after it was moved
+  label moved on line 22
+  help assign `x` a new value before using it again, or move a `.copy(to: alloc)` of it instead

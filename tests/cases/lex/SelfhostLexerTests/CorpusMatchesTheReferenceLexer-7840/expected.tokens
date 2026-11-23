@@ -1,0 +1,117 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 CharLiteral `'x\r`
+4:2 LetKeyword `let`
+4:6 Identifier `ef`
+4:8 Amp `&`
+4:9 Identifier `ect`
+4:13 Equals `=`
+4:15 IntegerLiteral `2`
+6:1 Identifier `e`
+6:4 Identifier `tatic`
+6:10 ReadonlyKeyword `readonly`
+6:19 RequiredKeyword `required`
+6:28 Identifier `con`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 InterpolatedStringStart `$"`
+6:54 InterpolationStart `{`
+6:55 InterpolatedStringStart `$"`
+6:57 InterpolationStart `{`
+6:58 InterpolatedStringStart `$"`
+6:60 InterpolationStart `{`
+6:61 InterpolatedStringStart `$"`
+6:63 InterpolationStart `{`
+6:64 InterpolatedStringStart `$"`
+6:66 InterpolationStart `{`
+6:67 InterpolatedStringStart `$"`
+6:69 InterpolationStart `{`
+6:70 InterpolatedStringStart `$"`
+6:72 InterpolationStart `{`
+6:73 InterpolatedStringStart `$"`
+6:75 InterpolationStart `{`
+6:76 InterpolatedStringStart `$"`
+6:78 InterpolationStart `{`
+6:79 StringLiteral `$"{$"`
+6:84 OpenBrace `{`
+6:85 StringLiteral `$"{x}"`
+6:91 CloseBrace `}`
+6:92 StringLiteral `"}"`
+6:95 InterpolationEnd `}`
+6:96 InterpolatedStringEnd `"`
+6:97 InterpolationEnd `}`
+6:98 InterpolatedStringEnd `"`
+6:99 InterpolationEnd `}`
+6:100 InterpolatedStringEnd `"`
+6:101 InterpolationEnd `}`
+6:102 InterpolatedStringEnd `"`
+6:103 InterpolationEnd `}`
+6:104 InterpolatedStringEnd `"`
+6:105 InterpolationEnd `}`
+6:106 InterpolatedStringEnd `"`
+6:107 InterpolationEnd `}`
+6:108 InterpolatedStringEnd `"`
+6:110 LetKeyword `let`
+6:114 Identifier `café`
+6:120 Equals `=`
+6:122 IntegerLiteral `1`
+6:123 Semicolon `;`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:10 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  6 │ e �tatic readonly required con$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" let café = 1;
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  6 │ e �tatic readonly required con$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" let café = 1;
+    │                                                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ e �tatic readonly required con$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" let café = 1;
+    │                                                                               ^^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │ e �tatic readonly required con$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" let café = 1;
+    │                                                                                                                  ^^^^^ same
+    │                                                                                                                        letters,
+    │                                                                                                                        different
+    │                                                                                                                        encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ e �tatic readonly required con$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" let café = 1;
+    │   │                                                                                                                     +
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = �
+    │         ^

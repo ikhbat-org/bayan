@@ -1,0 +1,12 @@
+1:1 StringLiteral `"��b"`
+1:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ "��b" 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ "��b" 
+    │   ^

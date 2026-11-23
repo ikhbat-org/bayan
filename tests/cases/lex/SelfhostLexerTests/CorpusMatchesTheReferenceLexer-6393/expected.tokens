@@ -1,0 +1,148 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+1:112 CharLiteral `'ab'`
+2:1 Identifier `tal`
+2:5 OpenBrace `{`
+2:6 Identifier `x`
+2:7 CloseBrace `}`
+2:8 StringLiteral `" $"`
+2:12 Identifier `a`
+2:14 OpenBrace `{`
+2:15 Identifier `f`
+2:16 OpenParen `(`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolatedStringText `b `
+2:21 InterpolationStart `{`
+2:22 Identifier `c`
+2:23 InterpolationEnd `}`
+2:24 InterpolatedStringEnd `"`
+2:25 CloseParen `)`
+2:26 CloseBrace `}`
+2:28 Identifier `d`
+2:29 StringLiteral `" $"`
+2:33 OpenBrace `{`
+2:34 OpenBrace `{`
+2:35 Identifier `l`
+    doc `/// Doc line two.`
+4:2 LetKeyword `let`
+4:8 Equals `=`
+4:10 IntegerLiteral `2`
+5:2 Identifier `er`
+5:5 Identifier `closed`
+6:1 Identifier `b`
+8:1 Identifier `x́́`
+9:1 LetKeyword `let`
+9:5 Identifier `s`
+9:7 Equals `=`
+9:9 InterpolatedStringStart `$"`
+9:11 InterpolationStart `{`
+9:12 InterpolatedStringStart `$"`
+9:14 InterpolationStart `{`
+9:15 InterpolatedStringStart `$"`
+9:17 InterpolationStart `{`
+9:18 InterpolatedStringStart `$"`
+9:20 InterpolationStart `{`
+9:21 InterpolatedStringStart `$"`
+9:23 InterpolationStart `{`
+9:24 InterpolatedStringStart `$"`
+9:26 InterpolationStart `{`
+9:27 InterpolatedStringStart `$"`
+9:29 InterpolationStart `{`
+9:30 InterpolatedStringStart `$"`
+9:32 InterpolationStart `{`
+9:33 InterpolatedStringStart `$"`
+9:35 InterpolationStart `{`
+9:36 InterpolatedStringStart `$"`
+9:38 InterpolationStart `{`
+9:39 InterpolatedStringStart `$"`
+9:41 InterpolationStart `{`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolationStart `{`
+9:45 InterpolatedStringStart `$"`
+9:47 InterpolationStart `{`
+9:48 InterpolatedStringStart `$"`
+9:50 InterpolationStart `{`
+9:51 InterpolatedStringStart `$"`
+9:53 InterpolationStart `{`
+9:54 InterpolatedStringStart `$"`
+9:56 InterpolationStart `{`
+9:57 StringLiteral `$"{$"`
+9:62 OpenBrace `{`
+9:63 StringLiteral `$"{$"`
+9:68 OpenBrace `{`
+9:69 Identifier `x`
+9:70 CloseBrace `}`
+9:71 StringLiteral `"}"`
+9:74 CloseBrace `}`
+9:75 StringLiteral `"}"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 InterpolationEnd `}`
+9:83 InterpolatedStringEnd `"`
+9:84 InterpolationEnd `}`
+9:85 InterpolatedStringEnd `"`
+9:86 InterpolationEnd `}`
+9:87 InterpolatedStringEnd `"`
+9:88 InterpolationEnd `}`
+9:89 InterpolatedStringEnd `"`
+9:90 InterpolationEnd `}`
+9:91 InterpolatedStringEnd `"`
+9:92 InterpolationEnd `}`
+9:93 InterpolatedStringEnd `"`
+9:94 InterpolationEnd `}`
+9:95 InterpolatedStringEnd `"`
+9:96 InterpolationEnd `}`
+9:97 InterpolatedStringEnd `"`
+9:98 InterpolationEnd `}`
+9:99 InterpolatedStringEnd `"`
+9:100 InterpolationEnd `}`
+9:101 InterpolatedStringEnd `"`
+9:102 InterpolationEnd `}`
+9:103 InterpolatedStringEnd `"`
+9:104 InterpolationEnd `}`
+9:105 InterpolatedStringEnd `"`
+9:106 InterpolationEnd `}`
+9:107 InterpolatedStringEnd `"`
+9:108 InterpolationEnd `}`
+9:109 InterpolatedStringEnd `"`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ error set unit distinct type import as public private static readonly required const�let var embed extern unsafe'ab'
+    │                                                                                     ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ error set unit distinct type import as public private static readonly required const�let var embed extern unsafe'ab'
+    │                                                                                                                 ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  let � = 2
+    │      ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^

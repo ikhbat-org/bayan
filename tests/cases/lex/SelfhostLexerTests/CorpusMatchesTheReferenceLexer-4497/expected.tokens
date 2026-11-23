@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `1__`
+3:2 Identifier `closed`
+4:1 Identifier `b`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:11 CloseBrace `}`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // comment � hidden
+    │   │            -

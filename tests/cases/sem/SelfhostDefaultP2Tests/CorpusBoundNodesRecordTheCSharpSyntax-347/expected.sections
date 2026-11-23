@@ -1,0 +1,14 @@
+== tests/cases/diag/ambiguous-variant.byn
+127..157 blockStmt
+133..155 guardedStmt
+150..155 binaryExpr lt right 154..155
+150..151 nameExpr
+154..155 literalExpr integer
+133..137 failStmt
+159..180 globalStatement
+159..180 exprStmt
+159..180 catchExpr
+159..167 callExpr
+165..166 literalExpr integer
+174..180 jumpExpr
+174..180 returnStmt

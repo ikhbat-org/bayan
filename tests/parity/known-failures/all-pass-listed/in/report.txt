@@ -1,0 +1,2 @@
+test: golden   pass    3s  x
+test: bayan    pass    3s  x

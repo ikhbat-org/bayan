@@ -1,0 +1,1 @@
+$ $BAYAN --version | sed -E "s/ \((commit [0-9a-f]{12}|commit unknown|selfhost)\)$/ (<build>)/"  # Q1091: the driver has no commit and prints (selfhost); the mask keeps the version and drops the build id

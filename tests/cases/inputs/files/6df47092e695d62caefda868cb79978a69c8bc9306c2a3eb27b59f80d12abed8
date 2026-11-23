@@ -1,0 +1,8 @@
+'\q'
+ let a = 1
+   """ ctext" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+b
+Å let café = 2
+
+ line comment
+/* 

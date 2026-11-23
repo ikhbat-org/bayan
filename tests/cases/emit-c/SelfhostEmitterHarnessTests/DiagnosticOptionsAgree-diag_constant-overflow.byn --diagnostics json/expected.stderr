@@ -1,0 +1,1 @@
+{"code":"BYN2204","severity":"error","file":"input.byn","span":{"start":17,"end":34,"line":1,"column":18,"endLine":1,"endColumn":35},"message":"constant arithmetic overflows `i32`","label":null,"help":null,"fixes":[]}

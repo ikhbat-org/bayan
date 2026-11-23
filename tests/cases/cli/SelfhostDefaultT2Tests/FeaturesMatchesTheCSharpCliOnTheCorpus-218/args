@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/panic-in-panic-handler.byn
+--package
+<repo>/tests/cases/run

@@ -1,0 +1,70 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 Identifier `le`
+1:90 Identifier `v`
+1:91 Identifier `r`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+2:2 RawStringLiteral `"""\n  raw "quoted"\n  """`
+4:7 CStringLiteral `c"text"`
+4:15 U16StringLiteral `u16"wide"`
+4:25 StringLiteral `"\u{202E} all"`
+4:32 Identifier `text`
+4:36 StringLiteral `" "`
+4:39 Identifier `esc`
+4:44 StringLiteral `"q\" \�\ \n"`
+4:57 RawStringLiteral `"""\n\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFB)
+
+  1 │ error set unit distinct type import as public private static readonly required const le� v�r embed extern unsafe
+    │                                                                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  1 │ error set unit distinct type import as public private static readonly required const le� v�r embed extern unsafe
+    │                                                                                           ^
+
+error BYN0002: unexpected character `\`
+
+  4 │   """ c"text" u16"wide" "� all"text" "esc \"q\" \�\ \n" """
+    │                                           ^
+
+error BYN0006: invalid escape sequence `\�`
+
+  4 │   """ c"text" u16"wide" "� all"text" "esc \"q\" \�\ \n" """
+    │                                                 ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  4 │   """ c"text" u16"wide" "� all"text" "esc \"q\" \�\ \n" """
+    │                                                  ^
+
+error BYN0006: invalid escape sequence `\ `
+
+  4 │   """ c"text" u16"wide" "� all"text" "esc \"q\" \�\ \n" """
+    │                                                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  4 │   """ c"text" u16"wide" "� all"text" "esc \"q\" \�\ \n" """
+    │                                                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

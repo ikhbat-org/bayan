@@ -1,0 +1,121 @@
+2:1 IntegerLiteral `0x`
+2:4 IntegerLiteral `1_`
+4:1 IntegerLiteral `0b102`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:1 IntegerLiteral `0`
+6:2 NumericSuffix `b`
+6:3 InterpolatedStringStart `$"`
+6:5 InterpolationStart `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+6:9 InterpolatedStringStart `$"`
+6:11 InterpolationStart `{`
+6:12 InterpolatedStringStart `$"`
+6:14 InterpolationStart `{`
+6:15 InterpolatedStringStart `$"`
+6:17 InterpolationStart `{`
+6:18 InterpolatedStringStart `$"`
+6:20 InterpolationStart `{`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolationStart `{`
+6:24 InterpolatedStringStart `$"`
+6:26 InterpolationStart `{`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolationStart `{`
+6:31 OpenBrace `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 StringLiteral `$"{$"`
+6:58 OpenBrace `{`
+6:59 StringLiteral `$"{x}"`
+6:65 CloseBrace `}`
+6:66 StringLiteral `"}"`
+6:69 InterpolationEnd `}`
+6:70 InterpolatedStringEnd `"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 InterpolationEnd `}`
+6:80 InterpolatedStringEnd `"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+6:83 Amp `&`
+6:85 AmpAmp `&&`
+6:88 Bar `|`
+6:90 BarBar `||`
+6:93 Caret `^`
+6:95 Tilde `~`
+6:97 Bang `!`
+6:99 Equals `=`
+6:101 EqualsEquals `==`
+6:104 BangEquals `!=`
+6:107 Less `<`
+6:109 LessEquals `<=`
+6:112 Greater `>`
+6:114 GreaterEquals `>=`
+6:117 LessLess `<<`
+6:119 Greater `>`
+6:120 Greater `>`
+6:122 Greater `>`
+6:123 GreaterEquals `>=`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x 1_
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0x 1_
+    │     ^
+    │
+    │ 2 │ 0x 1_
+    │   │     -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  6 │ 0b$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"& && | || ^ ~ ! = == != < <= > >= <<>> >>=
+    │                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  6 │ 0b$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"& && | || ^ ~ ! = == != < <= > >= <<>> >>=
+    │                              ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ 0b$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"& && | || ^ ~ ! = == != < <= > >= <<>> >>=
+    │                                                     ^^

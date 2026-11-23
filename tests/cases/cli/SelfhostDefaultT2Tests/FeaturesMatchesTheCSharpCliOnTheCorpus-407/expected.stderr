@@ -1,0 +1,166 @@
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:1:9
+
+  1 │ let a = x is 1
+    │         ^
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:2:9
+
+  2 │ let b = x is not null
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 2 │ let b = a is not null
+    │   │         +
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:3:9
+
+  3 │ let c = x is > 0 and <= 10 or 100
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 3 │ let c = a is > 0 and <= 10 or 100
+    │   │         +
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:4:9
+
+  4 │ let d = x is var y
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 4 │ let d = a is var y
+    │   │         +
+
+warning BYN2311: `y` is never reassigned; declare it with `let`
+  --> <repo>/tests/cases/parse/patterns.byn:4:18
+
+  4 │ let d = x is var y
+    │                  ^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 4 │ let d = x is let y
+    │   │              +++
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:5:9
+
+  5 │ let e = x is _
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 5 │ let e = a is _
+    │   │         +
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:6:9
+
+  6 │ let f = x is { cents: > 0 } m
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 6 │ let f = a is { cents: > 0 } m
+    │   │         +
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:7:9
+
+  7 │ let g = x is Money { cents: 0, currency: "MYR" }
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 7 │ let g = a is Money { cents: 0, currency: "MYR" }
+    │   │         +
+
+error BYN2002: unknown type `Money`
+  --> <repo>/tests/cases/parse/patterns.byn:7:14
+
+  7 │ let g = x is Money { cents: 0, currency: "MYR" }
+    │              ^^^^^
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:8:9
+
+  8 │ let h = x is { inner.value: 1 }
+    │         ^
+    │
+  help: did you mean `a`?
+    │ 8 │ let h = a is { inner.value: 1 }
+    │   │         +
+
+error BYN2001: `xs` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:9:9
+
+  9 │ let i = xs is [var first, .. var rest]
+    │         ^^
+
+error BYN2022: list patterns is not supported in v0.1
+  --> <repo>/tests/cases/parse/patterns.byn:9:15
+
+  9 │ let i = xs is [var first, .. var rest]
+    │               ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error BYN2001: `xs` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:10:9
+
+  10 │ let j = xs is [1, .., 9]
+     │         ^^
+
+error BYN2022: list patterns is not supported in v0.1
+  --> <repo>/tests/cases/parse/patterns.byn:10:15
+
+  10 │ let j = xs is [1, .., 9]
+     │               ^^^^^^^^^^
+
+error BYN2001: `xs` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:11:9
+
+  11 │ let k = xs is []
+     │         ^^
+
+error BYN2022: list patterns is not supported in v0.1
+  --> <repo>/tests/cases/parse/patterns.byn:11:15
+
+  11 │ let k = xs is []
+     │               ^^
+
+error BYN2001: `r` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:12:9
+
+  12 │ let l = r is (0, var y)
+     │         ^
+     │
+  help: did you mean `a`?
+     │ 12 │ let l = a is (0, var y)
+     │    │         +
+
+error BYN2022: positional patterns on `?` is not supported in v0.1
+  --> <repo>/tests/cases/parse/patterns.byn:12:14
+
+  12 │ let l = r is (0, var y)
+     │              ^^^^^^^^^^
+
+error BYN2001: `s` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:13:9
+
+  13 │ let m = s is Text(var body)
+     │         ^
+     │
+  help: did you mean `a`?
+     │ 13 │ let m = a is Text(var body)
+     │    │         +
+
+error BYN2022: deconstruction patterns is not supported in v0.1
+  --> <repo>/tests/cases/parse/patterns.byn:13:14
+
+  13 │ let m = s is Text(var body)
+     │              ^^^^^^^^^^^^^^
+
+error BYN2001: `MoneyError` is not defined
+  --> <repo>/tests/cases/parse/patterns.byn:14:14
+
+  14 │ let n = e is MoneyError.invalid
+     │              ^^^^^^^^^^
+… and 6 more errors (use --all to show them)

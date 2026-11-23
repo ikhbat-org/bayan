@@ -1,0 +1,23 @@
+1:1 IntegerLiteral `0x`
+2:4 LetKeyword `let`
+2:8 Identifier `c`
+2:10 Equals `=`
+2:12 RawStringLiteral `"""never closed\n\n1.\n3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5\n\u{1E}   comment */ a\n `
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  2 │  � let c = """never closed
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │  � let c = """never closed
+    │            ^^^ raw string starts here
+    │
+  help: close it with `"""`

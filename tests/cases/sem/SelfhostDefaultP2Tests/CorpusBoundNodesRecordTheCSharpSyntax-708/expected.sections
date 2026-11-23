@@ -1,0 +1,31 @@
+== tests/cases/diag/null-equality.byn
+12..194 blockStmt
+18..42 localDecl
+38..42 literalExpr nullKeyword
+47..92 ifStmt
+50..62 binaryExpr eq right 58..62
+50..54 nameExpr
+58..62 literalExpr nullKeyword
+63..92 blockStmt
+73..86 exprStmt
+73..86 callExpr
+79..85 literalExpr string
+73..86 callExpr
+97..142 ifStmt
+100..112 binaryExpr ne right 108..112
+100..104 nameExpr
+108..112 literalExpr nullKeyword
+113..142 blockStmt
+123..136 exprStmt
+123..136 callExpr
+129..135 literalExpr string
+123..136 callExpr
+147..192 ifStmt
+150..162 binaryExpr eq right 158..162
+150..154 literalExpr nullKeyword
+158..162 nameExpr
+163..192 blockStmt
+173..186 exprStmt
+173..186 callExpr
+179..185 literalExpr string
+173..186 callExpr

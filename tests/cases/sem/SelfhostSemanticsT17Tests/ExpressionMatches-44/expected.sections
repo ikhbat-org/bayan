@@ -1,0 +1,2 @@
+== case suffix-u-big
+literal 803..814 : u64 = 5000000000

@@ -1,0 +1,31 @@
+1:5 Identifier `omment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:12 IntegerLiteral `1`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `x`
+6:4 InterpolationStart `{`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolationStart `{`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  4 │ let a = �$ 1
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ let a = �$ 1
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

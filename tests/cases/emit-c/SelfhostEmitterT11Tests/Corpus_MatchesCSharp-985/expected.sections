@@ -1,0 +1,15 @@
+== cases
+0 bynh_add_list_main__Stat(&l1_list, ((bynt_main__Stat){INT64_C(0), INT64_C(0)}))
+1 (*bynh_at_list_main__Stat(l1_list, (int64_t)INT64_C(0), false, byn_file_0, 28))
+2 (*bynh_at_list_main__Stat(l1_list, (int64_t)INT64_C(0), false, byn_file_0, 29))
+3 (*bynh_at_list_main__Stat(l1_list, (int64_t)INT64_C(0), false, byn_file_0, 30))
+4 (*bynh_at_list_main__Stat(l1_list, (int64_t)INT64_C(0), false, byn_file_0, 30))
+5 (*bynh_slot_map_str_main__Stat(&l2_stats, BYN_STR("api", 3), ((bynt_main__Stat){0})))
+6 (*bynh_slot_map_str_main__Stat(&l2_stats, BYN_STR("api", 3), ((bynt_main__Stat){0})))
+7 (*bynh_slot_map_str_main__Stat(&l2_stats, BYN_STR("api", 3), ((bynt_main__Stat){0})))
+9 bynh_index_map_str_main__Stat(l2_stats, BYN_STR("api", 3), byn_file_0, 37)
+10 bynh_index_map_str_main__Stat(l2_stats, BYN_STR("api", 3), byn_file_0, 37)
+11 bynh_index_map_str_main__Stat(l2_stats, BYN_STR("db", 2), byn_file_0, 37)
+12 (*bynh_slot_map_str_main__Stat(&l2_stats, BYN_STR("web", 3), ((bynt_main__Stat){0})))
+13 byn_div_i64((*self).total, (*self).hits, byn_file_0, 17)
+count 14

@@ -1,0 +1,13 @@
+4:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  3 │  & && | || 	^ ~ ! = == �!= < <= > >= << >> >>=
+    │            	           ^

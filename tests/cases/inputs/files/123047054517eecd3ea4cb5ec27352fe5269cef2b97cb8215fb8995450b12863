@@ -1,0 +1,9 @@
+{Point { x = 1 }}!" $""
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+$"{a
+	
+b
+$"open {x";
+
+b
+ 

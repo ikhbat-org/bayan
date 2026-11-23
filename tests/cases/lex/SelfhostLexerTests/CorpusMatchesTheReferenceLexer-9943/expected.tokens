@@ -1,0 +1,78 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 FloatLiteral `2.5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:39 IntegerLiteral `3`
+1:41 IntegerLiteral `5`
+1:42 NumericSuffix `e`
+1:44 Identifier `x`
+1:45 Dot `.`
+1:46 Identifier `y`
+1:48 FloatLiteral `2.5`
+1:51 NumericSuffix `f`
+2:2 IntegerLiteral `0`
+2:4 IntegerLiteral `42`
+2:7 IntegerLiteral `1_000_000`
+2:17 IntegerLiteral `0xFF`
+2:22 IntegerLiteral `0x_ff`
+2:28 IntegerLiteral `0b1010`
+2:35 IntegerLiteral `0B11`
+2:40 IntegerLiteral `5`
+2:41 NumericSuffix `s`
+2:43 IntegerLiteral `250`
+2:46 NumericSuffix `ms`
+2:49 IntegerLiteral `4`
+2:50 NumericSuffix `KiB`
+2:54 IntegerLiteral `1`
+2:55 NumericSuffix `u`
+2:57 IntegerLiteral `0xFF`
+2:61 NumericSuffix `u`
+2:63 IntegerLiteral `0b1`
+2:66 NumericSuffix `ul`
+2:69 IntegerLiteral `7`
+2:70 NumericSuffix `l`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+5:1 IntegerLiteral `1__`
+7:1 StringLiteral `" $"`
+7:5 OpenBrace `{`
+7:6 StringLiteral `"`
+7:7 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  7 │ " $"{"
+    │      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

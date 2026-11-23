@@ -1,0 +1,35 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 Identifier `ca`
+1:26 Identifier `se`
+1:29 DefaultKeyword `default`
+1:37 ForKeyword `for`
+1:41 InKeyword `in`
+1:44 WhileKeyword `while`
+1:50 DoKeyword `do`
+1:53 BreakKeyword `break`
+1:59 ContinueKeyword `continue`
+1:68 Identifier `returnC`
+1:76 YieldKeyword `yield`
+1:82 DeferKeyword `defer`
+1:88 ErrdeferKeyword `errdefer`
+1:97 UsingKeyword `using`
+1:103 ContextKeyword `context`
+3:1 Identifier `lXt`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 Identifier `x́́`
+5:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ if else unless switch ca�se default for in while do break continue returnC yield defer errdefer using context
+    │                         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ lXt c = � 3
+    │         ^

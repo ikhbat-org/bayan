@@ -1,0 +1,7 @@
+1:1 OpenParen `(`
+1:3 CloseParen `)`
+1:5 OpenBracket `[`
+1:7 CloseBracket `]`
+1:9 OpenBrace `{`
+1:11 CloseBrace `}`
+2:1 EndOfFile

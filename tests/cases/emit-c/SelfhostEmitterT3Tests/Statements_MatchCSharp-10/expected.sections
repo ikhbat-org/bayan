@@ -1,0 +1,187 @@
+== stmts
+fn g locals=0 ctx=0 panic=0
+  block
+    lreturn lit:i64 0:1
+fn h locals=0 ctx=0 panic=0
+  block
+    lreturn lit:i64 0:1
+fn nothing locals=0 ctx=0 panic=0
+  block
+fn v2 locals=0 ctx=0 panic=0
+  block
+    expr call nothing(-; ):void
+fn mkH locals=0 ctx=0 panic=0
+  block
+    lreturn ?
+fn mkC locals=0 ctx=0 panic=0
+  block
+    lreturn ?
+fn mkCs locals=0 ctx=0 panic=0
+  block
+    lreturn ?
+fn opt locals=0 ctx=0 panic=0
+  block
+    lreturn conv5(lit:i64 0:3):i64?
+fn nevers locals=9 ctx=0 panic=0
+  local t:i64
+  local k:i32
+  local x:i32
+  local x:i64
+  local x:i64
+  local x:i64
+  local enumerator_9:Countdown
+  local t:i64
+  local t:i64
+  block
+    if (17 n lit:i64 0:1):bool
+      block
+        expr call panic(-; lit:string "f"):never
+    if (17 n lit:i64 0:2):bool
+      block
+        expr call panic(-; lit:string "a"):never
+    if (17 n lit:i64 0:3):bool
+      block
+        expr call panic(-; lit:string "i"):never
+    if (17 n lit:i64 0:4):bool
+      block
+        assign - t o
+        expr call panic(-; lit:string "c"):never
+    if (17 n lit:i64 0:5):bool
+      block
+        expr call panic(-; lit:string "if"):never
+    if (17 n lit:i64 0:6):bool
+      block
+        loop
+          block
+            expr call panic(-; lit:string "w"):never
+            assign - o lit:i64 0:3
+            label continue_2
+        label break_1
+    if (17 n lit:i64 0:7):bool
+      block
+        expr call panic(-; lit:string "r"):never
+    if (17 n lit:i64 0:8):bool
+      block
+        expr call panic(-; lit:string "s"):never
+    if (17 n lit:i64 0:9):bool
+      block
+        expr call panic(-; lit:string "l"):never
+    if (17 n lit:i64 0:10):bool
+      block
+        expr call panic(-; lit:string "u"):never
+    if (17 n lit:i64 0:11):bool
+      block
+        expr call panic(-; lit:string "v"):never
+    if (17 n lit:i64 0:12):bool
+      block
+        expr call panic(-; lit:string "e"):never
+    assign - t o
+    assign - t call g(-; ):i64
+    assign - o (0 t t):i64
+fn rets locals=3 ctx=0 panic=0
+  local p:i64?
+  local t:i64
+  local t:i64
+  block
+    if (17 n lit:i64 0:1):bool
+      block
+        expr call panic(-; lit:string "r"):never
+    assign - p call opt(-; ):i64?
+    if un(2 un(2 ?))
+      block
+        assign - t ?
+        expr call print(-; lit:string "d", ?):void
+        lreturn t
+    assign - t n
+    expr call print(-; lit:string "d", ?):void
+    lreturn t
+    expr call print(-; lit:string "d", ?):void
+fn coalesce locals=2 ctx=0 panic=0
+  local t:i64?
+  local t:i64?
+  block
+    assign - o ?
+    assign - t o
+    if ?
+      block
+        assign - t t
+    else
+      block
+        expr call panic(-; lit:string "q"):never
+    assign - o t
+fn pats locals=7 ctx=0 panic=0
+  local r:i64
+  local k:i64
+  local k:i64
+  local k:i64
+  local k:i64
+  local t:E
+  local t:i64
+  block
+    assign - r lit:i64 0:0
+    if (22 (17 ? lit:i32 0:0):bool ?):bool
+      block
+        assign - r k
+        goto switch_end_1
+    if (17 ? lit:i32 0:1):bool
+      block
+        assign - r lit:i64 0:2
+        goto switch_end_1
+    label switch_end_1
+    if (22 (22 (17 ? lit:i32 0:0):bool ?):bool (14 k n):bool):bool
+      block
+        assign - r lit:i64 0:1
+        goto switch_end_2
+    if (22 (22 (17 ? lit:i32 0:0):bool ?):bool (14 k ?):bool):bool
+      block
+        assign - r lit:i64 0:3
+        goto switch_end_2
+    if (22 (17 ? lit:i32 0:0):bool ?):bool
+      block
+        ?
+        if (18 ? lit:u32 0:0):bool
+          block
+            assign - t lit:i64 0:0
+        if (14 k t):bool
+          block
+            assign - r lit:i64 0:5
+            goto switch_end_2
+    assign - r lit:i64 0:4
+    label switch_end_2
+fn places locals=10 ctx=0 panic=0
+  local d1:dyn ref readonly IS
+  local t:H
+  local d2:dyn ref readonly IS
+  local t:(Ci a, i64 b)
+  local d3:dyn ref readonly IS
+  local t:Ci
+  local d4:dyn ref readonly IS
+  local t:Ci[2]
+  local d5:dyn ref readonly IS
+  local t:Ci
+  block
+    assign - t call mkH(-; ):H
+    assign - d1 conv15(fld(t).c):dyn ref readonly IS
+    assign - t fld(call mkH(-; ):H).t
+    assign - d2 conv15(tup(t).0:Ci):dyn ref readonly IS
+    assign - t call mkC(-; ):Ci
+    assign - d3 conv15(t):dyn ref readonly IS
+    assign - t call mkCs(-; ):Ci[2]
+    assign - d4 conv15(idx(t, k, end=0):Ci):dyn ref readonly IS
+    assign - t bc47(cs; ):Ci
+    assign - d5 conv15(t):dyn ref readonly IS
+fn main locals=0 ctx=0 panic=0
+  block
+fn area locals=0 ctx=0 panic=0
+  block
+    lreturn fld(?).r
+fn get locals=0 ctx=0 panic=0
+  block
+    lreturn (2 index lit:i64 0:10):i64
+fn moveNext locals=0 ctx=0 panic=0
+  block
+    assign - fld(?).left (1 fld(?).left lit:i64 0:1):i64
+    lreturn (16 fld(?).left lit:i64 0:0):bool
+fn current locals=0 ctx=0 panic=0
+  block
+    lreturn fld(?).left

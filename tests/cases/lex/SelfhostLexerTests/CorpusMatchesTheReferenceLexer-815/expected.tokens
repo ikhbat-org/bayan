@@ -1,0 +1,33 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+3:1 IntegerLiteral `0x`
+4:1 Identifier `각`
+4:5 Identifier `t`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:7 Equals `=`
+5:9 IntegerLiteral `2`
+6:6 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ 각 t a = 1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 각 t a = 1
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ let � = 2
+    │     ^

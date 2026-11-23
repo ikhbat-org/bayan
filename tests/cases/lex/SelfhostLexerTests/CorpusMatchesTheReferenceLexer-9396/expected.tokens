@@ -1,0 +1,28 @@
+2:1 CloseBrace `}`
+2:2 StringLiteral `"}"`
+2:5 CloseBrace `}`
+5:3 LetKeyword `let`
+5:7 Identifier `a`
+5:9 Equals `=`
+5:13 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ ���let a = $ 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ ���let a = $ 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  5 │ ���let a = $ 1
+    │   ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ ���let a = $ 1
+    │            ^

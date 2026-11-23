@@ -1,0 +1,3 @@
+void main() uses alloc {
+    print(Path.fullPath("x"))
+}

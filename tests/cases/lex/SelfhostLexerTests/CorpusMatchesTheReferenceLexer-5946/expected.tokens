@@ -1,0 +1,72 @@
+1:1 Identifier `ạ̇`
+1:6 Identifier `Ǆ`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolatedStringText `stray } here`
+1:21 InterpolatedStringEnd `"`
+2:2 IntegerLiteral `0x`
+3:8 Comma `,`
+3:10 Dot `.`
+3:12 DotDot `..`
+3:15 DotDotEquals `..=`
+3:19 Colon `:`
+3:21 Question `?`
+3:23 QuestionQuestion `??`
+3:26 QuestionQuestionEquals `??=`
+3:30 QuestionDot `?.`
+3:33 FatArrow `=>`
+3:36 Arrow `->`
+3:39 At `@`
+3:41 Hash `#`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ �Ǆ$"stray } here"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ �Ǆ$"stray } here"
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  1 │ ạ̇ �Ǆ$"stray } here"
+    │     ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ ạ̇ �Ǆ$"stray } here"
+    │               ^
+    │
+    │ 1 │ ạ̇ �Ǆ$"stray }} here"
+    │   │                +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /* � */, . .. ..= : ?� ?? ??= ?. => -> @ #
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // �
+    │   │  +++
+    │ 4 │ , . .. ..= : ?� ?? ??= ?. => -> @ #
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ /* � */, . .. ..= : ?� ?? ??= ?. => -> @ #
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ /* � */, . .. ..= : ?� ?? ??= ?. => -> @ #
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  3 │ /* � */, . .. ..= : ?� ?? ??= ?. => -> @ #
+    │                      ^

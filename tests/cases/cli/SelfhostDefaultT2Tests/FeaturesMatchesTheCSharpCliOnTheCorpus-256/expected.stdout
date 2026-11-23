@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "RangeExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "Panic",
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN5011"
+  ]
+}

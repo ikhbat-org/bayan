@@ -1,0 +1,7 @@
+== tests/cases/diag/effect-random-not-declared.byn
+19..48 blockStmt
+25..46 returnStmt value 32..46
+32..46 callExpr
+81..104 blockStmt
+87..102 localDecl
+95..102 callExpr

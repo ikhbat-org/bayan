@@ -1,0 +1,72 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 Identifier `ull`
+1:42 Identifier `tre`
+1:46 FalseKeyword `false`
+1:52 ComptimeKeyword `comptime`
+1:61 CheckedKeyword `checked`
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+5:2 CharLiteral `''`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:9 StringLiteral `"bad \q escape"`
+9:1 Identifier `st`
+9:3 Less `<`
+9:4 Identifier `List`
+9:8 Less `<`
+9:9 Identifier `i64`
+9:12 Greater `>`
+9:13 Greater `>`
+10:1 Identifier `a`
+10:3 Greater `>`
+10:4 Greater `>`
+10:6 Identifier `b`
+11:1 Identifier `c`
+11:3 Greater `>`
+11:4 GreaterEquals `>=`
+11:7 IntegerLiteral `1`
+12:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ �let a = "open
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ �let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x95)
+
+  5 │ � ''
+    │ ^
+
+error BYN0007: empty char literal
+
+  5 │ � ''
+    │   ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

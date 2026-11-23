@@ -1,0 +1,9 @@
+"text" "esc \"q\" \\ \n" """
+ += -= *= /= %= &= |= ^= <<=
+if else unless switch case default for in while do break continue return yield defer errdefer using context
+ var xs: List<List<i64>>
+ // comment ‮ hidden
+
+
+ $"stray } here"
+ 

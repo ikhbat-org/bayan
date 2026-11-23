@@ -1,0 +1,94 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 ExtensibleKeyword `extensible`
+2:48 InterfaceKeyword `interface`
+2:58 DelegateKeyword `delegate`
+2:67 ExtensionKeyword `extension`
+2:77 DerivationKeyword `derivation`
+2:88 AttributeKeyword `attribute`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+3:14 Semicolon `;`
+3:16 Identifier `here`
+3:20 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:1 Identifier `Å1`
+5:3 Dot `.`
+6:2 Amp `&`
+6:4 AmpAmp `&&`
+6:7 Bar `|`
+6:9 BarBar `||`
+6:12 Caret `^`
+6:14 Tilde `~`
+6:16 Bang `!`
+6:18 Equals `=`
+6:20 EqualsEquals `==`
+6:23 BangEquals `!=`
+6:26 Less `<`
+6:28 LessEquals `<=`
+6:31 Greater `>`
+6:33 GreaterEquals `>=`
+6:36 LessLess `<<`
+6:39 Greater `>`
+6:40 Greater `>`
+6:42 Greater `>`
+6:43 GreaterEquals `>=`
+7:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1; here"
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1; here"
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  3 │ let café = 1; here"
+    │                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `Å1` is not in Unicode normalization form C
+
+  5 │ Å1. // ok � in comment
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ Å1. // ok � in comment
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ Å1. // ok � in comment
+    │           ^

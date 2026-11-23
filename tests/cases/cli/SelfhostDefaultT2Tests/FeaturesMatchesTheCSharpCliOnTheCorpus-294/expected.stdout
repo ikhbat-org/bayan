@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BinaryPattern",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ConstantPattern",
+    "EnumDecl",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RelationalPattern",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TargetMemberExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

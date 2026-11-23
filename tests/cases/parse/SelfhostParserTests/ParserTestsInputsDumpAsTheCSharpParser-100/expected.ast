@@ -1,0 +1,12 @@
+CompilationUnit
+  Union E
+    Variant t(i64 after)
+
+error BYN1043: `after: i64` is an input form; write `i64 after`
+
+  1 │ union E { t(after: i64) }
+    │             ^^^^^^^^^^ name before type
+    │
+  help: put the type before the name; declarations are type-first
+    │ 1 │ union E { t(i64 after) }
+    │   │             +++++++++

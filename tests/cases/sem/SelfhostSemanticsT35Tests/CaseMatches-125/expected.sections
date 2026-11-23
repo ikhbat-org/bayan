@@ -1,0 +1,3 @@
+== fmt.probes.w2
+[]
+BYN2025 189:13 `void` is not a value type |||

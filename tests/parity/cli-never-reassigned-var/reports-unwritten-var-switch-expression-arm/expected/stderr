@@ -1,0 +1,18 @@
+== 1
+warning BYN2311: `v` is never reassigned; declare it with `let`
+  --> $WORK/lint.byn:27:31
+
+  27 │     let r = u switch { .b(var v) => v, _ => 0 }
+     │                               ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 27 │     let r = u switch { .b(let v) => v, _ => 0 }
+     │    │                           +++
+
+warning BYN2712: `_` hides future cases of `U`, declared in this package
+  --> $WORK/lint.byn:27:40
+
+  27 │     let r = u switch { .b(var v) => v, _ => 0 }
+     │                                        ^ matches every case added later
+     │
+  help: list the cases instead: .a, .c

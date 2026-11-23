@@ -1,0 +1,5 @@
+== case inline/grammar-forms-value
+errors 1
+error BYN3102: `grammar.forms` must be a map from a word to its form, e.g. `["upsert": "upserted"]`
+  1 │ Package { name: "local/a", version: "0.1.0", grammar: Grammar { forms: ["x": .y] } }
+    │                                                                        ^^^^^^^^^

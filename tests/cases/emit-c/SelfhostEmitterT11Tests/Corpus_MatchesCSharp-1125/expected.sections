@@ -1,0 +1,11 @@
+== cases
+0 byn_int_string((int64_t)l1_m, 8, true, ((byn_builtin_Radix)0), byn_context)
+1 byn_int_string((int64_t)l2_small, 64, true, ((byn_builtin_Radix)0), byn_context)
+2 byn_int_string((int64_t)l2_small, 64, true, ((byn_builtin_Radix)1), byn_context)
+3 byn_int_string((int64_t)l0_n, 32, true, ((byn_builtin_Radix)1), byn_context)
+4 byn_int_string((int64_t)l1_m, 8, true, ((byn_builtin_Radix)2), byn_context)
+5 byn_int_string((int64_t)l0_n, 32, true, ((byn_builtin_Radix)2), byn_context)
+6 byn_int_string((int64_t)l3_u, 64, false, ((byn_builtin_Radix)2), byn_context)
+7 byn_int_string((int64_t)l0_n, 32, true, ((byn_builtin_Radix)3), byn_context)
+8 byn_int_string((int64_t)l2_small, 64, true, ((byn_builtin_Radix)3), byn_context)
+count 9

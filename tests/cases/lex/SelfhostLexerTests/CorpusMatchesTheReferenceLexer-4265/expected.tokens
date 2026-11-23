@@ -1,0 +1,10 @@
+1:2 Identifier `q`
+1:4 CStringLiteral `c"t`
+1:7 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ �q c"t
+    │    ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

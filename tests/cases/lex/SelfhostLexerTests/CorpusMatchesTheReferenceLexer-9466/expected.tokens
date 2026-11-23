@@ -1,0 +1,16 @@
+1:1 IntegerLiteral `0`
+1:2 NumericSuffix `Gms`
+2:2 Identifier `et`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+3:2 EndOfFile
+
+error BYN0002: unexpected character `\u{5}`
+
+  2 │  et � = � 3
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  et � = � 3
+    │         ^

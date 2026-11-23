@@ -1,0 +1,108 @@
+1:1 CharLiteral `'\u{D800}'`
+2:1 IntegerLiteral `0xF__`
+3:1 IntegerLiteral `0b__`
+4:1 Identifier `i`
+4:3 ElseKeyword `else`
+4:8 UnlessKeyword `unless`
+4:15 SwitchKeyword `switch`
+4:22 CaseKeyword `case`
+4:27 DefaultKeyword `default`
+4:35 ForKeyword `for`
+4:39 InKeyword `in`
+4:42 WhileKeyword `while`
+4:48 DoKeyword `do`
+4:51 Star `*`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+5:1 IsKeyword `is`
+5:4 AndKeyword `and`
+5:8 OrKeyword `or`
+5:11 NotKeyword `not`
+5:15 WithKeyword `with`
+5:20 MoveKeyword `move`
+5:25 RefKeyword `ref`
+5:29 OutKeyword `out`
+5:33 ThisKeyword `this`
+5:38 NullKeyword `null`
+5:43 TrueKeyword `true`
+5:48 FalseKeyword `false`
+5:54 ComptimeKeyword `comptime`
+5:63 CheckedKeyword `checked`
+7:1 Identifier `_`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 Identifier `x`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+7:51 InterpolationEnd `}`
+7:52 InterpolatedStringEnd `"`
+7:53 InterpolationEnd `}`
+7:54 InterpolatedStringEnd `"`
+7:55 InterpolationEnd `}`
+7:56 InterpolatedStringEnd `"`
+7:57 InterpolationEnd `}`
+7:58 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  7 │ _$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                    ^^ this string never ends
+    │
+  help: close the `{` and the string

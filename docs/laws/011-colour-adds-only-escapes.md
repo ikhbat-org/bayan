@@ -7,7 +7,7 @@ sources: none recorded
 kind: property
 scope: csharp/Bayan.Syntax/Diagnostics/Style.cs, csharp/Bayan.Syntax/Diagnostics/DiagnosticRenderer.cs, csharp/Bayan.Cli/CliApp.cs
 proof: csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs
-check: dotnet test --filter Law=L011
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'style/'
 enacted: 2026-10-21
 ---
 

@@ -1,0 +1,46 @@
+interface ISink {
+    void put(ref this, string v)
+}
+
+struct Box : ISink {
+    string s
+
+    void put(ref this, string v) {}
+}
+
+struct Boxes : IIndexable {
+    type Item = Box
+    i64 count => 1
+    Box get(i64 index) => Box { s: "" }
+}
+
+string make(Arena a) => "x".copy(to: a)
+
+string make3(i64 n, by Arena a) => make(a)
+
+string both(bool f, by Arena a, at Arena b) => make(f ? a : b)
+
+void use(Arena a) {
+    let s = "y".copy(to: a)
+    print(s)
+}
+
+void consume(List<i64> xs) {}
+
+void main() {
+    let bs = Boxes()
+    for d: dyn ref ISink in bs {
+        d.put("a")
+    }
+    var m = Map<string, Box>()
+    for d: dyn ref ISink in m {
+        d.put("a")
+    }
+    var sb = StrBuf()
+    let fv: i64 -> i64 = x => x
+    sb.append(fv)
+    var xs = List<i64>()
+    consume(move (xs))
+    let t = make(Arena())
+    print(t)
+}

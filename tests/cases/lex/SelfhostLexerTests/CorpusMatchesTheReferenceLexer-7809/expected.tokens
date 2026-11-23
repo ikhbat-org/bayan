@@ -1,0 +1,11 @@
+1:1 CloseBrace `}`
+1:2 Identifier `le`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ }le c = � 3
+    │         ^

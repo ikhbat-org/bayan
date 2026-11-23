@@ -1,0 +1,65 @@
+1:1 IntegerLiteral `0xF_`
+1:5 NumericSuffix `Y_`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:4 OpenBracket `[`
+2:6 CloseBracket `]`
+2:8 OpenBrace `{`
+2:10 CloseBrace `}`
+4:1 StringLiteral `"a\u{2067}b"`
+4:6 VarKeyword `var`
+4:10 Identifier `xs`
+4:12 Colon `:`
+4:14 Identifier `List`
+4:18 Less `<`
+4:19 Identifier `List`
+4:23 Less `<`
+4:24 Identifier `i64`
+4:27 Greater `>`
+4:28 Greater `>`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:10 StringLiteral `"pen`
+6:8 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF_Y_
+    │    ^
+    │
+    │ 1 │ 0xF_Y_
+    │   │    -
+
+error BYN0011: unit suffix `Y_` is not allowed on a hexadecimal literal
+
+  1 │ 0xF_Y_
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  5 │  let a = "pen
+    │          ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /* � */
+    │   │    -

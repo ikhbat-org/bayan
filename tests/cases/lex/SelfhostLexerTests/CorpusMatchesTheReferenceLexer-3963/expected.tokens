@@ -1,0 +1,29 @@
+1:1 CharLiteral `'\u{110000}'`
+2:1 CharLiteral `'x`
+8:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  3 │ /*foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}V"}�"}"}"}"}"}"}"}"}"}"
+    │                                                                                    ^

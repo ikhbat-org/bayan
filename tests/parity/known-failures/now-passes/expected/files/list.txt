@@ -1,3 +1,2 @@
-# comment
-Bayan.Tests.A.One
-Bayan.Tests.P.Check(name: "diag/x/main.byn")
+run/one
+std/x: two

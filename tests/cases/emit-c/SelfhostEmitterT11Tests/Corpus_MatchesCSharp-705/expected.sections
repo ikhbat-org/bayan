@@ -1,0 +1,7 @@
+== cases
+0 bynh_add_list_str(&l0_ps, BYN_STR("ann", 3))
+1 bynh_add_list_main__Outer(&l1_xs, ((bynt_main__Outer){((bynt_main__Inner){l0_ps})}))
+2 ((bynt_span_str){l3_e.a.list.ptr, l3_e.a.list.len})
+3 bynh_add_list_str(&l2_kept, l6_s)
+4 (*bynh_at_list_str(l2_kept, (int64_t)INT64_C(0), false, byn_file_0, 22))
+count 5

@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/circular-alias.byn
+--package
+<repo>/tests/cases/diag

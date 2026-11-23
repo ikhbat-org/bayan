@@ -1,0 +1,11 @@
+== ctype
+byn_main_Discount
+int64_t
+int64_t
+bynt_opt_main__Discount
+void
+void
+error byn_err
+order byn_main_Discount
+order bynt_opt_main__Discount
+order byn_err

@@ -1,0 +1,6 @@
+== tests/cases/diag/assert-fails-infallible.byn
+46..62 blockStmt
+52..60 returnStmt value 59..60
+59..60 literalExpr integer
+64..97 globalStatement
+64..97 assertStmt

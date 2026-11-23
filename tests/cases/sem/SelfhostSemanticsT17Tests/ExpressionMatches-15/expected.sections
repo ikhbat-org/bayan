@@ -1,0 +1,2 @@
+== case int-2p53-plus-1-float-target
+literal 2471..2487 : f64 = 9007199254740992

@@ -1,0 +1,48 @@
+1:1 Identifier `foo`
+1:5 Identifier `BarD`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:25 Identifier `A`
+1:26 Identifier `يان`
+1:30 Identifier `μετρητής`
+1:39 Identifier `x_1`
+1:43 Identifier `é`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:1 IntegerLiteral `3`
+4:3 FloatLiteral `6E+2`
+4:8 FloatLiteral `1.50`
+4:12 NumericSuffix `dec`
+4:16 IntegerLiteral `1`
+4:17 DotDot `..`
+4:19 IntegerLiteral `2`
+4:21 IntegerLiteral `1`
+4:22 DotDot `..`
+4:24 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ foo BarD _x camelCase2 �A�يان μετρητής x_1 é
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  1 │ foo BarD _x camelCase2 �A�يان μετρητής x_1 é
+    │                          ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

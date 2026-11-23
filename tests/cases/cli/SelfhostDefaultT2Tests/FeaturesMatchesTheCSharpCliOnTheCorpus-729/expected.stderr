@@ -1,0 +1,5 @@
+error BYN2301: missing argument `by` for `area`
+  --> <repo>/tests/cases/diag/missing-argument.byn:2:10
+
+  2 │ print($"{area(width: 3)}")
+    │          ^^^^^^^^^^^^^^

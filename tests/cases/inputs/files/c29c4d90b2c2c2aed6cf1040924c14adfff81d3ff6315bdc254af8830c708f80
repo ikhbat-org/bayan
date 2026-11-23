@@ -1,0 +1,6 @@
+3 5e x.y 2.5f
+
+"a⁧b"
+'x
+} $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ "{

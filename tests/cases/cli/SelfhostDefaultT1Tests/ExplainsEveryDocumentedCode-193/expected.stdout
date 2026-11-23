@@ -1,0 +1,20 @@
+# BYN2603: undeclared error
+
+**Why.** A function's signature lists every error set it can fail with, so callers know what to handle.
+
+**Example.**
+
+```
+union error MoneyError {
+    bad
+}
+union error ParseError {
+    bad
+}
+i64 parse(string s) fails ParseError => 1
+i64 total(string s) fails MoneyError { return try parse(s) }   // parse fails ParseError
+```
+
+The message and the help name each set with its type arguments: a function that validates two types gets `` help: add it to the signature: `fails ValidationError<Address>, ValidationError<Signup>` ``.
+
+**Fix.** Add the set to the `fails` clause, or handle the error with `catch`.

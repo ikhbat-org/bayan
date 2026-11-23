@@ -1,0 +1,94 @@
+1:1 Identifier `ings`
+1:5 StringLiteral `" "`
+1:8 StringLiteral `" "`
+1:12 Identifier `u`
+1:13 OpenBrace `{`
+1:14 IntegerLiteral `48`
+1:16 CloseBrace `}`
+1:17 Identifier `i`
+1:18 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `total `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `b `
+2:25 InterpolationStart `{`
+2:26 Identifier `c`
+2:27 InterpolationEnd `}`
+2:28 InterpolatedStringEnd `"`
+2:29 CloseParen `)`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringText ` d`
+2:33 InterpolatedStringEnd `"`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolatedStringText `{{literal}}`
+2:48 InterpolatedStringEnd `"`
+2:52 OpenBrace `{`
+2:53 Identifier `Point`
+2:59 OpenBrace `{`
+2:61 Identifier `x`
+2:63 Equals `=`
+2:65 IntegerLiteral `1`
+2:67 CloseBrace `}`
+2:68 CloseBrace `}`
+2:69 Bang `!`
+2:70 StringLiteral `" $"`
+2:74 StringLiteral `"`
+5:1 Identifier `x`
+5:2 StringLiteral `";`
+7:3 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ ings" "" "\u{48}i"
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ings" "" "\u{48}i"
+    │                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $�{Point { x = 1 }}!" $""
+    │                                                  ^
+
+error BYN0002: unexpected character `\u{1D}`
+
+  2 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $�{Point { x = 1 }}!" $""
+    │                                                   ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $�{Point { x = 1 }}!" $""
+    │                                                                          ^ string ends at the
+    │                                                                            end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFB)
+
+  3 │  �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ x";
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{0}`
+
+  7 │ � 
+    │ ^

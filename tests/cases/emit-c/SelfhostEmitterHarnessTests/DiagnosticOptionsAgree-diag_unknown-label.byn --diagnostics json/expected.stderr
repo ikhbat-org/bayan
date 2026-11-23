@@ -1,0 +1,1 @@
+{"code":"BYN2020","severity":"error","file":"input.byn","span":{"start":26,"end":31,"line":2,"column":11,"endLine":2,"endColumn":16},"message":"no enclosing loop is labeled `outer`","label":null,"help":null,"fixes":[]}

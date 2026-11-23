@@ -1,0 +1,10 @@
+== tiny
+node block 0+40 -: ifStmt | block ifStmt binary local local returnStmt call local literal
+node ifStmt 6+31 -: binary returnStmt | ifStmt binary local local returnStmt call local literal
+node binary 10+5 bool: local local | binary local local
+node local 10+1 i64: | local
+node local 14+1 i64: | local
+node returnStmt 21+15 -: call | returnStmt call local literal
+node call 28+7 i64: local literal | call local literal
+node local 30+1 i64: | local
+node literal 33+1 i64: | literal

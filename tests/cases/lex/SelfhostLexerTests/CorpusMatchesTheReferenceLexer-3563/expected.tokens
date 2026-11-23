@@ -1,0 +1,26 @@
+1:1 Identifier `ment`
+4:1 IntegerLiteral `1`
+4:2 NumericSuffix `F60`
+4:6 CharLiteral `' '`
+4:10 CharLiteral `''`
+4:13 CharLiteral `'é'`
+4:17 CharLiteral `'\\'`
+4:22 CharLiteral `'\0'`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `۩`
+
+  4 │ 1F60۩' '\'' 'é' '\\' '\0'
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ 1F60۩' '\'' 'é' '\\' '\0'
+    │         ^
+
+error BYN0007: empty char literal
+
+  4 │ 1F60۩' '\'' 'é' '\\' '\0'
+    │          ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

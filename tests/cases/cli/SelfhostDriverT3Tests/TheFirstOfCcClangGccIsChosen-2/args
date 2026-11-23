@@ -1,0 +1,6 @@
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/order-clang-gcc/cs-out
+--mode
+safe

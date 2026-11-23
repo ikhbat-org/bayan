@@ -1,0 +1,11 @@
+error BYN2306: argument for `total` must be passed as `ref`
+  --> input.byn:6:6
+
+  6 │ bump(t)
+    │      ^
+    │
+    │ 6 │ bump(ref t)
+    │   │      ++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2306

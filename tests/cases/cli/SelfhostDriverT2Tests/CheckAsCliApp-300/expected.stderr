@@ -1,0 +1,22 @@
+error BYN2027: compare with `is null` / `is not null`, not `==`
+  --> <repo>/tmp/t2/diag/null-equality-optional-fix/null-equality-optional-fix.byn:3:13
+
+  3 │     let c = n == null
+    │             ^^^^^^^^^
+    │
+  help: write `n is null`
+    │ 3 │     let c = n is null
+    │   │               ++
+
+error BYN2027: compare with `is null` / `is not null`, not `==`
+  --> <repo>/tmp/t2/diag/null-equality-optional-fix/null-equality-optional-fix.byn:4:13
+
+  4 │     let d = n != null
+    │             ^^^^^^^^^
+    │
+  help: write `n is not null`
+    │ 4 │     let d = n is not null
+    │   │               ++++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2027

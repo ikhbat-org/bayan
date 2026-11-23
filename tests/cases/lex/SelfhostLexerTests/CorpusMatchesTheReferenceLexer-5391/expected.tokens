@@ -1,0 +1,92 @@
+1:2 DelegateKeyword `delegate`
+1:11 Identifier `extensioq`
+1:21 DerivationKeyword `derivation`
+1:32 Identifier `attr`
+1:36 Amp `&`
+1:38 AmpAmp `&&`
+1:41 Bar `|`
+1:43 BarBar `||`
+1:46 Caret `^`
+1:48 Tilde `~`
+1:50 Bang `!`
+1:52 Equals `=`
+1:54 EqualsEquals `==`
+1:57 BangEquals `!=`
+1:60 Less `<`
+1:62 LessEquals `<=`
+1:65 Greater `>`
+1:67 GreaterEquals `>=`
+1:70 LessLess `<<`
+1:73 Greater `>`
+1:74 Greater `>`
+1:76 Greater `>`
+1:77 GreaterEquals `>=`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+7:1 IsKeyword `is`
+7:4 AndKeyword `and`
+7:8 OrKeyword `or`
+7:11 NotKeyword `not`
+7:15 WithKeyword `with`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 NullKeyword `null`
+7:43 TrueKeyword `true`
+7:48 FalseKeyword `false`
+7:54 ComptimeKeyword `comptime`
+7:63 CheckedKeyword `checked`
+8:2 Comma `,`
+8:4 Dot `.`
+8:6 DotDot `..`
+8:9 DotDotEquals `..=`
+8:13 Colon `:`
+8:15 Question `?`
+8:17 QuestionQuestion `??`
+8:20 QuestionQuestionEquals `??=`
+8:24 QuestionDot `?.`
+8:27 FatArrow `=>`
+8:30 Arrow `->`
+8:33 At `@`
+8:35 Hash `#`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // comment � hidden
+    │   │            -
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │  // �x
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  // �x
+    │   │     -

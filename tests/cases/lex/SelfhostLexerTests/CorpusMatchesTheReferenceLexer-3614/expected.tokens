@@ -1,0 +1,29 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `a`
+2:1 Identifier `b1ul`
+2:6 IntegerLiteral `7`
+2:7 NumericSuffix `l`
+3:1 Identifier `n`
+3:3 Identifier `strings`
+3:10 RawStringLiteral `""" "\u{48}i � `
+3:24 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ n strings""" "\u{48}i � 
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ n strings""" "\u{48}i � 
+    │                       ^

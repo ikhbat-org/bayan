@@ -1,0 +1,264 @@
+// GrammarDictionaryTests (spec 019 T27): `grammar` in `package.byn` as `manifestParse` reads it, and the one verb list R15 and BYN5014
+// share. The checks themselves are the `diag/` goldens (`unknown-word`, `grammar-dictionary`). The C# `Lexicon.FunctionWords` has no
+// counterpart here, so the lowercase check reads the five lists `buildLexicon` fills.
+
+import lexer
+
+/// `Parse(text)`: the manifest of `text` as a `package.byn`.
+Manifest grammarDictParse(string text) uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    return manifestParse(lexer.SourceText.create("package.byn", from: move bytes))
+}
+
+/// True when `words` holds `word`.
+bool grammarDictHas(List<string> words, for string word) {
+    for w in words {
+        return true if w == word
+    }
+    return false
+}
+
+/// True when each of `words` is one or more of `a` to `z`; prints the first that is not.
+bool grammarDictAllLower(List<string> words) uses console {
+    for w in words {
+        var lower = !w.isEmpty
+        for b in w.bytes {
+            lower = lower && isLowerAscii(b)
+        }
+        unless lower {
+            print($"{w} is not a lowercase word")
+            return false
+        }
+    }
+    return true
+}
+
+/// The built-in lexicon, filled once.
+Ctx grammarDictLexicon() uses alloc {
+    var c = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+    }
+    buildLexicon(ref c)
+    return c
+}
+
+test "grammar dictionary: the manifest reads the grammar" {
+    let m = grammarDictParse("""
+        Package {
+            name: "local/shop",
+            version: "0.1.0",
+            grammar: Grammar {
+                verbs: ["upsert", "reindex"],
+                nouns: ["sku"],
+                adjectives: ["idempotent"],
+                forms: ["regrind": "reground", "upsert": "upserted"],
+            },
+        }
+        """)
+    assert(m.diagnostics.length == 0)
+    assert(m.grammar.verbs.length == 2)
+    assert(grammarDictHas(m.grammar.verbs, for: "reindex"))
+    assert(grammarDictHas(m.grammar.verbs, for: "upsert"))
+    assert(m.grammar.nouns.length == 1 && m.grammar.nouns[0] == "sku")
+    assert(m.grammar.adjectives.length == 1 && m.grammar.adjectives[0] == "idempotent")
+    assert(m.grammar.forms.tryGet(at: "regrind") == "reground")
+    assert(m.grammar.forms.tryGet(at: "upsert") == "upserted")
+}
+
+test "grammar dictionary: the grammar is empty without the field" {
+    let m = grammarDictParse("""Package { name: "local/shop", version: "0.1.0", grammar: Grammar { forms: [] } }""")
+    assert(m.diagnostics.length == 0)
+    assert(m.grammar.verbs.length == 0)
+    assert(m.grammar.forms.length == 0)
+}
+
+test "grammar dictionary: map entries need a value" {
+    let m = grammarDictParse(
+        """Package { name: "local/shop", version: "0.1.0", grammar: Grammar { forms: ["a": "b", "c"] } }""",
+    )
+    var found = false
+    for d in m.diagnostics {
+        found = found || d.message.contains("`:` and a value")
+    }
+    assert(found)
+}
+
+// The verbs a help may start with are the checker's verbs, so a verb R15 accepts is never an unknown word.
+@cases("add", "rename", "write", "propagate")
+test "grammar dictionary: help verbs are checker verbs" (string verb) {
+    let c = grammarDictLexicon()
+    assert(grammarDictHas(c.lexiconVerbs, for: verb))
+}
+
+test "grammar dictionary: word classes are lowercase words" {
+    let c = grammarDictLexicon()
+    assert(grammarDictAllLower(c.lexiconVerbs))
+    assert(grammarDictAllLower(c.lexiconNouns))
+    assert(grammarDictAllLower(c.lexiconAdjectives))
+    assert(grammarDictAllLower(c.lexiconCollectives))
+    assert(grammarDictAllLower(c.lexiconIrregularPlurals))
+}
+
+// HelpLanguageTests (R15, guide §7): every help text starts with an imperative verb, the checker's (`lexiconVerbs`), so R15 and
+// BYN5014 agree on what a verb is. The C# regexes are matched by hand.
+
+/// `Allowed`: helps that may start otherwise ("did you mean `" a question; "`" BYN7001's fixed text names the property first).
+List<string> helpAllowed() => ["did you mean `", "`"]
+
+/// `StartsWithVerb`: the help's first word, up to ` `, `,`, `;` or `:`, is a verb, or the help starts with an allowed prefix.
+bool helpStartsWithVerb(string help, by in List<string> verbs) uses alloc {
+    var end: i64 = 0
+    while end < help.length && !(help.bytes[end] is 0x20 or 0x2C or 0x3B or 0x3A) {
+        end += 1
+    }
+    return true if grammarDictHas(verbs, for: help[0..end])
+    for prefix in helpAllowed() {
+        return true if help.startsWith(prefix)
+    }
+    return false
+}
+
+/// Adds every file under `dir`, recursively, whose name ends with `suffix`.
+void helpFiles(string dir, by string suffix, to ref List<string> found) uses alloc, fs {
+    let names = Io.listDir(dir) catch return
+    for name in names {
+        let entry = Path.combine(dir, name)
+        if Fs.fileExists(entry) {
+            found.append(entry) if name.endsWith(suffix)
+        } else {
+            helpFiles(entry, by: suffix, to: ref found)
+        }
+    }
+}
+
+/// The lines of `text` without their `\r\n` or `\n` (`File.ReadLines`).
+List<string> helpLines(string text) uses alloc {
+    var lines = List<string>()
+    for part in text.parts(by: "\n") {
+        lines.append(part.endsWith("\r") ? part[0..part.length - 1] : $"{part}")
+    }
+    return lines
+}
+
+/// `HelpLine`, `^\s*help: (.*)$`: the help of a rendered `help:` line, null for another line.
+string? helpLine(string line) uses alloc {
+    var i: i64 = 0
+    while i < line.length && (line.bytes[i] is 0x20 or 0x09 or 0x0B or 0x0C or 0x0D) {
+        i += 1
+    }
+    return null unless line[i..line.length].startsWith("help: ")
+    return $"{line[i + 6..line.length]}"
+}
+
+/// ASCII `b` lowercased.
+u8 helpLower(u8 b) => b is 0x41..=0x5A ? b + 0x20 : b
+
+bool helpWordByte(u8 b) => isLowerAscii(helpLower(b)) || isDigitAscii(b) || b == 0x5F
+
+bool helpSpace(u8 b) => b is 0x20 or 0x09 or 0x0A or 0x0B or 0x0C or 0x0D
+
+/// `HelpLiteral`, `(?i)\bhelp\s*[:=]\s*\$?"([a-z0-9`][^"]*)`: the captured text of each match in `line`, left to right.
+List<string> helpLiterals(string line) uses alloc {
+    var found = List<string>()
+    let t = line.bytes
+    var at: i64 = 0
+    while at + 4 <= t.length {
+        var matched = false
+        let word = at == 0 || !helpWordByte(t[at - 1])
+        if word
+                && helpLower(t[at]) == 0x68
+                && helpLower(t[at + 1]) == 0x65
+                && helpLower(t[at + 2]) == 0x6C
+                && helpLower(t[at + 3]) == 0x70 {
+            var i = at + 4
+            while i < t.length && helpSpace(t[i]) {
+                i += 1
+            }
+            if i < t.length && (t[i] is 0x3A or 0x3D) {
+                i += 1
+                while i < t.length && helpSpace(t[i]) {
+                    i += 1
+                }
+                if i < t.length && t[i] == 0x24 && i + 1 < t.length && t[i + 1] == 0x22 {
+                    i += 1
+                }
+                if i + 1 < t.length && t[i] == 0x22 {
+                    let first = helpLower(t[i + 1])
+                    if isLowerAscii(first) || isDigitAscii(first) || first == 0x60 {
+                        var end = i + 1
+                        while end < t.length && t[end] != 0x22 {
+                            end += 1
+                        }
+                        found.append($"{line[i + 1..end]}")
+                        at = end
+                        matched = true
+                    }
+                }
+            }
+        }
+        at += matched ? 0 : 1
+    }
+    return found
+}
+
+// HelpLanguageTests.GoldenHelpsStartWithAVerb.
+test "help-language: golden helps start with a verb" {
+    let c = grammarDictLexicon()
+    var all = List<string>()
+    for dir in ["tests/cases/diag", "tests/cases/manifest", "tests/cases/lex"] {
+        var found = List<string>()
+        helpFiles(dir, by: dir.endsWith("lex") ? ".tokens" : ".diag", to: ref found)
+        for f in found {
+            all.append(f)
+        }
+    }
+    var helps = List<string>()
+    var bad = 0
+    for f in all {
+        for line in helpLines(Io.readText(f) catch "") {
+            if (helpLine(line) is { } help) {
+                helps.append(help)
+                unless helpStartsWithVerb(help, by: c.lexiconVerbs) {
+                    print($"{f}: {help}")
+                    bad += 1
+                }
+            }
+        }
+    }
+    assert(helps.length > 0 && bad == 0)
+    for prefix in helpAllowed() {
+        var seen = false
+        for h in helps {
+            seen = seen || h.startsWith(prefix)
+        }
+        assert(seen)
+    }
+}
+
+// HelpLanguageTests.SourceHelpsStartWithAVerb: the help literals of `csharp/` (when the checkout has it) and `src/`.
+test "help-language: source helps start with a verb" {
+    let c = grammarDictLexicon()
+    var all = List<string>()
+    helpFiles("csharp", by: ".cs", to: ref all)
+    helpFiles("src", by: ".byn", to: ref all)
+    var helps: i64 = 0
+    var bad = 0
+    for f in all {
+        for line in helpLines(Io.readText(f) catch "") {
+            for help in helpLiterals(line) {
+                helps += 1
+                unless helpStartsWithVerb(help, by: c.lexiconVerbs) {
+                    print($"{f}: {help}")
+                    bad += 1
+                }
+            }
+        }
+    }
+    assert(helps > 0 && bad == 0)
+}

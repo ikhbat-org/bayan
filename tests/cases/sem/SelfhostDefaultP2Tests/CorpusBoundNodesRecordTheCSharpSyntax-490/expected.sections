@@ -1,0 +1,43 @@
+== tests/cases/diag/for-dyn-ref-map-index.byn
+260..457 blockStmt
+266..296 localDecl
+274..296 callExpr
+301..318 localDecl
+309..318 callExpr
+323..343 exprStmt
+323..343 callExpr
+323..324 nameExpr
+332..342 structLiteralExpr
+339..340 literalExpr integer
+348..363 assignStmt assign target 348..354 value 357..361
+348..354 indexExpr
+348..349 nameExpr
+350..353 literalExpr string
+357..361 moveExpr
+362..363 nameExpr
+368..382 localDecl
+376..380 moveExpr
+381..382 nameExpr
+387..427 forStmt
+408..414 indexExpr
+408..409 nameExpr
+410..413 literalExpr string
+415..427 blockStmt
+417..425 exprStmt
+417..425 callExpr
+417..418 nameExpr
+432..455 exprStmt
+432..455 callExpr
+438..454 interpolatedExpr
+441..452 memberExpr
+441..450 indexExpr
+441..447 indexExpr
+441..442 nameExpr
+443..446 literalExpr string
+448..449 literalExpr integer
+432..455 callExpr
+235..245 blockStmt
+237..243 assignStmt add target 237..238 value 242..243
+237..238 nameExpr
+237..238 nameExpr
+242..243 literalExpr integer

@@ -1,0 +1,27 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 Identifier `ct`
+2:4 Identifier `becomelet`
+2:14 LawKeyword `law`
+2:18 Equals `=`
+2:20 IntegerLiteral `3`
+3:2 VarKeyword `var`
+3:6 Identifier `xs`
+3:8 Colon `:`
+3:10 Identifier `List`
+3:14 Less `<`
+3:15 Identifier `List`
+3:19 Less `<`
+3:20 Identifier `i64`
+3:23 Greater `>`
+3:24 Greater `>`
+4:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

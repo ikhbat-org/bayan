@@ -1,0 +1,39 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:1 CharLiteral `'x`
+3:2 Identifier `st`
+3:4 Less `<`
+3:5 Identifier `List`
+3:9 Less `<`
+3:10 Identifier `i64`
+3:13 Greater `>`
+3:14 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+7:4 Identifier `comCment`
+7:13 Star `*`
+7:14 Slash `/`
+7:16 Identifier `a`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

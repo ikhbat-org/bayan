@@ -1,0 +1,26 @@
+1:1 CloseBrace `}`
+1:2 CharLiteral `'\r`
+2:1 CharLiteral `'\u{110000'`
+3:1 CharLiteral `'x(\r`
+4:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{110000`
+
+  2 │ '\u{110000'
+    │  ^^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x(
+    │ ^^^
+    │
+  help: close it with `'`

@@ -1,0 +1,166 @@
+== tests/cases/diag/map-copy.byn
+310..325 callExpr
+310..325 callExpr
+310..325 callExpr
+360..381 blockStmt
+366..379 returnStmt value 373..379
+373..379 memberExpr
+373..374 nameExpr
+432..454 blockStmt
+438..452 returnStmt value 445..452
+445..452 indexExpr
+445..449 nameExpr
+450..451 literalExpr integer
+499..515 blockStmt
+505..513 returnStmt value 512..513
+512..513 nameExpr
+580..602 blockStmt
+586..600 returnStmt value 593..600
+593..600 memberExpr
+593..594 nameExpr
+670..1309 blockStmt
+676..699 localDecl
+684..699 callExpr
+704..713 assignStmt assign target 704..708 value 711..713
+704..708 indexExpr
+704..705 nameExpr
+706..707 literalExpr integer
+711..713 literalExpr integer
+718..727 localDecl
+726..727 nameExpr
+732..741 localDecl
+740..741 nameExpr
+746..788 localDecl
+754..788 structLiteralExpr
+768..771 literalExpr string
+779..786 callExpr
+793..807 localDecl
+801..807 memberExpr
+801..802 nameExpr
+812..817 assignStmt assign target 812..813 value 816..817
+812..813 nameExpr
+816..817 nameExpr
+822..832 assignStmt assign target 822..828 value 831..832
+822..828 memberExpr
+822..823 nameExpr
+831..832 nameExpr
+837..873 localDecl
+845..873 structLiteralExpr
+859..862 literalExpr string
+870..871 nameExpr
+878..895 localDecl
+886..895 callExpr
+893..894 nameExpr
+900..923 localDecl
+911..923 callExpr
+921..922 nameExpr
+928..960 localDecl
+939..960 callExpr
+965..979 exprStmt
+965..979 callExpr
+965..969 nameExpr
+977..978 nameExpr
+984..1022 localDecl
+997..1022 callExpr
+1027..1040 assignStmt assign target 1027..1036 value 1039..1040
+1027..1036 indexExpr
+1027..1033 nameExpr
+1034..1035 literalExpr integer
+1039..1040 nameExpr
+1045..1085 localDecl
+1073..1085 collectionExpr
+1074..1075 nameExpr
+1077..1084 callExpr
+1090..1104 localDecl
+1098..1104 indexExpr
+1098..1101 nameExpr
+1102..1103 literalExpr integer
+1109..1122 localDecl
+1121..1122 nameExpr
+1127..1144 localDecl
+1138..1144 tupleExpr
+1139..1140 nameExpr
+1142..1143 literalExpr integer
+1149..1171 localDecl
+1157..1171 callExpr
+1163..1170 callExpr
+1176..1191 localDecl
+1184..1191 memberExpr
+1184..1185 nameExpr
+1196..1213 localDecl
+1204..1213 indexExpr
+1204..1210 nameExpr
+1211..1212 literalExpr integer
+1218..1246 localDecl
+1226..1246 withExpr
+1226..1227 nameExpr
+1241..1244 literalExpr string
+1251..1277 localDecl
+1259..1277 withExpr
+1259..1260 nameExpr
+1274..1275 nameExpr
+1282..1307 localDecl
+1306..1307 nameExpr
+1306..1307 nameExpr
+1326..1388 blockStmt
+1332..1349 localDecl
+1341..1349 callExpr
+1354..1368 exprStmt
+1354..1368 callExpr
+1354..1356 nameExpr
+1364..1367 literalExpr string
+1373..1386 localDecl
+1384..1386 nameExpr
+1403..1668 blockStmt
+1409..1441 localDecl
+1420..1441 callExpr
+1446..1474 exprStmt
+1446..1474 callExpr
+1446..1450 nameExpr
+1458..1473 callExpr
+1479..1505 forStmt
+1488..1492 nameExpr
+1493..1505 blockStmt
+1495..1503 assignStmt assign target 1495..1499 value 1502..1503
+1495..1499 indexExpr
+1495..1496 nameExpr
+1497..1498 literalExpr integer
+1502..1503 literalExpr integer
+1510..1542 localDecl
+1532..1542 collectionExpr
+1533..1541 callExpr
+1547..1578 forStmt
+1556..1560 nameExpr
+1561..1578 blockStmt
+1563..1576 exprStmt
+1563..1576 callExpr
+1563..1564 nameExpr
+1572..1575 literalExpr string
+1583..1606 localDecl
+1595..1606 callExpr
+1611..1666 forStmt
+1620..1625 nameExpr
+1626..1666 blockStmt
+1636..1645 localDecl
+1644..1645 nameExpr
+1654..1660 assignStmt add target 1654..1655 value 1659..1660
+1654..1655 nameExpr
+1659..1660 literalExpr integer
+1744..1824 blockStmt
+1750..1781 localDecl
+1761..1781 withExpr
+1761..1762 nameExpr
+1776..1779 literalExpr string
+1786..1822 localDecl
+1801..1822 withExpr
+1801..1802 nameExpr
+1813..1820 callExpr
+190..222 blockStmt
+200..216 assignStmt assign target 200..209 value 212..216
+200..209 memberExpr
+200..204 thisExpr
+212..216 nameExpr
+249..281 blockStmt
+259..275 returnStmt value 266..275
+266..275 memberExpr
+266..270 thisExpr

@@ -1,0 +1,1 @@
+{"code":"BYN2408","severity":"error","file":"input.byn","span":{"start":0,"end":4,"line":1,"column":1,"endLine":1,"endColumn":5},"message":"label `done` must be on a loop or `switch`","label":null,"help":null,"fixes":[]}

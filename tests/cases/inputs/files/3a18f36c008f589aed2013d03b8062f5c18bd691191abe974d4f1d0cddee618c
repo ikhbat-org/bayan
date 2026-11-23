@@ -1,0 +1,3 @@
+void f(u8*p) {
+    let n = a * b
+}

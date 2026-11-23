@@ -1,0 +1,74 @@
+1:1 Identifier `Å`
+2:2 Plus `+`
+2:4 Minus `-`
+2:6 Star `*`
+2:8 Slash `/`
+2:10 Percent `%`
+2:12 PlusPercent `+%`
+2:15 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:33 MinusMinus `--`
+4:1 IntegerLiteral `1_`
+    doc `/// Doc li �����`
+7:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å 
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å 
+    │   │ +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1_� 
+    │  ^
+    │
+    │ 4 │ 1_� 
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  4 │ 1_� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ /// Doc li �����
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ /// Doc li �����
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ /// Doc li �����
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ /// Doc li �����
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ /// Doc li �����
+    │                ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // �x
+    │   │    -

@@ -1,0 +1,2 @@
+== tests/cases/diag/pattern-const-not-bound.byn
+43..66 patternExpr

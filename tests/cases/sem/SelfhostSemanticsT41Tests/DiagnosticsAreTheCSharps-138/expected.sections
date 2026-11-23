@@ -1,0 +1,4 @@
+== diags.run/region-combo-ref-this-map-two-levels-in-time
+returns mk 1
+returns mk2 1
+store put 0 -1 359..360

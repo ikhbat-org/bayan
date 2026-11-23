@@ -1,0 +1,38 @@
+== tests/cases/run/map-compound-missing.byn
+92..118 globalStatement
+92..118 localDecl
+100..118 callExpr
+119..135 assignStmt add target 119..130 value 134..135
+119..130 callExpr
+119..120 nameExpr
+126..129 literalExpr string
+134..135 literalExpr integer
+136..144 incDecStmt
+136..142 indexExpr
+136..137 nameExpr
+138..141 literalExpr string
+136..144 incDecStmt
+145..155 assignStmt assign target 145..151 value 154..155
+145..151 indexExpr
+145..146 nameExpr
+147..150 literalExpr string
+154..155 literalExpr integer
+156..167 assignStmt mul target 156..162 value 166..167
+156..162 indexExpr
+156..157 nameExpr
+158..161 literalExpr string
+166..167 literalExpr integer
+168..181 exprStmt
+168..181 callExpr
+174..180 interpolatedExpr
+177..178 nameExpr
+168..181 callExpr
+182..193 assignStmt add target 182..188 value 192..193
+182..188 indexExpr
+182..183 nameExpr
+184..187 literalExpr string
+192..193 literalExpr integer
+194..214 exprStmt
+194..214 callExpr
+200..213 literalExpr string
+194..214 callExpr

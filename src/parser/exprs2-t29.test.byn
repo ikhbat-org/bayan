@@ -1,0 +1,190 @@
+// 019 T29 (coverage ratchet): exprs2.byn paths no golden case reaches: lambda parameters that are not bare names, a
+// spaced numeric suffix, `stackalloc` of a generic type, struct literal bodies with nested groups and `;`, unterminated
+// field and collection lists, and interpolation holes with stray tokens, bad format specs and no end. The helpers
+// `t29Brief` and `t29Bodies` are dump-t29.test.byn's. The expected text is the output of the self-hosted parser at the
+// commit that added the test.
+
+test "parser t29: rare primary expressions" {
+    let bodies = [
+        "x = 1 u8",
+        "x = ((a, b), [c], {d}) => 1",
+        "x = (a b, c) => 1",
+        "x = (a] => 1",
+        "const x = pattern\nFoo",
+        "x = a<int> b",
+        "x = stackalloc Foo<int>[3]",
+        "x = stackalloc a<b[3]",
+        "x = Foo { a: (1), b: [2], c: { d: 3 } }",
+        "x = Foo { a: 1; }",
+        "x = Foo { a: 1, = 2 }",
+        "x = Foo { a: 1, ) }",
+        "x = [1, )]",
+        "x = $\"{a b}\"",
+        "x = $\"{a ; b}\"",
+        "x = $\"{a b;}\"",
+        "x = $\"{a, 1}\"",
+        "x = $\"{a, as: .hex}\"",
+        "x = $\"{a, b 1}\"",
+        "x = $\"{a:}\"",
+        "x = $\"{a:x}\"",
+        "x = $\"{a:.x}\"",
+        "x = $\"{a:.2!}\"",
+        "x = $\"{a:.2a}\"",
+    ]
+    var sb = StrBuf()
+    sb.append(t29Bodies(bodies))
+    for text in ["x = Foo { a: 1", "x = Foo { a: 1,", "x = [1,", "x = $\"{a}", "x = $\"{a:hex", "x = $\"{a b"] {
+        sb.append($"== {text}\n{t29Brief(text)}")
+    }
+    let expected = """
+            == 0
+            Function f() -> void
+              Block
+                Assign x = 1
+                Expr u8
+            [BYN1005 16+0]
+            [BYN1012 17+2]
+            == 1
+            Function f() -> void
+              Block
+                Assign x = (lambda () 1)
+            [BYN1001 16+6]
+            [BYN1001 24+3]
+            [BYN1001 29+3]
+            == 2
+            Function f() -> void
+              Block
+                Assign x = (lambda (c) 1)
+            [BYN1001 16+3]
+            == 3
+            Function f() -> void
+              Block
+                Assign x = (lambda () 1)
+            [BYN1001 16+1]
+            [BYN1001 17+1]
+            == 4
+            Function f() -> void
+              Block
+                Const x = pattern
+                Expr Foo
+            [BYN1012 29+3]
+            == 5
+            Function f() -> void
+              Block
+                Assign x = (> (< a int) b)
+            == 6
+            Function f() -> void
+              Block
+                Assign x = (stackalloc Foo<i32> 3)
+            == 7
+            Function f() -> void
+              Block
+                Assign x = (stackalloc a (< <error> (index b 3)))
+            [BYN1001 27+1]
+            [BYN1001 33+1]
+            == 8
+            Function f() -> void
+              Block
+                Assign x = (struct Foo (a (paren 1)) (b (list 2)) (c (struct _ (d 3))))
+            == 9
+            Function f() -> void
+              Block
+                Assign x = (struct Foo (a 1))
+            [BYN1001 25+1]
+            [BYN1001 29+1]
+            == 10
+            Function f() -> void
+              Block
+                Assign x = (struct Foo (a 1) (<missing> 2))
+            [BYN1001 27+1]
+            == 11
+            Function f() -> void
+              Block
+                Assign x = (struct Foo (a 1) (<missing> <error>))
+            [BYN1001 27+1]
+            [BYN1001 31+1]
+            == 12
+            Function f() -> void
+              Block
+                Assign x = (list 1 <error>)
+            [BYN1002 19+1]
+            == 13
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 20+1]
+            == 14
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 20+1]
+            == 15
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 20+1]
+            [BYN1040 21+1]
+            == 16
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 21+1]
+            == 17
+            Function f() -> void
+              Block
+                Assign x = (interp (hole a (as: .hex)))
+            == 18
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 21+1]
+            == 19
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 20+1]
+            == 20
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 19+2]
+            == 21
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 19+3]
+            == 22
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 19+4]
+            == 23
+            Function f() -> void
+              Block
+                Assign x = (interp a)
+            [BYN1001 19+4]
+            == x = Foo { a: 1
+            Assign x = (struct Foo (a 1))
+            [BYN1001 14+0]
+            == x = Foo { a: 1,
+            Assign x = (struct Foo (a 1))
+            [BYN1001 15+0]
+            == x = [1,
+            Assign x = (list 1)
+            [BYN1001 7+0]
+            == x = $"{a}
+            Assign x = (interp a)
+            [BYN0003 4+2]
+            == x = $"{a:hex
+            Assign x = (interp (hole a (as: .hex)))
+            [BYN0003 4+2]
+            [BYN1068 8+4]
+            [BYN1001 12+0]
+            == x = $"{a b
+            Assign x = (interp a)
+            [BYN0003 4+2]
+            [BYN1001 9+1]
+
+            """
+    assert sb.finish() == expected
+}

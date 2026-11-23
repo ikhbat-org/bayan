@@ -1,0 +1,112 @@
+1:1 CharLiteral `''`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:6 Bar `|`
+5:8 BarBar `||`
+5:11 Caret `^`
+5:13 Tilde `~`
+5:15 Bang `!`
+5:17 Equals `=`
+5:19 EqualsEquals `==`
+5:22 BangEquals `!=`
+5:25 Less `<`
+5:27 LessEquals `<=`
+5:30 Greater `>`
+5:32 GreaterEquals `>=`
+5:35 LessLess `<<`
+5:38 Greater `>`
+5:39 Greater `>`
+5:41 Greater `>`
+5:42 GreaterEquals `>=`
+7:1 IntegerLiteral `1_`
+8:2 IsKeyword `is`
+8:5 AndKeyword `and`
+8:9 OrKeyword `or`
+8:12 NotKeyword `not`
+8:16 WithKeyword `with`
+8:21 MoveKeyword `move`
+8:26 RefKeyword `ref`
+8:30 OutKeyword `out`
+8:34 ThisKeyword `this`
+8:39 NullKeyword `null`
+8:44 TrueKeyword `true`
+8:49 FalseKeyword `false`
+8:55 ComptimeKeyword `comptime`
+8:64 CheckedKeyword `checked`
+9:1 IntegerLiteral `0`
+9:3 IntegerLiteral `42`
+9:6 IntegerLiteral `1_`
+9:9 IntegerLiteral `000_000`
+9:17 Identifier `xFF`
+9:21 IntegerLiteral `0x_ff`
+9:27 IntegerLiteral `0b1010`
+9:34 IntegerLiteral `0B11`
+9:39 IntegerLiteral `5`
+9:40 NumericSuffix `s`
+9:42 IntegerLiteral `250`
+9:45 NumericSuffix `ms`
+9:48 IntegerLiteral `4`
+9:49 NumericSuffix `KiB`
+9:53 IntegerLiteral `1`
+9:54 NumericSuffix `u`
+9:56 IntegerLiteral `0xFF`
+9:60 NumericSuffix `u`
+9:62 IntegerLiteral `0b1`
+9:65 NumericSuffix `ul`
+9:68 IntegerLiteral `7`
+9:69 NumericSuffix `l`
+11:1 TestKeyword `test`
+11:6 AssertKeyword `assert`
+11:13 PropertyKeyword `property`
+11:22 FuzzKeyword `fuzz`
+11:27 ModelKeyword `model`
+11:33 ForeachKeyword `foreach`
+11:41 NewKeyword `new`
+11:45 GotoKeyword `goto`
+12:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ let café = 1
+    │   │        +
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1_
+    │  ^
+    │
+    │ 7 │ 1_
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  9 │ 0 42 �1_�000_000 xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │      ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0 42 �1_�000_000 xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │        ^
+    │
+    │ 9 │ 0 42 �1_�000_000 xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   │        -
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  9 │ 0 42 �1_�000_000 xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │         ^

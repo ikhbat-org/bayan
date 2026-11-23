@@ -1,0 +1,33 @@
+1:1 Identifier `struc`
+1:7 Identifier `S`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolationStart `{`
+2:6 Identifier `aB11`
+2:11 IntegerLiteral `5`
+2:12 NumericSuffix `s`
+2:14 IntegerLiteral `250`
+2:17 NumericSuffix `ms`
+2:20 IntegerLiteral `4`
+2:21 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  �$"{aB11 5s 250ms 4
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  �$"{aB11 5s 250ms 4
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  �$"{aB11 5s 250ms 4
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  �$"{aB11 5s 250ms 4
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string

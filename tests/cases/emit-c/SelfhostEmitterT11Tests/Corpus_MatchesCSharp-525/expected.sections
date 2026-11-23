@@ -1,0 +1,20 @@
+== cases
+1 ((bynt_span_str){l1_cat.v, 2})
+2 ((bynt_opt_span_u8){true, ((bynt_span_u8){l0_hello.v, 6})})
+3 ((bynt_span_u8){l0_hello.v, 6})
+5 ((bynt_span_str){l6_count.v, 2})
+6 ((bynt_opt_span_u8){true, bynh_span_list_u8(l5_none)})
+7 bynh_span_list_u8(l5_none)
+8 bynh_add_list_u8(&l10_big, ((uint8_t)120))
+9 ((bynt_span_str){l14_busy.v, 2})
+10 ((bynt_opt_span_u8){true, bynh_span_list_u8(l10_big)})
+11 bynh_span_list_u8(l10_big)
+12 l15_r.exit_code
+13 l15_r.out.len
+14 l15_r.out
+15 l15_r.err.len
+16 l15_r.err
+18 ((bynt_span_str){l21_quit.v, 2})
+19 ((bynt_opt_span_u8){true, bynh_span_list_u8(l10_big)})
+20 bynh_span_list_u8(l10_big)
+count 21

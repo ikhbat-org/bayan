@@ -1,0 +1,4 @@
+== imports diagnostics
+BYN2002 5:9 unknown type `geo.Nope`
+BYN2002 6:5 unknown type `nogeo.Code` help: add `import nogeo`; `nogeo` is not an imported module
+BYN2005 4:9 `Hidden` is not visible here help: mark `Hidden` `public` to use it from another module

@@ -1,0 +1,13 @@
+1:1 CloseBrace `}`
+1:2 Identifier `P`
+1:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ }P�� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ }P�� 
+    │    ^

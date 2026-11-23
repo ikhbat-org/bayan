@@ -1,0 +1,6 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@","capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/main.byn","languageId":"bayan","version":1,"text":"void run() {\n  let o = Sadaqah { total: 1 }\n}\n"}}}
+{"jsonrpc":"2.0","id":2,"method":"textDocument/definition","params":{"textDocument":{"uri":"file://@WS@/main.byn"},"position":{"line":1,"character":11}}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":"Sadaqah"}}
+{"jsonrpc":"2.0","id":4,"method":"textDocument/definition","params":{"textDocument":{"uri":"file://@WS@/lib.byn"},"position":{"line":4,"character":10}}}
+{"jsonrpc":"2.0","id":5,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file://@WS@/lib.byn"}}}

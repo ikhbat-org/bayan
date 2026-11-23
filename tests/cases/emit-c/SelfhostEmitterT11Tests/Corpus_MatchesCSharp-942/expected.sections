@@ -1,0 +1,5 @@
+== helpers
+bynh_at_arr2_main__Mode static bynt_main__Mode* bynh_at_arr2_main__Mode(bynt_arr2_main__Mode* a, int64_t i, bool from_end, const char* file, int line) | static bynt_main__Mode* bynh_at_arr2_main__Mode(bynt_arr2_main__Mode* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 2 - i;
+    return &a->v[byn_index(i, 2, file, line)];
+}

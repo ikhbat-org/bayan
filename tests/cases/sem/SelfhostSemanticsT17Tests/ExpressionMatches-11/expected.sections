@@ -1,0 +1,2 @@
+== case float-underscore
+literal 1055..1066 : f64 = 105000000000

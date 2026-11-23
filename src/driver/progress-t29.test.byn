@@ -1,0 +1,23 @@
+// 019 T29 (coverage ratchet): progress.byn paths no golden case reaches: a line drawn on a terminal and cleared, twice,
+// and a terminal that is not in JSON mode. The expected values are the output of the self-hosted driver at the commit that
+// added the test.
+
+test "driver t29: tick and done draw and clear a line that is on" {
+    var p = Progress { phase: "x" }
+    tick(ref p)
+    assert p.frame == 1 && p.shown
+    done(ref p)
+    done(ref p)
+    tick(ref p)
+    assert p.done && p.frame == 1
+    var a = Progress { ascii: true, phase: "x" }
+    tick(ref a)
+    done(ref a)
+    assert a.done && a.frame == 1
+}
+
+test "driver t29: start on a terminal outside JSON mode is on unless CI is set" {
+    let p = start(in DStyle {}, by: true, through: false, for: "phase", after: 1000000000000)
+    assert p.off == ((Env.get("CI") ?? "").length > 0)
+    assert p.phase == "phase" && !p.shown
+}

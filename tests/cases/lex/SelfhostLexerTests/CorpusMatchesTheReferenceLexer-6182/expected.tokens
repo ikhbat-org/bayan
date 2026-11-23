@@ -1,0 +1,17 @@
+1:3 LessEquals `<=`
+1:6 Greater `>`
+1:8 GreaterEquals `>=`
+1:11 LessLess `<<`
+1:14 Greater `>`
+1:15 Greater `>`
+1:17 GreaterEquals `>=`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+3:2 EndOfFile

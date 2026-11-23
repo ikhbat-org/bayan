@@ -1,0 +1,20 @@
+1:1 IntegerLiteral `0b102`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:11 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ let a = $ 1
+    │         ^

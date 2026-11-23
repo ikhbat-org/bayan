@@ -1,0 +1,21 @@
+1:2 OpenBrace `{`
+1:4 Identifier `x`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+1:10 CloseBrace `}`
+1:11 CloseBrace `}`
+1:12 Bang `!`
+1:13 StringLiteral `" $"`
+1:17 StringLiteral `"`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  { x = 1 }}!" $""
+    │                 ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

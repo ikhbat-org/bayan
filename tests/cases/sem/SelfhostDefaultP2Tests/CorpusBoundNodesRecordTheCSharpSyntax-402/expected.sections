@@ -1,0 +1,6 @@
+== tests/cases/diag/coalesce-not-optional.byn
+0..14 globalStatement
+0..14 localDecl
+13..14 literalExpr integer
+15..29 localDecl
+23..29 binaryExpr coalesce right 28..29

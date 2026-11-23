@@ -1,0 +1,74 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:16 IntegerLiteral `0xFF`
+1:21 IntegerLiteral `0x_ff`
+1:27 IntegerLiteral `0b10100`
+1:34 NumericSuffix `B1`
+1:36 Equals `=`
+1:38 Identifier `s`
+1:40 IntegerLiteral `250`
+1:43 NumericSuffix `ms`
+1:46 IntegerLiteral `4`
+1:47 NumericSuffix `KiB`
+1:51 IntegerLiteral `1`
+1:52 NumericSuffix `u`
+1:54 IntegerLiteral `0xFF`
+1:58 NumericSuffix `u`
+1:60 IntegerLiteral `0b1`
+1:63 NumericSuffix `ul`
+1:66 IntegerLiteral `7`
+1:67 NumericSuffix `l`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 DotDotEquals `..=`
+3:12 Colon `:`
+3:14 Question `?`
+3:16 QuestionQuestion `??`
+3:19 QuestionQuestionEquals `??=`
+3:23 QuestionDot `?.`
+3:26 FatArrow `=>`
+3:29 Arrow `->`
+3:32 At `@`
+3:34 Hash `#`
+4:2 IntegerLiteral `0x`
+5:3 OpenParen `(`
+5:5 CloseParen `)`
+5:7 OpenBracket `[`
+5:9 CloseBracket `]`
+5:11 OpenBrace `{`
+5:13 CloseBrace `}`
+6:1 Identifier `ạ̇`
+6:5 EndOfFile
+
+error BYN0011: unit suffix `B1` is not allowed on a binary literal
+
+  1 │ 0 42 1_000_000 0xFF 0x_ff 0b10100B1= s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                  ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │  0x
+    │  ^^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │  �( ) [ ] { }
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  �( ) [ ] { }
+    │   │  -
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │ ạ̇ 
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ ạ̇ 
+    │   │ ++

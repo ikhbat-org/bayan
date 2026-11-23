@@ -1,0 +1,2 @@
+== diags.diag/void-value
+BYN2025 1:14 `void` is not a value type

@@ -1,0 +1,8 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      Guarded if a
+        Return
+      If b
+        Block
+          Expr (call g)

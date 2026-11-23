@@ -1,0 +1,3 @@
+proj/sub -> ../real/deep
+proj/up -> x/..
+proj/x -> ../other/deep

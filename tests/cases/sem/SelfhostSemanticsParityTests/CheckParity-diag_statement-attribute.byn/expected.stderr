@@ -1,0 +1,18 @@
+error BYN1069: attribute `@inline` is not allowed before a statement
+  --> tmp/t26-tests/cli/diag_statement-attribute.byn/statement-attribute.byn:2:5
+
+  2 │     @inline
+    │     ^^^^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+error BYN1069: attribute `@allow` is not allowed before a statement
+  --> tmp/t26-tests/cli/diag_statement-attribute.byn/statement-attribute.byn:9:5
+
+  9 │     @allow(unusedValue) because "kept"
+    │     ^^^^^^^^^^^^^^^^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1069

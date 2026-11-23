@@ -1,0 +1,10 @@
+== diags.diag/duplicate-union-value
+BYN2711 3:13 `read` and `write` share the value 1
+  label already used
+  help give each case its own value
+BYN2711 9:12 `mid` and `high` share the value 2
+  label already used
+  help give each case its own value
+BYN2711 15:5 `two` and `next` share the value 2
+  label follows `one`, so it is 2
+  help give each case its own value

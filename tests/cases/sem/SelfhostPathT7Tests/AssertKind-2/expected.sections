@@ -1,0 +1,4 @@
+== all
+dir tmp/t7-path/helpers/src/main.byn tmp/t7-path/helpers/src
+dir tmp/t7-path/helpers/src/ tmp/t7-path/helpers/src
+dir tmp/t7-path/helpers tmp/t7-path

@@ -1,0 +1,11 @@
+== overloads
+diag BYN2006 2:6 `f` is declared twice | already declared on line 1 | 
+diag BYN2006 3:6 `f` is declared twice | already declared on line 1 | 
+diag BYN2006 2:6 `h` is declared twice | already declared on tmp/t12-cases/overloads/a.byn:4 | 
+diag BYN2006 1:6 `g` is declared twice | already declared on tmp/t12-cases/overloads/a.byn:5 | 
+fn f 1
+fn h 1
+fn g 1
+all f function module static=False at=1:6 file=tmp/t12-cases/overloads/a.byn map=[]
+all h function module static=False at=4:6 file=tmp/t12-cases/overloads/a.byn map=[]
+all g function module static=False at=5:6 file=tmp/t12-cases/overloads/a.byn map=[]

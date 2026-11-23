@@ -1,0 +1,6 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `" $"`
+1:6 OpenBrace `{`
+1:7 Identifier `Point`
+1:13 OpenBrace `{`
+1:15 EndOfFile

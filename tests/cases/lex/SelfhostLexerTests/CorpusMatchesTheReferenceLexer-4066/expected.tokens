@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `"""$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$\u{F}"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"\n`
+2:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

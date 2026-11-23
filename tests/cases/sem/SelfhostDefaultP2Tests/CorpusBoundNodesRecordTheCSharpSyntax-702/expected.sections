@@ -1,0 +1,10 @@
+== tests/cases/diag/not-iterable.byn
+0..32 globalStatement
+0..32 forStmt
+9..10 literalExpr integer
+11..32 blockStmt
+17..30 exprStmt
+17..30 callExpr
+23..29 interpolatedExpr
+26..27 nameExpr
+17..30 callExpr

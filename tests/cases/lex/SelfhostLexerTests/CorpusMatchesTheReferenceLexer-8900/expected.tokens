@@ -1,0 +1,58 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+3:1 IntegerLiteral `0b__`
+4:2 StructKeyword `struct`
+4:9 UniqueKeyword `unique`
+4:16 UnionKeyword `union`
+4:22 EnumKeyword `enum`
+4:27 FlagsKeyword `flags`
+4:33 OpenKeyword `open`
+4:38 ExtensibleKeyword `extensible`
+4:49 Identifier `interMace`
+4:59 DelegateKeyword `delegate`
+4:68 ExtensionKeyword `extension`
+4:78 DerivationKeyword `derivation`
+4:89 AttributeKeyword `attribute`
+5:2 Identifier `ής`
+5:5 Identifier `x_1`
+5:9 Identifier `é`
+    doc `/// Doc line one.`
+8:1 FailsKeyword `fails`
+8:7 TryKeyword `try`
+8:11 CatchKeyword `catch`
+8:17 NeverKeyword `never`
+8:23 NoallocKeyword `noalloc`
+8:31 NosuspendKeyword `nosuspend`
+8:41 SuspendsKeyword `suspends`
+8:50 AsyncKeyword `async`
+8:56 AwaitKeyword `await`
+9:2 CharLiteral `''`
+10:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0007: empty char literal
+
+  9 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

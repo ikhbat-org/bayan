@@ -1,0 +1,38 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:2 Identifier `b`
+3:1 Identifier `각`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:1 IntegerLiteral `1_`
+6:2 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  3 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 각
+    │   │ +
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -

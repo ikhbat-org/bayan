@@ -1,0 +1,17 @@
+CompilationUnit
+  Struct Customer
+    Field bool isActive
+  Function any(List<Customer> customers, by Customer -> bool p) -> bool
+    Block
+      Var found = false
+      For Let c in customers
+        Block
+          Assign found = (|| found (call p c))
+      Return found
+  Function main() -> void
+    Block
+      Let customers: List<Customer> = (list (struct Customer (isActive true)))
+      Let before = (call any customers (by: (lambda (c) (. c isActive))))
+      Let after = (call any customers (by: (. it isActive)))
+      Let grouped = (call any customers (by: (paren (lambda (c) (. c isActive)))))
+      Expr (call print (interp before after grouped))

@@ -1,0 +1,2 @@
+PATH=tmp/t9-cache/rt-shared-bin:$PATH
+CCLOG=<root>/cc.log

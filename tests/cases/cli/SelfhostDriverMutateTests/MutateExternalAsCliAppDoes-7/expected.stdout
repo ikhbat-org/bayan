@@ -1,0 +1,51 @@
+c.byn:1:1 boundary `a` -> `b`: survived
+c.byn:2:1 relational `a` -> `b`: survived
+c.byn:3:1 logical `a` -> `b`: survived
+c.byn:4:1 condition `a` -> `b`: survived
+c.byn:5:1 bool `a` -> `b`: survived
+c.byn:6:1 arithmetic `a` -> `b`: survived
+c.byn:7:1 literal `a` -> `b`: survived
+c.byn:8:1 negation `a` -> `b`: survived
+c.byn:9:1 statement `a` -> `b`: survived
+c.byn:10:1 emptyReturn `a` -> `b`: survived
+c.byn:11:1 variant `a` -> `b`: survived
+c.byn:12:1 mystery `a` -> `b`: survived
+mutation: 0 killed, 12 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+survived: c.byn:1:1: a → b [boundary]
+  suggestion: add a case at the boundary value
+survived: c.byn:2:1: a → b [relational]
+  suggestion: add a case where the two operands are equal and one where they differ
+survived: c.byn:3:1: a → b [logical]
+  suggestion: add a case where exactly one operand holds
+survived: c.byn:4:1: a → b [condition]
+  suggestion: add a case where the condition is false and one where it is true, and assert the difference
+survived: c.byn:5:1: a → b [bool]
+  suggestion: add a case that depends on this value
+survived: c.byn:6:1: a → b [arithmetic]
+  suggestion: add a case whose result differs under the changed operator
+survived: c.byn:7:1: a → b [literal]
+  suggestion: add a case that depends on this exact number
+survived: c.byn:8:1: a → b [negation]
+  suggestion: add a case with a non-zero operand and assert the sign
+survived: c.byn:9:1: a → b [statement]
+  suggestion: assert the effect of this statement
+survived: c.byn:10:1: a → b [emptyReturn]
+  suggestion: assert the returned value is not the empty value
+survived: c.byn:11:1: a → b [variant]
+  suggestion: add a case that asserts which error variant is returned
+survived: c.byn:12:1: a → b [mystery]
+  suggestion: add a case that fails under this change
+operators:
+  boundary: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  relational: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  logical: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  condition: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  bool: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  arithmetic: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  literal: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  negation: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  statement: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  emptyReturn: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  variant: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  mystery: 0 killed, 1 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+timing: build <t> s, mean <t> s and max <t> s per mutant, total <t> s, mutant share of build <t>%

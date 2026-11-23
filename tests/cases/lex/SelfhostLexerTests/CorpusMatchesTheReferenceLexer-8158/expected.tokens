@@ -1,0 +1,60 @@
+1:1 Identifier `각k`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:11 IntegerLiteral `1`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `x`
+4:4 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolatedStringText `{{`
+4:13 InterpolatedStringEnd `"`
+4:14 EndOfFile
+
+error BYN0005: identifier `각k` is not in Unicode normalization form C
+
+  1 │ 각k�����
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각k�����
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ 각k�����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ 각k�����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 각k�����
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 각k�����
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 각k�����
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ let a = $ 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"x{ $"{$"{{"
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

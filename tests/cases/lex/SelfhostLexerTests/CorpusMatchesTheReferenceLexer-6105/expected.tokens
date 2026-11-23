@@ -1,0 +1,23 @@
+1:1 StringLiteral `"text�"`
+1:8 StringLiteral `"esc \"q\" \ \n"`
+1:25 RawStringLiteral `"""u`
+1:29 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ "text�" "esc \"q\" \ \n" """u
+    │      ^
+
+error BYN0006: invalid escape sequence `\ `
+
+  1 │ "text�" "esc \"q\" \ \n" """u
+    │                    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  1 │ "text�" "esc \"q\" \ \n" """u
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

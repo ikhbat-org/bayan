@@ -1,0 +1,49 @@
+1:1 IntegerLiteral `0x`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 StringLiteral `"{}"`
+6:1 CharLiteral `'`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:29 Greater `>`
+7:31 GreaterEquals `>=`
+7:34 LessLess `<<`
+7:37 Greater `>`
+7:38 Greater `>`
+7:40 Greater `>`
+7:41 GreaterEquals `>=`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0002: unexpected character `﻿`
+
+  4 │  ﻿
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  6 │ '
+    │ ^
+    │
+  help: close it with `'`

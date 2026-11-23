@@ -1,0 +1,26 @@
+error BYN5001: `sorted` changes `this`; name it `sort`
+  --> tmp/t26-tests/cli/diag_participle-changes-this.byn/participle-changes-this.byn:5:10
+
+  5 │     void sorted(ref this) {
+    │          ^^^^^^
+    │
+  help: name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+
+error BYN7005: `Words` has states; a literal must name one: `Words.drafted { … }`
+  --> tmp/t26-tests/cli/diag_participle-changes-this.byn/participle-changes-this.byn:12:23
+
+  12 │     Words reversed => Words { text: text }
+     │                       ^^^^^
+     │
+  help: name the state the value starts in
+
+error BYN5001: `trimmed` changes `this`; name it `trim`
+  --> tmp/t26-tests/cli/diag_participle-changes-this.byn/participle-changes-this.byn:15:10
+
+  15 │     void trimmed(ref this, i64 times) {
+     │          ^^^^^^^
+     │
+  help: name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN5001

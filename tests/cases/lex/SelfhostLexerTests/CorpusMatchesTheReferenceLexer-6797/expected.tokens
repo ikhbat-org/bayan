@@ -1,0 +1,67 @@
+1:1 CharLiteral `'\r`
+2:1 CharLiteral `'\q'`
+3:1 CharLiteral `'\u{D800}'`
+4:1 CharLiteral `'\u{110000}'`
+5:1 CharLiteral `'x\r`
+6:2 Identifier `Å`
+6:4 IntegerLiteral `0x`
+7:1 StringLiteral `"text"`
+7:8 StringLiteral `"esc \"q\" \\ \n"`
+7:26 RawStringLiteral `"""\r\n\r\nstruct unique union enum flags open extensible interface delegate extension derivation attribute\r\n let café = 1\r\n x\u{2067} = 1\r\n , . .. ..= : ? ?? ??= ?. => -> @ #\r\n `
+13:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │  Å 0x
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  Å 0x
+    │   │  +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │  Å 0x
+    │    ^^
+
+error BYN0003: unterminated string literal
+
+  7 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

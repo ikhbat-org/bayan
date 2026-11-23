@@ -1,0 +1,11 @@
+i32 count(i32 n) {
+    var i: i32 = 0
+    while i < n {
+        i += 1
+    }
+    if i > 3 {
+        return 3
+    }
+    return 0 if n == 0
+    return i
+}

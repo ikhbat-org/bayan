@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "CallExpr",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "LiteralExpr",
+    "NameExpr",
+    "PropertyDecl",
+    "StructDecl",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN5102"
+  ]
+}

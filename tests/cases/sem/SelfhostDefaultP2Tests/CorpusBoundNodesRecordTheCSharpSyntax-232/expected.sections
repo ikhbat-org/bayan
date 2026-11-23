@@ -1,0 +1,37 @@
+== tests/cases/run/path-windows-combine.byn
+97..130 globalStatement
+97..130 exprStmt
+97..130 callExpr
+103..129 callExpr
+116..123 literalExpr string
+125..128 literalExpr string
+97..130 callExpr
+131..166 exprStmt
+131..166 callExpr
+137..165 callExpr
+150..159 literalExpr string
+161..164 literalExpr string
+131..166 callExpr
+167..204 exprStmt
+167..204 callExpr
+173..203 callExpr
+186..193 literalExpr string
+195..202 literalExpr string
+167..204 callExpr
+205..234 exprStmt
+205..234 callExpr
+211..233 callExpr
+224..227 literalExpr string
+229..232 literalExpr string
+205..234 callExpr
+235..266 localDecl
+247..266 collectionExpr
+248..255 literalExpr string
+257..260 literalExpr string
+262..265 literalExpr string
+267..298 exprStmt
+267..298 callExpr
+273..297 callExpr
+286..296 memberExpr
+286..291 nameExpr
+267..298 callExpr

@@ -26,6 +26,10 @@
 // rejected one is not tried; every JSON syntax error reads `Expecting value: line L column C (char N)`, N a byte offset;
 // a malformed report names KeyError or TypeError without Python's exact text; the walk stops 64 directories deep.
 // Usage: bash scripts/bayan-tool.sh coverage-gate <merge-base> <bayan-quality.json> <functions.json> [<tasks.md> <T<n>> <dir>]
+// `--exempt <file>...` (scripts/quality/coverage.sh, spec 019 T29): prints `path:line` for each line of each file a valid
+// coverage-exempt marker exempts, by the rule above (coverage-blocked markers are not checked here); each invalid
+// marker is a FAIL item on stderr and the exit is 1.
+// Usage: bash scripts/bayan-tool.sh coverage-gate --exempt <file>...
 
 import std.fs
 import std.json
@@ -669,7 +673,33 @@ List<Branch> branchesOf(JsonValue v, for string key) uses alloc fails GateError 
     fail .malformed(repr: "TypeError('not an object')")
 }
 
+/// `--exempt <file>...`: `path:line` per exempted line, each invalid marker a FAIL item on stderr (exit 1).
+i32 exemptLines(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    var bad = 0
+    for k in 1..argv.length {
+        let ex = exempt(argv[k], by: List<string>(), for: "") catch switch {
+            .failed(let msg) => {
+                print($"coverage-gate.py: {msg}", to: .stderr)
+                return 1
+            },
+            .malformed(let repr) => {
+                print($"coverage-gate.py: {repr}", to: .stderr)
+                return 1
+            },
+        }
+        for b in ex.bad {
+            print($"- {b}", to: .stderr)
+            bad += 1
+        }
+        for n in ex.skip { print($"{argv[k]}:{n}") }
+    }
+    return bad > 0 ? 1 : 0
+}
+
 i32 main(ReadOnlySpan<string> argv) {
+    if argv.length > 0 && argv[0] == "--exempt" {
+        return exemptLines(argv)
+    }
     if argv.length < 3 {
         print("coverage-gate.py: IndexError: list index out of range (usage: coverage-gate <merge-base> <bayan-quality.json> <functions.json> [<tasks.md> <T<n>> <dir>])", to: .stderr)
         return 1

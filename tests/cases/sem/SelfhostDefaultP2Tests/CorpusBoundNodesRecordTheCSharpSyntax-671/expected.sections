@@ -1,0 +1,57 @@
+== tests/cases/diag/mutated-while-borrowed.byn
+12..349 blockStmt
+18..38 localDecl
+27..38 callExpr
+43..55 exprStmt
+43..55 callExpr
+43..45 nameExpr
+53..54 literalExpr integer
+60..78 localDecl
+71..78 memberExpr
+71..73 nameExpr
+83..95 exprStmt
+83..95 callExpr
+83..85 nameExpr
+93..94 literalExpr integer
+100..119 exprStmt
+100..119 callExpr
+106..118 interpolatedExpr
+109..116 indexExpr
+109..113 nameExpr
+114..115 literalExpr integer
+100..119 callExpr
+124..143 localDecl
+136..143 memberExpr
+136..138 nameExpr
+148..176 exprStmt
+148..176 callExpr
+148..150 nameExpr
+164..165 literalExpr integer
+174..175 literalExpr integer
+181..201 exprStmt
+181..201 callExpr
+187..200 interpolatedExpr
+190..198 indexExpr
+190..195 nameExpr
+196..197 literalExpr integer
+181..201 callExpr
+206..246 forStmt
+215..217 nameExpr
+218..246 blockStmt
+228..240 exprStmt
+228..240 callExpr
+228..230 nameExpr
+238..239 nameExpr
+251..276 localDecl
+269..276 callExpr
+281..313 localDecl
+292..313 callExpr
+292..297 literalExpr string
+307..312 nameExpr
+318..331 exprStmt
+318..331 callExpr
+318..323 nameExpr
+336..347 exprStmt
+336..347 callExpr
+342..346 nameExpr
+336..347 callExpr

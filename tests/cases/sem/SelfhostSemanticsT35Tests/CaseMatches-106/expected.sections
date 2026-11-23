@@ -1,0 +1,2 @@
+== expr.probes.t5
+tuple:(i32, i32, i32)[2354:9]=-(literal:i32[2355:1]=1(1) literal:i32[2358:1]=2(2) literal:i32[2361:1]=3(3))

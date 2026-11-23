@@ -1,0 +1,15 @@
+== tests/cases/diag/non-exhaustive-wildcard-help.byn
+64..91 switchExpr
+64..91 switchExpr
+64..91 switchExpr
+64..65 nameExpr
+79..83 constantPattern
+79..83 targetMemberExpr
+87..88 literalExpr integer
+93..116 globalStatement
+93..116 exprStmt
+93..116 callExpr
+99..115 interpolatedExpr
+102..113 callExpr
+107..112 targetMemberExpr
+93..116 callExpr

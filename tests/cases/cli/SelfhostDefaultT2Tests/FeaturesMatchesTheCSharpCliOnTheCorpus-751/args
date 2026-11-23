@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/noalloc-removed.byn
+--package
+<repo>/tests/cases/diag

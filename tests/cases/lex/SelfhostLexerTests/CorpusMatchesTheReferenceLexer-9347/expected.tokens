@@ -1,0 +1,38 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `el`
+1:5 Identifier `t`
+1:7 Identifier `b`
+1:9 Equals `=`
+1:13 IntegerLiteral `2`
+    doc `/// Doc lne one.`
+4:1 Identifier `b`
+5:2 Greater `>`
+5:4 At `@`
+5:6 Hash `#`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:10 Identifier `f`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 Identifier `a`
+8:1 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  1 │ 1el�t b = ` 2
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  1 │ 1el�t b = ` 2
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{a
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

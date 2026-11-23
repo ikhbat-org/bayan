@@ -1,0 +1,31 @@
+== tests/cases/run/with-move-unique.byn
+139..361 blockStmt
+145..168 localDecl
+157..168 callExpr
+173..188 exprStmt
+173..188 callExpr
+173..178 nameExpr
+186..187 literalExpr integer
+193..208 exprStmt
+193..208 callExpr
+193..198 nameExpr
+206..207 literalExpr integer
+213..266 localDecl
+222..266 structLiteralExpr
+238..245 literalExpr string
+254..258 moveExpr
+259..264 nameExpr
+271..312 localDecl
+282..312 withExpr
+282..286 moveExpr
+287..289 nameExpr
+304..310 literalExpr string
+317..359 exprStmt
+317..359 callExpr
+323..358 interpolatedExpr
+326..336 memberExpr
+326..330 nameExpr
+339..356 memberExpr
+339..349 memberExpr
+339..343 nameExpr
+317..359 callExpr

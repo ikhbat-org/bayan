@@ -1,0 +1,11 @@
+1:1 LetKeyword `let`
+1:5 Identifier `ca9e`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+    doc `/// Doc line one.`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ let ca9e� = 1
+    │         ^

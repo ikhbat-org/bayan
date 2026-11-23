@@ -1,0 +1,10 @@
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> tmp/t26-tests/cli/diag_pointer-outside-extern.byn/pointer-outside-extern.byn:1:11
+
+  1 │ void fill(u8* buffer) {
+    │           ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1067

@@ -1,0 +1,74 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:1 IfKeyword `if`
+2:4 ElseKeyword `else`
+2:9 Identifier `unl`
+2:13 Identifier `ss`
+2:16 SwitchKeyword `switch`
+2:23 Identifier `casu`
+2:28 DefaultKeyword `default`
+2:36 ForKeyword `for`
+2:40 InKeyword `in`
+2:43 WhileKeyword `while`
+2:49 DoKeyword `do`
+2:52 BreakKeyword `break`
+2:58 ContinueKeyword `continue`
+2:67 ReturnKeyword `return`
+2:74 YieldKeyword `yield`
+2:80 DeferKeyword `defer`
+2:86 ErrdeferKeyword `errdefer`
+2:95 UsingKeyword `using`
+2:101 ContextKeyword `context`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCase2`
+4:23 Identifier `بيان`
+4:28 Identifier `μετρητής`
+4:37 Identifier `x_1`
+4:41 Identifier `é`
+6:1 Identifier `ired`
+8:2 RawStringLiteral `"""never closed\n oc `
+9:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  2 │ if else unl�ss switch casu default for in while do break continue return yield defer errdefer using context
+    │            ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │ /* � */�
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │ // �
+    │   │  +++
+    │ 8 │ �
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  7 │ /* � */�
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ /* � */�
+    │   │    -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ /* � */�
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ /* � */�
+    │   │        -
+
+error BYN0003: unterminated string literal
+
+  8 │  """never closed
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

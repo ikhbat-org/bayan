@@ -1,0 +1,66 @@
+2:2 InKeyword `in`
+2:5 Identifier `strings`
+2:12 StringLiteral `" "`
+2:15 StringLiteral `" "`
+2:19 Identifier `u`
+2:20 OpenBrace `{`
+2:21 IntegerLiteral `48`
+2:23 CloseBrace `}`
+2:24 Identifier `i`
+2:25 StringLiteral `"`
+4:1 CharLiteral `'\u{202E}'`
+4:5 IsKeyword `is`
+4:8 AndKeyword `and`
+4:12 OrKeyword `or`
+4:15 NotKeyword `not`
+4:19 WithKeyword `with`
+4:24 MoveKeyword `move`
+4:29 RefKeyword `ref`
+4:33 OutKeyword `out`
+4:37 ThisKeyword `this`
+4:42 NullKeyword `null`
+4:47 TrueKeyword `true`
+4:52 FalseKeyword `false`
+4:58 ComptimeKeyword `comptime`
+4:67 CheckedKeyword `checked`
+6:1 Identifier `a`
+9:78 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ 	 �
+    │ 	 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ 	 �
+    │   │ 	 -
+
+error BYN0002: unexpected character `\`
+
+  2 │  in strings" "" "\u{48}i"
+    │                  ^
+
+error BYN0003: unterminated string literal
+
+  2 │  in strings" "" "\u{48}i"
+    │                         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '�' is and or not with move ref out this null true false comptime checked
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '�' is and or not with move ref out this null true false comptime checked
+    │   │  -
+
+error BYN0004: unterminated block comment
+
+  6 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

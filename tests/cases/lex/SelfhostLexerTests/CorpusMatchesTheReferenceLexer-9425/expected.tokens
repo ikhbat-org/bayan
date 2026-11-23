@@ -1,0 +1,24 @@
+1:1 RawStringLiteral `"""\ntest a�sert property fuzz model foreach new goto\n\n   comment */ a\n"\n\n$"str�ay } here"\n� `
+8:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ test a�sert property fuzz model foreach new goto
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  7 │ $"str�ay } here"
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  8 │ � 
+    │ ^

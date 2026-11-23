@@ -1,0 +1,4 @@
+== bind.gen.g5
+flags 0
+errorExpr:?[1055:5]=-()
+BYN2743 86:14 `+` cannot be applied to a value of type parameter `T` ||use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type parameters have no constraints|

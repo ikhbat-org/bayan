@@ -1,0 +1,8 @@
+error BYN2214: `^` is only allowed inside an index or slice
+  --> input.byn:1:9
+
+  1 │ let i = ^1
+    │         ^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2214

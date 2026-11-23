@@ -1,0 +1,33 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `aif`
+1:8 ElseKeyword `else`
+1:13 UnlessKeyword `unless`
+1:20 SwitchKeyword `switch`
+1:27 CaseKeyword `case`
+1:32 DefaultKeyword `default`
+1:40 ForKeyword `for`
+1:44 InKeyword `in`
+1:47 WhileKeyword `while`
+1:53 Identifier `o`
+1:55 BreakKeyword `break`
+1:61 ContinueKeyword `continue`
+1:70 ReturnKeyword `return`
+1:77 YieldKeyword `yield`
+1:83 DeferKeyword `defer`
+1:89 ErrdeferKeyword `errdefer`
+1:98 UsingKeyword `using`
+1:104 ContextKeyword `context`
+2:2 LetKeyword `let`
+2:6 Identifier `ffect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:2 Identifier `b`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{aif else unless switch case default for in while o break continue return yield defer errdefer using context
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

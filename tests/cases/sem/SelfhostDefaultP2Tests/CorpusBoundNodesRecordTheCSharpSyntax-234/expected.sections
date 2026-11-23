@@ -1,0 +1,38 @@
+== tests/cases/run/pending-peers-negate-accumulator.byn
+0..20 globalStatement
+0..20 localDecl
+9..20 callExpr
+21..33 exprStmt
+21..33 callExpr
+21..23 nameExpr
+31..32 literalExpr integer
+34..46 exprStmt
+34..46 callExpr
+34..36 nameExpr
+44..45 literalExpr integer
+47..56 localDecl
+55..56 literalExpr integer
+57..70 localDecl
+69..70 literalExpr integer
+71..150 whileStmt
+77..90 binaryExpr lt right 81..90
+77..78 nameExpr
+81..90 memberExpr
+81..83 nameExpr
+91..150 blockStmt
+97..114 localDecl
+113..114 nameExpr
+119..137 assignStmt assign target 119..124 value 127..137
+119..124 nameExpr
+127..137 binaryExpr sub right 135..137
+127..132 nameExpr
+135..137 unaryExpr negate operand 136..137
+136..137 nameExpr
+142..148 assignStmt add target 142..143 value 147..148
+142..143 nameExpr
+147..148 literalExpr integer
+151..168 exprStmt
+151..168 callExpr
+157..167 interpolatedExpr
+160..165 nameExpr
+151..168 callExpr

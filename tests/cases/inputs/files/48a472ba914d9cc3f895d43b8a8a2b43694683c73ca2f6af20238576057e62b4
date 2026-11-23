@@ -1,0 +1,8 @@
+/// Doc line one.
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+ t b = "bad \q escape"
+let c = """never closed
+
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+"}"}"}"}"}"}"}"}"
+let effect = 2

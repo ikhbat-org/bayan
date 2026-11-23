@@ -1,0 +1,2 @@
+== fold.probes.d8
+binary:f64[6354:7]=-(add literal:f64[6354:3]=1.5(1.5) literal:i32[6360:1]=0(0))

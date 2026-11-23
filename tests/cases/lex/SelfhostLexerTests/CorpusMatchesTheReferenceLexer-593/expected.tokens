@@ -1,0 +1,16 @@
+1:1 CharLiteral `'\u{DT800}'`
+2:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ '\u{DT800}'
+    │ ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{D`
+
+  1 │ '\u{DT800}'
+    │  ^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

@@ -1,0 +1,57 @@
+1:1 Identifier `F6`
+1:4 StringLiteral `"{/*`
+2:1 Identifier `et`
+2:4 Identifier `a`
+2:6 Equals `=`
+2:8 StringLiteral `"open`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:1 Identifier `l`
+5:4 Identifier `et`
+5:7 Identifier `b`
+5:9 Equals `=`
+5:13 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+7:1 IntegerLiteral `0x_`
+9:1 LetKeyword `let`
+9:5 LawKeyword `law`
+9:9 Equals `=`
+9:11 IntegerLiteral `3`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ F6 "{/*
+    │    ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  2 │ �et a = "open
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ �et a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ l� et b = ` 2
+    │  ^
+
+error BYN0002: unexpected character ```
+
+  5 │ l� et b = ` 2
+    │           ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x_
+    │ ^^^

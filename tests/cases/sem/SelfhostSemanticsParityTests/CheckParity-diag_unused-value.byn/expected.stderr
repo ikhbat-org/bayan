@@ -1,0 +1,18 @@
+error BYN3201: the value of this `one()` is unused
+  --> tmp/t26-tests/cli/diag_unused-value.byn/unused-value.byn:4:5
+
+  4 │     one()
+    │     ^^^^^ value dropped
+    │
+  help: assign it with `let _ = …`, or remove the expression
+
+error BYN3201: the value of this `xs.removeLast()` is unused
+  --> tmp/t26-tests/cli/diag_unused-value.byn/unused-value.byn:8:5
+
+  8 │     xs.removeLast()
+    │     ^^^^^^^^^^^^^^^ value dropped
+    │
+  help: assign it with `let _ = …`, or remove the expression
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3201

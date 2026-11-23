@@ -1,0 +1,122 @@
+1:2 DoKeyword `do`
+1:5 BreakKeyword `break`
+1:11 ContinueKeyword `continue`
+1:20 ReturnKeyword `return`
+1:27 YieldKeyword `yield`
+1:33 DeferKeyword `defer`
+1:39 ErrdeferKeyword `errdefer`
+1:48 UsingKeyword `using`
+1:54 ContextKeyword `context`
+2:1 Identifier `fai`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+7:1 IntegerLiteral `0x`
+8:1 StructKeyword `struct`
+8:8 UniqueKeyword `unique`
+8:15 UnionKeyword `union`
+8:21 EnumKeyword `enum`
+8:26 FlagsKeyword `flags`
+8:32 OpenKeyword `open`
+8:37 Identifier `extensib`
+8:46 Identifier `le`
+8:49 InterfaceKeyword `interface`
+8:59 DelegateKeyword `delegate`
+8:68 ExtensionKeyword `extension`
+8:78 DerivationKeyword `derivation`
+8:89 AttributeKeyword `attribute`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolatedStringText `$`
+9:7 InterpolatedStringEnd `"`
+9:8 OpenBrace `{`
+9:9 InterpolatedStringStart `$"`
+9:11 InterpolationStart `{`
+9:12 InterpolatedStringStart `$"`
+9:14 InterpolationStart `{`
+9:15 InterpolatedStringStart `$"`
+9:17 InterpolationStart `{`
+9:18 InterpolatedStringStart `$"`
+9:20 InterpolationStart `{`
+9:21 InterpolatedStringStart `$"`
+9:23 InterpolationStart `{`
+9:24 InterpolatedStringStart `$"`
+9:26 InterpolationStart `{`
+9:27 InterpolatedStringStart `$"`
+9:29 InterpolationStart `{`
+9:30 InterpolatedStringStart `$"`
+9:32 InterpolationStart `{`
+9:33 InterpolatedStringStart `$"`
+9:35 InterpolationStart `{`
+9:36 InterpolatedStringStart `$"`
+9:38 InterpolationStart `{`
+9:39 InterpolatedStringStart `$"`
+9:41 InterpolationStart `{`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolationStart `{`
+9:45 InterpolatedStringStart `$"`
+9:47 InterpolationStart `{`
+9:48 InterpolatedStringStart `$"`
+9:50 InterpolationStart `{`
+9:51 InterpolatedStringStart `$"`
+9:53 InterpolationStart `{`
+9:54 Identifier `x`
+9:55 InterpolationEnd `}`
+9:56 InterpolatedStringEnd `"`
+9:57 InterpolationEnd `}`
+9:58 InterpolatedStringEnd `"`
+9:59 InterpolationEnd `}`
+9:60 InterpolatedStringEnd `"`
+9:61 InterpolationEnd `}`
+9:62 InterpolatedStringEnd `"`
+9:63 InterpolationEnd `}`
+9:64 InterpolatedStringEnd `"`
+9:65 InterpolationEnd `}`
+9:66 InterpolatedStringText `Y`
+9:67 InterpolatedStringEnd `"`
+9:68 InterpolationEnd `}`
+9:69 InterpolatedStringEnd `"`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  8 │ struct unique union enum flags open extensib�le interface delegate extension derivation attribute
+    │                                             ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}Y"}"}"}"}"}"}"
+    │               ^^ this string never ends
+    │
+  help: close the `{` and the string

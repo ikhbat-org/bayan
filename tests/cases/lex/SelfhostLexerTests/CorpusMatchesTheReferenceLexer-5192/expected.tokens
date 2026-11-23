@@ -1,0 +1,193 @@
+1:1 IntegerLiteral `1__`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `total `
+3:9 InterpolationStart `{`
+3:10 Identifier `x`
+3:11 InterpolationEnd `}`
+3:12 InterpolatedStringEnd `"`
+3:15 Identifier `a`
+3:17 OpenBrace `{`
+3:18 Identifier `f`
+3:19 OpenParen `(`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolatedStringText `b `
+3:24 InterpolationStart `{`
+3:25 Identifier `c`
+3:26 InterpolationEnd `}`
+3:27 InterpolatedStringEnd `"`
+3:28 CloseParen `)`
+3:29 CloseBrace `}`
+3:31 Identifier `d`
+3:32 StringLiteral `" $"`
+3:36 OpenBrace `{`
+3:37 OpenBrace `{`
+3:38 Identifier `literal`
+3:45 CloseBrace `}`
+3:46 CloseBrace `}`
+3:47 StringLiteral `" $"`
+3:51 OpenBrace `{`
+3:52 Identifier `Point`
+3:58 OpenBrace `{`
+3:60 Identifier `x`
+3:62 Equals `=`
+3:64 IntegerLiteral `1`
+3:66 CloseBrace `}`
+3:67 CloseBrace `}`
+3:68 Bang `!`
+3:69 StringLiteral `" $"`
+3:73 StringLiteral `"`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 StringLiteral `$"{$"`
+4:55 OpenBrace `{`
+4:56 StringLiteral `$"{${x}"`
+4:64 CloseBrace `}`
+4:65 StringLiteral `"}"`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringEnd `"`
+4:70 InterpolationEnd `}`
+4:71 InterpolatedStringEnd `"`
+4:72 InterpolationEnd `}`
+4:73 InterpolatedStringEnd `"`
+4:74 InterpolationEnd `}`
+4:75 InterpolatedStringEnd `"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 InterpolationEnd `}`
+4:81 InterpolatedStringEnd `"`
+4:82 InterpolationEnd `}`
+4:83 InterpolatedStringEnd `"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 InterpolationEnd `}`
+4:95 InterpolatedStringEnd `"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:99 InterpolatedStringStart `$"`
+4:101 InterpolationStart `{`
+4:102 InterpolatedStringStart `$"`
+4:104 InterpolationStart `{`
+4:105 InterpolatedStringStart `$"`
+4:107 InterpolationStart `{`
+4:108 InterpolatedStringStart `$"`
+4:110 InterpolationStart `{`
+4:111 InterpolatedStringStart `$"`
+4:113 InterpolationStart `{`
+4:114 InterpolatedStringStart `$"`
+4:116 InterpolationStart `{`
+4:117 InterpolatedStringStart `$"`
+4:119 InterpolationStart `{`
+4:120 InterpolatedStringStart `$"`
+4:122 InterpolationStart `{`
+4:123 InterpolatedStringStart `$"`
+4:125 InterpolationStart `{`
+4:126 InterpolatedStringStart `$"`
+4:128 InterpolationStart `{`
+4:129 InterpolatedStringStart `$"`
+4:131 InterpolationStart `{`
+4:132 InterpolatedStringStart `$"`
+4:134 InterpolationStart `{`
+4:135 InterpolatedStringStart `$"`
+4:137 InterpolationStart `{`
+4:138 InterpolatedStringStart `$"`
+4:140 InterpolationStart `{`
+4:141 InterpolatedStringStart `$"`
+4:143 InterpolationStart `{`
+4:144 Identifier `x`
+4:145 InterpolationEnd `}`
+4:146 InterpolatedStringEnd `"`
+4:147 StringLiteral `"}"`
+4:150 InterpolationEnd `}`
+4:151 InterpolatedStringEnd `"`
+4:152 InterpolationEnd `}`
+4:153 InterpolatedStringEnd `"`
+4:154 InterpolationEnd `}`
+4:155 InterpolatedStringEnd `"`
+4:156 InterpolationEnd `}`
+4:157 InterpolatedStringEnd `"`
+4:158 InterpolationEnd `}`
+4:159 InterpolatedStringEnd `"`
+4:160 InterpolationEnd `}`
+4:161 InterpolatedStringEnd `"`
+4:163 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0002: unexpected character `$`
+
+  3 │ $"total {x}" $a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"total {x}" $a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                                         ^ string ends at the
+    │                                                                           end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"�"}"}"}"}"}"}"}" 
+    │                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"�"}"}"}"}"}"}"}" 
+    │                                                                                                                        ^^ this
+    │                                                                                                                           string
+    │                                                                                                                           never
+    │                                                                                                                           ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xB6)
+
+  4 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"�"}"}"}"}"}"}"}" 
+    │                                                                                                                                                   ^

@@ -1,0 +1,41 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `Lst`
+1:12 Less `<`
+1:13 Identifier `List`
+1:17 Less `<`
+1:18 Identifier `i64`
+1:21 Greater `>`
+1:22 Greater `>`
+3:5 Identifier `doc`
+3:9 Identifier `comment`
+4:1 Identifier `b`
+5:2 Identifier `x́́`
+5:6 CharLiteral `'a'`
+5:10 CharLiteral `'\n'`
+5:15 CharLiteral `'\\u{1}u{1F600}'`
+5:28 CharLiteral `'\''`
+5:33 CharLiteral `'é'`
+5:37 CharLiteral `'\\'`
+5:42 CharLiteral `'\0'`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � 	 doc comment
+    │ ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │  x́́ 'a' '\n' '\�u{1F600}' '\'' 'é' '\\' '\0'
+    │               ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\`
+
+  5 │  x́́ 'a' '\n' '\�u{1F600}' '\'' 'é' '\\' '\0'
+    │                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

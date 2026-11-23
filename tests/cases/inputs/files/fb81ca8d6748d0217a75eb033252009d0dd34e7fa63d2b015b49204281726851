@@ -1,0 +1,5 @@
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+
+$"{$"{$"{$"+{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" // ok þ in comment
+let a = $ 1
+ 

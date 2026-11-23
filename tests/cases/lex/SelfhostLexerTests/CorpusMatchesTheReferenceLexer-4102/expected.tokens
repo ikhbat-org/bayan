@@ -1,0 +1,8 @@
+1:1 Slash `/`
+1:2 Identifier `x`
+1:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  1 │ /x�
+    │   ^

@@ -1,0 +1,9 @@
+void f() {
+    switch kind {
+        case .binary:
+            let op = ready ? c.op : d.op
+        case .unary:
+            go(op)
+        default: {}
+    }
+}

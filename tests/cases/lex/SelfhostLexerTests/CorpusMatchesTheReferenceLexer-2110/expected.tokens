@@ -1,0 +1,36 @@
+1:1 NeverKeyword `never`
+1:7 Identifier `closed`
+2:1 Identifier `b`
+3:1 VarKeyword `var`
+5:1 Identifier `b`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:1 Identifier `Å`
+7:3 Identifier `b`
+8:2 VarKeyword `var`
+8:6 Identifier `xs`
+8:8 Colon `:`
+8:10 Identifier `List`
+8:14 Less `<`
+8:15 Identifier `List`
+8:19 Less `<`
+8:20 Identifier `i64`
+8:23 Greater `>`
+8:24 Greater `>`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ // ok � in comment
+    │       ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  7 │ Å b
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ Å b
+    │   │ +

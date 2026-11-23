@@ -1,0 +1,5 @@
+let caf�é  1
+let café = 1;
+macro select become
+$"{a'\u{110000}'
+

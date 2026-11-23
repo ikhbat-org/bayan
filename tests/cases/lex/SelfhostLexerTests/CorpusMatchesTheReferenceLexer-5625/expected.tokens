@@ -1,0 +1,94 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:41 Identifier `n`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:1 Identifier `b`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `x`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+8:1 Identifier `B11`
+8:5 IntegerLiteral `5`
+8:6 NumericSuffix `if`
+8:9 ElseKeyword `else`
+8:14 UnlessKeyword `unless`
+8:21 SwitchKeyword `switch`
+8:28 CaseKeyword `case`
+8:33 DefaultKeyword `default`
+8:41 ForKeyword `for`
+8:45 InKeyword `in`
+8:48 WhileKeyword `while`
+8:54 DoKeyword `do`
+8:57 BreakKeyword `break`
+8:63 ContinueKeyword `continue`
+8:72 ReturnKeyword `return`
+8:79 YieldKeyword `yield`
+8:85 DeferKeyword `defer`
+8:91 ErrdeferKeyword `errdefer`
+8:100 UsingKeyword `using`
+8:106 ContextKeyword `context`
+9:4 Identifier `pen`
+9:8 OpenBrace `{`
+9:9 Identifier `x`
+9:10 StringLiteral `";`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  1 │ if else unless switch case default for �n while do break continue return yield defer errdefer using context
+    │                                        ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x� = 1
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │  ��� pen {x";
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  9 │  ��� pen {x";
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │  ��� pen {x";
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  9 │  ��� pen {x";
+    │            ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

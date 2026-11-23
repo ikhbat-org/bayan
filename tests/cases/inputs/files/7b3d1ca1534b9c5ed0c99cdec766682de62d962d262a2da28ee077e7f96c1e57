@@ -1,0 +1,9 @@
+let cfé = 2
+
+$"{}" let b = "bad \q escape"
+ 042 1_000_000 0xFF 0x_ff 0b101 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+ 1__
+
+cape"
+let c = """never closed
+$"{}"

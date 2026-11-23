@@ -1,0 +1,49 @@
+1:2 Equals `=`
+1:4 StringLiteral `"bad \q`
+2:1 CharLiteral `'\\'`
+2:6 CharLiteral `'\0'`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 ConstKeyword `const`
+4:86 LetKeyword `let`
+4:90 VarKeyword `var`
+4:94 EmbedKeyword `embed`
+4:100 ExternKeyword `extern`
+4:107 UnsafeKeyword `unsafe`
+    doc `/// Doc line two.`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `stray } here`
+6:15 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  = "bad \q
+    │    ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │  = "bad \q
+    │         ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  6 │ $"stray } here"
+    │         ^
+    │
+    │ 6 │ $"stray }} here"
+    │   │          +

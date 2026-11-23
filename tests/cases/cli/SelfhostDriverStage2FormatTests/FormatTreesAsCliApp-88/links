@@ -1,0 +1,2 @@
+link-through-dir/proj/sub -> ../real/deep
+link-through-dir/real/deep/f.byn -> ../g.byn

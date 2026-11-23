@@ -1,0 +1,82 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 Identifier `etension`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
+3:1 Identifier `_`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `x`
+3:5 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+4:1 CharLiteral `' '`
+4:4 Identifier `é`
+4:5 CharLiteral `' '`
+4:10 CharLiteral `' '`
+4:14 IntegerLiteral `0`
+4:15 CharLiteral `'`
+5:1 Identifier `le`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+7:1 InterpolationEnd `}`
+7:2 InterpolatedStringEnd
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ _$"x{ $"{
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ _$"x{ $"{
+    │       ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `\`
+
+  4 │ ' 'é' '\\' '\0'
+    │        ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ ' 'é' '\\' '\0'
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  4 │ ' 'é' '\\' '\0'
+    │             ^
+
+error BYN0008: unterminated char literal
+
+  4 │ ' 'é' '\\' '\0'
+    │               ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{1D}`
+
+  5 │ le� b = ` 2
+    │   ^
+
+error BYN0002: unexpected character ```
+
+  5 │ le� b = ` 2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �
+    │ ^

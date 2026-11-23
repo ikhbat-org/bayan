@@ -1,0 +1,44 @@
+    doc `///b\r`
+2:1 Amp `&`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 BarBar `||`
+2:11 Caret `^`
+2:13 Tilde `~`
+2:15 Bang `!`
+2:17 Equals `=`
+2:19 EqualsEquals `==`
+2:22 BangEquals `!=`
+2:25 Less `<`
+2:27 LessEquals `<=`
+2:30 Greater `>`
+2:32 GreaterEquals `>=`
+2:35 LessLess `<<`
+2:38 Greater `>`
+2:39 Greater `>`
+2:41 Greater `>`
+2:42 GreaterEquals `>=`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quo�ed"`
+4:1 Identifier `x́́`
+5:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │   raw "quo�ed"
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ � 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ � 
+    │  ^

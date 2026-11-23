@@ -1,0 +1,12 @@
+== coalesce-break-outside-loop
+BYN2406 3:20 `break` outside a loop |||
+fn find
+block 20..36
+  returnStmt 20..36
+    conditional 20..36 : i64?
+      binary 20..25 : bool
+        local 20..21 : i64
+        literal 24..25 : i64
+      conversion 28..29 : i64?
+        local 28..29 : i64
+      defaultValue 32..36 : i64?

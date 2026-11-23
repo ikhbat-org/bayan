@@ -1,0 +1,15 @@
+== helpers
+bynh_slice_span_i64 static bynt_span_i64 bynh_slice_span_i64(bynt_span_i64 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_i64 bynh_slice_span_i64(bynt_span_i64 x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(x.len, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_i64){x.ptr + from, to - from};
+}
+bynh_at_span_i64 static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_slice_str static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static byn_str bynh_slice_str(byn_str s, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(s.len, a, am, b, bm, incl, file, line, &from, &to);
+    return byn_str_slice(s, from, to, file, line);
+}

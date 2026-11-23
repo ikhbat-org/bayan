@@ -1,0 +1,54 @@
+1:1 IntegerLiteral `0xF6__`
+    doc `/// \r`
+5:1 CharLiteral `'`
+6:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF6__
+    │     ^^
+    │
+    │ 1 │ 0xF6__
+    │   │     --
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  2 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │ ��
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  5 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ����
+    │    ^

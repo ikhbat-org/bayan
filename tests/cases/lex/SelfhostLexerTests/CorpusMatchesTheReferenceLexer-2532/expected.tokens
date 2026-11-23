@@ -1,0 +1,22 @@
+1:1 Identifier `f`
+    doc `/// Doc �ne one.`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 Identifier `a`
+2:6 IntegerLiteral `600`
+2:9 InterpolationEnd `}`
+2:10 InterpolatedStringText `' ' `
+2:14 InterpolatedStringEnd
+2:14 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  1 │ f/// Doc �ne one.
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{a 600}' ' 
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

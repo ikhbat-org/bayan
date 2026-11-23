@@ -1,0 +1,13 @@
+1:1 Identifier `A`
+1:2 Tilde `~`
+1:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ �A~̊
+    │ ^
+
+error BYN0002: unexpected character `̊`
+
+  1 │ �A~̊
+    │    ^

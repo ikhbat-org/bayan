@@ -1,0 +1,4 @@
+== locals
+show: line x t t t t
+make: xs i t t
+main: middle prefix suffix empty whole t words letters w t joined w t t

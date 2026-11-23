@@ -1,0 +1,17 @@
+union error E {
+    bad
+    worse
+    worst
+}
+
+i64 check(i64 n) fails E {
+    fail .bad if n < 7
+    return n + 1 + 2
+}
+
+i64 count<T>(T v) {
+    var n: i64 = 7
+    return n
+}
+
+i64 both() => count(1) + count(true)

@@ -1,0 +1,6 @@
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+ {x";
+ 0b1ms
+
+""" /// Doc line two.
+0 0xFF 0x_ff 0a1010 0B11 5s 250ms 4

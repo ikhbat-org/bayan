@@ -1,0 +1,9 @@
+== case inline/names-dash
+errors 2
+error BYN3102: `name` must be a string `namespace/name` of lowercase words joined by `-`, e.g.
+`"local/tally"`
+  1 │ Package { name: "lo--cal/a-", version: "1.2" }
+    │                 ^^^^^^^^^^^^
+error BYN3102: `version` must be a semantic version string, e.g. `"0.1.0"`
+  1 │ Package { name: "lo--cal/a-", version: "1.2" }
+    │                                        ^^^^^

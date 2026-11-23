@@ -1,0 +1,9 @@
+2:1 CharLiteral `''`
+3:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

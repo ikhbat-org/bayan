@@ -1,0 +1,23 @@
+1:1 Identifier `각`
+3:1 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각 /*ạ̇struct unique unio enu flags open �extensible interface delegate extension derivation attribute
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각 /*ạ̇struct unique unio enu flags open �extensible interface delegate extension derivation attribute
+    │   │ +
+
+error BYN0004: unterminated block comment
+
+  1 │ 각 /*ạ̇struct unique unio enu flags open �extensible interface delegate extension derivation attribute
+    │     ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ 각 /*ạ̇struct unique unio enu flags open �extensible interface delegate extension derivation attribute
+    │                                            ^

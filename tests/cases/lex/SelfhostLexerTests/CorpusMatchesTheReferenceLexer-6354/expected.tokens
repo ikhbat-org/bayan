@@ -1,0 +1,68 @@
+1:1 Identifier `ạ̇struct`
+1:11 Identifier `S`
+3:1 Identifier `각`
+4:1 Identifier `Å`
+    doc `/// Doc line one.`
+6:2 Comma `,`
+6:4 Dot `.`
+6:5 Identifier `y`
+6:7 CloseParen `)`
+6:8 Dot `.`
+6:10 DotDotEquals `..=`
+6:14 Colon `:`
+6:16 Question `?`
+6:18 QuestionQuestion `??`
+6:21 QuestionQuestionEquals `??=`
+6:25 Question `?`
+6:27 FatArrow `=>`
+6:30 Arrow `->`
+6:33 At `@`
+6:35 Hash `#`
+7:2 EndOfFile
+
+error BYN0005: identifier `ạ̇struct` is not in Unicode normalization form C
+
+  1 │ ạ̇struct S
+    │ ^^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇struct S
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �
+    │ ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  3 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ 각
+    │   │ +
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ � /// Doc line one.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ � /// Doc line one.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ � /// Doc line one.
+    │  ^

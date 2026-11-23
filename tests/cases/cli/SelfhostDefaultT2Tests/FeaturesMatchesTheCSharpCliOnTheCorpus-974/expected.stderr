@@ -1,0 +1,9 @@
+error BYN2602: `parse` can fail; handle the error or pass it on
+  --> <repo>/tests/cases/diag/unhandled-failure.byn:10:9
+
+  10 │ let n = parse("1")
+     │         ^^^^^^^^^^
+     │
+  help: propagate the error with `try`, or handle it with `catch`
+     │ 10 │ let n = try parse("1")
+     │    │         ++++

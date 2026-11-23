@@ -1,0 +1,7 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/args/missing
+--sites
+<repo>/tmp/t13-mutate/args/prog.sites.json
+--
+true

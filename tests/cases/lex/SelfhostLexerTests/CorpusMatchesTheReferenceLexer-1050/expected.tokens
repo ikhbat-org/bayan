@@ -1,0 +1,64 @@
+2:1 LetKeyword `let`
+2:4 Question `?`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `total `
+4:9 InterpolationStart `{`
+4:10 Identifier `x`
+4:11 InterpolationEnd `}`
+4:12 InterpolatedStringEnd `"`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolatedStringText `a `
+4:18 InterpolationStart `{`
+4:19 Identifier `f`
+4:20 OpenParen `(`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolatedStringText `b `
+4:25 InterpolationStart `{`
+4:26 CStringLiteral `c")} d"`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolatedStringText `{{literal}}`
+4:47 InterpolatedStringEnd `"`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolationStart `{`
+4:52 Identifier `Point`
+4:58 OpenBrace `{`
+4:60 Identifier `x`
+4:62 Equals `=`
+4:64 IntegerLiteral `1`
+4:66 CloseBrace `}`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringText `!`
+4:69 InterpolatedStringEnd `"`
+4:71 InterpolatedStringStart `$"`
+4:73 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ ����
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"total {x}" $"a {f($"b {c")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                     ^^ this string never ends
+    │
+  help: close the `{` and the string

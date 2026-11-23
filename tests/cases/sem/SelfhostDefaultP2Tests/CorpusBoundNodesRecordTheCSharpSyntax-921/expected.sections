@@ -1,0 +1,13 @@
+== tests/cases/diag/unique-const.byn
+111..205 blockStmt
+117..141 localDecl
+127..141 structLiteralExpr
+138..139 literalExpr integer
+146..187 localDecl
+156..187 structLiteralExpr
+171..185 structLiteralExpr
+182..183 literalExpr integer
+192..203 localDecl
+202..203 literalExpr integer
+83..97 structLiteralExpr
+94..95 literalExpr integer

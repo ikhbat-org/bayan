@@ -1,0 +1,9 @@
+== diags.diag/borrow-then-mutated-in-initializer
+BYN3004 37:57 `w` is modified while `sp` still borrows it
+  label `sp` is used again on line 38
+  help finish using `sp` first, or copy what it needs before changing `w`
+BYN3004 41:50 `b` is modified while `d` still borrows it
+  label `d` is used again on line 42
+  help finish using `d` first, or copy what it needs before changing `b`
+returns first 0
+returns pick 0

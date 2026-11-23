@@ -1,0 +1,7 @@
+Package {
+    name:    "local/catalog",
+    version: "0.1.0",
+    grammar: Grammar {
+        verbs: ["upsert", "reindex"],
+    },
+}

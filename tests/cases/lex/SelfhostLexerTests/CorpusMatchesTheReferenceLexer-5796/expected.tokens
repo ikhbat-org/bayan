@@ -1,0 +1,125 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 StringLiteral `$"{$"`
+1:55 OpenBrace `{`
+1:56 StringLiteral `$"{$"`
+1:61 OpenBrace `{`
+1:62 StringLiteral `$"{x}"`
+1:68 CloseBrace `}`
+1:69 StringLiteral `"}"`
+1:72 CloseBrace `}`
+1:73 StringLiteral `"}"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:87 StructKeyword `struct`
+1:94 UniqueKeyword `unique`
+1:101 UnionKeyword `union`
+1:107 EnumKeyword `enum`
+1:112 FlagsKeyword `flags`
+1:118 OpenKeyword `open`
+1:123 Identifier `extensib`
+1:131 CloseBracket `]`
+1:132 Identifier `le`
+1:135 InterfaceKeyword `interface`
+1:145 DelegateKeyword `delegate`
+1:154 ExtensionKeyword `extension`
+1:164 DerivationKeyword `derivation`
+1:175 AttributeKeyword `attribute`
+3:1 IntegerLiteral `1`
+3:2 Dot `.`
+3:4 Identifier `x`
+3:5 Dot `.`
+3:6 Identifier `y`
+3:8 FloatLiteral `2.5`
+3:11 NumericSuffix `f`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │                                                     ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │                                                                                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │                                                                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │                                                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"����struct unique union enum flags open extensib]le interface delegate extension derivation attribute
+    │                                                                                            ^

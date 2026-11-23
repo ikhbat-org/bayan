@@ -1,0 +1,6 @@
+== 1 exit 0
+created script `$WORK/hi.byn`; run it with `bayan $WORK/hi.byn`
+== 2 exit 0
+Salam, world!
+== 3 exit 0
+hi.byn is executable

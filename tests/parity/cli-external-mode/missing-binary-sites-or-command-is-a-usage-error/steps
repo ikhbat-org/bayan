@@ -1,0 +1,1 @@
+$ for a in "--sites $WORK/prog.sites.json -- true" "--binary $WORK/prog -- true" "--binary $WORK/prog --sites $WORK/prog.sites.json" "--binary $WORK/prog --sites $WORK/prog.sites.json --"; do $BAYAN mutate $a > /dev/null 2> err.txt; echo "mutate $a: $? $(grep -c 'usage: bayan mutate' err.txt)"; done

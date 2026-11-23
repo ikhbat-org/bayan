@@ -1,0 +1,38 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 Identifier `alet`
+2:9 Identifier `x`
+2:12 Equals `=`
+3:2 CharLiteral `'\u{1F600}'`
+3:14 CharLiteral `'\''`
+3:19 CharLiteral `'`
+3:20 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{alet x� = 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ $"{alet x� = 
+    │          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ $"{alet x� = 
+    │   │          -
+
+error BYN0008: unterminated char literal
+
+  3 │  '\u{1F600}' '\'' '
+    │                   ^
+    │
+  help: close it with `'`

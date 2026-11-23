@@ -1,0 +1,20 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `effect`
+1:9 Equals `=`
+1:10 IntegerLiteral `2`
+2:1 Identifier `Yacro`
+2:7 Identifier `select`
+2:14 Identifier `beome`
+2:21 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolationEnd `}`
+4:5 InterpolatedStringEnd `"`
+4:6 EndOfFile
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ Yacro select beome  2
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

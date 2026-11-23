@@ -1,0 +1,4 @@
+== diags.diag/pointer-outside-extern
+BYN1067 1:11 pointer types are allowed only in `extern` declarations
+  label a pointer type
+  help wrap the C call in an `extern` declaration

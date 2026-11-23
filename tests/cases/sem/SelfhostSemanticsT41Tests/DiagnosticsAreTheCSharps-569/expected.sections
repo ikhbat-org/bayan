@@ -1,0 +1,16 @@
+== diags.diag/function-type-placement-declarations
+BYN2822 15:12 a function type is not supported as a union payload yet
+  help take the function as a parameter instead
+BYN2822 11:9 a function type is not supported as an error payload yet
+  help take the function as a parameter instead
+BYN2822 7:5 a function type is not supported as a property yet
+  help take the function as a parameter instead
+BYN2822 19:10 a function type is not supported as a constant yet
+  help take the function as a parameter instead
+BYN2019 19:17 `isBig` is a function, not a value
+  help call it: `isBig(…)`
+BYN2019 7:15 `isBig` is a function, not a value
+  help call it: `isBig(…)`
+BYN2822 26:19 a function type is not supported as the value of an optional yet
+  label the generic code needs this of its type arguments
+  help take the function as a parameter instead

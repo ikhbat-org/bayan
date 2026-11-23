@@ -1,0 +1,2 @@
+PATH=tmp/t9-cache/rt-damaged-bin:$PATH
+CCLOG=<root>/cc.log

@@ -1,0 +1,28 @@
+== tests/cases/diag/ref-out-escape-two-levels.byn
+34..47 blockStmt
+40..45 assignStmt assign target 40..41 value 44..45
+40..41 nameExpr
+44..45 nameExpr
+83..106 blockStmt
+89..104 exprStmt
+89..104 callExpr
+91..92 nameExpr
+102..103 nameExpr
+120..274 blockStmt
+126..139 localDecl
+137..139 literalExpr string
+144..256 blockStmt
+154..179 localDecl
+172..179 callExpr
+188..220 localDecl
+199..220 callExpr
+199..204 literalExpr string
+214..219 nameExpr
+229..250 exprStmt
+229..250 callExpr
+231..235 nameExpr
+245..249 nameExpr
+261..272 exprStmt
+261..272 callExpr
+267..271 nameExpr
+261..272 callExpr

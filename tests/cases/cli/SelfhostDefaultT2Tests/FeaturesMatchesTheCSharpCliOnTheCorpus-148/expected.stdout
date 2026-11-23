@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "GuardedStmt",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "IoMonotonicNanos",
+    "IoStderr",
+    "IoStdout",
+    "IoWrite",
+    "Print"
+  ],
+  "diagnostics": []
+}

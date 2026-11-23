@@ -1,0 +1,38 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 Identifier `att`
+1:92 Identifier `ribute`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolationEnd `}`
+3:5 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ struct unique union enum flags open extensible interface delegate extension derivation att�ribute
+    │                                                                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ �
+    │  ^

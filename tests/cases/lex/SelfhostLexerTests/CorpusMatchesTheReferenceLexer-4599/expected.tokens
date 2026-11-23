@@ -1,0 +1,23 @@
+4:1 StringLiteral `"a\u{2067}b"`
+4:6 LetKeyword `let`
+4:10 Identifier `b`
+4:12 Equals `=`
+4:16 IntegerLiteral `2`
+5:2 Equals `=`
+5:4 LessLessEquals `<<=`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -
+
+error BYN0002: unexpected character ```
+
+  4 │ "a�b"let b = ` 2
+    │              ^

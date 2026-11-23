@@ -1,0 +1,31 @@
+1:1 Identifier `ạ̇`
+2:1 LetKeyword `let`
+2:5 Identifier `caf́`
+2:10 Equals `=`
+2:12 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+5:2 RawStringLiteral `""" a /* never closed\r\n `
+6:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  5 │  """ a /* never closed
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,11 @@
+error BYN2771: `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+  --> <repo>/tmp/t2/diag/invalid-main-signature/invalid-main-signature.byn:1:8
+
+  1 │ string main(i64 count) {
+    │        ^^^^
+    │
+  help: write `void main()`, `i32 main()`, `void main(ReadOnlySpan<string> args)` or
+        `i32 main(ReadOnlySpan<string> args)`, each optionally with `fails`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2771

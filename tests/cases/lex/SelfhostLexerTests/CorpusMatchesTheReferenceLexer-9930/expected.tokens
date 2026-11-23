@@ -1,0 +1,43 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"esc \"q\" \\ \n"`
+6:26 RawStringLiteral `"""\nlet a = "open\n `
+8:2 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 2
+    │         ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

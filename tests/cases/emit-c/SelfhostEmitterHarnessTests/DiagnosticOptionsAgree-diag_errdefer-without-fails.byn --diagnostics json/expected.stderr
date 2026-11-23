@@ -1,0 +1,1 @@
+{"code":"BYN2606","severity":"error","file":"input.byn","span":{"start":15,"end":28,"line":2,"column":5,"endLine":2,"endColumn":18},"message":"`defer failing` in a function that cannot fail","label":null,"help":"remove `failing` to run it on every exit, or add a `fails` clause to the function","fixes":[]}

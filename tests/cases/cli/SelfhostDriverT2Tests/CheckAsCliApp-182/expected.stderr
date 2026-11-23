@@ -1,0 +1,69 @@
+warning BYN5104: `person` holds a collection; name it with a plural, `people`
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:6:23
+
+  6 │     public List<Line> person
+    │                       ^^^^^^
+    │
+  help: rename it `people`
+    │ 6 │     public List<Line> people
+    │   │                         ++++
+
+warning BYN5104: `people` holds one `Line`; name it with a singular noun
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:7:17
+
+  7 │     public Line people
+    │                 ^^^^^^
+    │
+  help: rename it `person`
+    │ 7 │     public Line person
+    │   │                   ++++
+
+warning BYN5104: `child` holds a collection; name it with a plural, `children`
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:8:23
+
+  8 │     public List<Line> child
+    │                       ^^^^^
+    │
+  help: rename it `children`
+    │ 8 │     public List<Line> children
+    │   │                            +++
+
+warning BYN5105: `peopleCount` counts items; name it `personCount`
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:9:16
+
+  9 │     public i64 peopleCount
+    │                ^^^^^^^^^^^
+    │
+  help: rename it `personCount`
+    │ 9 │     public i64 personCount
+    │   │                  ++++
+
+warning BYN5105: `childrenCount` counts items; name it `childCount`
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:10:16
+
+  10 │     public i64 childrenCount
+     │                ^^^^^^^^^^^^^
+     │
+  help: rename it `childCount`
+     │ 10 │     public i64 childrenCount
+     │    │                     ---
+
+warning BYN5105: `numIndices` counts items; name it `indexCount`
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:11:16
+
+  11 │     public i64 numIndices
+     │                ^^^^^^^^^^
+     │
+  help: rename it `indexCount`
+     │ 11 │     public i64 indexCount
+     │    │                ++++++++++
+
+warning BYN5105: `numberOfMatrices` counts items; name it `matrixCount`
+  --> <repo>/tmp/t2/diag/number-agreement-irregular/number-agreement-irregular.byn:12:16
+
+  12 │     public i64 numberOfMatrices
+     │                ^^^^^^^^^^^^^^^^
+     │
+  help: rename it `matrixCount`
+     │ 12 │     public i64 matrixCount
+     │    │                +++++++++++

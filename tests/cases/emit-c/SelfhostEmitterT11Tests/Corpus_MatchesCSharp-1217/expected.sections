@@ -1,0 +1,7 @@
+== cases
+0 p_xs.len
+1 bynh_add_list_i64(&l3_xs, ((int64_t)l4_k))
+2 ((int64_t)l4_k)
+3 (l10_j < ((int32_t)2))
+4 l15_items.len
+count 5

@@ -1,0 +1,5 @@
+== s52
+switchExpr|i64|4237:49
+value local:NetError=ne
+arm 4249:27 errorPattern[4249:22]:NetError guard - value local:i64=k
+arm 4278:6 bindPattern[4278:1]:NetError_(-) guard - value literal:i64=0

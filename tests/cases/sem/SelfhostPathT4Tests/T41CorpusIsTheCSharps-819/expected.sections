@@ -1,0 +1,4 @@
+== diags.diag/validation-error-missing-arm
+BYN2410 18:25 `switch` does not handle every `ValidationError<Signup> | ValidationError<Address>`
+  label not covered: ValidationError<Address>
+  help add the missing arms, or `_ => …` for the rest

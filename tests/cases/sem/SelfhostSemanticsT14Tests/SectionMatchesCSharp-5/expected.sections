@@ -1,0 +1,23 @@
+== sameShape
+r1 r1 yes
+r1 g no
+s1 r1 no
+r1 s1 yes
+r1 r2 no
+e1 r2 yes
+r2 e1 yes
+p1 r1 no
+p1 p2 no
+p1 p3 no
+p2 p2 yes
+r1 f1 no
+f1 f2 yes
+f1 f3 no
+f4 f5 yes
+f4 f1 no
+f1 f4 no
+f6 f1 no
+f1 f6 no
+f7 f3 yes
+f3 f7 yes
+m1 m3 yes

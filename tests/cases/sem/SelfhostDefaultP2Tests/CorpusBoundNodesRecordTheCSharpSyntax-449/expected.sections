@@ -1,0 +1,26 @@
+== tests/cases/diag/effect-not-declared.byn
+31..61 blockStmt
+37..59 exprStmt
+37..59 callExpr
+43..58 interpolatedExpr
+52..56 nameExpr
+37..59 callExpr
+108..158 blockStmt
+114..125 exprStmt
+114..125 callExpr
+120..124 nameExpr
+114..125 callExpr
+130..156 returnStmt value 137..156
+137..156 callExpr
+174..199 blockStmt
+180..197 exprStmt
+180..197 callExpr
+186..196 literalExpr string
+180..197 callExpr
+227..243 blockStmt
+233..241 exprStmt
+233..241 callExpr
+264..282 blockStmt
+270..280 exprStmt
+270..280 callExpr
+276..279 literalExpr string

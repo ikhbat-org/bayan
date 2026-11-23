@@ -1,0 +1,35 @@
+error BYN2780: implicit copy of a unique value: `List<i64>` is unique: it owns its storage
+  --> input.byn:6:13
+
+  6 │     let b = a
+    │             ^
+    │
+  help: hand the value over with `move a`; make an independent copy with `a.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+    │ 6 │     let b = move a
+    │   │             +++++
+
+error BYN2780: implicit copy of a unique value: `Map<string, i64>` is unique: it owns its storage
+  --> input.byn:8:13
+
+  8 │     let n = m
+    │             ^
+    │
+  help: hand the value over with `move m`; make an independent copy with `m.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+    │ 8 │     let n = move m
+    │   │             +++++
+
+error BYN2780: implicit copy of a unique value: `StrBuf` is unique: it owns its storage
+  --> input.byn:11:17
+
+  11 │     let other = sb
+     │                 ^^
+     │
+  help: hand the value over with `move sb`; make an independent copy with `sb.copy(to: alloc)`; pass
+        it by `ref` to share it instead
+     │ 11 │     let other = move sb
+     │    │                 +++++
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2780

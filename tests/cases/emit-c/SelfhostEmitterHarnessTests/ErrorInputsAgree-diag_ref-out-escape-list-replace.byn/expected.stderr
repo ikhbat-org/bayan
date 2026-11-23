@@ -1,0 +1,13 @@
+error BYN3002: `ys` does not live as long as `kept`, which borrows it
+  --> input.byn:11:9
+
+   2 │     xs.replace(at: 0..0, by: ys)
+     │                              -- `keep` stores `ys` into `xs` here
+     │
+  11 │         keep(ys, to: ref kept)
+     │         ^^^^^^^^^^^^^^^^^^^^^^ `ys` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3002

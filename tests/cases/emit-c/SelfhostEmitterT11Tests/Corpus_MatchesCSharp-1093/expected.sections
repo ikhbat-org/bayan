@@ -1,0 +1,8 @@
+== cases
+0 byn_w_str(&l0_buf, BYN_STR("hello", 5))
+1 byn_str_copy(byn_strbuf_str(l0_buf), byn_context)
+2 byn_strbuf_str(l0_buf)
+3 (l0_buf.len = 0)
+4 byn_w_str(&l0_buf, BYN_STR("XXXXX", 5))
+5 byn_str_copy(BYN_STR("arena", 5), byn_arena_alloc(l0_arena))
+count 6

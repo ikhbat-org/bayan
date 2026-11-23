@@ -1,0 +1,7 @@
+built in 1.23s · 10.5s
+v1.2.3s keep 1.5sx
+cache/v1/tmp/0123456789abcdef-0123456789abcdef0123456789abcdef
+key 0123456789abcdef-0123456789abcdef0123456789abcdefa
+bayan: cannot write the build output or cache (/x/cache): Access to the path is denied.
+bayan: cannot read `a.byn`: Could not find file.
+bayan: cannot run: keep this

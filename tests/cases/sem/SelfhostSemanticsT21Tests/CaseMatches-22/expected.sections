@@ -1,0 +1,2 @@
+== call.b6
+builtinCall|void|local:List<i64>=ns|listRemoveAtRange|1952:19|range:Range<i64>

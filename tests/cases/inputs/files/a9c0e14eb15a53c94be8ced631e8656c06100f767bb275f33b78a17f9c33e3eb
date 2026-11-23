@@ -1,0 +1,37 @@
+struct Box {
+    string s
+
+    void give(to ref string t) {
+        t = s
+    }
+
+    void fill(ref this, to Span<string> xs) {
+        xs[0] = s
+    }
+}
+
+void many(string a, by string b, to ref string x, at ref string y) {
+    y = a
+    x = b
+    x = a
+    y = b
+}
+
+string make(Arena a) => "x".copy(to: a)
+
+string make2(Arena a) => make(a)
+
+void main() {
+    var kept = ""
+    var kept2 = ""
+    {
+        using let arena = Arena()
+        let n1 = "a".copy(to: arena)
+        let n2 = "b".copy(to: arena)
+        many(n1, by: n2, to: ref kept, at: ref kept2)
+        let local = Box { s: n1 }
+        local.give(to: ref kept)
+        kept = make2(arena)
+    }
+    print($"{kept}{kept2}")
+}

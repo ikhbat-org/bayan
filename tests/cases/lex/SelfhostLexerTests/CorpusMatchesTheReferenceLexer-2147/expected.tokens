@@ -1,0 +1,35 @@
+1:3 Identifier `_`
+1:5 IntegerLiteral `0b10`
+3:2 Identifier `hidden`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:7 Slash `/`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+5:1 Identifier `é`
+5:4 Identifier `b1`
+5:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  3 │ � hidden
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ let x�/ = 1
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  4 │ let x�/ = 1
+    │       ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  5 │ é b1
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ é b1
+    │   │ +

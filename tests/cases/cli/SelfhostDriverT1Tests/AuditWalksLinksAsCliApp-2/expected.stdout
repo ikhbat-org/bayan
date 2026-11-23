@@ -1,0 +1,3 @@
+<repo>/tmp/t6-audit/parent-link/dir/link/outside.byn:1:1  unsafe void prod()  no reason given
+<repo>/tmp/t6-audit/parent-link/dir/main.byn:1:1  unsafe void peek()  no reason given
+◆ 2 bypasses in <repo>/tmp/t6-audit/parent-link/dir

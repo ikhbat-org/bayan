@@ -1,0 +1,21 @@
+== body misc
+block 849..996
+  deferStmt 855..860
+    block 861..868
+  assertStmt 873..884
+    literal 880..884 : bool = true
+  assertStmt 889..897
+    local 896..897 : bool p
+  errorStmt 902..910
+  assertStmt 915..924
+    errorExpr 922..924 : ?
+  errorStmt 929..945
+  errorStmt 950..967
+  errorStmt 972..994
+local p 0 3 bool using false keyword - const -
+BYN2775 72:12 `assert` needs a `bool`, got `i32` |this is not a `bool`|check the value against what you expect, e.g. `assert count == 3`|
+BYN2001 73:12 `zz` is not defined |||
+BYN2605 74:12 `assert … fails` needs a call that can fail |||
+BYN2001 75:12 `zz` is not defined |||
+BYN2605 76:12 `assert … fails` needs a call that can fail |||
+handled -

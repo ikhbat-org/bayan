@@ -1,0 +1,73 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `total `
+3:10 InterpolationStart `{`
+3:11 Identifier `x`
+3:12 InterpolationEnd `}`
+3:13 InterpolatedStringEnd `"`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolatedStringText `a `
+3:19 InterpolationStart `{`
+3:20 Identifier `f`
+3:21 OpenParen `(`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolatedStringText `b `
+3:26 InterpolationStart `{`
+3:27 Identifier `c`
+3:28 InterpolationEnd `}`
+3:29 InterpolatedStringEnd `"`
+3:30 CloseParen `)`
+3:31 InterpolationEnd `}`
+3:32 InterpolatedStringText ` d`
+3:34 InterpolatedStringEnd `"`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 Identifier `literal`
+3:46 InterpolationEnd `}`
+3:47 InterpolatedStringText `}`
+3:48 InterpolatedStringEnd `"`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 Identifier `Point`
+3:59 OpenBrace `{`
+3:61 Identifier `x`
+3:63 Equals `=`
+3:65 IntegerLiteral `1`
+3:67 CloseBrace `}`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringText `!`
+3:70 InterpolatedStringEnd `"`
+3:72 InterpolatedStringStart `$"`
+3:74 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ �$"total {x}" $"a {f($"b {c}")} d" $"{�literal}}" $"{Point { x = 1 }}!" $""
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �$"total {x}" $"a {f($"b {c}")} d" $"{�literal}}" $"{Point { x = 1 }}!" $""
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xAD)
+
+  3 │ �$"total {x}" $"a {f($"b {c}")} d" $"{�literal}}" $"{Point { x = 1 }}!" $""
+    │                                       ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ �$"total {x}" $"a {f($"b {c}")} d" $"{�literal}}" $"{Point { x = 1 }}!" $""
+    │                                                ^
+    │
+    │ 3 │ �$"total {x}" $"a {f($"b {c}")} d" $"{�literal}}}" $"{Point { x = 1 }}!" $""
+    │   │                                                 +

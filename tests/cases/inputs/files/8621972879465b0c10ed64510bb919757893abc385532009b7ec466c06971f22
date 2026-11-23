@@ -1,0 +1,11 @@
+let b = "bad \q escape"
+
+et a = $ 1
+let b = ` 2
+let c =  3
+   comment */ a
+ øˆ€€€
+$"open {x";
+ 0 42 1_000_000 0xFF 0x_ff 0b101< 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+ 'ab'
+'â€®'

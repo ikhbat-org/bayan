@@ -1,0 +1,2 @@
+== call.c4
+builtinCall|i64?|local:string|intTryParse|-|1427:15|enumMember:Radix=decimal

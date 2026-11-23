@@ -1,0 +1,22 @@
+1:1 Identifier `ạ̇`
+2:1 CharLiteral `'a'`
+2:5 CharLiteral `'\n'`
+2:10 CharLiteral `'\u{1F600}'`
+2:22 CharLiteral `'\''`
+2:27 CharLiteral `'é'`
+2:31 CharLiteral `'\\'`
+2:36 CharLiteral `'\0'`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+6:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ +

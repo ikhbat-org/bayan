@@ -1,0 +1,5 @@
+== diags.diag/lambda-nested-it
+BYN2029 13:42 `it` inside a lambda that already uses `it`; name one lambda
+  help name the lambda's parameter: `x => …`
+BYN2029 18:35 `it` inside a lambda that already uses `it`; name one lambda
+  help name the inner lambda's parameter: `x => …`

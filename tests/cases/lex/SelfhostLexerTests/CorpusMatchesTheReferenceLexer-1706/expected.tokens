@@ -1,0 +1,77 @@
+1:2 StringLiteral `"{`
+2:2 OpenBrace `{`
+2:4 Amp `&`
+2:6 AmpAmp `&&`
+2:9 Bar `|`
+2:11 BarBar `||`
+2:14 Caret `^`
+2:16 Tilde `~`
+2:18 Bang `!`
+2:20 Equals `=`
+2:22 EqualsEquals `==`
+2:25 BangEquals `!=`
+2:28 Less `<`
+2:30 LessEquals `<=`
+2:33 Greater `>`
+2:35 GreaterEquals `>=`
+2:38 LessLess `<<`
+2:41 Greater `>`
+2:42 Greater `>`
+2:44 Greater `>`
+2:45 GreaterEquals `>=`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+4:6 CharLiteral `'`
+4:7 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �"{
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �"{
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ����{ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ����{ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����{ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ����{ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a�'
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ $"{a�'
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  4 │ $"{a�'
+    │      ^
+    │
+  help: close it with `'`

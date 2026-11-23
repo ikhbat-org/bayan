@@ -1,0 +1,5 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if a {
+    print("x")
+}

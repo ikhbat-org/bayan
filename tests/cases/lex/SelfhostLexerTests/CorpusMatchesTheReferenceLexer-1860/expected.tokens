@@ -1,0 +1,131 @@
+1:1 LetKeyword `let`
+1:5 Identifier `Js`
+1:8 Equals `=`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 StringLiteral `"{$"`
+1:20 OpenBrace `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 InterpolatedStringStart `$"`
+1:59 InterpolationStart `{`
+1:60 InterpolatedStringStart `$"`
+1:62 InterpolationStart `{`
+1:63 StringLiteral `$"{$"`
+1:68 OpenBrace `{`
+1:69 Identifier `x`
+1:70 CloseBrace `}`
+1:71 StringLiteral `"}"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringText `�`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 InterpolationEnd `}`
+1:88 InterpolatedStringEnd `"`
+1:89 InterpolationEnd `}`
+1:90 InterpolatedStringEnd `"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+1:99 InterpolationEnd `}`
+1:100 InterpolatedStringEnd `"`
+1:101 InterpolationEnd `}`
+1:102 InterpolatedStringEnd `"`
+1:103 CloseBrace `}`
+1:104 StringLiteral `"}"`
+1:107 InterpolationEnd `}`
+1:108 InterpolatedStringEnd `"`
+1:109 InterpolationEnd `}`
+1:110 InterpolatedStringEnd `"`
+3:1 IntegerLiteral `0`
+3:2 CloseBrace `}`
+3:3 CharLiteral `'\r`
+4:1 CharLiteral `'x\r`
+5:2 IntegerLiteral `0b1`
+5:5 NumericSuffix `ms`
+7:2 CloseBrace `}`
+7:3 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let Js = $"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                               ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  1 │ let Js = $"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}�"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                   ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 0}'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ ���0b1ms
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │ ���0b1ms
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���0b1ms
+    │   ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │ ���0b1ms
+    │       ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

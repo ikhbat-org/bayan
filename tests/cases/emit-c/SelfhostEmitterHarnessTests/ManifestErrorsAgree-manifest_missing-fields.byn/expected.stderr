@@ -1,0 +1,14 @@
+error BYN3103: `package.byn` has no `name`
+  --> package.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^
+
+error BYN3103: `package.byn` has no `version`
+  --> package.byn:1:1
+
+  1 │ Package {
+    │ ^^^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3103

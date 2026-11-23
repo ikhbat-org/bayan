@@ -1,0 +1,12 @@
+1:1 StringLiteral `" "`
+1:4 Identifier `esc`
+1:8 StringLiteral `"q\" \\ \n"`
+1:20 RawStringLiteral `"""\n  raw "quoted"\n  \n_ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 0xFFs\n 00}'\n'\u{110000}'\n'x\n\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ " "esc "q\" \\ \n" """
+    │                    ^^^ raw string starts here
+    │
+  help: close it with `"""`

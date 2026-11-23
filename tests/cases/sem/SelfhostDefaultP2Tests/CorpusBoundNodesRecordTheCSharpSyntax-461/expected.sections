@@ -1,0 +1,6 @@
+== tests/cases/diag/env-unknown-member.byn
+70..99 globalStatement
+70..99 exprStmt
+70..99 callExpr
+76..98 binaryExpr coalesce right 96..98
+70..99 callExpr

@@ -1,0 +1,4 @@
+== tests/cases/diag/nested-optional.byn
+23..48 globalStatement
+23..48 localDecl
+44..48 literalExpr nullKeyword

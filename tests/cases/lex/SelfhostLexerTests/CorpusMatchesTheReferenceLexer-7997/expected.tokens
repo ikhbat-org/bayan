@@ -1,0 +1,8 @@
+1:1 IntegerLiteral `0`
+1:2 Identifier `x`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ 0�x
+    │  ^

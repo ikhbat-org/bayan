@@ -1,0 +1,9 @@
+�
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+0x
+ let effect = 2
+ let a = 1
+'\u{D800}'
+1__
+ ﻿

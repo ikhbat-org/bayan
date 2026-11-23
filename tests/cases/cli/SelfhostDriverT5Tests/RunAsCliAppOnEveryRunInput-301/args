@@ -1,0 +1,4 @@
+run
+--mode
+debug
+<repo>/tmp/t5/run/run_switch-move-loop/switch-move-loop.byn

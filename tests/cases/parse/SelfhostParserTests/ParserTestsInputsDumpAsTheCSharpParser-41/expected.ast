@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (catch (call f) (block {Assign y = 1} {Assign z = 2}))

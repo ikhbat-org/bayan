@@ -1,0 +1,36 @@
+error BYN7010: `pay` declares `becomes .paid` but takes `move this is .draft`; a transition needs
+`ref this`
+  --> input.byn:8:14
+
+  8 │     void pay(move this is .draft, i64 amount) becomes .paid {
+    │              ^^^^^^^^^^^^^^^^^^^
+    │
+  help: change the receiver of `pay` to `ref this`, or return the new state as a value
+    │ 8 │     void pay(ref this is .draft, i64 amount) becomes .paid {
+    │   │              +++
+
+error BYN7010: `ship` declares `becomes .shipped` but takes `move this`; a transition needs
+`ref this`
+  --> input.byn:11:15
+
+  11 │     void ship(move this) becomes .shipped {
+     │               ^^^^^^^^^
+     │
+  help: change the receiver of `ship` to `ref this`, or return the new state as a value
+     │ 11 │     void ship(ref this) becomes .shipped {
+     │    │               +++
+
+error BYN2202: expected `string`, found `i64`
+  --> input.byn:18:11
+
+  18 │     print(order.id)
+     │           ^^^^^^^^
+
+error BYN2202: expected `string`, found `i64`
+  --> input.byn:22:11
+
+  22 │     print(order.payment)
+     │           ^^^^^^^^^^^^^
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN7010

@@ -1,0 +1,48 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 Identifier `x`
+1:13 InterpolationEnd `}`
+1:14 InterpolatedStringEnd `"`
+1:15 InterpolationEnd `}`
+1:16 InterpolatedStringEnd `"`
+1:17 CloseBrace `}`
+1:18 StringLiteral `"}"`
+1:21 CloseBrace `}`
+1:22 StringLiteral `"}"`
+1:25 CloseBrace `}`
+1:26 StringLiteral `"}"`
+1:29 CloseBrace `}`
+1:30 StringLiteral `"}"`
+1:35 Identifier `raw`
+1:39 StringLiteral `"quoted"`
+3:1 CharLiteral `'\u{202E}'`
+3:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  1 │ "{$"{$"{$"{x�}"}"}"}"}"}"}"}"}"}"  raw "quoted"
+    │             ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  // �x
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  // �x
+    │   │     -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ '�' 
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ '�' 
+    │   │  -

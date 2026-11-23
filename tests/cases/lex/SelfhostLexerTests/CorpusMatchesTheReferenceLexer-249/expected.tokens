@@ -1,0 +1,43 @@
+1:1 Identifier `oted`
+1:5 StringLiteral `"`
+2:3 RawStringLiteral `""" ct�xt" u16"wde" "\u{202E} all $"{{"\n/* block\n \u{2066} \u{FEFF} ���� `
+4:8 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ oted"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │   """ ct�xt" u16"wde" "� all $"{{"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  2 │   """ ct�xt" u16"wde" "� all $"{{"
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │  � ﻿ ���� 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │  � ﻿ ���� 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  � ﻿ ���� 
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  � ﻿ ���� 
+    │         ^

@@ -1,0 +1,6 @@
+== tests/cases/diag/literal-out-of-range.byn
+0..15 globalStatement
+0..15 localDecl
+12..15 literalExpr integer
+16..32 localDecl
+29..32 literalExpr integer

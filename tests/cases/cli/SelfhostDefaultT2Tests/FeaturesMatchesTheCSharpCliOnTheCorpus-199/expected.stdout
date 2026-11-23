@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ConditionalExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "ListAdd",
+    "Print",
+    "SpanLength",
+    "StringBytes"
+  ],
+  "diagnostics": []
+}

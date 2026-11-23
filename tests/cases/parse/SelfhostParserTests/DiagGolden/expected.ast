@@ -1,0 +1,37 @@
+CompilationUnit
+  Function main(ReadOnlySpan<string> args) -> void
+    Block
+      Let x = (> (. args length) 0)
+      If x
+        If x
+          Expr (call print "a")
+
+error BYN1017: parentheses around a condition are an input form
+
+  3 │     if (x) if (x) print("a")
+    │        ^^^ not needed
+    │
+  help: remove the parentheses
+
+error BYN1018: the body of `if` must be a block
+
+  3 │     if (x) if (x) print("a")
+    │            ^^^^^^^^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+
+error BYN1017: parentheses around a condition are an input form
+
+  3 │     if (x) if (x) print("a")
+    │               ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 3 │     if (x) if x { print("a") }
+    │   │               ++++++++++++++++
+
+error BYN1018: the body of `if` must be a block
+
+  3 │     if (x) if (x) print("a")
+    │                   ^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`

@@ -1,0 +1,47 @@
+1:1 CharLiteral `'\u{110000}'`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+5:2 TestKeyword `test`
+5:7 AssertKeyword `assert`
+5:14 PropertyKeyword `property`
+5:23 FuzzKeyword `fuzz`
+5:28 ModelKeyword `model`
+5:34 ForeachKeyword `foreach`
+5:42 NewKeyword `new`
+5:46 GotoKeyword `goto`
+6:5 Identifier `comment`
+6:13 Star `*`
+6:14 Slash `/`
+6:16 Identifier `a`
+7:2 Identifier `r`
+7:4 Identifier `closed`
+8:1 Identifier `b`
+9:2 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `‏`
+
+  5 │ ‏test assert property fuzz model foreach new goto
+    │ ^

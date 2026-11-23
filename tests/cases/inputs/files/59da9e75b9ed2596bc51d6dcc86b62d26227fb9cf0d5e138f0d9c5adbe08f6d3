@@ -1,0 +1,17 @@
+struct Box {
+    (string a, i64 n) t
+
+    void put(ref this, string v) {
+        t.a = v
+    }
+}
+
+void main() {
+    var b = Box { t: (a: "", n: 1) }
+    {
+        using let arena = Arena()
+        let name = "ann".copy(to: arena)
+        b.put(name)
+    }
+    print(b.t.a)
+}

@@ -1,0 +1,37 @@
+public struct Key {
+    public i64 id
+}
+
+public struct Shelf<T> {
+    public Map<Key, T> byKey
+}
+
+public struct Store {
+    public Map<Key, i64> byKey
+    public Shelf<i64> shelf
+    public List<Key> key
+}
+
+public interface IScore<T> {
+    i64 score(T other)
+}
+
+public i64 best<T>(List<T> item) where T : IScore<T> => item.length
+
+public union error ParseError { empty }
+
+public union error IoError { lost }
+
+public union error LoadError = ParseError, IoError
+
+type Amount = i64
+
+public enum Shade {
+    light
+    dark
+}
+
+test "runs" {
+}
+
+print("ok")

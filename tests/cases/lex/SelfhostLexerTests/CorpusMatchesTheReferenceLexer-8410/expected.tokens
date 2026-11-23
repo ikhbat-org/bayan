@@ -1,0 +1,56 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 Star `*`
+2:9 IntegerLiteral `3`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+3:1 LetKeyword `let`
+3:5 Identifier `afé`
+3:10 Equals `=`
+3:12 IntegerLiteral `1`
+4:2 StringLiteral `"{$"`
+4:6 OpenBrace `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolatedStringText ` `
+4:16 InterpolatedStringEnd
+4:16 EndOfFile
+
+error BYN0005: identifier `afé` is not in Unicode normalization form C
+
+  3 │ let afé = 1
+    │     ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let afé = 1
+    │   │       +
+
+error BYN0003: unterminated string literal
+
+  4 │  "{$"{$"{$"{$" 
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │  "{$"{$"{$"{$" 
+    │             ^^ this string never ends
+    │
+  help: close it with `"`

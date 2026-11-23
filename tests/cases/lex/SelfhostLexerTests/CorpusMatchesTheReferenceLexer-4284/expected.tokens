@@ -1,0 +1,36 @@
+1:3 IntegerLiteral `0x_`
+2:2 Identifier `b`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 UnlessKeyword `unless`
+3:16 SwitchKeyword `switch`
+3:23 CaseKeyword `case`
+3:28 DefaultKeyword `default`
+3:36 ForKeyword `for`
+3:40 InKeyword `in`
+3:43 WhileKeyword `while`
+3:49 DoKeyword `do`
+3:52 BreakKeyword `break`
+3:58 ContinueKeyword `continue`
+3:67 ReturnKeyword `return`
+3:74 YieldKeyword `yield`
+3:80 DeferKeyword `defer`
+3:86 ErrdeferKeyword `errdefer`
+3:95 UsingKeyword `using`
+3:101 ContextKeyword `context`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � 0x_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � 0x_
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ � 0x_
+    │   ^^^

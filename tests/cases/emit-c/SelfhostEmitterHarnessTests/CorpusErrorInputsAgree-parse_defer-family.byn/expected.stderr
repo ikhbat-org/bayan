@@ -1,0 +1,68 @@
+error BYN2001: `close` is not defined
+  --> input.byn:2:11
+
+  2 │     defer close()
+    │           ^^^^^
+
+error BYN2606: `defer failing` in a function that cannot fail
+  --> input.byn:3:5
+
+  3 │     defer failing rollback()
+    │     ^^^^^^^^^^^^^
+    │
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function
+
+error BYN2001: `rollback` is not defined
+  --> input.byn:3:19
+
+  3 │     defer failing rollback()
+    │                   ^^^^^^^^
+
+error BYN2606: `defer failing` in a function that cannot fail
+  --> input.byn:4:5
+
+  4 │     defer failing (e) { log(e) }
+    │     ^^^^^^^^^^^^^^^^^
+    │
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function
+
+error BYN2202: expected `string`, found `error`
+  --> input.byn:4:29
+
+  4 │     defer failing (e) { log(e) }
+    │                             ^
+
+error BYN2001: `flush` is not defined
+  --> input.byn:5:21
+
+  5 │     defer panicking flush()
+    │                     ^^^^^
+
+error BYN2606: `defer failing` in a function that cannot fail
+  --> input.byn:7:5
+
+  7 │     defer failing (e) log(e)
+    │     ^^^^^^^^^^^^^^^^^
+    │
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function
+
+error BYN2202: expected `string`, found `error`
+  --> input.byn:7:27
+
+  7 │     defer failing (e) log(e)
+    │                           ^
+
+error BYN2001: `failing` is not defined
+  --> input.byn:8:11
+
+  8 │     defer failing()
+    │           ^^^^^^^
+
+error BYN2001: `panicking` is not defined
+  --> input.byn:9:11
+
+  9 │     defer panicking.flush()
+    │           ^^^^^^^^^
+
+✗ build failed: 10 errors, 0 warnings
+  explain: bayan explain BYN2001

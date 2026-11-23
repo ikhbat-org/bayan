@@ -1,0 +1,3 @@
+== case fn-distinct
+errorExpr 1549..1552 : ?
+BYN2824 79:16 `Sku` cannot be used as a value: it is a constructor ||wrap it in a lambda: `value => Sku(value)`|

@@ -1,0 +1,14 @@
+1:1 TypeKeyword `type`
+1:6 ImportKeyword `import`
+1:13 AsKeyword `as`
+1:16 PublicKeyword `public`
+1:23 PrivateKeyword `private`
+1:31 StaticKeyword `static`
+1:38 ReadonlyKeyword `readonly`
+1:47 Identifier `requir`
+1:53 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ type import as public private static�readonly requir
+    │                                     ^

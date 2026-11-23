@@ -1,0 +1,3 @@
+== diags.diag/try-in-defer
+BYN2601 10:11 `try` is not allowed in `defer`
+  help handle the error here with `catch`; cleanup cannot fail

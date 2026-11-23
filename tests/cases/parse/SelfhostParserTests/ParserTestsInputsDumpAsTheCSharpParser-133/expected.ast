@@ -1,0 +1,13 @@
+CompilationUnit
+  Guarded if done
+    Expr (call stop)
+
+error BYN1042: a postfix `if` must be on the line of its statement
+
+  2 │     if done
+    │     ^^ on the next line
+    │
+  help: move the `if` clause up to the statement's line
+    │ 1 │ stop()
+    │ 2 │     if done
+    │   │ ---

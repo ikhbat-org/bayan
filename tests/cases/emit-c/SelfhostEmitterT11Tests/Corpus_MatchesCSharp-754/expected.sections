@@ -1,0 +1,33 @@
+== helpers
+bynh_hash_tup2_i32_sym static uint64_t bynh_hash_tup2_i32_sym(bynt_tup2_i32_sym k) | static uint64_t bynh_hash_tup2_i32_sym(bynt_tup2_i32_sym k) {
+    uint64_t h = byn_hash_bytes(NULL, 0);
+    h = byn_hash_mix(h, bynh_hash_i32(k.item1));
+    h = byn_hash_mix(h, bynh_hash_sym(k.item2));
+    return h;
+}
+bynh_hash_i32 static uint64_t bynh_hash_i32(int32_t k) | static uint64_t bynh_hash_i32(int32_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_hash_sym static uint64_t bynh_hash_sym(byn_sym k) | static uint64_t bynh_hash_sym(byn_sym k) {
+    return byn_hash_bytes(&k.id, (int64_t)sizeof k.id);
+}
+bynh_keq_tup2_i32_sym static bool bynh_keq_tup2_i32_sym(const void* a, const void* b) | static bool bynh_keq_tup2_i32_sym(const void* a, const void* b) {
+    return bynh_eq_tup2_i32_sym(*(const bynt_tup2_i32_sym*)a, *(const bynt_tup2_i32_sym*)b);
+}
+bynh_eq_tup2_i32_sym static bool bynh_eq_tup2_i32_sym(bynt_tup2_i32_sym a, bynt_tup2_i32_sym b) | static bool bynh_eq_tup2_i32_sym(bynt_tup2_i32_sym a, bynt_tup2_i32_sym b) {
+    return (a.item1 == b.item1)
+        && ((a.item2).id == (b.item2).id);
+}
+bynh_slot_map_tup2_i32_sym_i32 static int32_t* bynh_slot_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32* m, bynt_tup2_i32_sym k, int32_t d) | static int32_t* bynh_slot_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32* m, bynt_tup2_i32_sym k, int32_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(bynt_tup2_i32_sym), (void**)&m->vals, (int64_t)sizeof(int32_t), &k, bynh_hash_tup2_i32_sym(k), bynh_keq_tup2_i32_sym, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_remove_map_tup2_i32_sym_i32 static bool bynh_remove_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32* m, bynt_tup2_i32_sym k) | static bool bynh_remove_map_tup2_i32_sym_i32(bynt_map_tup2_i32_sym_i32* m, bynt_tup2_i32_sym k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(bynt_tup2_i32_sym), &k, bynh_hash_tup2_i32_sym(k), bynh_keq_tup2_i32_sym);
+}

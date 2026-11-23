@@ -1,0 +1,19 @@
+== tests/cases/run/assert-side-effect.byn
+20..47 blockStmt
+26..32 assignStmt add target 26..27 value 31..32
+26..27 nameExpr
+31..32 literalExpr integer
+37..45 returnStmt value 44..45
+44..45 nameExpr
+49..67 globalStatement
+49..67 localDecl
+66..67 literalExpr integer
+68..110 assertStmt
+75..110 binaryExpr eq right 99..110
+75..95 binaryExpr mul right 93..95
+75..90 callExpr
+84..89 nameExpr
+93..95 literalExpr integer
+99..110 binaryExpr add right 107..110
+99..104 nameExpr
+107..110 literalExpr integer

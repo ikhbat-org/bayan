@@ -1,0 +1,12 @@
+# BYN2742: wrong number of type arguments in a call
+
+**Why.** A generic function takes exactly as many type arguments as it declares type parameters; a function that is not generic takes none.
+
+**Example.**
+
+```
+void both<T>(T a, by T b) { }
+both<i64, string>(1, by: 2)
+```
+
+**Fix.** Pass one type argument per type parameter, or leave them all out and let the arguments decide.

@@ -1,0 +1,29 @@
+== tests/cases/run/requires-block.byn
+49..69 blockStmt
+34..48 inExpr
+34..48 inExpr
+34..48 inExpr
+34..39 nameExpr
+43..48 rangeExpr
+43..44 literalExpr integer
+46..48 literalExpr integer
+34..48 inExpr
+34..48 inExpr
+34..48 inExpr
+49..69 blockStmt
+55..67 returnStmt value 62..67
+62..67 nameExpr
+71..91 globalStatement
+71..91 localDecl
+84..91 collectionExpr
+85..86 literalExpr integer
+88..90 literalExpr integer
+92..141 forStmt
+101..107 nameExpr
+108..141 blockStmt
+114..139 exprStmt
+114..139 callExpr
+120..138 interpolatedExpr
+123..136 callExpr
+134..135 nameExpr
+114..139 callExpr

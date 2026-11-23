@@ -1,0 +1,12 @@
+== tests/cases/run/overflow-cast.byn
+0..19 globalStatement
+0..19 localDecl
+16..19 literalExpr integer
+20..41 localDecl
+33..41 callExpr
+36..40 nameExpr
+42..60 exprStmt
+42..60 callExpr
+48..59 interpolatedExpr
+51..57 nameExpr
+42..60 callExpr

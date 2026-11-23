@@ -1,0 +1,6 @@
+== tests/cases/diag/number-agreement-caps.byn
+206..217 globalStatement
+206..217 exprStmt
+206..217 callExpr
+212..216 literalExpr string
+206..217 callExpr

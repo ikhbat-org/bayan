@@ -1,0 +1,8 @@
+== helpers
+bynh_at_list_i32 static int32_t* bynh_at_list_i32(bynt_list_i32 s, int64_t i, bool from_end, const char* file, int line) | static int32_t* bynh_at_list_i32(bynt_list_i32 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_eq_opt_i32 static bool bynh_eq_opt_i32(bynt_opt_i32 a, bynt_opt_i32 b) | static bool bynh_eq_opt_i32(bynt_opt_i32 a, bynt_opt_i32 b) {
+    return a.has == b.has && (!a.has || (a.value == b.value));
+}

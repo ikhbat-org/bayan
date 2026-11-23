@@ -1,0 +1,7 @@
+error BYN2404: `halt` returns `never` but can reach its end
+  --> <repo>/tests/cases/diag/never-returns.byn:3:1
+
+  3 │ }
+    │ ^
+    │
+  help: end every path with `panic(…)` or a call that never returns

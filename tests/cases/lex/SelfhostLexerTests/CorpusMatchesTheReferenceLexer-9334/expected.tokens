@@ -1,0 +1,55 @@
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+3:2 CharLiteral `''`
+5:1 IntegerLiteral `0x`
+7:1 Identifier `l`
+7:3 Identifier `t`
+7:7 Equals `=`
+7:9 IntegerLiteral `2`
+8:1 Identifier `u`
+8:3 InterpolatedStringStart `$"`
+8:5 InterpolationStart `{`
+8:6 Identifier `a`
+8:8 StringLiteral `"`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0007: empty char literal
+
+  3 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{4}`
+
+  7 │ l�t � = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ l�t � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  8 │ u $"{a "
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ u $"{a "
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

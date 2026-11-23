@@ -1,0 +1,43 @@
+error BYN2821: `total` cannot be captured: it is a `ref` parameter
+  --> <repo>/tmp/t2/diag/lambda-capture/lambda-capture.byn:8:43
+
+  8 │ i64 bump(ref i64 total) => apply(x => x + total)
+    │                                           ^^^^^
+    │
+  help: pass it as a plain parameter
+
+error BYN2821: `this` cannot be captured: a lambda does not capture `this`
+  --> <repo>/tmp/t2/diag/lambda-capture/lambda-capture.byn:14:32
+
+  14 │         let a = apply(x => x * this.count)
+     │                                ^^^^
+     │
+  help: copy the fields you need into `let` values first
+
+error BYN2821: `count` cannot be captured: it is read through `this`, which a lambda does not
+capture
+  --> <repo>/tmp/t2/diag/lambda-capture/lambda-capture.byn:15:32
+
+  15 │         let b = apply(x => x * count)
+     │                                ^^^^^
+     │
+  help: copy the fields you need into `let` values first
+
+error BYN2821: `step` cannot be captured: it is a `var`
+  --> <repo>/tmp/t2/diag/lambda-capture/lambda-capture.byn:25:28
+
+  25 │     let a = apply(x => x + step)
+     │                            ^^^^
+     │
+  help: copy it into a `let` first
+
+error BYN2821: `r` cannot be captured: it is a `var`
+  --> <repo>/tmp/t2/diag/lambda-capture/lambda-capture.byn:30:37
+
+  30 │             print($"{apply(x => x + r)}")
+     │                                     ^
+     │
+  help: copy it into a `let` first
+
+✗ build failed: 5 errors, 0 warnings
+  explain: bayan explain BYN2821

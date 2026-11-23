@@ -1,0 +1,4 @@
+struct Bag {
+    bool zorky => true
+    bool zork() => true
+}

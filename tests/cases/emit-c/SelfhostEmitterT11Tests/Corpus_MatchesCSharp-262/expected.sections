@@ -1,0 +1,12 @@
+== helpers
+bynh_add_list_main__C static void bynh_add_list_main__C(bynt_list_main__C* l, bynt_main__C v) | static void bynh_add_list_main__C(bynt_list_main__C* l, bynt_main__C v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__C), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_mutable_span_list_main__C static bynt_span_main__C bynh_mutable_span_list_main__C(bynt_list_main__C l) | static bynt_span_main__C bynh_mutable_span_list_main__C(bynt_list_main__C l) {
+    return (bynt_span_main__C){l.ptr, l.len};
+}
+bynh_span_list_main__C static bynt_span_main__C bynh_span_list_main__C(bynt_list_main__C l) | static bynt_span_main__C bynh_span_list_main__C(bynt_list_main__C l) {
+    return (bynt_span_main__C){l.ptr, l.len};
+}

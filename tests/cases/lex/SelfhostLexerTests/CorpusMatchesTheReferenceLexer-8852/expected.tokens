@@ -1,0 +1,79 @@
+1:1 Identifier `b`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 Identifier `privaNte`
+3:56 StaticKeyword `static`
+3:63 ReadonlyKeyword `readonly`
+3:72 RequiredKeyword `required`
+3:81 ConstKeyword `const`
+3:87 LetKeyword `let`
+3:91 VarKeyword `var`
+3:95 EmbedKeyword `embed`
+3:101 ExternKeyword `extern`
+3:108 UnsafeKeyword `unsafe`
+4:2 CharLiteral `'\u{202E}'`
+4:6 OpenBrace `{`
+4:7 Identifier `f`
+4:8 OpenParen `(`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolatedStringText `b `
+4:13 InterpolationStart `{`
+4:14 Identifier `c`
+4:15 InterpolationEnd `}`
+4:16 InterpolatedStringEnd `"`
+4:17 CloseParen `)`
+4:18 CloseBrace `}`
+4:20 Identifier `d`
+4:21 StringLiteral `" $"`
+4:25 OpenBrace `{`
+4:26 OpenBrace `{`
+4:27 Identifier `literal`
+4:34 CloseBrace `}`
+4:35 CloseBrace `}`
+4:36 StringLiteral `" $"`
+4:40 OpenBrace `{`
+4:41 Identifier `Point`
+4:47 OpenBrace `{`
+4:49 Identifier `x`
+4:51 Equals `=`
+4:53 IntegerLiteral `1`
+4:55 CloseBrace `}`
+4:56 CloseBrace `}`
+4:57 Bang `!`
+4:58 StringLiteral `" $"`
+4:62 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  �
+    │   │  -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  '�' {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  '�' {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   │   -
+
+error BYN0003: unterminated string literal
+
+  4 │  '�' {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                              ^ string ends at the end of the
+    │                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

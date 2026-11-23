@@ -1,0 +1,41 @@
+public struct Table {
+    public i64 rowCount
+}
+
+// A function-type alias is not a type named for a doer.
+public type TableParser = string -> Table
+
+// A stored function field named for a doer is not a type and is not checked (a function-typed field is BYN2822 today).
+public struct Pipeline {
+    public i64 -> i64 parser
+}
+
+// A name forced from outside keeps its spelling.
+@json(name: "csv_parser")
+public struct CsvParser {
+    public Table read(ref this) => Table { rowCount: 0 }
+}
+
+// A type the module keeps to itself is not checked.
+struct RowBuilder {
+    public Table read() => Table { rowCount: 0 }
+}
+
+// Other words ending in "-er" are not doer nouns.
+public struct Carrier {
+    public string name
+}
+
+public struct Ledger {
+    public i64 total
+}
+
+public struct Pointer {
+    public i64 offset
+}
+
+public struct User {
+    public string name
+}
+
+print("ok")

@@ -1,0 +1,21 @@
+error BYN1042: `return` takes its value on the same line
+  --> <repo>/tests/cases/diag/return-on-new-line.byn:3:9
+
+  3 │         x + 1
+    │         ^ on the next line
+    │
+  help: move the value to the line of `return`
+    │ 2 │     return
+    │ 3 │         x + 1
+    │   │ -------
+
+error BYN1042: `break` takes its value on the same line
+  --> <repo>/tests/cases/diag/return-on-new-line.byn:10:17
+
+  10 │                 outer
+     │                 ^^^^^ on the next line
+     │
+  help: move the value to the line of `break`
+     │  9 │             break
+     │ 10 │                 outer
+     │    │ ---------------

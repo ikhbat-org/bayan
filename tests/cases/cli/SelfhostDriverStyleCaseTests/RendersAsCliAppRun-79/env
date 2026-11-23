@@ -1,0 +1,4 @@
+NO_COLOR=1
+FORCE_COLOR=1
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/build-fail-no-color-csharp

@@ -1,0 +1,5 @@
+// line comment
+ let b = "bad \q escape"
+
+macro select become
+ + - * / % +% -% *%ú + -| *| + --

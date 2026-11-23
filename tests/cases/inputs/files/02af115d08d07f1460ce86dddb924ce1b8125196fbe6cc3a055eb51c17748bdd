@@ -1,0 +1,2 @@
+T id<T>(T a)
+    where T : IA => a

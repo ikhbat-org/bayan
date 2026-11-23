@@ -1,0 +1,122 @@
+error BYN2001: `x` is not defined
+  --> input.byn:1:15
+
+  1 │ let present = x is not null
+    │               ^
+
+error BYN2001: `x` is not defined
+  --> input.byn:2:14
+
+  2 │ let absent = x is null
+    │              ^
+
+error BYN2001: `a` is not defined
+  --> input.byn:3:12
+
+  3 │ let both = a is not null && b is not null
+    │            ^
+
+error BYN2001: `b` is not defined
+  --> input.byn:3:29
+
+  3 │ let both = a is not null && b is not null
+    │                             ^
+
+error BYN2001: `p` is not defined
+  --> input.byn:4:4
+
+  4 │ if p is not null { use(p) }
+    │    ^
+
+error BYN2001: `use` is not defined
+  --> input.byn:4:20
+
+  4 │ if p is not null { use(p) }
+    │                    ^^^
+
+error BYN2001: `p` is not defined
+  --> input.byn:4:24
+
+  4 │ if p is not null { use(p) }
+    │                        ^
+
+error BYN2001: `p` is not defined
+  --> input.byn:5:4
+
+  5 │ if p is null { return }
+    │    ^
+
+error BYN2001: `db` is not defined
+  --> input.byn:6:13
+
+  6 │ let order = db.find(id) ?? return .notFound
+    │             ^^
+
+error BYN2001: `id` is not defined
+  --> input.byn:6:21
+
+  6 │ let order = db.find(id) ?? return .notFound
+    │                     ^^
+    │
+  help: did you mean `Io`?
+    │ 6 │ let order = db.find(Io) ?? return .notFound
+    │   │                     ++
+
+error BYN2218: `notFound` needs a known type here
+  --> input.byn:6:35
+
+  6 │ let order = db.find(id) ?? return .notFound
+    │                                   ^^^^^^^^^
+
+error BYN2001: `db` is not defined
+  --> input.byn:7:13
+
+  7 │ let quiet = db.find(id) ?? return
+    │             ^^
+
+error BYN2001: `id` is not defined
+  --> input.byn:7:21
+
+  7 │ let quiet = db.find(id) ?? return
+    │                     ^^
+    │
+  help: did you mean `Io`?
+    │ 7 │ let quiet = db.find(Io) ?? return
+    │   │                     ++
+
+error BYN2001: `rows` is not defined
+  --> input.byn:8:12
+
+  8 │ let next = rows.next() ?? break
+    │            ^^^^
+
+error BYN2406: `break` outside a loop
+  --> input.byn:8:27
+
+  8 │ let next = rows.next() ?? break
+    │                           ^^^^^
+
+error BYN2001: `items` is not defined
+  --> input.byn:9:12
+
+  9 │ let item = items.get(i) ?? continue
+    │            ^^^^^
+
+error BYN2001: `i` is not defined
+  --> input.byn:9:22
+
+  9 │ let item = items.get(i) ?? continue
+    │                      ^
+    │
+  help: did you mean `Io`?
+    │ 9 │ let item = items.get(Io) ?? continue
+    │   │                      ++
+
+error BYN2406: `continue` outside a loop
+  --> input.byn:9:28
+
+  9 │ let item = items.get(i) ?? continue
+    │                            ^^^^^^^^
+
+✗ build failed: 18 errors, 0 warnings
+  explain: bayan explain BYN2001

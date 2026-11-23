@@ -1,0 +1,20 @@
+1:1 Identifier `v0b10`
+3:1 StringLiteral `"{ `
+3:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x95)
+
+  1 │ v0b10�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "{ 
+    │ ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

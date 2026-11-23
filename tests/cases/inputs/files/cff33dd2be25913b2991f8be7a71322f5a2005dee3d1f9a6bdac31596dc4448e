@@ -1,0 +1,5 @@
+0 42 1_0Œ0_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+ "a‚Åßb"Ä $"total {x}" $"a {f($"b {c}")} d" $"{literal}}" $"{Point { x = 1 }}!" $""
+
+/* 2
+let c =  3

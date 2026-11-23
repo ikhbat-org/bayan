@@ -1,0 +1,8 @@
+error BYN2219: a `const` must be a compile-time constant
+  --> input.byn:3:16
+
+  3 │ const n: i64 = compute()
+    │                ^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2219

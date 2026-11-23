@@ -1,0 +1,5 @@
+== diags.diag/effect-random-not-declared
+BYN6002 2:12 `token` uses `random` but does not declare it
+  label uses `random`
+  help add `random` to the `uses` clause, or remove the call
+  fix 1:19-1:19  uses random

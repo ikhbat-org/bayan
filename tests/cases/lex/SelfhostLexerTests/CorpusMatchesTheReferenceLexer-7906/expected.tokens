@@ -1,0 +1,90 @@
+1:1 Identifier `_`
+2:1 IntegerLiteral `0xF__`
+3:2 StringLiteral `"$"`
+3:5 OpenBrace `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolationStart `{`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 Identifier `x`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 StringLiteral `"}"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringEnd `"`
+3:67 InterpolationEnd `}`
+3:68 InterpolatedStringEnd `"`
+3:69 InterpolationEnd `}`
+3:70 InterpolatedStringEnd `"`
+3:71 InterpolationEnd `}`
+3:72 InterpolatedStringEnd `"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:78 Star `*`
+3:79 Slash `/`
+4:1 Identifier `st`
+4:3 Less `<`
+4:4 Identifier `Lis`
+4:7 Less `<`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:9 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `﻿`
+
+  3 │  "$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}""}"}"}"}"}"}"}"﻿*/
+    │                                                                             ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

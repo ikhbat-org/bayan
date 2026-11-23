@@ -1,0 +1,36 @@
+== cases
+0 byn_rem_i64(byn_add_i64(byn_mul_i64(l1_seed, INT64_C(1103515245), byn_file_0, 6), INT64_C(12345), byn_file_0, 6), INT64_C(2147483648), byn_file_0, 6)
+1 byn_add_i64(byn_mul_i64(l1_seed, INT64_C(1103515245), byn_file_0, 6), INT64_C(12345), byn_file_0, 6)
+2 byn_mul_i64(l1_seed, INT64_C(1103515245), byn_file_0, 6)
+3 bynh_add_list_i64(&l0_xs, byn_rem_i64(l1_seed, INT64_C(50), byn_file_0, 7))
+4 byn_rem_i64(l1_seed, INT64_C(50), byn_file_0, 7)
+5 bynh_sort_list_i64(&l0_xs)
+6 l0_xs.len
+7 ((*bynh_at_list_i64(l0_xs, (int64_t)byn_sub_i64(l7_i, INT64_C(1), byn_file_0, 12), false, byn_file_0, 12)) > (*bynh_at_list_i64(l0_xs, (int64_t)l7_i, false, byn_file_0, 12)))
+8 (*bynh_at_list_i64(l0_xs, (int64_t)byn_sub_i64(l7_i, INT64_C(1), byn_file_0, 12), false, byn_file_0, 12))
+9 byn_sub_i64(l7_i, INT64_C(1), byn_file_0, 12)
+10 (*bynh_at_list_i64(l0_xs, (int64_t)l7_i, false, byn_file_0, 12))
+11 l0_xs.len
+12 (*bynh_at_list_i64(l0_xs, (int64_t)INT64_C(0), false, byn_file_0, 14))
+13 (*bynh_at_list_i64(l0_xs, (int64_t)byn_sub_i64(l0_xs.len, INT64_C(1), byn_file_0, 14), false, byn_file_0, 14))
+14 byn_sub_i64(l0_xs.len, INT64_C(1), byn_file_0, 14)
+15 l0_xs.len
+16 bynh_add_list_f64(&l12_zs, ((byn_rem_i32(l13_i, ((int32_t)3), byn_file_0, 19) == ((int32_t)0)) ? (1.5) : ((byn_rem_i32(l13_i, ((int32_t)3), byn_file_0, 19) == ((int32_t)1)) ? (0.0) : (-0.0))))
+17 (byn_rem_i32(l13_i, ((int32_t)3), byn_file_0, 19) == ((int32_t)0))
+18 byn_rem_i32(l13_i, ((int32_t)3), byn_file_0, 19)
+19 (byn_rem_i32(l13_i, ((int32_t)3), byn_file_0, 19) == ((int32_t)1))
+20 byn_rem_i32(l13_i, ((int32_t)3), byn_file_0, 19)
+21 bynh_sort_list_f64(&l12_zs)
+22 (l17_z == (0.0))
+24 byn_strbuf_str(l16_line)
+25 bynh_add_list_str(&l20_names, l21_n)
+26 bynh_sort_list_str(&l20_names)
+28 byn_strbuf_str(l24_words)
+29 bynh_add_list_rune(&l28_runes, l29_r)
+30 bynh_sort_list_rune(&l28_runes)
+31 (*bynh_at_list_rune(l28_runes, (int64_t)INT64_C(0), false, byn_file_0, 35))
+32 (*bynh_at_list_rune(l28_runes, (int64_t)INT64_C(1), false, byn_file_0, 35))
+33 (*bynh_at_list_rune(l28_runes, (int64_t)INT64_C(2), false, byn_file_0, 35))
+34 bynh_sort_list_i32(&l32_empty)
+35 l32_empty.len
+count 36

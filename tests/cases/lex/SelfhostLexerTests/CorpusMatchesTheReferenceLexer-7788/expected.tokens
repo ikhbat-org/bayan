@@ -1,0 +1,20 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:1 IntegerLiteral `0b102`
+4:1 FailsKeyword `fails`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 NeverKeyword `never`
+4:23 NoallocKeyword `noalloc`
+4:31 NosuspendKeyword `nosuspend`
+4:41 SuspendsKeyword `suspends`
+4:50 AsyncKeyword `async`
+4:56 AwaitKeyword `await`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │ 0b102
+    │     ^

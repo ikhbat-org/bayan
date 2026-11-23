@@ -1,0 +1,76 @@
+1:1 IntegerLiteral `0b__`
+2:1 IntegerLiteral `1__`
+3:1 IntegerLiteral `0xF__`
+4:1 CharLiteral `'\u{202E}'`
+4:5 IfKeyword `if`
+4:8 ElseKeyword `else`
+4:13 UnlessKeyword `unless`
+4:20 SwitchKeyword `switch`
+4:27 CaseKeyword `case`
+4:32 DefaultKeyword `default`
+4:40 ForKeyword `for`
+4:44 InKeyword `in`
+4:47 Identifier `wh`
+4:49 Identifier `ile`
+4:53 DoKeyword `do`
+4:56 BreakKeyword `break`
+4:62 ContinueKeyword `continue`
+4:71 ReturnKeyword `return`
+4:78 YieldKeyword `yield`
+4:84 Identifier `defe`
+4:88 CloseBrace `}`
+4:90 ErrdeferKeyword `errdefer`
+4:99 UsingKeyword `using`
+4:105 ContextKeyword `context`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '�'�if else unless switch case default for in wh�ile do break continue return yield defe} errdefer using context
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '�'�if else unless switch case default for in wh�ile do break continue return yield defe} errdefer using context
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ '�'�if else unless switch case default for in wh�ile do break continue return yield defe} errdefer using context
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ '�'�if else unless switch case default for in wh�ile do break continue return yield defe} errdefer using context
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ '�'�if else unless switch case default for in wh�ile do break continue return yield defe} errdefer using context
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x97)
+
+  4 │ '�'�if else unless switch case default for in wh�ile do break continue return yield defe} errdefer using context
+    │                                                 ^

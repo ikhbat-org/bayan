@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/doer-without-verb-clean.byn
+--package
+<repo>/tests/cases/diag

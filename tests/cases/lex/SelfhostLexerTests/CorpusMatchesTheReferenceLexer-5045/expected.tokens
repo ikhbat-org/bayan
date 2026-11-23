@@ -1,0 +1,98 @@
+1:1 CharLiteral `'`
+2:3 CharLiteral `'b`
+4:3 IntegerLiteral `1_`
+5:2 IntegerLiteral `0xFF`
+5:6 NumericSuffix `s`
+6:1 IntegerLiteral `0b1`
+6:4 NumericSuffix `ms`
+7:1 IntegerLiteral `0x_`
+8:1 IntegerLiteral `0b__`
+9:1 IntegerLiteral `1__`
+10:1 IntegerLiteral `0xF__`
+12:1 IntegerLiteral `0xFF`
+12:5 NumericSuffix `s`
+14:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  2 │ ��'b
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ ��'b
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ ��'b
+    │   │  -
+
+error BYN0008: unterminated char literal
+
+  2 │ ��'b
+    │   ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │   1_
+    │    ^
+    │
+    │ 4 │   1_
+    │   │    -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │  0xFFs
+    │      ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  8 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 1__
+    │  ^^
+    │
+    │ 9 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 0xF__
+     │    ^^
+     │
+     │ 10 │ 0xF__
+     │    │    --
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  12 │ 0xFFs
+     │     ^
+     │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

@@ -1,0 +1,5 @@
+== cases
+0 byn_mul_i64(l0_sum, p_scale, byn_file_0, 8)
+1 ((bynt_span_i64){l0_more.ptr, l0_more.len})
+2 ((bynt_span_i64){l2_fixed.v, 3})
+count 3

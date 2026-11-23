@@ -1,0 +1,11 @@
+== cases
+0 bynh_strbuf_repeat(&l0_s, UINT32_C(97), INT64_C(1023), byn_file_0, 3)
+1 byn_w_str(&l0_s, BYN_STR("\303\251", 2))
+2 byn_strbuf_str(l0_s)
+3 bynh_str_bytes(l2_cut).len
+4 bynh_str_bytes(l2_cut)
+5 (*bynh_at_span_u8(bynh_str_bytes(l2_cut), (int64_t)INT64_C(1022), false, byn_file_0, 7))
+6 bynh_str_bytes(l2_cut)
+7 (*bynh_at_span_u8(bynh_str_bytes(l2_cut), (int64_t)INT64_C(1023), false, byn_file_0, 7))
+8 bynh_str_bytes(l2_cut)
+count 9

@@ -1,0 +1,3 @@
+== bind.probes.r8
+flags 0
+range:Range<i64>[3237:4]=-(false conversion:i64[3237:1]=-(widen local:i32[3237:1]=-(a)) local:i64[3240:1]=-(n))

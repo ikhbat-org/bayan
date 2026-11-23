@@ -1,0 +1,43 @@
+1:1 TestKeyword `test`
+1:6 Identifier `asseUt`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `aN`
+2:5 InterpolationStart `{`
+2:6 Identifier `b`
+2:7 InterpolationEnd `}`
+2:8 InterpolatedStringText `cose`
+2:12 InterpolatedStringEnd
+3:1 IntegerLiteral `1`
+3:2 Dot `.`
+3:6 CharLiteral `'x`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"aN{b}cose
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ 1. � 'x
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ 1. � 'x
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 1. � 'x
+    │      ^^
+    │
+  help: close it with `'`

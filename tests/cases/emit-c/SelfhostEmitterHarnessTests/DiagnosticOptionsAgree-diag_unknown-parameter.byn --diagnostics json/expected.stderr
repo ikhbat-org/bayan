@@ -1,0 +1,1 @@
+{"code":"BYN2021","severity":"error","file":"input.byn","span":{"start":67,"end":72,"line":2,"column":15,"endLine":2,"endColumn":20},"message":"`area` has no parameter `widht`","label":null,"help":null,"fixes":[]}

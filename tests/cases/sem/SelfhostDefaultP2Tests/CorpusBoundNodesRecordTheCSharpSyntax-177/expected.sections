@@ -1,0 +1,50 @@
+== tests/cases/run/loop-item-array-of-structs.byn
+174..175 nameExpr
+174..175 nameExpr
+174..175 nameExpr
+177..200 globalStatement
+177..200 localDecl
+186..200 callExpr
+201..217 exprStmt
+201..217 callExpr
+201..203 nameExpr
+211..216 literalExpr string
+218..241 localDecl
+227..241 callExpr
+242..258 exprStmt
+242..258 callExpr
+242..244 nameExpr
+252..257 literalExpr string
+259..319 localDecl
+269..319 collectionExpr
+270..293 structLiteralExpr
+284..288 moveExpr
+289..291 nameExpr
+295..318 structLiteralExpr
+309..313 moveExpr
+314..316 nameExpr
+320..345 localDecl
+331..345 callExpr
+346..419 forStmt
+355..358 nameExpr
+359..419 blockStmt
+365..417 forStmt
+374..386 callExpr
+379..385 memberExpr
+379..385 memberExpr
+379..380 nameExpr
+387..417 blockStmt
+397..411 exprStmt
+397..411 callExpr
+397..401 nameExpr
+409..410 nameExpr
+420..449 exprStmt
+420..449 callExpr
+426..448 interpolatedExpr
+429..436 indexExpr
+429..433 nameExpr
+434..435 literalExpr integer
+439..446 indexExpr
+439..443 nameExpr
+444..445 literalExpr integer
+420..449 callExpr

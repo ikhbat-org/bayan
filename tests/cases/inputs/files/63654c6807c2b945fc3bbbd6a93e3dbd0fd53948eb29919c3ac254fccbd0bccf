@@ -1,0 +1,11 @@
+/* â€­ */
+let a = "open
+let b = "bad \q escape"
+let c = """n'\u{10000}'
+ '
+'\q'
+'\u{D800}'
+'\u{110000}'
+'x
+  d" $"{{literal}}" $"{
+í 

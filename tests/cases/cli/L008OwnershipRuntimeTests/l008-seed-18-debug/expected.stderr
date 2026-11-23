@@ -1,0 +1,1069 @@
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:36:17
+
+  36 │             var v2 = move v1
+     │                 ^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 36 │             let v2 = move v1
+     │    │             +++
+
+warning BYN2311: `v3` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:38:17
+
+  38 │             var v3 = Slot.full(fresh(5))
+     │                 ^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 38 │             let v3 = Slot.full(fresh(5))
+     │    │             +++
+
+warning BYN2311: `v10` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:60:13
+
+  60 │         var v10 = Slot.full(fresh(6))
+     │             ^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 60 │         let v10 = Slot.full(fresh(6))
+     │    │         +++
+
+warning BYN2311: `v13` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:70:13
+
+  70 │         var v13: List<i64>? = fresh(7)
+     │             ^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 70 │         let v13: List<i64>? = fresh(7)
+     │    │         +++
+
+warning BYN2311: `v15` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:74:9
+
+  74 │     var v15: List<i64>? = move v14
+     │         ^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 74 │     let v15: List<i64>? = move v14
+     │    │     +++
+
+warning BYN2311: `v18` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:79:13
+
+  79 │         var v18: List<i64>? = move v16
+     │             ^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 79 │         let v18: List<i64>? = move v16
+     │    │         +++
+
+warning BYN2311: `v23` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:99:17
+
+  99 │             var v23: List<i64>? = move v20
+     │                 ^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 99 │             let v23: List<i64>? = move v20
+     │    │             +++
+
+warning BYN2311: `v27` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:116:9
+
+  116 │     var v27 = fresh(2)
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 116 │     let v27 = fresh(2)
+      │     │     +++
+
+warning BYN2311: `v3` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:132:13
+
+  132 │         var v3 = move v0
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 132 │         let v3 = move v0
+      │     │         +++
+
+warning BYN2311: `v7` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:146:13
+
+  146 │         var v7: List<i64>? = fresh(9)
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 146 │         let v7: List<i64>? = fresh(9)
+      │     │         +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:155:17
+
+  155 │             var v9 = Ledger { items: fresh(8) }
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 155 │             let v9 = Ledger { items: fresh(8) }
+      │     │             +++
+
+warning BYN2311: `v11` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:164:13
+
+  164 │         var v11: List<i64>? = fresh(2)
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 164 │         let v11: List<i64>? = fresh(2)
+      │     │         +++
+
+warning BYN2311: `v15` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:184:17
+
+  184 │             var v15 = move v0
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 184 │             let v15 = move v0
+      │     │             +++
+
+warning BYN2311: `v17` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:191:17
+
+  191 │             var v17 = Slot.full(fresh(7))
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 191 │             let v17 = Slot.full(fresh(7))
+      │     │             +++
+
+warning BYN2311: `v21` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:211:13
+
+  211 │         var v21: List<i64>? = fresh(9)
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 211 │         let v21: List<i64>? = fresh(9)
+      │     │         +++
+
+warning BYN2311: `v28` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:227:17
+
+  227 │             var v28: List<i64>? = move v22
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 227 │             let v28: List<i64>? = move v22
+      │     │             +++
+
+warning BYN2311: `v29` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:232:13
+
+  232 │         var v29: List<i64>? = move v26
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 232 │         let v29: List<i64>? = move v26
+      │     │         +++
+
+warning BYN2311: `v4` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:250:17
+
+  250 │             var v4 = Slot.full(fresh(8))
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 250 │             let v4 = Slot.full(fresh(8))
+      │     │             +++
+
+warning BYN2311: `v8` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:260:17
+
+  260 │             var v8 = Slot.full(fresh(3))
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 260 │             let v8 = Slot.full(fresh(3))
+      │     │             +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:267:17
+
+  267 │             var v9 = Slot.full(fresh(1))
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 267 │             let v9 = Slot.full(fresh(1))
+      │     │             +++
+
+warning BYN2311: `v16` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:295:17
+
+  295 │             var v16 = Ledger { items: fresh(8) }
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 295 │             let v16 = Ledger { items: fresh(8) }
+      │     │             +++
+
+warning BYN2311: `v17` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:296:17
+
+  296 │             var v17 = fresh(0)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 296 │             let v17 = fresh(0)
+      │     │             +++
+
+warning BYN2311: `v18` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:298:13
+
+  298 │         var v18: List<i64>? = fresh(1)
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 298 │         let v18: List<i64>? = fresh(1)
+      │     │         +++
+
+warning BYN2311: `v19` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:299:13
+
+  299 │         var v19: List<i64>? = move v18
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 299 │         let v19: List<i64>? = move v18
+      │     │         +++
+
+warning BYN2311: `v28` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:322:17
+
+  322 │             var v28 = move v20
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 322 │             let v28 = move v20
+      │     │             +++
+
+warning BYN2311: `v31` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:333:13
+
+  333 │         var v31 = Slot.full(fresh(3))
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 333 │         let v31 = Slot.full(fresh(3))
+      │     │         +++
+
+warning BYN2311: `v32` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:335:9
+
+  335 │     var v32: List<i64>? = fresh(9)
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 335 │     let v32: List<i64>? = fresh(9)
+      │     │     +++
+
+warning BYN2311: `v33` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:341:9
+
+  341 │     var v33: List<i64>? = move v32
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 341 │     let v33: List<i64>? = move v32
+      │     │     +++
+
+warning BYN2311: `v0` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:348:13
+
+  348 │         var v0 = Slot.full(fresh(3))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 348 │         let v0 = Slot.full(fresh(3))
+      │     │         +++
+
+warning BYN2311: `v1` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:350:13
+
+  350 │         var v1 = Slot.full(fresh(3))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 350 │         let v1 = Slot.full(fresh(3))
+      │     │         +++
+
+warning BYN2311: `v4` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:357:13
+
+  357 │         var v4 = move v3
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 357 │         let v4 = move v3
+      │     │         +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:395:9
+
+  395 │     var v2 = move v0
+      │         ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 395 │     let v2 = move v0
+      │     │     +++
+
+warning BYN2311: `v5` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:405:9
+
+  405 │     var v5: List<i64>? = fresh(9)
+      │         ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 405 │     let v5: List<i64>? = fresh(9)
+      │     │     +++
+
+warning BYN2311: `v7` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:409:13
+
+  409 │         var v7 = Slot.full(fresh(4))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 409 │         let v7 = Slot.full(fresh(4))
+      │     │         +++
+
+warning BYN2311: `v0` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:422:17
+
+  422 │             var v0 = Slot.full(fresh(8))
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 422 │             let v0 = Slot.full(fresh(8))
+      │     │             +++
+
+warning BYN2311: `v4` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:434:17
+
+  434 │             var v4 = Ledger { items: fresh(2) }
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 434 │             let v4 = Ledger { items: fresh(2) }
+      │     │             +++
+
+warning BYN2311: `v8` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:444:17
+
+  444 │             var v8 = Slot.full(fresh(4))
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 444 │             let v8 = Slot.full(fresh(4))
+      │     │             +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:449:13
+
+  449 │         var v9 = Slot.full(fresh(7))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 449 │         let v9 = Slot.full(fresh(7))
+      │     │         +++
+
+warning BYN2311: `v10` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:450:13
+
+  450 │         var v10 = fresh(4)
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 450 │         let v10 = fresh(4)
+      │     │         +++
+
+warning BYN2311: `v15` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:462:13
+
+  462 │         var v15 = Slot.full(fresh(1))
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 462 │         let v15 = Slot.full(fresh(1))
+      │     │         +++
+
+warning BYN2311: `v32` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:510:17
+
+  510 │             var v32 = fresh(7)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 510 │             let v32 = fresh(7)
+      │     │             +++
+
+warning BYN2311: `v33` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:511:17
+
+  511 │             var v33 = move v32
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 511 │             let v33 = move v32
+      │     │             +++
+
+warning BYN2311: `v34` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:513:17
+
+  513 │             var v34 = fresh(1)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 513 │             let v34 = fresh(1)
+      │     │             +++
+
+warning BYN2311: `v35` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:514:17
+
+  514 │             var v35 = move v34
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 514 │             let v35 = move v34
+      │     │             +++
+
+warning BYN2311: `v37` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:517:13
+
+  517 │         var v37 = move v36
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 517 │         let v37 = move v36
+      │     │         +++
+
+warning BYN2311: `v40` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:524:17
+
+  524 │             var v40: List<i64>? = fresh(2)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 524 │             let v40: List<i64>? = fresh(2)
+      │     │             +++
+
+warning BYN2311: `v42` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:532:17
+
+  532 │             var v42 = fresh(8)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 532 │             let v42 = fresh(8)
+      │     │             +++
+
+warning BYN2311: `v44` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:542:17
+
+  542 │             var v44 = Ledger { items: fresh(6) }
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 542 │             let v44 = Ledger { items: fresh(6) }
+      │     │             +++
+
+warning BYN2311: `v45` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:543:17
+
+  543 │             var v45 = move v44
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 543 │             let v45 = move v44
+      │     │             +++
+
+warning BYN2311: `v48` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:552:17
+
+  552 │             var v48: List<i64>? = fresh(1)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 552 │             let v48: List<i64>? = fresh(1)
+      │     │             +++
+
+warning BYN2311: `t` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:580:9
+
+  580 │     var t = 6
+      │         ^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 580 │     let t = 6
+      │     │     +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:586:9
+
+  586 │     var v2 = move v0
+      │         ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 586 │     let v2 = move v0
+      │     │     +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:608:17
+
+  608 │             var v2 = fresh(7)
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 608 │             let v2 = fresh(7)
+      │     │             +++
+
+warning BYN2311: `v3` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:610:13
+
+  610 │         var v3 = Slot.full(fresh(6))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 610 │         let v3 = Slot.full(fresh(6))
+      │     │         +++
+
+warning BYN2311: `v6` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:620:13
+
+  620 │         var v6: List<i64>? = fresh(1)
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 620 │         let v6: List<i64>? = fresh(1)
+      │     │         +++
+
+warning BYN2311: `v11` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:632:17
+
+  632 │             var v11 = move v10
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 632 │             let v11 = move v10
+      │     │             +++
+
+warning BYN2311: `v13` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:635:17
+
+  635 │             var v13 = move v10
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 635 │             let v13 = move v10
+      │     │             +++
+
+warning BYN2311: `v14` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:638:17
+
+  638 │             var v14 = Slot.full(fresh(7))
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 638 │             let v14 = Slot.full(fresh(7))
+      │     │             +++
+
+warning BYN2311: `v15` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:639:17
+
+  639 │             var v15: List<i64>? = fresh(4)
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 639 │             let v15: List<i64>? = fresh(4)
+      │     │             +++
+
+warning BYN2311: `v17` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:643:17
+
+  643 │             var v17 = move v16
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 643 │             let v17 = move v16
+      │     │             +++
+
+warning BYN2311: `v20` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:655:17
+
+  655 │             var v20 = move v10
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 655 │             let v20 = move v10
+      │     │             +++
+
+warning BYN2311: `v21` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:657:17
+
+  657 │             var v21 = move v10
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 657 │             let v21 = move v10
+      │     │             +++
+
+warning BYN2311: `v22` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:658:17
+
+  658 │             var v22 = move v21
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 658 │             let v22 = move v21
+      │     │             +++
+
+warning BYN2311: `v30` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:689:13
+
+  689 │         var v30 = Slot.full(fresh(1))
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 689 │         let v30 = Slot.full(fresh(1))
+      │     │         +++
+
+warning BYN2311: `v33` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:696:13
+
+  696 │         var v33 = move v32
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 696 │         let v33 = move v32
+      │     │         +++
+
+warning BYN2311: `v35` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:700:17
+
+  700 │             var v35 = move v10
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 700 │             let v35 = move v10
+      │     │             +++
+
+warning BYN2311: `v36` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:705:9
+
+  705 │     var v36 = move v31
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 705 │     let v36 = move v31
+      │     │     +++
+
+warning BYN2311: `v38` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:712:9
+
+  712 │     var v38 = move v36
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 712 │     let v38 = move v36
+      │     │     +++
+
+warning BYN2311: `v1` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:786:13
+
+  786 │         var v1 = Slot.full(fresh(0))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 786 │         let v1 = Slot.full(fresh(0))
+      │     │         +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:787:13
+
+  787 │         var v2 = Slot.full(fresh(6))
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 787 │         let v2 = Slot.full(fresh(6))
+      │     │         +++
+
+warning BYN2311: `v3` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:791:13
+
+  791 │         var v3: List<i64>? = fresh(4)
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 791 │         let v3: List<i64>? = fresh(4)
+      │     │         +++
+
+warning BYN2311: `v1` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:842:13
+
+  842 │         var v1 = Ledger { items: fresh(7) }
+      │             ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 842 │         let v1 = Ledger { items: fresh(7) }
+      │     │         +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:899:9
+
+  899 │     var v2 = move v1
+      │         ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 899 │     let v2 = move v1
+      │     │     +++
+
+warning BYN2311: `v4` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:906:9
+
+  906 │     var v4 = Slot.full(fresh(5))
+      │         ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 906 │     let v4 = Slot.full(fresh(5))
+      │     │     +++
+
+warning BYN2311: `v12` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:948:9
+
+  948 │     var v12 = Slot.full(fresh(9))
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 948 │     let v12 = Slot.full(fresh(9))
+      │     │     +++
+
+warning BYN2311: `v13` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:949:9
+
+  949 │     var v13 = Slot.full(fresh(6))
+      │         ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 949 │     let v13 = Slot.full(fresh(6))
+      │     │     +++
+
+warning BYN2311: `v14` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:952:13
+
+  952 │         var v14 = move v13
+      │             ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 952 │         let v14 = move v13
+      │     │         +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:994:17
+
+  994 │             var v9: List<i64>? = fresh(6)
+      │                 ^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 994 │             let v9: List<i64>? = fresh(6)
+      │     │             +++
+
+warning BYN2311: `v10` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:996:17
+
+  996 │             var v10 = move v8
+      │                 ^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 996 │             let v10 = move v8
+      │     │             +++
+
+warning BYN2311: `v15` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1011:17
+
+  1011 │             var v15 = fresh(1)
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1011 │             let v15 = fresh(1)
+       │      │             +++
+
+warning BYN2311: `v16` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1012:17
+
+  1012 │             var v16 = move v11
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1012 │             let v16 = move v11
+       │      │             +++
+
+warning BYN2311: `v26` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1044:17
+
+  1044 │             var v26 = move v11
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1044 │             let v26 = move v11
+       │      │             +++
+
+warning BYN2311: `v27` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1045:17
+
+  1045 │             var v27 = move v26
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1045 │             let v27 = move v26
+       │      │             +++
+
+warning BYN2311: `v29` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1051:9
+
+  1051 │     var v29 = move v11
+       │         ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1051 │     let v29 = move v11
+       │      │     +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1068:17
+
+  1068 │             var v2 = Slot.full(fresh(0))
+       │                 ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1068 │             let v2 = Slot.full(fresh(0))
+       │      │             +++
+
+warning BYN2311: `v4` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1070:17
+
+  1070 │             var v4 = move v3
+       │                 ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1070 │             let v4 = move v3
+       │      │             +++
+
+warning BYN2311: `v8` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1087:17
+
+  1087 │             var v8: List<i64>? = fresh(1)
+       │                 ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1087 │             let v8: List<i64>? = fresh(1)
+       │      │             +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1090:17
+
+  1090 │             var v9 = Ledger { items: fresh(3) }
+       │                 ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1090 │             let v9 = Ledger { items: fresh(3) }
+       │      │             +++
+
+warning BYN2311: `v14` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1098:17
+
+  1098 │             var v14 = move v13
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1098 │             let v14 = move v13
+       │      │             +++
+
+warning BYN2311: `v16` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1104:13
+
+  1104 │         var v16: List<i64>? = fresh(6)
+       │             ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1104 │         let v16: List<i64>? = fresh(6)
+       │      │         +++
+
+warning BYN2311: `v18` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1110:17
+
+  1110 │             var v18: List<i64>? = fresh(8)
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1110 │             let v18: List<i64>? = fresh(8)
+       │      │             +++
+
+warning BYN2311: `v19` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1112:17
+
+  1112 │             var v19 = Slot.full(fresh(1))
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1112 │             let v19 = Slot.full(fresh(1))
+       │      │             +++
+
+warning BYN2311: `v23` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1121:9
+
+  1121 │     var v23 = move v22
+       │         ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1121 │     let v23 = move v22
+       │      │     +++
+
+warning BYN2311: `v28` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1147:9
+
+  1147 │     var v28: List<i64>? = fresh(4)
+       │         ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1147 │     let v28: List<i64>? = fresh(4)
+       │      │     +++
+
+warning BYN2311: `v29` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1148:9
+
+  1148 │     var v29 = Ledger { items: fresh(4) }
+       │         ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1148 │     let v29 = Ledger { items: fresh(4) }
+       │      │     +++
+
+warning BYN2311: `v5` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1167:13
+
+  1167 │         var v5 = fresh(4)
+       │             ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1167 │         let v5 = fresh(4)
+       │      │         +++
+
+warning BYN2311: `v8` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1172:17
+
+  1172 │             var v8 = move v7
+       │                 ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1172 │             let v8 = move v7
+       │      │             +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1173:17
+
+  1173 │             var v9 = Slot.full(fresh(4))
+       │                 ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1173 │             let v9 = Slot.full(fresh(4))
+       │      │             +++
+
+warning BYN2311: `v16` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1190:17
+
+  1190 │             var v16 = Ledger { items: fresh(3) }
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1190 │             let v16 = Ledger { items: fresh(3) }
+       │      │             +++
+
+warning BYN2311: `v18` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1199:17
+
+  1199 │             var v18: List<i64>? = move v10
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1199 │             let v18: List<i64>? = move v10
+       │      │             +++
+
+warning BYN2311: `v24` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1215:17
+
+  1215 │             var v24 = move v13
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1215 │             let v24 = move v13
+       │      │             +++
+
+warning BYN2311: `v29` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1228:9
+
+  1228 │     var v29 = fresh(1)
+       │         ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1228 │     let v29 = fresh(1)
+       │      │     +++
+
+warning BYN2311: `v2` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1240:9
+
+  1240 │     var v2 = move v1
+       │         ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1240 │     let v2 = move v1
+       │      │     +++
+
+warning BYN2311: `v4` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1243:9
+
+  1243 │     var v4: List<i64>? = fresh(3)
+       │         ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1243 │     let v4: List<i64>? = fresh(3)
+       │      │     +++
+
+warning BYN2311: `v9` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1252:13
+
+  1252 │         var v9: List<i64>? = move v4
+       │             ^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1252 │         let v9: List<i64>? = move v4
+       │      │         +++
+
+warning BYN2311: `v13` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1262:17
+
+  1262 │             var v13 = move v12
+       │                 ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1262 │             let v13 = move v12
+       │      │             +++
+
+warning BYN2311: `v15` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l008/seed-18-debug/main.byn:1273:13
+
+  1273 │         var v15: List<i64>? = fresh(5)
+       │             ^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1273 │         let v15: List<i64>? = fresh(5)
+       │      │         +++

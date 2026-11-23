@@ -1,0 +1,2 @@
+{"code":"BYN1016","severity":"error","file":"input.byn","span":{"start":0,"end":7,"line":1,"column":1,"endLine":1,"endColumn":8},"message":"`@sealed` is not allowed here","label":null,"help":"put `@sealed` on a struct","fixes":[]}
+{"code":"BYN1016","severity":"error","file":"input.byn","span":{"start":24,"end":39,"line":4,"column":1,"endLine":4,"endColumn":16},"message":"`@sealed(strict)` is not allowed here","label":null,"help":"write `@sealed` with no arguments and no `because`","fixes":[]}

@@ -16,6 +16,9 @@ docs_fixture() {
   printf '// driver\nconst version: string = "1.2.3-dev"\n' > "$r/src/driver/main.byn"
   printf '{\n  "compiler": "bayan 1.2.3-dev",\n  "x": 1\n}\n{\n  "compiler": "bayan 1.2.3-dev"\n}\n' > "$r/tests/cases/out/dist.tree"
   printf '# Bayan\n\n```sh\nscripts/dist.sh                                # this host: dist/macos-arm64/1.2.3-dev/bayan\n```\n' > "$r/README.md"
+  mkdir -p "$r/tests/parity/cli-cli/version-prints-version/expected" "$r/tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected"
+  printf '$ bayan --version\nbayan 1.2.3-dev (<build>)\n' > "$r/tests/parity/cli-cli/version-prints-version/expected/stdout"
+  printf '\n\n◆ bayan       1.2.3-dev (commit <c>)\n' > "$r/tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected/stdout"
   printf '# 0001 — First\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0001-first.md"
   printf '# 0002 — Second\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/revisions/0002-second.md"
   for d in spec grammar style; do
@@ -34,20 +37,39 @@ docs_fixture() {
   mkdir -p "$r/docs/specs/001-first"
   printf '# 001 — First\n\nStatus: done\nRelease: 1.2.2\nSources: none recorded\n' > "$r/docs/specs/001-first/001-spec.md"
   printf '# Changelog\n\n## [Unreleased]\n\n### Added\n- a new thing\n\n## [1.2.2] - 2026-01-01\n\n- old\n' > "$r/CHANGELOG.md"
-  cat > "$r/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" <<'EOF'
-public static class DiagnosticCodes
-{
-    public static readonly DiagnosticDescriptor Alpha = Error("BYN0001", "alpha `{0}`");
-    // BYN1002 is retired: merged into BYN0001. Never reuse it.
-    public static readonly DiagnosticDescriptor RetiredBeta = Error("BYN1002", "retired: beta");
-    public static readonly DiagnosticDescriptor Gamma = Warning("BYN2003", "a | b needs \"quotes\"");
-    // BYN3004 is reserved: no fibers yet.
-    public static readonly DiagnosticDescriptor Delta = Error("BYN3004", "delta");
-    public static readonly DiagnosticDescriptor Old = Error("BYN3005", "old");
-    public static readonly DiagnosticDescriptor SecondForm = new("BYN0001", Severity.Error, "second form");
-    // Reserved: round 4.
-    // BYN1070 NegatedIsInput: `!(x is .s)`. // target: 19xx input form
-    // End reserved: round 4.
+  mkdir -p "$r/src/lexer" "$r/src/parser" "$r/src/semantics" "$r/scripts/docs/data"
+  : > "$r/src/lexer/diagnostics.byn"; : > "$r/src/parser/codes.byn"
+  cat > "$r/src/semantics/codes.byn" <<'EOF'
+enum SemaCode {
+    alpha
+    secondForm
+    retiredBeta
+    gamma
+    delta
+    old
+}
+
+string codeText(SemaCode code) => code switch {
+    .alpha       => "BYN0001",
+    .secondForm  => "BYN0001",
+    .retiredBeta => "BYN1002",
+    .gamma       => "BYN2003",
+    .delta       => "BYN3004",
+    .old         => "BYN3005",
+}
+
+string messageFormat(SemaCode code) => code switch {
+    .alpha       => "alpha `{0}`",
+    .secondForm  => "second form",
+    .retiredBeta => "retired: beta",
+    .gamma       => "a | b needs \"quotes\"",
+    .delta       => "delta",
+    .old         => "old",
+}
+
+bool isWarning(SemaCode code) => code switch {
+    .gamma => true,
+    _ => false,
 }
 EOF
   printf '# BYN0001: alpha\n' > "$r/docs/diagnostics/BYN0001.md"
@@ -57,61 +79,57 @@ plan BYN2233 UnlikelyOnErrorReturn Warning: redundant.
 reserved BYN8004 - a layer-2 sink
 retired BYN3005 Old retired in its page only
 EOF
-  cat > "$r/csharp/Bayan.Syntax/Lexing/Keywords.cs" <<'EOF'
-public static class Keywords
-{
-    private static readonly (string Text, TokenKind Kind)[] All =
-    [
-        ("struct", TokenKind.StructKeyword), ("error", TokenKind.ErrorKeyword),
-        ("actor", TokenKind.ActorKeyword),
-    ];
-}
-EOF
-  cat > "$r/csharp/Bayan.Syntax/Lexing/TokenKind.cs" <<'EOF'
-public enum TokenKind : ushort
-{
-    StructKeyword,
-    ErrorKeyword,
+  cat > "$r/src/lexer/tokens.byn" <<'EOF'
+public enum TokenKind {
+    identifier
+    structKeyword
+    errorKeyword
     // Reserved: no meaning yet.
-    ActorKeyword,
+    actorKeyword
 }
 
-public static class TokenKindFacts
-{
-    public const TokenKind KeywordLast = TokenKind.ActorKeyword;
-
-    public static bool IsReservedKeyword(this TokenKind kind) => kind is >= TokenKind.ActorKeyword and <= KeywordLast;
-
-    public static bool IsContextualKeyword(this TokenKind kind) => kind is
-        TokenKind.ErrorKeyword;
+bool isReservedKeyword(TokenKind kind) =>
+    kind.ordinal >= TokenKind.actorKeyword.ordinal && kind.ordinal <= TokenKind.actorKeyword.ordinal
+EOF
+  cat > "$r/src/parser/recover.byn" <<'EOF'
+public bool isContextualKeyword(TokenKind kind) => kind switch {
+    .errorKeyword => true,
+    _ => false,
 }
 EOF
-  cat > "$r/csharp/Bayan.Semantics/Binding/BuiltinMembers.cs" <<'EOF'
-internal static class BuiltinMembers
-{
-    public static (BuiltinMember Member, TypeSymbol Type)? Property(TypeSymbol type, string name) => (type, name) switch
-    {
-        ({ IsString: true }, "length") => (BuiltinMember.StringLength, PrimitiveType.I64),
-        ({ IsString: true }, "utf16") => (BuiltinMember.StringUtf16, TextViewType.Utf16),
-        _ => null,
-    };
+  cat > "$r/src/semantics/builtins.byn" <<'EOF'
+PropertyResult? builtinProperty(ref Ctx c, for Type type, by string name) {
+    switch name {
+        case "length": return t9Property(.stringLength, as: prim(.i64))
+        case "utf16": return t9Property(.stringUtf16, as: textViewType(.utf16))
+    }
+    return null
+}
 
-    public static BuiltinMethod? Method(TypeSymbol type, string name) => (type, name) switch
-    {
-        (TextViewType { Kind: TextViewKind.Utf16 }, "copy") => new(BuiltinMember.Utf16Copy, [], new ListType(PrimitiveType.U16)),
-        (SpanType { Element.IsString: true }, "joined") or (ListType { Element.IsString: true }, "joined") =>
-            new(BuiltinMember.StringJoined, [("by", PrimitiveType.String)], PrimitiveType.String),
-        (ListType l, "append") => new(BuiltinMember.ListAdd, [("item", l.Element)], PrimitiveType.Void, Mutating: true),
-        (PrimitiveType { Kind: PrimitiveKind.Char }, "copy") => null,
-        _ => null,
-    };
+BuiltinMethod? method(ref Ctx c, for Type type, by string name) {
+    switch name {
+        case "copy": return null
+        case "joined": return null
+        case "append": return null
+    }
+    return null
+}
 
-    public static bool HasMethod(TypeSymbol type, string name) =>
-        Method(type, name) is not null || (type is BuiltinType { Kind: BuiltinKind.IoInput } && name == "readAllBytes");
+bool hasMethod(ref Ctx c, for Type type, by string name) =>
+    method(ref c, for: type, by: name) is not null || (type == builtinType(.ioInput) && name == "readAllBytes")
 
-    private static readonly string[] Candidates = ["length", "copy"];
+List<string> names(ref Ctx c, for Type t) {
+    return List<string>()
 }
 EOF
+  { printf 'kind\tf1\tf2\tf3\n'
+    printf 'retired\tBYN1002\tmerged into BYN0001. Never reuse it.\n'
+    printf 'reserved\tBYN3004\tno fibers yet.\n'
+    printf 'round4\tBYN1070\tNegatedIsInput\t`!(x is .s)`. // target: 19xx input form\n'
+    printf 'kw\tactor\t6\nkw\terror\t5\nkw\tstruct\t5\n'
+    printf 'mem\tIoInput\treadAllBytes\t21\nmem\tList\tappend\t15\nmem\tList<string>\tjoined\t13\nmem\tSpan<string>\tjoined\t13\n'
+    printf 'mem\tUtf16\tcopy\t12\nmem\trune\tcopy\t16\nmem\tstring\tlength\t5\nmem\tstring\tutf16\t6\n'
+  } > "$r/scripts/docs/data/csharp-facts.tsv"
   cat > "$r/docs/STATUS.md" <<'EOF'
 # Bayan status
 

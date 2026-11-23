@@ -1,0 +1,147 @@
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 Identifier `x`
+3:62 CloseBrace `}`
+3:63 StringLiteral `"}"`
+3:66 CloseBrace `}`
+3:67 StringLiteral `"}"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+3:82 InterpolationEnd `}`
+3:83 InterpolatedStringEnd `"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringEnd `"`
+3:88 InterpolationEnd `}`
+3:89 InterpolatedStringEnd `"`
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+3:92 InterpolationEnd `}`
+3:93 InterpolatedStringEnd `"`
+3:97 InterpolatedStringStart `$"`
+3:99 InterpolationStart `{`
+3:100 InterpolatedStringStart `$"`
+3:102 InterpolationStart `{`
+3:103 InterpolatedStringStart `$"`
+3:105 InterpolationStart `{`
+3:106 InterpolatedStringStart `$"`
+3:108 InterpolationStart `{`
+3:109 InterpolatedStringStart `$"`
+3:111 InterpolationStart `{`
+3:112 InterpolatedStringStart `$"`
+3:114 InterpolatedStringText `\t`
+3:115 InterpolationStart `{`
+3:116 InterpolatedStringStart `$"`
+3:118 InterpolationStart `{`
+3:119 InterpolatedStringStart `$"`
+3:121 InterpolationStart `{`
+3:122 InterpolatedStringStart `$"`
+3:124 InterpolationStart `{`
+3:125 InterpolatedStringStart `$"`
+3:127 InterpolationStart `{`
+3:128 InterpolatedStringStart `$"`
+3:130 InterpolationStart `{`
+3:131 InterpolatedStringStart `$"`
+3:133 InterpolationStart `{`
+3:134 StringLiteral `$"{$"`
+3:139 OpenBrace `{`
+3:140 StringLiteral `$"{$"`
+3:145 OpenBrace `{`
+3:146 StringLiteral `$"{$"`
+3:151 OpenBrace `{`
+3:152 StringLiteral `$"{$"`
+3:157 OpenBrace `{`
+3:158 Identifier `x`
+3:159 CloseBrace `}`
+3:160 StringLiteral `"}"`
+3:163 CloseBrace `}`
+3:164 StringLiteral `"}"`
+3:167 CloseBrace `}`
+3:168 StringLiteral `"}"`
+3:171 CloseBrace `}`
+3:172 StringLiteral `" `
+3:174 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ � // line comment
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" � $"{$"{$"{$"{$"{$"	{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" � $"{$"{$"{$"{$"{$"	{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                                                                               ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" � $"{$"{$"{$"{$"{$"	{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                                                                                                  	                ^^ this
+    │                                                                                                                  	                   string
+    │                                                                                                                  	                   never
+    │                                                                                                                  	                   ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" � $"{$"{$"{$"{$"{$"	{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" 
+    │                                                                                                                  	                                                         ^^ string
+    │                                                                                                                  	                                                            ends
+    │                                                                                                                  	                                                            at
+    │                                                                                                                  	                                                            the
+    │                                                                                                                  	                                                            end
+    │                                                                                                                  	                                                            of
+    │                                                                                                                  	                                                            the
+    │                                                                                                                  	                                                            line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

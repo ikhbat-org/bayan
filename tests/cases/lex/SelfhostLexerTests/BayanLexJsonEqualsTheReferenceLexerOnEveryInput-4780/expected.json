@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Identifier","start":0,"end":2,"text":"le","doc":null},{"kind":"EffectKeyword","start":3,"end":9,"text":"effect","doc":null},{"kind":"Equals","start":10,"end":11,"text":"=","doc":null},{"kind":"Identifier","start":12,"end":13,"text":"G","doc":null},{"kind":"EndOfFile","start":14,"end":14,"text":"","doc":null}],"diagnostics":[]}

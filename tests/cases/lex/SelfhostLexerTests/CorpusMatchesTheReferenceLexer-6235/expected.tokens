@@ -1,0 +1,58 @@
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+5:1 Comma `,`
+5:5 DotDot `..`
+5:8 DotDotEquals `..=`
+5:12 Colon `:`
+5:14 Question `?`
+5:16 QuestionQuestion `??`
+5:19 QuestionQuestionEquals `??=`
+5:23 QuestionDot `?.`
+5:26 FatArrow `=>`
+5:29 Arrow `->`
+5:32 At `@`
+5:34 Hash `#`
+7:1 LetKeyword `let`
+7:5 LawKeyword `law`
+7:11 IntegerLiteral `3`
+8:2 IntegerLiteral `0`
+8:3 CharLiteral `'`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  5 │ ,  �.. ..= : ? ?? ??= ?. => -> @ #
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  7 │ let law � 3
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  8 │ \0'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  8 │ \0'
+    │   ^
+    │
+  help: close it with `'`

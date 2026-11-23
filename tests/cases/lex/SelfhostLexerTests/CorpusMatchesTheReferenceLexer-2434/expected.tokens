@@ -1,0 +1,17 @@
+1:1 CharLiteral `'`
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 Identifier `prperty`
+2:21 FuzzKeyword `fuzz`
+2:26 ModelKeyword `model`
+2:32 ForeachKeyword `foreach`
+2:40 NewKeyword `new`
+2:44 GotoKeyword `goto`
+3:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`

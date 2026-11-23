@@ -1,0 +1,22 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\r\n\r\nnever closed\r\n\r\nlet x\u{2067} = 1\r\n\r\n// line comment\r\n $"open {x";\r\n   """`
+9:8 CStringLiteral `c"text"`
+9:16 U16StringLiteral `u16"wide"`
+9:26 StringLiteral `"\u{202E} allowed in strings"`
+9:49 StringLiteral `""`
+9:52 StringLiteral `"\u{48}i"`
+10:3 RawStringLiteral `""" c"text" u16"wide""\u{202E} allowed in strings" "" "\u{48}i"\r\n�\r\n`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  10 │   """ c"text" u16"wide""� allowed in strings" "" "\u{48}i"
+     │   ^^^ raw string starts here
+     │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  11 │ �
+     │ ^

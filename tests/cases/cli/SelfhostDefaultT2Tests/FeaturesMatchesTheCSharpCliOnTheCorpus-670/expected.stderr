@@ -1,0 +1,5 @@
+error BYN2206: cannot convert `string` to `i64`
+  --> <repo>/tests/cases/diag/invalid-cast.byn:1:9
+
+  1 │ let n = i64("42")
+    │         ^^^^^^^^^

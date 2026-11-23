@@ -1,0 +1,12 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+2:1 OpenBracket `[`
+2:2 Greater `>`
+2:3 Greater `>`
+2:5 Identifier `b`
+3:1 OpenBrace `{`
+3:2 IntegerLiteral `1`
+3:3 Dot `.`
+3:4 EndOfFile

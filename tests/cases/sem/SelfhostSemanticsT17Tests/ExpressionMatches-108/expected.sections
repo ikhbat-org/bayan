@@ -1,0 +1,2 @@
+== case float-infinity
+literal 2447..2452 : f64 = Infinity

@@ -1,0 +1,37 @@
+1:1 Identifier `b`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+5:1 Equals `=`
+5:3 StarEquals `*=`
+5:6 SlashEquals `/=`
+5:9 PercentEquals `%=`
+5:12 AmpEquals `&=`
+5:15 BarEquals `|=`
+5:18 CaretEquals `^=`
+5:21 LessLessEquals `<<=`
+6:2 StringLiteral `"text"`
+6:9 StringLiteral `"esc \"q\" \\ \n"`
+6:27 RawStringLiteral `"""\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{L$"{$"{$"{$"{$"{$"{$"{x   raw "quoted"\n`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  5 │ = *= �/= %= &= |= ^= <<=
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  6 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,38 @@
+1:2 CharLiteral `'a'`
+1:6 CharLiteral `'\n'`
+1:11 CharLiteral `'\u{1F600}'`
+1:23 CharLiteral `'\''`
+1:28 CharLiteral `'é'`
+1:32 CharLiteral `'\\'`
+1:37 CharLiteral `'\0'`
+2:1 LetKeyword `let`
+2:5 Identifier `effct`
+2:11 Equals `=`
+2:13 IntegerLiteral `2`
+4:1 Identifier `ngs`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │     ^

@@ -1,0 +1,25 @@
+1:1 IntegerLiteral `0x_`
+3:1 Identifier `ment`
+3:7 Identifier `b`
+3:9 Equals `=`
+3:13 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0002: unexpected character ```
+
+  3 │ ment  b = ` 2
+    │           ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^

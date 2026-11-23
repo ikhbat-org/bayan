@@ -1,0 +1,48 @@
+== tests/cases/run/hex-decode.byn
+190..463 blockStmt
+196..385 localDecl
+208..385 catchExpr
+208..224 callExpr
+219..223 nameExpr
+231..385 switchExpr
+231..237 caughtErrorExpr
+248..265 variantPattern
+258..261 varPattern
+269..349 blockExpr
+269..349 blockExpr
+269..349 blockStmt
+283..320 exprStmt
+283..320 callExpr
+289..319 interpolatedExpr
+293..297 nameExpr
+315..317 nameExpr
+283..320 callExpr
+333..339 returnStmt
+359..368 constantPattern
+359..368 targetMemberExpr
+372..378 jumpExpr
+372..378 jumpExpr
+372..378 returnStmt
+390..461 exprStmt
+390..461 callExpr
+396..460 interpolatedExpr
+400..404 nameExpr
+409..421 memberExpr
+409..414 nameExpr
+436..458 callExpr
+447..457 memberExpr
+447..452 nameExpr
+390..461 callExpr
+477..545 blockStmt
+483..499 exprStmt
+483..499 callExpr
+488..498 literalExpr string
+504..512 exprStmt
+504..512 callExpr
+509..511 literalExpr string
+517..527 exprStmt
+517..527 callExpr
+522..526 literalExpr string
+532..543 exprStmt
+532..543 callExpr
+537..542 literalExpr string

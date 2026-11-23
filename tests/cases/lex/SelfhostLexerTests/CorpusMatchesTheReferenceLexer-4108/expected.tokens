@@ -1,0 +1,30 @@
+1:1 CharLiteral `'a'`
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec`
+2:30 IntegerLiteral `1`
+2:31 DotDot `..`
+2:33 IntegerLiteral `2`
+2:35 IntegerLiteral `1`
+2:36 DotDotEquals `..=`
+2:39 IntegerLiteral `3`
+2:41 IntegerLiteral `5`
+2:42 NumericSuffix `e`
+2:44 Identifier `x`
+2:45 Dot `.`
+2:46 Identifier `y`
+2:48 FloatLiteral `2.5`
+2:51 NumericSuffix `f`
+    doc `/// not a doc comment`
+5:1 Identifier `l`
+5:3 ForeachKeyword `foreach`
+5:11 NewKeyword `new`
+5:15 GotoKeyword `goto`
+6:2 Identifier `a`
+6:4 Greater `>`
+6:5 Greater `>`
+6:7 Identifier `b`
+8:2 EndOfFile

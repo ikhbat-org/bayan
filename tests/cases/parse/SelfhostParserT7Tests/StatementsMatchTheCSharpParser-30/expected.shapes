@@ -1,0 +1,2 @@
+block 9..31 < ? error 25..29 >
+BYN1001 25+4 expected a statement, found keyword `else`

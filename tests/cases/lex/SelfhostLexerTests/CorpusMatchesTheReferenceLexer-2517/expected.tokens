@@ -1,0 +1,12 @@
+1:2 Identifier `c`
+1:4 Equals `=`
+1:7 IntegerLiteral `3`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in s\u{3}rings" "" "\u{48}i"\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" "� allowed in s�rings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,57 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+    doc `/// Doc line two.`
+4:2 StructKeyword `struct`
+4:9 Identifier `S`
+5:2 Identifier `a`
+5:4 Greater `>`
+5:5 Greater `>`
+5:7 Identifier `b`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'\n'`
+6:10 CharLiteral `'cu{1F�600}'`
+6:23 CharLiteral `'\''`
+6:28 CharLiteral `'é'`
+6:32 CharLiteral `'\\'`
+6:37 CharLiteral `'\0'`
+7:1 CharLiteral `'\u{202E}'`
+7:5 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ 'a' '\n' 'cu{1F�600}' '\'' 'é' '\\' '\0'
+    │          ^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  6 │ 'a' '\n' 'cu{1F�600}' '\'' 'é' '\\' '\0'
+    │                ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ '�'��
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ '�'��
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  7 │ '�'��
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ '�'��
+    │     ^

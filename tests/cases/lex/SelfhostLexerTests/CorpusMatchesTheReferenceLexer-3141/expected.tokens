@@ -1,0 +1,139 @@
+1:1 Identifier `ạ̇`
+    doc `/// Doc line two.`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolationEnd `}`
+2:6 InterpolatedStringEnd `"`
+4:1 StringLiteral `"{$"`
+4:5 OpenBrace `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolationStart `{`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 Identifier `x`
+4:19 InterpolationEnd `}`
+4:20 InterpolatedStringEnd `"`
+4:21 InterpolationEnd `}`
+4:22 InterpolatedStringEnd `"`
+4:23 InterpolationEnd `}`
+4:24 InterpolatedStringEnd `"`
+4:25 InterpolationEnd `}`
+4:26 InterpolatedStringEnd `"`
+4:27 CloseBrace `}`
+4:28 StringLiteral `"}"`
+4:31 CloseBrace `}`
+4:32 StringLiteral `"}"`
+4:35 CloseBrace `}`
+4:36 StringLiteral `"}"`
+4:39 CloseBrace `}`
+4:40 StringLiteral `"}"`
+4:43 CloseBrace `}`
+4:44 StringLiteral `"$"`
+4:47 OpenBrace `{`
+4:48 InterpolatedStringStart `$"`
+4:50 InterpolationStart `{`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 InterpolatedStringStart `$"`
+4:59 InterpolationStart `{`
+4:60 InterpolatedStringStart `$"`
+4:62 InterpolationStart `{`
+4:63 InterpolatedStringStart `$"`
+4:65 InterpolationStart `{`
+4:66 InterpolatedStringStart `$"`
+4:68 InterpolationStart `{`
+4:69 InterpolatedStringStart `$"`
+4:71 InterpolationStart `{`
+4:72 InterpolatedStringStart `$"`
+4:74 InterpolationStart `{`
+4:75 InterpolatedStringStart `$"`
+4:77 InterpolationStart `{`
+4:78 InterpolatedStringStart `$"`
+4:80 InterpolationStart `{`
+4:81 InterpolatedStringStart `$"`
+4:83 InterpolationStart `{`
+4:84 InterpolatedStringStart `$"`
+4:86 InterpolationStart `{`
+4:87 InterpolatedStringStart `$"`
+4:89 InterpolationStart `{`
+4:90 InterpolatedStringStart `$"`
+4:92 InterpolationStart `{`
+4:93 InterpolatedStringStart `$"`
+4:95 InterpolationStart `{`
+4:96 StringLiteral `$"{$"`
+4:101 OpenBrace `{`
+4:102 StringLiteral `$"{x}"`
+4:108 CloseBrace `}`
+4:109 StringLiteral `"}"`
+4:112 InterpolationEnd `}`
+4:113 InterpolatedStringEnd `"`
+4:114 InterpolationEnd `}`
+4:115 InterpolatedStringEnd `"`
+4:116 InterpolationEnd `}`
+4:117 InterpolatedStringEnd `"`
+4:118 InterpolationEnd `}`
+4:119 InterpolatedStringEnd `"`
+4:120 InterpolationEnd `}`
+4:121 InterpolatedStringEnd `"`
+4:122 InterpolationEnd `}`
+4:123 InterpolatedStringEnd `"`
+4:124 InterpolationEnd `}`
+4:125 InterpolatedStringEnd `"`
+4:127 FloatLiteral `3.14`
+4:132 FloatLiteral `1e5`
+4:136 FloatLiteral `2.5e-3`
+4:143 FloatLiteral `6E+2`
+4:148 FloatLiteral `1.50`
+4:152 NumericSuffix `dec`
+4:156 IntegerLiteral `1`
+4:157 DotDot `..`
+4:159 IntegerLiteral `2`
+4:161 IntegerLiteral `1`
+4:162 DotDotEquals `..=`
+4:165 IntegerLiteral `3`
+4:167 IntegerLiteral `5`
+4:168 NumericSuffix `e`
+4:170 Identifier `x`
+4:171 Dot `.`
+4:172 Identifier `y`
+4:174 FloatLiteral `2.5`
+4:177 NumericSuffix `f`
+5:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇/// Doc line two.
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇/// Doc line two.
+    │   │ ++
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  $"{}" // comment � hidden
+    │                   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  $"{}" // comment � hidden
+    │   │                   -
+
+error BYN0003: unterminated string literal
+
+  4 │ "{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │                                                                        ^^ this string never
+    │                                                                           ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ "{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │                                                                                                ^^

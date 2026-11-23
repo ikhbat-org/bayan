@@ -1,0 +1,13 @@
+// `Fs.fileSize` gives a file's size in bytes without reading it, and fails notFound on a missing path.
+void main() uses fs, console fails IoError {
+    let data: u8[5] = [0x41, 0x42, 0x43, 0x44, 0x45]
+    try Io.writeFile("fs-file-size.tmp", data.span)
+    let size = try Fs.fileSize("fs-file-size.tmp")
+    print($"size: {size}")
+    let missing = Fs.fileSize("fs-file-size-missing.tmp") catch switch {
+        .notFound => -2,
+        _ => -1,
+    }
+    print($"missing: {missing}")
+    try Io.remove("fs-file-size.tmp")
+}

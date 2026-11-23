@@ -1,0 +1,3 @@
+== call.k28
+structLiteral|Pt|-|-|1369:5|literal:i64=1,errorExpr:?
+BYN2301 70:15 missing argument `y` for `Pt` |||

@@ -1,0 +1,2 @@
+== bag ref-out-escape-ref-element
+BYN3002 11:9 arena `arena` does not live as long as `xs`, which borrows it |arena `arena` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

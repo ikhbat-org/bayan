@@ -1,0 +1,10 @@
+== tests/cases/diag/string-concat-literals.byn
+72..96 blockStmt
+78..94 exprStmt
+78..94 callExpr
+84..93 interpolatedExpr
+87..88 nameExpr
+90..91 nameExpr
+78..94 callExpr
+18..27 binaryExpr add right 24..27
+46..58 binaryExpr add right 53..58

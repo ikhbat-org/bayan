@@ -1,0 +1,8 @@
+/// Doc line two.
+ "text" "esc \"q\" \\ \n" """
+
+$"{{" is and or not with move ref out this null true false comptime checked
+ & && | || ^ ~ ! = == !F < <= > >= << >> >>=
+ 'x
+	 let actor = 1
+

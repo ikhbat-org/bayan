@@ -1,0 +1,44 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `b `
+3:5 InterpolationStart `{`
+3:6 Identifier `c`
+3:7 InterpolationEnd `}`
+3:8 InterpolatedStringEnd `"`
+3:9 CloseParen `)`
+3:10 CloseBrace `}`
+3:12 Identifier `d`
+3:13 StringLiteral `" $`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `x`
+4:4 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"b {c}")} d" $
+    │             ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  4 │ $"x{�$"{
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"x{�$"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

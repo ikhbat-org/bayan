@@ -1,0 +1,3 @@
+== diags.diag/return-value-in-void
+BYN2403 2:12 `log` returns nothing, but `return` has a value
+  help declare a return type instead of `void`, or remove the value

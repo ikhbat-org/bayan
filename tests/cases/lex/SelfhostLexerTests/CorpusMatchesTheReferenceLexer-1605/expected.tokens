@@ -1,0 +1,5 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:4 Identifier `a`
+    doc `/// Doc line one.\n/// Do`
+4:1 EndOfFile

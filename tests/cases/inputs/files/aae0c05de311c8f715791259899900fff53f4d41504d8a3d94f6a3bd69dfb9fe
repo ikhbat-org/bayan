@@ -1,0 +1,32 @@
+public struct Row {
+    public i64 id
+}
+
+public struct CsvParser {
+    i64 n
+
+    public Row read() => Row { id: n }
+}
+
+public struct RowBuilder {
+    i64 n
+
+    Row build() => Row { id: n }
+}
+
+public interface ITableWriter {
+    void flush(Row row)
+}
+
+public struct TableCodec {
+    i64 n
+
+    public Row convert() => Row { id: n }
+}
+
+public type distinct RowLoader = i64
+
+public struct RowScheduler {
+}
+
+print("ok")

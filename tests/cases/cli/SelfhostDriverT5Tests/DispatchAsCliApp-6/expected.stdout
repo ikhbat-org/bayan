@@ -1,0 +1,29 @@
+CompilationUnit
+  Let a: i64 = 17
+  Let b: i64 = 5
+  Expr (call print (interp (+ a b) " " (- a b) " " (* a b) " " (/ a b) " " (% a b)))
+  Expr (call print (interp (/ (- a) b) " " (% (- a) b) " " (/ a (- b))))
+  Let x: u8 = 250
+  Expr (call print (interp (+% x 10) " " (+| x 10) " " (-| (call u8 3) (call u8 5)) " " (-% (call u8 3) (call u8 5))))
+  Let big: i32 = 2147483647
+  Expr (call print (interp (+| big 1) " " (+% big 1) " " (*| big 2)))
+  Expr (call print (interp (<< 1 4) " " (>> 256 2) " " (& 0xF0 0x3C) " " (| 0xF0 0x0F) " " (^ 0xFF 0x0F)))
+  Let h: f64 = (/ 1.0 3.0)
+  Expr (call print (interp h " " (+ 0.1 0.2) " " (* 2.5 4.0) " " (% 7.5 2.0)))
+  Let single: f32 = 0.1
+  Expr (call print (interp single " " (call f64 single)))
+  Expr (call print (interp (call i64 3.99) " " (call i64 (- 3.99)) " " (call u8 300.0) " " (call i32 (/ 1.0 0.0))))
+  Let wide: i64 = 1000
+  Expr (call print (interp (call i16 wide) " " (call u16 wide)))
+  Let c = 'A'
+  Expr (call print (interp c " " (. c value) " " (call rune 0x1F600) " " 'é'))
+  Let abc = "abc"
+  Expr (call print (interp true " " false " " (< 1 2) " " (<= 2 1) " " (< abc "abd") " " (== abc "abc")))
+  Let low: i64 = (- 9223372036854775808)
+  Let high: u64 = 18446744073709551615
+  Expr (call print (interp low " " high " " (- low 0)))
+  Let tiny: f64 = 0.00001
+  Let small: f64 = 0.0001
+  Let huge: f64 = 1000000000000000.0
+  Let large: f64 = 100000000000000.0
+  Expr (call print (interp tiny " " small " " huge " " large " " (- 2.5) " " 123.456 " " 1.0 " " (- 0.0) " " 6.02e23))

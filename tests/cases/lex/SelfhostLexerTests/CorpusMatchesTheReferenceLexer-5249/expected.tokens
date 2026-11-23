@@ -1,0 +1,29 @@
+1:1 Identifier `t`
+1:3 Identifier `a`
+1:5 Identifier `doc`
+1:9 Identifier `comment`
+2:1 Identifier `b`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+5:1 CharLiteral `'x`
+6:1 IntegerLiteral `0x`
+7:3 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `﻿`
+
+  7 │ ﻿ 
+    │ ^

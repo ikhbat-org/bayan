@@ -1,0 +1,5 @@
+== cases
+0 ((bynt_span_u8){l0_bad.v, 3})
+1 l7_bytes.len
+2 (*bynh_at_list_u8(l7_bytes, (int64_t)INT64_C(1), false, byn_file_0, 11))
+count 3

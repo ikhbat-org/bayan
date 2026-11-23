@@ -1,0 +1,51 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+3:2 StringLiteral `"bad \q e`
+4:1 IntegerLiteral `10`
+4:4 IntegerLiteral `0B11`
+4:9 IntegerLiteral `5`
+4:10 NumericSuffix `s`
+4:12 IntegerLiteral `250`
+4:15 NumericSuffix `ms`
+4:18 IntegerLiteral `4`
+4:19 NumericSuffix `KiB`
+4:23 IntegerLiteral `1`
+4:24 NumericSuffix `u`
+4:26 IntegerLiteral `0xFF`
+4:30 NumericSuffix `u`
+4:32 IntegerLiteral `0b1`
+4:35 NumericSuffix `ul`
+4:38 IntegerLiteral `7`
+4:39 NumericSuffix `l`
+6:1 Greater `>`
+6:2 GreaterEquals `>=`
+6:5 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │  "bad \q e
+    │  ^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  "bad \q e
+    │       ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  7 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  ��
+    │   ^

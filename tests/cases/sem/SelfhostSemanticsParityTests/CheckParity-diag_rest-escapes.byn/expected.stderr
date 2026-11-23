@@ -1,0 +1,18 @@
+error BYN3214: `xs` is borrowed for the call and cannot be stored
+  --> tmp/t26-tests/cli/diag_rest-escapes.byn/rest-escapes.byn:2:12
+
+  2 │     return xs
+    │            ^^
+    │
+  help: copy it first: `xs.copy()`
+
+error BYN3214: `xs` is borrowed for the call and cannot be stored
+  --> tmp/t26-tests/cli/diag_rest-escapes.byn/rest-escapes.byn:7:12
+
+  7 │     into = view
+    │            ^^^^
+    │
+  help: copy it first: `xs.copy()`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3214

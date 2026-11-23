@@ -1,0 +1,67 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+1:24 Amp `&`
+2:1 Amp `&`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 BarBar `||`
+2:11 Caret `^`
+2:13 Tilde `~`
+2:14 Bang `!`
+2:16 Equals `=`
+2:18 EqualsEquals `==`
+2:21 BangEquals `!=`
+2:24 Less `<`
+2:26 LessEquals `<=`
+2:29 Greater `>`
+2:31 GreaterEquals `>=`
+2:34 LessLess `<<`
+2:37 Greater `>`
+2:38 Greater `>`
+2:40 Greater `>`
+2:41 GreaterEquals `>=`
+4:1 Identifier `vr`
+4:4 Identifier `xs`
+4:6 Colon `:`
+4:8 Identifier `List`
+4:12 Less `<`
+4:13 Identifier `List`
+4:17 Less `<`
+4:18 Identifier `i64`
+4:21 Greater `>`
+4:22 Greater `>`
+5:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"& �
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ let b = "bad \q escape"& �
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ let b = "bad \q escape"& �
+    │                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ let b = "bad \q escape"& �
+    │                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  2 │ & && | || ^ ~�! = == != < <= > >= << >> >>=
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^

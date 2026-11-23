@@ -1,0 +1,15 @@
+1:1 Identifier `c`
+1:4 Greater `>`
+1:5 GreaterEquals `>=`
+1:8 IntegerLiteral `1`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\u{B}`
+
+  1 │ c �>>= 1�
+    │   ^
+
+error BYN0002: unexpected character `\u{1}`
+
+  1 │ c �>>= 1�
+    │         ^

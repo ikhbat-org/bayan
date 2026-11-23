@@ -1,0 +1,4 @@
+== s65
+switchExpr|i32|4988:35
+value local:Ledger=lg
+arm 5000:21 propertyPattern[5000:16]:Ledger(Ledger;total:i64=propertyPattern[5009:5]:i64(i64;|t:i64:b:-:let)|-) guard - value literal:i32=1

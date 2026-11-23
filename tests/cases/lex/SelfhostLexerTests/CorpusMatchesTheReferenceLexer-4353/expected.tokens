@@ -1,0 +1,118 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 Identifier `x`
+1:56 CloseBrace `}`
+1:57 StringLiteral `"}"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:65 CharLiteral `'s��'`
+2:1 Identifier `é`
+2:3 CharLiteral `'a'`
+2:7 CharLiteral `'\n '`
+2:13 Identifier `u`
+2:14 OpenBrace `{`
+2:15 IntegerLiteral `1`
+2:16 NumericSuffix `F600`
+2:20 CloseBrace `}`
+2:21 CharLiteral `' '`
+2:25 CharLiteral `''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 's��'
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 's��'
+    │                                                 ^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 's��'
+    │                                                                 ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 's��'
+    │                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 's��'
+    │                                                                    ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  2 │ é'a' '\n '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ é'a' '\n '\u{1F600}' '\'' 'é' '\\' '\0'
+    │   │ +
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ é'a' '\n '\u{1F600}' '\'' 'é' '\\' '\0'
+    │       ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  2 │ é'a' '\n '\u{1F600}' '\'' 'é' '\\' '\0'
+    │            ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ é'a' '\n '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                        ^
+
+error BYN0007: empty char literal
+
+  2 │ é'a' '\n '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                         ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

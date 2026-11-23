@@ -1,0 +1,97 @@
+1:1 Identifier `FFs`
+2:1 IntegerLiteral `0b1`
+2:4 NumericSuffix `ms`
+3:1 IntegerLiteral `0x_`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1__`
+6:1 IntegerLiteral `0xF__`
+8:1 LetKeyword `let`
+8:5 EffectKeyword `effect`
+8:12 Equals `=`
+8:14 IntegerLiteral `2`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `open `
+9:8 InterpolationStart `{`
+9:9 Identifier `x`
+9:10 StringLiteral `";`
+10:1 LetKeyword `let`
+10:5 Identifier `actor`
+10:11 Equals `=`
+10:13 IntegerLiteral `1`
+11:2 LetKeyword `let`
+11:6 LawKeyword `law`
+11:10 Equals `=`
+11:12 IntegerLiteral `3`
+12:3 InterpolatedStringStart `$"`
+12:5 InterpolationStart `{`
+    doc `/// `
+12:10 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  7 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ��
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  10 │ let actor = 1
+     │     ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  12 │  �$"{/// 
+     │  ^
+
+error BYN0003: unterminated string literal
+
+  12 │  �$"{/// 
+     │   ^^ this string never ends
+     │
+  help: close the `{` and the string

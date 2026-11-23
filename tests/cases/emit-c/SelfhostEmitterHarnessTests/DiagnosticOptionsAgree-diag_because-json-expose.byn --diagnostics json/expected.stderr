@@ -1,0 +1,1 @@
+{"code":"BYN8001","severity":"error","file":"input.byn","span":{"start":0,"end":13,"line":1,"column":1,"endLine":1,"endColumn":14},"message":"`@json(expose)` bypasses a safety rule and needs `because \"…\"`","label":"bypasses a safety rule","help":"explain the bypass in a `because` clause","fixes":[]}

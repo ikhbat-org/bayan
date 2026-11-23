@@ -1,0 +1,8 @@
+== 1 exit 0
+created app `local/my-app` in `$WORK/myApp`
+
+  cd $WORK/myApp
+  bayan run
+  bayan test
+== 2 exit 0
+    name: "local/my-app",      // `local/` until published under a verified namespace

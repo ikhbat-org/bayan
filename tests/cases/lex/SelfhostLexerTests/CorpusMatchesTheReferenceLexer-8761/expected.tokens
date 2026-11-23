@@ -1,0 +1,73 @@
+1:3 Identifier `Å`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+3:1 Identifier `camelCase2`
+3:12 Identifier `بيان`
+3:17 Identifier `μετ`
+4:4 Identifier `comment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+5:2 Identifier `Å`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolatedStringText `open `
+5:11 InterpolationStart `{`
+5:12 Identifier `x`
+5:13 StringLiteral `";`
+6:1 CharLiteral `'\u{D800}'`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ � Å
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ � Å
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ � Å
+    │  ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ � Å
+    │   ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ � Å
+    │   │   +
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  5 │  Å $"open {x";
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  Å $"open {x";
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  5 │  Å $"open {x";
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │  Å $"open {x";
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  6 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

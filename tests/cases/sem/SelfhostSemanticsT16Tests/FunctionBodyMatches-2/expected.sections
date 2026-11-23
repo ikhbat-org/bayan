@@ -1,0 +1,10 @@
+== body seeded
+block 1012..1050
+  localDecl 1018..1023
+  localDecl 1028..1033
+  localDecl 1038..1048
+local s 0 1 i64 using false keyword 1018..1021 const -
+local t 1 1 ? using false keyword 1028..1031 const -
+local w 2 1 i32 using false keyword 1038..1041 const -
+BYN2217 81:9 cannot infer the type of `t` ||write the type: `var i64 t`|
+handled -

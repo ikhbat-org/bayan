@@ -1,0 +1,58 @@
+== tests/cases/run/style-fix-literals-empty.byn
+294..570 blockStmt
+300..314 localDecl
+308..314 structLiteralExpr
+190..201 callExpr
+232..250 callExpr
+270..278 structLiteralExpr
+136..137 literalExpr integer
+150..151 literalExpr integer
+319..336 exprStmt
+319..336 callExpr
+319..326 memberExpr
+319..320 nameExpr
+334..335 literalExpr integer
+341..372 localDecl
+361..372 callExpr
+377..421 localDecl
+403..421 callExpr
+426..449 localDecl
+441..449 structLiteralExpr
+136..137 literalExpr integer
+150..151 literalExpr integer
+454..521 exprStmt
+454..521 callExpr
+460..520 interpolatedExpr
+463..477 memberExpr
+463..470 memberExpr
+463..464 nameExpr
+479..494 memberExpr
+479..487 memberExpr
+479..480 nameExpr
+496..506 memberExpr
+496..504 memberExpr
+496..497 nameExpr
+508..518 memberExpr
+508..516 memberExpr
+508..509 nameExpr
+454..521 callExpr
+526..568 exprStmt
+526..568 callExpr
+532..567 interpolatedExpr
+535..544 memberExpr
+535..537 nameExpr
+546..554 memberExpr
+546..547 nameExpr
+556..565 binaryExpr add right 562..565
+556..559 memberExpr
+556..557 nameExpr
+562..565 memberExpr
+562..563 nameExpr
+526..568 callExpr
+136..137 literalExpr integer
+150..151 literalExpr integer
+190..201 callExpr
+232..250 callExpr
+270..278 structLiteralExpr
+136..137 literalExpr integer
+150..151 literalExpr integer

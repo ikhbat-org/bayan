@@ -1,0 +1,5 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/for-dyn-ref-map-index.byn:16:26
+
+  16 │     for x: dyn ref IC in k["a"] { x.bump() }
+     │                          ^^^^^^ it is borrowed element by element as `dyn ref IC`

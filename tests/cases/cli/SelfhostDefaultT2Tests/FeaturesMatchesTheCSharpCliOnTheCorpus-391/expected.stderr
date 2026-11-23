@@ -1,0 +1,12 @@
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --> <repo>/tests/cases/parse/fails-bare-then-clause.byn:4:9
+
+  4 │         uses io
+    │         ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 3 │         uses io
+    │   │         +++++++
+    │ 4 │         fails
+    │   │ +++++++++++++

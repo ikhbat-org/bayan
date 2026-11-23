@@ -1,0 +1,36 @@
+== tests/cases/run/panic-handler-skips-defer.byn
+46..252 blockStmt
+52..57 deferStmt
+58..78 exprStmt
+58..78 callExpr
+64..77 literalExpr string
+58..78 callExpr
+83..96 deferStmt
+97..119 exprStmt
+97..119 callExpr
+103..118 literalExpr string
+97..119 callExpr
+124..139 deferStmt
+140..162 exprStmt
+140..162 callExpr
+146..161 literalExpr string
+140..162 callExpr
+167..237 blockStmt
+177..182 deferStmt
+183..209 exprStmt
+183..209 callExpr
+189..208 literalExpr string
+183..209 callExpr
+218..231 exprStmt
+218..231 callExpr
+224..230 literalExpr string
+242..250 returnStmt value 249..250
+249..250 literalExpr integer
+254..281 globalStatement
+254..281 exprStmt
+254..281 callExpr
+260..280 interpolatedExpr
+263..278 catchExpr
+263..269 callExpr
+276..278 unaryExpr negate operand 277..278
+254..281 callExpr

@@ -1,0 +1,1 @@
+{"code":"BYN2800","severity":"error","file":"input.byn","span":{"start":10,"end":15,"line":1,"column":11,"endLine":1,"endColumn":16},"message":"`Shape` must start with `I` and an uppercase letter","label":"an interface name","help":"rename it to `IShape`","fixes":[{"span":{"start":10,"end":15,"line":1,"column":11,"endLine":1,"endColumn":16},"replacement":"IShape"}]}

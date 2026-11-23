@@ -1,0 +1,24 @@
+union error E1 {
+    a
+    a(i64 q)
+    @cases(1) b
+    @foo c
+    @exitCode(3) @exitCode(4) d
+    @exitCode(5) @cases(2) @bar e
+    Bad
+    p(i64 x, string x, Missing y, i64 Z, bool w)
+}
+union error E2 { }
+union error A1 {
+    x
+    shared
+}
+union error B1 {
+    y
+    shared
+}
+union error C1 = A1, B1
+union error C2 = A1
+union error C3 = A1, A1
+union error C4 = Missing
+union error C5 = C1, B1

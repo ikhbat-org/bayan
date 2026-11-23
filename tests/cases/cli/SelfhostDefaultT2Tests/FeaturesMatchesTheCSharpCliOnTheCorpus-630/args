@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/input-error-set-pipe.byn
+--package
+<repo>/tests/cases/diag

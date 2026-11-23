@@ -1,0 +1,3 @@
+build
+--emit-c
+ref-list-element-in-loop.byn

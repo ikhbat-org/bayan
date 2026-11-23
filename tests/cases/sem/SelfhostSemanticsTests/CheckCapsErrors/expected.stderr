@@ -1,0 +1,123 @@
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:1:21
+
+  1 │ void f0() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:2:21
+
+  2 │ void f1() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:3:21
+
+  3 │ void f2() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:4:21
+
+  4 │ void f3() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:5:21
+
+  5 │ void f4() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:6:21
+
+  6 │ void f5() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:7:21
+
+  7 │ void f6() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:8:21
+
+  8 │ void f7() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:9:21
+
+  9 │ void f8() { let x = }
+    │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:10:21
+
+  10 │ void f9() { let x = }
+     │                     ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:11:22
+
+  11 │ void f10() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:12:22
+
+  12 │ void f11() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:13:22
+
+  13 │ void f12() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:14:22
+
+  14 │ void f13() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:15:22
+
+  15 │ void f14() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:16:22
+
+  16 │ void f15() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:17:22
+
+  17 │ void f16() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:18:22
+
+  18 │ void f17() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:19:22
+
+  19 │ void f18() { let x = }
+     │                      ^
+
+error BYN1002: expected an expression, found `}`
+  --> tmp/t26-tests/many/many.byn:20:22
+
+  20 │ void f19() { let x = }
+     │                      ^
+… and 5 more errors (use --all to show them)
+
+✗ build failed: 25 errors, 0 warnings
+  explain: bayan explain BYN1002

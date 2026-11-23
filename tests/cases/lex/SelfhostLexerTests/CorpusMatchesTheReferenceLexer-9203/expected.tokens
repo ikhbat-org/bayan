@@ -1,0 +1,6 @@
+1:1 Identifier `lWt`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 Identifier `C`
+2:2 EndOfFile

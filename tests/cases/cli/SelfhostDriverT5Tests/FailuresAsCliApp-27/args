@@ -1,0 +1,4 @@
+run
+--target
+linux-x64
+<repo>/tmp/t5/self/failures/arithmetic.byn

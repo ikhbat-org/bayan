@@ -1,0 +1,8 @@
+'a' '\n' '\u{1F60`}' '\'' 'é' '\\' '\0'
+
+0x let c = """never closed
+ __
+
+$"{astruct unique union enum flags open extensible interface deleate extension derivation attribute
+let café = 1
+

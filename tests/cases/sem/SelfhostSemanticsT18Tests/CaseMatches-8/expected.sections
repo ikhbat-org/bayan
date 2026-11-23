@@ -1,0 +1,4 @@
+== member.probes.-.v14
+errorExpr|?|-|-|-|-|-|2810:10|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2031 144:17 Bayan has no `toString()`; display is `format()` (derived from `formatInto(ref StrBuf)`) |not a Bayan method|call `format()`, or interpolate the value: `$"{x}"`|fix 2812..2820 format

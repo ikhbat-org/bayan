@@ -1,0 +1,64 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
+3:1 CharLiteral `'\u{110000}'`
+6:1 Slash `/`
+6:3 Identifier `ok`
+6:8 InKeyword `in`
+6:11 Identifier `comment`
+7:1 IntegerLiteral `0`
+7:2 CloseBrace `}`
+7:3 CharLiteral `'`
+8:1 CharLiteral `'x`
+10:1 LetKeyword `let`
+10:5 Identifier `café`
+10:10 Equals `=`
+10:12 IntegerLiteral `2`
+12:1 LetKeyword `let`
+12:5 LawKeyword `law`
+12:9 Equals `=`
+12:11 IntegerLiteral `3`
+14:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ / ok � in comment
+    │      ^
+
+error BYN0008: unterminated char literal
+
+  7 │ 0}'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  13 │ /*
+     │ ^^ comment starts here
+     │
+  help: close it with `*/`

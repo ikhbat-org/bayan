@@ -1,0 +1,180 @@
+1:1 Plus `+`
+1:3 Minus `-`
+1:5 Star `*`
+1:7 Slash `/`
+1:9 Percent `%`
+1:11 PlusPercent `+%`
+1:14 MinusPercent `-%`
+1:17 StarPercent `*%`
+1:20 PlusBar `+|`
+1:23 MinusBar `-|`
+1:26 StarBar `*|`
+1:29 PlusPlus `++`
+1:32 MinusMinus `--`
+3:2 IntegerLiteral `2`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolatedStringText `6$`
+6:23 InterpolatedStringEnd `"`
+6:24 OpenBrace `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 InterpolatedStringStart `$"`
+6:51 InterpolationStart `{`
+6:52 InterpolatedStringStart `$"`
+6:54 InterpolationStart `{`
+6:55 StringLiteral `$"{$"`
+6:60 OpenBrace `{`
+6:61 StringLiteral `$"{x}"`
+6:67 CloseBrace `}`
+6:68 StringLiteral `"}"`
+6:71 InterpolationEnd `}`
+6:72 InterpolatedStringEnd `"`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringEnd `"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 InterpolationEnd `}`
+6:80 InterpolatedStringEnd `"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+6:89 InterpolationEnd `}`
+6:90 InterpolatedStringEnd `"`
+6:91 CloseBrace `}`
+6:92 StringLiteral `" $"`
+6:96 OpenKeyword `open`
+6:101 OpenBrace `{`
+6:102 Identifier `x`
+6:103 StringLiteral `";`
+7:2 ErrorKeyword `error`
+7:8 SetKeyword `set`
+7:12 UnitKeyword `unit`
+7:17 DistinctKeyword `distinct`
+7:26 TypeKeyword `type`
+7:31 ImportKeyword `import`
+7:38 AsKeyword `as`
+7:41 PublicKeyword `public`
+7:48 PrivateKeyword `private`
+7:56 StaticKeyword `static`
+7:63 Identifier `readonl`
+7:71 RequiredKeyword `required`
+7:80 ConstKeyword `const`
+7:86 LetKeyword `let`
+7:90 VarKeyword `var`
+7:94 EmbedKeyword `embed`
+7:100 ExternKeyword `extern`
+7:107 UnsafeKeyword `unsafe`
+8:2 Comma `,`
+8:4 Dot `.`
+8:6 Dot `.`
+8:8 DotDotEquals `..=`
+8:12 Colon `:`
+8:14 Question `?`
+8:16 QuestionQuestion `??`
+8:19 QuestionQuestionEquals `??=`
+8:23 QuestionDot `?.`
+8:26 FatArrow `=>`
+8:29 Arrow `->`
+8:32 At `@`
+8:34 Hash `#`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 InterpolatedStringStart `$"`
+10:6 InterpolationStart `{`
+10:7 InterpolatedStringStart `$"`
+10:9 InterpolationStart `{`
+10:10 InterpolatedStringStart `$"`
+10:12 InterpolationStart `{`
+10:13 InterpolatedStringStart `$"`
+10:15 InterpolationStart `{`
+10:16 InterpolatedStringStart `$"`
+10:18 InterpolationStart `{`
+10:19 InterpolatedStringStart `$"`
+10:21 InterpolationStart `{`
+10:22 InterpolatedStringStart `$"`
+10:24 InterpolationStart `{`
+10:25 InterpolatedStringStart `$"`
+10:27 InterpolationStart `{`
+10:28 InterpolatedStringStart `$"`
+10:30 InterpolationStart `{`
+10:31 StringLiteral `$"{$"`
+10:36 OpenBrace `{`
+10:37 StringLiteral `$"{$"`
+10:42 OpenBrace `{`
+10:43 StringLiteral `$"{$"`
+10:48 OpenBrace `{`
+10:49 StringLiteral `$"{$"`
+10:54 OpenBrace `{`
+10:55 StringLiteral `$"{$"`
+10:60 OpenBrace `{`
+10:61 StringLiteral `$"{x}"`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ��
+    │  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"6$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"open {x";
+    │                                                       ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"6$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"open {x";
+    │                                                                                                       ^^ string
+    │                                                                                                          ends
+    │                                                                                                          at
+    │                                                                                                          the
+    │                                                                                                          end
+    │                                                                                                          of
+    │                                                                                                          the
+    │                                                                                                          line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"
+     │                            ^^ this string never ends
+     │
+  help: close the `{` and the string

@@ -1,0 +1,9 @@
+// ok ş in comment
+ """
+let cafeÌ = 1;Í$"{a
+in strings" "" "\u{48}i"
+
+let a = $ 1
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point {“x = 1 }}!" $""
+ var xs: List<List<i64>>
+ 

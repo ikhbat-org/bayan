@@ -1,0 +1,35 @@
+1:1 Identifier `efer`
+1:6 UsingKeyword `using`
+1:12 Identifier `cont`
+1:17 LetKeyword `let`
+1:21 Identifier `café`
+1:27 Equals `=`
+1:29 IntegerLiteral `1`
+1:30 Semicolon `;`
+2:1 Identifier `d`
+2:2 StringLiteral `"`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} all4owed in strings" \na {f($`
+4:7 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ efer using cont let café = 1;
+    │                     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ efer using cont let café = 1;
+    │   │                        +
+
+error BYN0003: unterminated string literal
+
+  2 │ d"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" "� all4owed in strings" 
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,74 @@
+2:2 Identifier `a`
+2:3 CharLiteral `' '`
+2:7 Identifier `n`
+2:8 CharLiteral `' '`
+2:12 Identifier `u`
+2:13 OpenBrace `{`
+2:14 IntegerLiteral `1`
+2:15 NumericSuffix `F600`
+2:19 CloseBrace `}`
+2:20 CharLiteral `' '`
+2:24 CharLiteral `''`
+2:27 CharLiteral `'é'`
+2:31 CharLiteral `'\\�'`
+2:36 CharLiteral `'\0'`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │       ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │            ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │                        ^
+
+error BYN0007: empty char literal
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │                         ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │                                ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ ��a' '\n' '\u{1F600}' '\'' 'é' '\\�' '\0'
+    │                                   ^

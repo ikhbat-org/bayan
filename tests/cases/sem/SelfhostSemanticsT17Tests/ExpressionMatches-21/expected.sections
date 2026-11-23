@@ -1,0 +1,2 @@
+== case hex-above-int128-float-target
+literal 2685..2720 : f64 = 3.402823669209385E+38

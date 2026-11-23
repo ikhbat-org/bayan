@@ -1,0 +1,11 @@
+public string greet() {
+    return "probe"
+}
+
+string hidden() {
+    return "hidden"
+}
+
+public void save(string text) uses fs {
+    Io.writeFile("probe.txt", text) catch { return }
+}

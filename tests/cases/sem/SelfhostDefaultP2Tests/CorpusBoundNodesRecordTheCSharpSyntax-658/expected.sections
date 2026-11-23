@@ -1,0 +1,9 @@
+== tests/cases/diag/missing-associated-type.byn
+46..47 literalExpr integer
+46..47 literalExpr integer
+46..47 literalExpr integer
+75..85 binaryExpr mul right 83..85
+75..85 binaryExpr mul right 83..85
+75..85 binaryExpr mul right 83..85
+75..80 nameExpr
+83..85 literalExpr integer

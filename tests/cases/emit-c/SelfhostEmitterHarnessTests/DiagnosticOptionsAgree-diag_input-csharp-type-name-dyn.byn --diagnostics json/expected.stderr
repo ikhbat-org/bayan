@@ -1,0 +1,1 @@
+{"code":"BYN2804","severity":"error","file":"input.byn","span":{"start":15,"end":19,"line":1,"column":16,"endLine":1,"endColumn":20},"message":"`i64` is not an interface","label":"after `dyn`","help":"name an `interface` after `dyn ref`","fixes":[]}

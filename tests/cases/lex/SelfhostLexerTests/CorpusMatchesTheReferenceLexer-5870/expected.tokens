@@ -1,0 +1,104 @@
+    doc `/// Doc line two.\r`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolatedStringText `�`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 Identifier `x`
+3:49 InterpolationEnd `}`
+3:50 InterpolatedStringEnd `"`
+3:51 InterpolationEnd `}`
+3:52 InterpolatedStringEnd `"`
+3:53 InterpolationEnd `}`
+3:54 InterpolatedStringEnd `"`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:61 InterpolationEnd `}`
+3:62 InterpolatedStringEnd `"`
+3:63 InterpolationEnd `}`
+3:64 InterpolatedStringEnd `"`
+3:65 InterpolationEnd `}`
+3:66 InterpolatedStringText `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  2 │  let b = ` 2
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │                         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}"}"
+    │                                                                     ^
+    │
+    │ 3 │ ����$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}}}"}"
+    │   │                                                                      +

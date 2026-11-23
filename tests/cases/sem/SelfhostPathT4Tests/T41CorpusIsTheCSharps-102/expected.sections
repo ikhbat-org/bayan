@@ -1,0 +1,4 @@
+== diags.diag/expected-expression
+BYN1002 2:1 expected an expression, found keyword `let`
+BYN1002 3:1 expected an expression, found keyword `let`
+BYN1002 3:13 expected an expression, found `)`

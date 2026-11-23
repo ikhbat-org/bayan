@@ -1,0 +1,41 @@
+warning BYN2311: `unit` is never reassigned; declare it with `let`
+  --> <repo>/tests/cases/parse/contextual-keywords.byn:41:5
+
+  41 │ var unit = 2
+     │     ^^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 41 │ let unit = 2
+     │    │ +++
+
+error BYN2104: `type` is immutable
+  --> <repo>/tests/cases/parse/contextual-keywords.byn:52:1
+
+  52 │ type = 1
+     │ ^^^^ declared with `let` on line 46
+     │
+  help: declare it with `var` if it should change
+     │ 46 │ var type = 5
+     │    │ +++
+
+error BYN2003: `add` is not a member of `i32[2]`
+  --> <repo>/tests/cases/parse/contextual-keywords.byn:53:5
+
+  53 │ set.add(1)
+     │     ^^^
+
+error BYN2109: `Names` needs a value for `flags`, `unit`, `distinct`, `open`, `extensible`, `law`,
+`derivation`, `attribute`, `embed`
+  --> <repo>/tests/cases/parse/contextual-keywords.byn:54:9
+
+  54 │ let n = Names { error: 1, set: 2, type: 3 }
+     │         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+     │
+  help: set them:
+        `Names { flags: …, unit: …, distinct: …, open: …, extensible: …, law: …, derivation: …, attribute: …, embed: … }`
+
+error BYN2220: `i32` cannot be called
+  --> <repo>/tests/cases/parse/contextual-keywords.byn:57:7
+
+  57 │ print(error(type: 1))
+     │       ^^^^^

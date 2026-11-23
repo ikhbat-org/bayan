@@ -1,0 +1,3 @@
+== this.Fd.=.b
+errorExpr|?|-|-|-|-|-|1121:1|-
+BYN2017 84:13 `a` needs an instance ||set it in a constructor; field defaults cannot read other fields|

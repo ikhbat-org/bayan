@@ -1,0 +1,1 @@
+{"code":"BYN2401","severity":"error","file":"input.byn","span":{"start":157,"end":158,"line":8,"column":5,"endLine":8,"endColumn":6},"message":"`big` must return `i64` on every path","label":null,"help":"add a `return` (or `panic(…)`) on the paths that reach the end","fixes":[]}

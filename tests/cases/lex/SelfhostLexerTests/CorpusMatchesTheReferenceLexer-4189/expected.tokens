@@ -1,0 +1,38 @@
+1:1 IntegerLiteral `1__`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `x`
+2:5 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray }�hee`
+3:14 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  2 │  $"x{ $"{
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray }�hee"
+    │         ^
+    │
+    │ 3 │ $"stray }}�hee"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ $"stray }�hee"
+    │          ^

@@ -1,0 +1,55 @@
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+4:2 StructKeyword `struct`
+4:9 UniqueKeyword `unique`
+4:16 UnionKeyword `union`
+4:22 EnumKeyword `enum`
+4:27 FlagsKeyword `flags`
+4:33 OpenKeyword `open`
+4:38 ExtensibleKeyword `extensible`
+4:49 InterfaceKeyword `interface`
+4:59 DelegateKeyword `delegate`
+4:68 ExtensionKeyword `extension`
+4:78 DerivationKeyword `derivation`
+4:89 AttributeKeyword `attribute`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `open `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 StringLiteral `";`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ // comment �ɀ� hidden
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ // comment �ɀ� hidden
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  4 │ �struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

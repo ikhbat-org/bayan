@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"LetKeyword","start":0,"end":3,"text":"let","doc":null},{"kind":"Identifier","start":4,"end":9,"text":"effet","doc":null},{"kind":"Equals","start":10,"end":11,"text":"=","doc":null},{"kind":"EndOfFile","start":12,"end":12,"text":"","doc":null}],"diagnostics":[]}

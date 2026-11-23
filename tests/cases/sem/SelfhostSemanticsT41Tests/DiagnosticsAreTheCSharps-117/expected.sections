@@ -1,0 +1,4 @@
+== diags.diag/unique-move-in-loop
+BYN2781 10:22 `a` is used after it was moved
+  label moved on line 10
+  help assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead

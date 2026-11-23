@@ -1,0 +1,10 @@
+struct S {
+    @unformatted because "columns"
+    i32 f() {
+      return   1
+    }
+
+    i32 g() {
+        return 2
+    }
+}

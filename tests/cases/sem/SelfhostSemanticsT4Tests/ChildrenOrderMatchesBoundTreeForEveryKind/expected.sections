@@ -1,0 +1,86 @@
+== children
+literal literal 1000+3 i8: | literal
+symbolLiteral symbolLiteral 1001+3 builtin: | symbolLiteral
+hostTarget hostTarget 1002+3 string: | hostTarget
+default defaultValue 1003+3 u16: | defaultValue
+local local 1004+3 i64: | local
+this thisRef 1005+3 u32: | thisRef
+field field 1006+3 i32: literal | field literal
+tupleElement tupleElement 1007+3 f32: defaultValue | tupleElement defaultValue
+call call 1008+3 i64: literal defaultValue thisRef | call literal defaultValue thisRef
+call- call 1009+3 i64: defaultValue | call defaultValue
+builtinCall builtinCall 1010+3 void: literal defaultValue thisRef | builtinCall literal defaultValue thisRef
+unary unary 1011+3 i64: errorExpr | unary errorExpr
+binary binary 1012+3 i64: literal defaultValue | binary literal defaultValue
+conversion conversion 1013+3 f64: typeRef | conversion typeRef
+tryFrom tryFrom 1014+3 i64: literal | tryFrom literal
+conditional conditional 1015+3 i64: literal defaultValue thisRef | conditional literal defaultValue thisRef
+coalesce coalesce 1016+3 i64: thisRef defaultValue | coalesce thisRef defaultValue
+structLiteral structLiteral 1017+3 structType: literal defaultValue thisRef | structLiteral literal defaultValue thisRef
+structLiteral- structLiteral 1018+3 structType: | structLiteral
+with withExpr 1019+3 i64: literal defaultValue thisRef | withExpr literal defaultValue thisRef
+tuple tuple 1020+3 tuple: literal defaultValue | tuple literal defaultValue
+collection collection 1021+3 i64: literal defaultValue thisRef | collection literal defaultValue thisRef
+spread spread 1022+3 i64: symbolLiteral | spread symbolLiteral
+index index 1023+3 i64: literal defaultValue | index literal defaultValue
+slice slice 1024+3 i64: literal defaultValue thisRef | slice literal defaultValue thisRef
+slice- slice 1025+3 i64: literal | slice literal
+sliceEnd slice 1026+3 i64: literal thisRef | slice literal thisRef
+range range 1027+3 i64: literal defaultValue | range literal defaultValue
+is isExpr 1028+3 bool: literal bindPattern | isExpr literal bindPattern
+switchExpr switchExpr 1029+3 i64: literal bindPattern defaultValue thisRef unionPattern errorExpr | switchExpr literal bindPattern defaultValue thisRef unionPattern errorExpr
+interpolated interpolated 1030+3 string: literal defaultValue | interpolated literal defaultValue
+move moveExpr 1031+3 i64: local | moveExpr local
+try tryExpr 1032+3 i64: literal | tryExpr literal
+catch catchExpr 1033+3 i64: literal defaultValue | catchExpr literal defaultValue
+jump jump 1034+3 neverKind: breakStmt | jump breakStmt
+blockExpr blockExpr 1035+3 void: block | blockExpr block errorStmt
+errorVariant errorVariant 1036+3 errorSet: literal defaultValue | errorVariant literal defaultValue
+enumMember enumMember 1037+3 enumType: | enumMember
+unionNew unionNew 1038+3 unionType: literal defaultValue | unionNew literal defaultValue
+enumValues enumValues 1039+3 bool: | enumValues
+staticArray staticArray 1040+3 u8: | staticArray
+stackalloc stackalloc 1041+3 string: | stackalloc
+errorExpr errorExpr 1042+3 error: | errorExpr
+typeRef typeRef 1043+3 error: | typeRef
+moduleRef moduleRef 1044+3 error: | moduleRef
+lambda lambda 1045+3 function: local local | lambda local local
+functionRef functionRef 1046+3 function: | functionRef
+block block 1047+3 -: errorStmt breakStmt continueStmt | block errorStmt breakStmt continueStmt
+localDecl localDecl 1048+3 -: literal | localDecl literal
+localDecl- localDecl 1049+3 -: | localDecl
+exprStmt exprStmt 1050+3 -: thisRef | exprStmt thisRef
+assign assign 1051+3 -: literal defaultValue | assign literal defaultValue
+return returnStmt 1052+3 -: literal | returnStmt literal
+return- returnStmt 1053+3 -: | returnStmt
+fail failStmt 1054+3 -: errorExpr | failStmt errorExpr
+become becomeStmt 1055+3 -: literal defaultValue | becomeStmt literal defaultValue
+break breakStmt 1056+3 -: | breakStmt
+continue continueStmt 1057+3 -: | continueStmt
+if ifStmt 1058+3 -: literal errorStmt breakStmt | ifStmt literal errorStmt breakStmt
+if- ifStmt 1059+3 -: literal errorStmt | ifStmt literal errorStmt
+while whileStmt 1060+3 -: literal errorStmt | whileStmt literal errorStmt
+doWhile doWhile 1061+3 -: errorStmt literal | doWhile errorStmt literal
+for forStmt 1062+3 -: literal errorStmt | forStmt literal errorStmt
+switch switchStmt 1063+3 -: literal bindPattern defaultValue errorStmt breakStmt continueStmt | switchStmt literal bindPattern defaultValue errorStmt breakStmt continueStmt
+defer deferStmt 1064+3 -: errorStmt | deferStmt errorStmt
+assert assertStmt 1065+3 -: literal | assertStmt literal
+errdefer errdeferStmt 1066+3 -: breakStmt | errdeferStmt breakStmt
+panicDefer panicDefer 1067+3 -: continueStmt | panicDefer continueStmt
+setOnPanic setOnPanic 1068+3 -: | setOnPanic
+context contextStmt 1069+3 -: literal block | contextStmt literal block errorStmt
+errorStmt errorStmt 1070+3 -: | errorStmt
+constantPattern constantPattern 1071+3 i8: literal | constantPattern literal
+relationalPattern relationalPattern 1072+3 i16: defaultValue | relationalPattern defaultValue
+rangePattern rangePattern 1073+3 i32: literal defaultValue | rangePattern literal defaultValue
+bindPattern bindPattern 1074+3 u8: | bindPattern
+notPattern notPattern 1075+3 u16: unionPattern | notPattern unionPattern
+binaryPattern binaryPattern 1076+3 u32: bindPattern unionPattern | binaryPattern bindPattern unionPattern
+propertyPattern propertyPattern 1077+3 u64: bindPattern unionPattern | propertyPattern bindPattern unionPattern
+unionField unionField 1078+3 i16: literal | unionField literal
+unionPattern unionPattern 1079+3 f32: bindPattern unionPattern | unionPattern bindPattern unionPattern
+errorField errorField 1080+3 i16: defaultValue | errorField defaultValue
+errorPattern errorPattern 1081+3 f64: bindPattern errorPattern | errorPattern bindPattern errorPattern
+methodGroup methodGroup 1082+3 error: | methodGroup
+variantGroup variantGroup 1083+3 error: | variantGroup
+builtinGroup builtinGroup 1084+3 error: | builtinGroup

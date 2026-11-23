@@ -1,0 +1,19 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `{{`
+1:6 InterpolatedStringEnd `"`
+1:8 VarKeyword `var`
+1:12 Identifier `xs`
+1:14 Colon `:`
+1:16 Identifier `List`
+1:20 Less `<`
+1:21 Identifier `List`
+1:25 Less `<`
+1:26 Identifier `i64`
+1:29 Greater `>`
+1:30 Greater `>`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  1 │ ̈́$"{{" var xs: List<List<i64>>
+    │ ^

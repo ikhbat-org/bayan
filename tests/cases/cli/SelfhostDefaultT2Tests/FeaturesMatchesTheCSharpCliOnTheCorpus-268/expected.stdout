@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "nodes": [
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufGrow"
+  ],
+  "diagnostics": []
+}

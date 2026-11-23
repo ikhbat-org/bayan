@@ -1,0 +1,7 @@
+a /* never closed
+ ÿ /// Doc line two.
+ 'x
+   """ cetext" u16"wide" "â€® allowed in srings" "" "\u{48}i"
+ struct S
+ b
+ $"{

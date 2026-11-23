@@ -1,0 +1,17 @@
+== tests/cases/diag/doer-without-verb.byn
+524..535 globalStatement
+524..535 exprStmt
+524..535 callExpr
+530..534 literalExpr string
+524..535 callExpr
+208..229 structLiteralExpr
+208..229 structLiteralExpr
+208..229 structLiteralExpr
+226..227 literalExpr integer
+336..357 structLiteralExpr
+336..357 structLiteralExpr
+336..357 structLiteralExpr
+354..355 literalExpr integer
+515..520 literalExpr string
+515..520 literalExpr string
+515..520 literalExpr string

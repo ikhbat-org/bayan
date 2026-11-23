@@ -1,0 +1,1 @@
+{"code":"BYN7008","severity":"error","file":"input.byn","span":{"start":49,"end":54,"line":4,"column":9,"endLine":4,"endColumn":14},"message":"state `.empty` has the same name as static member `Cart.empty`","label":null,"help":"rename the state or the static member","fixes":[]}

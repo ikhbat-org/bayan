@@ -1,0 +1,5 @@
+build
+--mode
+turbo
+--emit-c
+input.byn

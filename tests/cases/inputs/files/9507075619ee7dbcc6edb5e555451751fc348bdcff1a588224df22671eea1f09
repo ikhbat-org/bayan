@@ -1,0 +1,10 @@
+struct Box {
+    i64 v = 0
+}
+
+void take(string s) {}
+
+void main() {
+    let b = Box {}
+    take(move b)
+}

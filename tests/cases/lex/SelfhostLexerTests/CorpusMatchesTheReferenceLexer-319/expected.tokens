@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `0xFF`
+2:2 Identifier `W`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ 0xFF��
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  1 │ 0xFF��
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  W���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  W���
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  W���
+    │     ^

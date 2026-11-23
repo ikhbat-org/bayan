@@ -1,0 +1,8 @@
+struct P { int i8 }
+
+void main() {
+    let u8 = 1
+    let p = P { i8: 3 }
+    let w: sbyte = 2
+    print($"{u8}{p.i8}{w}")
+}

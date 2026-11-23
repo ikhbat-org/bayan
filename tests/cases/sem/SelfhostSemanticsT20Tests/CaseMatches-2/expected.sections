@@ -1,0 +1,3 @@
+== call.c9
+errorExpr|?|-|-|-|1583:11|-
+BYN2706 103:14 variant `dot` has no payload ||write `Shape.dot` without parentheses|

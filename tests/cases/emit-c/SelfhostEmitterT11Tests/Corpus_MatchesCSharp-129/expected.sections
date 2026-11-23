@@ -1,0 +1,9 @@
+== cases
+0 ((byn_dyn_main__ICounter){&(*p_c), &bynh_vtab_main__Counter_main__ICounter})
+1 ((byn_dyn_main__ICounter){&(*p_c), &bynh_vtab_main__Counter_main__ICounter})
+2 ((byn_dyn_main__ICounter){&(*p_p).right, &bynh_vtab_main__Counter_main__ICounter})
+3 ((byn_dyn_main__ICounter){&l0_p.left, &bynh_vtab_main__Counter_main__ICounter})
+4 ((byn_dyn_main__ICounter){&l0_p.right, &bynh_vtab_main__Counter_main__ICounter})
+5 ((byn_dyn_main__ICounter){&byn_main__make(INT64_C(7)), &bynh_vtab_main__Counter_main__ICounter})
+6 ((byn_dyn_main__ICounter){&(*self), &bynh_vtab_main__Counter_main__ICounter})
+count 7

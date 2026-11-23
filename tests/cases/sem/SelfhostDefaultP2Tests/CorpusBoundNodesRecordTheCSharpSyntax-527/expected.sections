@@ -1,0 +1,21 @@
+== tests/cases/diag/generic-cannot-infer.byn
+16..20 literalExpr nullKeyword
+16..20 literalExpr nullKeyword
+16..20 literalExpr nullKeyword
+70..93 binaryExpr coalesce right 80..84
+70..93 binaryExpr coalesce right 80..84
+70..93 binaryExpr coalesce right 80..84
+70..74 moveExpr
+75..76 nameExpr
+80..84 moveExpr
+85..93 nameExpr
+95..109 globalStatement
+95..109 localDecl
+103..109 callExpr
+110..143 localDecl
+118..143 callExpr
+144..163 localDecl
+152..163 callExpr
+16..20 literalExpr nullKeyword
+16..20 literalExpr nullKeyword
+16..20 literalExpr nullKeyword

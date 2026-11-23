@@ -1,0 +1,82 @@
+error BYN5004: `any` has 2 unlabeled parameters; give each but one a particle
+  --> input.byn:10:6
+
+  10 │ bool any((Token -> bool) p, i32 n) => true
+     │      ^^^ 2 unlabeled parameters
+     │
+  help: keep one unlabeled parameter, the object
+
+error BYN2002: unknown type `Token`
+  --> input.byn:10:11
+
+  10 │ bool any((Token -> bool) p, i32 n) => true
+     │           ^^^^^
+
+error BYN5006: `n` is a required parameter besides the object and needs a particle
+  --> input.byn:10:33
+
+  10 │ bool any((Token -> bool) p, i32 n) => true
+     │                                 ^ needs a particle
+     │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2002: unknown type `Token`
+  --> input.byn:11:21
+
+  11 │ i32 indexWhere(Span<Token> items, by (Token -> bool) p) => 0
+     │                     ^^^^^
+
+error BYN2002: unknown type `Token`
+  --> input.byn:11:39
+
+  11 │ i32 indexWhere(Span<Token> items, by (Token -> bool) p) => 0
+     │                                       ^^^^^
+
+error BYN5004: `pull` has 2 unlabeled parameters; give each but one a particle
+  --> input.byn:12:6
+
+  12 │ void pull((() -> Token fails A, B) next, i32 limit) {
+     │      ^^^^ 2 unlabeled parameters
+     │
+  help: keep one unlabeled parameter, the object
+
+error BYN2002: unknown type `Token`
+  --> input.byn:12:18
+
+  12 │ void pull((() -> Token fails A, B) next, i32 limit) {
+     │                  ^^^^^
+
+error BYN2002: unknown type `A`
+  --> input.byn:12:30
+
+  12 │ void pull((() -> Token fails A, B) next, i32 limit) {
+     │                              ^
+
+error BYN2002: unknown type `B`
+  --> input.byn:12:33
+
+  12 │ void pull((() -> Token fails A, B) next, i32 limit) {
+     │                                 ^
+
+error BYN5006: `limit` is a required parameter besides the object and needs a particle
+  --> input.byn:12:46
+
+  12 │ void pull((() -> Token fails A, B) next, i32 limit) {
+     │                                              ^^^^^ needs a particle
+     │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2001: `isBig` is not defined
+  --> input.byn:16:19
+
+  16 │     let f: Pred = isBig
+     │                   ^^^^^
+
+error BYN2001: `isBig` is not defined
+  --> input.byn:17:26
+
+  17 │     let g: i32 -> bool = isBig
+     │                          ^^^^^
+
+✗ build failed: 12 errors, 0 warnings
+  explain: bayan explain BYN5004

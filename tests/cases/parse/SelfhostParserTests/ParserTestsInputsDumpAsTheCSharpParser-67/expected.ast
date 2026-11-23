@@ -1,0 +1,4 @@
+CompilationUnit
+  Struct S
+    Function f(this is .open) -> void
+      Block

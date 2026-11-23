@@ -1,0 +1,4 @@
+== diags.diag/because-json-expose
+BYN8001 1:1 `@json(expose)` bypasses a safety rule and needs `because "…"`
+  label bypasses a safety rule
+  help explain the bypass in a `because` clause

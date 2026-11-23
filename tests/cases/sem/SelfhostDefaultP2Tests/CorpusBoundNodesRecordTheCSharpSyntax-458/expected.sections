@@ -1,0 +1,6 @@
+== tests/cases/diag/env-get-as-value.byn
+127..184 blockStmt
+133..151 localDecl
+144..151 memberExpr
+156..182 localDecl
+169..182 memberExpr

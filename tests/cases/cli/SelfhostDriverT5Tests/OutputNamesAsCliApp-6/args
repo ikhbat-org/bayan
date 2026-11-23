@@ -1,0 +1,6 @@
+build
+--mode
+debug
+--target
+host
+arithmetic.byn

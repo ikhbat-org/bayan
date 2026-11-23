@@ -1,0 +1,89 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:6 Identifier `comment`
+2:14 Star `*`
+2:15 Slash `/`
+2:17 Identifier `a`
+3:2 LetKeyword `let`
+3:6 Identifier `b`
+3:8 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `x`
+4:4 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+5:1 Identifier `i`
+5:2 Identifier `s`
+5:4 AndKeyword `and`
+5:8 OrKeyword `or`
+5:11 NotKeyword `not`
+5:15 WithKeyword `with`
+5:20 MoveKeyword `move`
+5:25 RefKeyword `ref`
+5:29 OutKeyword `out`
+5:33 ThisKeyword `this`
+5:38 NullKeyword `null`
+5:43 TrueKeyword `true`
+5:48 FalseKeyword `false`
+5:54 ComptimeKeyword `comptime`
+5:63 CheckedKeyword `checked`
+6:2 IfKeyword `if`
+6:5 ElseKeyword `else`
+6:10 UnlessKeyword `unless`
+6:17 SwitchKeyword `switch`
+6:24 CaseKeyword `case`
+6:29 DefaultKeyword `default`
+6:37 ForKeyword `for`
+6:41 InKeyword `in`
+6:44 WhileKeyword `while`
+6:50 DoKeyword `do`
+6:53 BreakKeyword `break`
+6:59 ContinueKeyword `continue`
+6:68 ReturnKeyword `return`
+6:75 YieldKeyword `yield`
+6:81 Identifier `d`
+6:83 Identifier `fer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
+7:2 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  2 │  �   comment */ a
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  �   comment */ a
+    │   │  -
+
+error BYN0002: unexpected character ```
+
+  3 │  let b = ` 2
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  5 │ i�s and or not with move ref out this null true false comptime checked
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC1)
+
+  6 │  if else unless switch case default for in while do break continue return yield d�fer errdefer using context
+    │                                                                                  ^

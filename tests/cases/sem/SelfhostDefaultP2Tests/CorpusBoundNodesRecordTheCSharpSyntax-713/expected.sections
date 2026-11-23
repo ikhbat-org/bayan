@@ -1,0 +1,6 @@
+== tests/cases/diag/number-agreement-irregular.byn
+265..276 globalStatement
+265..276 exprStmt
+265..276 callExpr
+271..275 literalExpr string
+265..276 callExpr

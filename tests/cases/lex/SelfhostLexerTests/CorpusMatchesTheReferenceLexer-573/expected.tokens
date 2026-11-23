@@ -1,0 +1,38 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"}"`
+1:9 CloseBrace `}`
+1:10 StringLiteral `"}"`
+1:13 CloseBrace `}`
+1:14 StringLiteral `"}"`
+1:17 CloseBrace `}`
+1:18 StringLiteral `"}"`
+1:21 CloseBrace `}`
+1:22 StringLiteral `"`
+2:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n0xFFs\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"\n}'\u{110000}'\n '\u{17}a'�'\n' '\u{1F600}' '\'' 'é' '\\' '\0'\nstruct unique union enum flags open extensible�interface delegate extension derivation attribute\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ }"}"}"}"}"}"}"}"}"}"}"
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │    """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  6 │  '�a'�'\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │ struct unique union enum flags open extensible�interface delegate extension derivation attribute
+    │                                               ^

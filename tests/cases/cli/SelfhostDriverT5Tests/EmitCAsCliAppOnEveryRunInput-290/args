@@ -1,0 +1,3 @@
+build
+--emit-c
+style-fix-literals-empty-fixed.byn

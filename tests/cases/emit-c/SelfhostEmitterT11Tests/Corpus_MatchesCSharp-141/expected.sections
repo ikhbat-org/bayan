@@ -1,0 +1,5 @@
+== cases
+0 bynh_add_list_main__S(&l0_b.items, ((bynt_main__S){INT64_C(7)}))
+1 ((byn_dyn_main__IThing){&(*bynh_at_list_main__S((*self).items, (int64_t)INT64_C(0), false, byn_file_0, 14)), &bynh_vtab_main__S_main__IThing})
+2 (*bynh_at_list_main__S((*self).items, (int64_t)INT64_C(0), false, byn_file_0, 14))
+count 3

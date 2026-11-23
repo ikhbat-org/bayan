@@ -1,0 +1,91 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:1 StructKeyword `struct`
+3:8 UniqueKeyword `unique`
+3:15 UnionKeyword `union`
+3:21 EnumKeyword `enum`
+3:26 FlagsKeyword `flags`
+3:32 OpenKeyword `open`
+3:37 ExtensibleKeyword `extensible`
+3:48 InterfaceKeyword `interface`
+3:58 DelegateKeyword `delegate`
+3:67 ExtensionKeyword `extension`
+3:77 DerivationKeyword `derivation`
+3:88 Identifier `a`
+3:90 Identifier `tribute`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolatedStringText `8$`
+4:18 InterpolatedStringEnd `"`
+4:19 OpenBrace `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 Identifier `x`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:57 InterpolationEnd `}`
+4:58 InterpolatedStringEnd `"`
+4:59 InterpolationEnd `}`
+4:60 InterpolatedStringEnd `"`
+4:61 InterpolationEnd `}`
+4:62 InterpolatedStringEnd `"`
+4:63 InterpolationEnd `}`
+4:64 InterpolatedStringEnd `"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringEnd `"`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}"`
+4:75 InterpolationEnd `}`
+4:76 InterpolatedStringEnd `"`
+4:78 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  3 │ struct unique union enum flags open extensible interface delegate extension derivation a�tribute
+    │                                                                                         ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"8$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string

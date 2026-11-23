@@ -1,0 +1,6 @@
+øˆ€€€let b = "bad \q escape"
+
+'â€®'et c =  3
+let xâ§ = 1
+
+$"a{b}c

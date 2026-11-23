@@ -1,0 +1,30 @@
+== tests/cases/run/defer-modifier-errdefer.byn
+137..243 blockStmt
+143..155 localDecl
+151..155 literalExpr trueKeyword
+160..173 deferStmt
+174..195 guardedStmt
+194..195 nameExpr
+174..190 exprStmt
+174..190 callExpr
+180..189 literalExpr string
+174..190 callExpr
+200..209 assignStmt assign target 200..201 value 204..209
+200..201 nameExpr
+204..209 literalExpr falseKeyword
+214..227 exprStmt
+214..227 callExpr
+220..226 literalExpr string
+214..227 callExpr
+232..236 failStmt
+237..241 targetMemberExpr
+257..294 blockStmt
+263..292 exprStmt
+263..292 catchExpr
+263..266 callExpr
+273..292 blockExpr
+273..292 blockStmt
+275..290 exprStmt
+275..290 callExpr
+281..289 literalExpr string
+275..290 callExpr

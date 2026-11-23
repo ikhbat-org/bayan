@@ -1,0 +1,1 @@
+{"code":"BYN2010","severity":"error","file":"b/b.byn","span":{"start":7,"end":8,"line":1,"column":8,"endLine":1,"endColumn":9},"message":"import cycle: a → b → a","label":null,"help":"move the shared declarations into a module both can import","fixes":[]}

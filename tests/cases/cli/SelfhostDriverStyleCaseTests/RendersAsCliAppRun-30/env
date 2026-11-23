@@ -1,0 +1,5 @@
+NO_COLOR=1
+FORCE_COLOR=1
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/build-ice-no-color-csharp
+PATH=<repo>/tmp/t7-style/build-ice-no-color/tally/fakebin

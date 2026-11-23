@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/input-fails-qualified
+--include-path
+<repo>/tests/cases/diag/input-fails-qualified/main.byn

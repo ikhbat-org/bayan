@@ -1,0 +1,97 @@
+== tests/cases/run/utf8-decode.byn
+247..527 blockStmt
+253..356 localDecl
+261..356 catchExpr
+261..279 callExpr
+273..278 nameExpr
+286..356 switchExpr
+286..292 caughtErrorExpr
+303..327 variantPattern
+320..323 varPattern
+331..349 interpolatedExpr
+345..347 nameExpr
+361..400 localDecl
+369..400 binaryExpr coalesce right 394..400
+369..390 callExpr
+384..389 nameExpr
+394..400 literalExpr string
+405..454 localDecl
+417..454 callExpr
+429..434 nameExpr
+445..453 targetMemberExpr
+459..525 returnStmt value 466..525
+466..525 interpolatedExpr
+469..470 nameExpr
+484..485 nameExpr
+495..500 nameExpr
+504..516 memberExpr
+504..509 nameExpr
+557..1030 blockStmt
+563..591 localDecl
+579..591 collectionExpr
+580..584 literalExpr integer
+586..590 literalExpr integer
+596..620 exprStmt
+596..620 callExpr
+602..619 callExpr
+611..618 memberExpr
+611..613 nameExpr
+596..620 callExpr
+625..668 localDecl
+650..668 collectionExpr
+651..655 literalExpr integer
+657..661 literalExpr integer
+663..667 literalExpr integer
+673..706 exprStmt
+673..706 callExpr
+679..705 callExpr
+688..704 memberExpr
+688..699 nameExpr
+673..706 callExpr
+711..758 localDecl
+734..758 collectionExpr
+735..739 literalExpr integer
+741..745 literalExpr integer
+747..751 literalExpr integer
+753..757 literalExpr integer
+763..794 exprStmt
+763..794 callExpr
+769..793 callExpr
+778..792 memberExpr
+778..787 nameExpr
+763..794 callExpr
+799..835 localDecl
+817..835 collectionExpr
+818..822 literalExpr integer
+824..828 literalExpr integer
+830..834 literalExpr integer
+840..866 exprStmt
+840..866 callExpr
+846..865 callExpr
+855..864 memberExpr
+855..859 nameExpr
+840..866 callExpr
+871..979 localDecl
+879..979 catchExpr
+879..901 callExpr
+891..900 memberExpr
+891..895 nameExpr
+908..979 switchExpr
+908..914 caughtErrorExpr
+925..943 variantPattern
+925..943 variantPattern
+925..943 variantPattern
+947..972 interpolatedExpr
+966..970 memberExpr
+966..967 nameExpr
+984..992 exprStmt
+984..992 callExpr
+990..991 nameExpr
+984..992 callExpr
+997..1028 exprStmt
+997..1028 callExpr
+1003..1027 tryExpr
+1007..1027 callExpr
+1019..1026 memberExpr
+1019..1021 nameExpr
+997..1028 callExpr

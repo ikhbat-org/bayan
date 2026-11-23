@@ -1,0 +1,3 @@
+== expr.w6
+moveExpr|i64|-|-|2527:4|index:i64
+BYN2782 110:19 cannot move out of an element ||copy the element with `.copy(to: alloc)`; the collection keeps it|

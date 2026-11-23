@@ -1,0 +1,4 @@
+== tests/cases/diag/hashmap-type-argument-count.byn
+116..148 blockStmt
+122..146 localDecl
+144..146 collectionExpr

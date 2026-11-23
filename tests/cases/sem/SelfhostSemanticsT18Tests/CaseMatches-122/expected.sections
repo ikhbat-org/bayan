@@ -1,0 +1,4 @@
+== member.probes.-.v26
+errorExpr|?|-|-|-|-|-|3042:11|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 154:18 `asString()` is now `finish()` |the old name|rename it `finish`|fix 3045..3053 finish

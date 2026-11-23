@@ -1,0 +1,76 @@
+== tests/cases/run/whole-value-binding.byn
+225..378 switchExpr
+225..378 switchExpr
+225..378 switchExpr
+225..226 nameExpr
+240..253 variantPattern
+257..283 binaryExpr sub right 264..283
+257..261 nameExpr
+264..283 binaryExpr div right 280..283
+264..277 binaryExpr mul right 271..277
+264..268 nameExpr
+271..277 memberExpr
+271..272 nameExpr
+280..283 literalExpr integer
+289..297 variantPattern
+303..317 binaryExpr gt right 313..317
+303..310 memberExpr
+303..304 nameExpr
+313..317 nameExpr
+321..322 literalExpr integer
+328..336 variantPattern
+340..354 binaryExpr sub right 347..354
+340..344 nameExpr
+347..354 memberExpr
+347..348 nameExpr
+360..367 variantPattern
+371..375 nameExpr
+403..548 blockStmt
+409..546 switchStmt
+416..417 nameExpr
+433..441 variantPattern
+455..497 exprStmt
+455..497 callExpr
+461..496 interpolatedExpr
+470..477 memberExpr
+470..471 nameExpr
+480..487 memberExpr
+480..481 nameExpr
+493..494 nameExpr
+455..497 callExpr
+511..512 discardPattern
+526..540 exprStmt
+526..540 callExpr
+532..539 literalExpr string
+526..540 callExpr
+550..694 globalStatement
+550..694 exprStmt
+550..694 callExpr
+556..693 interpolatedExpr
+559..592 callExpr
+565..580 callExpr
+577..579 literalExpr integer
+588..591 literalExpr integer
+595..628 callExpr
+601..616 callExpr
+608..610 literalExpr integer
+612..615 literalExpr string
+624..627 literalExpr integer
+631..665 callExpr
+637..653 callExpr
+644..647 literalExpr integer
+649..652 literalExpr string
+661..664 literalExpr integer
+668..691 callExpr
+674..679 targetMemberExpr
+687..690 literalExpr integer
+550..694 callExpr
+695..718 exprStmt
+695..718 callExpr
+700..717 callExpr
+700..717 callExpr
+707..708 literalExpr integer
+710..716 literalExpr string
+719..729 exprStmt
+719..729 callExpr
+724..728 literalExpr nullKeyword

@@ -1,0 +1,3 @@
+== cases
+0 byn_str_copy(p_s, byn_arena_alloc(p_a))
+count 1

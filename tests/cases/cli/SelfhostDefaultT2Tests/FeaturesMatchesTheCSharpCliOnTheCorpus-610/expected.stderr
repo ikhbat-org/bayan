@@ -1,0 +1,5 @@
+error BYN2022: `?.` is not supported in v0.1
+  --> <repo>/tests/cases/diag/generic-unsupported-once.byn:2:32
+
+  2 │ i64 peek<T>(T x, from P? p) => p?.v ?? 0
+    │                                ^^^

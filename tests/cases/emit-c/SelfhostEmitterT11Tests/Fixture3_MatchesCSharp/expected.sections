@@ -1,0 +1,43 @@
+== cases
+0 (p_r.err.code == 0)
+1 bynh_value_res_i64(p_r, byn_file_0, 12)
+2 bynh_error_res_i64(p_r, byn_file_0, 13)
+3 (*p_o)
+4 bynh_copy_map_i64_i64(l0_m, byn_arena_alloc(l2_a))
+5 byn_strbuf_copy(l1_w, byn_arena_alloc(l2_a))
+6 byn_arena_reset(l2_a)
+7 p_p.message
+8 p_r.out
+9 p_r.err
+10 p_r.exit_code
+11 bynh_io_read_all(l0_i)
+12 ((byn_text_view){l0_s, {NULL, 0}, 0, 0})
+13 ((byn_text_view){l0_s, {NULL, 0}, 0, 0})
+14 ((byn_text_view){l0_s, {NULL, 0}, 0, 0})
+15 byn_parts(l0_s, l1_t, 0, byn_file_0, 65)
+16 (*bynh_slot_map_i64_i64(&l0_m, l1_k, ((int64_t){0})))
+17 bynh_index_map_i64_i64(l0_m, l1_k, byn_file_0, 75)
+18 bynh_try_get_map_i64_i64(l0_m, l1_k)
+19 bynh_has_map_i64_i64(l0_m, l1_k)
+20 bynh_remove_map_i64_i64(&l0_m, l1_k)
+21 p_spec.radix
+22 bynh_try_parse_opt_i32(l1_s, l0_r)
+23 byn_int_string((int64_t)l2_n, 32, true, l0_r, byn_context)
+24 p_spec.radix
+25 p_spec.debug
+26 p_spec.width
+27 p_spec.fill
+28 p_spec.align
+29 p_spec.digits
+30 byn_view_more(t4, t5, 0)
+31 byn_str_next(t4.s, &t5)
+32 byn_view_more(t7, t8, 1)
+33 byn_utf16_next(&t7, &t8)
+34 byn_view_more(t10, t11, 2)
+35 byn_lines_next(&t10, &t11)
+36 byn_view_more(t13, t14, 3)
+37 byn_parts_next(&t13, &t14)
+38 t17.h.len
+39 (!t17.h.dead[t18])
+40 ((bynt_tup2_i64_i64){t17.keys[t18], t17.vals[t18]})
+count 41

@@ -1,0 +1,2 @@
+== diags.diag/catch-switch-foreign-set
+BYN2411 18:5 `DbError` cannot match `ParseError`

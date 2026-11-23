@@ -1,0 +1,19 @@
+union error E { bad, }
+void step() fails E { }
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+struct Ledger {
+    List<i64> items
+}
+union Slot {
+    empty
+    full(List<i64> items)
+}
+List<i64> drain(ref List<i64> xs) => xs.take()
+void main() {
+    var shared = List<i64>()
+    let drained = drain(ref shared)
+    shared.append(1)
+    print($"{drained.length} {shared.length}")
+}

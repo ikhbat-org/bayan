@@ -1,0 +1,10 @@
+$"stray } here"
+
+if else unless switch case default fr in while do break continue return yield defer errdefer using context
+ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+
+let c = """never closed
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ let café = 2
+  1.50dec 1..

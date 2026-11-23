@@ -1,0 +1,1 @@
+{"code":"BYN2003","severity":"error","file":"input.byn","span":{"start":154,"end":161,"line":2,"column":12,"endLine":2,"endColumn":19},"message":"`fileNme` is not a member of `Path`","label":null,"help":"did you mean `fileName`?","fixes":[]}

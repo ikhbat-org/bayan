@@ -1,0 +1,23 @@
+CompilationUnit
+  Function int() -> void fails
+
+error BYN0012: `int` is reserved and cannot be used as an identifier
+
+  1 │ int()fails
+    │ ^^^ a C# primitive type name
+    │
+  help: choose another name
+
+error BYN1043: `int(…)` is an input form; write `void int(…)`
+
+  1 │ int()fails
+    │ ^^^ no return type
+    │
+  help: put `void` before the name when the function returns nothing
+    │ 1 │ void int()fails
+    │   │ +++++
+
+error BYN1001: expected `{`, found end of file
+
+  1 │ int()fails
+    │           ^

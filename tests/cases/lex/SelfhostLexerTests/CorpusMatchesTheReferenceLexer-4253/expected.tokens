@@ -1,0 +1,71 @@
+1:3 IntegerLiteral `110000`
+1:9 CloseBrace `}`
+1:10 CharLiteral `'`
+2:1 CharLiteral `'x`
+3:3 Question `?`
+3:4 Equals `=`
+3:6 QuestionDot `?.`
+3:9 FatArrow `=>`
+3:12 Arrow `->`
+3:16 At `@`
+3:18 Hash `#`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+5:1 Amp `&`
+5:3 AmpAmp `&&`
+5:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ � 110000}'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  1 │ � 110000}'
+    │          ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��?= ?. => -> �@ #
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  3 │ ��?= ?. => -> �@ #
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��?= ?. => -> �@ #
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  3 │ ��?= ?. => -> �@ #
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  5 │ & && � 
+    │      ^

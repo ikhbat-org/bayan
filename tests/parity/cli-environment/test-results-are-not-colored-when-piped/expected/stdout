@@ -1,0 +1,9 @@
+== 1 exit 3
+running 2 tests in 1 module
+
+  ✗ color-tests: breaks
+      assert(false)
+      main.test.byn:6
+
+◆ 1 passed · ✗ 1 failed · 0 pending · #s
+  rerun the failure: bayan test --only "breaks"

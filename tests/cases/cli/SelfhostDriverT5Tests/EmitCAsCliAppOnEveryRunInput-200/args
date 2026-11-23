@@ -1,0 +1,3 @@
+build
+--emit-c
+move-after-borrow-last-use.byn

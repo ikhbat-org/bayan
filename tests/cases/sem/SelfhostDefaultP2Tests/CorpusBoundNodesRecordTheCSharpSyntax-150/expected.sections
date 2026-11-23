@@ -1,0 +1,75 @@
+== tests/cases/run/lambda-alias-any.byn
+59..155 blockStmt
+65..136 forStmt
+74..76 nameExpr
+77..136 blockStmt
+87..130 ifStmt
+90..94 callExpr
+90..91 nameExpr
+92..93 nameExpr
+95..130 blockStmt
+109..120 returnStmt value 116..120
+116..120 literalExpr trueKeyword
+141..153 returnStmt value 148..153
+148..153 literalExpr falseKeyword
+178..183 binaryExpr gt right 182..183
+178..183 binaryExpr gt right 182..183
+178..183 binaryExpr gt right 182..183
+178..179 nameExpr
+182..183 literalExpr integer
+197..431 blockStmt
+203..232 localDecl
+223..232 collectionExpr
+224..225 literalExpr integer
+227..228 literalExpr integer
+230..231 literalExpr integer
+237..263 localDecl
+257..263 collectionExpr
+258..259 literalExpr integer
+261..262 literalExpr integer
+268..346 exprStmt
+268..346 callExpr
+274..345 interpolatedExpr
+277..296 callExpr
+281..283 nameExpr
+289..295 binaryExpr gt right 294..295
+299..322 callExpr
+303..305 nameExpr
+311..321 lambdaExpr
+325..343 callExpr
+329..331 nameExpr
+337..342 nameExpr
+268..346 callExpr
+351..429 exprStmt
+351..429 callExpr
+357..428 interpolatedExpr
+360..379 callExpr
+364..366 nameExpr
+372..378 binaryExpr gt right 377..378
+382..405 callExpr
+386..388 nameExpr
+394..404 lambdaExpr
+408..426 callExpr
+412..414 nameExpr
+420..425 nameExpr
+351..429 callExpr
+289..295 binaryExpr gt right 294..295
+289..295 binaryExpr gt right 294..295
+289..295 binaryExpr gt right 294..295
+289..291 nameExpr
+294..295 literalExpr integer
+316..321 binaryExpr gt right 320..321
+316..321 binaryExpr gt right 320..321
+316..321 binaryExpr gt right 320..321
+316..317 nameExpr
+320..321 literalExpr integer
+372..378 binaryExpr gt right 377..378
+372..378 binaryExpr gt right 377..378
+372..378 binaryExpr gt right 377..378
+372..374 nameExpr
+377..378 literalExpr integer
+399..404 binaryExpr gt right 403..404
+399..404 binaryExpr gt right 403..404
+399..404 binaryExpr gt right 403..404
+399..400 nameExpr
+403..404 literalExpr integer

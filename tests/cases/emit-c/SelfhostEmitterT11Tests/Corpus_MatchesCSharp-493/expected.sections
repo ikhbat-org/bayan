@@ -1,0 +1,3 @@
+== cases
+0 (!(l0_a == l1_b))
+count 1

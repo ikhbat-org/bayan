@@ -1,0 +1,7 @@
+== s33
+switchExpr|i32|3222:44
+value local:Order=od
+arm 3234:22 bindPattern[3234:17]:Order(-) guard - value errorExpr:?
+arm 3258:6 bindPattern[3258:1]:Order_(-) guard - value literal:i32=0
+BYN2022 104:27 deconstruction patterns is not supported in v0.1 |||
+BYN2001 104:48 `p` is not defined ||did you mean `n`?|fix 3255..3256 n

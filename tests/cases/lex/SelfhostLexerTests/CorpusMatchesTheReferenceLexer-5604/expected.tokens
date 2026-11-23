@@ -1,0 +1,49 @@
+1:1 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+5:1 LetKeyword `let`
+5:5 EffectKeyword `effect`
+5:12 Equals `=`
+5:14 IntegerLiteral `2`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `a`
+7:4 InterpolationStart `{`
+7:5 Identifier `fb`
+7:7 InterpolationEnd `}`
+7:8 InterpolatedStringText `c`
+7:9 InterpolatedStringEnd
+7:9 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"a{fb}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

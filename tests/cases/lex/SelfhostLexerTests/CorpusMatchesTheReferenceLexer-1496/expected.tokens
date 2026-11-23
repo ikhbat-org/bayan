@@ -1,0 +1,50 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 Equals `=`
+1:19 EqualsEquals `==`
+1:22 BangEquals `!=`
+1:25 Less `<`
+1:27 LessEquals `<=`
+1:30 Greater `>`
+1:32 GreaterEquals `>=`
+1:35 LessLess `<<`
+1:38 Greater `>`
+1:39 Greater `>`
+1:41 Greater `>`
+1:42 GreaterEquals `>=`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+5:1 Identifier `b`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:9 StringLiteral `"bad \q:escape"`
+8:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ let b = "bad \q:escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

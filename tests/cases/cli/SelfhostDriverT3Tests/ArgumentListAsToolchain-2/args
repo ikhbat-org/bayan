@@ -1,0 +1,6 @@
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/args-debug-/cs-out
+--mode
+debug

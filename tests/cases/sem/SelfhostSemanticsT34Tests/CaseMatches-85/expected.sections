@@ -1,0 +1,6 @@
+== s38
+switchExpr|i32|3466:41
+value local:NetError=ne
+arm 3478:19 constantPattern[3478:14]:NetError(errorExpr:?) guard - value literal:i32=1
+arm 3499:6 bindPattern[3499:1]:NetError_(-) guard - value literal:i32=0
+BYN2202 109:27 expected `NetError`, found `DiskError` |||

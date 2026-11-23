@@ -1,0 +1,5 @@
+error BYN2025: `void` is not a value type
+  --> <repo>/tests/cases/diag/void-value.byn:1:14
+
+  1 │ var nothing: void
+    │              ^^^^

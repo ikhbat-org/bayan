@@ -1,0 +1,2 @@
+// StdPathTests.FullPathPanicsWhereDotNetThrows: `Path.fullPath` panics on a path that is a NUL byte, where .NET's `Path.GetFullPath` throws `ArgumentException`.
+print(Path.fullPath("\0"))

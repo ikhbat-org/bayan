@@ -1,0 +1,241 @@
+import lexer
+import parser
+
+string yn(bool b) => b ? "yes" : "no"
+
+string hexOf(string s) {
+    let digits = "0123456789abcdef"
+    var sb = StrBuf()
+    sb.append("x")
+    for b in s.bytes {
+        let hi = i64(b >> 4)
+        let lo = i64(b & 15)
+        sb.append(digits[hi..hi + 1])
+        sb.append(digits[lo..lo + 1])
+    }
+    return $"{sb.finish()}"
+}
+
+bool lessBytes(string a, by string b) {
+    let x = a.bytes
+    let y = b.bytes
+    var i: i64 = 0
+    while i < x.length && i < y.length {
+        if x[i] != y[i] { return x[i] < y[i] }
+        i += 1
+    }
+    return x.length < y.length
+}
+
+void printWords(string label, by in List<string> words) {
+    var sb = StrBuf()
+    sb.append(label)
+    for w in words { sb.append($" {hexOf(w)}") }
+    print($"{sb.finish()}")
+}
+
+List<u8> readOrEmpty(string path) {
+    let bytes = Io.readFile(path) catch return List<u8>()
+    return bytes
+}
+
+SourceFile makeFile(move List<u8> text) {
+    let empty = List<u8>()
+    let source = lexer.SourceText.create("<t10>", from: move empty)
+    var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    return SourceFile {
+        path: "package.byn",
+        displayPath: "package.byn",
+        text: move text,
+        unit: move unit,
+        imports: Map<string, i64>(),
+    }
+}
+
+string kindName(PackageKind k) => k switch {
+    .app => "App",
+    .lib => "Lib",
+}
+
+string alignName(AlignStyle a) => a switch {
+    .runs => "Runs",
+    .none => "None",
+}
+
+string trailingCommasName(TrailingCommaStyle t) => t switch {
+    .multiline => "Multiline",
+    .omit => "Never",
+}
+
+string lintSeverityName(LintSeverity s) => s switch {
+    .none => "None",
+    .suggestion => "Suggestion",
+    .warning => "Warning",
+    .error => "Error",
+}
+
+string booleansName(BooleanStyle b) => b switch {
+    .symbols => "Symbols",
+    .words => "Words",
+}
+
+string primitivesName(PrimitiveStyle p) => p switch {
+    .sized => "Sized",
+    .csharp => "Csharp",
+}
+
+void showCase(string name, at string path) {
+    let m = manifestRead(path) catch manifestParse(lexer.SourceText.create("package.byn", from: List<u8>()))
+    print($"== case {name}")
+    print($"errors {manifestErrorCount(in m)}")
+    if m.diagnostics.length > 0 {
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+        }
+        c.files.append(makeFile(readOrEmpty(path)))
+        for d in m.diagnostics {
+            var copy = t10CopyDiag(in d)
+            copy.file = 0
+            c.diagnostics.append(move copy)
+        }
+        var omitted: i64 = 0
+        let rendered = renderAll(in c, from: in c.diagnostics, by: false, until: 1000000, to: ref omitted)
+        var sb = StrBuf()
+        sb.append(rendered)
+        sb.append("\n")
+        Io.stdout.write(sb.finish())
+        return
+    }
+    print($"name {m.name}")
+    print($"version {m.version}")
+    print($"edition {m.edition}")
+    print($"kind {kindName(m.kind)}")
+    var targets = StrBuf()
+    targets.append("targets")
+    for t in m.distTargets { targets.append($" {t}") }
+    print($"{targets.finish()}")
+    print($"mode {m.distMode}")
+    print($"indent {m.indent}")
+    print($"width {m.width}")
+    print($"align {alignName(m.align)}")
+    print($"trailingCommas {trailingCommasName(m.trailingCommas)}")
+    for lint in t10LintNames() { print($"lint {lint} {lintSeverityName(m.lints[lint])}") }
+    print($"booleans {booleansName(m.booleans)}")
+    print($"primitives {primitivesName(m.primitives)}")
+    if (m.capabilities is { } caps) {
+        printWords("capabilities", by: in caps)
+    } else {
+        print("capabilities -")
+    }
+    printWords("verbs", by: in m.grammar.verbs)
+    printWords("nouns", by: in m.grammar.nouns)
+    printWords("adjectives", by: in m.grammar.adjectives)
+    var forms = List<string>()
+    for (k, v) in m.grammar.forms { forms.append($"{hexOf(k)}={hexOf(v)}") }
+    for i in 1..forms.length {
+        var j = i
+        while j > 0 && lessBytes(forms[j], by: forms[j - 1]) {
+            let a = forms[j]
+            forms[j] = forms[j - 1]
+            forms[j - 1] = a
+            j -= 1
+        }
+    }
+    var formsBuf = StrBuf()
+    formsBuf.append("forms")
+    for f in forms { formsBuf.append($" {f}") }
+    print($"{formsBuf.finish()}")
+    print($"short {t10ShortName(in m)}")
+    print($"entry {t10EntryModule(in m)}")
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 1 < args.length {
+        showCase(args[i], at: args[i + 1])
+        i += 2
+    }
+    predicates()
+    return 0
+}
+void predicates() {
+    print("== versions")
+    print($"0 {yn(b: t10IsSemanticVersion("0.1.0"))}")
+    print($"1 {yn(b: t10IsSemanticVersion("10.20.30-rc.1"))}")
+    print($"2 {yn(b: t10IsSemanticVersion("1.0"))}")
+    print($"3 {yn(b: t10IsSemanticVersion("01.0.0"))}")
+    print($"4 {yn(b: t10IsSemanticVersion("1.0.0-"))}")
+    print($"5 {yn(b: t10IsSemanticVersion("1.0.0-rc..1"))}")
+    print($"6 {yn(b: t10IsSemanticVersion("1.0.0-a/b"))}")
+    print($"7 {yn(b: t10IsSemanticVersion("1.0.0-a\\b"))}")
+    print($"8 {yn(b: t10IsSemanticVersion("1.0.0-x-y.2"))}")
+    print($"9 {yn(b: t10IsSemanticVersion("1.0.0-rc.1+build.5"))}")
+    print($"10 {yn(b: t10IsSemanticVersion("1.0.0+"))}")
+    print($"11 {yn(b: t10IsSemanticVersion("1.0.0+a/b"))}")
+    print($"12 {yn(b: t10IsSemanticVersion("123456789012345678.0.0"))}")
+    print($"13 {yn(b: t10IsSemanticVersion("1234567890123456789.0.0"))}")
+    print($"14 {yn(b: t10IsSemanticVersion("1.0.0-x/../.."))}")
+    print($"15 {yn(b: t10IsSemanticVersion("99999999999999999999.0.0"))}")
+    print($"16 {yn(b: t10IsSemanticVersion("0.0.0"))}")
+    print($"17 {yn(b: t10IsSemanticVersion("1..0"))}")
+    print($"18 {yn(b: t10IsSemanticVersion(".1.0"))}")
+    print($"19 {yn(b: t10IsSemanticVersion("1.0."))}")
+    print($"20 {yn(b: t10IsSemanticVersion("1.0.0-.a"))}")
+    print($"21 {yn(b: t10IsSemanticVersion("1.0.0-a."))}")
+    print($"22 {yn(b: t10IsSemanticVersion("1.0.0+b-c.D9"))}")
+    print($"23 {yn(b: t10IsSemanticVersion("1.0.0-a+b+c"))}")
+    print($"24 {yn(b: t10IsSemanticVersion("1.0.0-a-b-"))}")
+    print($"25 {yn(b: t10IsSemanticVersion(""))}")
+    print($"26 {yn(b: t10IsSemanticVersion("a.b.c"))}")
+    print($"27 {yn(b: t10IsSemanticVersion("1.0.0 "))}")
+    print($"28 {yn(b: t10IsSemanticVersion("1.0.0-é"))}")
+    print("== kebab names")
+    print($"0 {yn(b: t10IsKebabName("tally".bytes))}")
+    print($"1 {yn(b: t10IsKebabName("my-app2".bytes))}")
+    print($"2 {yn(b: t10IsKebabName("My-app".bytes))}")
+    print($"3 {yn(b: t10IsKebabName("my--app".bytes))}")
+    print($"4 {yn(b: t10IsKebabName("my-app-".bytes))}")
+    print($"5 {yn(b: t10IsKebabName("2app".bytes))}")
+    print($"6 {yn(b: t10IsKebabName("my_app".bytes))}")
+    print($"7 {yn(b: t10IsKebabName("".bytes))}")
+    print($"8 {yn(b: t10IsKebabName("a".bytes))}")
+    print($"9 {yn(b: t10IsKebabName("-a".bytes))}")
+    print($"10 {yn(b: t10IsKebabName("a-1".bytes))}")
+    print($"11 {yn(b: t10IsKebabName("é".bytes))}")
+    print("== package names")
+    print($"0 {yn(b: t10IsPackageName("local/tally"))}")
+    print($"1 {yn(b: t10IsPackageName("local/my-app"))}")
+    print($"2 {yn(b: t10IsPackageName("local"))}")
+    print($"3 {yn(b: t10IsPackageName("local/"))}")
+    print($"4 {yn(b: t10IsPackageName("/a"))}")
+    print($"5 {yn(b: t10IsPackageName("a/b/c"))}")
+    print($"6 {yn(b: t10IsPackageName("a//b"))}")
+    print($"7 {yn(b: t10IsPackageName("Local/a"))}")
+    print($"8 {yn(b: t10IsPackageName("a/B"))}")
+    print($"9 {yn(b: t10IsPackageName("a-/b"))}")
+    print("== camelOf")
+    print($"0 {hexOf(camelOf("my-lib"))}")
+    print($"1 {hexOf(camelOf("my-"))}")
+    print($"2 {hexOf(camelOf("-x"))}")
+    print($"3 {hexOf(camelOf("a--b"))}")
+    print($"4 {hexOf(camelOf("a-1"))}")
+    print($"5 {hexOf(camelOf("plain"))}")
+    print($"6 {hexOf(camelOf(""))}")
+    print($"7 {hexOf(camelOf("x-y-z"))}")
+    print($"8 {hexOf(camelOf("kebab-Case"))}")
+    print($"9 {hexOf(camelOf("a-é"))}")
+    print("== kebabOf")
+    print($"0 {hexOf(kebabOf("macosArm64"))}")
+    print($"1 {hexOf(kebabOf("linuxX64"))}")
+    print($"2 {hexOf(kebabOf("host"))}")
+    print($"3 {hexOf(kebabOf("ABC"))}")
+    print($"4 {hexOf(kebabOf(""))}")
+    print($"5 {hexOf(kebabOf("aZ"))}")
+    print($"6 {hexOf(kebabOf("é"))}")
+    print($"7 {hexOf(kebabOf("x-y"))}")
+    print($"8 {hexOf(kebabOf("lowerUpperLower"))}")
+}

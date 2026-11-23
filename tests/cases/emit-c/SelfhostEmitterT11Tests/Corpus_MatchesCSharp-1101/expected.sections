@@ -1,0 +1,15 @@
+== cases
+0 bynh_add_list_u8(&l0_bytes, ((uint8_t)104))
+1 bynh_add_list_u8(&l0_bytes, ((uint8_t)105))
+2 bynh_span_list_u8(l0_bytes)
+3 (l0_bytes.len = 0)
+4 ((bynt_span_u8){l0_hi.v, 2})
+5 bynh_slice_span_u8(((bynt_span_u8){l0_hi.v, 2}), (int64_t)INT64_C(0), 0, (int64_t)INT64_C(0), 0, false, byn_file_0, 14)
+6 ((bynt_span_u8){l0_hi.v, 2})
+7 l3_empty.len
+8 byn_str_eq(l3_empty, BYN_STR("", 0))
+9 ((bynt_span_u8){l7_multi.v, 9})
+10 l8_m.len
+11 ((bynt_span_u8){l0_hi.v, 2})
+12 ((bynt_span_u8){l7_multi.v, 9})
+count 13

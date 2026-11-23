@@ -1,0 +1,72 @@
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 ForeachKeyword `foreach`
+2:41 NewKeyword `new`
+2:45 GotoKeyword `goto`
+3:2 Identifier `a`
+10:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏ �
+    │ ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ ‏ �
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  3 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │   """ c"text" u16"wide" "� allowed in strin`gs" "" "\u{48}i"
+    │                          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │   """ c"text" u16"wide" "� allowed in strin`gs" "" "\u{48}i"
+    │   │                          -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │     ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ '�'
+    │   │  -

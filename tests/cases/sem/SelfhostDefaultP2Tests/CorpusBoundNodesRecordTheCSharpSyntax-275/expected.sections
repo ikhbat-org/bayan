@@ -1,0 +1,29 @@
+== tests/cases/run/string-case.byn
+138..331 blockStmt
+144..167 localDecl
+152..167 literalExpr string
+172..193 exprStmt
+172..193 callExpr
+178..192 callExpr
+178..179 nameExpr
+172..193 callExpr
+198..219 exprStmt
+198..219 callExpr
+204..218 callExpr
+204..205 nameExpr
+198..219 callExpr
+224..329 exprStmt
+224..329 callExpr
+230..328 interpolatedExpr
+233..267 callExpr
+233..238 literalExpr string
+246..251 literalExpr string
+257..266 targetMemberExpr
+270..289 callExpr
+270..275 literalExpr string
+283..288 literalExpr string
+292..326 callExpr
+292..297 literalExpr string
+305..310 literalExpr string
+316..325 targetMemberExpr
+224..329 callExpr

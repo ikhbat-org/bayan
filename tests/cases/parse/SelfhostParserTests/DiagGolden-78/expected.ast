@@ -1,0 +1,7 @@
+CompilationUnit
+  Attribute @sealed
+  Function run() -> void
+    Block
+  Attribute @sealed strict
+  Struct Options
+    Field i32 retries

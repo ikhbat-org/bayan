@@ -1,0 +1,35 @@
+== tests/cases/run/for-dyn-ref-reset-element.byn
+308..451 blockStmt
+314..332 localDecl
+323..332 callExpr
+337..372 exprStmt
+337..372 callExpr
+337..339 nameExpr
+347..371 structLiteralExpr
+358..369 callExpr
+377..418 forStmt
+402..404 nameExpr
+405..418 blockStmt
+407..416 exprStmt
+407..416 callExpr
+407..408 nameExpr
+423..449 exprStmt
+423..449 callExpr
+429..448 interpolatedExpr
+432..446 indexExpr
+432..443 memberExpr
+432..437 indexExpr
+432..434 nameExpr
+435..436 literalExpr integer
+444..445 literalExpr integer
+423..449 callExpr
+240..293 blockStmt
+250..263 exprStmt
+250..263 callExpr
+250..255 nameExpr
+250..255 nameExpr
+272..287 exprStmt
+272..287 callExpr
+272..277 nameExpr
+272..277 nameExpr
+285..286 literalExpr integer

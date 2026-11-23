@@ -1,0 +1,22 @@
+== tests/cases/run/strbuf-append-repeated-negative.byn
+0..18 globalStatement
+0..18 localDecl
+10..18 callExpr
+19..49 exprStmt
+19..49 callExpr
+19..22 nameExpr
+38..41 literalExpr char
+47..48 literalExpr integer
+50..65 exprStmt
+50..65 callExpr
+56..64 memberExpr
+56..59 nameExpr
+50..65 callExpr
+66..76 localDecl
+74..76 unaryExpr negate operand 75..76
+77..107 exprStmt
+77..107 callExpr
+77..80 nameExpr
+96..99 literalExpr char
+105..106 nameExpr
+105..106 nameExpr

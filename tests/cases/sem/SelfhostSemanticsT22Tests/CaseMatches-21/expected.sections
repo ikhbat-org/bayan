@@ -1,0 +1,4 @@
+== pat.probes.-.q4
+binaryPattern|true
+errorPattern|refused|0
+bindPattern|r|refused

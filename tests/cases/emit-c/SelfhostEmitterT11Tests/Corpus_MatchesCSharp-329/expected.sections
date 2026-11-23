@@ -1,0 +1,9 @@
+== cases
+1 byn_strbuf_str(l1_buf)
+3 (p_spec.radix == ((byn_builtin_Radix)3))
+4 p_spec.radix
+6 (p_spec.digits >= INT64_C(0))
+7 p_spec.digits
+9 p_spec.digits
+11 p_spec.width
+count 12

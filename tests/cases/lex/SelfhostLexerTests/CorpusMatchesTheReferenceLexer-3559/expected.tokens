@@ -1,0 +1,58 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 Identifier `nll`
+1:42 TrueKeyword `true`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 Identifier `ch`
+1:64 Identifier `cked`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `total `
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a `
+2:19 InterpolationStart `{`
+2:20 Identifier `f`
+2:21 OpenParen `(`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `b `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  1 │ is and or not with move ref out this nll true false comptime ch�cked
+    │                                                                ^

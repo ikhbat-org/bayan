@@ -1,0 +1,8 @@
+== tests/cases/diag/type-mismatch.byn
+0..16 globalStatement
+0..16 localDecl
+15..16 literalExpr integer
+17..37 localDecl
+34..37 nameExpr
+38..56 localDecl
+55..56 literalExpr integer

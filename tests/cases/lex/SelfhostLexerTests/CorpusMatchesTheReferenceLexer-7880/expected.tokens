@@ -1,0 +1,26 @@
+1:1 CharLiteral `' '`
+1:5 CharLiteral `''`
+1:8 CharLiteral `'é'`
+1:12 CharLiteral `'\\'`
+1:17 CharLiteral `'\'0'`
+3:1 OpenBrace `{`
+3:2 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ ' '\'' 'é' '\\' '\'0'
+    │    ^
+
+error BYN0007: empty char literal
+
+  1 │ ' '\'' 'é' '\\' '\'0'
+    │     ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ ' '\'' 'é' '\\' '\'0'
+    │                 ^^^^^
+    │
+  help: use a string literal ("…") for text

@@ -1,0 +1,23 @@
+1:2 Dot `.`
+1:4 Identifier `b`
+2:2 StringLiteral `"text"`
+2:9 StringLiteral `"esc \"q\" \\ \n"`
+2:27 RawStringLiteral `"""\r\n $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" `
+3:63 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ �.� b
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  1 │ �.� b
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

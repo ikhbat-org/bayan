@@ -1,0 +1,2 @@
+== expr.probes.i8
+interpolated:string[3601:18]=-(v:local:i64[3604:1]=-(n)/8,false,0,32,-1,-1)

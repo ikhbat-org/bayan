@@ -1,0 +1,4 @@
+== call.c18
+call|void|-1|take|-|1861:25|literal:i64=1,literal:bool=true,literal:i64=3,literal:string="x"
+BYN2305 112:23 argument for `verbose` must be named ||write `verbose: …`; a `bool` argument says nothing at the call site|fix 1869..1869 verbose: 
+BYN2021 112:29 `take` has no parameter `invalid` |||

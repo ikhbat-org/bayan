@@ -1,0 +1,6 @@
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+
+a /* never closed
+ if else unless switch case defaut for in while do break continue return yield d¥fer errdefer using context
+$"{a let effect = 2
+ Ã© = 2

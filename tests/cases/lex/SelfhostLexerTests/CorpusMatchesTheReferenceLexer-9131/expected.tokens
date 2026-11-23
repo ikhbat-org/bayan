@@ -1,0 +1,101 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 Identifier `x`
+1:56 CloseBrace `}`
+1:57 StringLiteral `"Q}"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `tot3al `
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a `
+2:19 InterpolationStart `{`
+2:20 Identifier `f`
+2:21 OpenParen `(`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `b `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"Q}"}"}"}"}"}"}"}"
+    │                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"Q}"}"}"}"}"}"}"}"
+    │                                                 ^^

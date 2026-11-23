@@ -1,0 +1,12 @@
+// `Fs.copy` reads or writes the file system, so a public function calling it declares `fs` (BYN6002).
+public void undeclared(string p) fails IoError {
+    try Fs.copy(p, to: "b")
+}
+
+public void declared(string p) uses fs fails IoError {
+    try Fs.copy(p, to: "b")
+}
+
+void main() {
+    print("ok")
+}

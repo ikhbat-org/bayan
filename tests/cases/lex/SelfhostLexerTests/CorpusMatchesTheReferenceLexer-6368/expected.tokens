@@ -1,0 +1,56 @@
+2:2 CharLiteral `''`
+4:1 Identifier `ان`
+4:4 Identifier `μετρητ`
+4:14 LetKeyword `let`
+4:18 Identifier `c`
+4:19 Bang `!`
+4:20 Identifier `fé`
+4:24 Equals `=`
+4:26 IntegerLiteral `1`
+5:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0007: empty char literal
+
+  2 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  4 │ ان μετρητ� � let c!fé = 1
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ ان μετρητ� � let c!fé = 1
+    │            ^
+
+error BYN0005: identifier `fé` is not in Unicode normalization form C
+
+  4 │ ان μετρητ� � let c!fé = 1
+    │                    ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ان μετρητ� � let c!fé = 1
+    │   │                     +
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  5 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �
+    │   │ -

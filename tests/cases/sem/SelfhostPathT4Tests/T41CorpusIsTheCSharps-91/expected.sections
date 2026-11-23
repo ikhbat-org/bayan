@@ -1,0 +1,7 @@
+== diags.diag/null-equality-optional-fix
+BYN2027 3:13 compare with `is null` / `is not null`, not `==`
+  help write `n is null`
+  fix 3:13-3:22 n is null
+BYN2027 4:13 compare with `is null` / `is not null`, not `==`
+  help write `n is not null`
+  fix 4:13-4:22 n is not null

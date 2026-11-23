@@ -1,0 +1,63 @@
+1:2 CharLiteral `'\u{110000}'`
+3:2 PlusPercent `+%`
+3:5 MinusPercent `-%`
+3:8 StarPercent `*%`
+3:11 PlusBar `+|`
+3:14 MinusBar `-|`
+3:17 StarBar `*|`
+3:20 PlusPlus `++`
+3:23 MinusMinus `--`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 Equals `=`
+4:20 Identifier `FFs`
+5:1 IntegerLiteral `0b1`
+5:4 NumericSuffix `ms`
+6:1 IntegerLiteral `0x_`
+7:1 IntegerLiteral `0b__`
+8:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `0xF`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � '\u{110000}'
+    │ ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ � '\u{110000}'
+    │    ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --

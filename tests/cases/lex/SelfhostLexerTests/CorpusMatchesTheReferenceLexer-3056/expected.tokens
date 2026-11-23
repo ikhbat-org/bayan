@@ -1,0 +1,70 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolatedStringText `stray } here`
+1:19 InterpolatedStringEnd `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 StringLiteral `"{$"`
+2:17 OpenBrace `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 Identifier `x`
+2:46 InterpolationEnd `}`
+2:47 InterpolatedStringEnd `"`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+2:52 InterpolationEnd `}`
+2:53 InterpolatedStringEnd `"`
+2:54 InterpolationEnd `}`
+2:55 InterpolatedStringEnd `"`
+2:56 InterpolationEnd `}`
+2:57 InterpolatedStringEnd `"`
+2:58 InterpolationEnd `}`
+2:59 InterpolatedStringEnd `"`
+    doc `/// Doc line two.`
+4:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"{ $"stray } here"
+    │             ^
+    │
+    │ 1 │ $"{ $"stray }} here"
+    │   │              +
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  2 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,40 @@
+1:1 NeverKeyword `never`
+1:7 Identifier `closed`
+2:1 Identifier `b`
+3:2 Identifier `o`
+3:3 CharLiteral `' var xs: List<List<i64>>`
+4:2 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:1 Identifier `__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+9:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │  o' var xs: List<List<i64>>
+    │   ^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │  let � = 1
+    │      ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --

@@ -1,0 +1,1 @@
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":331,"end":337,"line":20,"column":25,"endLine":20,"endColumn":31},"message":"`switch` does not handle every `EmailError | DbError`","label":"not covered: EmailError, DbError.lost","help":"add the missing arms, or `_ => …` for the rest","fixes":[]}

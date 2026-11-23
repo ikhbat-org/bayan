@@ -1,0 +1,3 @@
+new	tally	--vcs	none
+$ rm tally/tests/app.test.byn; mv main.byn tally/src/app/main.byn
+$ $BAYAN test --json --coverage tally > o.json; echo "exit $?"; sed -E -e "s/\"durationMs\": [0-9.]+/\"durationMs\": 0/g" -e "s/\"target\": \"[^\"]*\"/\"target\": \"<host>\"/" -e "s/\"(build|total)_s\": [0-9.eE+-]+/\"\\1_s\": 0/g" o.json

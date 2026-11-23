@@ -1,0 +1,17 @@
+1:3 Identifier `raw`
+1:7 StringLiteral `"quoted"`
+2:1 Identifier `et`
+2:4 Identifier `c`
+2:6 Equals `=`
+2:8 RawStringLiteral `"""never closed\n 1_\n '\q'\n\nl�etb = ` 2\n\n1__\n\n  """`
+10:7 CStringLiteral `c"text"`
+10:15 U16StringLiteral `u16"wide"`
+10:25 StringLiteral `"\u{202E} allowed in strings"`
+10:48 StringLiteral `""`
+10:51 StringLiteral `"\u{48}i"`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  6 │ l�etb = ` 2
+    │  ^

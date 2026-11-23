@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 Identifier `c`
+1:15 Greater `>`
+1:16 GreaterEquals `>=`
+1:19 IntegerLiteral `1`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = �$"{c >>= 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = �$"{c >>= 1
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string

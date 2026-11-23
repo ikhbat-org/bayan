@@ -1,0 +1,3 @@
+== call.k21
+errorExpr|?|-|-|1179:9|-
+BYN2220 63:15 `i32` cannot be called ||convert one value: `i32(x)`|

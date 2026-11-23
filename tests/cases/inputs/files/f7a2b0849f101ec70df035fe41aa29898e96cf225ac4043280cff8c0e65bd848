@@ -1,0 +1,8 @@
+interface IShape { }
+struct Box<T> where T : IShape {
+    i64 n
+}
+struct P { }
+void f() {
+    var b: Box<P> = 0
+}

@@ -1,0 +1,73 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+1:6 CloseBrace `}`
+1:8 Amp `&`
+1:10 AmpAmp `&&`
+1:13 Bar `|`
+1:15 BarBar `||`
+1:18 Caret `^`
+1:20 Tilde `~`
+1:22 Bang `!`
+1:24 Equals `=`
+1:26 EqualsEquals `==`
+1:29 BangEquals `!=`
+1:32 Less `<`
+1:34 LessEquals `<=`
+1:37 Greater `>`
+1:39 GreaterEquals `>=`
+1:42 LessLess `<<`
+1:45 Greater `>`
+1:46 Greater `>`
+1:48 Greater `>`
+1:49 GreaterEquals `>=`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+4:1 Identifier `leteffect`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+5:1 IntegerLiteral `1_`
+7:1 IntegerLiteral `1_`
+8:1 Identifier `각`
+9:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1_
+    │  ^
+    │
+    │ 7 │ 1_
+    │   │  -
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  8 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ 각
+    │   │ +

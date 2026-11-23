@@ -1,0 +1,97 @@
+1:1 Identifier `b`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `�total `
+2:11 InterpolationStart `{`
+2:12 Identifier `x`
+2:13 InterpolationEnd `}`
+2:14 InterpolatedStringEnd `"`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolatedStringText `a `
+2:20 InterpolationStart `{`
+2:21 Identifier `f`
+2:22 OpenParen `(`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolatedStringText `b `
+2:27 InterpolationStart `{`
+2:28 Identifier `c`
+2:29 InterpolationEnd `}`
+2:30 InterpolatedStringEnd `"`
+2:31 CloseParen `)`
+2:32 InterpolationEnd `}`
+2:33 InterpolatedStringText ` d`
+2:35 InterpolatedStringEnd `"`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolatedStringText `{{literal}}`
+2:50 InterpolatedStringEnd `"`
+2:52 InterpolatedStringStart `$"`
+2:54 InterpolationStart `{`
+2:55 Identifier `Point`
+2:61 OpenBrace `{`
+2:63 Identifier `x`
+2:65 Equals `=`
+2:67 IntegerLiteral `1`
+2:69 CloseBrace `}`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringText `!`
+2:72 InterpolatedStringEnd `"`
+2:74 InterpolatedStringStart `$"`
+2:76 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+6:4 Identifier `comment`
+6:12 Star `*`
+6:13 Slash `/`
+6:15 Identifier `a`
+7:2 IfKeyword `if`
+7:5 ElseKeyword `else`
+7:10 UnlessKeyword `unless`
+7:17 SwitchKeyword `switch`
+7:24 CaseKeyword `case`
+7:29 DefaultKeyword `default`
+7:37 ForKeyword `for`
+7:41 InKeyword `in`
+7:44 WhileKeyword `while`
+7:50 DoKeyword `do`
+7:53 BreakKeyword `break`
+7:59 ContinueKeyword `continue`
+7:68 ReturnKeyword `return`
+7:75 YieldKeyword `yield`
+7:81 DeferKeyword `defer`
+7:87 ErrdeferKeyword `errdefer`
+7:96 UsingKeyword `using`
+7:102 ContextKeyword `context`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  2 │  $"�total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │    ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  8 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  8 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ����
+    │    ^

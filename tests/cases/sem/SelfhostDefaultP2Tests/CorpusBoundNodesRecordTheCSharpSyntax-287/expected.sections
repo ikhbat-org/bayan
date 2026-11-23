@@ -1,0 +1,45 @@
+== tests/cases/run/string-rune-views.byn
+99..155 globalStatement
+99..155 forStmt
+108..131 callExpr
+108..116 literalExpr string
+127..130 literalExpr char
+132..155 blockStmt
+138..153 exprStmt
+138..153 callExpr
+144..152 interpolatedExpr
+148..149 nameExpr
+138..153 callExpr
+156..227 forStmt
+165..203 callExpr
+165..176 literalExpr string
+187..192 literalExpr char
+201..202 literalExpr integer
+204..227 blockStmt
+210..225 exprStmt
+210..225 callExpr
+216..224 interpolatedExpr
+220..221 nameExpr
+210..225 callExpr
+228..244 localDecl
+236..244 literalExpr string
+245..336 exprStmt
+245..336 callExpr
+251..335 interpolatedExpr
+254..269 callExpr
+254..261 memberExpr
+254..255 nameExpr
+267..268 literalExpr integer
+272..291 callExpr
+272..279 memberExpr
+272..273 nameExpr
+289..290 literalExpr integer
+294..313 callExpr
+294..301 memberExpr
+294..295 nameExpr
+311..312 literalExpr integer
+317..332 callExpr
+317..324 memberExpr
+317..318 nameExpr
+330..331 literalExpr integer
+245..336 callExpr

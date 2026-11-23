@@ -1,0 +1,9 @@
+== locals
+isBig:
+clamp:
+shout: t
+greet:
+keep:
+hooked:
+each:
+main: f t g t t h say

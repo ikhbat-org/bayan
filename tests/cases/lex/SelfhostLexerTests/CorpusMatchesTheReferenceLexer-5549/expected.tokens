@@ -1,0 +1,42 @@
+3:1 IntegerLiteral `0`
+3:2 NumericSuffix `b`
+3:4 Identifier `__`
+4:1 Identifier `각`
+4:5 IntegerLiteral `1`
+4:6 NumericSuffix `e`
+5:1 LetKeyword `let`
+5:5 Identifier `v`
+5:6 Identifier `r`
+5:8 EmbedKeyword `embed`
+5:14 Identifier `ex`
+5:17 Identifier `tern`
+5:22 UnsafeKeyword `unsafe`
+6:1 IfKeyword `if`
+6:4 ElseKeyword `else`
+6:9 UnlessKeyword `unless`
+6:16 SwitchKeyword `switch`
+6:23 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  3 │ 0b�__
+    │   ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ 각 1e
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 각 1e
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  5 │ let v�r embed ex�tern unsafe
+    │      ^
+
+error BYN0002: unexpected character `\u{1}`
+
+  5 │ let v�r embed ex�tern unsafe
+    │                 ^

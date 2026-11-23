@@ -1,0 +1,15 @@
+1:1 Identifier `ᄀjᅡᆨlet`
+1:9 Identifier `café`
+1:15 Equals `=`
+1:16 IntegerLiteral `1`
+1:17 Semicolon `;`
+2:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ ᄀjᅡᆨlet café =1;
+    │         ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ᄀjᅡᆨlet café =1;
+    │   │            +

@@ -1,0 +1,21 @@
+== main.byn
+// BYN1073: a lambda argument that only reads a member of its parameter; the fix is `it`.
+struct Customer {
+    bool isActive
+}
+
+bool any(List<Customer> customers, by (Customer -> bool) p) {
+    var found = false
+    for c in customers {
+        found = found or p(c)
+    }
+    return found
+}
+
+void main() {
+    let customers: List<Customer> = [Customer { isActive: true }]
+    let before = any(customers, by: it.isActive)
+    let after = any(customers, by: it.isActive)
+    let grouped = any(customers, by: (c => c.isActive))
+    print($"{before}{after}{grouped}")
+}

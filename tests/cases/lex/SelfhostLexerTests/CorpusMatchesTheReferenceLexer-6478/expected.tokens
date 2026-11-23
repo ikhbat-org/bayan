@@ -1,0 +1,107 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:16 IntegerLiteral `0xFF`
+1:21 IntegerLiteral `0x_ff`
+1:27 IntegerLiteral `0b1010`
+1:34 IntegerLiteral `0B11`
+1:39 IntegerLiteral `5`
+1:40 NumericSuffix `s`
+1:42 IntegerLiteral `250`
+1:45 NumericSuffix `ms`
+1:48 IntegerLiteral `4`
+1:49 NumericSuffix `KiB`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
+    doc `/// Doc line two.`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+6:1 Identifier `r`
+6:3 EmbedKeyword `embed`
+6:9 ExternKeyword `extern`
+6:16 UnsafeKeyword `unsafe`
+7:1 IfKeyword `if`
+7:4 ElseKeyword `else`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 ForKeyword `for`
+7:39 CloseBracket `]`
+7:40 InKeyword `in`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 InterpolatedStringStart `$"`
+7:49 InterpolationStart `{`
+7:50 InterpolatedStringStart `$"`
+7:52 InterpolatedStringText `A`
+7:53 InterpolationStart `{`
+7:54 InterpolatedStringStart `$"`
+7:56 InterpolationStart `{`
+7:57 InterpolatedStringStart `$"`
+7:59 InterpolationStart `{`
+7:60 InterpolatedStringStart `$"`
+7:62 InterpolationStart `{`
+7:63 InterpolatedStringStart `$"`
+7:65 InterpolationStart `{`
+7:66 InterpolatedStringStart `$"`
+7:68 InterpolationStart `{`
+7:69 InterpolatedStringStart `$"`
+7:71 InterpolationStart `{`
+7:72 InterpolatedStringStart `$"`
+7:74 InterpolationStart `{`
+7:75 InterpolatedStringStart `$"`
+7:77 InterpolationStart `{`
+7:78 InterpolatedStringStart `$"`
+7:80 InterpolationStart `{`
+7:81 InterpolatedStringStart `$"`
+7:83 InterpolationStart `{`
+7:84 InterpolatedStringStart `$"`
+7:86 InterpolationStart `{`
+7:87 InterpolatedStringStart `$"`
+7:89 InterpolationStart `{`
+7:90 InterpolatedStringStart `$"`
+7:92 InterpolationStart `{`
+7:93 StringLiteral `$"{$"`
+7:98 OpenBrace `{`
+7:99 StringLiteral `$"{$"`
+7:104 OpenBrace `{`
+7:105 Identifier `x`
+7:106 CloseBrace `}`
+7:107 StringLiteral `"}"`
+7:110 CloseBrace `}`
+7:111 StringLiteral `"}"`
+7:114 InterpolationEnd `}`
+7:115 InterpolatedStringEnd `"`
+7:116 InterpolationEnd `}`
+7:117 InterpolatedStringEnd `"`
+7:118 InterpolationEnd `}`
+7:119 InterpolatedStringEnd `"`
+7:120 InterpolationEnd `}`
+7:121 InterpolatedStringEnd `"`
+7:122 InterpolationEnd `}`
+7:123 InterpolatedStringEnd `"`
+7:124 InterpolationEnd `}`
+7:125 InterpolatedStringEnd `"`
+8:1 Identifier `ew`
+8:4 GotoKeyword `goto`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  7 │ if else unless switch case default for]in  $"{$"{$"A{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                                                                        ^^ this string never
+    │                                                                           ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ if else unless switch case default for]in  $"{$"{$"A{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                                                                                             ^^

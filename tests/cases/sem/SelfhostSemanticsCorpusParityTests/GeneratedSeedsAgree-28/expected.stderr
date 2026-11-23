@@ -1,0 +1,7 @@
+note BYN1075: blocks nested more than 4 deep; flatten them with early exits
+  --> tmp/semantics-corpus/parity/seeds/valid-seed-004/main.byn:66:35
+
+  66 │                     if total >= 0 {
+     │                                   ^ nested more than 4 deep
+     │
+  help: flatten it with early exits

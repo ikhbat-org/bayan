@@ -1,0 +1,10 @@
+// ok þ in comment
+let b = ` 2
+
+0x
+'
+'x
+// o þ in comment
+( ) [ ] { }
+let actor = 1
+ ( ) [ ] { }

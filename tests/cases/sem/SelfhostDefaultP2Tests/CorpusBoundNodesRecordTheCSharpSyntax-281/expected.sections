@@ -1,0 +1,27 @@
+== tests/cases/run/string-of-bytes.byn
+68..96 globalStatement
+68..96 localDecl
+83..96 collectionExpr
+84..87 literalExpr integer
+89..92 literalExpr integer
+94..95 literalExpr integer
+97..118 exprStmt
+97..118 callExpr
+103..117 callExpr
+110..116 memberExpr
+110..111 nameExpr
+97..118 callExpr
+119..144 exprStmt
+119..144 callExpr
+125..143 callExpr
+132..142 memberExpr
+132..136 literalExpr string
+119..144 callExpr
+145..166 localDecl
+156..166 callExpr
+167..191 exprStmt
+167..191 callExpr
+173..190 callExpr
+180..189 memberExpr
+180..184 nameExpr
+167..191 callExpr

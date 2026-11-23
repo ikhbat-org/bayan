@@ -1,0 +1,8 @@
+error BYN2106: cannot modify this value
+  --> input.byn:18:30
+
+  18 │     for x: dyn ref IThing in r {
+     │                              ^ a `ReadOnlySpan` cannot be written through
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2106

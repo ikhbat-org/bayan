@@ -1,0 +1,165 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 Identifier `x`
+1:62 CloseBrace `}`
+1:63 StringLiteral `"}"`
+1:66 CloseBrace `}`
+1:67 StringLiteral `"}"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:91 IfKeyword `if`
+1:94 ElseKeyword `else`
+1:99 UnlessKeyword `unless`
+1:106 SwitchKeyword `switch`
+1:113 CaseKeyword `case`
+1:118 DefaultKeyword `default`
+1:126 ForKeyword `for`
+1:130 InKeyword `in`
+1:133 WhileKeyword `while`
+1:139 DoKeyword `do`
+1:142 BreakKeyword `break`
+1:148 ContinueKeyword `continue`
+1:157 ReturnKeyword `return`
+1:164 YieldKeyword `yield`
+1:170 DeferKeyword `defer`
+1:176 ErrdeferKeyword `errdefer`
+1:185 UsingKeyword `using`
+1:191 ContextKeyword `context`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 StringLiteral `$"{$"`
+2:46 OpenBrace `{`
+2:47 StringLiteral `$"{$"`
+2:52 OpenBrace `{`
+2:53 StringLiteral `$"{$"`
+2:58 OpenBrace `{`
+2:59 StringLiteral `$"{$"`
+2:64 OpenBrace `{`
+2:65 StringLiteral `$"{$"`
+2:70 OpenBrace `{`
+2:71 Identifier `x`
+2:72 CloseBrace `}`
+2:73 StringLiteral `"�}"`
+2:77 CloseBrace `}`
+2:78 StringLiteral `"}"`
+2:81 CloseBrace `}`
+2:82 StringLiteral `"}"`
+2:85 CloseBrace `}`
+2:86 StringLiteral `"}"`
+2:89 CloseBrace `}`
+2:90 StringLiteral `"}"`
+2:93 InterpolationEnd `}`
+2:94 InterpolatedStringEnd `"`
+3:1 Identifier `et`
+3:4 Identifier `b`
+3:6 Equals `=`
+3:8 StringLiteral `"bad \q escape"`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never clos\nerror set unit distinct type import as public private static readonly required const let var embed extern unsafe\n `
+6:2 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}" if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  2 │ let café =$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"�}"}"}"}"}"}"}"}"}"}"
+    │                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  2 │ let café =$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"�}"}"}"}"}"}"}"}"}"}"
+    │                                                                          ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ et b = "bad \q escape"
+    │             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  4 │ let c = """never clos
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

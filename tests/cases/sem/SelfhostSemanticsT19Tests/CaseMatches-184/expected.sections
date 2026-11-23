@@ -1,0 +1,4 @@
+== bind.probes.b5
+flags 0
+binary:bool[1698:10]=-(eq local:i32?[1698:2]=-(oi) defaultValue:i32?[1704:4]=-())
+BYN2027 112:14 compare with `is null` / `is not null`, not `==` ||write `oi is null`|fix 1698..1708 oi is null

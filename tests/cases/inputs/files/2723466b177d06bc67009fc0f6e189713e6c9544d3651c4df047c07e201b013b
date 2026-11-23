@@ -1,0 +1,20 @@
+// os: unix
+// `Io.run(…, input:)` feeds the bytes to the child's stdin and closes it.
+void main() fails IoError {
+    let hello: u8[6] = [104, 101, 108, 108, 111, 10]
+    let cat: string[2] = ["-c", "cat"]
+    print((try Io.run("sh", cat.span, input: hello.span)).stdout)
+    // Empty input is an immediate end of file.
+    let none: List<u8> = List<u8>()
+    let count: string[2] = ["-c", "wc -c | tr -d ' '"]
+    print((try Io.run("sh", count.span, input: none.span)).stdout)
+    // 300 KB in while the child writes 300 KB to each of stdout and stderr before reading: no deadlock.
+    var big = List<u8>()
+    for _ in 0..300000 { big.append(120) }
+    let busy: string[2] = ["-c", "yes 2>/dev/null | head -c 300000; yes e 2>/dev/null | head -c 300000 >&2; wc -c | tr -d ' ' >&2"]
+    let r = try Io.run("sh", busy.span, input: big.span)
+    print($"busy: exit {r.exitCode}, {r.stdout.length} + {r.stderr.length} bytes")
+    // A child that exits without reading its input does not stop us.
+    let quit: string[2] = ["-c", "exit 4"]
+    print($"quit: exit {(try Io.run("sh", quit.span, input: big.span)).exitCode}")
+}

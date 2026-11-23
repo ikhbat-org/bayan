@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""\u{FEFF}\n//// not a doc �comment\n\n( ) [ ] { }\n \0'\n\nlet effect = 2\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """﻿
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  2 │ //// not a doc �comment
+    │                ^

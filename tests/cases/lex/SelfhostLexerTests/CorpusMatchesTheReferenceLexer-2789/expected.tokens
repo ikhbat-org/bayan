@@ -1,0 +1,124 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+4:1 Identifier `각`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolatedStringText `total `
+4:12 InterpolationStart `{`
+4:13 Identifier `x`
+4:14 InterpolationEnd `}`
+4:15 InterpolatedStringEnd `"`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolatedStringText `� `
+4:21 InterpolationStart `{`
+4:22 Identifier `f`
+4:23 OpenParen `(`
+4:24 InterpolatedStringStart `$"`
+4:26 InterpolatedStringText `b `
+4:28 InterpolationStart `{`
+4:29 Identifier `c`
+4:30 InterpolationEnd `}`
+4:31 InterpolatedStringEnd `"`
+4:32 CloseParen `)`
+4:33 InterpolationEnd `}`
+4:34 InterpolatedStringText ` d`
+4:36 InterpolatedStringEnd `"`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolatedStringText `{{literal}}`
+4:51 InterpolatedStringEnd `"`
+4:53 InterpolatedStringStart `$"`
+4:55 InterpolationStart `{`
+4:56 Identifier `Point`
+4:62 OpenBrace `{`
+4:64 Identifier `x`
+4:66 Equals `=`
+4:68 IntegerLiteral `1`
+4:70 CloseBrace `}`
+4:71 InterpolationEnd `}`
+4:72 InterpolatedStringText `!`
+4:73 InterpolatedStringEnd `"`
+4:75 InterpolatedStringStart `$"`
+4:77 InterpolatedStringEnd `"`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `total `
+5:10 InterpolationStart `{`
+5:11 Identifier `x`
+5:12 InterpolationEnd `}`
+5:13 InterpolatedStringEnd `"`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolatedStringText `a `
+5:19 InterpolationStart `{`
+5:20 Identifier `f`
+5:21 OpenParen `(`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolatedStringText `b `
+5:26 InterpolationStart `{`
+5:27 Identifier `c`
+5:28 InterpolationEnd `}`
+5:29 InterpolatedStringEnd `"`
+5:30 CloseParen `)`
+5:31 InterpolationEnd `}`
+5:32 InterpolatedStringText ` d`
+5:34 InterpolatedStringEnd `"`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolatedStringText `{{literal}�}`
+5:50 InterpolatedStringEnd `"`
+5:52 InterpolatedStringStart `$"`
+5:54 InterpolationStart `{`
+5:55 Identifier `Point`
+5:61 OpenBrace `{`
+5:63 Identifier `x`
+5:65 Equals `=`
+5:67 IntegerLiteral `1`
+5:69 CloseBrace `}`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringText `!`
+5:72 InterpolatedStringEnd `"`
+5:74 InterpolatedStringStart `$"`
+5:76 InterpolatedStringEnd `"`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � in comment
+    │       ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ 각$"total {x}" $"� {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 각$"total {x}" $"� {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  4 │ 각$"total {x}" $"� {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                   ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │  $"total {x}" $"a {f($"b {c}")} d" $"{{literal}�}" $"{Point { x = 1 }}!" $""
+    │                                               ^
+    │
+    │ 5 │  $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}�}" $"{Point { x = 1 }}!" $""
+    │   │                                                +
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  5 │  $"total {x}" $"a {f($"b {c}")} d" $"{{literal}�}" $"{Point { x = 1 }}!" $""
+    │                                                ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │  $"total {x}" $"a {f($"b {c}")} d" $"{{literal}�}" $"{Point { x = 1 }}!" $""
+    │                                                 ^
+    │
+    │ 5 │  $"total {x}" $"a {f($"b {c}")} d" $"{{literal}�}}" $"{Point { x = 1 }}!" $""
+    │   │                                                  +

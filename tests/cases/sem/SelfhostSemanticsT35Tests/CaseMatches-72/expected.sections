@@ -1,0 +1,2 @@
+== expr.probes.t2
+tuple:(i64, string)[2245:8]=-(literal:i64[2246:1]=1(1) literal:string[2249:3]="a"("a"))

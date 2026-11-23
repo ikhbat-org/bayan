@@ -1,0 +1,2 @@
+== case int-float-target
+literal 668..670 : f64 = 42

@@ -1,0 +1,7 @@
+1:1 Identifier `y`
+1:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  1 │ �y 
+    │ ^

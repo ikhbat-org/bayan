@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BinaryPattern",
+    "BlockStmt",
+    "CallExpr",
+    "ConstantPattern",
+    "EnumDecl",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "PropertyPattern",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "EnumField",
+    "EnumFromOrdinal",
+    "EnumName",
+    "EnumOrdinal",
+    "EnumParse",
+    "ListAdd",
+    "Print",
+    "StringLength"
+  ],
+  "diagnostics": []
+}

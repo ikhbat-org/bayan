@@ -1,0 +1,6 @@
+let a = "o¡pen
+
+'\u{D800}'
+
+"text" "esc \"q\" \\ \n" """
+ 

@@ -1,0 +1,4 @@
+  raw "quoted"
+ $"{a a /* never’close«
+let a = 1
+///

@@ -1,0 +1,4 @@
+== bind.probes.b34
+flags 0
+errorExpr:?[2364:7]=-()
+BYN2208 141:15 `<` cannot be applied to `i32` and `string` |||

@@ -1,0 +1,70 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 Identifier `condinue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:2 CloseBrace `}`
+2:4 Identifier `here`
+2:8 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:11 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  1 │ if else unless switch case default for� in while do break condinue return yield defer errdefer using context
+    │                                       ^
+
+error BYN0003: unterminated string literal
+
+  2 │  } here"
+    │        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x�����
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ $"open {x�����
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ $"open {x�����
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ $"open {x�����
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ $"open {x�����
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ $"open {x�����
+    │              ^

@@ -1,0 +1,49 @@
+// 019 T29 (coverage ratchet): `t6FloatLiteral` of a NaN and the infinities, `enumValues` of a registered table and
+// `constant` of integers as float types and as i64. The expected values are the output of the self-hosted emitter at
+// the commit that added the test.
+
+import semantics
+
+type T29Big = semantics.Big
+
+test "cprint t29: t6FloatLiteral of NaN and the infinities" {
+    let inf = 1.0 / 0.0
+    assert t6FloatLiteral(inf - inf, by: false) == "((double)NAN)"
+    assert t6FloatLiteral(inf - inf, by: true) == "((float)NAN)"
+    assert t6FloatLiteral(inf, by: false) == "((double)INFINITY)"
+    assert t6FloatLiteral(inf, by: true) == "((float)INFINITY)"
+    assert t6FloatLiteral(-inf, by: false) == "(-(double)INFINITY)"
+    assert t6FloatLiteral(-inf, by: true) == "(-(float)INFINITY)"
+    assert t6FloatLiteral(0.5, by: false) == "(0.5)"
+    assert t6FloatLiteral(2.0, by: true) == "((float)2.0)"
+}
+
+test "cprint t29: enumValues returns the registered name without rebuilding its table" {
+    var c = t29Ctx("enum Color {\n    red\n    green\n}\n\nvoid main() {}\n")
+    var cc = CCtx {}
+    var e = -1
+    for i in 0..c.enums.length {
+        if c.enums[i].name == "Color" {
+            e = i
+        }
+    }
+    let name = enumValues(ref cc, from: ref c, for: e)
+    assert name == "byn_main_Color_values"
+    assert cc.statics[name] == "static const byn_main_Color byn_main_Color_values[] = {0, 1};\n\n"
+    cc.statics[name] = "kept"
+    assert enumValues(ref cc, from: ref c, for: e) == name
+    assert cc.statics[name] == "kept"
+    assert cc.staticOrder.length == 1
+}
+
+test "cprint t29: constant of an integer as a float type and of 2^63 as i64" {
+    var c = t29Ctx("void main() {}\n")
+    var cc = CCtx {}
+    let three = T29Constant { kind: .integer, integer: T29Big { lo: 3, hi: 0 } }
+    assert constant(ref cc, from: ref c, for: three, as: semantics.prim(.f64)) == "(3.0)"
+    assert constant(ref cc, from: ref c, for: three, as: semantics.prim(.f32)) == "((float)3.0)"
+    let top = T29Constant { kind: .integer, integer: T29Big { lo: 0x8000000000000000, hi: 0 } }
+    assert constant(ref cc, from: ref c, for: top, as: semantics.prim(.i64)) == "INT64_C(9223372036854775808)"
+    let min = T29Constant { kind: .integer, integer: T29Big { lo: 0x8000000000000000, hi: 0xFFFFFFFFFFFFFFFF } }
+    assert constant(ref cc, from: ref c, for: min, as: semantics.prim(.i64)) == "INT64_MIN"
+}

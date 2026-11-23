@@ -1,0 +1,14 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+2:1 StringLiteral `"// \u{202E}x`
+    doc `/// Doc line one.`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "// �x
+    │ ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

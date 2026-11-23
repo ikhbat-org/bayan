@@ -1,0 +1,4 @@
+== pattern
+counts 0 1 1
+loan bg its 1926 0
+BYN3002 112:23 `bg` does not live as long as `its`, which borrows it |`bg` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

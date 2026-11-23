@@ -1,0 +1,9 @@
+== tests/cases/diag/circular-constant.byn
+56..73 globalStatement
+56..73 exprStmt
+56..73 callExpr
+62..72 interpolatedExpr
+65..70 nameExpr
+56..73 callExpr
+19..29 binaryExpr add right 28..29
+50..55 nameExpr

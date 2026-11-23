@@ -404,6 +404,31 @@ public sealed class SelfhostDriverT1Tests
         return env;
     }
 
+    /// <summary>
+    /// 019 T2a: <c>BAYAN_TERMINAL=&lt;width&gt;</c>, a positive integer, makes stdout and stderr a terminal of that width, so the
+    /// oracle is <c>Decide</c> on a tty of that width; any other value leaves what <c>Run</c> decides (no tty, width 0). The colour
+    /// still follows the other variables (<paramref name="noColor"/>).
+    /// </summary>
+    [Theory]
+    [InlineData("100", "", 100)]
+    [InlineData("40", "", 40)]
+    [InlineData("100", "1", 100)]
+    [InlineData(null, "", 0)]
+    [InlineData("", "", 0)]
+    [InlineData("abc", "", 0)]
+    [InlineData("0", "", 0)]
+    [InlineData("-5", "", 0)]
+    public void BayanTerminalIsATerminalOfThatWidth(string? value, string noColor, int width)
+    {
+        Assert.Null(Environment.GetEnvironmentVariable("BAYAN_TERMINAL"));
+        var env = StyleEnvironment("NO_COLOR", noColor);
+        if (value is not null) env["BAYAN_TERMINAL"] = value;
+        var tty = width > 0;
+        var expected = TerminalStyle.Decide("auto", false, tty, k => env.GetValueOrDefault(k), width);
+        Assert.Equal(tty && noColor.Length == 0, expected.Colors is not null);
+        Assert.Equal(StyleLine(expected, expected, tty), ProbeStyle(env, ["--color", "auto", "version"]));
+    }
+
     [Theory]
     [InlineData("NO_COLOR", "1", "auto", true, 80)]
     [InlineData("FORCE_COLOR", "1", "auto", false, 80)]

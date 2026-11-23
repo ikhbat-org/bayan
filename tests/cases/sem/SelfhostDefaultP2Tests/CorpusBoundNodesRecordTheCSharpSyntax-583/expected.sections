@@ -1,0 +1,15 @@
+== tests/cases/diag/interface-default-other-file
+40..41 literalExpr integer
+40..41 literalExpr integer
+40..41 literalExpr integer
+62..86 globalStatement
+62..86 exprStmt
+62..86 callExpr
+68..85 interpolatedExpr
+71..83 memberExpr
+71..81 structLiteralExpr
+78..79 literalExpr integer
+62..86 callExpr
+40..41 literalExpr integer
+40..41 literalExpr integer
+40..41 literalExpr integer

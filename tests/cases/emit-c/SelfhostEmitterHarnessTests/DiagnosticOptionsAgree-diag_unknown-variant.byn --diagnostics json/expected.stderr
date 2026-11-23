@@ -1,0 +1,1 @@
+{"code":"BYN2228","severity":"error","file":"input.byn","span":{"start":59,"end":67,"line":5,"column":20,"endLine":5,"endColumn":28},"message":"`overflow` is not a variant of `MoneyError`","label":null,"help":null,"fixes":[]}

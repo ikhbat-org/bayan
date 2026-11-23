@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"CharLiteral","start":0,"end":10,"text":"'\\u{D800}'","doc":null},{"kind":"EndOfFile","start":14,"end":14,"text":"","doc":null}],"diagnostics":[{"code":"BYN0013","severity":"error","start":1,"end":9,"message":"`\\u{D800}` is not a Unicode scalar value","label":null,"help":"use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF","fixes":[]}]}

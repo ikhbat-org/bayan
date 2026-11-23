@@ -1,0 +1,7 @@
+const limit: i64 = 100
+
+void main() {
+    var total: i64 = 0
+    total += limit
+    print($"{total}")
+}

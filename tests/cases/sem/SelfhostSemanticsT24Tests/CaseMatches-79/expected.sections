@@ -1,0 +1,4 @@
+== analyzeOwnership.storeInto
+BYN2780 49:17 implicit copy of a unique value: `List<i64>` is unique: it owns its storage ||hand the value over with `move xs`; make an independent copy with `xs.copy(to: alloc)`; pass it by `ref` to share it instead|fix 766..766 move 
+BYN2780 51:16 implicit copy of a unique value: `List<i64>` is unique: it owns its storage ||make an independent copy with `bag.items.copy(to: alloc)`; pass it by `ref` to share it instead|fix 825..825 .copy(to: alloc)
+BYN2780 52:29 implicit copy of a unique value: `List<i64>` is unique: it owns its storage ||make an independent copy with `bag.items.copy(to: alloc)`; pass it by `ref` to share it instead|fix 864..864 .copy(to: alloc)

@@ -1,0 +1,5 @@
+== case manifest/grammar-collective-mixed
+errors 1
+error BYN3102: `grammar.collectives` must be a list of words, e.g. `["upsert"]`
+  6 │         collectives: [1, "a"],
+    │                      ^^^^^^^^

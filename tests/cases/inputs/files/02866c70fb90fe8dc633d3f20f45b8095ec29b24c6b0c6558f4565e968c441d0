@@ -1,0 +1,7 @@
+let b = "bad \q escape"
+
+ent */ a
+/// Doc line xÌÌ
+macr select become
+ øˆ€€€a X> b
+never closedb

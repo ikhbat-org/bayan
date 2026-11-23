@@ -1,0 +1,21 @@
+error BYN5004: `check` has 2 unlabeled parameters; give each but one a particle
+  --> <repo>/tests/cases/parse/assert.byn:1:6
+
+  1 │ void check(i64 a, Cart cart) {
+    │      ^^^^^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN2002: unknown type `Cart`
+  --> <repo>/tests/cases/parse/assert.byn:1:19
+
+  1 │ void check(i64 a, Cart cart) {
+    │                   ^^^^
+
+error BYN5006: `cart` is a required parameter besides the object and needs a particle
+  --> <repo>/tests/cases/parse/assert.byn:1:24
+
+  1 │ void check(i64 a, Cart cart) {
+    │                        ^^^^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`

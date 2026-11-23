@@ -1,0 +1,62 @@
+2:1 Tilde `~`
+2:3 Bang `!`
+2:5 Equals `=`
+2:7 EqualsEquals `==`
+2:10 BangEquals `!=`
+2:13 Less `<`
+2:15 LessEquals `<=`
+2:18 Greater `>`
+2:20 GreaterEquals `>=`
+2:23 LessLess `<<`
+2:26 Greater `>`
+2:27 Greater `>`
+2:28 Identifier `w`
+2:29 Greater `>`
+2:30 GreaterEquals `>=`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:22 CaretEquals `^=`
+3:25 Less `<`
+4:1 IntegerLiteral `0xF__`
+5:2 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:11 IntegerLiteral `3`
+8:2 FloatLiteral `2.5`
+8:5 NumericSuffix `ea`
+12:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = � 3
+    │         ^
+
+error BYN0004: unterminated block comment
+
+  8 │  2.5ea /* never closed
+    │        ^^ comment starts here
+    │
+  help: close it with `*/`

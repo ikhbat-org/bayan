@@ -1,0 +1,4 @@
+== diags.diag/dyn-ref-this-argument-modified
+BYN3004 13:14 `items` is modified while `s` still borrows it
+  label `s` is used again on line 14
+  help finish using `s` first, or copy what it needs before changing `items`

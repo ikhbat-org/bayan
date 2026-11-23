@@ -1,0 +1,34 @@
+1:1 Identifier `ạ̇`
+1:5 IntegerLiteral `0x`
+1:8 LetKeyword `let`
+1:12 Identifier `a`
+1:14 Equals `=`
+1:18 IntegerLiteral `1`
+    doc `/// Doc line one.`
+3:4 CloseBrace `}`
+3:5 StringLiteral `"}"`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ 0x let a = $ 1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ 0x let a = $ 1
+    │   │ ++
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ ạ̇ 0x let a = $ 1
+    │     ^^
+
+error BYN0002: unexpected character `$`
+
+  1 │ ạ̇ 0x let a = $ 1
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  � }"}"
+    │  ^

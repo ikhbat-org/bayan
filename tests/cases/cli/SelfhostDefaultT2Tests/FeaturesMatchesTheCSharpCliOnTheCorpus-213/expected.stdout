@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ConditionalExpr",
+    "ContextStmt",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "IfStmt",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "SwitchStmt",
+    "UnionDecl",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "OwnedNew",
+    "OwnedValue",
+    "Print"
+  ],
+  "diagnostics": []
+}

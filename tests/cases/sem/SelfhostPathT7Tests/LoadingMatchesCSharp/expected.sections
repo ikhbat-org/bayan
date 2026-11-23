@@ -1,0 +1,2 @@
+== load
+module main tmp/t7-path/load/empty/src main

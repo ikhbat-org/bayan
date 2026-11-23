@@ -1,0 +1,22 @@
+== r-b
+area depth r 2 144
+area depth rr 2 175
+area depth s 1 -1
+area depth side 2 233
+main depth arena 1 638
+main depth err 1 764
+main depth f 3 825
+main depth got 1 722
+main depth i 2 801
+main depth inside 2 697
+main depth k 1 787
+main depth t 1 732
+main env 2
+pick depth m 1 454
+pick depth maybe 1 -1
+pick depth q 1 418
+pick depth r 1 389
+pick depth rad 1 510
+pick depth s 1 -1
+pick depth v 1 354
+risky depth n 1 -1

@@ -1,0 +1,79 @@
+2.9.9/
+2.9.9/BUILDINFO.json 644
+{
+  "package": "local/tally",
+  "version": "2.9.9",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "macos-arm64"
+  ],
+  "source": null,
+  "inputs": "sha256:e12b669b8252aac7a4c6b7557bce45305beb650779809199cb8e2cc101fd3274"
+}
+
+2.9.9/SHA256SUMS 644
+<hash>  macos-arm64/tally
+
+2.9.9/macos-arm64/
+2.9.9/macos-arm64/tally 755 <binary>
+3.0.0/
+3.0.0-z/
+3.0.0-z/BUILDINFO.json 644
+{
+  "package": "local/tally",
+  "version": "3.0.0-z",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "macos-arm64"
+  ],
+  "source": null,
+  "inputs": "sha256:dd2e3b2ea6fdbaa6bbef5e5567899ba42fe078f7b486391bd6a5bc4666ae92bf"
+}
+
+3.0.0-z/SHA256SUMS 644
+<hash>  macos-arm64/tally
+
+3.0.0-z/macos-arm64/
+3.0.0-z/macos-arm64/tally 755 <binary>
+3.0.0/BUILDINFO.json 644
+{
+  "package": "local/tally",
+  "version": "3.0.0",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "macos-arm64"
+  ],
+  "source": null,
+  "inputs": "sha256:7de43cc65d41c6c07c6d92668305be025a1884df2c6aa2641035764628f13a57"
+}
+
+3.0.0/SHA256SUMS 644
+<hash>  macos-arm64/tally
+
+3.0.0/macos-arm64/
+3.0.0/macos-arm64/tally 755 <binary>
+latest/
+latest/BUILDINFO.json 644
+{
+  "package": "local/tally",
+  "version": "3.0.0",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "macos-arm64"
+  ],
+  "source": null,
+  "inputs": "sha256:7de43cc65d41c6c07c6d92668305be025a1884df2c6aa2641035764628f13a57"
+}
+
+latest/SHA256SUMS 644
+<hash>  macos-arm64/tally
+
+latest/VERSION 644
+3.0.0
+
+latest/macos-arm64/
+latest/macos-arm64/tally 755 <binary>

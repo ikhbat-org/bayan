@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/untrusted-trust.byn
+--package
+<repo>/tests/cases/run

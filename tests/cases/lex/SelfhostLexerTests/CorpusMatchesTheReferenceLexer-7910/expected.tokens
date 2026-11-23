@@ -1,0 +1,63 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+3:1 StringLiteral `" $"`
+3:5 Identifier `a`
+3:7 OpenBrace `{`
+3:8 Identifier `f`
+3:9 OpenParen `(`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolatedStringText `b `
+3:14 InterpolationStart `{`
+3:15 Identifier `c`
+3:16 InterpolationEnd `}`
+3:17 InterpolatedStringEnd `"`
+3:18 CloseParen `)`
+3:19 CloseBrace `}`
+3:21 Identifier `d`
+3:22 StringLiteral `" $"`
+3:26 StringLiteral `"}"`
+3:29 CloseBrace `}`
+3:30 StringLiteral `"~}"`
+3:34 CloseBrace `}`
+3:35 StringLiteral `"`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+5:14 Semicolon `;`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  3 │ �" $"a {f($"b {c}")} d" $""}"}"~}"}"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ �" $"a {f($"b {c}")} d" $""}"}"~}"}"
+    │                                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ let café = 1;
+    │   │        +
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

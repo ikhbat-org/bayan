@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ConditionalExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr"
+  ],
+  "builtins": [
+    "IoRandomU64",
+    "Print"
+  ],
+  "diagnostics": []
+}

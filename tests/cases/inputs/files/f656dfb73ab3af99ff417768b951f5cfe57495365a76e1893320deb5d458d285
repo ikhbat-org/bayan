@@ -1,0 +1,7 @@
+struct A { i32 x }
+struct B { i32 y }
+
+type F = i32 -> bool
+
+void f() {
+}

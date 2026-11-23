@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "ConstantPattern",
+    "DeclarationPattern",
+    "EnumDecl",
+    "ErrorEnumDecl",
+    "ExprStmt",
+    "FailStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "GuardedStmt",
+    "IfStmt",
+    "InterpolatedExpr",
+    "JumpExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "TryExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StrBufAppend"
+  ],
+  "diagnostics": []
+}

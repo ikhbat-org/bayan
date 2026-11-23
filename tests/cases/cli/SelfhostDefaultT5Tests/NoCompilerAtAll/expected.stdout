@@ -1,0 +1,9 @@
+◆ bayan       <version>
+◆ host        <host>
+✗ C compiler: none found
+  help: install zig (https://ziglang.org), or set BAYAN_CC to a C compiler
+◆ zig         not found; building for other targets needs it
+  help: install zig (https://ziglang.org)
+◆ git         not found; `bayan new` skips `git init`, `bayan dist` records no commit, `bayan test --changed` is unavailable
+  help: install git
+◆ cache       <host>

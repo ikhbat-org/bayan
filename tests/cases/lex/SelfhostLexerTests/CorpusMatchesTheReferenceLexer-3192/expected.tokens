@@ -1,0 +1,34 @@
+1:1 RawStringLiteral `"""�����$"x{ $"{ `
+1:14 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """�����$"x{ $"{ 
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ """�����$"x{ $"{ 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ """�����$"x{ $"{ 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ """�����$"x{ $"{ 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ """�����$"x{ $"{ 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ """�����$"x{ $"{ 
+    │        ^

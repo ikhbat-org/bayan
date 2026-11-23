@@ -1,0 +1,9 @@
+�et x⁧ = 1
+
+'\u{D800}'
+"text" "esc \"q\" \\ \n" """
+let café = 2
+
+// Doc line two.
+
+$"{"

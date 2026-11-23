@@ -1,0 +1,56 @@
+1:1 Semicolon `;`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:12 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
+7:1 VarKeyword `var`
+7:5 Identifier `xs`
+7:7 Colon `:`
+7:9 Identifier `List`
+7:13 Less `<`
+7:14 Identifier `List`
+7:18 Less `<`
+7:19 Identifier `i64`
+7:22 Greater `>`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  2 │  'a' '\n' '\u{1F600}' '\'' 'é' '\\'� '\0'
+    │                                    ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +
+
+error BYN0002: unexpected character `$`
+
+  5 │  let a = $ 1
+    │          ^

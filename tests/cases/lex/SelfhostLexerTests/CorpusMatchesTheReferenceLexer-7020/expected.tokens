@@ -1,0 +1,74 @@
+1:1 IsKeyword `is`
+1:4 Identifier `an`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:21 MoveKeyword `move`
+1:26 RefKeyword `ref`
+1:30 OutKeyword `out`
+1:34 Identifier `t`
+1:36 Identifier `his`
+1:40 NullKeyword `null`
+1:45 TrueKeyword `true`
+1:50 FalseKeyword `false`
+1:56 ComptimeKeyword `comptime`
+1:65 CheckedKeyword `checked`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `total `
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a `
+2:19 InterpolationStart `{`
+2:20 Identifier `f`
+2:21 OpenParen `(`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `b `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
+4:1 IntegerLiteral `0b102`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  1 │ is an� or not with �move ref out t�his null true false comptime checked
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  1 │ is an� or not with �move ref out t�his null true false comptime checked
+    │                    ^
+
+error BYN0002: unexpected character `\u{7F}`
+
+  1 │ is an� or not with �move ref out t�his null true false comptime checked
+    │                                   ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^

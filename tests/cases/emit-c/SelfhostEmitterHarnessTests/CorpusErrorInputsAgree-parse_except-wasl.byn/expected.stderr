@@ -1,0 +1,8 @@
+error BYN2022: this expression is not supported in v0.1
+  --> input.byn:1:12
+
+  1 │ let rest = code
+    │            ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2022

@@ -1,0 +1,102 @@
+1:1 Identifier `ς`
+1:3 Identifier `x_1`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
+3:2 Identifier `Å`
+    doc `/// Doc line one.`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{$"`
+6:54 OpenBrace `{`
+6:55 StringLiteral `$"{$"`
+6:60 OpenBrace `{`
+6:61 Identifier `x`
+6:62 CloseBrace `}`
+6:63 StringLiteral `"}"`
+6:66 CloseBrace `}`
+6:67 StringLiteral `"}"`
+6:70 InterpolationEnd `}`
+6:71 InterpolatedStringEnd `"`
+6:72 InterpolationEnd `}`
+6:73 InterpolatedStringEnd `"`
+6:74 InterpolationEnd `}`
+6:75 InterpolatedStringEnd `"`
+6:77 Identifier `w`
+6:79 Equals `=`
+6:81 IntegerLiteral `3`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ �ς x_1  �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �ς x_1  �
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �ς x_1  �
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  2 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │  Å/// Doc line one.
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  Å/// Doc line one.
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" w = 3
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" w = 3
+    │                                                 ^^

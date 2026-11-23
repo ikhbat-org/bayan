@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "DeclarationPattern",
+    "ExprStmt",
+    "FailStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "JumpExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RequiresRule",
+    "StructDecl",
+    "StructLiteralExpr",
+    "SwitchExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListIsEmpty",
+    "Print",
+    "StringRuneCount"
+  ],
+  "diagnostics": []
+}

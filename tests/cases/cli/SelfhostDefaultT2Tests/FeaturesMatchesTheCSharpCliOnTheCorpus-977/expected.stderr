@@ -1,0 +1,9 @@
+error BYN2009: `Circle` must be camelCase
+  --> <repo>/tests/cases/diag/union-case-casing.byn:2:5
+
+  2 │     Circle(f32 r)
+    │     ^^^^^^
+    │
+  help: rename it `circle`; only types are PascalCase
+    │ 2 │     circle(f32 r)
+    │   │     +

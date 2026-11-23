@@ -1,0 +1,13 @@
+    doc `/// Doc line one.`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:10 RawStringLiteral `"""never closed\n `
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

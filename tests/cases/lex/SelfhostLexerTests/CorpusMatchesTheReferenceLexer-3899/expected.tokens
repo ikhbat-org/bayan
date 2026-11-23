@@ -1,0 +1,26 @@
+1:3 Plus `+`
+1:6 Star `*`
+1:8 Slash `/`
+1:10 Percent `%`
+1:12 PlusPercent `+%`
+1:15 MinusPercent `-%`
+1:18 StarPercent `*%`
+1:21 PlusBar `+|`
+1:24 MinusBar `-|`
+1:27 StarBar `*|`
+1:30 Plus `+`
+1:32 MinusMinus `--`
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+3:2 EndOfFile

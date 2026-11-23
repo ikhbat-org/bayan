@@ -1,0 +1,33 @@
+1:2 PlusEquals `+=`
+1:5 MinusEquals `-=`
+1:8 StarEquals `*=`
+1:11 SlashEquals `/=`
+1:14 Percent `%`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:5 TestKeyword `test`
+2:10 AssertKeyword `assert`
+2:17 PropertyKeyword `property`
+2:26 FuzzKeyword `fuzz`
+2:31 ModelKeyword `model`
+2:37 ForeachKeyword `foreach`
+2:45 NewKeyword `new`
+2:49 GotoKeyword `goto`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �+= -= *= /= %� &= |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB4)
+
+  1 │ �+= -= *= /= %� &= |= ^= <<=
+    │               ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │  	̈́ test assert property fuzz model foreach new goto
+    │  	^

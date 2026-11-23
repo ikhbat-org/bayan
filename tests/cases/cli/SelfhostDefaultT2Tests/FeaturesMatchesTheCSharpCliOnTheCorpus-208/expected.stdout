@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "DeferStmt",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Panic",
+    "PanicMessage",
+    "Print"
+  ],
+  "diagnostics": []
+}

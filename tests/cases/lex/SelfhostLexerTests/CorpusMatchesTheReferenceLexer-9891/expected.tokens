@@ -1,0 +1,6 @@
+    doc `/// Doc line one.`
+2:5 Identifier `comment`
+2:13 Star `*`
+2:14 Slash `/`
+2:16 Identifier `a`
+3:2 EndOfFile

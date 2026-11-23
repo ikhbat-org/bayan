@@ -1,0 +1,159 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{x}"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:88 InterpolatedStringStart `$"`
+1:90 InterpolatedStringText `total `
+1:96 InterpolationStart `{`
+1:97 Identifier `x`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:101 InterpolatedStringStart `$"`
+1:103 InterpolatedStringText `a `
+1:105 InterpolationStart `{`
+1:106 Identifier `f`
+1:107 OpenParen `(`
+1:108 InterpolatedStringStart `$"`
+1:110 InterpolatedStringText `b `
+1:112 InterpolationStart `{`
+1:113 Identifier `c`
+1:114 InterpolationEnd `}`
+1:115 InterpolatedStringEnd `"`
+1:116 CloseParen `)`
+1:117 InterpolationEnd `}`
+1:118 InterpolatedStringText ` d`
+1:120 InterpolatedStringEnd `"`
+1:122 InterpolatedStringStart `$"`
+1:124 InterpolatedStringText `{{literal}}`
+1:135 InterpolatedStringEnd `"`
+1:137 InterpolatedStringStart `$"`
+1:139 InterpolationStart `{`
+1:140 Identifier `PoiGnt`
+1:147 OpenBrace `{`
+1:149 Identifier `x`
+1:151 Equals `=`
+1:153 IntegerLiteral `1`
+1:155 CloseBrace `}`
+1:156 InterpolationEnd `}`
+1:157 InterpolatedStringText `!`
+1:158 InterpolatedStringEnd `"`
+1:160 InterpolatedStringStart `$"`
+1:162 InterpolatedStringEnd `"`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:23 NoallocKeyword `noalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 AwaitKeyword `await`
+6:2 Identifier `c`
+6:4 Greater `>`
+6:5 GreaterEquals `>=`
+6:8 IntegerLiteral `1`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `x`
+7:4 InterpolationStart `{`
+7:6 InterpolatedStringStart `$"`
+7:8 InterpolationStart `{`
+7:9 Identifier `q`
+7:11 Identifier `escape`
+7:17 StringLiteral `"`
+8:1 LetKeyword `let`
+8:5 Identifier `a`
+8:7 Equals `=`
+8:9 StringLiteral `"open`
+10:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{PoiGnt { x = 1 }}!" $""
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB1)
+
+  5 │ fails try catch never noalloc nosuspend �suspends async await
+    │                                         ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"x{ $"{q escape"
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"x{ $"{q escape"
+    │                 ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

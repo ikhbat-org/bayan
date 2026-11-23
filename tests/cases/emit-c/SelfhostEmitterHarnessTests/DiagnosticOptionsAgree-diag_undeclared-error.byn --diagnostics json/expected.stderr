@@ -1,0 +1,1 @@
+{"code":"BYN2603","severity":"error","file":"input.byn","span":{"start":212,"end":224,"line":15,"column":12,"endLine":15,"endColumn":24},"message":"`ParseError` is not in the `fails` clause of `total`","label":null,"help":"add it to the signature: `fails MoneyError, ParseError`","fixes":[]}

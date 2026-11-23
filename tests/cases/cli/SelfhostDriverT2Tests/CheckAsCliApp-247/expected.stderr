@@ -1,0 +1,26 @@
+error BYN2744: `length` is not a member of type parameter `T`
+  --> <repo>/tmp/t2/diag/type-parameter-member/type-parameter-member.byn:1:23
+
+  1 │ i64 size<T>(T x) => x.length
+    │                       ^^^^^^
+    │
+  help: add `where T : …` naming an interface that declares `length`, or use a concrete type
+
+error BYN2744: `toString` is not a member of type parameter `T`
+  --> <repo>/tmp/t2/diag/type-parameter-member/type-parameter-member.byn:2:27
+
+  2 │ string label<T>(T x) => x.toString()
+    │                           ^^^^^^^^
+    │
+  help: add `where T : …` naming an interface that declares `toString`, or use a concrete type
+
+error BYN2744: `count` is not a member of type parameter `T`
+  --> <repo>/tmp/t2/diag/type-parameter-member/type-parameter-member.byn:7:26
+
+  7 │     i64 width() => value.count
+    │                          ^^^^^
+    │
+  help: add `where T : …` naming an interface that declares `count`, or use a concrete type
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2744

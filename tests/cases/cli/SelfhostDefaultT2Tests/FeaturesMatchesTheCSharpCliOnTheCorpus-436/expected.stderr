@@ -1,0 +1,5 @@
+error BYN2605: `assert … fails` needs a call that can fail
+  --> <repo>/tests/cases/diag/assert-fails-infallible.byn:9:8
+
+  9 │ assert f() fails ParseError.empty
+    │        ^^^

@@ -1,0 +1,4 @@
+== member.probes.-.m30
+errorExpr|?|-|-|-|-|-|2191:7|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 117:21 `x` is not a member of `Point` ||call it on a `Point` value; `x` belongs to a value, not the type|

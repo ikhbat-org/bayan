@@ -1,0 +1,4 @@
+== diags.diag/extension-conformance
+BYN2811 9:1 `extension Money : IShape` is not supported yet
+  label retroactive conformance
+  help list `IShape` on `Money`'s declaration

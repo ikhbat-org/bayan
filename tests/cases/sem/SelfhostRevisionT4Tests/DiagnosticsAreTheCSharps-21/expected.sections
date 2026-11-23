@@ -1,0 +1,6 @@
+== diags.m-grammar-wrong-object
+BYN3102 4:14 `grammar` must be a `Grammar { … }`
+verbs
+nouns
+adjectives
+collectives

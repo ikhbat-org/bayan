@@ -1,0 +1,9 @@
+== diags.diag/ref-this-mismatch
+BYN2814 9:9 `Counter.next` must match `ICounter.next`, which takes `ref this`
+  label not declared `ref this`
+  help add `ref this` on `Counter.next`
+  fix 9:14-9:14 ref this
+BYN2814 11:9 `Counter.peek` must match `ICounter.peek`, which does not take `ref this`
+  label declared `ref this`
+  help remove `ref this` on `Counter.peek`
+  fix 11:14-11:22 

@@ -1,0 +1,8 @@
+$"open {x";
+// ok þ in comment
+let a = "open
+ let b = ` 2
+> >= << >> >>=
++= -= *= /= %= &= |= ^= <<=
+"{ a /* never closed
+ À€ 

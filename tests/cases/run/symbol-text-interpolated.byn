@@ -1,0 +1,10 @@
+// SymbolLoweringTests.InterpolatedSymbolLowersAsItsText: a `Symbol` in `$"…"`, bare and with a width, writes its text
+// (the program of typed/symbol-text.byn, printing both interpolations).
+string name(Symbol s) => s.text
+
+void main() {
+    let s: Symbol = "name"
+    let shown: string = $"[{s}] {s, width: 8}"
+    print(shown)
+    print($"{s} {name(s)}")
+}

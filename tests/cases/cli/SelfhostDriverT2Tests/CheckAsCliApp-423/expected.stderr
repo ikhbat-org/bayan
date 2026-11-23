@@ -1,0 +1,8 @@
+error BYN2408: label `done` must be on a loop or `switch`
+  --> <repo>/tmp/t2/diag/label-not-on-loop/label-not-on-loop.byn:1:1
+
+  1 │ done: print("x")
+    │ ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2408

@@ -1,0 +1,9 @@
+1:1 IntegerLiteral `0b102`
+2:1 Identifier `x́́struct`
+2:11 Identifier `S`
+3:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^

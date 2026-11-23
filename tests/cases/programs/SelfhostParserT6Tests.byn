@@ -1,0 +1,107 @@
+import lexer
+
+string range(TextSpan s) => $"{s.start}..{s.end}"
+
+string exprRange(in Expr e) {
+    switch e {
+        case .literalExpr(let n):
+            return range(n.value.span)
+        case .nameExpr(let n):
+            return range(n.value.span)
+        default:
+            return "?"
+    }
+}
+
+string nameText(TextSpan? name) {
+    if name is not null { return range(name) }
+    return "-"
+}
+
+string failsText(in FailsClause? clause) {
+    if clause is not null { return $" fails {range(clause.span)}{shapes(in clause.errors)}" }
+    return ""
+}
+
+string usesText(in UsesClause? clause) {
+    if clause is null { return "" }
+    var text = $" uses {range(clause.span)}"
+    for s in clause.effects { text = $"{text} {range(s)}" }
+    return text
+}
+
+string shapes(in List<TypeSyntax> types) {
+    var text = ""
+    for t in types { text = $"{text} {shape(in t)}" }
+    return text
+}
+
+string shape(in TypeSyntax t) {
+    switch t {
+        case .namedType(let n):
+            var text = $"(named {range(n.value.span)}"
+            for s in n.value.path { text = $"{text} {range(s)}" }
+            return $"{text} <{shapes(in n.value.args)} >)"
+        case .optionalType(let n):
+            return $"(opt {range(n.value.span)} {shape(in n.value.inner)})"
+        case .arrayType(let n):
+            return $"(array {range(n.value.span)} {shape(in n.value.element)} {exprRange(in n.value.size)})"
+        case .tupleType(let n):
+            var text = $"(tuple {range(n.value.span)}"
+            for e in n.value.elements {
+                let name = nameText(e.name)
+                text = $"{text} [{range(e.span)} {shape(in e.type)} {name}]"
+            }
+            return $"{text})"
+        case .functionTypeSyntax(let n):
+            var text = $"(fn {range(n.value.span)}{shapes(in n.value.params)} -> {shape(in n.value.returnKeyword)}"
+            return $"{text}{failsText(in n.value.failsKeyword)}{usesText(in n.value.usesKeyword)})"
+        case .dynType(let n):
+            return $"(dyn {range(n.value.span)} {n.value.isRef} {n.value.isReadOnly} {shape(in n.value.inner)})"
+        case .pointerType(let n):
+            return $"(ptr {range(n.value.span)} {n.value.readOnly} {shape(in n.value.pointee)})"
+        case .none:
+            return "none"
+        default:
+            return "?"
+    }
+}
+
+string bytesOf(string s) {
+    var text = ""
+    for b in s.bytes { text = $"{text} {b}" }
+    return text
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    let keywords = Keywords.build()
+    var bytes = Io.readFile(args[0]) catch return 4
+    var p = Parser.create(lexer.lex(SourceText.create(args[0], from: move bytes), by: keywords))
+    let mode = args[1]
+    if mode == "literals" {
+        for i in 0..p.count {
+            let token = p.lexed.tokens[i]
+            let text = p.text(token)
+            if token.hasDoc { print($"doc{bytesOf(decodeDoc(p.lexed.source.bytes.span[token.docStart..token.docStart + token.docLength]))}") }
+            if token.kind == .stringLiteral || token.kind == .cStringLiteral || token.kind == .u16StringLiteral {
+                print($"string{bytesOf(decodeString(text))}")
+            } else if token.kind == .rawStringLiteral {
+                print($"raw{bytesOf(decodeRawString(text))}")
+            } else if token.kind == .interpolatedStringText {
+                print($"text{bytesOf(decodeInterpolatedText(text))}")
+            } else if token.kind == .charLiteral {
+                print($"char {decodeChar(text)}")
+            }
+        }
+        return 0
+    }
+    p.inExtern = mode.contains("extern")
+    let type = parseType(ref p, fatArrow: mode.contains("fat"), lists: mode.contains("lists"))
+    print($"{shape(in type)} at {p.pos}")
+    for d in p.lexed.diagnostics {
+        if d.code.isEmpty { continue }
+        let fix = d.hasFix ? $" fix {d.fixSpan.start}+{d.fixSpan.length} '{d.fixReplacement}'" : ""
+        print($"{d.code} {d.span.start}+{d.span.length} {d.message} [{d.label}] [{d.help}]{fix}")
+    }
+    return 0
+}

@@ -1,0 +1,104 @@
+1:3 Identifier `raw`
+1:7 StringLiteral `"quoted"`
+3:1 Identifier `é`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolationStart `{`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 StringLiteral `$"{$"`
+3:56 OpenBrace `{`
+3:57 StringLiteral `$"{$"`
+3:62 OpenBrace `{`
+3:63 Identifier `x`
+3:65 LetKeyword `let`
+3:69 Identifier `actor`
+3:75 Equals `=`
+3:77 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `acto`
+4:10 Equals `=`
+4:12 IntegerLiteral `1`
+6:1 FailsKeyword `fails`
+6:7 TryKeyword `try`
+6:11 CatchKeyword `catch`
+6:17 NeverKeyword `never`
+6:23 NoallocKeyword `noalloc`
+6:31 NosuspendKeyword `nosuspend`
+6:41 SuspendsKeyword `suspends`
+6:50 AsyncKeyword `async`
+6:56 AwaitKeyword `await`
+7:2 LetKeyword `let`
+7:6 Identifier `b`
+7:8 Equals `=`
+7:10 StringLiteral `"bad \q escape"`
+8:3 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  3 │ é$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x let actor = 1
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ é$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x let actor = 1
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  3 │ é$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x let actor = 1
+    │                                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ é$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x let actor = 1
+    │                                                   ^^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ é$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x let actor = 1
+    │                                                                     ^^^^^ reserved for a
+    │                                                                           future version of
+    │                                                                           Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  4 │ let acto� = 1
+    │         ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

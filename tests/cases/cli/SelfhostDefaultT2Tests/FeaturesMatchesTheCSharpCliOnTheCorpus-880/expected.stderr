@@ -1,0 +1,19 @@
+error BYN1050: `value` in `requires` is now `it`
+  --> <repo>/tests/cases/diag/requires-value.byn:1:38
+
+  1 │ type distinct Percent = i32 requires value in 0..=100
+    │                                      ^^^^^ the input form
+    │
+  help: rename `value` to `it`
+    │ 1 │ type distinct Percent = i32 requires it in 0..=100
+    │   │                                      ++
+
+error BYN1050: `value` in `requires` is now `it`
+  --> <repo>/tests/cases/diag/requires-value.byn:5:18
+
+  5 │         requires value > 0
+    │                  ^^^^^ the input form
+    │
+  help: rename `value` to `it`
+    │ 5 │         requires it > 0
+    │   │                  ++

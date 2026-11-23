@@ -1,0 +1,3 @@
+== expr.probes.l15
+lambda:i64 -> i64[3105:6]=-(probes$lambda1 Lambda ret i64 fails false encl probes params[n:i64] capsyms[] caps[] all True)
+BYN2007 133:27 `n` is already a local here |already declared on line 57|pick a different name; Bayan does not let a local hide another one|

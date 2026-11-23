@@ -1,0 +1,13 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+4:1 Identifier `a`
+11:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  4 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

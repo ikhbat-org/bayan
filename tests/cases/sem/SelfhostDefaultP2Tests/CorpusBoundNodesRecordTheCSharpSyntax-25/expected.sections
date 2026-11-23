@@ -1,0 +1,19 @@
+== tests/cases/run/csharp-primitive-names.byn
+21..26 binaryExpr mul right 25..26
+21..26 binaryExpr mul right 25..26
+21..26 binaryExpr mul right 25..26
+21..26 binaryExpr mul right 25..26
+21..22 nameExpr
+25..26 literalExpr integer
+40..131 blockStmt
+46..64 localDecl
+63..64 literalExpr integer
+69..92 localDecl
+89..92 literalExpr floatKeyword
+97..129 exprStmt
+97..129 callExpr
+103..128 interpolatedExpr
+106..118 callExpr
+112..117 nameExpr
+121..126 nameExpr
+97..129 callExpr

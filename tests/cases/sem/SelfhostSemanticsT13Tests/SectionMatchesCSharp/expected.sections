@@ -1,0 +1,16 @@
+== bindMainAndCases
+main Main body yes
+local a i64
+local q bool
+BYN2202 6:19 expected `bool`, found `i32` |  | 
+test Test body yes
+local n i32
+local f bool
+local y i64
+test Test body yes
+local n i32
+local f bool
+local y i64
+BYN2202 9:23 expected `bool`, found `i32` |  | 
+invoke Invoke body no
+instantiationErrors +0

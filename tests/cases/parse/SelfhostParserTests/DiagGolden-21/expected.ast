@@ -1,0 +1,32 @@
+CompilationUnit
+  Function next(i64 x) -> i64
+    Block
+      Return (+ x 1)
+  Function scan(List<i64> xs) -> void
+    Block
+      Label outer
+        For Let x in xs
+          Block
+            For Let y in xs
+              Block
+                Break outer
+
+error BYN1042: `return` takes its value on the same line
+
+  3 │         x + 1
+    │         ^ on the next line
+    │
+  help: move the value to the line of `return`
+    │ 2 │     return
+    │ 3 │         x + 1
+    │   │ -------
+
+error BYN1042: `break` takes its value on the same line
+
+  10 │                 outer
+     │                 ^^^^^ on the next line
+     │
+  help: move the value to the line of `break`
+     │  9 │             break
+     │ 10 │                 outer
+     │    │ ---------------

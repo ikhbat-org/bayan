@@ -1,0 +1,37 @@
+1:1 CharLiteral `'\u{202E}'`
+1:4 Identifier `ter`
+1:8 UnsafeKeyword `unsafe`
+2:1 IfKeyword `if`
+2:4 ElseKeyword `else`
+2:9 UnlessKeyword `unless`
+2:16 SwitchKeyword `switch`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:22 CaretEquals `^=`
+3:25 LessLessEquals `<<=`
+5:1 Identifier `Å`
+5:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'ter unsafe
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'ter unsafe
+    │   │  -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  5 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ Å
+    │   │ +

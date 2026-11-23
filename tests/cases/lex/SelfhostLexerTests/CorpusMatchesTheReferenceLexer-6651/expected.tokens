@@ -1,0 +1,50 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:2 FailsKeyword `fails`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 NeverKeyword `never`
+2:24 NoallocKeyword `noalloc`
+2:32 NosuspendKeyword `nosuspend`
+2:42 SuspendsKeyword `suspends`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
+3:2 LetKeyword `let`
+3:6 Identifier `c`
+3:8 Equals `=`
+3:10 RawStringLiteral `"""never closed\n\n�\nc >>= 1\n\nfails try catch never noalloc nosuspend suspends async await\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ �
+    │  ^

@@ -1,0 +1,111 @@
+1:2 Identifier `two`
+1:5 Dot `.`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 Identifier `x`
+4:56 CloseBrace `}`
+4:57 StringLiteral `"}"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
+4:69 ErrorKeyword `error`
+4:75 SetKeyword `set`
+4:79 UnitKeyword `unit`
+4:84 DistinctKeyword `distinct`
+4:93 TypeKeyword `type`
+4:98 ImportKeyword `import`
+4:105 AsKeyword `as`
+4:108 PublicKeyword `public`
+4:115 PrivateKeyword `private`
+4:123 StaticKeyword `static`
+4:130 ReadonlyKeyword `readonly`
+4:139 RequiredKeyword `required`
+4:148 ConstKeyword `const`
+4:154 LetKeyword `let`
+4:158 VarKeyword `var`
+4:162 EmbedKeyword `embed`
+4:168 ExternKeyword `extern`
+4:175 UnsafeKeyword `unsafe`
+5:2 CharLiteral `'a'`
+5:6 CharLiteral `'\n'`
+5:11 CharLiteral `'\u{1F600}'`
+5:23 CharLiteral `'\''`
+5:28 CharLiteral `'é'`
+5:32 CharLiteral `'\\'`
+5:37 CharLiteral `'\0'`
+6:3 Equals `=`
+6:5 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:7 Equals `=`
+7:9 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `b`
+8:7 Equals `=`
+8:11 IntegerLiteral `2`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}" error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  6 │  � = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ let � = 2
+    │     ^
+
+error BYN0002: unexpected character ```
+
+  8 │ let b = ` 2
+    │         ^

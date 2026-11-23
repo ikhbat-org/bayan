@@ -1,0 +1,16 @@
+2:2 LetKeyword `let`
+2:6 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `2`
+3:2 Identifier `strings`
+3:9 StringLiteral `" "`
+3:12 StringLiteral `" "`
+3:16 Identifier `u`
+3:17 OpenBrace `{`
+3:18 IntegerLiteral `48`
+3:20 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  3 │  strings" "" "\u{48
+    │               ^

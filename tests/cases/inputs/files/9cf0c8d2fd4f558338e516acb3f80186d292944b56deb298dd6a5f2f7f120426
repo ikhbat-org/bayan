@@ -1,0 +1,1918 @@
+import lexer
+import parser
+
+string yn(bool b) => b ? "yes" : "no"
+
+Ctx newCtx() => Ctx {
+    files: List<SourceFile>(),
+    modules: List<Mod>(),
+    diagnostics: List<Diag>(),
+    bags: List<DiagBag>(),
+}
+
+void addSource(ref Ctx c, for string text, as string module) {
+    var bytes = List<u8>()
+    for b in text.bytes { bytes.append(b) }
+    var copy = List<u8>()
+    for b in text.bytes { copy.append(b) }
+    let source = lexer.SourceText.create("t13.byn", from: move bytes)
+    var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    c.files.append(SourceFile { path: "t13.byn", displayPath: "t13.byn", text: move copy, unit: move unit, module: 0, isEntry: true, imports: Map<string, ModId>() })
+    var files = List<FileId>()
+    files.append(c.files.length - 1)
+    c.modules.append(Mod { name: module, files: move files })
+}
+
+string lineCol(in Ctx c, for FileId f, at TextSpan s) {
+    if f < 0 { return "-" }
+    var line: i64 = 1
+    var col: i64 = 1
+    for i in 0..s.start {
+        if c.files[f].text[i] == 10 {
+            line += 1
+            col = 1
+        } else {
+            col += 1
+        }
+    }
+    return $"{line}:{col}"
+}
+
+string diagLine(in Ctx c, for in Diag d) {
+    var sb = StrBuf()
+    sb.append($"{d.code} {lineCol(in c, for: d.file, at: d.span)} {d.message} | {d.label} | {d.help}")
+    for r in d.related { sb.append($" | rel {lineCol(in c, for: d.file, at: r.span)} {r.label}") }
+    return $"{sb.finish()}"
+}
+
+void showDiags(in Ctx c, from i64 start) {
+    for i in start..c.diagnostics.length { print(diagLine(in c, for: in c.diagnostics[i])) }
+}
+
+string typesText(ref Ctx c, for in List<Type> ts) {
+    var sb = StrBuf()
+    for i in 0..ts.length {
+        if i > 0 { sb.append(",") }
+        sb.append(typeDisplay(ref c, by: ts[i]))
+    }
+    return $"{sb.finish()}"
+}
+
+string mapText(ref Ctx c, for in Map<string, Type> m) {
+    var keys = List<string>()
+    for (k, v) in m { keys.append(k) }
+    var sb = StrBuf()
+    for i in 0..keys.length {
+        if i > 0 { sb.append(",") }
+        sb.append($"{keys[i]}={typeDisplay(ref c, by: m[keys[i]])}")
+    }
+    return $"{sb.finish()}"
+}
+
+bool seenBefore(ref List<i64> seen, for i64 x) {
+    for s in seen {
+        if s == x { return true }
+    }
+    seen.append(x)
+    return false
+}
+
+void showInstance(ref Ctx c, for FuncId inst, by string label, from i64 fns, at i64 work, to ref List<FuncId> seen) {
+    let fresh = !seenBefore(ref seen, for: inst)
+    let args = copyIds(in c.functions[inst].typeArgs)
+    var map = Map<string, Type>()
+    for (k, v) in c.functions[inst].typeMap { map[k] = v }
+    let queued = c.instantiationWork.length - work
+    var selfText = ""
+    if queued > 0 {
+        let last = c.instantiationWork[c.instantiationWork.length - 1].instance
+        selfText = $" self {yn(b: last == inst)}"
+    }
+    let template = c.functions[c.functions[inst].template].name
+    print($"{label} new {yn(b: fresh)} {c.functions[inst].name} of {template} args {typesText(ref c, for: in args)} map {mapText(ref c, for: in map)} fns +{c.modules[0].allFunctions.length - fns} work +{queued}{selfText}")
+}
+
+void showPass(ref Ctx c) {
+    let pass = c.firstPass
+    var sb = StrBuf()
+    let instances = copyIds(in c.firstPasses[pass].instances)
+    for i in 0..instances.length {
+        if i > 0 { sb.append(",") }
+        let args = copyIds(in c.functions[instances[i]].typeArgs)
+        sb.append($"{c.functions[instances[i]].name}<{typesText(ref c, for: in args)}>")
+    }
+    print($"pass instances {sb.finish()} errors {c.firstPasses[pass].errors.length}")
+    let bag = c.firstPasses[pass].bag
+    for d in c.bags[bag].items { print($"pass {diagLine(in c, for: in d)}") }
+}
+
+void showType(ref Ctx c, for Type inst, by string label, from i64 p0, at i64 i0, to ref List<Type> seen) {
+    let fresh = !seenBefore(ref seen, for: inst)
+    var map = Map<string, Type>()
+    let id = typeIndex(inst)
+    switch kindOf(inst) {
+        case .structType:
+            for (k, v) in c.structs[id].typeMap { map[k] = v }
+        case .unionType:
+            for (k, v) in c.unions[id].typeMap { map[k] = v }
+        case .interfaceType:
+            for (k, v) in c.interfaces[id].typeMap { map[k] = v }
+        default:
+            panic("not an instance")
+    }
+    print($"{label} new {yn(b: fresh)} {typeDisplay(ref c, by: inst)} map {mapText(ref c, for: in map)} pending +{c.pendingConstraints.length - p0} interfaces +{c.pendingInterfaces.length - i0}")
+}
+
+string templateText(ref Ctx c, for FuncId f) {
+    if (templateOf(ref c, for: f) is { } t) {
+        let owner = c.functions[t].owner
+        let shown = owner == -1 ? "-" : typeDisplay(ref c, by: structTypeOf(owner))
+        return $"{c.functions[t].name} owner {shown}"
+    }
+    return "null"
+}
+
+string constText(ref Ctx c, for BExpr e) => e == -1 ? "null" : "bound"
+
+void showBody(ref Ctx c, for FuncId f) {
+    let locals = c.functions[f].locals.length
+    let start = c.diagnostics.length
+    bindFunction(ref c, for: f)
+    print($"{c.functions[f].name} {kindText(c.functions[f].kind)} body {yn(b: c.functions[f].body != -1)}")
+    for i in locals..c.functions[f].locals.length {
+        let l = c.functions[f].locals[i]
+        print($"local {c.locals[l].name} {typeDisplay(ref c, by: c.locals[l].type)}")
+    }
+    showDiags(in c, from: start)
+}
+
+string kindText(FunctionKind k) => k switch {
+    .function => "Function",
+    .method => "Method",
+    .constructor => "Constructor",
+    .getter => "Getter",
+    .main => "Main",
+    .testKeyword => "Test",
+    .builtin => "Builtin",
+    .lambda => "Lambda",
+    .invoke => "Invoke",
+}
+
+string setsText(ref Ctx c, for in List<ErrorSetId> sets) {
+    var sb = StrBuf()
+    for i in 0..sets.length {
+        if i > 0 { sb.append(",") }
+        sb.append(c.errorSets[sets[i]].name)
+    }
+    return $"{sb.finish()}"
+}
+
+void showInvoke(ref Ctx c, for FuncId a, by FuncId b) {
+    let sets = copyIds(in c.functions[a].errorSets)
+    let module = c.modules[c.functions[a].module].name
+    print($"{c.functions[a].name} same {yn(b: a == b)} kind {kindText(c.functions[a].kind)} module {module} returns {typeDisplay(ref c, by: c.functions[a].returnType)} fails {yn(b: c.functions[a].hasFails)} sets {setsText(ref c, for: in sets)}")
+    let ps = copyIds(in c.functions[a].parameters)
+    for p in ps {
+        let modifier = c.locals[p].modifier == .none ? "None" : "other"
+        let kind = c.locals[p].kind == .parameter && c.locals[p].isParameter ? "Parameter" : "other"
+        print($"param {c.locals[p].name} {typeDisplay(ref c, by: c.locals[p].type)} {c.locals[p].ordinal} {modifier} {kind}")
+    }
+}
+
+void showSets(ref Ctx c, for FuncId f) {
+    let sets = copyIds(in c.functions[f].errorSets)
+    let of = errorSetsOf(ref c, for: f)
+    print($"{c.functions[f].name} {kindText(c.functions[f].kind)} sets {setsText(ref c, for: in sets)} fails {yn(b: c.functions[f].hasFails)} of {setsText(ref c, for: in of)}")
+}
+
+void sectionInstantiating() {
+    print("== instantiating")
+    var c = newCtx()
+    addSource(ref c, for: "void f() {\n}\n\nstruct P {\n    i64 x\n    i64 y\n    i64 z\n    i64 w\n}\n", as: "main")
+    c.entryModule = 0
+    let f = newFunction(ref c, by: FunctionSymbol { name: "f", file: 0, module: 0 })
+    let start = c.diagnostics.length
+    report(ref c, for: .functionTypeNotHere, from: 0, at: TextSpan { start: 0, length: 4 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .implicitCopy, from: 0, at: TextSpan { start: 5, length: 1 }, by: ("a", "b", "c", "d", ""))
+    let outer = instantiatingBegin(ref c, from: 0, at: TextSpan { start: 30, length: 6 })
+    print($"depth {c.instantiating} site {c.hasInstantiationSite ? c.instantiationSiteSpan.start : -1}")
+    report(ref c, for: .invalidMapKey, from: 0, at: TextSpan { start: 14, length: 6 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .keyPartNotHashable, from: 0, at: TextSpan { start: 14, length: 6 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .badBinaryOperands, from: 0, at: TextSpan { start: 14, length: 6 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .notFormattable, from: 0, at: TextSpan { start: 14, length: 6 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .constraintNotSatisfied, from: 0, at: TextSpan { start: 14, length: 6 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .functionTypeNotHere, from: 0, at: TextSpan { start: 0, length: 4 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .functionTypeNotHere, from: 0, at: TextSpan { start: 21, length: 1 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .unsupported, from: 0, at: TextSpan { start: 21, length: 1 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .implicitCopy, from: 0, at: TextSpan { start: 5, length: 1 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .implicitCopy, from: 0, at: TextSpan { start: 29, length: 3 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .assignmentChangesState, from: 0, at: TextSpan { start: 29, length: 3 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .duplicateDeclaration, from: 0, at: TextSpan { start: 33, length: 1 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .recursiveByValue, from: 0, at: TextSpan { start: 33, length: 1 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .stringIndexer, from: 0, at: TextSpan { start: 33, length: 1 }, by: ("a", "b", "c", "d", ""))
+    let inner = instantiatingBegin(ref c, from: 0, at: TextSpan { start: 40, length: 2 })
+    print($"depth {c.instantiating} site {c.hasInstantiationSite ? c.instantiationSiteSpan.start : -1}")
+    report(ref c, for: .constraintNotSatisfied, from: 0, at: TextSpan { start: 14, length: 6 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .duplicateDeclaration, from: 0, at: TextSpan { start: 33, length: 1 }, by: ("a", "b", "c", "d", ""))
+    instantiatingEnd(ref c, by: inner)
+    print($"depth {c.instantiating} site {c.hasInstantiationSite ? c.instantiationSiteSpan.start : -1}")
+    c.quiet = true
+    instantiatingEnd(ref c, by: outer)
+    c.quiet = false
+    print($"depth {c.instantiating} site {c.hasInstantiationSite ? c.instantiationSiteSpan.start : -1}")
+    let named = instantiatingBegin(ref c, from: 0, at: TextSpan { start: 50, length: 1 })
+    report(ref c, for: .assignmentChangesState, from: 0, at: TextSpan { start: 21, length: 1 }, by: ("a", "b", "c", "d", ""))
+    c.quiet = true
+    instantiatingEnd(ref c, by: named, instance: f)
+    c.quiet = false
+    let warned = instantiatingBegin(ref c, from: 0, at: TextSpan { start: 52, length: 1 })
+    report(ref c, for: .unreachableCode, from: 0, at: TextSpan { start: 33, length: 1 }, by: ("a", "b", "c", "d", ""))
+    report(ref c, for: .assignmentChangesState, from: 0, at: TextSpan { start: 21, length: 1 }, by: ("a", "b", "c", "d", ""))
+    instantiatingEnd(ref c, by: warned, instance: f)
+    showDiags(in c, from: start)
+    for d in c.instantiationErrors { print($"held {diagLine(in c, for: in d)}") }
+}
+
+void sectionConstraints() {
+    print("== constraints")
+    var c = newCtx()
+    addSource(ref c, for: "interface IShape {\n    i64 area()\n    i64 side\n}\n\ninterface IOther {\n    i64 other() => 1\n}\n\ninterface IEmpty {\n}\n\nstruct Circle : IShape {\n    i64 r\n    i64 area() => r\n    i64 side => r\n}\n\nstruct Square {\n    i64 s\n    i64 side() => s\n}\n\nstruct Both {\n    i64 area() => 1\n    i64 side => 1\n}\n\nstruct Tri : IShape {\n    i64 area() => 3\n    i64 side => 3\n}\n\nvoid need<T>() where T : IShape {\n}\n\nvoid two<T>() where T : IOther, IShape {\n}\n\nvoid empty<T>() where T : IEmpty {\n}\n\nvoid none<T>() {\n}\n\nvoid notIface<T>() where T : Circle {\n}\n\nvoid loose<U>() {\n}\n\nstruct Box<T> where T : IShape {\n    T item\n    i64 n = 1\n    i64 get() => n\n}\n\nunion Maybe<T> where T : IShape {\n    some(T value)\n    none\n}\n\ninterface IGen<T> where T : IShape {\n}\n\nstruct Free<T> {\n    T item\n}\n\ninterface IRev {\n    i64 back\n    i64 front()\n}\n\nvoid split<T>() where T : IShape where T : IEmpty {\n}\n\nvoid rev<T>() where T : IRev {\n}\n", as: "main")
+    c.entryModule = 0
+    let iface0 = newInterface(ref c, by: InterfaceSymbol { name: "IShape", nameSpan: TextSpan { start: 10, length: 6 }, span: TextSpan { start: 10, length: 6 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].interfaces.append(iface0)
+    c.modules[0].types["IShape"] = interfaceTypeOf(iface0)
+    let iface1 = newInterface(ref c, by: InterfaceSymbol { name: "IOther", nameSpan: TextSpan { start: 60, length: 6 }, span: TextSpan { start: 60, length: 6 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].interfaces.append(iface1)
+    c.modules[0].types["IOther"] = interfaceTypeOf(iface1)
+    let iface2 = newInterface(ref c, by: InterfaceSymbol { name: "IEmpty", nameSpan: TextSpan { start: 103, length: 6 }, span: TextSpan { start: 103, length: 6 }, module: 0, file: 0, declIndex: 2 })
+    c.modules[0].interfaces.append(iface2)
+    c.modules[0].types["IEmpty"] = interfaceTypeOf(iface2)
+    let iface3 = newInterface(ref c, by: InterfaceSymbol { name: "IGen", nameSpan: TextSpan { start: 713, length: 4 }, span: TextSpan { start: 713, length: 4 }, module: 0, file: 0, declIndex: 15 })
+    c.modules[0].interfaces.append(iface3)
+    c.modules[0].types["IGen"] = interfaceTypeOf(iface3)
+    let iface4 = newInterface(ref c, by: InterfaceSymbol { name: "IRev", nameSpan: TextSpan { start: 784, length: 4 }, span: TextSpan { start: 784, length: 4 }, module: 0, file: 0, declIndex: 17 })
+    c.modules[0].interfaces.append(iface4)
+    c.modules[0].types["IRev"] = interfaceTypeOf(iface4)
+    var ids5 = List<TypeParamId>()
+    c.interfaces[iface0].typeParams = move ids5
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 27, length: 4 }, span: TextSpan { start: 27, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 0, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids6, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].methods.append(fn7)
+    var ids8 = List<TypeParamId>()
+    let fn9 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 42, length: 4 }, span: TextSpan { start: 42, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: -1, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids8, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].properties.append(fn9)
+    var ids10 = List<TypeParamId>()
+    c.interfaces[iface1].typeParams = move ids10
+    var ids11 = List<TypeParamId>()
+    let fn12 = newFunction(ref c, by: FunctionSymbol { name: "other", nameSpan: TextSpan { start: 77, length: 5 }, span: TextSpan { start: 77, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 1, memberIndex: 0, owner: -1, iface: iface1, isAbstract: false, typeParams: move ids11, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface1].methods.append(fn12)
+    var ids13 = List<TypeParamId>()
+    c.interfaces[iface2].typeParams = move ids13
+    var ids14 = List<InterfaceId>()
+    ids14.append(iface0)
+    let tp15 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids14 })
+    var ids16 = List<TypeParamId>()
+    ids16.append(tp15)
+    c.interfaces[iface3].typeParams = move ids16
+    var ids17 = List<TypeParamId>()
+    c.interfaces[iface4].typeParams = move ids17
+    var ids18 = List<TypeParamId>()
+    let fn19 = newFunction(ref c, by: FunctionSymbol { name: "front", nameSpan: TextSpan { start: 812, length: 5 }, span: TextSpan { start: 812, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 17, memberIndex: 1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids18, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].methods.append(fn19)
+    var ids20 = List<TypeParamId>()
+    let fn21 = newFunction(ref c, by: FunctionSymbol { name: "back", nameSpan: TextSpan { start: 799, length: 4 }, span: TextSpan { start: 799, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 17, memberIndex: -1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids20, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].properties.append(fn21)
+    let st22 = newStruct(ref c, by: StructSymbol { name: "Circle", nameSpan: TextSpan { start: 122, length: 6 }, span: TextSpan { start: 122, length: 6 }, module: 0, file: 0, declIndex: 3 })
+    c.modules[0].structs.append(st22)
+    c.modules[0].types["Circle"] = structTypeOf(st22)
+    let st23 = newStruct(ref c, by: StructSymbol { name: "Square", nameSpan: TextSpan { start: 198, length: 6 }, span: TextSpan { start: 198, length: 6 }, module: 0, file: 0, declIndex: 4 })
+    c.modules[0].structs.append(st23)
+    c.modules[0].types["Square"] = structTypeOf(st23)
+    let st24 = newStruct(ref c, by: StructSymbol { name: "Both", nameSpan: TextSpan { start: 247, length: 4 }, span: TextSpan { start: 247, length: 4 }, module: 0, file: 0, declIndex: 5 })
+    c.modules[0].structs.append(st24)
+    c.modules[0].types["Both"] = structTypeOf(st24)
+    let st25 = newStruct(ref c, by: StructSymbol { name: "Tri", nameSpan: TextSpan { start: 302, length: 3 }, span: TextSpan { start: 302, length: 3 }, module: 0, file: 0, declIndex: 6 })
+    c.modules[0].structs.append(st25)
+    c.modules[0].types["Tri"] = structTypeOf(st25)
+    let st26 = newStruct(ref c, by: StructSymbol { name: "Box", nameSpan: TextSpan { start: 566, length: 3 }, span: TextSpan { start: 566, length: 3 }, module: 0, file: 0, declIndex: 13 })
+    c.modules[0].structs.append(st26)
+    c.modules[0].types["Box"] = structTypeOf(st26)
+    let st27 = newStruct(ref c, by: StructSymbol { name: "Free", nameSpan: TextSpan { start: 750, length: 4 }, span: TextSpan { start: 750, length: 4 }, module: 0, file: 0, declIndex: 16 })
+    c.modules[0].structs.append(st27)
+    c.modules[0].types["Free"] = structTypeOf(st27)
+    var ids28 = List<TypeParamId>()
+    c.structs[st22].typeParams = move ids28
+    var ids29 = List<TypeParamId>()
+    let fn30 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 158, length: 4 }, span: TextSpan { start: 158, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 3, memberIndex: 1, owner: st22, iface: -1, isAbstract: false, typeParams: move ids29, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].methods.append(fn30)
+    var ids31 = List<TypeParamId>()
+    let fn32 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 178, length: 4 }, span: TextSpan { start: 178, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 3, memberIndex: 2, owner: st22, iface: -1, isAbstract: false, typeParams: move ids31, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st22, file: 0, declIndex: 3, memberIndex: 2, getter: fn32 }))
+    c.structs[st22].conformances.append(newConformance(ref c, by: Conformance { type: st22, iface: iface0 }))
+    var ids33 = List<TypeParamId>()
+    c.structs[st23].typeParams = move ids33
+    var ids34 = List<TypeParamId>()
+    let fn35 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 225, length: 4 }, span: TextSpan { start: 225, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 4, memberIndex: 1, owner: st23, iface: -1, isAbstract: false, typeParams: move ids34, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st23].methods.append(fn35)
+    var ids36 = List<TypeParamId>()
+    c.structs[st24].typeParams = move ids36
+    var ids37 = List<TypeParamId>()
+    let fn38 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 262, length: 4 }, span: TextSpan { start: 262, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 5, memberIndex: 0, owner: st24, iface: -1, isAbstract: false, typeParams: move ids37, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].methods.append(fn38)
+    var ids39 = List<TypeParamId>()
+    let fn40 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 282, length: 4 }, span: TextSpan { start: 282, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 5, memberIndex: 1, owner: st24, iface: -1, isAbstract: false, typeParams: move ids39, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st24, file: 0, declIndex: 5, memberIndex: 1, getter: fn40 }))
+    var ids41 = List<TypeParamId>()
+    c.structs[st25].typeParams = move ids41
+    var ids42 = List<TypeParamId>()
+    let fn43 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 325, length: 4 }, span: TextSpan { start: 325, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 6, memberIndex: 0, owner: st25, iface: -1, isAbstract: false, typeParams: move ids42, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].methods.append(fn43)
+    var ids44 = List<TypeParamId>()
+    let fn45 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 345, length: 4 }, span: TextSpan { start: 345, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 6, memberIndex: 1, owner: st25, iface: -1, isAbstract: false, typeParams: move ids44, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st25, file: 0, declIndex: 6, memberIndex: 1, getter: fn45 }))
+    c.structs[st25].conformances.append(newConformance(ref c, by: Conformance { type: st25, iface: iface0 }))
+    var ids46 = List<InterfaceId>()
+    ids46.append(iface0)
+    let tp47 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids46 })
+    var ids48 = List<TypeParamId>()
+    ids48.append(tp47)
+    c.structs[st26].typeParams = move ids48
+    var ids49 = List<TypeParamId>()
+    let fn50 = newFunction(ref c, by: FunctionSymbol { name: "get", nameSpan: TextSpan { start: 625, length: 3 }, span: TextSpan { start: 625, length: 3 }, module: 0, kind: .method, file: 0, declIndex: 13, memberIndex: 2, owner: st26, iface: -1, isAbstract: false, typeParams: move ids49, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st26].methods.append(fn50)
+    var ids51 = List<InterfaceId>()
+    let tp52 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids51 })
+    var ids53 = List<TypeParamId>()
+    ids53.append(tp52)
+    c.structs[st27].typeParams = move ids53
+    var ids55 = List<InterfaceId>()
+    ids55.append(iface0)
+    let tp56 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids55 })
+    var ids57 = List<TypeParamId>()
+    ids57.append(tp56)
+    let un54 = newUnion(ref c, by: UnionSymbol { name: "Maybe", nameSpan: TextSpan { start: 645, length: 5 }, span: TextSpan { start: 645, length: 5 }, module: 0, file: 0, declIndex: 14, typeParams: move ids57 })
+    c.modules[0].unions.append(un54)
+    c.modules[0].types["Maybe"] = unionTypeOf(un54)
+    var ids58 = List<InterfaceId>()
+    ids58.append(iface0)
+    let tp59 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids58 })
+    var ids60 = List<TypeParamId>()
+    ids60.append(tp59)
+    let fn61 = newFunction(ref c, by: FunctionSymbol { name: "need", nameSpan: TextSpan { start: 363, length: 4 }, span: TextSpan { start: 363, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 7, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids60, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn61)
+    var ids62 = List<InterfaceId>()
+    ids62.append(iface1)
+    ids62.append(iface0)
+    let tp63 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids62 })
+    var ids64 = List<TypeParamId>()
+    ids64.append(tp63)
+    let fn65 = newFunction(ref c, by: FunctionSymbol { name: "two", nameSpan: TextSpan { start: 400, length: 3 }, span: TextSpan { start: 400, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 8, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids64, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn65)
+    var ids66 = List<InterfaceId>()
+    ids66.append(iface2)
+    let tp67 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids66 })
+    var ids68 = List<TypeParamId>()
+    ids68.append(tp67)
+    let fn69 = newFunction(ref c, by: FunctionSymbol { name: "empty", nameSpan: TextSpan { start: 444, length: 5 }, span: TextSpan { start: 444, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 9, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids68, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn69)
+    var ids70 = List<InterfaceId>()
+    let tp71 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids70 })
+    var ids72 = List<TypeParamId>()
+    ids72.append(tp71)
+    let fn73 = newFunction(ref c, by: FunctionSymbol { name: "none", nameSpan: TextSpan { start: 482, length: 4 }, span: TextSpan { start: 482, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 10, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids72, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn73)
+    var ids74 = List<InterfaceId>()
+    let tp75 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids74 })
+    var ids76 = List<TypeParamId>()
+    ids76.append(tp75)
+    let fn77 = newFunction(ref c, by: FunctionSymbol { name: "notIface", nameSpan: TextSpan { start: 502, length: 8 }, span: TextSpan { start: 502, length: 8 }, module: 0, kind: .function, file: 0, declIndex: 11, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids76, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn77)
+    var ids78 = List<InterfaceId>()
+    let tp79 = newTypeParam(ref c, by: TypeParam { name: "U", constraints: move ids78 })
+    var ids80 = List<TypeParamId>()
+    ids80.append(tp79)
+    let fn81 = newFunction(ref c, by: FunctionSymbol { name: "loose", nameSpan: TextSpan { start: 543, length: 5 }, span: TextSpan { start: 543, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 12, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids80, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn81)
+    var ids82 = List<InterfaceId>()
+    ids82.append(iface0)
+    ids82.append(iface2)
+    let tp83 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids82 })
+    var ids84 = List<TypeParamId>()
+    ids84.append(tp83)
+    let fn85 = newFunction(ref c, by: FunctionSymbol { name: "split", nameSpan: TextSpan { start: 828, length: 5 }, span: TextSpan { start: 828, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 18, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids84, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn85)
+    var ids86 = List<InterfaceId>()
+    ids86.append(iface4)
+    let tp87 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids86 })
+    var ids88 = List<TypeParamId>()
+    ids88.append(tp87)
+    let fn89 = newFunction(ref c, by: FunctionSymbol { name: "rev", nameSpan: TextSpan { start: 883, length: 3 }, span: TextSpan { start: 883, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 19, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids88, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn89)
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st22))
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need Circle {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st24))
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need Both {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(prim(PrimitiveKind.i32))
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need i32 {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(typeParamTypeOf(tp79))
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need U {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(interfaceTypeOf(iface0))
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need IShape {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(errorType())
+        let ps = copyIds(in c.functions[fn61].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp59)
+        switch c.files[0].unit.members[7] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"need error {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn65].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp63)
+        switch c.files[0].unit.members[8] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"two Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn69].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp67)
+        switch c.files[0].unit.members[9] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"empty Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn73].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp71)
+        switch c.files[0].unit.members[10] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"none Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn77].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp75)
+        switch c.files[0].unit.members[11] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"notIface Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st25))
+        let ps = copyIds(in c.functions[fn65].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp63)
+        switch c.files[0].unit.members[8] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"two Tri {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn85].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp83)
+        switch c.files[0].unit.members[18] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"split Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st22))
+        let ps = copyIds(in c.functions[fn85].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp83)
+        switch c.files[0].unit.members[18] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"split Circle {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+    {
+        let start = c.diagnostics.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let ps = copyIds(in c.functions[fn89].typeParams)
+        var ok = false
+        var tm = Map<string, Type>()
+        tm["T"] = typeParamTypeOf(tp87)
+        switch c.files[0].unit.members[19] {
+            case .functionDecl(let n):
+                ok = checkConstraints(ref c, for: in ps, through: in n.value.where, from: 0, as: -1, by: in tm, to: in args)
+            default:
+                panic("not a function")
+        }
+        print($"rev Square {yn(b: ok)}")
+        showDiags(in c, from: start)
+    }
+}
+
+void sectionInstantiateFunction() {
+    print("== instantiateFunction")
+    var c = newCtx()
+    addSource(ref c, for: "interface IShape {\n    i64 area()\n    i64 side\n}\n\ninterface IOther {\n    i64 other() => 1\n}\n\ninterface IEmpty {\n}\n\nstruct Circle : IShape {\n    i64 r\n    i64 area() => r\n    i64 side => r\n}\n\nstruct Square {\n    i64 s\n    i64 side() => s\n}\n\nstruct Both {\n    i64 area() => 1\n    i64 side => 1\n}\n\nstruct Tri : IShape {\n    i64 area() => 3\n    i64 side => 3\n}\n\nvoid need<T>() where T : IShape {\n}\n\nvoid two<T>() where T : IOther, IShape {\n}\n\nvoid empty<T>() where T : IEmpty {\n}\n\nvoid none<T>() {\n}\n\nvoid notIface<T>() where T : Circle {\n}\n\nvoid loose<U>() {\n}\n\nstruct Box<T> where T : IShape {\n    T item\n    i64 n = 1\n    i64 get() => n\n}\n\nunion Maybe<T> where T : IShape {\n    some(T value)\n    none\n}\n\ninterface IGen<T> where T : IShape {\n}\n\nstruct Free<T> {\n    T item\n}\n\ninterface IRev {\n    i64 back\n    i64 front()\n}\n\nvoid split<T>() where T : IShape where T : IEmpty {\n}\n\nvoid rev<T>() where T : IRev {\n}\n", as: "main")
+    c.entryModule = 0
+    let iface0 = newInterface(ref c, by: InterfaceSymbol { name: "IShape", nameSpan: TextSpan { start: 10, length: 6 }, span: TextSpan { start: 10, length: 6 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].interfaces.append(iface0)
+    c.modules[0].types["IShape"] = interfaceTypeOf(iface0)
+    let iface1 = newInterface(ref c, by: InterfaceSymbol { name: "IOther", nameSpan: TextSpan { start: 60, length: 6 }, span: TextSpan { start: 60, length: 6 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].interfaces.append(iface1)
+    c.modules[0].types["IOther"] = interfaceTypeOf(iface1)
+    let iface2 = newInterface(ref c, by: InterfaceSymbol { name: "IEmpty", nameSpan: TextSpan { start: 103, length: 6 }, span: TextSpan { start: 103, length: 6 }, module: 0, file: 0, declIndex: 2 })
+    c.modules[0].interfaces.append(iface2)
+    c.modules[0].types["IEmpty"] = interfaceTypeOf(iface2)
+    let iface3 = newInterface(ref c, by: InterfaceSymbol { name: "IGen", nameSpan: TextSpan { start: 713, length: 4 }, span: TextSpan { start: 713, length: 4 }, module: 0, file: 0, declIndex: 15 })
+    c.modules[0].interfaces.append(iface3)
+    c.modules[0].types["IGen"] = interfaceTypeOf(iface3)
+    let iface4 = newInterface(ref c, by: InterfaceSymbol { name: "IRev", nameSpan: TextSpan { start: 784, length: 4 }, span: TextSpan { start: 784, length: 4 }, module: 0, file: 0, declIndex: 17 })
+    c.modules[0].interfaces.append(iface4)
+    c.modules[0].types["IRev"] = interfaceTypeOf(iface4)
+    var ids5 = List<TypeParamId>()
+    c.interfaces[iface0].typeParams = move ids5
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 27, length: 4 }, span: TextSpan { start: 27, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 0, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids6, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].methods.append(fn7)
+    var ids8 = List<TypeParamId>()
+    let fn9 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 42, length: 4 }, span: TextSpan { start: 42, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: -1, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids8, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].properties.append(fn9)
+    var ids10 = List<TypeParamId>()
+    c.interfaces[iface1].typeParams = move ids10
+    var ids11 = List<TypeParamId>()
+    let fn12 = newFunction(ref c, by: FunctionSymbol { name: "other", nameSpan: TextSpan { start: 77, length: 5 }, span: TextSpan { start: 77, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 1, memberIndex: 0, owner: -1, iface: iface1, isAbstract: false, typeParams: move ids11, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface1].methods.append(fn12)
+    var ids13 = List<TypeParamId>()
+    c.interfaces[iface2].typeParams = move ids13
+    var ids14 = List<InterfaceId>()
+    ids14.append(iface0)
+    let tp15 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids14 })
+    var ids16 = List<TypeParamId>()
+    ids16.append(tp15)
+    c.interfaces[iface3].typeParams = move ids16
+    var ids17 = List<TypeParamId>()
+    c.interfaces[iface4].typeParams = move ids17
+    var ids18 = List<TypeParamId>()
+    let fn19 = newFunction(ref c, by: FunctionSymbol { name: "front", nameSpan: TextSpan { start: 812, length: 5 }, span: TextSpan { start: 812, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 17, memberIndex: 1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids18, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].methods.append(fn19)
+    var ids20 = List<TypeParamId>()
+    let fn21 = newFunction(ref c, by: FunctionSymbol { name: "back", nameSpan: TextSpan { start: 799, length: 4 }, span: TextSpan { start: 799, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 17, memberIndex: -1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids20, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].properties.append(fn21)
+    let st22 = newStruct(ref c, by: StructSymbol { name: "Circle", nameSpan: TextSpan { start: 122, length: 6 }, span: TextSpan { start: 122, length: 6 }, module: 0, file: 0, declIndex: 3 })
+    c.modules[0].structs.append(st22)
+    c.modules[0].types["Circle"] = structTypeOf(st22)
+    let st23 = newStruct(ref c, by: StructSymbol { name: "Square", nameSpan: TextSpan { start: 198, length: 6 }, span: TextSpan { start: 198, length: 6 }, module: 0, file: 0, declIndex: 4 })
+    c.modules[0].structs.append(st23)
+    c.modules[0].types["Square"] = structTypeOf(st23)
+    let st24 = newStruct(ref c, by: StructSymbol { name: "Both", nameSpan: TextSpan { start: 247, length: 4 }, span: TextSpan { start: 247, length: 4 }, module: 0, file: 0, declIndex: 5 })
+    c.modules[0].structs.append(st24)
+    c.modules[0].types["Both"] = structTypeOf(st24)
+    let st25 = newStruct(ref c, by: StructSymbol { name: "Tri", nameSpan: TextSpan { start: 302, length: 3 }, span: TextSpan { start: 302, length: 3 }, module: 0, file: 0, declIndex: 6 })
+    c.modules[0].structs.append(st25)
+    c.modules[0].types["Tri"] = structTypeOf(st25)
+    let st26 = newStruct(ref c, by: StructSymbol { name: "Box", nameSpan: TextSpan { start: 566, length: 3 }, span: TextSpan { start: 566, length: 3 }, module: 0, file: 0, declIndex: 13 })
+    c.modules[0].structs.append(st26)
+    c.modules[0].types["Box"] = structTypeOf(st26)
+    let st27 = newStruct(ref c, by: StructSymbol { name: "Free", nameSpan: TextSpan { start: 750, length: 4 }, span: TextSpan { start: 750, length: 4 }, module: 0, file: 0, declIndex: 16 })
+    c.modules[0].structs.append(st27)
+    c.modules[0].types["Free"] = structTypeOf(st27)
+    var ids28 = List<TypeParamId>()
+    c.structs[st22].typeParams = move ids28
+    var ids29 = List<TypeParamId>()
+    let fn30 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 158, length: 4 }, span: TextSpan { start: 158, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 3, memberIndex: 1, owner: st22, iface: -1, isAbstract: false, typeParams: move ids29, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].methods.append(fn30)
+    var ids31 = List<TypeParamId>()
+    let fn32 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 178, length: 4 }, span: TextSpan { start: 178, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 3, memberIndex: 2, owner: st22, iface: -1, isAbstract: false, typeParams: move ids31, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st22, file: 0, declIndex: 3, memberIndex: 2, getter: fn32 }))
+    c.structs[st22].conformances.append(newConformance(ref c, by: Conformance { type: st22, iface: iface0 }))
+    var ids33 = List<TypeParamId>()
+    c.structs[st23].typeParams = move ids33
+    var ids34 = List<TypeParamId>()
+    let fn35 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 225, length: 4 }, span: TextSpan { start: 225, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 4, memberIndex: 1, owner: st23, iface: -1, isAbstract: false, typeParams: move ids34, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st23].methods.append(fn35)
+    var ids36 = List<TypeParamId>()
+    c.structs[st24].typeParams = move ids36
+    var ids37 = List<TypeParamId>()
+    let fn38 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 262, length: 4 }, span: TextSpan { start: 262, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 5, memberIndex: 0, owner: st24, iface: -1, isAbstract: false, typeParams: move ids37, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].methods.append(fn38)
+    var ids39 = List<TypeParamId>()
+    let fn40 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 282, length: 4 }, span: TextSpan { start: 282, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 5, memberIndex: 1, owner: st24, iface: -1, isAbstract: false, typeParams: move ids39, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st24, file: 0, declIndex: 5, memberIndex: 1, getter: fn40 }))
+    var ids41 = List<TypeParamId>()
+    c.structs[st25].typeParams = move ids41
+    var ids42 = List<TypeParamId>()
+    let fn43 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 325, length: 4 }, span: TextSpan { start: 325, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 6, memberIndex: 0, owner: st25, iface: -1, isAbstract: false, typeParams: move ids42, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].methods.append(fn43)
+    var ids44 = List<TypeParamId>()
+    let fn45 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 345, length: 4 }, span: TextSpan { start: 345, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 6, memberIndex: 1, owner: st25, iface: -1, isAbstract: false, typeParams: move ids44, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st25, file: 0, declIndex: 6, memberIndex: 1, getter: fn45 }))
+    c.structs[st25].conformances.append(newConformance(ref c, by: Conformance { type: st25, iface: iface0 }))
+    var ids46 = List<InterfaceId>()
+    ids46.append(iface0)
+    let tp47 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids46 })
+    var ids48 = List<TypeParamId>()
+    ids48.append(tp47)
+    c.structs[st26].typeParams = move ids48
+    var ids49 = List<TypeParamId>()
+    let fn50 = newFunction(ref c, by: FunctionSymbol { name: "get", nameSpan: TextSpan { start: 625, length: 3 }, span: TextSpan { start: 625, length: 3 }, module: 0, kind: .method, file: 0, declIndex: 13, memberIndex: 2, owner: st26, iface: -1, isAbstract: false, typeParams: move ids49, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st26].methods.append(fn50)
+    var ids51 = List<InterfaceId>()
+    let tp52 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids51 })
+    var ids53 = List<TypeParamId>()
+    ids53.append(tp52)
+    c.structs[st27].typeParams = move ids53
+    var ids55 = List<InterfaceId>()
+    ids55.append(iface0)
+    let tp56 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids55 })
+    var ids57 = List<TypeParamId>()
+    ids57.append(tp56)
+    let un54 = newUnion(ref c, by: UnionSymbol { name: "Maybe", nameSpan: TextSpan { start: 645, length: 5 }, span: TextSpan { start: 645, length: 5 }, module: 0, file: 0, declIndex: 14, typeParams: move ids57 })
+    c.modules[0].unions.append(un54)
+    c.modules[0].types["Maybe"] = unionTypeOf(un54)
+    var ids58 = List<InterfaceId>()
+    ids58.append(iface0)
+    let tp59 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids58 })
+    var ids60 = List<TypeParamId>()
+    ids60.append(tp59)
+    let fn61 = newFunction(ref c, by: FunctionSymbol { name: "need", nameSpan: TextSpan { start: 363, length: 4 }, span: TextSpan { start: 363, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 7, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids60, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn61)
+    var ids62 = List<InterfaceId>()
+    ids62.append(iface1)
+    ids62.append(iface0)
+    let tp63 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids62 })
+    var ids64 = List<TypeParamId>()
+    ids64.append(tp63)
+    let fn65 = newFunction(ref c, by: FunctionSymbol { name: "two", nameSpan: TextSpan { start: 400, length: 3 }, span: TextSpan { start: 400, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 8, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids64, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn65)
+    var ids66 = List<InterfaceId>()
+    ids66.append(iface2)
+    let tp67 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids66 })
+    var ids68 = List<TypeParamId>()
+    ids68.append(tp67)
+    let fn69 = newFunction(ref c, by: FunctionSymbol { name: "empty", nameSpan: TextSpan { start: 444, length: 5 }, span: TextSpan { start: 444, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 9, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids68, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn69)
+    var ids70 = List<InterfaceId>()
+    let tp71 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids70 })
+    var ids72 = List<TypeParamId>()
+    ids72.append(tp71)
+    let fn73 = newFunction(ref c, by: FunctionSymbol { name: "none", nameSpan: TextSpan { start: 482, length: 4 }, span: TextSpan { start: 482, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 10, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids72, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn73)
+    var ids74 = List<InterfaceId>()
+    let tp75 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids74 })
+    var ids76 = List<TypeParamId>()
+    ids76.append(tp75)
+    let fn77 = newFunction(ref c, by: FunctionSymbol { name: "notIface", nameSpan: TextSpan { start: 502, length: 8 }, span: TextSpan { start: 502, length: 8 }, module: 0, kind: .function, file: 0, declIndex: 11, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids76, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn77)
+    var ids78 = List<InterfaceId>()
+    let tp79 = newTypeParam(ref c, by: TypeParam { name: "U", constraints: move ids78 })
+    var ids80 = List<TypeParamId>()
+    ids80.append(tp79)
+    let fn81 = newFunction(ref c, by: FunctionSymbol { name: "loose", nameSpan: TextSpan { start: 543, length: 5 }, span: TextSpan { start: 543, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 12, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids80, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn81)
+    var ids82 = List<InterfaceId>()
+    ids82.append(iface0)
+    ids82.append(iface2)
+    let tp83 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids82 })
+    var ids84 = List<TypeParamId>()
+    ids84.append(tp83)
+    let fn85 = newFunction(ref c, by: FunctionSymbol { name: "split", nameSpan: TextSpan { start: 828, length: 5 }, span: TextSpan { start: 828, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 18, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids84, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn85)
+    var ids86 = List<InterfaceId>()
+    ids86.append(iface4)
+    let tp87 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids86 })
+    var ids88 = List<TypeParamId>()
+    ids88.append(tp87)
+    let fn89 = newFunction(ref c, by: FunctionSymbol { name: "rev", nameSpan: TextSpan { start: 883, length: 3 }, span: TextSpan { start: 883, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 19, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids88, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn89)
+    var seen = List<FuncId>()
+    {
+    
+        let start = c.diagnostics.length
+        let fns = c.modules[0].allFunctions.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st25))
+        let inst = instantiateFunction(ref c, for: fn61, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showInstance(ref c, for: inst, by: "tri", from: fns, at: work, to: ref seen)
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let fns = c.modules[0].allFunctions.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st25))
+        let inst = instantiateFunction(ref c, for: fn61, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showInstance(ref c, for: inst, by: "again", from: fns, at: work, to: ref seen)
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let fns = c.modules[0].allFunctions.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let inst = instantiateFunction(ref c, for: fn61, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showInstance(ref c, for: inst, by: "square", from: fns, at: work, to: ref seen)
+        showDiags(in c, from: start)
+    
+    }
+    {
+        c.instantiating = 1
+        let start = c.diagnostics.length
+        let fns = c.modules[0].allFunctions.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st24))
+        let inst = instantiateFunction(ref c, for: fn61, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showInstance(ref c, for: inst, by: "nested", from: fns, at: work, to: ref seen)
+        showDiags(in c, from: start)
+        c.instantiating = 0
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let fns = c.modules[0].allFunctions.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(typeParamTypeOf(tp79))
+        let inst = instantiateFunction(ref c, for: fn81, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showInstance(ref c, for: inst, by: "generic", from: fns, at: work, to: ref seen)
+        showDiags(in c, from: start)
+    
+    }
+    {
+        c.bags.append(DiagBag { items: List<Diag>() })
+    c.firstPasses.append(FirstPass { instances: List<FuncId>(), bag: c.bags.length - 1, errors: List<Diag>() })
+    c.firstPass = c.firstPasses.length - 1
+        let start = c.diagnostics.length
+        let fns = c.modules[0].allFunctions.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let inst = instantiateFunction(ref c, for: fn65, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showInstance(ref c, for: inst, by: "pass", from: fns, at: work, to: ref seen)
+        showDiags(in c, from: start)
+        showPass(ref c)
+    c.firstPass = -1
+    }
+}
+
+void sectionInstantiateType() {
+    print("== instantiateType")
+    var c = newCtx()
+    addSource(ref c, for: "interface IShape {\n    i64 area()\n    i64 side\n}\n\ninterface IOther {\n    i64 other() => 1\n}\n\ninterface IEmpty {\n}\n\nstruct Circle : IShape {\n    i64 r\n    i64 area() => r\n    i64 side => r\n}\n\nstruct Square {\n    i64 s\n    i64 side() => s\n}\n\nstruct Both {\n    i64 area() => 1\n    i64 side => 1\n}\n\nstruct Tri : IShape {\n    i64 area() => 3\n    i64 side => 3\n}\n\nvoid need<T>() where T : IShape {\n}\n\nvoid two<T>() where T : IOther, IShape {\n}\n\nvoid empty<T>() where T : IEmpty {\n}\n\nvoid none<T>() {\n}\n\nvoid notIface<T>() where T : Circle {\n}\n\nvoid loose<U>() {\n}\n\nstruct Box<T> where T : IShape {\n    T item\n    i64 n = 1\n    i64 get() => n\n}\n\nunion Maybe<T> where T : IShape {\n    some(T value)\n    none\n}\n\ninterface IGen<T> where T : IShape {\n}\n\nstruct Free<T> {\n    T item\n}\n\ninterface IRev {\n    i64 back\n    i64 front()\n}\n\nvoid split<T>() where T : IShape where T : IEmpty {\n}\n\nvoid rev<T>() where T : IRev {\n}\n", as: "main")
+    c.entryModule = 0
+    let iface0 = newInterface(ref c, by: InterfaceSymbol { name: "IShape", nameSpan: TextSpan { start: 10, length: 6 }, span: TextSpan { start: 10, length: 6 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].interfaces.append(iface0)
+    c.modules[0].types["IShape"] = interfaceTypeOf(iface0)
+    let iface1 = newInterface(ref c, by: InterfaceSymbol { name: "IOther", nameSpan: TextSpan { start: 60, length: 6 }, span: TextSpan { start: 60, length: 6 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].interfaces.append(iface1)
+    c.modules[0].types["IOther"] = interfaceTypeOf(iface1)
+    let iface2 = newInterface(ref c, by: InterfaceSymbol { name: "IEmpty", nameSpan: TextSpan { start: 103, length: 6 }, span: TextSpan { start: 103, length: 6 }, module: 0, file: 0, declIndex: 2 })
+    c.modules[0].interfaces.append(iface2)
+    c.modules[0].types["IEmpty"] = interfaceTypeOf(iface2)
+    let iface3 = newInterface(ref c, by: InterfaceSymbol { name: "IGen", nameSpan: TextSpan { start: 713, length: 4 }, span: TextSpan { start: 713, length: 4 }, module: 0, file: 0, declIndex: 15 })
+    c.modules[0].interfaces.append(iface3)
+    c.modules[0].types["IGen"] = interfaceTypeOf(iface3)
+    let iface4 = newInterface(ref c, by: InterfaceSymbol { name: "IRev", nameSpan: TextSpan { start: 784, length: 4 }, span: TextSpan { start: 784, length: 4 }, module: 0, file: 0, declIndex: 17 })
+    c.modules[0].interfaces.append(iface4)
+    c.modules[0].types["IRev"] = interfaceTypeOf(iface4)
+    var ids5 = List<TypeParamId>()
+    c.interfaces[iface0].typeParams = move ids5
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 27, length: 4 }, span: TextSpan { start: 27, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 0, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids6, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].methods.append(fn7)
+    var ids8 = List<TypeParamId>()
+    let fn9 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 42, length: 4 }, span: TextSpan { start: 42, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: -1, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids8, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].properties.append(fn9)
+    var ids10 = List<TypeParamId>()
+    c.interfaces[iface1].typeParams = move ids10
+    var ids11 = List<TypeParamId>()
+    let fn12 = newFunction(ref c, by: FunctionSymbol { name: "other", nameSpan: TextSpan { start: 77, length: 5 }, span: TextSpan { start: 77, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 1, memberIndex: 0, owner: -1, iface: iface1, isAbstract: false, typeParams: move ids11, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface1].methods.append(fn12)
+    var ids13 = List<TypeParamId>()
+    c.interfaces[iface2].typeParams = move ids13
+    var ids14 = List<InterfaceId>()
+    ids14.append(iface0)
+    let tp15 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids14 })
+    var ids16 = List<TypeParamId>()
+    ids16.append(tp15)
+    c.interfaces[iface3].typeParams = move ids16
+    var ids17 = List<TypeParamId>()
+    c.interfaces[iface4].typeParams = move ids17
+    var ids18 = List<TypeParamId>()
+    let fn19 = newFunction(ref c, by: FunctionSymbol { name: "front", nameSpan: TextSpan { start: 812, length: 5 }, span: TextSpan { start: 812, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 17, memberIndex: 1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids18, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].methods.append(fn19)
+    var ids20 = List<TypeParamId>()
+    let fn21 = newFunction(ref c, by: FunctionSymbol { name: "back", nameSpan: TextSpan { start: 799, length: 4 }, span: TextSpan { start: 799, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 17, memberIndex: -1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids20, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].properties.append(fn21)
+    let st22 = newStruct(ref c, by: StructSymbol { name: "Circle", nameSpan: TextSpan { start: 122, length: 6 }, span: TextSpan { start: 122, length: 6 }, module: 0, file: 0, declIndex: 3 })
+    c.modules[0].structs.append(st22)
+    c.modules[0].types["Circle"] = structTypeOf(st22)
+    let st23 = newStruct(ref c, by: StructSymbol { name: "Square", nameSpan: TextSpan { start: 198, length: 6 }, span: TextSpan { start: 198, length: 6 }, module: 0, file: 0, declIndex: 4 })
+    c.modules[0].structs.append(st23)
+    c.modules[0].types["Square"] = structTypeOf(st23)
+    let st24 = newStruct(ref c, by: StructSymbol { name: "Both", nameSpan: TextSpan { start: 247, length: 4 }, span: TextSpan { start: 247, length: 4 }, module: 0, file: 0, declIndex: 5 })
+    c.modules[0].structs.append(st24)
+    c.modules[0].types["Both"] = structTypeOf(st24)
+    let st25 = newStruct(ref c, by: StructSymbol { name: "Tri", nameSpan: TextSpan { start: 302, length: 3 }, span: TextSpan { start: 302, length: 3 }, module: 0, file: 0, declIndex: 6 })
+    c.modules[0].structs.append(st25)
+    c.modules[0].types["Tri"] = structTypeOf(st25)
+    let st26 = newStruct(ref c, by: StructSymbol { name: "Box", nameSpan: TextSpan { start: 566, length: 3 }, span: TextSpan { start: 566, length: 3 }, module: 0, file: 0, declIndex: 13 })
+    c.modules[0].structs.append(st26)
+    c.modules[0].types["Box"] = structTypeOf(st26)
+    let st27 = newStruct(ref c, by: StructSymbol { name: "Free", nameSpan: TextSpan { start: 750, length: 4 }, span: TextSpan { start: 750, length: 4 }, module: 0, file: 0, declIndex: 16 })
+    c.modules[0].structs.append(st27)
+    c.modules[0].types["Free"] = structTypeOf(st27)
+    var ids28 = List<TypeParamId>()
+    c.structs[st22].typeParams = move ids28
+    var ids29 = List<TypeParamId>()
+    let fn30 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 158, length: 4 }, span: TextSpan { start: 158, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 3, memberIndex: 1, owner: st22, iface: -1, isAbstract: false, typeParams: move ids29, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].methods.append(fn30)
+    var ids31 = List<TypeParamId>()
+    let fn32 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 178, length: 4 }, span: TextSpan { start: 178, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 3, memberIndex: 2, owner: st22, iface: -1, isAbstract: false, typeParams: move ids31, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st22, file: 0, declIndex: 3, memberIndex: 2, getter: fn32 }))
+    c.structs[st22].conformances.append(newConformance(ref c, by: Conformance { type: st22, iface: iface0 }))
+    var ids33 = List<TypeParamId>()
+    c.structs[st23].typeParams = move ids33
+    var ids34 = List<TypeParamId>()
+    let fn35 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 225, length: 4 }, span: TextSpan { start: 225, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 4, memberIndex: 1, owner: st23, iface: -1, isAbstract: false, typeParams: move ids34, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st23].methods.append(fn35)
+    var ids36 = List<TypeParamId>()
+    c.structs[st24].typeParams = move ids36
+    var ids37 = List<TypeParamId>()
+    let fn38 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 262, length: 4 }, span: TextSpan { start: 262, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 5, memberIndex: 0, owner: st24, iface: -1, isAbstract: false, typeParams: move ids37, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].methods.append(fn38)
+    var ids39 = List<TypeParamId>()
+    let fn40 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 282, length: 4 }, span: TextSpan { start: 282, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 5, memberIndex: 1, owner: st24, iface: -1, isAbstract: false, typeParams: move ids39, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st24, file: 0, declIndex: 5, memberIndex: 1, getter: fn40 }))
+    var ids41 = List<TypeParamId>()
+    c.structs[st25].typeParams = move ids41
+    var ids42 = List<TypeParamId>()
+    let fn43 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 325, length: 4 }, span: TextSpan { start: 325, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 6, memberIndex: 0, owner: st25, iface: -1, isAbstract: false, typeParams: move ids42, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].methods.append(fn43)
+    var ids44 = List<TypeParamId>()
+    let fn45 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 345, length: 4 }, span: TextSpan { start: 345, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 6, memberIndex: 1, owner: st25, iface: -1, isAbstract: false, typeParams: move ids44, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st25, file: 0, declIndex: 6, memberIndex: 1, getter: fn45 }))
+    c.structs[st25].conformances.append(newConformance(ref c, by: Conformance { type: st25, iface: iface0 }))
+    var ids46 = List<InterfaceId>()
+    ids46.append(iface0)
+    let tp47 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids46 })
+    var ids48 = List<TypeParamId>()
+    ids48.append(tp47)
+    c.structs[st26].typeParams = move ids48
+    var ids49 = List<TypeParamId>()
+    let fn50 = newFunction(ref c, by: FunctionSymbol { name: "get", nameSpan: TextSpan { start: 625, length: 3 }, span: TextSpan { start: 625, length: 3 }, module: 0, kind: .method, file: 0, declIndex: 13, memberIndex: 2, owner: st26, iface: -1, isAbstract: false, typeParams: move ids49, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st26].methods.append(fn50)
+    var ids51 = List<InterfaceId>()
+    let tp52 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids51 })
+    var ids53 = List<TypeParamId>()
+    ids53.append(tp52)
+    c.structs[st27].typeParams = move ids53
+    var ids55 = List<InterfaceId>()
+    ids55.append(iface0)
+    let tp56 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids55 })
+    var ids57 = List<TypeParamId>()
+    ids57.append(tp56)
+    let un54 = newUnion(ref c, by: UnionSymbol { name: "Maybe", nameSpan: TextSpan { start: 645, length: 5 }, span: TextSpan { start: 645, length: 5 }, module: 0, file: 0, declIndex: 14, typeParams: move ids57 })
+    c.modules[0].unions.append(un54)
+    c.modules[0].types["Maybe"] = unionTypeOf(un54)
+    var ids58 = List<InterfaceId>()
+    ids58.append(iface0)
+    let tp59 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids58 })
+    var ids60 = List<TypeParamId>()
+    ids60.append(tp59)
+    let fn61 = newFunction(ref c, by: FunctionSymbol { name: "need", nameSpan: TextSpan { start: 363, length: 4 }, span: TextSpan { start: 363, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 7, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids60, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn61)
+    var ids62 = List<InterfaceId>()
+    ids62.append(iface1)
+    ids62.append(iface0)
+    let tp63 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids62 })
+    var ids64 = List<TypeParamId>()
+    ids64.append(tp63)
+    let fn65 = newFunction(ref c, by: FunctionSymbol { name: "two", nameSpan: TextSpan { start: 400, length: 3 }, span: TextSpan { start: 400, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 8, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids64, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn65)
+    var ids66 = List<InterfaceId>()
+    ids66.append(iface2)
+    let tp67 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids66 })
+    var ids68 = List<TypeParamId>()
+    ids68.append(tp67)
+    let fn69 = newFunction(ref c, by: FunctionSymbol { name: "empty", nameSpan: TextSpan { start: 444, length: 5 }, span: TextSpan { start: 444, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 9, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids68, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn69)
+    var ids70 = List<InterfaceId>()
+    let tp71 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids70 })
+    var ids72 = List<TypeParamId>()
+    ids72.append(tp71)
+    let fn73 = newFunction(ref c, by: FunctionSymbol { name: "none", nameSpan: TextSpan { start: 482, length: 4 }, span: TextSpan { start: 482, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 10, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids72, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn73)
+    var ids74 = List<InterfaceId>()
+    let tp75 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids74 })
+    var ids76 = List<TypeParamId>()
+    ids76.append(tp75)
+    let fn77 = newFunction(ref c, by: FunctionSymbol { name: "notIface", nameSpan: TextSpan { start: 502, length: 8 }, span: TextSpan { start: 502, length: 8 }, module: 0, kind: .function, file: 0, declIndex: 11, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids76, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn77)
+    var ids78 = List<InterfaceId>()
+    let tp79 = newTypeParam(ref c, by: TypeParam { name: "U", constraints: move ids78 })
+    var ids80 = List<TypeParamId>()
+    ids80.append(tp79)
+    let fn81 = newFunction(ref c, by: FunctionSymbol { name: "loose", nameSpan: TextSpan { start: 543, length: 5 }, span: TextSpan { start: 543, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 12, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids80, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn81)
+    var ids82 = List<InterfaceId>()
+    ids82.append(iface0)
+    ids82.append(iface2)
+    let tp83 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids82 })
+    var ids84 = List<TypeParamId>()
+    ids84.append(tp83)
+    let fn85 = newFunction(ref c, by: FunctionSymbol { name: "split", nameSpan: TextSpan { start: 828, length: 5 }, span: TextSpan { start: 828, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 18, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids84, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn85)
+    var ids86 = List<InterfaceId>()
+    ids86.append(iface4)
+    let tp87 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids86 })
+    var ids88 = List<TypeParamId>()
+    ids88.append(tp87)
+    let fn89 = newFunction(ref c, by: FunctionSymbol { name: "rev", nameSpan: TextSpan { start: 883, length: 3 }, span: TextSpan { start: 883, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 19, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids88, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn89)
+    c.interfaceMembersDeclared = true
+    var seen = List<Type>()
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st25))
+        let inst = instantiateType(ref c, for: structTypeOf(st26), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "box", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st25))
+        let inst = instantiateType(ref c, for: structTypeOf(st26), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "again", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let inst = instantiateType(ref c, for: structTypeOf(st26), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "square", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let inst = instantiateType(ref c, for: unionTypeOf(un54), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "maybe", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let inst = instantiateType(ref c, for: interfaceTypeOf(iface3), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "gen", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+        c.interfaceMembersDeclared = false
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st25))
+        let inst = instantiateType(ref c, for: interfaceTypeOf(iface3), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "genLater", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+        c.interfaceMembersDeclared = true
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st23))
+        let inst = instantiateType(ref c, for: structTypeOf(st27), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "free", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+        c.instantiating = 1
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st24))
+        let inst = instantiateType(ref c, for: structTypeOf(st26), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "nested", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+        c.instantiating = 0
+    }
+    {
+        c.checkedConformances = true
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st22))
+        let inst = instantiateType(ref c, for: structTypeOf(st26), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "checked", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    {
+    
+        let start = c.diagnostics.length
+        let p0 = c.pendingConstraints.length
+        let i0 = c.pendingInterfaces.length
+        let work = c.instantiationWork.length
+        var args = List<Type>()
+        args.append(structTypeOf(st24))
+        let inst = instantiateType(ref c, for: unionTypeOf(un54), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+        showType(ref c, for: inst, by: "checkedBad", from: p0, at: i0, to: ref seen)
+        print($"work +{c.instantiationWork.length - work}")
+        showDiags(in c, from: start)
+    
+    }
+    let startRun = c.diagnostics.length
+    for i in 0..c.pendingConstraints.length {
+        let work = Work { kind: c.pendingConstraints[i].kind, subject: c.pendingConstraints[i].subject, args: List<Type>(), file: c.pendingConstraints[i].file, span: c.pendingConstraints[i].span }
+        t13RunConstraint(ref c, for: in work)
+    }
+    print("run")
+    showDiags(in c, from: startRun)
+}
+
+void sectionTemplateOf() {
+    print("== templateOf")
+    var c = newCtx()
+    addSource(ref c, for: "interface IShape {\n    i64 area()\n    i64 side\n}\n\ninterface IOther {\n    i64 other() => 1\n}\n\ninterface IEmpty {\n}\n\nstruct Circle : IShape {\n    i64 r\n    i64 area() => r\n    i64 side => r\n}\n\nstruct Square {\n    i64 s\n    i64 side() => s\n}\n\nstruct Both {\n    i64 area() => 1\n    i64 side => 1\n}\n\nstruct Tri : IShape {\n    i64 area() => 3\n    i64 side => 3\n}\n\nvoid need<T>() where T : IShape {\n}\n\nvoid two<T>() where T : IOther, IShape {\n}\n\nvoid empty<T>() where T : IEmpty {\n}\n\nvoid none<T>() {\n}\n\nvoid notIface<T>() where T : Circle {\n}\n\nvoid loose<U>() {\n}\n\nstruct Box<T> where T : IShape {\n    T item\n    i64 n = 1\n    i64 get() => n\n}\n\nunion Maybe<T> where T : IShape {\n    some(T value)\n    none\n}\n\ninterface IGen<T> where T : IShape {\n}\n\nstruct Free<T> {\n    T item\n}\n\ninterface IRev {\n    i64 back\n    i64 front()\n}\n\nvoid split<T>() where T : IShape where T : IEmpty {\n}\n\nvoid rev<T>() where T : IRev {\n}\n", as: "main")
+    c.entryModule = 0
+    let iface0 = newInterface(ref c, by: InterfaceSymbol { name: "IShape", nameSpan: TextSpan { start: 10, length: 6 }, span: TextSpan { start: 10, length: 6 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].interfaces.append(iface0)
+    c.modules[0].types["IShape"] = interfaceTypeOf(iface0)
+    let iface1 = newInterface(ref c, by: InterfaceSymbol { name: "IOther", nameSpan: TextSpan { start: 60, length: 6 }, span: TextSpan { start: 60, length: 6 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].interfaces.append(iface1)
+    c.modules[0].types["IOther"] = interfaceTypeOf(iface1)
+    let iface2 = newInterface(ref c, by: InterfaceSymbol { name: "IEmpty", nameSpan: TextSpan { start: 103, length: 6 }, span: TextSpan { start: 103, length: 6 }, module: 0, file: 0, declIndex: 2 })
+    c.modules[0].interfaces.append(iface2)
+    c.modules[0].types["IEmpty"] = interfaceTypeOf(iface2)
+    let iface3 = newInterface(ref c, by: InterfaceSymbol { name: "IGen", nameSpan: TextSpan { start: 713, length: 4 }, span: TextSpan { start: 713, length: 4 }, module: 0, file: 0, declIndex: 15 })
+    c.modules[0].interfaces.append(iface3)
+    c.modules[0].types["IGen"] = interfaceTypeOf(iface3)
+    let iface4 = newInterface(ref c, by: InterfaceSymbol { name: "IRev", nameSpan: TextSpan { start: 784, length: 4 }, span: TextSpan { start: 784, length: 4 }, module: 0, file: 0, declIndex: 17 })
+    c.modules[0].interfaces.append(iface4)
+    c.modules[0].types["IRev"] = interfaceTypeOf(iface4)
+    var ids5 = List<TypeParamId>()
+    c.interfaces[iface0].typeParams = move ids5
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 27, length: 4 }, span: TextSpan { start: 27, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 0, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids6, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].methods.append(fn7)
+    var ids8 = List<TypeParamId>()
+    let fn9 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 42, length: 4 }, span: TextSpan { start: 42, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: -1, owner: -1, iface: iface0, isAbstract: true, typeParams: move ids8, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface0].properties.append(fn9)
+    var ids10 = List<TypeParamId>()
+    c.interfaces[iface1].typeParams = move ids10
+    var ids11 = List<TypeParamId>()
+    let fn12 = newFunction(ref c, by: FunctionSymbol { name: "other", nameSpan: TextSpan { start: 77, length: 5 }, span: TextSpan { start: 77, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 1, memberIndex: 0, owner: -1, iface: iface1, isAbstract: false, typeParams: move ids11, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface1].methods.append(fn12)
+    var ids13 = List<TypeParamId>()
+    c.interfaces[iface2].typeParams = move ids13
+    var ids14 = List<InterfaceId>()
+    ids14.append(iface0)
+    let tp15 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids14 })
+    var ids16 = List<TypeParamId>()
+    ids16.append(tp15)
+    c.interfaces[iface3].typeParams = move ids16
+    var ids17 = List<TypeParamId>()
+    c.interfaces[iface4].typeParams = move ids17
+    var ids18 = List<TypeParamId>()
+    let fn19 = newFunction(ref c, by: FunctionSymbol { name: "front", nameSpan: TextSpan { start: 812, length: 5 }, span: TextSpan { start: 812, length: 5 }, module: 0, kind: .method, file: 0, declIndex: 17, memberIndex: 1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids18, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].methods.append(fn19)
+    var ids20 = List<TypeParamId>()
+    let fn21 = newFunction(ref c, by: FunctionSymbol { name: "back", nameSpan: TextSpan { start: 799, length: 4 }, span: TextSpan { start: 799, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 17, memberIndex: -1, owner: -1, iface: iface4, isAbstract: true, typeParams: move ids20, returnType: prim(PrimitiveKind.i64) })
+    c.interfaces[iface4].properties.append(fn21)
+    let st22 = newStruct(ref c, by: StructSymbol { name: "Circle", nameSpan: TextSpan { start: 122, length: 6 }, span: TextSpan { start: 122, length: 6 }, module: 0, file: 0, declIndex: 3 })
+    c.modules[0].structs.append(st22)
+    c.modules[0].types["Circle"] = structTypeOf(st22)
+    let st23 = newStruct(ref c, by: StructSymbol { name: "Square", nameSpan: TextSpan { start: 198, length: 6 }, span: TextSpan { start: 198, length: 6 }, module: 0, file: 0, declIndex: 4 })
+    c.modules[0].structs.append(st23)
+    c.modules[0].types["Square"] = structTypeOf(st23)
+    let st24 = newStruct(ref c, by: StructSymbol { name: "Both", nameSpan: TextSpan { start: 247, length: 4 }, span: TextSpan { start: 247, length: 4 }, module: 0, file: 0, declIndex: 5 })
+    c.modules[0].structs.append(st24)
+    c.modules[0].types["Both"] = structTypeOf(st24)
+    let st25 = newStruct(ref c, by: StructSymbol { name: "Tri", nameSpan: TextSpan { start: 302, length: 3 }, span: TextSpan { start: 302, length: 3 }, module: 0, file: 0, declIndex: 6 })
+    c.modules[0].structs.append(st25)
+    c.modules[0].types["Tri"] = structTypeOf(st25)
+    let st26 = newStruct(ref c, by: StructSymbol { name: "Box", nameSpan: TextSpan { start: 566, length: 3 }, span: TextSpan { start: 566, length: 3 }, module: 0, file: 0, declIndex: 13 })
+    c.modules[0].structs.append(st26)
+    c.modules[0].types["Box"] = structTypeOf(st26)
+    let st27 = newStruct(ref c, by: StructSymbol { name: "Free", nameSpan: TextSpan { start: 750, length: 4 }, span: TextSpan { start: 750, length: 4 }, module: 0, file: 0, declIndex: 16 })
+    c.modules[0].structs.append(st27)
+    c.modules[0].types["Free"] = structTypeOf(st27)
+    var ids28 = List<TypeParamId>()
+    c.structs[st22].typeParams = move ids28
+    var ids29 = List<TypeParamId>()
+    let fn30 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 158, length: 4 }, span: TextSpan { start: 158, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 3, memberIndex: 1, owner: st22, iface: -1, isAbstract: false, typeParams: move ids29, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].methods.append(fn30)
+    var ids31 = List<TypeParamId>()
+    let fn32 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 178, length: 4 }, span: TextSpan { start: 178, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 3, memberIndex: 2, owner: st22, iface: -1, isAbstract: false, typeParams: move ids31, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st22].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st22, file: 0, declIndex: 3, memberIndex: 2, getter: fn32 }))
+    c.structs[st22].conformances.append(newConformance(ref c, by: Conformance { type: st22, iface: iface0 }))
+    var ids33 = List<TypeParamId>()
+    c.structs[st23].typeParams = move ids33
+    var ids34 = List<TypeParamId>()
+    let fn35 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 225, length: 4 }, span: TextSpan { start: 225, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 4, memberIndex: 1, owner: st23, iface: -1, isAbstract: false, typeParams: move ids34, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st23].methods.append(fn35)
+    var ids36 = List<TypeParamId>()
+    c.structs[st24].typeParams = move ids36
+    var ids37 = List<TypeParamId>()
+    let fn38 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 262, length: 4 }, span: TextSpan { start: 262, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 5, memberIndex: 0, owner: st24, iface: -1, isAbstract: false, typeParams: move ids37, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].methods.append(fn38)
+    var ids39 = List<TypeParamId>()
+    let fn40 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 282, length: 4 }, span: TextSpan { start: 282, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 5, memberIndex: 1, owner: st24, iface: -1, isAbstract: false, typeParams: move ids39, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st24].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st24, file: 0, declIndex: 5, memberIndex: 1, getter: fn40 }))
+    var ids41 = List<TypeParamId>()
+    c.structs[st25].typeParams = move ids41
+    var ids42 = List<TypeParamId>()
+    let fn43 = newFunction(ref c, by: FunctionSymbol { name: "area", nameSpan: TextSpan { start: 325, length: 4 }, span: TextSpan { start: 325, length: 4 }, module: 0, kind: .method, file: 0, declIndex: 6, memberIndex: 0, owner: st25, iface: -1, isAbstract: false, typeParams: move ids42, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].methods.append(fn43)
+    var ids44 = List<TypeParamId>()
+    let fn45 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 345, length: 4 }, span: TextSpan { start: 345, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 6, memberIndex: 1, owner: st25, iface: -1, isAbstract: false, typeParams: move ids44, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st25].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st25, file: 0, declIndex: 6, memberIndex: 1, getter: fn45 }))
+    c.structs[st25].conformances.append(newConformance(ref c, by: Conformance { type: st25, iface: iface0 }))
+    var ids46 = List<InterfaceId>()
+    ids46.append(iface0)
+    let tp47 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids46 })
+    var ids48 = List<TypeParamId>()
+    ids48.append(tp47)
+    c.structs[st26].typeParams = move ids48
+    var ids49 = List<TypeParamId>()
+    let fn50 = newFunction(ref c, by: FunctionSymbol { name: "get", nameSpan: TextSpan { start: 625, length: 3 }, span: TextSpan { start: 625, length: 3 }, module: 0, kind: .method, file: 0, declIndex: 13, memberIndex: 2, owner: st26, iface: -1, isAbstract: false, typeParams: move ids49, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st26].methods.append(fn50)
+    var ids51 = List<InterfaceId>()
+    let tp52 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids51 })
+    var ids53 = List<TypeParamId>()
+    ids53.append(tp52)
+    c.structs[st27].typeParams = move ids53
+    var ids55 = List<InterfaceId>()
+    ids55.append(iface0)
+    let tp56 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids55 })
+    var ids57 = List<TypeParamId>()
+    ids57.append(tp56)
+    let un54 = newUnion(ref c, by: UnionSymbol { name: "Maybe", nameSpan: TextSpan { start: 645, length: 5 }, span: TextSpan { start: 645, length: 5 }, module: 0, file: 0, declIndex: 14, typeParams: move ids57 })
+    c.modules[0].unions.append(un54)
+    c.modules[0].types["Maybe"] = unionTypeOf(un54)
+    var ids58 = List<InterfaceId>()
+    ids58.append(iface0)
+    let tp59 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids58 })
+    var ids60 = List<TypeParamId>()
+    ids60.append(tp59)
+    let fn61 = newFunction(ref c, by: FunctionSymbol { name: "need", nameSpan: TextSpan { start: 363, length: 4 }, span: TextSpan { start: 363, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 7, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids60, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn61)
+    var ids62 = List<InterfaceId>()
+    ids62.append(iface1)
+    ids62.append(iface0)
+    let tp63 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids62 })
+    var ids64 = List<TypeParamId>()
+    ids64.append(tp63)
+    let fn65 = newFunction(ref c, by: FunctionSymbol { name: "two", nameSpan: TextSpan { start: 400, length: 3 }, span: TextSpan { start: 400, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 8, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids64, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn65)
+    var ids66 = List<InterfaceId>()
+    ids66.append(iface2)
+    let tp67 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids66 })
+    var ids68 = List<TypeParamId>()
+    ids68.append(tp67)
+    let fn69 = newFunction(ref c, by: FunctionSymbol { name: "empty", nameSpan: TextSpan { start: 444, length: 5 }, span: TextSpan { start: 444, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 9, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids68, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn69)
+    var ids70 = List<InterfaceId>()
+    let tp71 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids70 })
+    var ids72 = List<TypeParamId>()
+    ids72.append(tp71)
+    let fn73 = newFunction(ref c, by: FunctionSymbol { name: "none", nameSpan: TextSpan { start: 482, length: 4 }, span: TextSpan { start: 482, length: 4 }, module: 0, kind: .function, file: 0, declIndex: 10, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids72, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn73)
+    var ids74 = List<InterfaceId>()
+    let tp75 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids74 })
+    var ids76 = List<TypeParamId>()
+    ids76.append(tp75)
+    let fn77 = newFunction(ref c, by: FunctionSymbol { name: "notIface", nameSpan: TextSpan { start: 502, length: 8 }, span: TextSpan { start: 502, length: 8 }, module: 0, kind: .function, file: 0, declIndex: 11, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids76, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn77)
+    var ids78 = List<InterfaceId>()
+    let tp79 = newTypeParam(ref c, by: TypeParam { name: "U", constraints: move ids78 })
+    var ids80 = List<TypeParamId>()
+    ids80.append(tp79)
+    let fn81 = newFunction(ref c, by: FunctionSymbol { name: "loose", nameSpan: TextSpan { start: 543, length: 5 }, span: TextSpan { start: 543, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 12, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids80, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn81)
+    var ids82 = List<InterfaceId>()
+    ids82.append(iface0)
+    ids82.append(iface2)
+    let tp83 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids82 })
+    var ids84 = List<TypeParamId>()
+    ids84.append(tp83)
+    let fn85 = newFunction(ref c, by: FunctionSymbol { name: "split", nameSpan: TextSpan { start: 828, length: 5 }, span: TextSpan { start: 828, length: 5 }, module: 0, kind: .function, file: 0, declIndex: 18, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids84, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn85)
+    var ids86 = List<InterfaceId>()
+    ids86.append(iface4)
+    let tp87 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids86 })
+    var ids88 = List<TypeParamId>()
+    ids88.append(tp87)
+    let fn89 = newFunction(ref c, by: FunctionSymbol { name: "rev", nameSpan: TextSpan { start: 883, length: 3 }, span: TextSpan { start: 883, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 19, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids88, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn89)
+    var args = List<Type>()
+    args.append(structTypeOf(st25))
+    let inst = instantiateFunction(ref c, for: fn61, by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+    let boxTri = newStruct(ref c, by: StructSymbol { name: "Box", module: 0, file: 0, declIndex: 13, template: st26 })
+    let instOther = newFunction(ref c, by: FunctionSymbol { name: "other", kind: .method, module: 0, file: 0, declIndex: 13, memberIndex: 3, owner: boxTri })
+    let instGet = newFunction(ref c, by: FunctionSymbol { name: "get", kind: .method, module: 0, file: 0, declIndex: 13, memberIndex: 2, owner: boxTri })
+    c.structs[boxTri].methods.append(instOther)
+    c.structs[boxTri].methods.append(instGet)
+    print($"instance {templateText(ref c, for: inst)}")
+    print($"member {templateText(ref c, for: instGet)}")
+    print($"template {templateText(ref c, for: fn61)}")
+    print($"templateMember {templateText(ref c, for: fn50)}")
+}
+
+void sectionInvokeSymbol() {
+    print("== invokeSymbol")
+    var c = newCtx()
+    addSource(ref c, for: "union error E {\n    bad\n}\n\nvoid apply((i64, string) -> bool f, by (i64) -> i64 fails E g) {\n}\n", as: "main")
+    c.entryModule = 0
+    let e = newErrorSet(ref c, by: ErrorSetSymbol { name: "E", module: 0, file: 0 })
+    var ids0 = List<Type>()
+    ids0.append(prim(PrimitiveKind.i64))
+    ids0.append(prim(PrimitiveKind.string))
+    var ids1 = List<ErrorSetId>()
+    {
+        c.functionTypes.append(FunctionData { parameters: move ids0, ret: prim(PrimitiveKind.bool), errorSets: move ids1, effects: List<string>() })
+        let t = makeType(.function, at: c.functionTypes.length - 1)
+        showInvoke(ref c, for: invokeSymbol(ref c, for: t), by: invokeSymbol(ref c, for: t))
+    }
+    var ids2 = List<Type>()
+    ids2.append(prim(PrimitiveKind.i64))
+    var ids3 = List<ErrorSetId>()
+    ids3.append(e)
+    {
+        c.functionTypes.append(FunctionData { parameters: move ids2, ret: prim(PrimitiveKind.i64), errorSets: move ids3, effects: List<string>() })
+        let t = makeType(.function, at: c.functionTypes.length - 1)
+        showInvoke(ref c, for: invokeSymbol(ref c, for: t), by: invokeSymbol(ref c, for: t))
+    }
+}
+
+void sectionErrorSets() {
+    print("== errorSets")
+    var c = newCtx()
+    addSource(ref c, for: "union error E {\n    bad\n}\n\ni64 dec() fails E {\n    fail .bad\n}\n\ni64 inf() fails {\n    fail E.bad\n}\n\ni64 gen<T>(T v) fails {\n    fail E.bad\n}\n\nvoid quiet() {\n}\n\ntest \"t\" {\n    let _ = try inf()\n}\n\nlet x = try gen(1)\nprint($\"{x}\")\n", as: "main")
+    c.entryModule = 0
+    let e = newErrorSet(ref c, by: ErrorSetSymbol { name: "E", module: 0, file: 0 })
+    var ids0 = List<ErrorSetId>()
+    ids0.append(e)
+    let f1 = newFunction(ref c, by: FunctionSymbol { name: "dec", module: 0, file: 0, kind: .function, infersErrors: false, hasFails: true, template: -1, errorSets: move ids0 })
+    c.modules[0].allFunctions.append(f1)
+    var ids1 = List<ErrorSetId>()
+    ids1.append(e)
+    let f2 = newFunction(ref c, by: FunctionSymbol { name: "inf", module: 0, file: 0, kind: .function, infersErrors: true, hasFails: true, template: -1, errorSets: move ids1 })
+    c.modules[0].allFunctions.append(f2)
+    var ids2 = List<ErrorSetId>()
+    ids2.append(e)
+    let f3 = newFunction(ref c, by: FunctionSymbol { name: "gen", module: 0, file: 0, kind: .function, infersErrors: true, hasFails: true, template: -1, errorSets: move ids2 })
+    c.modules[0].allFunctions.append(f3)
+    var ids3 = List<ErrorSetId>()
+    let f4 = newFunction(ref c, by: FunctionSymbol { name: "quiet", module: 0, file: 0, kind: .function, infersErrors: false, hasFails: false, template: -1, errorSets: move ids3 })
+    c.modules[0].allFunctions.append(f4)
+    var ids4 = List<ErrorSetId>()
+    ids4.append(e)
+    let f5 = newFunction(ref c, by: FunctionSymbol { name: "test", module: 0, file: 0, kind: .testKeyword, infersErrors: true, hasFails: false, template: -1, errorSets: move ids4 })
+    c.modules[0].allFunctions.append(f5)
+    var ids5 = List<ErrorSetId>()
+    ids5.append(e)
+    let f6 = newFunction(ref c, by: FunctionSymbol { name: "main", module: 0, file: 0, kind: .main, infersErrors: false, hasFails: false, template: -1, errorSets: move ids5 })
+    c.modules[0].allFunctions.append(f6)
+    var ids6 = List<ErrorSetId>()
+    let f7 = newFunction(ref c, by: FunctionSymbol { name: "gen", module: 0, file: 0, kind: .function, infersErrors: true, hasFails: true, template: f3, errorSets: move ids6 })
+    c.modules[0].allFunctions.append(f7)
+    inferErrorSets(ref c)
+    for f in copyIds(in c.modules[0].allFunctions) { showSets(ref c, for: f) }
+}
+
+void sectionBindConstant() {
+    print("== bindConstant")
+    var c = newCtx()
+    addSource(ref c, for: "const a: i64 = 1\nconst b: i64 = 2\nconst d: i64 = 4\n", as: "main")
+    c.entryModule = 0
+    let start = c.diagnostics.length
+    let ka = newConst(ref c, by: ConstSymbol { name: "a", nameSpan: TextSpan { start: 6, length: 1 }, span: TextSpan { start: 0, length: 16 }, module: 0, file: 0, declIndex: 0, state: 1 })
+    bindConstant(ref c, for: ka)
+    print($"a state {c.consts[ka].state} type {typeDisplay(ref c, by: c.consts[ka].type)}")
+    let kb = newConst(ref c, by: ConstSymbol { name: "b", nameSpan: TextSpan { start: 23, length: 1 }, span: TextSpan { start: 17, length: 16 }, module: 0, file: 0, declIndex: 1, state: 2 })
+    bindConstant(ref c, for: kb)
+    print($"b state {c.consts[kb].state}")
+    let kd = newConst(ref c, by: ConstSymbol { name: "d", nameSpan: TextSpan { start: 40, length: 1 }, span: TextSpan { start: 34, length: 16 }, module: 0, file: 0, declIndex: 2, state: 0 })
+    bindConstant(ref c, for: kd)
+    print($"d state {c.consts[kd].state}")
+    showDiags(in c, from: start)
+}
+
+void sectionReportHeld() {
+    print("== reportHeld")
+    var c = newCtx()
+    addSource(ref c, for: "void f() {\n}\n", as: "main")
+    c.entryModule = 0
+    let start = c.diagnostics.length
+    {
+        var held = List<Diag>()
+        held.append(Diag { code: "BYN2006", file: 0, span: TextSpan { start: 0, length: 1 }, message: "one", label: "held", fixSpan: TextSpan { start: 0, length: 0 }, related: List<Related>() })
+        held.append(Diag { code: "BYN2007", file: 0, span: TextSpan { start: 5, length: 1 }, message: "two", label: "held", fixSpan: TextSpan { start: 0, length: 0 }, related: List<Related>() })
+        c.quiet = true
+        reportHeld(ref c, for: in held)
+        c.quiet = false
+    }
+    c.bags.append(DiagBag { items: List<Diag>() })
+    let bag = c.bags.length - 1
+    let outer = c.sink
+    c.sink = bag
+    {
+        var held = List<Diag>()
+        held.append(Diag { code: "BYN2008", file: 0, span: TextSpan { start: 9, length: 1 }, message: "three", label: "held", fixSpan: TextSpan { start: 0, length: 0 }, related: List<Related>() })
+        reportHeld(ref c, for: in held)
+    }
+    c.sink = outer
+    showDiags(in c, from: start)
+    print("bag")
+    for d in c.bags[bag].items { print(diagLine(in c, for: in d)) }
+}
+
+void sectionDefaults() {
+    print("== defaults")
+    var c = newCtx()
+    addSource(ref c, for: "/// A box.\nstruct Box<T> {\n    T item\n    i64 n = 1\n}\n\nstruct Plain {\n    i64 k = 5\n    i64 j\n}\n\ni64 pd(i64 a, by i64 b = 2) => a + b\n", as: "main")
+    c.entryModule = 0
+    let st0 = newStruct(ref c, by: StructSymbol { name: "Box", nameSpan: TextSpan { start: 18, length: 3 }, span: TextSpan { start: 18, length: 3 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].structs.append(st0)
+    c.modules[0].types["Box"] = structTypeOf(st0)
+    let st1 = newStruct(ref c, by: StructSymbol { name: "Plain", nameSpan: TextSpan { start: 62, length: 5 }, span: TextSpan { start: 62, length: 5 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].structs.append(st1)
+    c.modules[0].types["Plain"] = structTypeOf(st1)
+    var ids2 = List<InterfaceId>()
+    let tp3 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids2 })
+    var ids4 = List<TypeParamId>()
+    ids4.append(tp3)
+    c.structs[st0].typeParams = move ids4
+    var ids5 = List<TypeParamId>()
+    c.structs[st1].typeParams = move ids5
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "pd", nameSpan: TextSpan { start: 101, length: 2 }, span: TextSpan { start: 101, length: 2 }, module: 0, kind: .function, file: 0, declIndex: 2, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids6, returnType: prim(PrimitiveKind.i64) })
+    c.modules[0].allFunctions.append(fn7)
+    var args = List<Type>()
+    args.append(prim(PrimitiveKind.i64))
+    c.structs[st0].doc = "A box."
+    let inst = StructId(typeIndex(instantiateType(ref c, for: structTypeOf(st0), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })))
+    print($"instance doc {c.structs[inst].doc ?? "null"}")
+    for f in copyIds(in c.structs[inst].fields) { print($"instance {c.fields[f].name} {constText(ref c, for: fieldDefault(ref c, for: inst, by: f, from: 0, at: TextSpan { start: 0, length: 0 }))}") }
+    let fieldk = newField(ref c, by: FieldSymbol { name: "k", owner: st1, file: 0, hasDefault: true, defaultValue: addErrorExpr(ref c, from: BErrorExpr { span: TextSpan { start: 0, length: 0 } }) })
+    print($"plain k {fieldDefault(ref c, for: st1, by: fieldk, from: 0, at: TextSpan { start: 0, length: 0 }) == -1 ? "null" : "set"}")
+    let fieldj = newField(ref c, by: FieldSymbol { name: "j", owner: st1, file: 0, hasDefault: false, defaultValue: -1 })
+    print($"plain j {fieldDefault(ref c, for: st1, by: fieldj, from: 0, at: TextSpan { start: 0, length: 0 }) == -1 ? "null" : "set"}")
+    let parama = newLocal(ref c, by: LocalSymbol { name: "a", type: prim(PrimitiveKind.i64), kind: .parameter, isParameter: true, ordinal: 0 })
+    c.functions[fn7].parameters.append(parama)
+    let paramb = newLocal(ref c, by: LocalSymbol { name: "b", type: prim(PrimitiveKind.i64), kind: .parameter, isParameter: true, ordinal: 1 })
+    c.functions[fn7].parameters.append(paramb)
+    print($"param a {constText(ref c, for: parameterDefault(ref c, for: fn7, by: parama) ?? -1)}")
+    print($"param b {constText(ref c, for: parameterDefault(ref c, for: fn7, by: paramb) ?? -1)}")
+    let first = parameterDefault(ref c, for: fn7, by: paramb) ?? -1
+    let second = parameterDefault(ref c, for: fn7, by: paramb) ?? -1
+    print($"again {first == second ? "same" : "new"}")
+}
+
+void sectionBindFunction() {
+    print("== bindFunction")
+    var c = newCtx()
+    addSource(ref c, for: "struct Q {\n    i64 v\n    i64 side => 1\n    i64 get() => 2\n}\n\ni64 top() => 3\n\nvoid bad() {\n    let z: Nope = 1\n}\n", as: "main")
+    c.entryModule = 0
+    let st0 = newStruct(ref c, by: StructSymbol { name: "Q", nameSpan: TextSpan { start: 7, length: 1 }, span: TextSpan { start: 7, length: 1 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].structs.append(st0)
+    c.modules[0].types["Q"] = structTypeOf(st0)
+    var ids1 = List<TypeParamId>()
+    c.structs[st0].typeParams = move ids1
+    var ids2 = List<TypeParamId>()
+    let fn3 = newFunction(ref c, by: FunctionSymbol { name: "get", nameSpan: TextSpan { start: 47, length: 3 }, span: TextSpan { start: 47, length: 3 }, module: 0, kind: .method, file: 0, declIndex: 0, memberIndex: 2, owner: st0, iface: -1, isAbstract: false, typeParams: move ids2, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st0].methods.append(fn3)
+    var ids4 = List<TypeParamId>()
+    let fn5 = newFunction(ref c, by: FunctionSymbol { name: "side", nameSpan: TextSpan { start: 29, length: 4 }, span: TextSpan { start: 29, length: 4 }, module: 0, kind: .getter, file: 0, declIndex: 0, memberIndex: 1, owner: st0, iface: -1, isAbstract: false, typeParams: move ids4, returnType: prim(PrimitiveKind.i64) })
+    c.structs[st0].properties.append(newProperty(ref c, by: PropertySymbol { name: "side", owner: st0, file: 0, declIndex: 0, memberIndex: 1, getter: fn5 }))
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "top", nameSpan: TextSpan { start: 65, length: 3 }, span: TextSpan { start: 65, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 1, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids6, returnType: prim(PrimitiveKind.i64) })
+    c.modules[0].allFunctions.append(fn7)
+    var ids8 = List<TypeParamId>()
+    let fn9 = newFunction(ref c, by: FunctionSymbol { name: "bad", nameSpan: TextSpan { start: 82, length: 3 }, span: TextSpan { start: 82, length: 3 }, module: 0, kind: .function, file: 0, declIndex: 2, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids8, returnType: prim(PrimitiveKind.void) })
+    c.modules[0].allFunctions.append(fn9)
+    c.functionTypes.append(FunctionData { parameters: List<Type>(), ret: prim(PrimitiveKind.i64), errorSets: List<ErrorSetId>(), effects: List<string>() })
+    let invoke = invokeSymbol(ref c, for: makeType(.function, at: c.functionTypes.length - 1))
+    showBody(ref c, for: fn3)
+    showBody(ref c, for: fn5)
+    showBody(ref c, for: fn7)
+    showBody(ref c, for: fn9)
+    showBody(ref c, for: invoke)
+    print($"instantiationErrors +{c.instantiationErrors.length}")
+}
+
+void sectionBindMainAndCases() {
+    print("== bindMainAndCases")
+    var c = newCtx()
+    addSource(ref c, for: "{\n    let a: i64 = 1\n}\n\n{\n    let q: bool = 3\n}\n\n@cases((1, true), (2, 3))\ntest \"t\"(i32 n, bool f) {\n    let y: i64 = 2\n}\n", as: "main")
+    c.entryModule = 0
+    var ids0 = List<TypeParamId>()
+    let fn1 = newFunction(ref c, by: FunctionSymbol { name: "main", nameSpan: TextSpan { start: 0, length: 22 }, span: TextSpan { start: 0, length: 22 }, module: 0, kind: .main, file: 0, declIndex: -1, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids0, returnType: prim(PrimitiveKind.void) })
+    c.mainStatementsFn = fn1
+    c.mainStatements.append(SyntaxRef { file: 0, declIndex: 0 })
+    c.mainStatements.append(SyntaxRef { file: 0, declIndex: 1 })
+    var ids2 = List<TypeParamId>()
+    let fn3 = newFunction(ref c, by: FunctionSymbol { name: "test", nameSpan: TextSpan { start: 49, length: 72 }, span: TextSpan { start: 49, length: 72 }, module: 0, kind: .testKeyword, file: 0, declIndex: 2, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids2, returnType: prim(PrimitiveKind.void) })
+    c.testBodies[fn3] = TestBody { decl: SyntaxRef { file: 0, declIndex: 2 }, hasValues: true, caseArgument: SyntaxRef { file: 0, declIndex: 2, memberIndex: 0, itemIndex: 0 } }
+    var ids4 = List<TypeParamId>()
+    let fn5 = newFunction(ref c, by: FunctionSymbol { name: "test", nameSpan: TextSpan { start: 49, length: 72 }, span: TextSpan { start: 49, length: 72 }, module: 0, kind: .testKeyword, file: 0, declIndex: 2, memberIndex: -1, owner: -1, iface: -1, isAbstract: false, typeParams: move ids4, returnType: prim(PrimitiveKind.void) })
+    c.testBodies[fn5] = TestBody { decl: SyntaxRef { file: 0, declIndex: 2 }, hasValues: true, caseArgument: SyntaxRef { file: 0, declIndex: 2, memberIndex: 0, itemIndex: 1 } }
+    c.functionTypes.append(FunctionData { parameters: List<Type>(), ret: prim(PrimitiveKind.i64), errorSets: List<ErrorSetId>(), effects: List<string>() })
+    let invoke = invokeSymbol(ref c, for: makeType(.function, at: c.functionTypes.length - 1))
+    showBody(ref c, for: fn1)
+    showBody(ref c, for: fn3)
+    showBody(ref c, for: fn5)
+    showBody(ref c, for: invoke)
+    print($"instantiationErrors +{c.instantiationErrors.length}")
+}
+
+void sectionRequires() {
+    print("== requires")
+    {
+    var c = newCtx()
+    addSource(ref c, for: "i32 positive(i32 n) expects n > 0 && n < 1000 => n\n\ni32 pair(i32 a, by i32 b = 0) expects b > 0 => a\n\nlet x = positive(0)\nlet y = positive(5)\nlet z = pair(1)\nlet v = pair(x, by: 1)\nlet u = pair(2, by: 0)\nprint($\"{x}{y}{z}{v}{u}\")\n", as: "main")
+    c.entryModule = 0
+    let p0 = newLocal(ref c, by: LocalSymbol { name: "n", type: prim(PrimitiveKind.i32), kind: .parameter, isParameter: true, ordinal: 0 })
+    let callee1 = newFunction(ref c, by: FunctionSymbol { name: "positive", module: 0, file: 0 })
+    c.functions[callee1].parameters.append(p0)
+    let e2 = addLocal(ref c, from: BLocal { span: TextSpan { start: 28, length: 1 }, local: p0 })
+    let e3 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 32, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e3, to: Constant { kind: .integer, integer: bigFromI64(0) })
+    let e1 = addBinary(ref c, from: BBinary { span: TextSpan { start: 28, length: 5 }, op: .gt, left: e2, right: e3, type: prim(PrimitiveKind.bool) })
+    let e5 = addLocal(ref c, from: BLocal { span: TextSpan { start: 37, length: 1 }, local: p0 })
+    let e6 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 41, length: 4 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e6, to: Constant { kind: .integer, integer: bigFromI64(1000) })
+    let e4 = addBinary(ref c, from: BBinary { span: TextSpan { start: 37, length: 8 }, op: .lt, left: e5, right: e6, type: prim(PrimitiveKind.bool) })
+    let e0 = addBinary(ref c, from: BBinary { span: TextSpan { start: 28, length: 17 }, op: .logicalAnd, left: e1, right: e4, type: prim(PrimitiveKind.bool) })
+    c.functions[callee1].requirements.append(e0)
+    {
+        var callArgs = List<Location>()
+        callArgs.append(Location { file: 0, span: TextSpan { start: 119, length: 1 } })
+        var arguments = List<BExpr>()
+        var argumentFiles = List<FileId>()
+    let e7 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 119, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e7, to: Constant { kind: .integer, integer: bigFromI64(0) })
+        arguments.append(e7)
+        argumentFiles.append(0)
+        c.requiresChecks.append(RequiresCheck { source: 0, callSpan: TextSpan { start: 110, length: 11 }, callArgs: move callArgs, callee: callee1, arguments: move arguments, argumentFiles: move argumentFiles })
+    }
+    {
+        var callArgs = List<Location>()
+        callArgs.append(Location { file: 0, span: TextSpan { start: 139, length: 1 } })
+        var arguments = List<BExpr>()
+        var argumentFiles = List<FileId>()
+    let e8 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 139, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e8, to: Constant { kind: .integer, integer: bigFromI64(5) })
+        arguments.append(e8)
+        argumentFiles.append(0)
+        c.requiresChecks.append(RequiresCheck { source: 0, callSpan: TextSpan { start: 130, length: 11 }, callArgs: move callArgs, callee: callee1, arguments: move arguments, argumentFiles: move argumentFiles })
+    }
+    let p2 = newLocal(ref c, by: LocalSymbol { name: "a", type: prim(PrimitiveKind.i32), kind: .parameter, isParameter: true, ordinal: 0 })
+    let p3 = newLocal(ref c, by: LocalSymbol { name: "b", type: prim(PrimitiveKind.i32), kind: .parameter, isParameter: true, ordinal: 1 })
+    let callee4 = newFunction(ref c, by: FunctionSymbol { name: "pair", module: 0, file: 0 })
+    c.functions[callee4].parameters.append(p2)
+    c.functions[callee4].parameters.append(p3)
+    let e10 = addLocal(ref c, from: BLocal { span: TextSpan { start: 90, length: 1 }, local: p3 })
+    let e11 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 94, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e11, to: Constant { kind: .integer, integer: bigFromI64(0) })
+    let e9 = addBinary(ref c, from: BBinary { span: TextSpan { start: 90, length: 5 }, op: .gt, left: e10, right: e11, type: prim(PrimitiveKind.bool) })
+    c.functions[callee4].requirements.append(e9)
+    {
+        var callArgs = List<Location>()
+        callArgs.append(Location { file: 0, span: TextSpan { start: 155, length: 1 } })
+        var arguments = List<BExpr>()
+        var argumentFiles = List<FileId>()
+    let e12 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 155, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e12, to: Constant { kind: .integer, integer: bigFromI64(1) })
+        arguments.append(e12)
+        argumentFiles.append(0)
+    let e13 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 79, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e13, to: Constant { kind: .integer, integer: bigFromI64(0) })
+        arguments.append(e13)
+        argumentFiles.append(0)
+        c.requiresChecks.append(RequiresCheck { source: 0, callSpan: TextSpan { start: 150, length: 7 }, callArgs: move callArgs, callee: callee4, arguments: move arguments, argumentFiles: move argumentFiles })
+    }
+    {
+        var callArgs = List<Location>()
+        callArgs.append(Location { file: 0, span: TextSpan { start: 171, length: 1 } })
+        callArgs.append(Location { file: 0, span: TextSpan { start: 178, length: 1 } })
+        var arguments = List<BExpr>()
+        var argumentFiles = List<FileId>()
+    let e14 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 171, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+        arguments.append(e14)
+        argumentFiles.append(0)
+    let e15 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 178, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e15, to: Constant { kind: .integer, integer: bigFromI64(1) })
+        arguments.append(e15)
+        argumentFiles.append(0)
+        c.requiresChecks.append(RequiresCheck { source: 0, callSpan: TextSpan { start: 166, length: 14 }, callArgs: move callArgs, callee: callee4, arguments: move arguments, argumentFiles: move argumentFiles })
+    }
+    {
+        var callArgs = List<Location>()
+        callArgs.append(Location { file: 0, span: TextSpan { start: 194, length: 1 } })
+        callArgs.append(Location { file: 0, span: TextSpan { start: 201, length: 1 } })
+        var arguments = List<BExpr>()
+        var argumentFiles = List<FileId>()
+    let e16 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 194, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e16, to: Constant { kind: .integer, integer: bigFromI64(2) })
+        arguments.append(e16)
+        argumentFiles.append(0)
+    let e17 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 201, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e17, to: Constant { kind: .integer, integer: bigFromI64(0) })
+        arguments.append(e17)
+        argumentFiles.append(0)
+        c.requiresChecks.append(RequiresCheck { source: 0, callSpan: TextSpan { start: 189, length: 14 }, callArgs: move callArgs, callee: callee4, arguments: move arguments, argumentFiles: move argumentFiles })
+    }
+    checkRequires(ref c)
+    print("one")
+    showDiags(in c, from: 0)
+    }
+    {
+    var c = newCtx()
+    addSource(ref c, for: "let pd = 1234\nlet q = pair(1)\nprint($\"{pd}{q}\")\n", as: "main")
+    c.entryModule = 0
+    addSource(ref c, for: "i32 pair(i32 a, by i32 b = 0) expects b > 0 => a\n", as: "main")
+    let p0 = newLocal(ref c, by: LocalSymbol { name: "a", type: prim(PrimitiveKind.i32), kind: .parameter, isParameter: true, ordinal: 0 })
+    let p1 = newLocal(ref c, by: LocalSymbol { name: "b", type: prim(PrimitiveKind.i32), kind: .parameter, isParameter: true, ordinal: 1 })
+    let callee2 = newFunction(ref c, by: FunctionSymbol { name: "pair", module: 0, file: 1 })
+    c.functions[callee2].parameters.append(p0)
+    c.functions[callee2].parameters.append(p1)
+    let e1 = addLocal(ref c, from: BLocal { span: TextSpan { start: 38, length: 1 }, local: p1 })
+    let e2 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 42, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e2, to: Constant { kind: .integer, integer: bigFromI64(0) })
+    let e0 = addBinary(ref c, from: BBinary { span: TextSpan { start: 38, length: 5 }, op: .gt, left: e1, right: e2, type: prim(PrimitiveKind.bool) })
+    c.functions[callee2].requirements.append(e0)
+    {
+        var callArgs = List<Location>()
+        callArgs.append(Location { file: 0, span: TextSpan { start: 27, length: 1 } })
+        var arguments = List<BExpr>()
+        var argumentFiles = List<FileId>()
+    let e3 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 27, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e3, to: Constant { kind: .integer, integer: bigFromI64(1) })
+        arguments.append(e3)
+        argumentFiles.append(0)
+    let e4 = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 27, length: 1 }, type: prim(PrimitiveKind.i32), value: Constant { kind: .integer } })
+    setConstant(ref c, for: e4, to: Constant { kind: .integer, integer: bigFromI64(0) })
+        arguments.append(e4)
+        argumentFiles.append(1)
+        c.requiresChecks.append(RequiresCheck { source: 0, callSpan: TextSpan { start: 22, length: 7 }, callArgs: move callArgs, callee: callee2, arguments: move arguments, argumentFiles: move argumentFiles })
+    }
+    checkRequires(ref c)
+    print("two")
+    showDiags(in c, from: 0)
+    }
+}
+
+void sectionNoMain() {
+    print("== noMain")
+    {
+    var c = newCtx()
+    addSource(ref c, for: "struct P {\n    i64 x\n}\n", as: "main")
+    c.entryModule = 0
+    
+    bindAll(ref c)
+    print("app")
+    showDiags(in c, from: 0)
+    }
+    {
+    var c = newCtx()
+    addSource(ref c, for: "struct P {\n    i64 x\n}\n", as: "main")
+    c.entryModule = 0
+    c.library = true
+    bindAll(ref c)
+    print("library")
+    showDiags(in c, from: 0)
+    }
+    {
+    var c = newCtx()
+    addSource(ref c, for: "struct P {\n    i64 x\n}\n", as: "main")
+    c.entryModule = 0
+    c.includeTests = true
+    bindAll(ref c)
+    print("tests")
+    showDiags(in c, from: 0)
+    }
+    {
+    var c = newCtx()
+    addSource(ref c, for: "struct P {\n    i64 x\n}\n\nstruct P {\n    i64 y\n}\n", as: "main")
+    c.entryModule = 0
+    
+    c.diagnostics.append(Diag { code: "BYN2006", file: 0, span: TextSpan { start: 31, length: 1 }, message: "`P` is declared twice", label: "already declared on line 1", help: "", fixSpan: TextSpan { start: 0, length: 0 }, related: List<Related>() })
+    bindAll(ref c)
+    print("errors")
+    showDiags(in c, from: 0)
+    }
+}
+
+void sectionBindAllDrains() {
+    print("== bindAllDrains")
+    var c = newCtx()
+    addSource(ref c, for: "union error E {\n    @exitCode(42)\n    bad\n}\n\nvoid run() {\n}\n\ntest \"t\" {\n    let y = 2\n}\n", as: "main")
+    c.entryModule = 0
+    let es = newErrorSet(ref c, by: ErrorSetSymbol { name: "E", module: 0, file: 0, declIndex: 0 })
+    let ev = newErrorVariant(ref c, by: ErrorVariantSymbol { name: "bad", file: 0, declIndex: 0, set: es })
+    c.errorSets[es].variants.append(ev)
+    c.exitCodes.append(ExitCodeRef { variant: ev, attribute: SyntaxRef { file: 0, declIndex: 0, memberIndex: 0, itemIndex: 0 } })
+    let fnTest = newFunction(ref c, by: FunctionSymbol { name: "test_t", module: 0, file: 0, kind: .testKeyword })
+    c.modules[0].allFunctions.append(fnTest)
+    c.testBodies[fnTest] = TestBody { decl: SyntaxRef { file: 0, declIndex: 2 }, caseArgument: SyntaxRef {} }
+    bindAll(ref c)
+    print($"exitCode {c.errorVariants[ev].exitCode}")
+    print($"test body {(c.functions[fnTest].body != -1 ? "yes" : "no")}")
+}
+
+void sectionBindAllConstantsAndDefaults() {
+    print("== bindAllConstantsAndDefaults")
+    var c = newCtx()
+    addSource(ref c, for: "const a: i64 = 1\nconst b: i64\n\nstruct P {\n    i64 x = 3\n    i64 y\n}\n", as: "main")
+    c.entryModule = 0
+    c.library = true
+    let ka = newConst(ref c, by: ConstSymbol { name: "a", nameSpan: TextSpan { start: 6, length: 1 }, span: TextSpan { start: 0, length: 16 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].allConstants.append(ka)
+    let kb = newConst(ref c, by: ConstSymbol { name: "b", nameSpan: TextSpan { start: 23, length: 1 }, span: TextSpan { start: 17, length: 12 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].allConstants.append(kb)
+    let st = newStruct(ref c, by: StructSymbol { name: "P", nameSpan: TextSpan { start: 38, length: 1 }, span: TextSpan { start: 38, length: 1 }, module: 0, file: 0, declIndex: 2 })
+    c.modules[0].structs.append(st)
+    c.structs[st].fields.append(newField(ref c, by: FieldSymbol { name: "x", owner: st, file: 0, declIndex: 2, memberIndex: 0, type: prim(PrimitiveKind.i64), hasDefault: true }))
+    c.structs[st].fields.append(newField(ref c, by: FieldSymbol { name: "y", owner: st, file: 0, declIndex: 2, memberIndex: 1, type: prim(PrimitiveKind.i64), hasDefault: false }))
+    bindAll(ref c)
+    print($"const a state {c.consts[ka].state} type {c.consts[ka].type == -1 ? "unset" : typeDisplay(ref c, by: c.consts[ka].type)}")
+    print($"const b state {c.consts[kb].state} type {c.consts[kb].type == -1 ? "unset" : typeDisplay(ref c, by: c.consts[kb].type)}")
+    for f in copyIds(in c.structs[st].fields) { print($"field {c.fields[f].name} default {c.fields[f].defaultValue == -1 ? "null" : "set"}") }
+    showDiags(in c, from: 0)
+}
+
+void sectionDrainInstanceMethods() {
+    print("== drainInstanceMethods")
+    var c = newCtx()
+    addSource(ref c, for: "struct Tri {\n    i64 n\n}\n\nstruct Box<T> {\n    T v\n    void get() {\n        let k: i64 = 1\n    }\n}\n", as: "main")
+    c.entryModule = 0
+    let st0 = newStruct(ref c, by: StructSymbol { name: "Tri", nameSpan: TextSpan { start: 7, length: 3 }, span: TextSpan { start: 7, length: 3 }, module: 0, file: 0, declIndex: 0 })
+    c.modules[0].structs.append(st0)
+    c.modules[0].types["Tri"] = structTypeOf(st0)
+    let st1 = newStruct(ref c, by: StructSymbol { name: "Box", nameSpan: TextSpan { start: 33, length: 3 }, span: TextSpan { start: 33, length: 3 }, module: 0, file: 0, declIndex: 1 })
+    c.modules[0].structs.append(st1)
+    c.modules[0].types["Box"] = structTypeOf(st1)
+    var ids2 = List<TypeParamId>()
+    c.structs[st0].typeParams = move ids2
+    var ids3 = List<InterfaceId>()
+    let tp4 = newTypeParam(ref c, by: TypeParam { name: "T", constraints: move ids3 })
+    var ids5 = List<TypeParamId>()
+    ids5.append(tp4)
+    c.structs[st1].typeParams = move ids5
+    var ids6 = List<TypeParamId>()
+    let fn7 = newFunction(ref c, by: FunctionSymbol { name: "get", nameSpan: TextSpan { start: 59, length: 3 }, span: TextSpan { start: 59, length: 3 }, module: 0, kind: .method, file: 0, declIndex: 1, memberIndex: 1, owner: st1, iface: -1, isAbstract: false, typeParams: move ids6, returnType: prim(PrimitiveKind.void) })
+    c.structs[st1].methods.append(fn7)
+    c.library = true
+    var args = List<Type>()
+    args.append(structTypeOf(st0))
+    let inst = instantiateType(ref c, for: structTypeOf(st1), by: in args, from: 0, at: TextSpan { start: 30, length: 6 })
+    for x in c.instantiationWork { print($"instance {x.kind == .bindFunction && x.memberIndex != -1 ? c.functions[x.memberIndex].name : "null"}") }
+    let start = c.diagnostics.length
+    bindAll(ref c)
+    let ms = copyIds(in c.structs[typeIndex(inst)].methods)
+    for m in ms {
+        print($"{c.functions[m].name} {kindText(c.functions[m].kind)} body {yn(b: c.functions[m].body != -1)}")
+        let ls = copyIds(in c.functions[m].locals)
+        for l in ls { print($"local {c.locals[l].name} {typeDisplay(ref c, by: c.locals[l].type)}") }
+    }
+    showDiags(in c, from: start)
+    print($"instantiationErrors +{c.instantiationErrors.length}")
+}
+
+i32 main() {
+    sectionInstantiating()
+    sectionConstraints()
+    sectionInstantiateFunction()
+    sectionInstantiateType()
+    sectionTemplateOf()
+    sectionInvokeSymbol()
+    sectionErrorSets()
+    sectionBindConstant()
+    sectionReportHeld()
+    sectionDefaults()
+    sectionBindFunction()
+    sectionBindMainAndCases()
+    sectionRequires()
+    sectionNoMain()
+    sectionBindAllDrains()
+    sectionBindAllConstantsAndDefaults()
+    sectionDrainInstanceMethods()
+    return 0
+}

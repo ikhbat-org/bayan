@@ -1,0 +1,59 @@
+error BYN0007: empty char literal
+  --> input.byn:1:1
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN1012: this expression does nothing as a statement
+  --> input.byn:1:1
+
+  1 │ ''
+    │ ^^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+  --> input.byn:2:1
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+  --> input.byn:3:2
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+  --> input.byn:4:2
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+  --> input.byn:5:2
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+  --> input.byn:6:1
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+✗ build failed: 7 errors, 0 warnings
+  explain: bayan explain BYN0007

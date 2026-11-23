@@ -1,0 +1,26 @@
+== tests/cases/diag/ref-out-return-arena-two-levels.byn
+34..62 blockStmt
+40..60 returnStmt value 47..60
+47..60 callExpr
+47..48 nameExpr
+58..59 nameExpr
+99..128 blockStmt
+105..126 returnStmt value 112..126
+112..126 callExpr
+115..116 nameExpr
+124..125 nameExpr
+142..264 blockStmt
+148..161 localDecl
+159..161 literalExpr string
+166..246 blockStmt
+176..201 localDecl
+194..201 callExpr
+210..240 assignStmt assign target 210..214 value 217..240
+210..214 nameExpr
+217..240 callExpr
+221..226 literalExpr string
+234..239 nameExpr
+251..262 exprStmt
+251..262 callExpr
+257..261 nameExpr
+251..262 callExpr

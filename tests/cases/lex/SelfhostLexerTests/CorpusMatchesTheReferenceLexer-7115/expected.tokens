@@ -1,0 +1,14 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:24 Identifier `بيان`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\u{C}`
+
+  1 │ foo Bar _x camelCase2� بيان μετρητής x_1 é
+    │                      ^

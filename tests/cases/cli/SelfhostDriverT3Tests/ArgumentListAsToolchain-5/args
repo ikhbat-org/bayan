@@ -1,0 +1,8 @@
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/args-debug-linux-x64/cs-out
+--mode
+debug
+--target
+linux-x64

@@ -1,0 +1,5 @@
+== dyn diagnostics
+BYN2804 16:13 `i64` is not an interface help: name an `interface` after `dyn ref`
+BYN2808 13:5 `IShape` cannot be used with `dyn`: `pick` is generic help: use a `where` constraint instead
+BYN2808 14:5 `ISized` cannot be used with `dyn`: `Item` is an associated type help: use a `where` constraint instead
+BYN2809 15:5 `dyn IPlain` is not supported yet help: write `dyn ref IPlain`

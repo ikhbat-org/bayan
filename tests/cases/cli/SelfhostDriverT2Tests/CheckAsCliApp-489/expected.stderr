@@ -1,0 +1,8 @@
+error BYN2114: `i32` is not a struct
+  --> <repo>/tmp/t2/diag/not-a-struct/not-a-struct.byn:2:9
+
+  2 │ let m = n with { value: 1 }
+    │         ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2114

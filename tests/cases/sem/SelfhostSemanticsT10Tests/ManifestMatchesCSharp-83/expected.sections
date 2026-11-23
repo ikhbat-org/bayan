@@ -1,0 +1,5 @@
+== case inline/style-other-type
+errors 1
+error BYN3102: `style` must be a `Style { … }`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Grammar { } }
+    │                                                     ^^^^^^^^^^^

@@ -1,0 +1,7 @@
+== s45
+switchExpr|i32|3880:34
+value local:Shape=sh
+arm 3892:12 constantPattern[3892:7]:Shape(errorExpr:?) guard - value literal:i32=1
+arm 3906:6 bindPattern[3906:1]:Shape_(-) guard - value literal:i32=0
+BYN2705 116:27 variant `circle` carries a payload ||pass it: `Shape.circle(r)`|
+BYN2712 116:41 `_` hides future cases of `Shape`, declared in this package |matches every case added later|list the cases instead: .circle, .square, .empty|

@@ -1,0 +1,8 @@
+one.
+/// Do7 line two.
+struct S
+//// not a do $"{{"
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+ckeò
+test assert property fuzz model foreach new goto
+/// cafÃ© = 2

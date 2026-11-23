@@ -1,0 +1,17 @@
+1:3 CharLiteral `'a'`
+1:7 CharLiteral `'\n'`
+1:12 CharLiteral `'\u{1F600}'`
+1:24 CharLiteral `'\''`
+1:29 CharLiteral `'é'`
+1:33 CharLiteral `'\\'`
+1:38 CharLiteral `'\0'`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+4:1 Identifier `fooBar`
+4:8 Identifier `_x`
+4:11 Identifier `camelCase2`
+4:22 Identifier `بيان`
+4:27 Identifier `μετρητής`
+4:36 Identifier `x_1`
+4:40 Identifier `é`
+5:1 EndOfFile

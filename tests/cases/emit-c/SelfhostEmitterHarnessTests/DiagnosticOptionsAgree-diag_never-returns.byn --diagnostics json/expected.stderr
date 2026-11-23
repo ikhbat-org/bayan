@@ -1,0 +1,1 @@
+{"code":"BYN2404","severity":"error","file":"input.byn","span":{"start":30,"end":31,"line":3,"column":1,"endLine":3,"endColumn":2},"message":"`halt` returns `never` but can reach its end","label":null,"help":"end every path with `panic(…)` or a call that never returns","fixes":[]}

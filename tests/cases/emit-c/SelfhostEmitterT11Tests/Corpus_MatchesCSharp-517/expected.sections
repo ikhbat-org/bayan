@@ -1,0 +1,15 @@
+== cases
+0 (*bynh_slot_map_str_opt_str(&l1_env, BYN_STR("HOME", 4), ((bynt_opt_str){0})))
+1 (*bynh_slot_map_str_opt_str(&l1_env, BYN_STR("BAYAN_T5_ADDED", 14), ((bynt_opt_str){0})))
+2 ((bynt_opt_str){true, BYN_STR("added", 5)})
+4 ((bynt_span_str){l0_show.v, 2})
+5 ((bynt_opt_map_str_opt_str){true, l1_env})
+6 (*bynh_slot_map_str_opt_str(&l1_env, BYN_STR("HOME", 4), ((bynt_opt_str){0})))
+7 ((bynt_opt_str){true, BYN_STR("/overridden", 11)})
+8 bynh_remove_map_str_opt_str(&l1_env, BYN_STR("BAYAN_T5_ADDED", 14))
+10 ((bynt_span_str){l0_show.v, 2})
+11 ((bynt_opt_map_str_opt_str){true, l1_env})
+12 (*bynh_slot_map_str_opt_str(&l9_absent, BYN_STR("BAYAN_T5_ABSENT", 15), ((bynt_opt_str){0})))
+14 ((bynt_span_str){l10_probe.v, 2})
+15 ((bynt_opt_map_str_opt_str){true, l9_absent})
+count 16

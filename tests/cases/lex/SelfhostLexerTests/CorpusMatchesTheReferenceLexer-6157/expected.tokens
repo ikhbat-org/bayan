@@ -1,0 +1,65 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 StringLiteral `"{$"`
+1:17 OpenBrace `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:37 OpenBrace `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 Identifier `x`
+1:42 InterpolationEnd `}`
+1:43 InterpolatedStringEnd `"`
+1:44 CloseBrace `}`
+1:45 StringLiteral `"}"`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
+1:56 Identifier `b`
+2:1 CharLiteral `' `
+2:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  1 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}"}"b
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}"}"b
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{${$"{x}"}"}"}"}"}"}"b
+    │                                     ^
+
+error BYN0008: unterminated char literal
+
+  2 │ ' 
+    │ ^^
+    │
+  help: close it with `'`

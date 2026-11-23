@@ -1,0 +1,7 @@
+// line comment
+ '\q'
+
+c >>= 1
+b
+ let effect = 2
+ 

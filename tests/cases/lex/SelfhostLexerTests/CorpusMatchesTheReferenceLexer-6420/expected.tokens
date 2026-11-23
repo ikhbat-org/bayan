@@ -1,0 +1,59 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+3:1 Identifier `stray`
+3:7 CloseBrace `}`
+3:9 Identifier `here`
+3:13 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open$`
+4:8 InterpolatedStringEnd `"`
+4:9 Identifier `a`
+4:10 OpenBrace `{`
+4:11 Identifier `b`
+4:12 CloseBrace `}`
+4:13 Identifier `clet`
+4:18 LawKeyword `law`
+4:22 Equals `=`
+4:24 IntegerLiteral `3`
+5:1 IsKeyword `is`
+5:4 AndKeyword `and`
+5:8 OrKeyword `or`
+5:11 NotKeyword `not`
+5:15 WithKeyword `with`
+5:20 MoveKeyword `move`
+5:25 RefKeyword `ref`
+5:29 OutKeyword `out`
+5:33 ThisKeyword `this`
+5:38 NullKeyword `null`
+5:43 TrueKeyword `true`
+5:48 FalseKeyword `false`
+5:54 ComptimeKeyword `comptime`
+5:63 CheckedKeyword `checked`
+7:1 LetKeyword `let`
+7:5 EffectKeyword `effect`
+7:12 Equals `=`
+7:14 IntegerLiteral `2`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ stray } here"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

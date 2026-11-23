@@ -1,0 +1,30 @@
+== params
+diag BYN2006 2:6 `p` is declared twice | already declared on line 1 | 
+diag BYN2006 6:6 `q` is declared twice | already declared on line 4 | 
+diag BYN2006 8:6 `r` is declared twice | already declared on line 7 | 
+diag BYN2006 10:6 `s` is declared twice | already declared on line 9 | 
+diag BYN2006 12:6 `t` is declared twice | already declared on line 11 | 
+fn p 2
+fn q 2
+fn r 1
+fn s 1
+fn t 1
+fn u 2
+fn v 2
+fn w 2
+fn x 2
+all p function module static=False at=1:6 file=tmp/t12-cases/params/main.byn map=[]
+all p function module static=False at=3:6 file=tmp/t12-cases/params/main.byn map=[]
+all q function module static=False at=4:6 file=tmp/t12-cases/params/main.byn map=[]
+all q function module static=False at=5:6 file=tmp/t12-cases/params/main.byn map=[]
+all r function module static=False at=7:6 file=tmp/t12-cases/params/main.byn map=[]
+all s function module static=False at=9:6 file=tmp/t12-cases/params/main.byn map=[]
+all t function module static=False at=11:6 file=tmp/t12-cases/params/main.byn map=[]
+all u function module static=False at=13:6 file=tmp/t12-cases/params/main.byn map=[]
+all u function module static=False at=14:6 file=tmp/t12-cases/params/main.byn map=[]
+all v function module static=False at=15:6 file=tmp/t12-cases/params/main.byn map=[]
+all v function module static=False at=16:6 file=tmp/t12-cases/params/main.byn map=[]
+all w function module static=False at=17:6 file=tmp/t12-cases/params/main.byn map=[]
+all w function module static=False at=18:6 file=tmp/t12-cases/params/main.byn map=[]
+all x function module static=False at=19:6 file=tmp/t12-cases/params/main.byn map=[]
+all x function module static=False at=20:6 file=tmp/t12-cases/params/main.byn map=[]

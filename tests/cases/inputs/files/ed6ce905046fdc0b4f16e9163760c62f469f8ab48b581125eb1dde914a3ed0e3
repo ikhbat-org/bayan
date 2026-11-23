@@ -1,0 +1,13 @@
+let c =  3
+‏
+‮//// not a doc comment
+ ạ̇
+/// Doc line two.
+struct S
+//// not a doc comment
+b
+
+0xFFs
+
+{ x = 1 }}" $""
+

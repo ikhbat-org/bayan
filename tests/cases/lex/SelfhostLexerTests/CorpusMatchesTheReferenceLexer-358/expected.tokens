@@ -1,0 +1,36 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `x`
+1:4 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+2:1 Identifier `nt`
+4:15 Identifier `a`
+    doc `/// \u{6}Doc line one.\n/// Doc line two.`
+7:4 Identifier `comment`
+7:12 Star `*`
+7:13 Slash `/`
+7:15 Identifier `a`
+9:1 LetKeyword `let`
+9:5 EffectKeyword `effect`
+9:12 Equals `=`
+9:14 IntegerLiteral `2`
+11:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ // block
+    │   │  +++++++
+    │ 4 │ // comment
+    │   │ ++++++++++
+    │ 5 │  a

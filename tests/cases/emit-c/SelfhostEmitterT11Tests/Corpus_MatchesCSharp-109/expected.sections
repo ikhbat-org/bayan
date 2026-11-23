@@ -1,0 +1,3 @@
+== cases
+0 byn_div_i64(INT64_C(10), l0_zero, byn_file_0, 2)
+count 1

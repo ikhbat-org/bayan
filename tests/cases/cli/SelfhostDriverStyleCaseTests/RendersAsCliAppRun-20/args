@@ -1,0 +1,4 @@
+--color
+always
+check
+<repo>/tmp/t7-style/diag-error-fix-always/tally/main.byn

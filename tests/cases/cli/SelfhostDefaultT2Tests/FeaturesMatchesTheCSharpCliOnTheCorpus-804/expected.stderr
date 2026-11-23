@@ -1,0 +1,9 @@
+error BYN2230: `onPanic` is now `handler`
+  --> <repo>/tests/cases/diag/panic-on-panic-renamed.byn:7:11
+
+  7 │     Panic.onPanic = onCrash
+    │           ^^^^^^^ the old name
+    │
+  help: rename it `handler`
+    │ 7 │     Panic.handler = onCrash
+    │   │           +++++++

@@ -1,0 +1,14 @@
+== tests/cases/diag/input-csharp-type-name-where.byn
+31..32 literalExpr integer
+31..32 literalExpr integer
+31..32 literalExpr integer
+46..70 blockStmt
+52..68 exprStmt
+52..68 callExpr
+58..67 interpolatedExpr
+61..65 callExpr
+63..64 literalExpr integer
+52..68 callExpr
+31..32 literalExpr integer
+31..32 literalExpr integer
+31..32 literalExpr integer

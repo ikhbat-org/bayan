@@ -1,0 +1,8 @@
+error BYN2013: the program has two entry points
+  --> <repo>/tmp/t27-diag/RendersWithoutHelpOrFix/input.byn:4:6
+
+  4 │ void main() {
+    │      ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2013

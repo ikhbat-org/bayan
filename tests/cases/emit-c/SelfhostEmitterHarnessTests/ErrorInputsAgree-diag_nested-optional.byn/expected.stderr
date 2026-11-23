@@ -1,0 +1,8 @@
+error BYN2024: `i64??` is already optional
+  --> input.byn:2:8
+
+  2 │ let x: MaybeCount? = null
+    │        ^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2024

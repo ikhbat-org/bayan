@@ -1,0 +1,3 @@
+build
+--emit-c
+range-binds-looser-than-arithmetic.byn

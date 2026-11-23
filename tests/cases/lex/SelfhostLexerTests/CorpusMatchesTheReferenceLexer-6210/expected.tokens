@@ -1,0 +1,40 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+3:1 OpenBrace `{`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 Identifier `x`
+3:9 InterpolationEnd `}`
+3:10 InterpolatedStringText `0x_ `
+3:14 InterpolatedStringEnd
+3:14 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ let b �= "bad \q escape"
+    │       ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b �= "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  3 │ {$"{$"{x}0x_ 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ {$"{$"{x}0x_ 
+    │     ^^ this string never ends
+    │
+  help: close it with `"`

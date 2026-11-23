@@ -1,0 +1,24 @@
+1:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\nb\r\n 1elet a= $ 1\r\n\r\n�\r\n'ab'\r\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �  """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  5 │ �
+    │ ^

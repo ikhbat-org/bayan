@@ -1,0 +1,18 @@
+1:1 LetKeyword `let`
+1:5 IntegerLiteral `3`
+1:6 NumericSuffix `ctorg`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 CharLiteral `'\u{110000}'`
+5:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

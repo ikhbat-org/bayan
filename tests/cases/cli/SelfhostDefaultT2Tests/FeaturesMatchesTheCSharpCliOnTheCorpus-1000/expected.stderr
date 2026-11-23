@@ -1,0 +1,5 @@
+error BYN2020: no enclosing loop is labeled `outer`
+  --> <repo>/tests/cases/diag/unknown-label.byn:2:11
+
+  2 │     break outer
+    │           ^^^^^

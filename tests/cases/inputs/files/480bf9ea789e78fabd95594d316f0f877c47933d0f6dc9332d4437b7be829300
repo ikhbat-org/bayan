@@ -1,0 +1,7 @@
+Package {
+    name: "local/inc",
+    version: "0.1.0",
+    edition: 2027,
+    kind: .lib,
+    test: Tests { mutation: 100 },
+}

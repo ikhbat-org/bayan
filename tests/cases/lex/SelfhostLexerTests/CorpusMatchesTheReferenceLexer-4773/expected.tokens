@@ -1,0 +1,70 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:29 Identifier `ετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+4:2 IntegerLiteral `0102`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7F}`
+
+  1 │ foo Bar _x camelCase2 بيان ��ετρητής x_1 é
+    │                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  1 │ foo Bar _x camelCase2 بيان ��ετρητής x_1 é
+    │                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �����0102
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ �����0102
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����0102
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����0102
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����0102
+    │     ^

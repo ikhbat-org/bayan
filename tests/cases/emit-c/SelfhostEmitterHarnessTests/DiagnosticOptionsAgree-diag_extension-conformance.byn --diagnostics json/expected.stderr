@@ -1,0 +1,1 @@
+{"code":"BYN2811","severity":"error","file":"input.byn","span":{"start":69,"end":93,"line":9,"column":1,"endLine":9,"endColumn":25},"message":"`extension Money : IShape` is not supported yet","label":"retroactive conformance","help":"list `IShape` on `Money`'s declaration","fixes":[]}

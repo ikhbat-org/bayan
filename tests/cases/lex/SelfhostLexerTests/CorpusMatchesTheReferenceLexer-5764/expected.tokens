@@ -1,0 +1,41 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 CharLiteral `'foo Bar _x camelCase2 بيان μετρητής xD_1 é`
+4:2 LetKeyword `let`
+4:6 Identifier `b`
+4:8 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:10 StringLiteral `"open`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │  'foo Bar _x camelCase2 بيان μετρητής xD_1 é
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character ```
+
+  4 │  let b = ` 2
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

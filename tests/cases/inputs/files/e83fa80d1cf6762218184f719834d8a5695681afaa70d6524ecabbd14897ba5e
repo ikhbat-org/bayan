@@ -1,0 +1,9 @@
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+
+/// Doc line two.
+ '\q'
+  = 1
+le ÿ = 2
+// ok þ €
+  """ c"text" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+ 

@@ -1,6 +1,6 @@
 # Bayān style guide
 
-Version: 0.3.3-dev (matches `bayan --version`)
+Version: 0.4.0-dev (matches `bayan --version`)
 Revisions applied: 0001–0024
 
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
@@ -1051,4 +1051,4 @@ const rotation = [
 ]
 ```
 
-`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use (not in 0.3).
+`@unformatted because "…"` is the only opt-out. It applies to declarations only; there are no comment toggles, and `bayan audit` lists every use (not in 0.4).

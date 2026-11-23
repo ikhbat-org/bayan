@@ -1,0 +1,7 @@
+foo Bar _x camelCase2 بي�ان μ�cτρητής x_1 é
+
+'a' '\n' '\u{1F�600}' '\'' 'é' '\\' '\0'
+ 1
+let � = 2
+// ok � in comment
+ 

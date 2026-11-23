@@ -1,0 +1,7 @@
+== diags.diag/dyn-readonly-mutation
+BYN2813 9:16 `next` takes `ref this`, but the receiver is `dyn ref readonly ICounter`
+  label declared `ref this`
+  help take `dyn ref ICounter`
+BYN2813 10:16 `skip` takes `ref this`, but the receiver is `dyn ref readonly ICounter`
+  label declared `ref this`
+  help take `dyn ref ICounter`

@@ -1,0 +1,16 @@
+1:1 IntegerLiteral `0xF__`
+2:2 IntegerLiteral `0xF`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  2 │  0xF�
+    │     ^

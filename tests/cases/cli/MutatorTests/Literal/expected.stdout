@@ -1,0 +1,7 @@
+<repo>/tmp/t27-mutate/Literal/lib.byn:2:12 emptyReturn `7` -> `0`: not reached
+<repo>/tmp/t27-mutate/Literal/lib.byn:2:12 literal `7` -> `8`: not reached
+<repo>/tmp/t27-mutate/Literal/lib.byn:2:12 literal `7` -> `6`: not reached
+<repo>/tmp/t27-mutate/Literal/lib.byn:6:12 emptyReturn `-5` -> `0`: not reached
+<repo>/tmp/t27-mutate/Literal/lib.byn:6:12 literal `-5` -> `-4`: not reached
+<repo>/tmp/t27-mutate/Literal/lib.byn:6:12 literal `-5` -> `-6`: not reached
+0 killed, 0 survived, 0 timeout, 6 not reached, 0 marked, 0 not emitted

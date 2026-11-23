@@ -1,0 +1,8 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@/root","capabilities":{}}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}
+{"fs":"write","path":"root/tmp/mutant/new.byn","text":"struct Mutant {}\n"}
+{"fs":"write","path":"root/.worktrees/x/new2.byn","text":"struct Worktree {}\n"}
+{"fs":"write","path":"root/src/new3.byn","text":"struct Iftar {}\n"}
+{"fs":"write","path":"elsewhere/z.byn","text":"struct Elsewhere {}\n"}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/root/tmp/mutant/new.byn","type":1},{"uri":"file://@WS@/root/.worktrees/x/new2.byn","type":1},{"uri":"file://@WS@/root/src/new3.byn","type":1},{"uri":"file://@WS@/elsewhere/z.byn","type":1}]}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

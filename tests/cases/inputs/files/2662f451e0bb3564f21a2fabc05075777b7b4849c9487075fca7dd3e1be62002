@@ -1,0 +1,17 @@
+struct Box { long weight }
+
+long add(int a, int b) {
+    return a + b
+}
+
+void main() {
+    let a = true
+    if a and not false {
+        print("x")
+    }
+    if a {
+        print("y")
+    }
+    let t: int = add(1, 2)
+    print($"{t}") if not a or t is not 0
+}

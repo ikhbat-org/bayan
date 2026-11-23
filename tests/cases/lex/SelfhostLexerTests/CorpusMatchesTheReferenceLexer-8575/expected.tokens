@@ -1,0 +1,43 @@
+1:1 Identifier `ạ̇`
+2:1 Identifier `Y`
+4:1 IntegerLiteral `1`
+4:2 Dot `.`
+5:4 Identifier `comment`
+5:12 Star `*`
+5:13 Slash `/`
+5:15 Identifier `a`
+6:1 IfKeyword `if`
+6:4 ElseKeyword `else`
+6:9 UnlessKeyword `unless`
+6:16 SwitchKeyword `switch`
+6:23 CaseKeyword `case`
+6:28 Identifier `defau`
+6:34 Identifier `lt`
+6:37 ForKeyword `for`
+6:41 InKeyword `in`
+6:44 WhileKeyword `while`
+6:50 DoKeyword `do`
+6:53 BreakKeyword `break`
+6:59 ContinueKeyword `continue`
+6:67 Dot `.`
+6:69 ReturnKeyword `return`
+6:76 YieldKeyword `yield`
+6:82 DeferKeyword `defer`
+6:88 ErrdeferKeyword `errdefer`
+6:97 UsingKeyword `using`
+6:103 ContextKeyword `context`
+7:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ if else unless switch case defau�lt for in while do break continue. return yield defer errdefer using context
+    │                                 ^

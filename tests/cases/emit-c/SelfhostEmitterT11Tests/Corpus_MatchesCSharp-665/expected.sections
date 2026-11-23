@@ -1,0 +1,21 @@
+== cases
+1 p_xs.len
+2 byn_strbuf_str(l0_line)
+3 bynh_add_list_i64(&l0_xs, INT64_C(1))
+4 bynh_add_list_i64(&l0_xs, INT64_C(2))
+5 bynh_add_list_i64(&l0_xs, INT64_C(3))
+6 bynh_add_list_i64(&l0_xs, INT64_C(4))
+7 bynh_add_list_i64(&l1_ys, INT64_C(7))
+8 bynh_add_list_i64(&l1_ys, INT64_C(8))
+9 bynh_add_list_i64(&l1_ys, INT64_C(9))
+11 bynh_span_list_i64(l1_ys)
+12 bynh_span_list_i64(l0_xs)
+13 bynh_replace_list_i64(&l0_xs, l3_front, ((bynt_span_i64){l1_ys.ptr, l1_ys.len}), byn_file_0, 22)
+14 ((bynt_span_i64){l1_ys.ptr, l1_ys.len})
+15 bynh_span_list_i64(l0_xs)
+17 ((bynt_span_i64){l4_empty.ptr, l4_empty.len})
+19 ((bynt_span_i64){l1_ys.ptr, l1_ys.len})
+20 bynh_span_list_i64(l0_xs)
+22 bynh_span_list_i64(l0_xs)
+23 bynh_span_list_i64(l0_xs)
+count 24

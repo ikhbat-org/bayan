@@ -1,0 +1,45 @@
+1:2 Identifier `a`
+1:6 CloseBrace `}`
+1:7 CharLiteral `'`
+2:1 Identifier `q`
+2:2 CharLiteral `'x`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����a  �}'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����a  �}'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����a  �}'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����a  �}'
+    │    ^
+
+error BYN0002: unexpected character `\u{11}`
+
+  1 │ ����a  �}'
+    │        ^
+
+error BYN0008: unterminated char literal
+
+  1 │ ����a  �}'
+    │          ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ q'x
+    │  ^^
+    │
+  help: close it with `'`

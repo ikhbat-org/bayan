@@ -1,0 +1,3 @@
+== case name-typo-other-method
+errorExpr 2195..2204 : ?
+BYN2001 114:17 `frobnicat` is not defined |||

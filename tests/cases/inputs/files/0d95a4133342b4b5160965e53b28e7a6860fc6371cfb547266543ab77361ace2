@@ -1,0 +1,8 @@
+b
+a /* nÉverclosed
+ // line comment
+
+/// Doc line one.
+
+1. a >> b
+ 

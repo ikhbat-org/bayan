@@ -1,0 +1,116 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 StringLiteral `$"�$"`
+1:55 OpenBrace `{`
+1:56 Identifier `x`
+1:57 CloseBrace `}`
+1:58 StringLiteral `"}"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:80 Identifier `ma`
+1:83 Identifier `cro`
+1:87 Identifier `select`
+1:94 BecomeKeyword `become`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 Identifier `ais`
+2:9 AndKeyword `and`
+2:13 OrKeyword `or`
+2:16 NotKeyword `not`
+2:20 WithKeyword `with`
+2:25 MoveKeyword `move`
+2:30 RefKeyword `ref`
+2:34 OutKeyword `out`
+2:38 ThisKeyword `this`
+2:43 NullKeyword `null`
+2:48 TrueKeyword `true`
+2:53 FalseKeyword `false`
+2:59 ComptimeKeyword `comptime`
+2:68 CheckedKeyword `checked`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}"}"}"}" ma�cro select become
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}"}"}"}" ma�cro select become
+    │                                                   ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}"}"}"}" ma�cro select become
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}"}"}"}" ma�cro select become
+    │                                                                                   ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}"}"}"}"}"}"}"}"}" ma�cro select become
+    │                                                                                        ^^^^^^ reserved
+    │                                                                                               for
+    │                                                                                               a
+    │                                                                                               future
+    │                                                                                               version
+    │                                                                                               of
+    │                                                                                               Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{ais and or not with move ref out this null true false comptime checked
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

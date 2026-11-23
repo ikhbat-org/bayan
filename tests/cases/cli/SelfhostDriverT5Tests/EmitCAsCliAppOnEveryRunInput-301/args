@@ -1,0 +1,5 @@
+build
+--emit-c
+--mode
+debug
+switch-move-loop.byn

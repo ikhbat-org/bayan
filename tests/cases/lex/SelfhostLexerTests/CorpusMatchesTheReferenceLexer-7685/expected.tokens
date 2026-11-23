@@ -1,0 +1,190 @@
+1:1 LetKeyword `let`
+1:5 Identifier `s`
+1:7 Equals `=`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 StringLiteral `$"{$"`
+1:62 OpenBrace `{`
+1:63 StringLiteral `$"{$"`
+1:68 OpenBrace `{`
+1:69 Identifier `x`
+1:70 CloseBrace `}`
+1:71 StringLiteral `"}"`
+1:74 CloseBrace `}`
+1:75 StringLiteral `"}"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:104 InterpolationEnd `}`
+1:105 InterpolatedStringEnd `"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
+3:1 StructKeyword `struct`
+3:8 UniqueKeyword `unique`
+3:15 UnionKeyword `union`
+3:21 EnumKeyword `enum`
+3:26 FlagsKeyword `flags`
+3:32 OpenKeyword `open`
+3:37 ExtensibleKeyword `extensible`
+3:48 InterfaceKeyword `interface`
+3:58 DelegateKeyword `delegate`
+3:67 ExtensionKeyword `extension`
+3:77 Identifier `derivaion`
+3:87 AttributeKeyword `attribute`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+5:1 IntegerLiteral `1_`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:14 MinusPercent `-%`
+6:17 StarPercent `*%`
+6:20 PlusBar `+|`
+6:23 Minus `-`
+6:25 StarBar `*|`
+6:28 PlusPlus `++`
+6:31 MinusMinus `--`
+7:3 Equals `=`
+7:5 IntegerLiteral `2`
+8:1 Identifier `macro`
+8:7 Identifier `select`
+8:14 BecomeKeyword `become`
+9:1 LetKeyword `let`
+9:5 LawKeyword `law`
+9:9 Equals `=`
+9:11 IntegerLiteral `3`
+10:2 Identifier `macro`
+10:8 Identifier `select`
+10:16 Identifier `ecome`
+11:1 Identifier `x_`
+12:1 IntegerLiteral `0b__`
+13:1 IntegerLiteral `1__`
+14:1 IntegerLiteral `0xF__`
+16:1 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  10 │  macro select �ecome
+     │  ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  10 │  macro select �ecome
+     │        ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  12 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  13 │ 1__
+     │  ^^
+     │
+     │ 13 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  14 │ 0xF__
+     │    ^^
+     │
+     │ 14 │ 0xF__
+     │    │    --

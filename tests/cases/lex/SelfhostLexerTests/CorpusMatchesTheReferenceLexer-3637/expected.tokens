@@ -1,0 +1,64 @@
+1:1 IntegerLiteral `0`
+1:2 CloseBrace `}`
+1:4 Identifier `b`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `total `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `b `
+2:25 InterpolationStart `{`
+2:26 Identifier `c`
+2:27 InterpolationEnd `}`
+2:28 InterpolatedStringEnd `"`
+2:29 CloseParen `)`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringText ` d`
+2:33 InterpolatedStringEnd `"`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolatedStringText `{{literal}}`
+2:48 InterpolatedStringEnd `"`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 Identifier `Point`
+2:59 OpenBrace `{`
+2:61 Identifier `x`
+2:63 Equals `=`
+2:65 IntegerLiteral `1`
+2:67 CloseBrace `}`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:71 InterpolatedStringStart `$"`
+2:73 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 StringLiteral `"open`
+5:4 RawStringLiteral `""" c}"text" u16"wide" "\u{202E} allowed in strings" "" "\�{48}i"\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │    """ c}"text" u16"wide" "� allowed in strings" "" "\�{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFB)
+
+  5 │    """ c}"text" u16"wide" "� allowed in strings" "" "\�{48}i"
+    │                                                       ^

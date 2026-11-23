@@ -1,0 +1,8 @@
+let a = "open
+
+let cafeÌ = 1
+ let b = "bad \q escape"
+ Ã/* /// Doc line two.
+
+in comment
+ 

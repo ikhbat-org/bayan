@@ -1,0 +1,11 @@
+1:4 CloseBracket `]`
+1:5 OpenBrace `{`
+1:7 CloseBrace `}`
+2:1 Comma `,`
+2:3 Dot `.`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  1 │    ]�{ }
+    │     ^

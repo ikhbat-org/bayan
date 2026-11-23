@@ -1,0 +1,4 @@
+== bind.probes.u12
+flags 6
+errorExpr:?[1486:7]=-()
+BYN2204 102:19 constant arithmetic overflows `i8` |||

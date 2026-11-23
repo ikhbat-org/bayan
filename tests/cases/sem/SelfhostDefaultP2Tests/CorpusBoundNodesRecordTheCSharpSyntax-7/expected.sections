@@ -1,0 +1,13 @@
+== tests/cases/run/assert-nested.byn
+82..142 globalStatement
+82..142 localDecl
+93..142 structLiteralExpr
+110..130 structLiteralExpr
+125..128 literalExpr integer
+139..140 literalExpr integer
+143..176 assertStmt
+150..176 binaryExpr eq right 173..176
+150..169 memberExpr
+150..163 memberExpr
+150..154 nameExpr
+173..176 literalExpr integer

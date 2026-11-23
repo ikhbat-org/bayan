@@ -1,0 +1,10 @@
+== 1
+warning BYN2311: `v` is never reassigned; declare it with `let`
+  --> $WORK/lint.byn:28:23
+
+  28 │     if (q is { x: var v }) { print($"{v}") }
+     │                       ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 28 │     if (q is { x: let v }) { print($"{v}") }
+     │    │                   +++

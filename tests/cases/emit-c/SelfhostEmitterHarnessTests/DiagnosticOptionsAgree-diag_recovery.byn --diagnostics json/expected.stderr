@@ -1,0 +1,1 @@
+{"code":"BYN1002","severity":"error","file":"input.byn","span":{"start":29,"end":32,"line":3,"column":5,"endLine":3,"endColumn":8},"message":"expected an expression, found keyword `let`","label":null,"help":null,"fixes":[]}

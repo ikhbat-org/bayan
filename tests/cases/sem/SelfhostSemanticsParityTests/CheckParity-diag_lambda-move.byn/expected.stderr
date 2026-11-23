@@ -1,0 +1,10 @@
+error BYN2782: cannot move out of a fresh value
+  --> tmp/t26-tests/cli/diag_lambda-move.byn/lambda-move.byn:2:29
+
+  2 │     let f: () -> i64 = move () => 0
+    │                             ^^^^^^^
+    │
+  help: remove the `move`; a fresh value needs none
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2782

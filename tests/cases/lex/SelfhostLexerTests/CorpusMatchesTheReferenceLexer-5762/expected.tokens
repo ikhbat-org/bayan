@@ -1,0 +1,43 @@
+1:2 StructKeyword `struct`
+1:9 UniqueKeyword `unique`
+1:16 UnionKeyword `union`
+1:22 EnumKeyword `enum`
+1:27 FlagsKeyword `flags`
+1:33 OpenKeyword `open`
+1:38 ExtensibleKeyword `extensible`
+1:49 InterfaceKeyword `interface`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 DerivationKeyword `derivation`
+1:89 AttributeKeyword `attribute`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │    ^

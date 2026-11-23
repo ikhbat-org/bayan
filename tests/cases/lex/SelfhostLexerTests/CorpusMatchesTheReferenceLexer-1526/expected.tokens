@@ -1,0 +1,11 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:1 Identifier `K`
+2:2 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

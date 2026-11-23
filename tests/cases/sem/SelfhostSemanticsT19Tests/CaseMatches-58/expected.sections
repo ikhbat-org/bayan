@@ -1,0 +1,4 @@
+== bind.probes.u15
+flags 2
+errorExpr:?[1547:4]=-()
+BYN2207 105:15 `+` cannot be applied to `string` |||

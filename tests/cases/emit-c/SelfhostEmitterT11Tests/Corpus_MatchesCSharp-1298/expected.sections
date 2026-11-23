@@ -1,0 +1,28 @@
+== helpers
+bynh_eq_main__Shape static bool bynh_eq_main__Shape(byn_main_Shape a, byn_main_Shape b) | static bool bynh_eq_main__Shape(byn_main_Shape a, byn_main_Shape b) {
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    case 0: return (a.u.circle.r == b.u.circle.r);
+    case 1: return (a.u.rect.w == b.u.rect.w)
+        && (a.u.rect.h == b.u.rect.h);
+    default: return true;
+    }
+}
+bynh_add_list_main__Shape static void bynh_add_list_main__Shape(bynt_list_main__Shape* l, byn_main_Shape v) | static void bynh_add_list_main__Shape(bynt_list_main__Shape* l, byn_main_Shape v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_main_Shape), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_eq_main__Slot static bool bynh_eq_main__Slot(bynt_main__Slot a, bynt_main__Slot b) | static bool bynh_eq_main__Slot(bynt_main__Slot a, bynt_main__Slot b) {
+    return byn_str_eq(a.label, b.label)
+        && bynh_eq_main__Shape(a.shape, b.shape);
+}
+bynh_at_list_main__Shape static byn_main_Shape* bynh_at_list_main__Shape(bynt_list_main__Shape s, int64_t i, bool from_end, const char* file, int line) | static byn_main_Shape* bynh_at_list_main__Shape(bynt_list_main__Shape s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_add_list_main__Token static void bynh_add_list_main__Token(bynt_list_main__Token* l, byn_main_Token v) | static void bynh_add_list_main__Token(bynt_list_main__Token* l, byn_main_Token v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_main_Token), l->alloc);
+    l->ptr[l->len++] = v;
+}

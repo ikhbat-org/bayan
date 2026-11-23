@@ -1,0 +1,33 @@
+== tests/cases/run/for-dyn-ref-temporary.byn
+237..303 blockStmt
+243..261 localDecl
+252..261 callExpr
+266..287 exprStmt
+266..287 callExpr
+266..268 nameExpr
+276..286 structLiteralExpr
+283..284 literalExpr integer
+292..301 returnStmt value 299..301
+299..301 nameExpr
+317..409 blockStmt
+323..407 forStmt
+348..354 callExpr
+355..407 blockStmt
+365..373 exprStmt
+365..373 callExpr
+365..366 nameExpr
+382..401 exprStmt
+382..401 callExpr
+388..400 interpolatedExpr
+391..398 callExpr
+391..392 nameExpr
+382..401 callExpr
+182..183 nameExpr
+182..183 nameExpr
+182..183 nameExpr
+182..183 nameExpr
+208..218 blockStmt
+210..216 assignStmt add target 210..211 value 215..216
+210..211 nameExpr
+210..211 nameExpr
+215..216 literalExpr integer

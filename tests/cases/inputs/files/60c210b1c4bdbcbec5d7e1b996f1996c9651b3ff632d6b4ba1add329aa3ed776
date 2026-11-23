@@ -1,0 +1,11 @@
+let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+let c =  3
+0x_
+ 0x
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+'\u{110000}'
+error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+
+' \'' 'é' '\\' '\0O
+

@@ -1,0 +1,18 @@
+error BYN2610: `fail` cannot leave a `defer` or `defer failing` body
+  --> <repo>/tmp/t2/diag/fail-in-defer/fail-in-defer.byn:7:9
+
+  7 │         fail ParseError.empty
+    │         ^^^^
+
+error BYN2602: `f` can fail; handle the error or pass it on
+  --> <repo>/tmp/t2/diag/fail-in-defer/fail-in-defer.byn:11:1
+
+  11 │ f()
+     │ ^^^
+     │
+  help: propagate the error with `try`, or handle it with `catch`
+     │ 11 │ try f()
+     │    │ ++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2610

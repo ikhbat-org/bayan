@@ -1,0 +1,33 @@
+    doc `/// let café = 1\n/// Doc line one.`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 StringLiteral `"é`
+4:2 TestKeyword `test`
+4:7 AssertKeyword `assert`
+4:14 PropertyKeyword `property`
+4:23 FuzzKeyword `fuzz`
+4:28 ModelKeyword `model`
+4:34 ForeachKeyword `foreach`
+4:42 NewKeyword `new`
+4:46 GotoKeyword `goto`
+6:1 Identifier `x́́`
+6:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{"é
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{"é
+    │    ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ �test assert property fuzz model foreach new goto
+    │ ^

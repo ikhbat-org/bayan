@@ -1,0 +1,14 @@
+warning BYN5014: `embed` is not a known verb, noun or adjective
+
+  19 │     void embed(ref this) { n += 1 }
+     │          ^^^^^
+     │
+  help: add it to `grammar` in package.byn: `verbs: ["embed"]`, `nouns: ["embed"]` or
+        `adjectives: ["embed"]`
+
+error BYN5002: `isSorted` reads as state but modifies `this`
+
+  21 │     void isSorted(ref this) { n += 1 }
+     │          ^^^^^^^^ declared `ref this`
+     │
+  help: remove `ref this` so it only reads, or name the action with a verb

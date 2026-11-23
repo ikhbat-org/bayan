@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RequiresRule",
+    "StructDecl",
+    "SwitchExpr",
+    "TargetMemberExpr"
+  ],
+  "builtins": [
+    "EnumName",
+    "ListAdd",
+    "ListIsEmpty",
+    "Print"
+  ],
+  "diagnostics": []
+}

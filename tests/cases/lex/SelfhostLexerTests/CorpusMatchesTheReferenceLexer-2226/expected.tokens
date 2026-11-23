@@ -1,0 +1,80 @@
+1:3 StringLiteral `"text"`
+1:10 StringLiteral `"esc \"q\" \\ \n"`
+1:28 RawStringLiteral `"""\n\n"q\" \\ \n" """`
+5:8 CloseBrace `}`
+6:3 PlusEquals `+=`
+6:6 MinusEquals `-=`
+6:9 StarEquals `*=`
+6:12 SlashEquals `/=`
+6:15 PercentEquals `%=`
+6:18 AmpEquals `&=`
+6:21 BarEquals `|=`
+6:24 CaretEquals `^=`
+6:27 LessLessEquals `<<=`
+7:2 IntegerLiteral `0`
+7:4 IntegerLiteral `42`
+7:7 IntegerLiteral `1_000_000`
+7:17 IntegerLiteral `0xFF`
+7:22 IntegerLiteral `0x_ff`
+7:28 IntegerLiteral `0b1010`
+7:35 IntegerLiteral `0B11`
+7:40 IntegerLiteral `5`
+7:41 NumericSuffix `s`
+7:43 IntegerLiteral `250`
+7:46 NumericSuffix `ms`
+7:49 IntegerLiteral `4`
+7:50 NumericSuffix `KiB`
+7:54 IntegerLiteral `1`
+7:55 NumericSuffix `u`
+7:57 IntegerLiteral `0xFF`
+7:61 NumericSuffix `u`
+7:63 IntegerLiteral `0b1`
+7:66 NumericSuffix `ul`
+7:69 IntegerLiteral `7`
+7:70 NumericSuffix `l`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � "text" "esc \"q\" \\ \n" """
+    │ ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ /* � */}
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ // �
+    │   │  +++
+    │ 6 │ }
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ /* � */}
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ /* � */}
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ � += -= *= /= %= &= |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ � += -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ � += -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  7 │  0 42� 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │      ^

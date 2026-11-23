@@ -1,0 +1,85 @@
+== structs
+diag BYN1004 5:12 expected a field, property, constructor or method, found keyword `const` |  |  | none
+diag BYN2022 4:5 `static` on fields is not supported in v0.1 |  |  | none
+diag BYN2022 5:5 this kind of struct member is not supported in v0.1 |  |  | none
+diag BYN2022 7:20 `ref this` on a static method is not supported in v0.1 |  | remove `ref this`; only an instance method has a `this` to change | none
+diag BYN7010 8:10 `m3` declares `becomes .open` but takes `this`; a transition needs `ref this` |  | change the receiver of `m3` to `ref this`, or return the new state as a value | 8:13+0 "ref this"
+diag BYN7010 9:13 `m4` declares `becomes .open` but takes `move this is .closed`; a transition needs `ref this` |  | change the receiver of `m4` to `ref this`, or return the new state as a value | 9:13+4 "ref"
+diag BYN7010 10:13 `m5` declares `becomes .open` but takes `this is .closed`; a transition needs `ref this` |  | change the receiver of `m5` to `ref this`, or return the new state as a value | 10:13+0 "ref "
+diag BYN7010 11:10 `m6` declares `becomes .open` but takes `this`; a transition needs `ref this` |  | change the receiver of `m6` to `ref this`, or return the new state as a value | 11:13+0 "ref this, "
+diag BYN7010 12:13 `m7` declares `becomes .open` but takes `move this`; a transition needs `ref this` |  | change the receiver of `m7` to `ref this`, or return the new state as a value | 12:13+4 "ref"
+diag BYN2822 16:5 a function type is not supported as a return type yet |  | take the function as a parameter instead | none
+diag BYN2022 17:21 `ref this` on a static method is not supported in v0.1 |  | remove `ref this`; only an instance method has a `this` to change | none
+diag BYN2022 24:9 `requires` on a generic struct is not supported in v0.1 |  |  | none
+diag BYN7007 8:24 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 9:27 `S` has no state `.closed` |  | check the states declared in `S` | none
+diag BYN7007 9:51 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 10:22 `S` has no state `.closed` |  | check the states declared in `S` | none
+diag BYN7007 10:39 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 11:29 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 12:33 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 13:32 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 14:31 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN7007 15:23 `S` has no state `.closed` |  | check the states declared in `S` | none
+diag BYN7007 17:40 `S` has no state `.open` |  | check the states declared in `S` | none
+diag BYN2761 27:8 `Rec` contains itself by value: Rec → Rec |  | store the inner one as `Owned<Rec>` (or in a `List<Rec>`); a value cannot contain itself | none
+diag BYN2761 30:8 `A1` contains itself by value: A1 → B1 → A1 |  | store the inner one as `Owned<A1>` (or in a `List<A1>`); a value cannot contain itself | none
+diag BYN2761 36:8 `O` contains itself by value: O → O |  | store the inner one as `Owned<O>` (or in a `List<O>`); a value cannot contain itself | none
+diag BYN2761 39:8 `Tu` contains itself by value: Tu → Tu |  | store the inner one as `Owned<Tu>` (or in a `List<Tu>`); a value cannot contain itself | none
+diag BYN3001 43:5 a struct field cannot hold a borrowed `ReadOnlySpan<i64>` |  | store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version | none
+diag BYN2761 49:8 `Ar` contains itself by value: Ar → Ar |  | store the inner one as `Owned<Ar>` (or in a `List<Ar>`); a value cannot contain itself | none
+diag BYN2822 53:5 a function type is not supported as a field yet |  | take the function as a parameter instead | none
+diag BYN3001 54:5 a struct field cannot hold a borrowed `StrBuf` |  | store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version | none
+diag BYN3001 57:5 a struct field cannot hold a borrowed `(i64, ReadOnlySpan<i64>)` |  | store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version | none
+diag BYN2761 71:8 `W` contains itself by value: W → V → W |  | store the inner one as `Owned<W>` (or in a `List<W>`); a value cannot contain itself | none
+diag BYN2708 61:25 a union payload cannot hold a borrowed `ReadOnlySpan<i64>` |  | store a `List` copied with `.copy(to: alloc)` instead | none
+diag BYN2761 59:7 `U` contains itself by value: U → U |  | store the inner one as `Owned<U>` (or in a `List<U>`); a value cannot contain itself | none
+diag BYN2708 69:14 a union payload cannot hold a borrowed `StrBuf` |  | store a `List` copied with `.copy(to: alloc)` instead | none
+diag BYN2761 67:7 `Q` contains itself by value: Q → Q |  | store the inner one as `Owned<Q>` (or in a `List<Q>`); a value cannot contain itself | none
+struct S
+  method m1 method module static=False abstract=False at=6:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+  method m2 method module static=True abstract=False at=7:17 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+  method m3 method module static=False abstract=False at=8:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m4 method module static=False abstract=False at=9:10 ret=void (a:i64@9:39#0:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m5 method module static=False abstract=False at=10:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m6 method module static=False abstract=False at=11:10 ret=void (a:i64@11:17#0:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m7 method module static=False abstract=False at=12:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m8 method module static=False abstract=False at=13:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+  method m9 method module static=True abstract=False at=14:17 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m10 method module static=False abstract=False at=15:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m11 method module static=False abstract=False at=16:18 ret=? () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+  method m12 method module static=True abstract=False at=17:17 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+  check requires method module static=False abstract=False at=1:8 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid(violations:List<Violation<S>>@3:5#0:none)[field:S.Field@11:9,rule:Rule@12:9]}] excluded=[] tparams=[] map=[]
+struct R
+  check requires method module static=False abstract=False at=19:8 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid(violations:List<Violation<R>>@3:5#0:none)[field:R.Field@11:9,rule:Rule@12:9]}] excluded=[] tparams=[] map=[]
+struct G
+struct P
+  check requires method module static=False abstract=False at=26:15 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid()}] excluded=[] tparams=[] map=[]
+struct Rec
+struct A1
+struct B1
+struct O
+struct Tu
+struct Bo
+struct Ok
+struct Ar
+struct Fn
+struct Tb
+struct W
+states 0
+all vf function module static=False abstract=False at=74:6 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid(violations:List<Violation<S>>@3:5#0:none)[field:S.Field@11:9,rule:Rule@12:9]},ValidationError{invalid(violations:List<Violation<R>>@3:5#0:none)[field:R.Field@11:9,rule:Rule@12:9]}] excluded=[] tparams=[] map=[]
+all m1 method module static=False abstract=False at=6:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all m2 method module static=True abstract=False at=7:17 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all m3 method module static=False abstract=False at=8:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m4 method module static=False abstract=False at=9:10 ret=void (a:i64@9:39#0:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m5 method module static=False abstract=False at=10:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m6 method module static=False abstract=False at=11:10 ret=void (a:i64@11:17#0:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m7 method module static=False abstract=False at=12:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m8 method module static=False abstract=False at=13:10 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all m9 method module static=True abstract=False at=14:17 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m10 method module static=False abstract=False at=15:10 ret=void () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m11 method module static=False abstract=False at=16:18 ret=? () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all m12 method module static=True abstract=False at=17:17 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all requires method module static=False abstract=False at=1:8 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid(violations:List<Violation<S>>@3:5#0:none)[field:S.Field@11:9,rule:Rule@12:9]}] excluded=[] tparams=[] map=[]
+all requires method module static=False abstract=False at=19:8 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid(violations:List<Violation<R>>@3:5#0:none)[field:R.Field@11:9,rule:Rule@12:9]}] excluded=[] tparams=[] map=[]
+all requires method module static=False abstract=False at=26:15 ret=void () fails=True infers=False mutating=False sets=[ValidationError{invalid()}] excluded=[] tparams=[] map=[]

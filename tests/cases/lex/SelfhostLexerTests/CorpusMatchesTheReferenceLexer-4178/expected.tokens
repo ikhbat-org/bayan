@@ -1,0 +1,62 @@
+1:1 LetKeyword `let`
+1:5 Identifier `ac`
+1:7 OrKeyword `or`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+3:1 CharLiteral `'\q'`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{510000}'`
+6:1 CharLiteral `'x`
+7:1 StructKeyword `struct`
+7:8 Identifier `S`
+9:14 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA3)
+
+  1 │ let ac�or = 1
+    │       ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │  � 
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  � 
+    │   │  -
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{510000}` is not a Unicode scalar value
+
+  5 │ '\u{510000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  8 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

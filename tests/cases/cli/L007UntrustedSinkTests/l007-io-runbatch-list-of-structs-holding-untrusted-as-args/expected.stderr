@@ -1,0 +1,10 @@
+error BYN2202: expected `ReadOnlySpan<string>`, found `List<Holder>`
+  --> <repo>/tmp/l007/io-runbatch-list-of-structs-holding-untrusted-as-args/main.byn:12:44
+
+  12 │     let _ = try Io.runBatch("./build.cmd", holders)
+     │                                            ^^^^^^^
+     │
+  help: use `.span` here; a `List` becomes a `Span` implicitly only as a call argument
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2202

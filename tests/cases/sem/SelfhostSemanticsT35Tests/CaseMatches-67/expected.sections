@@ -1,0 +1,3 @@
+== expr.probes.i39
+interpolated:string[4584:15]=-(v:local:i64[4587:1]=-(n)/0,false,0,32,-1,-1)
+BYN2202 181:27 expected `rune`, found `i32` ||convert it explicitly|fix 4596..4597 rune(1)

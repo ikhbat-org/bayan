@@ -1,0 +1,40 @@
+public struct Line {
+    public i64 grams
+}
+
+public struct CompilationOptions {
+    public i64 level
+}
+
+public struct Keywords {
+    public i64 first
+}
+
+public struct Order {
+    // A whole made of parts reads as singular and may name a collection (Q1190).
+    public List<Line> path
+    public List<Line> payload
+    public List<Line> body
+    public List<Line> typeOrder
+    public List<Line> instantiationWork
+
+    // A plural name that repeats its type's last word is named for its type.
+    public CompilationOptions options
+    public Keywords keywords
+    public Keywords? previousKeywords
+    public Untrusted<CompilationOptions> rawOptions
+
+    // A string is one text that may describe several things.
+    public string errors
+    public string seconds
+
+    // Everything else still agrees in number.
+    public List<Line> line
+    public Line lines
+    public Keywords lineOptions
+
+    public void scan(ReadOnlySpan<u8> text) {
+    }
+}
+
+print("ok")

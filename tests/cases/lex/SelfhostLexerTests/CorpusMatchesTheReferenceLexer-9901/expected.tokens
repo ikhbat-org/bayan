@@ -1,0 +1,68 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:1 IntegerLiteral `1__`
+3:1 IntegerLiteral `0xF__`
+5:1 StringLiteral `"{$"`
+5:5 OpenBrace `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+7:3 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  5 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$/*foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  5 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$/*foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │                                    ^
+
+error BYN0004: unterminated block comment
+
+  5 │ "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$/*foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │                                     ^^ comment starts here
+    │
+  help: close it with `*/`

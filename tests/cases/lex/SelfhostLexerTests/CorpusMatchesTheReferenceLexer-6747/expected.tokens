@@ -1,0 +1,30 @@
+1:3 StringLiteral `"a\u{2067}b"`
+1:8 LetKeyword `let`
+1:12 LawKeyword `law`
+1:16 Equals `=`
+1:18 IntegerLiteral `3`
+2:2 Identifier `é`
+2:4 Equals `=`
+2:6 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � "a�b"let law = 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � "a�b"let law = 3
+    │  ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

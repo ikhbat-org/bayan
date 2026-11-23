@@ -1,0 +1,8 @@
+error BYN2221: `i32` cannot be iterated
+  --> <repo>/tests/cases/diag/not-iterable.byn:1:10
+
+  1 │ for x in 5 {
+    │          ^
+    │
+  help: use `for` over ranges (`0..n`), spans, lists, arrays, strings, or a type conforming to
+        `IIndexable` or `IEnumerator`

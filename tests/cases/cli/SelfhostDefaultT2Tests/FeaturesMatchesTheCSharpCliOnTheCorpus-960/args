@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/try-wrong-return.byn
+--package
+<repo>/tests/cases/diag

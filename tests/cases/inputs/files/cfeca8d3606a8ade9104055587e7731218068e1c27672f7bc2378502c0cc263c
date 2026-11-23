@@ -1,0 +1,105 @@
+i64 call0(i64 a0, by (i64 -> i64) f) => f(a0)
+
+i64 relay0(i64 a0, by (i64 -> i64) f) => call0(a0, by: f)
+
+void host0Direct() {
+    let k0: i64 = 9
+    let r: i64 = k0 + k0 + 5
+    print($"c0 {r}")
+}
+
+void host0Local() {
+    let k0: i64 = 9
+    let f: i64 -> i64 = p0 => k0 + k0 + 5
+    let r: i64 = f(17)
+    print($"c0 {r}")
+}
+
+void host0Via1() {
+    let k0: i64 = 9
+    let r: i64 = call0(17, by: p0 => k0 + k0 + 5)
+    print($"c0 {r}")
+}
+
+void host0Via2() {
+    let k0: i64 = 9
+    let r: i64 = relay0(17, by: p0 => k0 + k0 + 5)
+    print($"c0 {r}")
+}
+
+string fn1(bool p0) => $"{3}-{p0}"
+
+string call1(bool a0, by (bool -> string) f) => f(a0)
+
+string relay1(bool a0, by (bool -> string) f) => call1(a0, by: f)
+
+void host1Direct() {
+    let r: string = fn1(p0: true)
+    print($"c1 {r}")
+}
+
+void host1Local() {
+    let f: bool -> string uses alloc = fn1
+    let r: string = f(true)
+    print($"c1 {r}")
+}
+
+void host1Via1() {
+    let r: string = call1(a0: true, by: fn1)
+    print($"c1 {r}")
+}
+
+void host1Via2() {
+    let r: string = relay1(a0: true, by: fn1)
+    print($"c1 {r}")
+}
+
+string call2(by (() -> string) f) => f()
+
+string relay2(by (() -> string) f) => call2(by: f)
+
+void host2Direct() {
+    let r: string = $"{1}-{8}"
+    print($"c2 {r}")
+}
+
+void host2Local() {
+    let f: () -> string uses alloc = () => {
+        return $"{1}-{8}"
+    }
+    let r: string = f()
+    print($"c2 {r}")
+}
+
+void host2Via1() {
+    let r: string = call2(by: () => {
+        return $"{1}-{8}"
+    })
+    print($"c2 {r}")
+}
+
+void host2Via2() {
+    let r: string = relay2(by: () => {
+        return $"{1}-{8}"
+    })
+    print($"c2 {r}")
+}
+
+void main() {
+    print("== direct")
+    host0Direct()
+    host1Direct()
+    host2Direct()
+    print("== local")
+    host0Local()
+    host1Local()
+    host2Local()
+    print("== via1")
+    host0Via1()
+    host1Via1()
+    host2Via1()
+    print("== via2")
+    host0Via2()
+    host1Via2()
+    host2Via2()
+}

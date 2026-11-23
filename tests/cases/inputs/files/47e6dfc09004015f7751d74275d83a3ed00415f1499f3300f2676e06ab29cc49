@@ -1,0 +1,6 @@
+"""
+$"a{b}c let effect = 2
+â‚ fails try catch never noalloc nosuspend suspends async await
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!"ž$""
+
+///

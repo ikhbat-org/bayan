@@ -1,0 +1,10 @@
+error BYN3206: `at .top` names no field of `Range`
+  --> <repo>/tmp/t2/diag/rule-target-not-field/rule-target-not-field.byn:4:30
+
+  4 │     requires low <= high at .top
+    │                              ^^^ `.top`
+    │
+  help: name a field of `Range`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3206

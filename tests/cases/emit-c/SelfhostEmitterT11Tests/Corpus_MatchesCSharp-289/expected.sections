@@ -1,0 +1,11 @@
+== cases
+0 (*bynh_slot_map_str_i64(&l8_prices, BYN_STR("tea", 3), ((int64_t){0})))
+1 (*bynh_slot_map_str_i64(&l8_prices, BYN_STR("cake", 4), ((int64_t){0})))
+2 (*bynh_slot_map_str_i64(&l8_prices, BYN_STR("jam", 3), ((int64_t){0})))
+3 bynh_remove_map_str_i64(&l8_prices, BYN_STR("cake", 4))
+4 (l23_cell == INT64_C(2))
+5 (l23_cell == INT64_C(5))
+6 t11.h.len
+7 (!t11.h.dead[t12])
+8 ((bynt_tup2_str_i64){t11.keys[t12], t11.vals[t12]})
+count 9

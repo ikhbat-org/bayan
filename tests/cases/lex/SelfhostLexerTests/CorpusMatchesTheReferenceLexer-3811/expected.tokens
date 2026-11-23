@@ -1,0 +1,37 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 LetKeyword `let`
+2:6 EffectKeyword `effect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+3:2 CharLiteral `''`
+5:2 Equals `=`
+5:4 StringLiteral `"bad \q escape"`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:9 RawStringLiteral `"""never closed\n\n) [ ] { }\n, . .. ..= : ? ?? ??= ?. => -> @ #\n+\n}\nlet actor = 1\n\n `
+14:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  3 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │  = "bad \q escape"
+    │         ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  6 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

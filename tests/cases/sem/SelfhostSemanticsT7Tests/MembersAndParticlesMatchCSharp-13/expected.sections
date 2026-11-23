@@ -1,0 +1,4 @@
+== participle-changes-this
+BYN5001 120+6 `sorted` changes `this`; name it `sort` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+BYN5001 387+7 `trimmed` changes `this`; name it `trim` |  | name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view | 
+end

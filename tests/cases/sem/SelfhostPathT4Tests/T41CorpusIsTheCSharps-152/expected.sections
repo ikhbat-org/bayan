@@ -1,0 +1,3 @@
+== diags.diag/literal-with-constructor
+BYN2111 11:9 `Ratio` has a constructor; call it instead of using a struct literal
+  help call the constructor: `Ratio(num: …, den: …)`

@@ -1,0 +1,11 @@
+fvct = 2
+macro select ect = 2
+macro select become
+let law = 3
+ let law = 3
+
+// line comment
+ //// not a doc comment
+ 2.5f
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ 

@@ -1,0 +1,23 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_span_list_i64 static bynt_span_i64 bynh_span_list_i64(bynt_list_i64 l) | static bynt_span_i64 bynh_span_list_i64(bynt_list_i64 l) {
+    return (bynt_span_i64){l.ptr, l.len};
+}
+bynh_replace_list_i64 static void bynh_replace_list_i64(bynt_list_i64* l, bynt_tup3_i64_i64_bool at, bynt_span_i64 items, const char* file, int line) | static void bynh_replace_list_i64(bynt_list_i64* l, bynt_tup3_i64_i64_bool at, bynt_span_i64 items, const char* file, int line) {
+    int64_t start = at.item1, end = at.item3 ? at.item2 + 1 : at.item2;
+    byn_slice_check(start, end, l->len, file, line);
+    int64_t len = l->len - (end - start) + items.len;
+    if (!l->alloc) l->alloc = byn_context;
+    void* copy = NULL;
+    if (items.len > 0 && items.ptr >= l->ptr && items.ptr < l->ptr + l->cap)
+        items.ptr = copy = byn_copy_bytes(items.ptr, items.len * (int64_t)sizeof(*l->ptr), l->alloc);
+    byn_list_reserve((void**)&l->ptr, &l->cap, len, (int64_t)sizeof(*l->ptr), l->alloc);
+    memmove(l->ptr + start + items.len, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    if (items.len > 0) memcpy(l->ptr + start, items.ptr, (size_t)items.len * sizeof(*l->ptr));
+    l->len = len;
+    if (copy) byn_release(l->alloc, copy);
+}

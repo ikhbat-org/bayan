@@ -1,0 +1,6 @@
+  parse      masked
+  check      masked
+  emit       masked
+  compile    masked
+  prog
+◆ built demo (safe, macos-arm64) in masked

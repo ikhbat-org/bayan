@@ -1,0 +1,4 @@
+== target.probes.-.t12
+errorExpr|?|-|-|-|-|-|3781:2|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2823 182:27 `.x` is a member, not a lambda ||write `it.x`|fix 3781..3783 it.x

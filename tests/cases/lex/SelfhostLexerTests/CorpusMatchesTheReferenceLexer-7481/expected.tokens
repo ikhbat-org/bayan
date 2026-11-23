@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""" 0xF__\noo Bar_x camelCase2 بيان μετρητής x_1 é\n{48}i"\n\u{0}\nlet c = "�"never closed\n0b102\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """" 0xF__
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ let c = "�"never closed
+    │          ^

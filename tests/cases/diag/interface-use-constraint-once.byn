@@ -1,0 +1,27 @@
+// InterfaceUseTests.AnUnsatisfiedConstraintInsideAGenericIsReportedOnceAtTheOuterCall: one BYN2807, at `twice`, none
+// repeated inside it at `measure`.
+interface IShape {
+    i64 area()
+    string describe() => $"area {area()}"
+}
+
+struct Circle : IShape {
+    i64 r
+
+    i64 area() => 3 * r * r
+}
+
+struct Square {
+    i64 side
+}
+
+i64 measure<T>(ref T shape) where T : IShape => shape.area()
+
+i64 twice<T>(ref T shape) where T : IShape => measure(ref shape) * 2
+
+void run() {
+    var s = Square { side: 2 }
+    print($"{twice(ref s)}")
+}
+
+run()

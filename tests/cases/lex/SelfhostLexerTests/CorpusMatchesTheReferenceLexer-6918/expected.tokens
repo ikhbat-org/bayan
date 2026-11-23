@@ -1,0 +1,46 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Bang `!`
+3:1 IfKeyword `if`
+3:4 ElseKeyword `else`
+3:9 UnlessKeyword `unless`
+3:16 SwitchKeyword `switch`
+3:23 CaseKeyword `case`
+3:28 DefaultKeyword `default`
+3:36 ForKeyword `for`
+3:40 InKeyword `in`
+3:43 WhileKeyword `while`
+3:49 DoKeyword `do`
+3:52 BreakKeyword `break`
+3:58 ContinueKeyword `continue`
+3:67 ReturnKeyword `return`
+3:74 YieldKeyword `yield`
+3:80 DeferKeyword `defer`
+3:86 ErrdeferKeyword `errdefer`
+3:95 UsingKeyword `using`
+3:101 ContextKeyword `context`
+5:1 OpenBrace `{`
+5:2 Identifier `literal`
+5:9 CloseBrace `}`
+5:10 CloseBrace `}`
+5:11 StringLiteral `" $"`
+5:15 OpenBrace `{`
+5:16 Identifier `Point`
+5:22 OpenBrace `{`
+5:24 Identifier `x`
+5:26 Equals `=`
+5:28 IntegerLiteral `1`
+5:30 CloseBrace `}`
+5:31 CloseBrace `}`
+5:32 Bang `!`
+5:33 StringLiteral `" $"`
+5:37 StringLiteral `"struct S`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ {literal}}" $"{Point { x = 1 }}!" $""struct S
+    │                                     ^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

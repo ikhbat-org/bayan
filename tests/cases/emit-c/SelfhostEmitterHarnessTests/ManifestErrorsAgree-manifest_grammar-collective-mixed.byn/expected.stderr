@@ -1,0 +1,8 @@
+error BYN3102: `grammar.collectives` must be a list of words, e.g. `["upsert"]`
+  --> package.byn:6:22
+
+  6 │         collectives: [1, "a"],
+    │                      ^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3102

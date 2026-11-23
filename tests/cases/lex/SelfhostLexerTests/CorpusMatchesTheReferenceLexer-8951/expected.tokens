@@ -1,0 +1,70 @@
+1:1 Identifier `é`
+2:2 IsKeyword `is`
+2:5 AndKeyword `and`
+2:9 OrKeyword `or`
+2:12 NotKeyword `not`
+2:16 WithKeyword `with`
+2:21 MoveKeyword `move`
+2:26 RefKeyword `ref`
+2:30 OutKeyword `out`
+2:34 ThisKeyword `this`
+2:39 NullKeyword `null`
+2:44 TrueKeyword `true`
+2:49 FalseKeyword `false`
+2:55 ComptimeKeyword `comptime`
+2:64 CheckedKeyword `checked`
+3:4 OpenParen `(`
+3:6 CloseParen `)`
+3:8 OpenBracket `[`
+3:10 CloseBracket `]`
+3:12 OpenBrace `{`
+3:14 CloseBrace `}`
+4:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é /* � */
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é /* � */
+    │   │ +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ é /* � */
+    │    ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ é // �
+    │   │     +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ é /* � */
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ é /* � */
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ � is and or not with move ref out this null true false comptime checked
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │  ��‏( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ��‏( ) [ ] { }
+    │   ^
+
+error BYN0002: unexpected character `‏`
+
+  3 │  ��‏( ) [ ] { }
+    │    ^

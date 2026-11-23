@@ -1,0 +1,40 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+2:1 Dot `.`
+2:2 IntegerLiteral `5_`
+3:2 IntegerLiteral `0b1`
+3:5 NumericSuffix `ms`
+4:1 Identifier `가`
+4:4 Identifier `䆨`
+4:6 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ .5_
+    │   ^
+    │
+    │ 2 │ .5_
+    │   │   -
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0005: identifier `가` is not in Unicode normalization form C
+
+  4 │ 가�䆨 
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 가�䆨 
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  4 │ 가�䆨 
+    │   ^

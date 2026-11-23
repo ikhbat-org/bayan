@@ -1,0 +1,12 @@
+// `Fs.modified` reads or writes the file system, so a public function calling it declares `fs` (BYN6002).
+public void undeclared(string p) fails IoError {
+    let t = try Fs.modified(p)
+}
+
+public void declared(string p) uses fs fails IoError {
+    let t = try Fs.modified(p)
+}
+
+void main() {
+    print("ok")
+}

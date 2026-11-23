@@ -1,0 +1,49 @@
+1:1 CharLiteral `'\q'`
+3:3 LetKeyword `let`
+3:7 Identifier `x`
+3:10 Equals `=`
+3:12 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:9 RawStringLiteral `"""never closed\n`
+6:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ � let x� = 1
+    │ ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ � let x� = 1
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � let x� = 1
+    │   │        -
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  5 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

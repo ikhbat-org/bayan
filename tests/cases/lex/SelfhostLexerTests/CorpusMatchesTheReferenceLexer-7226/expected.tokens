@@ -1,0 +1,129 @@
+1:2 Star `*`
+1:4 Slash `/`
+1:6 Percent `%`
+1:8 PlusPercent `+%`
+1:11 MinusPercent `-%`
+1:14 StarPercent `*%`
+1:17 PlusBar `+|`
+1:21 Identifier `raw`
+1:25 StringLiteral `"quoted"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 StringLiteral `$"{x}"`
+3:67 CloseBrace `}`
+3:68 StringLiteral `"}"`
+3:71 CloseBrace `}`
+3:72 StringLiteral `"}"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 InterpolationEnd `}`
+3:96 InterpolatedStringEnd `"`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 InterpolationEnd `}`
+3:100 InterpolatedStringEnd `"`
+3:101 InterpolationEnd `}`
+3:102 InterpolatedStringEnd `"`
+5:1 Identifier `ạ̇is`
+5:7 AndKeyword `and`
+5:11 OrKeyword `or`
+5:14 NotKeyword `not`
+5:18 WithKeyword `with`
+5:23 MoveKeyword `move`
+5:28 RefKeyword `ref`
+5:32 OutKeyword `out`
+5:36 ThisKeyword `this`
+5:41 NullKeyword `null`
+5:46 TrueKeyword `true`
+5:51 FalseKeyword `false`
+5:57 ComptimeKeyword `comptime`
+5:66 CheckedKeyword `checked`
+6:1 Identifier `l`
+6:3 Identifier `t`
+6:5 LawKeyword `law`
+6:9 Equals `=`
+6:11 IntegerLiteral `3`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �
+    │ ^
+
+error BYN0005: identifier `ạ̇is` is not in Unicode normalization form C
+
+  5 │ ạ̇is and or not with move ref out this null true false comptime checked
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇is and or not with move ref out this null true false comptime checked
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ l�t law = 3
+    │  ^

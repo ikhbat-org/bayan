@@ -1,0 +1,3 @@
+if order is .paid and order.total >= freeShippingThreshold and customer.region.shipsFree and not order.hasOversizedItems {
+    order.shipping = .free
+}

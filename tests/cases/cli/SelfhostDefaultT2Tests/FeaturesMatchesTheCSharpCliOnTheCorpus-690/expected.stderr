@@ -1,0 +1,8 @@
+error BYN2821: `it` cannot be captured: the checked value is read through `this`, which a lambda
+does not capture
+  --> <repo>/tests/cases/diag/lambda-capture-rule-it.byn:4:51
+
+  4 │     List<i64> items requires any(it, by: x => x < it[0])
+    │                                                   ^^
+    │
+  help: copy the fields you need into `let` values first

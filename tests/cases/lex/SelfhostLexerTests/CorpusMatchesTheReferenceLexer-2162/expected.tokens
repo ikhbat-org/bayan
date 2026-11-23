@@ -1,0 +1,37 @@
+1:2 Identifier `u`
+2:1 CharLiteral `'\u{110030}'`
+3:2 Comma `,`
+3:4 Dot `.`
+3:6 DotDot `..`
+3:9 DotDotEquals `..=`
+3:13 Colon `:`
+3:15 Question `?`
+3:17 QuestionQuestion `??`
+3:20 QuestionQuestionEquals `??=`
+3:24 QuestionDot `?.`
+3:27 FatArrow `=>`
+3:30 Arrow `->`
+3:33 At `@`
+3:35 Hash `#`
+5:1 IntegerLiteral `0xFF`
+5:5 NumericSuffix `s`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  1 │ �u
+    │ ^
+
+error BYN0013: `\u{110030}` is not a Unicode scalar value
+
+  2 │ '\u{110030}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  5 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

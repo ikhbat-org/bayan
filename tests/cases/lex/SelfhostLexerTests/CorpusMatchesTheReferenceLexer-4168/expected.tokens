@@ -1,0 +1,48 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 CharLiteral `'`
+4:1 IntegerLiteral `1__`
+6:1 Identifier `Å`
+6:3 Identifier `ₗne`
+6:7 Identifier `comment`
+12:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  3 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │ Å ₗne comment
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ Å ₗne comment
+    │   │ +
+
+error BYN0004: unterminated block comment
+
+  7 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

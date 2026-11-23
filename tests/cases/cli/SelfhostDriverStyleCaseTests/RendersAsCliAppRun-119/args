@@ -1,0 +1,5 @@
+--color
+always
+check
+--all
+<repo>/tmp/t7-style/diag-cap-all-color/tally/main.byn

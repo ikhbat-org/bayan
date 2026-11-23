@@ -1,0 +1,34 @@
+1:1 IntegerLiteral `0b__`
+2:2 StringLiteral `"text`
+3:2 StringLiteral `"esc \"q\" \\ \n"`
+3:20 RawStringLiteral `"""\n\nạ̇ /* e�� */\n`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  2 │  "text
+    │  ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │  "esc \"q\" \\ \n" """
+    │                    ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ạ̇ /* e�� */
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAD)
+
+  5 │ ạ̇ /* e�� */
+    │          ^

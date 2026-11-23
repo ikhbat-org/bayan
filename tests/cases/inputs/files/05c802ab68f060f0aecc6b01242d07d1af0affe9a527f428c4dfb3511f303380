@@ -1,0 +1,20 @@
+struct Order {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+    }
+    bool isPaid => this is .paid
+    bool isDraft => this is .draft
+    bool isBig => id > 10
+    bool isPaidEmpty => this is .paid()
+    bool isPaidBound => this is .paid p
+    bool ready
+    i64 ship(this is .paid) => id
+}
+i64 run(Order order, bool flag) {
+    if flag {
+        return order.ship()
+    }
+    return 0
+}

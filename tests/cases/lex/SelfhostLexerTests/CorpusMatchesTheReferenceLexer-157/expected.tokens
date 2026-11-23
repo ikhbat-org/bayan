@@ -1,0 +1,54 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+2:1 Identifier `b`
+3:2 IntegerLiteral `0`
+3:4 Identifier `L2`
+3:7 IntegerLiteral `1_000_000`
+3:17 IntegerLiteral `0xFF`
+3:22 IntegerLiteral `0x_ff`
+3:28 IntegerLiteral `0b1010`
+3:35 IntegerLiteral `0B11`
+3:40 IntegerLiteral `5`
+3:41 NumericSuffix `s`
+3:43 IntegerLiteral `250`
+3:46 NumericSuffix `ms`
+3:49 IntegerLiteral `4`
+3:50 NumericSuffix `KiB`
+3:54 IntegerLiteral `1`
+3:55 NumericSuffix `u`
+3:57 IntegerLiteral `0x`
+3:59 NumericSuffix `GFu`
+3:63 IntegerLiteral `0b1`
+3:66 NumericSuffix `ul`
+3:69 IntegerLiteral `7`
+3:70 NumericSuffix `l`
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0 L2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xGFu 0b1ul 7l
+    │                                                         ^^
+
+error BYN0011: unit suffix `GFu` is not allowed on a hexadecimal literal
+
+  3 │  0 L2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xGFu 0b1ul 7l
+    │                                                           ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

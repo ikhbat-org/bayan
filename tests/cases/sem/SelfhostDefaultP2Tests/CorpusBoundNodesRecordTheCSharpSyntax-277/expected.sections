@@ -1,0 +1,34 @@
+== tests/cases/run/string-copy-default.byn
+111..242 blockStmt
+117..135 localDecl
+127..135 callExpr
+140..159 exprStmt
+140..159 callExpr
+140..143 nameExpr
+151..158 literalExpr string
+164..187 localDecl
+172..187 callExpr
+172..180 memberExpr
+172..175 nameExpr
+192..203 exprStmt
+192..203 callExpr
+192..195 nameExpr
+208..227 exprStmt
+208..227 callExpr
+208..211 nameExpr
+219..226 literalExpr string
+232..240 returnStmt value 239..240
+239..240 nameExpr
+256..336 blockStmt
+262..275 exprStmt
+262..275 callExpr
+268..274 callExpr
+262..275 callExpr
+280..299 localDecl
+292..299 callExpr
+304..334 exprStmt
+304..334 callExpr
+310..333 callExpr
+310..317 literalExpr string
+327..332 nameExpr
+304..334 callExpr

@@ -1,0 +1,8 @@
+�ετρητής x_1 é
+let c = """never closed
+Li= 1
+let � = 2
+// ok � in comment
+
+�'a' '\n' '\u{1F600}7' '\'' 'é' '\\' '\0'
+ 

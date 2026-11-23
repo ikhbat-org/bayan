@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "isBig",
+      "span": {
+        "start": 5,
+        "end": 10
+      },
+      "bindings": [
+        {
+          "name": "x",
+          "kind": "param",
+          "span": {
+            "start": 15,
+            "end": 16
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "keep",
+      "span": {
+        "start": 33,
+        "end": 37
+      },
+      "bindings": [
+        {
+          "name": "x",
+          "kind": "param",
+          "span": {
+            "start": 42,
+            "end": 43
+          },
+          "type": "i64"
+        },
+        {
+          "name": "p",
+          "kind": "param",
+          "span": {
+            "start": 62,
+            "end": 63
+          },
+          "type": "i64 -> bool"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 79,
+        "end": 83
+      },
+      "bindings": [
+        {
+          "name": "a",
+          "kind": "let",
+          "span": {
+            "start": 96,
+            "end": 97
+          },
+          "type": "bool"
+        }
+      ]
+    }
+  ]
+}

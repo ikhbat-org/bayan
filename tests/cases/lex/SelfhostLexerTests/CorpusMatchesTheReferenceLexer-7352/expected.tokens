@@ -1,0 +1,8 @@
+1:1 StarEquals `*=`
+1:4 SlashEquals `/=`
+1:7 PercentEquals `%=`
+1:10 AmpEquals `&=`
+1:13 BarEquals `|=`
+1:16 CaretEquals `^=`
+1:19 Equals `=`
+3:1 EndOfFile

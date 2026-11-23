@@ -1,0 +1,4 @@
+fails try catch never noaloc nosuspend suspends async await
+/* block
+c >>= 1
+/Ï// Doc line two.

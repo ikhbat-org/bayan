@@ -1,0 +1,38 @@
+1:1 IntegerLiteral `0xF__`
+3:1 CloseBrace `}`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+10:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a /* b�lock
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0004: unterminated block comment
+
+  4 │ $"{a /* b�lock
+    │      ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �
+    │  ^

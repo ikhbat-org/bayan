@@ -1,0 +1,27 @@
+1:1 Identifier `lt`
+1:4 OrKeyword `or`
+1:7 InKeyword `in`
+1:10 WhileKeyword `while`
+1:16 DoKeyword `do`
+1:19 Identifier `br`
+1:21 CloseBrace `}`
+1:23 FloatLiteral `3.14`
+1:28 FloatLiteral `1e5`
+1:32 FloatLiteral `2.5e-3`
+1:39 FloatLiteral `6E+2`
+1:44 FloatLiteral `1.50`
+1:48 NumericSuffix `dec`
+1:52 IntegerLiteral `1`
+1:53 DotDot `..`
+1:55 IntegerLiteral `2`
+1:57 IntegerLiteral `1`
+1:58 DotDotEquals `..=`
+1:61 IntegerLiteral `3`
+1:63 IntegerLiteral `5`
+1:64 NumericSuffix `e`
+1:66 Identifier `x`
+1:67 Dot `.`
+1:68 Identifier `y`
+1:70 FloatLiteral `2.5`
+1:73 NumericSuffix `f`
+3:1 EndOfFile

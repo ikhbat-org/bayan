@@ -1,0 +1,14 @@
+1:1 IntegerLiteral `0`
+3:1 Star `*`
+3:3 Slash `/`
+3:5 EndOfFile
+
+error BYN0002: unexpected character `\u{10}`
+
+  1 │ 0�
+    │  ^
+
+error BYN0002: unexpected character `\u{4}`
+
+  3 │ *�/ 
+    │  ^

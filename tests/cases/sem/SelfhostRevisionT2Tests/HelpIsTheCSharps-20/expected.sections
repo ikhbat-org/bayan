@@ -1,0 +1,4 @@
+== diags.panic-lookalike
+BYN2009 6:9 `Panic` must be camelCase
+  help rename it `panic`; only types are PascalCase
+  fix 6:9-6:14 panic

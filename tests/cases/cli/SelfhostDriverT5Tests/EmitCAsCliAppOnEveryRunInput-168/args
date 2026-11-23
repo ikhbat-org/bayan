@@ -1,0 +1,3 @@
+build
+--emit-c
+loan-starts-at-stored-borrow.byn

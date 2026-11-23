@@ -1,0 +1,53 @@
+1:1 IntegerLiteral `0x`
+2:1 Identifier `_`
+3:2 Identifier `b`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+5:4 VarKeyword `var`
+5:8 Identifier `xs`
+5:10 Colon `:`
+5:12 Identifier `List`
+5:16 Less `<`
+5:17 Identifier `List`
+5:21 Less `<`
+5:22 Identifier `i64`
+5:25 Greater `>`
+5:26 Greater `>`
+6:2 StringLiteral `"text"`
+6:9 StringLiteral `"esc \"q\" \\ \n"`
+6:27 RawStringLiteral `"""\n\n// ok � in comment\n\n`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │  � var xs: List<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │  � var xs: List<List<i64>>
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │  � var xs: List<List<i64>>
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  6 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ // ok � in comment
+    │       ^

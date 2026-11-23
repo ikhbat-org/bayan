@@ -1,0 +1,7 @@
+error BYN3002: `b` does not live as long as `late`, which borrows it
+  --> <repo>/tests/cases/diag/dyn-ref-ref-argument-outlived.byn:23:16
+
+  23 │         late = pick(ref b)
+     │                ^^^^^^^^^^^ `b` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough

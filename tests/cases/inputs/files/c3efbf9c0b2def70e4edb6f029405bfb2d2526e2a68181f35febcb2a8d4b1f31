@@ -1,0 +1,6 @@
+let b = "bad \q escape"
+ struct S
+( ) [Ë] { }
+ if else unless switch case default for in while do break cOontinue return yield defer errdefer using context
+ $"{"// comment â€® hidden
+

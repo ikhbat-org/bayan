@@ -1,0 +1,35 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+2:1 CharLiteral `'\u{110000}`
+3:1 CharLiteral `'x`
+4:1 Identifier `ulet`
+4:8 Equals `=`
+4:10 IntegerLiteral `2`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ '\u{110000}
+    │ ^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ ulet � = 2
+    │      ^

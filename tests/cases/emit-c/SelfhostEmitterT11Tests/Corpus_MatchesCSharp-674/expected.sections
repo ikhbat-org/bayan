@@ -1,0 +1,59 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_less_i64 static bool bynh_less_i64(const void* a, const void* b) | static bool bynh_less_i64(const void* a, const void* b) {
+    return *(const int64_t*)a < *(const int64_t*)b;
+}
+bynh_sort_list_i64 static void bynh_sort_list_i64(bynt_list_i64* l) | static void bynh_sort_list_i64(bynt_list_i64* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_i64);
+}
+bynh_at_list_i64 static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_add_list_f64 static void bynh_add_list_f64(bynt_list_f64* l, double v) | static void bynh_add_list_f64(bynt_list_f64* l, double v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(double), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_less_f64 static bool bynh_less_f64(const void* a, const void* b) | static bool bynh_less_f64(const void* a, const void* b) {
+    return *(const double*)a < *(const double*)b;
+}
+bynh_sort_list_f64 static void bynh_sort_list_f64(bynt_list_f64* l) | static void bynh_sort_list_f64(bynt_list_f64* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_f64);
+}
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_less_str static bool bynh_less_str(const void* a, const void* b) | static bool bynh_less_str(const void* a, const void* b) {
+    return byn_str_cmp(*(const byn_str*)a, *(const byn_str*)b) < 0;
+}
+bynh_sort_list_str static void bynh_sort_list_str(bynt_list_str* l) | static void bynh_sort_list_str(bynt_list_str* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_str);
+}
+bynh_add_list_rune static void bynh_add_list_rune(bynt_list_rune* l, uint32_t v) | static void bynh_add_list_rune(bynt_list_rune* l, uint32_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(uint32_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_less_rune static bool bynh_less_rune(const void* a, const void* b) | static bool bynh_less_rune(const void* a, const void* b) {
+    return *(const uint32_t*)a < *(const uint32_t*)b;
+}
+bynh_sort_list_rune static void bynh_sort_list_rune(bynt_list_rune* l) | static void bynh_sort_list_rune(bynt_list_rune* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_rune);
+}
+bynh_at_list_rune static uint32_t* bynh_at_list_rune(bynt_list_rune s, int64_t i, bool from_end, const char* file, int line) | static uint32_t* bynh_at_list_rune(bynt_list_rune s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_less_i32 static bool bynh_less_i32(const void* a, const void* b) | static bool bynh_less_i32(const void* a, const void* b) {
+    return *(const int32_t*)a < *(const int32_t*)b;
+}
+bynh_sort_list_i32 static void bynh_sort_list_i32(bynt_list_i32* l) | static void bynh_sort_list_i32(bynt_list_i32* l) {
+    byn_sort(l->ptr, l->len, sizeof(*l->ptr), bynh_less_i32);
+}

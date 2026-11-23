@@ -1,0 +1,1 @@
+{"code":"BYN2802","severity":"error","file":"input.byn","span":{"start":66,"end":71,"line":6,"column":9,"endLine":6,"endColumn":14},"message":"`Box.count` is `i32 count` but `ICount` requires `i64 count { get }`","label":"does not match `ICount`","help":"change the field's type to `i64`","fixes":[]}

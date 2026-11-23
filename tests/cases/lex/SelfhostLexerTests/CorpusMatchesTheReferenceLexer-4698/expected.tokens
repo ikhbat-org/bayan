@@ -1,0 +1,20 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+3:1 Identifier `a`
+3:3 Equals `=`
+4:1 Identifier `se2`
+4:5 Identifier `بيان`
+4:10 Identifier `μετρητής`
+4:19 Identifier `x_1`
+4:23 Identifier `é`
+5:1 EndOfFile

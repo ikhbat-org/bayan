@@ -1,0 +1,1 @@
+{"code":"BYN2609","severity":"error","file":"input.byn","span":{"start":12,"end":19,"line":1,"column":13,"endLine":1,"endColumn":20},"message":"error enum `NoError` has no variants","label":null,"help":null,"fixes":[]}

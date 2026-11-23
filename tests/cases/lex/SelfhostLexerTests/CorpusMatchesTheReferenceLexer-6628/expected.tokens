@@ -1,0 +1,46 @@
+4:5 StructKeyword `struct`
+4:12 UniqueKeyword `unique`
+4:19 UnionKeyword `union`
+4:25 EnumKeyword `enum`
+4:30 FlagsKeyword `flags`
+4:36 OpenKeyword `open`
+4:41 ExtensibleKeyword `extensible`
+4:52 InterfaceKeyword `interface`
+4:62 DelegateKeyword `delegate`
+4:71 ExtensionKeyword `extension`
+4:81 DerivationKeyword `derivation`
+4:92 Identifier `attribte`
+8:1 IntegerLiteral `0xFF`
+8:5 NumericSuffix `s`
+9:2 CharLiteral `''`
+11:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // block
+    │   │  +++++++
+    │ 2 │ //
+    │   │ ++
+    │ 3 │ // never closd
+    │   │ ++++++++++++++
+    │ 4 │ // b
+    │   │ ++++
+    │ 5 │ struct unique union enum flags open extensible interface delegate extension derivation attribte
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  8 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0007: empty char literal
+
+  9 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,8 @@
+error BYN2608: `i64` is not an error enum
+  --> <repo>/tmp/t2/diag/not-an-error-set/not-an-error-set.byn:1:15
+
+  1 │ i64 f() fails i64 {
+    │               ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2608

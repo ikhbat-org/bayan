@@ -1,0 +1,16 @@
+2:1 StringLiteral `"text"`
+2:8 StringLiteral `"esc \"q\" \\ \n"`
+2:26 RawStringLiteral `"""\n\t \u{2069}\n"\u{48\u{1A}}i"\n �\n0xF__\nlet a  "open\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  �
+    │  ^

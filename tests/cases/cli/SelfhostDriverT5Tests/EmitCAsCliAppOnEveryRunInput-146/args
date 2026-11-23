@@ -1,0 +1,3 @@
+build
+--emit-c
+lambda-block-body-loop.byn

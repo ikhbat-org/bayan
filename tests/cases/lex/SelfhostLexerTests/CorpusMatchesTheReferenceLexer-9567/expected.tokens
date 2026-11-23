@@ -1,0 +1,39 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase28بيان`
+1:28 Identifier `μετρη`
+1:35 Identifier `ής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+3:1 Identifier `é`
+3:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ foo Bar _x camelCase28بيان μετρη���ής�x_1 é
+    │                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ foo Bar _x camelCase28بيان μετρη���ής�x_1 é
+    │                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ foo Bar _x camelCase28بيان μετρη���ής�x_1 é
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ foo Bar _x camelCase28بيان μετρη���ής�x_1 é
+    │                                      ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  3 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ é
+    │   │ +

@@ -1,0 +1,46 @@
+1:1 Identifier `ạ̇`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray } here`
+2:15 InterpolatedStringEnd `"`
+3:1 Less `<`
+3:2 Identifier `i64`
+3:5 Greater `>`
+3:6 Greater `>`
+4:1 Identifier `a`
+4:2 Greater `>`
+4:4 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+6:2 Identifier `x́́`
+7:1 Identifier `st`
+7:4 Identifier `List`
+7:8 Less `<`
+7:9 Identifier `i64`
+7:12 Greater `>`
+7:13 Greater `>`
+8:1 Identifier `a`
+9:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stray } here"
+    │         ^
+    │
+    │ 2 │ $"stray }} here"
+    │   │          +
+
+error BYN0002: unexpected character `\u{B}`
+
+  7 │ st�List<i64>>
+    │   ^

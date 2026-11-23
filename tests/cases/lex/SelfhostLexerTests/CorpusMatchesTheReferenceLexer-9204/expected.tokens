@@ -1,0 +1,56 @@
+1:1 IntegerLiteral `1`
+2:2 FloatLiteral `3.14`
+2:7 FloatLiteral `1e5`
+2:11 FloatLiteral `2.5e-3`
+2:18 FloatLiteral `6E+2`
+2:23 FloatLiteral `1.50`
+2:27 NumericSuffix `dec`
+2:31 IntegerLiteral `1`
+2:32 DotDot `..`
+2:34 IntegerLiteral `2`
+2:36 IntegerLiteral `1`
+2:37 DotDotEquals `..=`
+2:40 IntegerLiteral `3`
+2:42 IntegerLiteral `5`
+2:43 NumericSuffix `e`
+2:45 Identifier `x`
+2:46 Dot `.`
+2:47 Identifier `y`
+2:49 FloatLiteral `2.5`
+2:52 NumericSuffix `f`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \"q\" \\ \n"`
+3:26 RawStringLiteral `"""\neerror set unit distinct type import as public private static readonly required const l�et var embed extern unsafe\n 0b__\n���� 0xFFs\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  4 │ eerror set unit distinct type import as public private static readonly required const l�et var embed extern unsafe
+    │                                                                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │ ���� 0xFFs
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │ ���� 0xFFs
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���� 0xFFs
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���� 0xFFs
+    │    ^

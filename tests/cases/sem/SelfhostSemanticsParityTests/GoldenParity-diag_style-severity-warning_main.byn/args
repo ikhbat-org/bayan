@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/style-severity-warning
+--include-path
+<repo>/tests/cases/diag/style-severity-warning/main.byn

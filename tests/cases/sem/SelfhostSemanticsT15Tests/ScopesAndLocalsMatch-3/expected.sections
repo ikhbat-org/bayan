@@ -1,0 +1,9 @@
+== scopes discard-and-names
+declared _ 0
+declared _ 1
+declared Bad 2
+declared Bad 3
+declared y 4
+declared y 5
+BYN2009 8:4 `Bad` must be camelCase ||rename it `bad`; only types are PascalCase|fix 38..41 bad
+BYN2007 9:4 `Bad` is already a local here |already declared on line 8|pick a different name; Bayan does not let a local hide another one|

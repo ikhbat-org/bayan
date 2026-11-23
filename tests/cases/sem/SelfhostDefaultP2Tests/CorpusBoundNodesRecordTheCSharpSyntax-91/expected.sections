@@ -1,0 +1,44 @@
+== tests/cases/run/fs-modified.byn
+166..549 blockStmt
+172..196 localDecl
+190..196 collectionExpr
+191..195 literalExpr integer
+201..247 exprStmt
+201..247 tryExpr
+205..247 callExpr
+218..235 literalExpr string
+237..246 memberExpr
+237..241 nameExpr
+252..294 localDecl
+260..294 tryExpr
+264..294 callExpr
+276..293 literalExpr string
+299..347 exprStmt
+299..347 callExpr
+305..346 interpolatedExpr
+316..344 binaryExpr gt right 326..344
+316..323 memberExpr
+316..317 nameExpr
+326..344 literalExpr integer
+299..347 callExpr
+352..458 localDecl
+366..458 catchExpr
+366..404 callExpr
+378..403 literalExpr string
+411..458 switchExpr
+411..417 caughtErrorExpr
+428..429 discardPattern
+433..451 callExpr
+448..450 unaryExpr negate operand 449..450
+463..510 exprStmt
+463..510 callExpr
+469..509 interpolatedExpr
+488..507 binaryExpr eq right 505..507
+488..501 memberExpr
+488..495 nameExpr
+505..507 unaryExpr negate operand 506..507
+463..510 callExpr
+515..547 exprStmt
+515..547 tryExpr
+519..547 callExpr
+529..546 literalExpr string

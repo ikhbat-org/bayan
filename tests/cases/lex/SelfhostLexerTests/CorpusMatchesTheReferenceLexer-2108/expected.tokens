@@ -1,0 +1,45 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:8 Equals `=`
+2:12 IntegerLiteral `3`
+3:1 IntegerLiteral `1__`
+4:2 FailsKeyword `fails`
+4:8 TryKeyword `try`
+4:12 CatchKeyword `catch`
+4:18 NeverKeyword `never`
+4:24 NoallocKeyword `noalloc`
+4:32 NosuspendKeyword `nosuspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
+5:2 IntegerLiteral `0x_`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c = � 3
+    │          ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │  0x_
+    │  ^^^

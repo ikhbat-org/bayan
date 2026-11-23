@@ -1,0 +1,9 @@
+== lines
+line 4 loc byn_file_0, 4
+#line 4 "a.byn"
+    a;
+#line 4 "a.byn"
+        b;
+line 4 loc byn_file_0, 4
+    a;
+        b;

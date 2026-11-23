@@ -1,0 +1,185 @@
+== tests/cases/run/errors-payload-binding.byn
+286..417 blockStmt
+292..331 guardedStmt
+324..331 binaryExpr gt right 328..331
+324..325 nameExpr
+328..331 literalExpr integer
+292..296 failStmt
+297..320 callExpr
+313..319 binaryExpr mul right 317..319
+313..314 nameExpr
+317..319 literalExpr integer
+336..375 guardedStmt
+370..375 binaryExpr lt right 374..375
+370..371 nameExpr
+374..375 literalExpr integer
+336..340 failStmt
+341..366 callExpr
+351..362 literalExpr string
+364..365 nameExpr
+380..402 guardedStmt
+396..402 binaryExpr eq right 401..402
+396..397 nameExpr
+401..402 literalExpr integer
+380..384 failStmt
+385..392 targetMemberExpr
+407..415 returnStmt value 414..415
+414..415 nameExpr
+452..513 blockStmt
+458..488 guardedStmt
+481..488 binaryExpr eq right 486..488
+481..482 nameExpr
+486..488 literalExpr integer
+458..462 failStmt
+463..477 callExpr
+475..476 nameExpr
+493..511 returnStmt value 500..511
+500..511 tryExpr
+504..511 callExpr
+509..510 nameExpr
+548..644 blockStmt
+554..567 deferStmt
+568..590 exprStmt
+568..590 callExpr
+574..589 literalExpr string
+568..590 callExpr
+595..642 returnStmt value 602..642
+602..642 catchExpr
+602..610 callExpr
+608..609 nameExpr
+641..642 literalExpr integer
+669..897 blockStmt
+675..866 localDecl
+683..866 catchExpr
+683..691 callExpr
+689..690 nameExpr
+698..866 switchExpr
+698..704 caughtErrorExpr
+715..734 variantPattern
+724..727 varPattern
+738..743 nameExpr
+753..777 variantPattern
+763..766 varPattern
+775..776 discardPattern
+781..794 memberExpr
+781..787 nameExpr
+804..829 positionalPattern
+821..824 varPattern
+833..837 unaryExpr negate operand 834..837
+834..837 nameExpr
+847..854 constantPattern
+847..854 targetMemberExpr
+858..859 literalExpr integer
+871..895 exprStmt
+871..895 callExpr
+877..894 interpolatedExpr
+891..892 nameExpr
+871..895 callExpr
+917..1247 blockStmt
+923..1224 localDecl
+931..1224 catchExpr
+931..939 callExpr
+937..938 nameExpr
+946..1224 switchExpr
+946..952 caughtErrorExpr
+963..973 variantPattern
+963..973 variantPattern
+963..973 variantPattern
+977..1055 blockExpr
+977..1055 blockExpr
+977..1055 blockStmt
+991..1026 exprStmt
+991..1026 callExpr
+997..1025 interpolatedExpr
+1016..1023 memberExpr
+1016..1017 nameExpr
+991..1026 callExpr
+1039..1045 returnStmt
+1065..1073 variantPattern
+1065..1073 variantPattern
+1065..1073 variantPattern
+1077..1145 blockExpr
+1077..1145 blockExpr
+1077..1145 blockStmt
+1091..1116 exprStmt
+1091..1116 callExpr
+1097..1115 interpolatedExpr
+1108..1113 memberExpr
+1108..1109 nameExpr
+1091..1116 callExpr
+1129..1135 returnStmt
+1155..1156 discardPattern
+1160..1217 blockExpr
+1160..1217 blockExpr
+1160..1217 blockStmt
+1174..1188 exprStmt
+1174..1188 callExpr
+1180..1187 literalExpr string
+1174..1188 callExpr
+1201..1207 returnStmt
+1229..1245 exprStmt
+1229..1245 callExpr
+1235..1244 interpolatedExpr
+1241..1242 nameExpr
+1229..1245 callExpr
+1287..1342 blockStmt
+1293..1327 guardedStmt
+1322..1327 binaryExpr gt right 1326..1327
+1322..1323 nameExpr
+1326..1327 literalExpr integer
+1293..1318 returnStmt value 1300..1318
+1300..1318 callExpr
+1300..1318 callExpr
+1316..1317 nameExpr
+1332..1340 returnStmt value 1339..1340
+1339..1340 literalExpr integer
+1339..1340 literalExpr integer
+1387..1463 conditionalExpr
+1387..1463 conditionalExpr
+1387..1463 conditionalExpr
+1387..1393 memberExpr
+1387..1388 nameExpr
+1396..1398 unaryExpr negate operand 1397..1398
+1401..1463 switchExpr
+1401..1406 memberExpr
+1401..1402 nameExpr
+1420..1439 variantPattern
+1429..1432 varPattern
+1443..1448 nameExpr
+1454..1455 discardPattern
+1459..1460 literalExpr integer
+1477..1668 blockStmt
+1483..1498 exprStmt
+1483..1498 callExpr
+1494..1497 literalExpr integer
+1503..1517 exprStmt
+1503..1517 callExpr
+1514..1516 unaryExpr negate operand 1515..1516
+1522..1536 exprStmt
+1522..1536 callExpr
+1533..1535 literalExpr integer
+1541..1554 exprStmt
+1541..1554 callExpr
+1552..1553 literalExpr integer
+1559..1569 exprStmt
+1559..1569 callExpr
+1565..1568 literalExpr integer
+1574..1583 exprStmt
+1574..1583 callExpr
+1580..1582 literalExpr integer
+1588..1597 exprStmt
+1588..1597 callExpr
+1594..1596 unaryExpr negate operand 1595..1596
+1602..1610 exprStmt
+1602..1610 callExpr
+1608..1609 literalExpr integer
+1615..1666 exprStmt
+1615..1666 callExpr
+1621..1665 interpolatedExpr
+1629..1645 callExpr
+1636..1644 callExpr
+1641..1643 literalExpr integer
+1648..1663 callExpr
+1655..1662 callExpr
+1660..1661 literalExpr integer
+1615..1666 callExpr

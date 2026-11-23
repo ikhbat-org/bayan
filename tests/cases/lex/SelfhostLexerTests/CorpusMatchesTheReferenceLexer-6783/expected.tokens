@@ -1,0 +1,22 @@
+    doc `///`
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 Dot `.`
+2:9 Identifier `i`
+2:10 Dot `.`
+2:11 Equals `=`
+2:13 Colon `:`
+2:15 Question `?`
+2:18 QuestionQuestion `??`
+2:21 QuestionQuestionEquals `??=`
+2:25 QuestionDot `?.`
+2:28 FatArrow `=>`
+2:31 Arrow `->`
+2:35 Hash `#`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{1A}`
+
+  2 │ , . .. .i.= : ? �?? ??= ?. => ->  #
+    │                 ^

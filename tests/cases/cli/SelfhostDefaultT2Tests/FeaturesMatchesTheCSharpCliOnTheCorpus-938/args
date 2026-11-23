@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/switch-move-guard-mutate.byn
+--package
+<repo>/tests/cases/diag

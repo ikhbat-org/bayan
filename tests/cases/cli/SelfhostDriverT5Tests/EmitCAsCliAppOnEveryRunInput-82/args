@@ -1,0 +1,3 @@
+build
+--emit-c
+format-debug-rune-escapes.byn

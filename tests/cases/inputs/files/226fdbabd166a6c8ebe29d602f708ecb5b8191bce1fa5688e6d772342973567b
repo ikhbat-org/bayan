@@ -1,0 +1,1 @@
+Package { name: "local/shop", version: "0.1.0", capabilities: [], grammar: Grammar { forms: [] } }

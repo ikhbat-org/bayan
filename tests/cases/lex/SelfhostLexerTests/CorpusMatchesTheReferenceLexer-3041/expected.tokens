@@ -1,0 +1,57 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+6:3 StructKeyword `struct`
+6:10 UniqueKeyword `unique`
+6:17 UnionKeyword `union`
+6:23 EnumKeyword `enum`
+6:28 FlagsKeyword `flags`
+6:34 OpenKeyword `open`
+6:39 ExtensibleKeyword `extensible`
+6:50 InterfaceKeyword `interface`
+6:60 DelegateKeyword `delegate`
+6:69 ExtensionKeyword `extension`
+6:79 DerivationKeyword `derivation`
+6:90 AttributeKeyword `attribute`
+7:1 Identifier `et`
+7:6 Equals `=`
+7:8 IntegerLiteral `2`
+9:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ $"{{" = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ � struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ � struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ et � = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ // ok � in comment
+    │       ^

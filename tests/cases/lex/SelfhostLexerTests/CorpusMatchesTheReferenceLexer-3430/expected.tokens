@@ -1,0 +1,28 @@
+1:1 CloseBrace `}`
+1:3 Identifier `l`
+1:4 Identifier `et`
+1:7 Identifier `b`
+1:9 Equals `=`
+1:11 StringLiteral `"bad \q escape"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:7 Identifier `_`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  1 │ } l�et b = "bad \q escape"
+    │    ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ } l�et b = "bad \q escape"
+    │                 ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  2 │ $"{{" �_
+    │       ^

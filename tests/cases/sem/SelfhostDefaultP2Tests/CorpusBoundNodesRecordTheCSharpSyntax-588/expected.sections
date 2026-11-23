@@ -1,0 +1,7 @@
+== tests/cases/diag/interface-member-mismatch.byn
+179..184 literalExpr string
+179..184 literalExpr string
+179..184 literalExpr string
+216..217 literalExpr integer
+216..217 literalExpr integer
+216..217 literalExpr integer

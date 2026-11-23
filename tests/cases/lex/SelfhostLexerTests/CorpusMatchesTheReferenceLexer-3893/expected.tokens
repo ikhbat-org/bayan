@@ -1,0 +1,40 @@
+1:1 Identifier `le`
+1:4 Identifier `jafé`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+2:1 Identifier `rings`
+2:6 StringLiteral `" "`
+2:9 StringLiteral `" "`
+2:13 Identifier `u`
+2:14 OpenBrace `{`
+2:15 IntegerLiteral `48`
+2:17 CloseBrace `}`
+2:18 Identifier `i`
+2:19 StringLiteral `"`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  1 │ le� jafé = 1
+    │   ^
+
+error BYN0005: identifier `jafé` is not in Unicode normalization form C
+
+  1 │ le� jafé = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ le� jafé = 1
+    │   │        +
+
+error BYN0002: unexpected character `\`
+
+  2 │ rings" "" "\u{48}i"
+    │            ^
+
+error BYN0003: unterminated string literal
+
+  2 │ rings" "" "\u{48}i"
+    │                   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

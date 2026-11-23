@@ -1,0 +1,9 @@
+0b102
+ / Doc line one.
+/// Doc line two.
+struct S
+////not a d˜oc comme """
+let xâ§ = 1
+ğŸ˜/// Doc line one.
+  1
+macro select become

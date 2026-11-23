@@ -1,0 +1,32 @@
+    doc `/// Doc line one.`
+2:1 Identifier `t`
+2:3 UniqueKeyword `unique`
+2:10 UnionKeyword `union`
+2:16 EnumKeyword `enum`
+2:21 FlagsKeyword `flags`
+2:27 OpenKeyword `open`
+2:32 ExtensibleKeyword `extensible`
+2:43 InterfaceKeyword `interface`
+2:53 DelegateKeyword `delegate`
+2:62 Identifier `ext`
+3:1 Identifier `er`
+3:4 Identifier `closed`
+4:1 Identifier `b`
+6:2 CharLiteral `'`
+7:1 Identifier `a`
+7:3 Greater `>`
+7:4 Greater `>`
+7:6 Identifier `b`
+9:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  6 │ ‏'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  6 │ ‏'
+    │  ^
+    │
+  help: close it with `'`

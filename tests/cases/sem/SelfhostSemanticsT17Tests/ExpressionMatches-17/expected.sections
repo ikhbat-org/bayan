@@ -1,0 +1,3 @@
+== case conv-symbol
+errorExpr 1277..1281 : ?
+BYN2832 66:16 a `string` value is not a `Symbol`; only a string literal converts ||convert it with `Symbol.intern("hi")`|fix 1277..1281 Symbol.intern("hi")

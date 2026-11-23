@@ -1,0 +1,10 @@
+CompilationUnit
+  Struct S
+    Field i64 a = <error>
+    Field i64 b
+  Let x = 1
+
+error BYN1002: expected an expression, found `)`
+
+  2 │   i64 a = )
+    │           ^

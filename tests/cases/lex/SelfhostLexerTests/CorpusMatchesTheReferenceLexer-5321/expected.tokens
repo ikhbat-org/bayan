@@ -1,0 +1,20 @@
+1:1 Identifier `_`
+1:2 StringLiteral `"test asseGt property fuzz model foreach new goto`
+2:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ _"test asseGt property fuzz model foreach new goto
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ � 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ � 
+    │   │ -

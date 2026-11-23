@@ -1,0 +1,51 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+4:3 Equals `=`
+4:5 StringLiteral `"ba� \q escape"`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:9 StringLiteral `""`
+6:1 LetKeyword `let`
+6:5 Identifier `café`
+6:11 Equals `=`
+6:13 IntegerLiteral `1`
+6:14 Semicolon `;`
+7:1 LetKeyword `let`
+7:5 Identifier `café`
+7:10 Equals `=`
+7:12 IntegerLiteral `2`
+8:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │   = "ba� \q escape"
+    │        ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │   = "ba� \q escape"
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ let café = 1;
+    │   │        +

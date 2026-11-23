@@ -1,0 +1,6 @@
+public Money quote(Cart cart)
+    expects cart.total > 0
+    uses db
+    fails QuoteError {
+    return cart.total
+}

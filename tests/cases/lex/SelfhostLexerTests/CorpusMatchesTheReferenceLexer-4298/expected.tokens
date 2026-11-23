@@ -1,0 +1,48 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringText `\u{4}`
+1:6 InterpolatedStringEnd `"`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+2:14 Semicolon `;`
+3:1 Identifier `r`
+3:3 Identifier `closed`
+4:2 Identifier `b`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+9:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ let café = 1;
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  4 │ �b
+    │ ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  8 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ �
+    │   │ -

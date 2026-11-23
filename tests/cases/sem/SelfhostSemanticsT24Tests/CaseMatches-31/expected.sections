@@ -1,0 +1,2 @@
+== analyzeOwnership.captures
+BYN2780 136:36 implicit copy of a unique value: `List<i64>` is unique: it owns its storage ||copy what the lambda needs from `zs` into `let` values first|

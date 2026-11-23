@@ -1,0 +1,20 @@
+1:1 IsKeyword `is`
+1:4 Identifier `an`
+1:7 OrKeyword `or`
+1:10 NotKeyword `not`
+1:14 WithKeyword `with`
+1:19 Identifier `Do_ve`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+3:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  1 │ is an� or not with Do_ve ref out this null true false comptime checked
+    │      ^

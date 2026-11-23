@@ -1,0 +1,21 @@
+1:1 CharLiteral `'x`
+3:2 Equals `=`
+3:4 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:1 IntegerLiteral `0x_`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^

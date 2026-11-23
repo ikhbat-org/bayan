@@ -1,0 +1,62 @@
+1:1 CharLiteral `'`
+2:6 Identifier `n`
+2:7 StringLiteral `" %"`
+2:11 StringLiteral `""`
+3:3 Identifier `raw`
+3:7 StringLiteral `"qoted"`
+4:3 RawStringLiteral `""" c"te�xt" u16"wide" "\u{202E} all ���� 0xFFs\n\n\u{FEFF}\n`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\`
+
+  2 │  \\ \n" %"""
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  \\ \n" %"""
+    │   ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  \\ \n" %"""
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │   """ c"te�xt" u16"wide" "� all ���� 0xFFs
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  4 │   """ c"te�xt" u16"wide" "� all ���� 0xFFs
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │   """ c"te�xt" u16"wide" "� all ���� 0xFFs
+    │                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │   """ c"te�xt" u16"wide" "� all ���� 0xFFs
+    │                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │   """ c"te�xt" u16"wide" "� all ���� 0xFFs
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │   """ c"te�xt" u16"wide" "� all ���� 0xFFs
+    │                                    ^

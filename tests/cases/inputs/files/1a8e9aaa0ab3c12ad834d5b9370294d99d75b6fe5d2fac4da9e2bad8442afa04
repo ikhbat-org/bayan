@@ -1,0 +1,6 @@
+"text" "esc \"q\" \\ \n" """
+ 
+ let b = "bad \q escape"
+
+ï» let actYor = 1
+Ê 

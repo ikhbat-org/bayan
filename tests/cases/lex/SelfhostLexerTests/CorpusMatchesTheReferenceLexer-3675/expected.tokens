@@ -1,0 +1,35 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:5 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */ // ok � in comment
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │  // ok � in comment
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */ // ok � in comment
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */ // ok � in comment
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ /* � */ // ok � in comment
+    │               ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{ 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

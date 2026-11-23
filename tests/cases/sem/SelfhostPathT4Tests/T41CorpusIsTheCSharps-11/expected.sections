@@ -1,0 +1,14 @@
+== diags.run/self-hosting-lambdas
+BYN2310 18:10 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 18:10-18:14 ReadOnlySpan
+BYN2310 27:16 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 27:16-27:20 ReadOnlySpan
+BYN2310 38:16 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 38:16-38:20 ReadOnlySpan
+BYN2310 54:14 `ts` is never written through; use `ReadOnlySpan<Token>`
+  help take a `ReadOnlySpan`; it also accepts strings and read-only views
+  fix 54:14-54:18 ReadOnlySpan
+returns render 0 1

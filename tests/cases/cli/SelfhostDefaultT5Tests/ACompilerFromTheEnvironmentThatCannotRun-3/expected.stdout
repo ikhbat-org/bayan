@@ -1,0 +1,7 @@
+[32m◆[0m bayan       <version>
+[32m◆[0m host        <host>
+[31m✗ C compiler: BAYAN_CC is `<repo>/tmp/t5-doctor/broken-env/missing`, which can't be run[0m
+[34m  help: point BAYAN_CC at a C compiler, or unset it to use zig[0m
+[32m◆[0m zig         <host>
+[32m◆[0m git         <host>
+[32m◆[0m cache       <host>

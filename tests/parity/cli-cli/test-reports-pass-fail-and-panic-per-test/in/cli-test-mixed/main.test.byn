@@ -1,0 +1,25 @@
+union error E {
+    /// It went wrong.
+    wrong,
+}
+
+void breaks() fails E {
+    fail .wrong
+}
+
+test "passes" {
+    assert(1 + 1 == 2)
+}
+
+test "asserts" {
+    print("before")
+    assert(1 + 1 == 3)
+}
+
+test "fails" {
+    try breaks()
+}
+
+test "panics" {
+    panic("boom")
+}

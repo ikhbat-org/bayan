@@ -1,0 +1,19 @@
+1:2 Equals `=`
+1:6 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:10 IntegerLiteral `2`
+3:1 Identifier `leNt`
+3:6 Identifier `c`
+3:8 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │  = $ 1
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = `2
+    │         ^

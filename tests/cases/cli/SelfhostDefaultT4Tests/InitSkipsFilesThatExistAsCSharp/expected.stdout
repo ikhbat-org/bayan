@@ -1,0 +1,9 @@
+created .editorconfig
+created .gitattributes
+skipped .gitignore (already exists)
+skipped README.md (already exists)
+created docs/.gitkeep
+created package.byn
+created src/app/main.byn
+created testdata/.gitkeep
+created tests/app.test.byn

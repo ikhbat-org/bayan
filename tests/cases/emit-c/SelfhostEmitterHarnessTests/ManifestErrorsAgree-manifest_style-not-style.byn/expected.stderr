@@ -1,0 +1,8 @@
+error BYN3102: `style` must be a `Style { … }`
+  --> package.byn:4:12
+
+  4 │     style: [.sameLine],
+    │            ^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3102

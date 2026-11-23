@@ -1,0 +1,126 @@
+1:3 Dot `.`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+4:1 Identifier `b`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolatedStringText `$`
+7:40 InterpolatedStringEnd `"`
+7:41 OpenBrace `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 Identifier `x`
+7:46 InterpolationEnd `}`
+7:47 InterpolatedStringEnd `"`
+7:48 CloseBrace `}`
+7:49 StringLiteral `"}"`
+7:52 InterpolationEnd `}`
+7:53 InterpolatedStringEnd `"`
+7:54 InterpolationEnd `}`
+7:55 InterpolatedStringEnd `"`
+7:56 InterpolationEnd `}`
+7:57 InterpolatedStringEnd `"`
+7:58 InterpolationEnd `}`
+7:59 InterpolatedStringEnd `"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+8:1 LetKeyword `let`
+8:5 Identifier `café`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+9:1 Identifier `Å`
+9:4 LetKeyword `let`
+9:8 Identifier `x`
+9:11 Equals `=`
+9:13 IntegerLiteral `1`
+10:2 Identifier `b`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� .
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� .
+    │  ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /* � */
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x}"}"}"}"}"}"}"}"}"
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  8 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ let café = 1
+    │   │        +
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  9 │ Å let x� = 1
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ Å let x� = 1
+    │   │ +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  9 │ Å let x� = 1
+    │         ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ Å let x� = 1
+    │   │         -

@@ -1,0 +1,77 @@
+1:1 CharLiteral `'\u{110000}'`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 Identifier `x`
+3:50 CharLiteral `' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f`
+4:1 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f
+    │                                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f
+    │                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f
+    │                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x' ���3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 �1..=3 5e x.y 2.5f
+    │                                                                                         ^

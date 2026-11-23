@@ -1,0 +1,4 @@
+== checkPanicHandler.restricted
+BYN2612 190:9 assignment is not allowed in a panic handler ||remove it; panic handlers can't recover|
+BYN2612 191:18 allocation is not allowed in a panic handler ||remove it; panic handlers can't recover|
+BYN2612 192:17 allocation is not allowed in a panic handler ||remove it; panic handlers can't recover|

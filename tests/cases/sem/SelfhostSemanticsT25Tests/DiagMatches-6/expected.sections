@@ -1,0 +1,5 @@
+== mutated-while-borrowed
+BYN3004 5:5 `xs` is modified while `view` still borrows it |`view` is used again on line 6|finish using `view` first, or copy what it needs before changing `xs`|
+BYN3004 8:5 `xs` is modified while `again` still borrows it |`again` is used again on line 9|finish using `again` first, or copy what it needs before changing `xs`|
+BYN3004 11:9 `xs` is modified while the `for` loop still borrows it |the loop over `xs` is still running|collect the changes in another list and apply them to `xs` after the loop|
+BYN3004 15:5 `arena` is modified while `name` still borrows it |`name` is used again on line 16|finish using `name` first, or copy what it needs before changing `arena`|

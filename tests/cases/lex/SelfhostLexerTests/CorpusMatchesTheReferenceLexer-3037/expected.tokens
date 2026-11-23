@@ -1,0 +1,22 @@
+1:1 CharLiteral `''`
+3:3 RawStringLiteral `"""c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{4�}i"\r\n\r\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\r\n/* \u{202D} */$"{a\r\n/// Doc line one.\r\n\r\n/// Doc line one.\r\n\r\n  raw "quoted"\r\n`
+12:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  3 │   """c"text" u16"wide" "� allowed in strings" "" "\u{4�}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  3 │   """c"text" u16"wide" "� allowed in strings" "" "\u{4�}i"
+    │                                                       ^

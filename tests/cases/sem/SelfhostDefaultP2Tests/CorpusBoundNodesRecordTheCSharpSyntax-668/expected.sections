@@ -1,0 +1,17 @@
+== tests/cases/diag/move-with-parenthesized.byn
+140..277 blockStmt
+146..200 localDecl
+155..200 structLiteralExpr
+171..178 literalExpr string
+187..198 callExpr
+205..248 localDecl
+216..220 moveExpr
+222..247 withExpr
+222..224 nameExpr
+239..245 literalExpr string
+253..275 exprStmt
+253..275 callExpr
+259..274 interpolatedExpr
+262..272 memberExpr
+262..266 nameExpr
+253..275 callExpr

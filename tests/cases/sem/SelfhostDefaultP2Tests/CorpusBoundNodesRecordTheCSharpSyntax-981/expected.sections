@@ -1,0 +1,2 @@
+== tests/cases/diag/where-unknown-parameter.byn
+77..80 blockStmt

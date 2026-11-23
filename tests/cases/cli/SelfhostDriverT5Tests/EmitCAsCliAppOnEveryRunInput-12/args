@@ -1,0 +1,3 @@
+build
+--emit-c
+assert-values-types.byn

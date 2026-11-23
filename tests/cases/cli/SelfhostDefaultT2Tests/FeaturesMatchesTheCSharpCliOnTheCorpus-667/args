@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/interpolation-escapes-context.byn
+--package
+<repo>/tests/cases/diag

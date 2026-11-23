@@ -1,0 +1,5 @@
+== helpers
+bynh_eq_main__Point static bool bynh_eq_main__Point(bynt_main__Point a, bynt_main__Point b) | static bool bynh_eq_main__Point(bynt_main__Point a, bynt_main__Point b) {
+    return (a.x == b.x)
+        && (a.y == b.y);
+}

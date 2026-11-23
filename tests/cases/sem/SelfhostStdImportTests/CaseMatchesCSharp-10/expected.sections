@@ -1,0 +1,6 @@
+== path lint-std
+module std.lint <std>/lint std_lint
+file <std>/lint/lint.byn
+module main tmp/std-cases/lint main
+file tmp/std-cases/lint/main.byn
+import lint std.lint

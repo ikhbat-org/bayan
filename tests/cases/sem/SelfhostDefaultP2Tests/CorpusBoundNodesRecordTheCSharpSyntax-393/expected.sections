@@ -1,0 +1,3 @@
+== tests/cases/diag/circular-alias.byn
+36..48 globalStatement
+36..48 localDecl

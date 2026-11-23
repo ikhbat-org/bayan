@@ -1,0 +1,7 @@
+== fail-in-defer
+BYN2610 7:9 `fail` cannot leave a `defer` or `defer failing` body |||
+fn f
+block 64..115
+  deferStmt 70..75
+    block 76..113
+      errorStmt 86..90

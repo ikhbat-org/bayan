@@ -1,0 +1,14 @@
+1:1 StringLiteral `"}"`
+1:4 CloseBrace `}`
+1:5 StringLiteral `"}"`
+1:8 CloseBrace `}`
+1:10 StringLiteral `"} "`
+1:14 OpenBrace `{`
+1:16 IntegerLiteral `1`
+1:17 Dot `.`
+1:18 EndOfFile
+
+error BYN0002: unexpected character `\u{12}`
+
+  1 │ "}"}"}"}�"} "{ 1.
+    │         ^

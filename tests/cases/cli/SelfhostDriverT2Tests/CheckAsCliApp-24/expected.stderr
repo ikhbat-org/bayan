@@ -1,0 +1,7 @@
+note BYN1075: blocks nested more than 4 deep; flatten them with early exits
+  --> <repo>/tmp/t2/diag/style-nesting-depth/style-nesting-depth.byn:17:30
+
+  17 │                     if n > 4 {
+     │                              ^ nested more than 4 deep
+     │
+  help: flatten it with early exits

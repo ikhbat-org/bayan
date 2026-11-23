@@ -1,0 +1,5 @@
+error BYN2213: index 3 is out of range for `i64[3]`
+  --> <repo>/tests/cases/diag/index-out-of-range.byn:2:12
+
+  2 │ let x = xs[3]
+    │            ^

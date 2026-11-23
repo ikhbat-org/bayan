@@ -1,0 +1,23 @@
+warning BYN5011: this `expects` reads only `percent`; a type with `requires` checks it once
+  --> <repo>/tests/cases/run/requires.byn:2:5
+
+  2 │     expects percent in 0..=100
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `percent`
+
+warning BYN5011: this `expects` reads only `total`; a type with `requires` checks it once
+  --> <repo>/tests/cases/run/requires.byn:3:5
+
+  3 │     expects total >= 0
+    │     ^^^^^^^
+    │
+  help: declare a type with `requires` for `total`
+
+warning BYN5011: this `expects` reads only `value`; a type with `requires` checks it once
+  --> <repo>/tests/cases/run/requires.byn:6:27
+
+  6 │ i32 firstDigit(i32 value) expects value in 0..10 {
+    │                           ^^^^^^^
+    │
+  help: declare a type with `requires` for `value`

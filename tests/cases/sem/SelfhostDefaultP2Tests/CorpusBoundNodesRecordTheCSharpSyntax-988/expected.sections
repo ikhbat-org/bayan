@@ -1,0 +1,3 @@
+== tests/cases/diag/wrong-type-argument-count.byn
+0..22 globalStatement
+0..22 localDecl

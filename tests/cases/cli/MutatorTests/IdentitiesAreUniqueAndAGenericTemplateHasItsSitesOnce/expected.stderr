@@ -1,0 +1,9 @@
+warning BYN2311: `n` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:13:9
+
+  13 │     var n: i64 = 7
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 13 │     let n: i64 = 7
+     │    │     +++

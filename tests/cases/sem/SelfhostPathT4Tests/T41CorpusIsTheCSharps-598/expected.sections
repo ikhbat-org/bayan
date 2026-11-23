@@ -1,0 +1,2 @@
+== diags.diag/lambda-break-outside-loop
+BYN2406 8:13 `break` outside a loop

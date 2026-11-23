@@ -1,0 +1,4 @@
+== diags.diag/non-exhaustive-wildcard-help
+BYN2410 7:22 `switch` does not handle every `Color`
+  label not covered: .green, .blue
+  help add the missing arms, or `_ => …` for the rest

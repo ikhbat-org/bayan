@@ -1,0 +1,29 @@
+2:1 IntegerLiteral `0x`
+3:1 Identifier `b`
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:9 StringLiteral `"open`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ // )ok � in commen�
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  8 │ // )ok � in commen�
+    │                   ^

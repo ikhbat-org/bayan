@@ -1,0 +1,16 @@
+== tests/cases/diag/io-remove-directory-needs-fs.byn
+162..195 blockStmt
+168..193 exprStmt
+168..193 tryExpr
+172..193 callExpr
+191..192 nameExpr
+250..283 blockStmt
+256..281 exprStmt
+256..281 tryExpr
+260..281 callExpr
+279..280 nameExpr
+297..316 blockStmt
+303..314 exprStmt
+303..314 callExpr
+309..313 literalExpr string
+303..314 callExpr

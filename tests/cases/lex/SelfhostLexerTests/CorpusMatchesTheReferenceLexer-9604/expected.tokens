@@ -1,0 +1,21 @@
+1:2 PlusEquals `+=`
+1:5 MinusEquals `-=`
+1:8 StarEquals `*=`
+1:11 SlashEquals `/=`
+1:14 PercentEquals `%=`
+1:17 AmpEquals `&=`
+1:20 BarEquals `|=`
+1:23 CaretEquals `^=`
+1:26 LessLessEquals `<<=`
+    doc `/// Doc line one�`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏+= -= *= /= %= &= |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  2 │ /// Doc line one�
+    │                 ^

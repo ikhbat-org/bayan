@@ -1,0 +1,8 @@
+== cases
+0 bynh_eq_main__Point(l1_o, ((bynt_main__Point){INT64_C(0), INT64_C(0)}))
+1 (!bynh_eq_main__Point(l0_p, l1_o))
+2 byn_add_i64((*self).x, (*self).y, byn_file_0, 5)
+3 byn_add_i64(byn_mul_i64((*self).x, p_other.x, byn_file_0, 14), byn_mul_i64((*self).y, p_other.y, byn_file_0, 14), byn_file_0, 14)
+4 byn_mul_i64((*self).x, p_other.x, byn_file_0, 14)
+5 byn_mul_i64((*self).y, p_other.y, byn_file_0, 14)
+count 7

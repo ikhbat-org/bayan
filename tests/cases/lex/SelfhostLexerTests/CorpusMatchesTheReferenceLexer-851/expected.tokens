@@ -1,0 +1,40 @@
+1:1 IntegerLiteral `0x_`
+2:2 CloseBrace `}`
+3:2 Equals `=`
+3:4 Identifier `closed`
+5:1 Identifier `h__`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+8:1 FloatLiteral `3.14`
+8:6 FloatLiteral `1e5`
+8:10 FloatLiteral `2.5e-3`
+8:17 FloatLiteral `6E+2`
+8:22 FloatLiteral `1.50`
+8:26 NumericSuffix `dec`
+8:30 IntegerLiteral `1`
+8:31 DotDot `..`
+8:33 IntegerLiteral `2`
+8:35 IntegerLiteral `1`
+8:36 DotDotEquals `..=`
+8:39 IntegerLiteral `3`
+8:41 IntegerLiteral `5`
+8:42 NumericSuffix `e`
+8:44 Identifier `x`
+8:45 Dot `.`
+8:46 Identifier `y`
+8:48 Dot `.`
+8:49 IntegerLiteral `5`
+8:50 NumericSuffix `f`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^

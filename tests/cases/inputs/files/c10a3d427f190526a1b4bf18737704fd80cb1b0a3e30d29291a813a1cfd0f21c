@@ -1,0 +1,12 @@
+// BYN1074: a control head that wraps; name the condition with a `let`.
+void main() {
+    let a = 1
+    let b = 2
+    if a > 0
+            && b > 0 {
+        print("both")
+    }
+    let both = a > 0
+        && b > 0
+    print($"{both}")
+}

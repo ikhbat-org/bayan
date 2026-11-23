@@ -1,0 +1,6 @@
+== all
+rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src/app/main.byn
+rel tmp/t7-path/helpers tmp/t7-path/helpers .
+rel tmp/t7-path/helpers/ tmp/t7-path/helpers/tests tests
+rel tmp/t7-path/helpers/src/app tmp/t7-path/helpers/src/lib/x.byn ../lib/x.byn
+rel tmp/t7-path/helpers tmp/t7-path/helpers/../other/y.byn ../other/y.byn

@@ -1,0 +1,23 @@
+1:1 IntegerLiteral `1`
+2:2 TestKeyword `test`
+2:7 AssertKeyword `assert`
+2:14 PropertyKeyword `property`
+2:23 FuzzKeyword `fuzz`
+2:28 ModelKeyword `model`
+2:34 Identifier `fore`
+2:39 Identifier `ch`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF5)
+
+  2 │  test assert property fuzz model fore�ch new goto
+    │                                      ^
+
+error BYN0004: unterminated block comment
+
+  4 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

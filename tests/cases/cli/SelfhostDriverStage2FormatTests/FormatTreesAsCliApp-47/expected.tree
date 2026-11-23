@@ -1,0 +1,12 @@
+== fixture/.worktrees/x/a.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }
+== fixture/src/ok.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }
+== fixture/tmp/b.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }
+== outside/c.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+unless !a { print("y") }

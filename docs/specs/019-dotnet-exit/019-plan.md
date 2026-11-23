@@ -1,6 +1,6 @@
 # 019 — Plan
 
-Status: approved (text drafted 2026-11-17, owner to review)
+Status: approved as amended through 2026-11-18 (owner, 2026-11-18)
 Release: unscheduled
 Sources: docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md (§1, §2, §3, §4, C# archive plan); docs/bayan-milestones.md (Target: zero dependencies; user 2026-11-13); docs/decisions/2026-11-16-007-additional-concepts-review.md (Q9)
 
@@ -218,3 +218,10 @@ A session is a directory: a workspace tree, `in.jsonl` (client messages in order
 | R35 | 6 | T69a–T69c, T70 |
 | R36 | 5 | T45 |
 | R37 | 5 | T43 |
+
+## Plan change 2026-11-17: `style` needs a child process
+
+T2's writer found that `style` cannot be compared from `golden.byn` alone: `StyleTests.cs` runs `CliApp.Run` in process with a fake terminal, and the self-hosted command functions write straight to `Io.stdout`/`Io.stderr`. Fable compared four options (in-process capture, a child process, hand-porting the five renderer-only shapes, deferring); the owner took the child process (option a). T2a adds the executable-path builtin and the documented `BAYAN_TERMINAL=<width>` override; T2b compares `style` through a child. The same child path serves T3's kinds and T4's time limit.
+
+### Plan change 2026-11-17 (T2b)
+Five `style` shapes (`diag-secondary`, `build-ice`, `lower-ice`, `doctor-ok`, `doctor-fail`) are rendered in-process by `StyleTests.cs:172-208` from hand-built inputs, and no driver command produces them (T2b writer, 2026-11-17). They follow this plan's rule for in-process C# tests with no process-level form: Bayān `test` blocks beside the self-hosted renderers, compared against the frozen expected files. R1's "every case runs through the runner" therefore has a recorded five-case exception: the runner reports them as skipped and names the covering block, and T10 counts 17 runner shapes plus 5 test-block shapes. Rejected: a hidden driver entry (ships test fixtures in the product; fallback if the renderers cannot return text cheaply), regenerating the five files (impossible for `lower-ice`, host-dependent for doctor, breaks T10), excluding them (drops the only coverage of related spans, both ICE reports and doctor rendering). Accepted 2026-11-17 on Fable's advice (owner delegated): R1 gains the sentence; the five names live in one list that T10 checks (each named block exists and ran); update mode does not reach the 15 files; the blocks read `tests/cases/style/` relative to the repo root. If Q81 gives related spans a binder site, `diag-secondary` becomes a normal CLI case. `BAYAN_EXE` keeps its name (not `BAYAN_BIN`, which `bench/*.sh` uses for another meaning).

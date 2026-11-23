@@ -1,0 +1,12 @@
+error BYN2800: `Shape` must start with `I` and an uppercase letter
+  --> <repo>/tmp/t2/diag/interface-name/interface-name.byn:1:11
+
+  1 │ interface Shape {
+    │           ^^^^^ an interface name
+    │
+  help: rename it to `IShape`
+    │ 1 │ interface IShape {
+    │   │           +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2800

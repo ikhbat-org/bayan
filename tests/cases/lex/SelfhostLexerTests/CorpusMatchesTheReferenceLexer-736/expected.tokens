@@ -1,0 +1,26 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:4 Identifier `ra`
+2:8 StringLiteral `"quoted"`
+8:2 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\`
+
+  2 │    ra\ "quoted"
+    │      ^
+
+error BYN0004: unterminated block comment
+
+  3 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

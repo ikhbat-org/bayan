@@ -1,0 +1,38 @@
+== tests/cases/run/format-debug-struct.byn
+241..313 globalStatement
+241..313 localDecl
+249..313 structLiteralExpr
+256..257 literalExpr integer
+266..299 structLiteralExpr
+280..286 literalExpr string
+294..297 literalExpr char
+307..311 literalExpr nullKeyword
+314..339 exprStmt
+314..339 callExpr
+320..338 interpolatedExpr
+323..324 nameExpr
+314..339 callExpr
+340..385 exprStmt
+340..385 callExpr
+346..384 interpolatedExpr
+350..358 structLiteralExpr
+340..385 callExpr
+386..453 exprStmt
+386..453 callExpr
+392..452 interpolatedExpr
+395..415 structLiteralExpr
+406..407 literalExpr integer
+412..413 literalExpr integer
+418..438 structLiteralExpr
+429..430 literalExpr integer
+435..436 literalExpr integer
+386..453 callExpr
+198..237 blockStmt
+208..231 exprStmt
+208..231 callExpr
+208..209 nameExpr
+217..230 interpolatedExpr
+221..222 nameExpr
+221..222 nameExpr
+226..227 nameExpr
+226..227 nameExpr

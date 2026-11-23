@@ -1,0 +1,45 @@
+1:1 Identifier `각let`
+1:8 Identifier `café`
+1:13 Equals `=`
+1:15 IntegerLiteral `2`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيانμετρητής`
+3:36 Identifier `x_1`
+3:40 Identifier `é`
+4:5 Identifier `comment`
+4:13 Star `*`
+4:14 Slash `/`
+4:16 Identifier `a`
+6:1 StringLiteral `"`
+7:1 Identifier `List`
+7:5 Less `<`
+7:6 Identifier `List`
+7:10 Less `<`
+7:11 Identifier `i64`
+7:14 Greater `>`
+7:15 Greater `>`
+9:1 EndOfFile
+
+error BYN0005: identifier `각let` is not in Unicode normalization form C
+
+  1 │ 각let café = 2
+    │ ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각let café = 2
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

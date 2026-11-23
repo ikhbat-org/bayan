@@ -1,0 +1,31 @@
+1:1 CharLiteral `'ab'`
+3:1 Identifier `b`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+7:1 Identifier `tetst`
+7:7 AssertKeyword `assert`
+7:14 PropertyKeyword `property`
+7:23 FuzzKeyword `fuzz`
+7:28 ModelKeyword `model`
+7:34 ForeachKeyword `foreach`
+7:42 NewKeyword `new`
+7:46 GotoKeyword `goto`
+8:1 PlusEquals `+=`
+8:4 MinusEquals `-=`
+8:7 StarEquals `*=`
+8:10 SlashEquals `/=`
+8:13 Identifier `E`
+8:14 Equals `=`
+8:15 Identifier `T`
+8:17 AmpEquals `&=`
+8:20 BarEquals `|=`
+8:23 CaretEquals `^=`
+8:26 LessLessEquals `<<=`
+9:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

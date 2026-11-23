@@ -1,0 +1,9 @@
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    grammar: Grammar {
+        verbs: ["record"],
+        nouns: ["record", "x"],
+        adjectives: ["x"],
+    },
+}

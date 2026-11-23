@@ -1,0 +1,50 @@
+== locals
+i64Row: source held c t t c c
+i32Row: source held c t t c c
+u8Row: source held c t t c c
+f64Row: source held c t t c c
+boolRow: source held c t t c c
+runeRow: source held c t t c c
+stringRow: source held c t t c c
+structRow: source held c t t c c t
+enumRow: source held c t t c c
+unionRow: source held c t t c c t
+optionalRow: source held c t t c c
+tupleRow: source held c t t c c t
+functionRow: source held c t t c t c t t t t t
+call:
+parameterRow: held t t t t
+main: v
+i64Row$lambda1:
+i64Row$lambda2:
+i32Row$lambda1:
+i32Row$lambda2:
+u8Row$lambda1:
+u8Row$lambda2:
+f64Row$lambda1:
+f64Row$lambda2:
+boolRow$lambda1:
+boolRow$lambda2:
+runeRow$lambda1:
+runeRow$lambda2:
+stringRow$lambda1:
+stringRow$lambda2:
+structRow$lambda1:
+structRow$lambda2:
+enumRow$lambda1:
+enumRow$lambda2:
+unionRow$lambda1:
+unionRow$lambda2:
+optionalRow$lambda1:
+optionalRow$lambda2:
+tupleRow$lambda1:
+tupleRow$lambda2:
+functionRow$lambda1:
+functionRow$lambda2:
+functionRow$lambda2$lambda1:
+functionRow$lambda3:
+functionRow$lambda4:
+functionRow$lambda5:
+parameterRow$lambda1:
+parameterRow$lambda2:
+parameterRow$lambda3:

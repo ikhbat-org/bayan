@@ -1,0 +1,7 @@
+1:3 RawStringLiteral `""" c"�ext" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nlet actor = 1\n "text" "esc \"q\" \\ \n" """`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  1 │   """ c"�ext" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │         ^

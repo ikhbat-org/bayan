@@ -1,0 +1,18 @@
+error BYN2202: expected `i32`, found `string`
+  --> <repo>/tmp/t5/self/broken/broken.byn:2:18
+
+  2 │     let x: i32 = "no"
+    │                  ^^^^
+
+error BYN2001: `y` is not defined
+  --> <repo>/tmp/t5/self/broken/broken.byn:3:11
+
+  3 │     print(y)
+    │           ^
+    │
+  help: did you mean `x`?
+    │ 3 │     print(x)
+    │   │           +
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2202

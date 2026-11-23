@@ -1,0 +1,136 @@
+== tests/cases/diag/lambda-escapes-region.byn
+40..49 callExpr
+40..49 callExpr
+40..49 callExpr
+40..46 callExpr
+40..44 nameExpr
+47..48 literalExpr integer
+63..671 blockStmt
+69..98 localDecl
+91..98 lambdaExpr
+103..218 blockStmt
+113..138 localDecl
+131..138 callExpr
+147..179 localDecl
+158..179 callExpr
+158..163 literalExpr string
+173..178 nameExpr
+188..212 assignStmt assign target 188..192 value 195..212
+188..192 nameExpr
+195..212 lambdaExpr
+201..205 nameExpr
+223..241 exprStmt
+223..241 callExpr
+229..240 interpolatedExpr
+232..238 callExpr
+232..236 nameExpr
+223..241 callExpr
+246..275 localDecl
+269..275 lambdaExpr
+280..327 forStmt
+289..293 rangeExpr
+289..290 literalExpr integer
+292..293 literalExpr integer
+294..327 blockStmt
+304..321 assignStmt assign target 304..308 value 311..321
+304..308 nameExpr
+311..321 lambdaExpr
+320..321 nameExpr
+332..341 localDecl
+340..341 literalExpr integer
+346..424 whileStmt
+352..357 binaryExpr lt right 356..357
+352..353 nameExpr
+356..357 literalExpr integer
+358..424 blockStmt
+368..377 localDecl
+376..377 nameExpr
+386..403 assignStmt assign target 386..390 value 393..403
+386..390 nameExpr
+393..403 lambdaExpr
+402..403 nameExpr
+412..418 assignStmt add target 412..413 value 417..418
+412..413 nameExpr
+417..418 literalExpr integer
+429..510 doWhileStmt
+432..498 blockStmt
+442..451 localDecl
+450..451 nameExpr
+460..477 assignStmt assign target 460..464 value 467..477
+460..464 nameExpr
+467..477 lambdaExpr
+476..477 nameExpr
+486..492 assignStmt add target 486..487 value 491..492
+486..487 nameExpr
+491..492 literalExpr integer
+505..510 binaryExpr lt right 509..510
+505..506 nameExpr
+509..510 literalExpr integer
+515..534 exprStmt
+515..534 callExpr
+521..533 interpolatedExpr
+524..531 callExpr
+524..528 nameExpr
+529..530 literalExpr integer
+515..534 callExpr
+539..611 localDecl
+547..611 callExpr
+553..558 lambdaExpr
+616..647 localDecl
+624..647 callExpr
+630..646 lambdaExpr
+652..669 exprStmt
+652..669 callExpr
+658..668 interpolatedExpr
+661..666 binaryExpr add right 665..666
+661..662 nameExpr
+665..666 nameExpr
+652..669 callExpr
+97..98 literalExpr integer
+97..98 literalExpr integer
+97..98 literalExpr integer
+201..212 memberExpr
+201..212 memberExpr
+201..212 memberExpr
+201..205 nameExpr
+274..275 nameExpr
+274..275 nameExpr
+274..275 nameExpr
+316..321 binaryExpr add right 320..321
+316..321 binaryExpr add right 320..321
+316..321 binaryExpr add right 320..321
+316..317 nameExpr
+320..321 nameExpr
+320..321 nameExpr
+398..403 binaryExpr add right 402..403
+398..403 binaryExpr add right 402..403
+398..403 binaryExpr add right 402..403
+398..399 nameExpr
+402..403 nameExpr
+402..403 nameExpr
+472..477 binaryExpr add right 476..477
+472..477 binaryExpr add right 476..477
+472..477 binaryExpr add right 476..477
+472..473 nameExpr
+476..477 nameExpr
+476..477 nameExpr
+559..610 blockStmt
+569..578 localDecl
+577..578 literalExpr integer
+587..604 returnStmt value 594..604
+594..604 lambdaExpr
+603..604 nameExpr
+599..604 binaryExpr add right 603..604
+599..604 binaryExpr add right 603..604
+599..604 binaryExpr add right 603..604
+599..600 nameExpr
+603..604 nameExpr
+603..604 nameExpr
+636..646 lambdaExpr
+636..646 lambdaExpr
+636..646 lambdaExpr
+641..646 binaryExpr add right 645..646
+641..646 binaryExpr add right 645..646
+641..646 binaryExpr add right 645..646
+641..642 nameExpr
+645..646 literalExpr integer

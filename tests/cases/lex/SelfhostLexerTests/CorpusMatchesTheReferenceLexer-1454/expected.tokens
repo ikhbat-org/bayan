@@ -1,0 +1,21 @@
+2:1 OpenBrace `{`
+3:1 Comma `,`
+3:3 Dot `.`
+3:5 DotDot `..`
+3:8 DotDotEquals `..=`
+3:12 Colon `:`
+3:14 QuestionQuestion `??`
+3:16 Question `?`
+3:17 Identifier `P`
+3:19 QuestionQuestionEquals `??=`
+3:23 QuestionDot `?.`
+3:26 FatArrow `=>`
+3:29 Arrow `->`
+3:32 At `@`
+3:34 Hash `#`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `̈́`
+
+  1 │ ̈́
+    │ ^

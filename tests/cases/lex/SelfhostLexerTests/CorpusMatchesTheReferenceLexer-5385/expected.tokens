@@ -1,0 +1,55 @@
+2:2 Identifier `a`
+2:4 Equals `=`
+2:8 IntegerLiteral `1`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 Identifier `E`
+5:1 StringLiteral `"{x}"`
+5:6 CloseBrace `}`
+5:7 StringLiteral `"}"`
+5:10 CloseBrace `}`
+5:11 StringLiteral `"}"`
+5:14 CloseBrace `}`
+5:15 StringLiteral `"}"`
+5:18 CloseBrace `}`
+5:19 StringLiteral `"}"`
+5:22 CloseBrace `}`
+5:23 StringLiteral `"}"`
+5:26 CloseBrace `}`
+5:27 StringLiteral `"}"`
+5:30 CloseBrace `}`
+5:31 StringLiteral `"}"`
+5:34 CloseBrace `}`
+5:35 StringLiteral `"}"`
+5:38 CloseBrace `}`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0002: unexpected character `$`
+
+  2 │  a = $ 1
+    │      ^
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � E
+    │         ^

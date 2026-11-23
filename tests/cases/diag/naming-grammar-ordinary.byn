@@ -1,0 +1,26 @@
+// NamingGrammarTests.OrdinaryWordsAreNotParticiples: none of these members on `ref this` is BYN5001.
+struct Words {
+    i64 n
+
+    void speed(ref this) { n += 1 }
+
+    void need(ref this) { n += 1 }
+
+    void seed(ref this) { n += 1 }
+
+    void red(ref this) { n += 1 }
+
+    void bed(ref this) { n += 1 }
+
+    void used(ref this) { n += 1 }
+
+    void hundred(ref this) { n += 1 }
+
+    void embed(ref this) { n += 1 }
+
+    void isSorted(ref this) { n += 1 }
+
+    void sortedBy(ref this) { n += 1 }
+
+    void sort(ref this) { n += 1 }
+}

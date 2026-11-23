@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"IntegerLiteral","start":16,"end":20,"text":"0b__","doc":null},{"kind":"EndOfFile","start":22,"end":22,"text":"","doc":null}],"diagnostics":[{"code":"BYN0010","severity":"error","start":16,"end":20,"message":"invalid numeric literal: expected digits after `0b`","label":null,"help":null,"fixes":[]}]}

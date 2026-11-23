@@ -1,0 +1,13 @@
+== cases
+1 p_xs.len
+2 byn_strbuf_str(l0_line)
+3 bynh_add_list_i64(&l0_xs, ((int64_t)byn_mul_i32(l1_i, ((int32_t)10), byn_file_0, 9)))
+4 ((int64_t)byn_mul_i32(l1_i, ((int32_t)10), byn_file_0, 9))
+5 byn_mul_i32(l1_i, ((int32_t)10), byn_file_0, 9)
+6 bynh_remove_through_list_i64(&l0_through, INT64_C(1), INT64_C(3), 1, byn_file_0, 14)
+7 bynh_remove_through_list_i64(&l1_last, INT64_C(5), INT64_C(5), 1, byn_file_0, 18)
+8 bynh_remove_through_list_i64(&l2_at, INT64_C(0), 0, 2, byn_file_0, 22)
+9 bynh_remove_through_list_i64(&l2_at, INT64_C(4), 0, 2, byn_file_0, 23)
+12 l5_held.len
+13 bynh_remove_at_range_list_i64(&l5_held, l6_r, byn_file_0, 36)
+count 14

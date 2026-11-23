@@ -1,0 +1,31 @@
+1:1 OpenBrace `{`
+2:2 Plus `+`
+2:4 Minus `-`
+2:6 Star `*`
+2:8 Slash `/`
+2:10 Percent `%`
+2:12 PlusPercent `+%`
+2:15 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:33 Minus `-`
+2:34 OpenBracket `[`
+2:37 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ ��+ - * / % +% -% *% +| -| *| ++ -[� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ��+ - * / % +% -% *% +| -| *| ++ -[� 
+    │  ^
+
+error BYN0002: unexpected character `\u{B}`
+
+  2 │ ��+ - * / % +% -% *% +| -| *| ++ -[� 
+    │                                    ^

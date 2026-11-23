@@ -1,0 +1,28 @@
+== helpers
+bynh_eq_err static bool bynh_eq_err(byn_err a, byn_err b) | static bool bynh_eq_err(byn_err a, byn_err b) {
+    if (a.code != b.code) return false;
+    switch (a.code) {
+    case 10: return (a.p.e10.signal == b.p.e10.signal)
+        && byn_str_eq(a.p.e10.stdout_, b.p.e10.stdout_)
+        && byn_str_eq(a.p.e10.stderr_, b.p.e10.stderr_);
+    case 11: return (a.p.e11.after == b.p.e11.after)
+        && byn_str_eq(a.p.e11.stdout_, b.p.e11.stdout_)
+        && byn_str_eq(a.p.e11.stderr_, b.p.e11.stderr_);
+    case 12: return (a.p.e12.at == b.p.e12.at);
+    case 15: return (a.p.e15.at == b.p.e15.at);
+    }
+    return true;
+}
+bynh_vt_main__Digits_main__IParser_parse static byn_err bynh_vt_main__Digits_main__IParser_parse(void* self, byn_str a0, int64_t* byn_out) | static byn_err bynh_vt_main__Digits_main__IParser_parse(void* self, byn_str a0, int64_t* byn_out) {
+    return byn_main__Digits__parse((bynt_main__Digits*)self, a0, byn_out);
+}
+bynh_vt_main__Digits_main__IParser_check static byn_err bynh_vt_main__Digits_main__IParser_check(void* self, byn_str a0) | static byn_err bynh_vt_main__Digits_main__IParser_check(void* self, byn_str a0) {
+    return byn_main__Digits__check((bynt_main__Digits*)self, a0);
+}
+bynh_at_span_u8 static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) | static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}

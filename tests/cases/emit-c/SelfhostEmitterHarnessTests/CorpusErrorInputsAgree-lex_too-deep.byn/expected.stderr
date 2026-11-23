@@ -1,0 +1,14 @@
+error BYN0016: interpolated strings are nested too deeply
+  --> input.byn:1:57
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN1001: expected `}` to end the interpolated expression, found `{`
+  --> input.byn:1:62
+
+  1 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                              ^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN0016

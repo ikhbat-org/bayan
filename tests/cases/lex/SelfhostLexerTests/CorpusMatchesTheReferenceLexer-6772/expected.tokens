@@ -1,0 +1,17 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `L`
+1:16 Identifier `st`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+1:25 EndOfFile
+
+error BYN0002: unexpected character `\u{19}`
+
+  1 │ var xs: List<L�st<i64>> 
+    │               ^

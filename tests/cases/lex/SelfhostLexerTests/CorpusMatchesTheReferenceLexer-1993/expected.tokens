@@ -1,0 +1,28 @@
+1:1 IntegerLiteral `0xF__`
+2:1 FloatLiteral `1e5`
+2:5 FloatLiteral `2.5e-3`
+2:12 FloatLiteral `6E+2`
+2:17 FloatLiteral `1.50`
+2:21 NumericSuffix `dec`
+2:25 IntegerLiteral `1`
+2:26 DotDot `..`
+2:28 IntegerLiteral `2`
+2:30 IntegerLiteral `1`
+2:31 DotDotEquals `..=`
+2:34 IntegerLiteral `3`
+2:36 IntegerLiteral `5`
+2:37 NumericSuffix `e`
+2:39 Identifier `x`
+2:40 Dot `.`
+2:41 Identifier `y`
+2:43 FloatLiteral `2.5`
+2:46 NumericSuffix `f`
+3:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --

@@ -1,0 +1,9 @@
+== 1 exit 0
+new 0
+== 2 exit 0
+built local/tally 0.1.0 (safe) for linux-x64, macos-arm64, windows-x64 in dist/0.1.0/
+dist/latest/ is 0.1.0
+== 3 exit 0
+linux-x64/tally: OK
+macos-arm64/tally: OK
+windows-x64/tally.exe: OK

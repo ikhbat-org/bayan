@@ -34,9 +34,16 @@ bayan_release_docs="$bayan_header_docs docs/RELEASING.md docs/bayan-contributing
 # The code and test mirrors of VERSION, one per line: file, then the sed -E text before and after the version
 # (tab-separated). bootstrap/bayan.c is not one: scripts/selfhost/land.sh regenerates it from src/.
 bayan_mirrors() {
+  # The C# tree is retired by spec 019 (R28): without its Toolchain.cs that mirror is skipped. Callers set $root.
+  if [ -f "${root:?}/csharp/Bayan.Backend.C/Toolchain.cs" ]; then
+    printf '%s\t%s\t%s\n' csharp/Bayan.Backend.C/Toolchain.cs '(const string CompilerVersion = ")' '(";)'
+  else
+    echo "version: csharp/Bayan.Backend.C/Toolchain.cs is absent, mirror skipped" >&2
+  fi
   printf '%s\t%s\t%s\n' \
-    csharp/Bayan.Backend.C/Toolchain.cs '(const string CompilerVersion = ")' '(";)' \
     src/driver/main.byn '^(const version: string = ")' '(")' \
     tests/cases/out/dist.tree '("compiler": "bayan )' '(")' \
-    README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)'
+    README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)' \
+    tests/parity/cli-cli/version-prints-version/expected/stdout '^(bayan )' '( \(<build>\))' \
+    tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected/stdout '^(◆ bayan +)' '( \(commit)'
 }

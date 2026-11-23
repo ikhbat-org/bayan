@@ -1,0 +1,11 @@
+test "adds" {
+    assert(1 + 1 == 2)
+}
+
+test "is false" {
+    assert(false)
+}
+
+test "panics" {
+    panic("boom")
+}

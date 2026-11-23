@@ -1,0 +1,23 @@
+1:1 StringLiteral `"�"`
+1:4 Identifier `a`
+1:6 Identifier `Ȧ`
+1:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  1 │ "�"a�Ȧ
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ "�"a�Ȧ
+    │     ^
+
+error BYN0005: identifier `Ȧ` is not in Unicode normalization form C
+
+  1 │ "�"a�Ȧ
+    │      ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ "�"a�Ȧ
+    │   │      +

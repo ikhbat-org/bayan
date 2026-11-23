@@ -1,0 +1,1 @@
+{"code":"BYN5008","severity":"error","file":"input.byn","span":{"start":10,"end":14,"line":1,"column":11,"endLine":1,"endColumn":15},"message":"`over` is not a particle","label":"not a particle","help":"choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`","fixes":[]}

@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ConditionalExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "MoveExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "WhileStmt"
+  ],
+  "builtins": [
+    "ListAdd",
+    "Print",
+    "SpanLength"
+  ],
+  "diagnostics": []
+}

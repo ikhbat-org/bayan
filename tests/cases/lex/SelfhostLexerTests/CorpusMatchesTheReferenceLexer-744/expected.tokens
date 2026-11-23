@@ -1,0 +1,137 @@
+1:2 Identifier `tor`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 IntegerLiteral `0b102`
+6:1 IntegerLiteral `0`
+6:3 IntegerLiteral `42`
+6:6 IntegerLiteral `1_000_000`
+6:16 IntegerLiteral `0xFF`
+6:21 IntegerLiteral `0x_ff`
+6:27 IntegerLiteral `0b1010`
+6:34 IntegerLiteral `0B11`
+6:39 IntegerLiteral `5`
+6:40 NumericSuffix `s`
+6:42 IntegerLiteral `250`
+6:45 NumericSuffix `ms`
+6:48 IntegerLiteral `4`
+6:49 NumericSuffix `KiB`
+6:53 IntegerLiteral `1`
+6:54 NumericSuffix `u`
+6:56 IntegerLiteral `0xFF`
+6:60 NumericSuffix `u`
+6:62 IntegerLiteral `0b1`
+6:65 NumericSuffix `ul`
+6:68 IntegerLiteral `7`
+6:69 NumericSuffix `l`
+8:2 IntegerLiteral `02`
+9:1 IntegerLiteral `0xFF`
+9:5 NumericSuffix `s`
+10:1 IntegerLiteral `0b1`
+10:4 NumericSuffix `ms`
+11:1 IntegerLiteral `0x_`
+12:1 IntegerLiteral `0b__`
+13:1 IntegerLiteral `1__`
+14:1 IntegerLiteral `0xF`
+14:4 Identifier `_`
+17:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ �tor = 1
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �tor = 1
+    │   │ -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  5 │  0b102
+    │      ^
+
+error BYN0002: unexpected character `̈́`
+
+  7 │ ̈́// line comment
+    │ ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  9 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  10 │ 0b1ms
+     │    ^^
+     │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  11 │ 0x_
+     │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  12 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  13 │ 1__
+     │  ^^
+     │
+     │ 13 │ 1__
+     │    │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  14 │ 0xF�_
+     │    ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  16 │ /* � */
+     │ ^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 16 │ // �
+     │    │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  16 │ /* � */
+     │    ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 16 │ /* � */
+     │    │    -

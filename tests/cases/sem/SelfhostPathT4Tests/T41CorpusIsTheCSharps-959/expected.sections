@@ -1,0 +1,7 @@
+== diags.diag/enum-argument-count
+BYN2301 2:5 missing argument `radius` for `Planet.mercury`
+BYN2302 3:26 `Planet.venus` takes 2 argument(s)
+BYN2301 4:5 missing argument `mass`, `radius` for `Planet.earth`
+BYN2021 5:24 `Planet.mars` has no parameter `size`
+BYN2202 6:13 expected `f64`, found `string`
+BYN2302 10:9 `Color.red` takes 0 argument(s)

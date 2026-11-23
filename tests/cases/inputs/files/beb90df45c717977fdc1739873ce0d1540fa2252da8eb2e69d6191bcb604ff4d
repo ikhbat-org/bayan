@@ -1,0 +1,5 @@
+'\u{D800}'
+let c = """never closed
+
+let aã = "open
+ 

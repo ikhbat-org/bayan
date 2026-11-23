@@ -1,0 +1,4 @@
+struct S {
+    void f(ref this is .open, i64 a) {
+    }
+}

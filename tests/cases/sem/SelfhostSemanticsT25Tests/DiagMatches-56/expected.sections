@@ -1,0 +1,5 @@
+== map-modified-while-iterating
+BYN3004 5:9 `m` is modified while the `for` loop still borrows it |the loop over `m` is still running|collect the changes in another list and apply them to `m` after the loop|
+BYN3004 6:17 `m` is modified while the `for` loop still borrows it |the loop over `m` is still running|collect the changes in another list and apply them to `m` after the loop|
+BYN3004 8:18 `m` is modified while the `for` loop still borrows it |the loop over `m` is still running|collect the changes in another list and apply them to `m` after the loop|
+BYN3002 18:21 arena `a` does not live as long as `outer`, which borrows it |arena `a` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

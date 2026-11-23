@@ -1,0 +1,6 @@
+import std.json
+
+void main() {
+    let r = json.JsonReader.over("[1]")
+    print("ok")
+}

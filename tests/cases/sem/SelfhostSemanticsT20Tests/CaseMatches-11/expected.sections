@@ -1,0 +1,3 @@
+== inst.i20
+null
+BYN2740 167:15 cannot infer type argument `T` of `via` ||pass an argument it can be read from, or write it out: `via<T>(…)`|

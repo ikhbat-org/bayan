@@ -1,0 +1,35 @@
+1:1 Identifier `각`
+4:1 Identifier `l`
+4:2 At `@`
+4:3 Identifier `t`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:9 StringLiteral `"bad \q escape"`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:9 RawStringLiteral `"""never closed\r\n'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'\r\n\r\n`
+8:1 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각
+    │   │ +
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ l@t b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  5 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

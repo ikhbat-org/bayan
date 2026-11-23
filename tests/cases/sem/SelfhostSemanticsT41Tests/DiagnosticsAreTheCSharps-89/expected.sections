@@ -1,0 +1,7 @@
+== diags.diag/statement-attribute
+BYN1069 2:5 attribute `@inline` is not allowed before a statement
+  label before a statement
+  help remove the attribute; only `@unobservable` may come before a statement
+BYN1069 9:5 attribute `@allow` is not allowed before a statement
+  label before a statement
+  help remove the attribute; only `@unobservable` may come before a statement

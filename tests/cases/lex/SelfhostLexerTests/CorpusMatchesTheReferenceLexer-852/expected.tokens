@@ -1,0 +1,27 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:2 IntegerLiteral `0b102`
+3:2 Equals `=`
+3:4 IntegerLiteral `1`
+3:5 NumericSuffix `foo`
+3:9 Identifier `Bar`
+3:13 Identifier `_x`
+3:16 Identifier `camelCase2`
+3:27 Identifier `بيان`
+3:32 Identifier `μετρητής`
+3:41 Identifier `x_1`
+3:45 Identifier `é`
+4:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │  0b102
+    │      ^

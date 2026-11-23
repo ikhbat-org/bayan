@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListIsEmpty",
+    "ListLength",
+    "ListRemoveRange",
+    "Print",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufGrow"
+  ],
+  "diagnostics": []
+}

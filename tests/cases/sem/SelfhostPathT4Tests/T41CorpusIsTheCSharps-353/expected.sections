@@ -1,0 +1,3 @@
+== diags.diag/target-unknown-member
+BYN2003 2:14 `osx` is not a member of `Target`
+  help did you mean `os`?

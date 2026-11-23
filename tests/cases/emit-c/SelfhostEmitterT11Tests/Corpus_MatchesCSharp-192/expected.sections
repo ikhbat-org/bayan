@@ -1,0 +1,7 @@
+== locals
+signUp: t t t t t
+code:
+handle: t t t t e
+check: _ t t
+report: t t t e
+main: i t t

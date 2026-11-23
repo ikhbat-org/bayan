@@ -1,0 +1,8 @@
+1K_
+
+a /* never closed
+// Doc line one.
+¿$"{alet c = """never closed
+ let actor = 1
+let effect = 2
+macro select bec

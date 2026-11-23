@@ -1,0 +1,12 @@
+CompilationUnit
+  Test `t` (i32 input)
+    Block
+
+error BYN1043: `input: i32` is an input form; write `i32 input`
+
+  1 │ test "t" (input: i32) {
+    │           ^^^^^^^^^^ name before type
+    │
+  help: put the type before the name; declarations are type-first
+    │ 1 │ test "t" (i32 input) {
+    │   │            ++++++++

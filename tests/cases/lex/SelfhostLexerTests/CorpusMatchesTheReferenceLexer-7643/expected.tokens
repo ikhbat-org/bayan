@@ -1,0 +1,58 @@
+1:1 IntegerLiteral `0b102`
+2:2 IntegerLiteral `0xF__`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:2 IsKeyword `is`
+7:5 AndKeyword `and`
+7:9 OrKeyword `or`
+7:12 NotKeyword `not`
+7:16 WithKeyword `with`
+7:21 MoveKeyword `move`
+7:26 RefKeyword `ref`
+7:30 OutKeyword `out`
+7:34 ThisKeyword `this`
+7:39 NullKeyword `null`
+7:44 TrueKeyword `true`
+7:49 FalseKeyword `false`
+7:55 Identifier `comptimevchecked`
+8:1 IntegerLiteral `2`
+8:3 Identifier `بيان`
+8:8 Identifier `μετρητής`
+8:17 Identifier `x_1`
+8:21 Identifier `é`
+9:2 Identifier `ạ̇`
+9:6 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF__
+    │     ^^
+    │
+    │ 2 │  0xF__
+    │   │     --
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  �
+    │  ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  9 │  ạ̇ 
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │  ạ̇ 
+    │   │  +

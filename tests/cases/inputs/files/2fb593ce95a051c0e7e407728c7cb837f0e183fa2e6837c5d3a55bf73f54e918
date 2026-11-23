@@ -1,0 +1,96 @@
+import lexer
+import parser
+
+string t4At(Ctx c, for FileId file, at i64 offset) {
+    if file < 0 { return "?" }
+    let p = linePosition(c.files[file].text.span, at: offset)
+    return $"{p.line}:{p.column}"
+}
+
+bool lessBytes(string a, by string b) {
+    let x = a.bytes
+    let y = b.bytes
+    var i: i64 = 0
+    while i < x.length && i < y.length {
+        if x[i] != y[i] { return x[i] < y[i] }
+        i += 1
+    }
+    return x.length < y.length
+}
+
+string t4Words(string kind, by List<string> words) {
+    var sorted = List<string>()
+    for w in words { sorted.append(w) }
+    for i in 1..sorted.length {
+        var j = i
+        while j > 0 && lessBytes(sorted[j], by: sorted[j - 1]) {
+            let a = sorted[j]
+            sorted[j] = sorted[j - 1]
+            sorted[j - 1] = a
+            j -= 1
+        }
+    }
+    var sb = StrBuf()
+    sb.append(kind)
+    for w in sorted { sb.append($" {w}") }
+    return $"{sb.finish()}"
+}
+
+void showManifest(string name, at string dir) {
+    let bytes = t11ReadAllBytes($"{dir}/package.byn")
+    let m = manifestParse(lexer.SourceText.create("package.byn", from: t11ReadAllBytes($"{dir}/package.byn")))
+    print($"== diags.{name}")
+    for d in m.diagnostics {
+        let p = linePosition(bytes.span, at: d.span.start)
+        print($"{d.code} {p.line}:{p.column} {d.message}")
+        if d.label.length > 0 { print($"  label {d.label}") }
+        if d.help.length > 0 { print($"  help {d.help}") }
+    }
+    print(t4Words("verbs", by: m.grammar.verbs))
+    print(t4Words("nouns", by: m.grammar.nouns))
+    print(t4Words("adjectives", by: m.grammar.adjectives))
+    print(t4Words("collectives", by: m.grammar.collectives))
+}
+
+void showProgram(string name, at string dir) {
+    var sources = List<lexer.SourceText>()
+    sources.append(lexer.SourceText.create("main.byn", from: t11ReadAllBytes($"{dir}/main.byn")))
+    let options = CompilationOptions { includeTests: false, library: false, skipOwnershipCheck: false, capabilities: null, packageName: null }
+    var c = create(from: move sources, at: dir, by: options)
+    print($"== diags.{name}")
+    for d in c.diagnostics {
+        print($"{d.code} {t4At(c, for: d.file, at: d.span.start)} {d.message}")
+        if d.label.length > 0 { print($"  label {d.label}") }
+        if d.help.length > 0 { print($"  help {d.help}") }
+        if d.hasFix { print($"  fix {t4At(c, for: d.file, at: d.fixSpan.start)}-{t4At(c, for: d.file, at: d.fixSpan.end)} {d.fixReplacement}") }
+    }
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var lex = Ctx {
+        files: List<SourceFile>(),
+        modules: List<Mod>(),
+        diagnostics: List<Diag>(),
+        bags: List<DiagBag>(),
+    }
+    buildLexicon(ref lex)
+    print("== lexicon")
+    for w in lex.lexiconVerbs { print($"verb {w}") }
+    for w in lex.lexiconNouns { print($"noun {w}") }
+    for w in lex.lexiconAdjectives { print($"adjective {w}") }
+    for w in lex.lexiconCollectives { print($"collective {w}") }
+    for w in lex.lexiconIrregularPlurals { print($"irregular {w}") }
+    for k in 0..lex.lexiconIrregularPlurals.length {
+        print($"singular {lex.lexiconIrregularPlurals[k]} {lex.lexiconIrregularSingulars[k]}")
+    }
+    var i: i64 = 0
+    while i + 1 < args.length {
+        if args[i].startsWith("m-") {
+            showManifest(args[i], at: args[i + 1])
+        } else {
+            showProgram(args[i], at: args[i + 1])
+        }
+        i += 2
+    }
+    return 0
+}

@@ -1,0 +1,9 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/external/prog
+--sites
+<repo>/tmp/t13-mutate/external/prog.sites.json
+--
+/bin/sh
+-c
+[ "$BAYAN_BINARY" = "<repo>/tmp/t13-mutate/external/prog" ] || exit 9; case $BAYAN_MUTANT in 2|4) exit 1;; 5) sleep 3;; esac; exit 0

@@ -1,0 +1,6 @@
+== tests/cases/run/hello.byn
+0..22 globalStatement
+0..22 exprStmt
+0..22 callExpr
+6..21 literalExpr string
+0..22 callExpr

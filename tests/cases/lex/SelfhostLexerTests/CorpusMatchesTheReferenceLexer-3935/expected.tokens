@@ -1,0 +1,134 @@
+1:2 IntegerLiteral `0b__`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:2 Identifier `각`
+4:6 LetKeyword `let`
+4:10 Identifier `s`
+4:12 Equals `=`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 InterpolatedStringStart `$"`
+4:55 InterpolationStart `{`
+4:56 InterpolatedStringStart `$"`
+4:58 InterpolationStart `{`
+4:59 InterpolatedStringStart `$"`
+4:61 InterpolationStart `{`
+4:62 StringLiteral `$"{$"`
+4:67 OpenBrace `{`
+4:68 StringLiteral `$"{$"`
+4:73 OpenBrace `{`
+4:74 Identifier `x`
+4:75 CloseBrace `}`
+4:76 StringLiteral `"}"`
+4:79 CloseBrace `}`
+4:80 StringLiteral `"}"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+4:87 InterpolationEnd `}`
+4:88 InterpolatedStringEnd `"`
+4:89 InterpolationEnd `}`
+4:90 InterpolatedStringEnd `"`
+4:91 InterpolationEnd `}`
+4:92 InterpolatedStringEnd `"`
+4:93 InterpolationEnd `}`
+4:94 InterpolatedStringEnd `"`
+4:95 InterpolationEnd `}`
+4:96 InterpolatedStringEnd `"`
+4:97 InterpolationEnd `}`
+4:98 InterpolatedStringEnd `"`
+4:99 InterpolationEnd `}`
+4:100 InterpolatedStringEnd `"`
+4:101 InterpolationEnd `}`
+4:102 InterpolatedStringEnd `"`
+4:103 InterpolationEnd `}`
+4:104 InterpolatedStringEnd `"`
+4:105 InterpolationEnd `}`
+4:106 InterpolatedStringEnd `"`
+4:107 InterpolationEnd `}`
+4:108 InterpolatedStringEnd `"`
+4:109 InterpolationEnd `}`
+4:110 InterpolatedStringEnd `"`
+4:111 InterpolationEnd `}`
+4:112 InterpolatedStringEnd `"`
+4:113 InterpolationEnd `}`
+4:114 InterpolatedStringEnd `"`
+5:2 CharLiteral `'a'`
+5:6 CharLiteral `'\n'`
+5:11 CharLiteral `'\u{1F600}'`
+5:23 CharLiteral `'\''`
+5:28 CharLiteral `'é'`
+5:32 CharLiteral `'\\'`
+5:37 CharLiteral `'\0'`
+6:2 Comma `,`
+6:4 Dot `.`
+6:6 DotDot `..`
+6:9 DotDotEquals `..=`
+6:13 Colon `:`
+6:15 Question `?`
+6:17 QuestionQuestion `??`
+6:20 QuestionQuestionEquals `??=`
+6:24 QuestionDot `?.`
+6:27 FatArrow `=>`
+6:30 Arrow `->`
+6:33 At `@`
+6:35 Hash `#`
+8:1 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  1 │ �0b__
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ �0b__
+    │  ^^^^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │  각 let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  각 let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   │  +
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │  각 let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                              ^^

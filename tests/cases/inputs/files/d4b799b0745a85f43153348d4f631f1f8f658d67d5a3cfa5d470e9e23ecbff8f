@@ -1,0 +1,27 @@
+interface Sink {
+    void put(ref this, string v)
+}
+
+struct Box : Sink {
+    string s
+
+    void put(ref this, string v) {
+        s = v
+    }
+}
+
+void viaDyn(dyn ref Sink k, string v) {
+    k.put(v)
+}
+
+void main() {
+    var b = Box { s: "" }
+    {
+        using let arena = Arena()
+        let name = "ann".copy(to: arena)
+        viaDyn(b, name)
+        let k: dyn ref Sink = b
+        k.put(name)
+    }
+    print(b.s)
+}

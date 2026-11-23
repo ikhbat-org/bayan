@@ -1,0 +1,45 @@
+1:3 Identifier `et`
+1:8 Equals `=`
+1:10 IntegerLiteral `2`
+2:1 Slash `/`
+2:3 Slash `/`
+2:5 Identifier `ok`
+2:9 InKeyword `in`
+2:12 Identifier `comment`
+3:2 IntegerLiteral `0b__`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ ��et � = 2
+    │ ^
+
+error BYN0002: unexpected character `\u{15}`
+
+  1 │ ��et � = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ ��et � = 2
+    │      ^
+
+error BYN0002: unexpected character `\u{3}`
+
+  2 │ /�/ ok ��in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ /�/ ok ��in comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ /�/ ok ��in comment
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │  0b__
+    │  ^^^^

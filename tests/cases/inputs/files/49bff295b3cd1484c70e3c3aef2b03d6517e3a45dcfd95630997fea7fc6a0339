@@ -1,0 +1,6 @@
+F600}' '\'' 'é' struct S
+
+'\u{110000}'
+
+let b = "bad \q escape"
+

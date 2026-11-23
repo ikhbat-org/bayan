@@ -1,0 +1,19 @@
+// `Fs.rename` replaces an existing file and fails on a missing source and on a path with a NUL.
+void main() uses fs, console, alloc fails IoError {
+    let a: u8[1] = [0x41]
+    let b: u8[1] = [0x42]
+    try Io.writeFile("fs-rename-a.tmp", a.span)
+    try Io.writeFile("fs-rename-b.tmp", b.span)
+    try Fs.rename("fs-rename-a.tmp", to: "fs-rename-b.tmp")
+    print($"source left: {Fs.fileExists("fs-rename-a.tmp")}")
+    print(try Io.readText("fs-rename-b.tmp"))
+    Fs.rename("fs-rename-a.tmp", to: "fs-rename-c.tmp") catch switch {
+        .notFound => print("missing: not found"),
+        _ => print("missing: other"),
+    }
+    Fs.rename("fs-rename\0.tmp", to: "fs-rename-c.tmp") catch switch {
+        .invalidInput => print("nul: invalid input"),
+        _ => print("nul: other"),
+    }
+    try Io.remove("fs-rename-b.tmp")
+}

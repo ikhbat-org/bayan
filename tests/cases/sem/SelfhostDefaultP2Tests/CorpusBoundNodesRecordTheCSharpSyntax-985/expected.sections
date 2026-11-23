@@ -1,0 +1,6 @@
+== tests/cases/diag/witness-mutates-this.byn
+101..126 blockStmt
+111..120 assignStmt assign target 111..116 value 119..120
+111..116 nameExpr
+111..116 nameExpr
+119..120 literalExpr integer

@@ -1,0 +1,2 @@
+== fold.probes.d6
+binary:i32[6316:5]=3(div literal:i32[6316:1]=7(7) literal:i32[6320:1]=2(2))

@@ -1,0 +1,34 @@
+struct Count : IEnumerator {
+    type Item = i64
+    i64 n
+
+    i64 current => n
+
+    bool moveNext(ref this) {
+        n += 1
+        return n < 3
+    }
+}
+
+struct Three : IIndexable {
+    type Item = string
+
+    i64 count => 3
+
+    string get(i64 i) => "x"
+}
+
+struct Wrong : IEnumerator, IIndexable {
+    type Item = i64
+}
+
+void main() {
+    var c = Count { n: 0 }
+    for x in c {
+        print($"{x}")
+    }
+    let t = Three {}
+    for s in t {
+        print(s)
+    }
+}

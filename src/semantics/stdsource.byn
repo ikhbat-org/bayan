@@ -5,15 +5,16 @@ List<StdSource> stdShippedSources() {
     var sources = List<StdSource>()
     sources.append(StdSource { path: "encoding/base64.byn", text: stdSource0 })
     sources.append(StdSource { path: "encoding/base64.test.byn", text: stdSource1 })
-    sources.append(StdSource { path: "fs/glob.byn", text: stdSource2 })
-    sources.append(StdSource { path: "fs/glob.test.byn", text: stdSource3 })
-    sources.append(StdSource { path: "json/json.test.byn", text: stdSource4 })
-    sources.append(StdSource { path: "json/reader.byn", text: stdSource5 })
-    sources.append(StdSource { path: "json/value.byn", text: stdSource6 })
-    sources.append(StdSource { path: "path/glob.byn", text: stdSource7 })
-    sources.append(StdSource { path: "path/glob.test.byn", text: stdSource8 })
-    sources.append(StdSource { path: "regex/regex.byn", text: stdSource9 })
-    sources.append(StdSource { path: "regex/regex.test.byn", text: stdSource10 })
+    sources.append(StdSource { path: "fs/fs.test.byn", text: stdSource2 })
+    sources.append(StdSource { path: "fs/glob.byn", text: stdSource3 })
+    sources.append(StdSource { path: "fs/glob.test.byn", text: stdSource4 })
+    sources.append(StdSource { path: "json/json.test.byn", text: stdSource5 })
+    sources.append(StdSource { path: "json/reader.byn", text: stdSource6 })
+    sources.append(StdSource { path: "json/value.byn", text: stdSource7 })
+    sources.append(StdSource { path: "path/glob.byn", text: stdSource8 })
+    sources.append(StdSource { path: "path/glob.test.byn", text: stdSource9 })
+    sources.append(StdSource { path: "regex/regex.byn", text: stdSource10 })
+    sources.append(StdSource { path: "regex/regex.test.byn", text: stdSource11 })
     return sources
 }
 
@@ -186,7 +187,148 @@ test "decode refuses broken text with the bad byte offset" (string input, string
 }
 """
 
-const stdSource2: string = """// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.
+const stdSource2: string = """// Tests of Fs.copy, Fs.modified, Fs.fileSize, Fs.setModified and Fs.realPath, over files the tests build in tmp/ below the working
+// directory. Ported from StdFsTests; the expected values are the literals of that class.
+
+/// Makes `dir` an empty directory: removes what an earlier run left (with `rm`; none on Windows, where the leftovers stay).
+void fresh(string dir) uses fs, alloc, process {
+    let args: string[2] = ["-rf", dir]
+    let _ = Io.run("rm", args.span) catch {
+        Io.createDirectory(dir) catch {}
+        return
+    }
+    Io.createDirectory(dir) catch {}
+}
+
+/// What `Fs.copy(path, to: dest)` did, as the name of its failure, `ok` when it succeeded.
+string copied(string path, to string dest) uses fs {
+    Fs.copy(path, to: dest) catch switch {
+        .notFound => return "notFound",
+        .invalidInput => return "invalidInput",
+        .isDirectory => return "isDirectory",
+        _ => return "fail",
+    }
+    return "ok"
+}
+
+/// What `Fs.setModified(path, to: nanos)` did, as the name of its failure, `ok` when it succeeded.
+string stamped(string path, to i64 nanos) uses fs {
+    Fs.setModified(path, to: Time.fromNanos(nanos)) catch switch {
+        .notFound => return "notFound",
+        .invalidInput => return "invalidInput",
+        _ => return "fail",
+    }
+    return "ok"
+}
+
+/// The write time of `path` in nanoseconds, -1 when it cannot be read.
+i64 modifiedNanos(string path) uses fs {
+    let t = Fs.modified(path) catch { return -1 }
+    return t.nanos
+}
+
+/// What `Fs.realPath(path)` gave: the path, or the name of its failure.
+string resolved(string path) uses fs, alloc {
+    let r = Fs.realPath(path) catch switch {
+        .notFound => return "notFound",
+        .invalidInput => return "invalidInput",
+        _ => return "fail",
+    }
+    return r
+}
+
+/// Makes `link` a symbolic link to `target` with `ln`; false where there is none (Windows, whose Git Bash `ln -s` copies the file).
+bool link(string link, to string target) uses fs, alloc, process {
+    return false if Target.os == "windows"
+    let args: string[3] = ["-s", target, link]
+    let _ = Io.run("ln", args.span) catch { return false }
+    return true
+}
+
+test "copy-onto-itself-fails-invalid-input" {
+    let work = "tmp/fs-copy-self"
+    fresh(work)
+    Io.createDirectory("tmp/fs-copy-self/dir") catch { assert false }
+    let file = "tmp/fs-copy-self/dir/f.txt"
+    Io.writeFile(file, "kept".bytes) catch { assert false }
+    // The same file by another spelling is found by file identity.
+    assert copied(file, to: "tmp/fs-copy-self/dir/../dir/f.txt") == "invalidInput"
+    // No `ln` (Windows): the symlink rows have nothing to test.
+    if link("tmp/fs-copy-self/link.txt", to: "dir/f.txt") {
+        assert copied("tmp/fs-copy-self/link.txt", to: file) == "invalidInput"
+        assert copied(file, to: "tmp/fs-copy-self/link.txt") == "invalidInput"
+    }
+    let text = Io.readText(file) catch { return }
+    assert text == "kept"
+}
+
+test "copy-has-a-new-write-time" {
+    let work = "tmp/fs-copy-time"
+    fresh(work)
+    let file = "tmp/fs-copy-time/old.txt"
+    Io.writeFile(file, "old".bytes) catch { assert false }
+    // 2001-01-01T00:00:00Z
+    let old: i64 = 978307200000000000
+    assert stamped(file, to: old) == "ok"
+    assert copied(file, to: "tmp/fs-copy-time/copy.txt") == "ok"
+    let source = Fs.modified(file) catch { return }
+    assert source.nanos == old
+    let copy = Fs.modified("tmp/fs-copy-time/copy.txt") catch { return }
+    let age = Time.now().nanos - copy.nanos
+    // Written within a minute of now.
+    assert age > -60000000000
+    assert age < 60000000000
+}
+
+test "write-times-match-dotnet" {
+    let work = "tmp/fs-times"
+    fresh(work)
+    let file = "tmp/fs-times/file.txt"
+    Io.writeFile(file, "x".bytes) catch { assert false }
+    // 2001-01-01T00:00:00.1234567Z
+    let nanos: i64 = 978307200123456700
+    assert stamped(file, to: nanos) == "ok"
+    // To the second at least.
+    assert modifiedNanos(file) / 1000000000 == 978307200
+    // A missing path fails both, as File.SetLastWriteTimeUtc does.
+    assert stamped("tmp/fs-times/missing", to: nanos) == "notFound"
+    assert modifiedNanos("tmp/fs-times/missing") == -1
+}
+
+test "file-size-is-the-byte-count" {
+    let work = "tmp/fs-size"
+    fresh(work)
+    let file = "tmp/fs-size/file.txt"
+    Io.writeFile(file, "seven b".bytes) catch { assert false }
+    let size = Fs.fileSize(file) catch switch {
+        _ => -1,
+    }
+    assert size == 7
+    // A missing path is notFound.
+    let missing = Fs.fileSize("tmp/fs-size/missing") catch switch {
+        .notFound => -2,
+        _ => -1,
+    }
+    assert missing == -2
+}
+
+test "real-path-matches-dotnet" {
+    let work = "tmp/fs-real"
+    fresh(work)
+    Io.writeFile("tmp/fs-real/real.txt", "x".bytes) catch { assert false }
+    // No `ln` (Windows): nothing to resolve.
+    if !link("tmp/fs-real/l2", to: "real.txt") { return }
+    assert link("tmp/fs-real/l1", to: "l2")
+    assert link("tmp/fs-real/loop", to: "loop")
+    // A chain of links resolves to the file it ends at.
+    assert resolved("tmp/fs-real/l1") == Path.fullPath("tmp/fs-real/real.txt")
+    // A missing path is notFound; a link cycle fails.
+    assert resolved("tmp/fs-real/missing") == "notFound"
+    assert resolved("tmp/fs-real/loop") == "fail"
+}
+"""
+
+const stdSource3: string = """// std.fs glob (spec 015 S5, T13): the files under the working directory a pattern names.
 
 import std.path
 
@@ -280,7 +422,7 @@ void walk(
 }
 """
 
-const stdSource3: string = """// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.
+const stdSource4: string = """// Tests of std.fs glob, over a tree the tests build in tmp/ below the working directory.
 
 /// Writes `rel` (and its parent directories) under `root`, empty.
 void touch(string root, at string rel) uses fs, alloc {
@@ -403,7 +545,7 @@ test "glob finds a file through a link that a first visit by another path would 
 }
 """
 
-const stdSource4: string = """// Tests of std.json. The "parse then encode" table's expected encodings are python3 `json.dumps` output (indent 0 is
+const stdSource5: string = """// Tests of std.json. The "parse then encode" table's expected encodings are python3 `json.dumps` output (indent 0 is
 // `json.dumps(v)`, N is `json.dumps(v, indent=N)`) for `json.loads` of the input, recorded from a run, not written by hand.
 // Number text is kept as read (`1e400`, `1E2`; spec 016), so the cases with such numbers are not python's output.
 
@@ -697,7 +839,7 @@ test "a reader error is the parse error" {
 }
 """
 
-const stdSource5: string = """// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.
+const stdSource6: string = """// std.json pull reader (spec 016 T4, 015 S7): RFC 8259 text as a stream of tokens, one per `next()`.
 
 /// One step of a JSON text: a container bound, an object key, or a scalar.
 public union JsonToken {
@@ -1065,7 +1207,7 @@ public struct JsonReader {
 bool isDigit(u8 b) => b >= '0' && b <= '9'
 """
 
-const stdSource6: string = """// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.
+const stdSource7: string = """// std.json tree (spec 016 T4, 015 S7): `JsonValue` built on `JsonReader`, and `Json.encode`.
 
 /// A JSON value. A number keeps its text, so `Json.encode` writes it back as read (a built one whose text is not a
 /// JSON number is written from its value, and refused when that is not finite); an object keeps its members in text order, duplicate keys included.
@@ -1248,7 +1390,7 @@ void unitInto(ref StrBuf sb, from u32 unit) {
 }
 """
 
-const stdSource7: string = """// std.path glob matching (spec 015 S5, T13): shell-style patterns over `/`-separated paths, compared character by
+const stdSource8: string = """// std.path glob matching (spec 015 S5, T13): shell-style patterns over `/`-separated paths, compared character by
 // character (UTF-8).
 
 /// Matching `/`-separated paths against shell-style glob patterns.
@@ -1430,7 +1572,7 @@ i64 charLength(i64 ch) {
 }
 """
 
-const stdSource8: string = """// Tests of std.path Glob. The expected results are not recorded from another implementation: S5 settles the
+const stdSource9: string = """// Tests of std.path Glob. The expected results are not recorded from another implementation: S5 settles the
 // semantics (`*` and `?` stop at `/`, `**` crosses it), so the table is written from the rules in `Glob.matches`.
 
 @cases(
@@ -1498,7 +1640,7 @@ test "patterns against paths" (string pattern, string path, bool expected) {
 }
 """
 
-const stdSource9: string = """// std.regex (spec 015 S3, T14): RE2-style patterns run by a Pike VM over the runes of UTF-8 text, so matching takes
+const stdSource10: string = """// std.regex (spec 015 S3, T14): RE2-style patterns run by a Pike VM over the runes of UTF-8 text, so matching takes
 // time linear in the text times the program, never backtracking; no backreferences, no lookaround.
 
 /// A `{m,n}` count above this is refused, as in RE2.
@@ -2196,7 +2338,7 @@ bool isMeta(u8 b) {
 }
 """
 
-const stdSource10: string = """// Tests of std.regex. The expected `findAll`, `matches`, `replaced` and `escaped` values are recorded from a run of
+const stdSource11: string = """// Tests of std.regex. The expected `findAll`, `matches`, `replaced` and `escaped` values are recorded from a run of
 // Go's `regexp` (RE2 syntax and semantics: `FindAllStringSubmatchIndex`, `MatchString` of `^(?:p)$`,
 // `ReplaceAllLiteralString`, `QuoteMeta`), not written by hand. The error kinds and offsets are this module's own; Go
 // rejects each of those patterns too, except `(?P<n>a)`, `(?i)a` and `[[:alpha:]]`, which S3 leaves out.

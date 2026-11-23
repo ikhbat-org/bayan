@@ -1,0 +1,17 @@
+== errors
+a: i32?
+b: ?
+c: ?
+d: ?
+e: ?
+f: Map<string, i32>
+g: ?
+h: FileError
+i: FileError except .missing
+j: ?
+k: ?
+l: ?
+m: i32
+n: ?
+o: ?
+p: ?

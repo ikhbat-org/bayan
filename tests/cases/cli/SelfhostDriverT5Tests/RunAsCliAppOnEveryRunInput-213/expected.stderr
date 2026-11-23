@@ -1,0 +1,7 @@
+warning BYN2405: unreachable code
+  --> <repo>/tmp/t5/run/run_panic-handler-skips-defer/panic-handler-skips-defer.byn:13:5
+
+  13 │     return 1
+     │     ^^^^^^^^
+panic: stop
+  at panic-handler-skips-defer.byn:11

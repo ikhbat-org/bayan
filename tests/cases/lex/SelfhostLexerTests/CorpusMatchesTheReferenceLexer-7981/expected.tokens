@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+2:4 Plus `+`
+2:6 Minus `-`
+2:8 Star `*`
+2:10 Slash `/`
+2:12 Percent `%`
+2:14 PlusPercent `+%`
+2:17 MinusPercent `-%`
+2:20 StarPercent `*%`
+2:23 PlusBar `+|`
+2:26 MinusBar `-|`
+2:29 StarBar `*|`
+2:32 PlusPlus `++`
+2:35 MinusMinus `--`
+4:1 CharLiteral `' 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l`
+5:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  � + - * / % +% -% *% +| -| *| ++ --
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  � + - * / % +% -% *% +| -| *| ++ --
+    │   │  -
+
+error BYN0008: unterminated char literal
+
+  4 │ ' 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ �
+    │ ^

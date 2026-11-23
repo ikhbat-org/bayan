@@ -1,0 +1,32 @@
+1:1 StringLiteral `"`
+2:3 RawStringLiteral `""" c"text" u16"wid�" "\u{202E} allowed in strings" "" "\u{48}i"\n b = ` 2\nlet c = \u{7} 3\n 10000}'�'x\n\n�{\u{2066}1.\n`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wid�" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  2 │   """ c"text" u16"wid�" "� allowed in strings" "" "\u{48}i"
+    │                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  5 │  10000}'�'x
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ �{�1.
+    │ ^

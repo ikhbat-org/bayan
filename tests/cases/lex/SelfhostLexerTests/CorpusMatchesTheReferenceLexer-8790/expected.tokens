@@ -1,0 +1,188 @@
+1:1 CharLiteral `'\u{202E}'`
+1:4 IntegerLiteral `0_000`
+1:10 IntegerLiteral `0xFF`
+1:15 IntegerLiteral `0x_ff`
+1:21 IntegerLiteral `0b1010`
+1:28 IntegerLiteral `0B11`
+1:33 IntegerLiteral `5`
+1:34 NumericSuffix `s`
+1:36 IntegerLiteral `250`
+1:39 NumericSuffix `m`
+1:41 LetKeyword `let`
+1:45 Identifier `s`
+1:47 Equals `=`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 InterpolatedStringStart `$"`
+1:57 InterpolationStart `{`
+1:58 InterpolatedStringStart `$"`
+1:60 InterpolationStart `{`
+1:61 InterpolatedStringStart `$"`
+1:63 InterpolationStart `{`
+1:64 InterpolatedStringStart `$"`
+1:66 InterpolationStart `{`
+1:67 InterpolatedStringStart `$"`
+1:69 InterpolationStart `{`
+1:71 InterpolatedStringStart `$"`
+1:73 InterpolationStart `{`
+1:74 InterpolatedStringStart `$"`
+1:76 InterpolationStart `{`
+1:77 InterpolatedStringStart `$"`
+1:79 InterpolationStart `{`
+1:80 InterpolatedStringStart `$"`
+1:82 InterpolationStart `{`
+1:83 InterpolatedStringStart `$"`
+1:85 InterpolationStart `{`
+1:86 InterpolatedStringStart `$"`
+1:88 InterpolationStart `{`
+1:89 InterpolatedStringStart `$"`
+1:91 InterpolationStart `{`
+1:92 InterpolatedStringStart `$"`
+1:94 InterpolationStart `{`
+1:95 InterpolatedStringStart `$"`
+1:97 InterpolationStart `{`
+1:98 StringLiteral `$"{$"`
+1:103 OpenBrace `{`
+1:104 StringLiteral `$"{$"`
+1:109 OpenBrace `{`
+1:110 Identifier `x`
+1:111 CloseBrace `}`
+1:112 StringLiteral `"}"`
+1:115 CloseBrace `}`
+1:116 StringLiteral `"}"`
+1:119 InterpolationEnd `}`
+1:120 InterpolatedStringEnd `"`
+1:121 InterpolationEnd `}`
+1:122 InterpolatedStringEnd `"`
+1:123 InterpolationEnd `}`
+1:124 InterpolatedStringEnd `"`
+1:125 InterpolationEnd `}`
+1:126 InterpolatedStringEnd `"`
+1:127 InterpolationEnd `}`
+1:128 InterpolatedStringEnd `"`
+1:129 InterpolationEnd `}`
+1:130 InterpolatedStringEnd `"`
+1:131 InterpolationEnd `}`
+1:132 InterpolatedStringEnd `"`
+1:133 InterpolationEnd `}`
+1:134 InterpolatedStringEnd `"`
+1:135 InterpolationEnd `}`
+1:136 InterpolatedStringEnd `"`
+1:137 InterpolationEnd `}`
+1:138 InterpolatedStringEnd `"`
+1:139 InterpolationEnd `}`
+1:140 InterpolatedStringEnd `"`
+1:141 InterpolationEnd `}`
+1:142 InterpolatedStringEnd `"`
+1:143 InterpolationEnd `}`
+1:144 InterpolatedStringEnd `"`
+1:145 InterpolationEnd `}`
+1:146 InterpolatedStringEnd `"`
+1:147 InterpolationEnd `}`
+1:148 InterpolatedStringEnd `"`
+1:149 InterpolationEnd `}`
+1:150 InterpolatedStringEnd `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$"`
+3:54 OpenBrace `{`
+3:55 StringLiteral `$"{$"`
+3:60 OpenBrace `{`
+3:61 StringLiteral `$"{x}"`
+3:67 CloseBrace `}`
+3:68 StringLiteral `"}"`
+3:71 CloseBrace `}`
+3:72 StringLiteral `"}"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+4:1 Identifier `b`
+5:2 IfKeyword `if`
+5:5 ElseKeyword `else`
+5:10 UnlessKeyword `unless`
+5:17 SwitchKeyword `switch`
+5:24 CaseKeyword `case`
+5:29 DefaultKeyword `default`
+5:37 ForKeyword `for`
+5:42 InKeyword `in`
+5:45 WhileKeyword `while`
+5:51 DoKeyword `do`
+5:54 BreakKeyword `break`
+5:60 ContinueKeyword `continue`
+5:69 ReturnKeyword `return`
+5:76 YieldKeyword `yield`
+5:82 DeferKeyword `defer`
+5:88 ErrdeferKeyword `errdefer`
+5:97 UsingKeyword `using`
+5:103 ContextKeyword `context`
+6:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'0_000 0xFF 0x_ff 0b1010 0B11 5s 250m let s = $"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'0_000 0xFF 0x_ff 0b1010 0B11 5s 250m let s = $"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ '�'0_000 0xFF 0x_ff 0b1010 0B11 5s 250m let s = $"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                      ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ '�'0_000 0xFF 0x_ff 0b1010 0B11 5s 250m let s = $"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xB1)
+
+  4 │ �b
+    │ ^
+
+error BYN0002: unexpected character `\u{6}`
+
+  5 │  if else unless switch case default for� in while do break continue return yield defer errdefer using context
+    │                                        ^

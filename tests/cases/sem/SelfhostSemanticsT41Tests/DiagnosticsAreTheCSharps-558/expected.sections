@@ -1,0 +1,2 @@
+== diags.diag/pattern-const-not-bound
+BYN2022 5:15 a named pattern is not supported in v0.1

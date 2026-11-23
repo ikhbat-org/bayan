@@ -1,0 +1,6 @@
+$"x{ $"{ .5Æ
+  """ c"text" u16"wide" "â€® allowed in strings" "" "\1u{48}i"
+ b
+
+let c = """never closed
+

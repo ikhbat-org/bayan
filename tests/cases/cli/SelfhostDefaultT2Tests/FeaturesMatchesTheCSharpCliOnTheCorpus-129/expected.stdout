@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "CollectionExpr",
+    "ConstantPattern",
+    "DiscardPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "IoCreateDirectory",
+    "IoListDir",
+    "IoRemove",
+    "IoRun",
+    "IoWriteFile",
+    "Print",
+    "ProcessExitCode",
+    "ProcessStdout",
+    "StringJoined"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,104 @@
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec1`
+2:30 DotDot `..`
+2:32 IntegerLiteral `2`
+2:34 IntegerLiteral `1`
+2:35 DotDotEquals `..=`
+2:38 IntegerLiteral `3`
+2:40 IntegerLiteral `5`
+2:41 NumericSuffix `e`
+2:43 Identifier `x`
+2:44 Dot `.`
+2:45 Identifier `y`
+2:47 FloatLiteral `2.5`
+2:50 NumericSuffix `f`
+4:1 FailsKeyword `fails`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 NeverKeyword `never`
+4:23 NoallocKeyword `noalloc`
+4:31 NosuspendKeyword `nosuspend`
+4:41 SuspendsKeyword `suspends`
+4:50 AsyncKeyword `async`
+4:56 AwaitKeyword `await`
+6:1 Identifier `t`
+6:3 Identifier `x`
+6:6 Equals `=`
+6:8 IntegerLiteral `1`
+8:1 IntegerLiteral `0`
+8:3 IntegerLiteral `42`
+8:6 IntegerLiteral `1_000_000`
+8:16 IntegerLiteral `0xFF`
+8:21 IntegerLiteral `0x_ff`
+8:27 IntegerLiteral `0b1010`
+8:34 IntegerLiteral `0B11`
+8:39 IntegerLiteral `5`
+8:40 NumericSuffix `s`
+8:42 IntegerLiteral `250`
+8:45 NumericSuffix `ms`
+8:48 IntegerLiteral `4`
+8:49 NumericSuffix `KiB`
+8:53 IntegerLiteral `1`
+8:54 NumericSuffix `u`
+8:56 IntegerLiteral `0xFF`
+8:60 NumericSuffix `u`
+8:62 IntegerLiteral `0b1`
+8:65 NumericSuffix `ul`
+8:68 IntegerLiteral `7`
+8:69 NumericSuffix `l`
+9:4 Identifier `omment`
+9:13 Identifier `hidden`
+10:1 LetKeyword `let`
+10:5 Identifier `x`
+10:8 Equals `=`
+10:10 IntegerLiteral `1`
+11:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ t x� = 1
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ t x� = 1
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  9 │  � omment � hidden
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │  � omment � hidden
+    │           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  � omment � hidden
+    │   │           -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  10 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ let x� = 1
+     │    │      -

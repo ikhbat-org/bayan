@@ -1,0 +1,12 @@
+== helpers
+bynh_eq_main__Expr static bool bynh_eq_main__Expr(byn_main_Expr a, byn_main_Expr b) | static bool bynh_eq_main__Expr(byn_main_Expr a, byn_main_Expr b) {
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    case 0: return (a.u.lit.v == b.u.lit.v);
+    case 1: return bynh_eq_main__Expr((*a.u.add.l), (*b.u.add.l))
+        && bynh_eq_main__Expr((*a.u.add.r), (*b.u.add.r));
+    case 2: return bynh_eq_main__Expr((*a.u.mul.l), (*b.u.mul.l))
+        && bynh_eq_main__Expr((*a.u.mul.r), (*b.u.mul.r));
+    default: return true;
+    }
+}

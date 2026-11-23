@@ -1,0 +1,23 @@
+== tests/cases/diag/become-undeclared.byn
+147..183 blockStmt
+157..177 becomeStmt
+170..176 nameExpr
+234..265 blockStmt
+244..259 becomeStmt
+257..258 literalExpr integer
+335..371 blockStmt
+323..334 binaryExpr gt right 332..334
+323..334 binaryExpr gt right 332..334
+323..334 binaryExpr gt right 332..334
+323..329 nameExpr
+332..334 nameExpr
+332..334 nameExpr
+323..334 binaryExpr gt right 332..334
+323..334 binaryExpr gt right 332..334
+323..334 binaryExpr gt right 332..334
+335..371 blockStmt
+345..365 becomeStmt
+358..364 nameExpr
+427..463 blockStmt
+437..457 becomeStmt
+450..456 nameExpr

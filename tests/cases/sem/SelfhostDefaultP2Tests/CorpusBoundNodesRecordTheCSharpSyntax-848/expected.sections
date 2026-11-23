@@ -1,0 +1,42 @@
+== tests/cases/diag/strbuf-grow-escapes-context.byn
+12..364 blockStmt
+18..31 localDecl
+29..31 literalExpr string
+36..56 localDecl
+48..56 callExpr
+61..297 blockStmt
+71..96 localDecl
+89..96 callExpr
+105..291 contextStmt
+124..129 nameExpr
+130..291 blockStmt
+144..161 localDecl
+153..161 callExpr
+174..190 exprStmt
+174..190 callExpr
+174..176 nameExpr
+184..189 literalExpr string
+203..221 exprStmt
+203..221 callExpr
+209..220 callExpr
+209..211 nameExpr
+203..221 callExpr
+234..252 assignStmt assign target 234..238 value 241..252
+234..238 nameExpr
+241..252 callExpr
+241..243 nameExpr
+265..281 assignStmt assign target 265..270 value 273..281
+265..270 nameExpr
+273..281 callExpr
+302..320 exprStmt
+302..320 callExpr
+302..307 nameExpr
+315..319 literalExpr string
+325..346 assignStmt assign target 325..329 value 332..346
+325..329 nameExpr
+332..346 callExpr
+332..337 nameExpr
+351..362 exprStmt
+351..362 callExpr
+357..361 nameExpr
+351..362 callExpr

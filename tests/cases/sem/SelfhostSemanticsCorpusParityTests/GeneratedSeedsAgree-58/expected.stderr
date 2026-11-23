@@ -1,0 +1,12 @@
+error BYN2602: `parseDigit` can fail; handle the error or pass it on
+  --> tmp/semantics-corpus/parity/seeds/fault-MissingFails-003/main.byn:92:41
+
+  92 │                                 total = parseDigit(total)
+     │                                         ^^^^^^^^^^^^^^^^^
+     │
+  help: propagate the error with `try`, or handle it with `catch`
+     │ 92 │                                 total = try parseDigit(total)
+     │    │                                         ++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2602

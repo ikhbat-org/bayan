@@ -1,0 +1,84 @@
+1:1 IntegerLiteral `0b102`
+3:1 Identifier `here`
+3:5 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:2 Identifier `S`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolatedStringText `stray } here`
+6:16 InterpolatedStringEnd `"`
+8:1 LetKeyword `let`
+8:5 Identifier `x`
+8:8 Equals `=`
+8:10 IntegerLiteral `1`
+9:2 StringLiteral `"{`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ here"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ �$"stray } here"
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ �$"stray } here"
+    │   │ -
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  6 │ �$"stray } here"
+    │          ^
+    │
+    │ 6 │ �$"stray }} here"
+    │   │           +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  8 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  9 │  "{
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

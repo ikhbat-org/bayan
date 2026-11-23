@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/validation-error-partial.byn
+--package
+<repo>/tests/cases/run

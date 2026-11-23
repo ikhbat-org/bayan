@@ -1,0 +1,15 @@
+error BYN2103: `out` parameter `value` is not assigned on every path
+  --> <repo>/tests/cases/diag/out-not-assigned.byn:3:9
+
+  3 │         return false
+    │         ^^^^^^^^^^^^
+    │
+  help: assign `value` before every `return`
+
+error BYN2103: `out` parameter `value` is not assigned on every path
+  --> <repo>/tests/cases/diag/out-not-assigned.byn:10:5
+
+  10 │     return false
+     │     ^^^^^^^^^^^^
+     │
+  help: assign `value` before every `return`

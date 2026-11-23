@@ -1,0 +1,9 @@
+error BYN2001: `cout` is not defined
+  --> <repo>/tests/cases/diag/undefined-name.byn:2:10
+
+  2 │ print($"{cout}")
+    │          ^^^^
+    │
+  help: did you mean `count`?
+    │ 2 │ print($"{count}")
+    │   │             +

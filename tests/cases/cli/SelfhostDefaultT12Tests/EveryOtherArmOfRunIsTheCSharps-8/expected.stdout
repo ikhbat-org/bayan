@@ -1,0 +1,16 @@
+    doc `/// The line this app prints.`
+2:1 Identifier `string`
+2:8 Identifier `greeting`
+2:16 OpenParen `(`
+2:17 CloseParen `)`
+2:19 OpenBrace `{`
+3:5 ReturnKeyword `return`
+3:12 StringLiteral `"Salam, world!"`
+4:1 CloseBrace `}`
+6:1 Identifier `print`
+6:6 OpenParen `(`
+6:7 Identifier `greeting`
+6:15 OpenParen `(`
+6:16 CloseParen `)`
+6:17 CloseParen `)`
+7:1 EndOfFile

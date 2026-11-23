@@ -1,0 +1,2 @@
+== case suffix-f-above-int128
+literal 2624..2664 : f32 = 3.402823669209385E+38

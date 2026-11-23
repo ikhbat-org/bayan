@@ -1,0 +1,10 @@
+!  V"" c"tŠext" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+struct S
+
+// â€®x
+5f
+À€
+'\u{110000}'
+
+a >> b
+

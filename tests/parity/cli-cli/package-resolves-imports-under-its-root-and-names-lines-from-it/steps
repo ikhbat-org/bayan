@@ -1,0 +1,3 @@
+$ $BAYAN build --emit-c --mode debug --package pkg pkg/app > c.txt; echo "build $?"; grep -F -e "#line 4 \"app/main.byn\"" -e "#line 1 \"util/util.byn\"" c.txt | sort -u; rm c.txt
+$ $BAYAN build --emit-c pkg/app > /dev/null 2>&1; echo "no package $?"
+build	$WORK/pkg/app	--package

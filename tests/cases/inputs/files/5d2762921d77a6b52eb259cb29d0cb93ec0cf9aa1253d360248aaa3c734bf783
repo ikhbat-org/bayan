@@ -1,0 +1,9 @@
+leta = $ 1
+ /// Doc line two.
+ '\q'
+
+let actor = 1
+$"{
+ 0xFF 0x_ff 0b1010 0B
+'\u{110000}'
+€

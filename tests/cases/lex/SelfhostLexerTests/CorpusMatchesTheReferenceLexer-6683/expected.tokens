@@ -1,0 +1,76 @@
+1:1 Identifier `n`
+2:1 LetKeyword `let`
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+3:1 FloatLiteral `3.14`
+3:6 FloatLiteral `1e5`
+3:10 FloatLiteral `2.5e-3`
+3:17 FloatLiteral `6E+2`
+3:22 FloatLiteral `1.50`
+3:26 NumericSuffix `dec`
+3:30 IntegerLiteral `1`
+3:31 DotDot `..`
+3:33 IntegerLiteral `2`
+3:35 IntegerLiteral `1`
+3:36 DotDotEquals `..=`
+3:39 IntegerLiteral `3`
+3:41 IntegerLiteral `5`
+3:42 NumericSuffix `e`
+3:44 Identifier `x`
+3:45 Dot `.`
+3:46 Identifier `y`
+3:48 FloatLiteral `2.5`
+3:51 NumericSuffix `f`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `{{`
+5:5 InterpolatedStringEnd `"`
+6:1 Identifier `Å`
+6:2 CharLiteral `''`
+8:1 Identifier `lt`
+8:4 Identifier `actor`
+8:10 Equals `=`
+8:12 IntegerLiteral `1`
+9:1 LetKeyword `let`
+9:5 Identifier `a`
+9:7 Equals `=`
+9:11 IntegerLiteral `1`
+10:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  2 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let x� = 1
+    │   │      -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  6 │ Å''
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ Å''
+    │   │ +
+
+error BYN0007: empty char literal
+
+  6 │ Å''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  8 │ lt actor = 1
+    │    ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `$`
+
+  9 │ let a = $ 1
+    │         ^

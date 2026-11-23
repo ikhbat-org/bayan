@@ -1,0 +1,3 @@
+== case name-type
+errorExpr 1528..1533 : ?
+BYN2019 78:18 `Point` is a type, not a value |||

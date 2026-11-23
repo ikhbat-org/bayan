@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/strbuf-loan-refusals.byn
+--package
+<repo>/tests/cases/diag

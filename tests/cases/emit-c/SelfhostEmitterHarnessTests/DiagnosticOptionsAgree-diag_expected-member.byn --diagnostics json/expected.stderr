@@ -1,0 +1,2 @@
+{"code":"BYN1003","severity":"error","file":"input.byn","span":{"start":14,"end":15,"line":1,"column":15,"endLine":1,"endColumn":16},"message":"expected a type, found `,`","label":null,"help":null,"fixes":[]}
+{"code":"BYN1004","severity":"error","file":"input.byn","span":{"start":51,"end":52,"line":4,"column":5,"endLine":4,"endColumn":6},"message":"expected a field, property, constructor or method, found `+`","label":null,"help":null,"fixes":[]}

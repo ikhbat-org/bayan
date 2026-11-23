@@ -1,0 +1,1 @@
+{"code":"BYN3005","severity":"error","file":"input.byn","span":{"start":168,"end":170,"line":7,"column":31,"endLine":7,"endColumn":33},"message":"`xs` is passed by `ref` and again in the same call","label":"`xs` is also passed by `ref`","help":"copy the value into a local first, or make two calls","fixes":[]}

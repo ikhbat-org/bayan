@@ -1,0 +1,17 @@
+== tests/cases/diag/non-exhaustive-union-arms.byn
+88..129 switchExpr
+88..129 switchExpr
+88..129 switchExpr
+88..89 nameExpr
+103..117 variantPattern
+111..114 varPattern
+121..126 binaryExpr mul right 125..126
+121..122 nameExpr
+125..126 nameExpr
+131..154 globalStatement
+131..154 exprStmt
+131..154 callExpr
+137..153 interpolatedExpr
+140..151 callExpr
+145..150 targetMemberExpr
+131..154 callExpr

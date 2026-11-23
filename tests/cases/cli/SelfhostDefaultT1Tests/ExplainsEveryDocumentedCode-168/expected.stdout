@@ -1,0 +1,12 @@
+# BYN2301: missing argument
+
+**Why.** Every parameter without a default needs an argument.
+
+**Example.**
+
+```
+i64 area(i64 width, by i64 height) => width * height
+let a = area(3)
+```
+
+**Fix.** Pass the missing argument, or give the parameter a default.

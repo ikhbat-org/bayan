@@ -1,0 +1,43 @@
+1:2 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `ca`
+2:8 Identifier `é`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+5:1 CharLiteral `'a�b'`
+7:1 IntegerLiteral `0b102`
+9:1 Identifier `Å`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  2 │ let ca�é = 2
+    │       ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │ 'a�b'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ 'a�b'
+    │   ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  7 │ 0b102
+    │     ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  9 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 9 │ Å
+    │   │ +

@@ -1,0 +1,3 @@
+== diags.diag/fail-from-infallible
+BYN2604 6:10 `f` cannot fail, so it cannot pass on `ParseError`
+  help declare the error in a `fails` clause, or handle it here

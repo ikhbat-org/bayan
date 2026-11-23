@@ -1,0 +1,3 @@
+public Money quote(Cart cart, for Customer customer) expects cart.lines.length > 0 && customer.region.isKnown uses db fails QuoteError {
+    return cart.total(for: customer)
+}

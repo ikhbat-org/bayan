@@ -1,0 +1,4 @@
+== lib.immutable
+BYN2104 2:5 `n` is immutable |parameters are immutable|copy it into a local `var`, or take it by `ref` if the caller's value should change|
+BYN2104 7:5 `k` is immutable |declared with `let` on line 6|declare it with `var` if it should change|fix 66..69 var
+BYN2104 8:5 `xs` is immutable |parameters are immutable|copy it into a local `var`, or take it by `ref` if the caller's value should change|

@@ -1,0 +1,3 @@
+== case conv-widen
+conversion 982..986 : f64 = 1.5
+  literal 982..986 : f32 = 1.5

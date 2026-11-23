@@ -1,0 +1,7 @@
+== resolve type-args
+resolve 0 string
+resolve 1 List<i32>
+resolve 2 ?
+resolve 3 ?
+BYN2002 50:26 unknown type `Zyzzyva` |||
+BYN2002 50:37 unknown type `U` |||

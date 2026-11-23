@@ -1,0 +1,4 @@
+== dt2
+local|i64|864:1
+BYN2601 56:14 `try` is not allowed in `defer` ||handle the error here with `catch`; cleanup cannot fail|
+BYN2605 56:18 `try` needs a call that can fail |||

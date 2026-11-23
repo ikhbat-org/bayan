@@ -1,0 +1,2 @@
+== expr.probes.m9
+collection:Map<Point, i32>[1950:6]=-(local:Point[1951:1]=-(p) literal:i32[1954:1]=1(1))

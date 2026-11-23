@@ -1,0 +1,7 @@
+let actor = 1
+
+b = ` 2
+let c''
+ badÎ\q escape"
+let »c = 
+ //// not a doc comment

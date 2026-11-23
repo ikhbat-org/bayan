@@ -1,0 +1,9 @@
+warning BYN5104: `item` holds a collection; name it with a plural, `items`
+  --> main.byn:2:25
+
+  2 │     public List<string> item
+    │                         ^^^^
+    │
+  help: rename it `items`
+    │ 2 │     public List<string> items
+    │   │                             +

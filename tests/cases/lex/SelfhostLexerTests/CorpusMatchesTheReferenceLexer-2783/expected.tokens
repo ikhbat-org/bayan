@@ -1,0 +1,40 @@
+1:1 Identifier `t`
+1:3 ThisKeyword `this`
+1:8 NullKeyword `null`
+1:13 TrueKeyword `true`
+1:18 Identifier `fa`
+1:20 Identifier `se`
+1:23 ComptimeKeyword `comptime`
+1:32 CheckedKeyword `checked`
+2:1 TestKeyword `test`
+2:6 Identifier `assertlet`
+2:16 Identifier `c`
+2:18 Equals `=`
+2:22 IntegerLiteral `3`
+4:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n struct S\r\n\r\n  """`
+7:7 CStringLiteral `c"text"`
+7:15 U16StringLiteral `u16"wide"`
+7:25 StringLiteral `"\u{202E} allowed in strings"`
+7:48 StringLiteral `""`
+7:51 StringLiteral `"\u{48}i"`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  1 │ t this null true fa�se comptime checked
+    │                    ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ test assertlet c = � 3
+    │                    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ // �x
+    │   │    -

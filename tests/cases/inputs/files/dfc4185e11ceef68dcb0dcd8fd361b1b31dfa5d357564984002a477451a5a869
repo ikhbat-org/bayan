@@ -1,0 +1,4 @@
+struct Server {
+    i64  port // default 8080
+    bool tls  // on by default
+}

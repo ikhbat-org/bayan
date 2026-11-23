@@ -1,0 +1,4 @@
+run
+--mode
+debug
+<repo>/tmp/t5/run/run_unique-checker-clean/unique-checker-clean.byn

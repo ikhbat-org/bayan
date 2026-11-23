@@ -1,0 +1,4 @@
+== cases
+0 (byn_time_now().nanos > INT64_C(978307200000000000))
+1 byn_time_now().nanos
+count 2

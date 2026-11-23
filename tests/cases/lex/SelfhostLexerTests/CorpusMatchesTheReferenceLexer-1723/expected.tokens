@@ -1,0 +1,48 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:12 Equals `=`
+2:14 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 Identifier `lawallowed`
+4:16 InKeyword `in`
+4:19 Identifier `strings`
+4:26 StringLiteral `" "`
+4:29 StringLiteral `" "`
+4:33 Identifier `u`
+4:34 OpenBrace `{`
+4:35 IntegerLiteral `48`
+4:37 CloseBrace `}`
+4:38 Identifier `i`
+4:39 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\`
+
+  4 │ let lawallowed in strings" "" "\u{48}i"
+    │                                ^
+
+error BYN0003: unterminated string literal
+
+  4 │ let lawallowed in strings" "" "\u{48}i"
+    │                                       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

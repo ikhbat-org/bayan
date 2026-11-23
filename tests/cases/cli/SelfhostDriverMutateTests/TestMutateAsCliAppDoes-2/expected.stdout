@@ -1,0 +1,18 @@
+<repo>/tmp/t13-mutate/run/a.test.byn:2:12 emptyReturn `n + 1` -> `0`: killed
+<repo>/tmp/t13-mutate/run/a.test.byn:2:12 arithmetic `n + 1` -> `n - 1`: killed
+<repo>/tmp/t13-mutate/run/a.test.byn:2:16 literal `1` -> `2`: killed
+<repo>/tmp/t13-mutate/run/a.test.byn:2:16 literal `1` -> `0`: killed
+mutation: 4 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+operators:
+  boundary: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  relational: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  logical: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  condition: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  bool: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  arithmetic: 1 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  literal: 2 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  negation: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  statement: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  emptyReturn: 1 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+  variant: 0 killed, 0 survived, 0 timeout, 0 marked, 0 not reached, 0 not emitted
+timing: build <t> s, mean <t> s and max <t> s per mutant, total <t> s, mutant share of build <t>%

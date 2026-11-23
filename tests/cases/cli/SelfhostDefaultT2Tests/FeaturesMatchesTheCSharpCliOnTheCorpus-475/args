@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/circular-field-default-generic.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,45 @@
+1:1 CharLiteral `'a\u{E}b'`
+2:1 IntegerLiteral `0b1`
+2:4 NumericSuffix `ms`
+3:2 CharLiteral `''`
+3:5 CharLiteral `'é'`
+3:9 CharLiteral `'\`
+4:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'a�b'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\`
+
+  3 │ \'' 'é' '\
+    │ ^
+
+error BYN0007: empty char literal
+
+  3 │ \'' 'é' '\
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  3 │ \'' 'é' '\
+    │         ^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\`
+
+  3 │ \'' 'é' '\
+    │          ^

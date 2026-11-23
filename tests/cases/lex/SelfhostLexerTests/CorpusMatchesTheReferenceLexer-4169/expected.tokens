@@ -1,0 +1,54 @@
+1:1 IntegerLiteral `0x`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `{{`
+2:6 InterpolatedStringEnd `"`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 NeverKeyword `never`
+3:23 Identifier `nalloc`
+3:30 NosuspendKeyword `nosuspend`
+3:40 SuspendsKeyword `suspends`
+3:49 AsyncKeyword `async`
+3:55 AwaitKeyword `await`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolationEnd `}`
+4:6 InterpolatedStringEnd `"`
+5:1 IntegerLiteral `0x_`
+6:1 IntegerLiteral `0b__`
+7:1 IntegerLiteral `1__`
+8:1 IntegerLiteral `0xF__`
+    doc `/// Doc line two.`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1__
+    │  ^^
+    │
+    │ 7 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 0xF__
+    │    ^^
+    │
+    │ 8 │ 0xF__
+    │   │    --

@@ -1,0 +1,12 @@
+struct Token {
+    i64 n
+}
+
+interface IStream {
+    void close() uses console fails
+    Token next()
+}
+
+void main() {
+    print("ok")
+}

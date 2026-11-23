@@ -1,0 +1,22 @@
+1:1 Identifier `e`
+1:3 DefaultKeyword `default`
+1:11 Identifier `ạ̇`
+1:15 LetKeyword `let`
+1:19 Identifier `c`
+1:21 Equals `=`
+1:25 IntegerLiteral `3`
+2:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ e default ạ̇ let c = � 3
+    │           ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ e default ạ̇ let c = � 3
+    │   │           +
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ e default ạ̇ let c = � 3
+    │                       ^

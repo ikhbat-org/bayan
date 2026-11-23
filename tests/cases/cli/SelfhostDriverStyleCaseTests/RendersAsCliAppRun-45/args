@@ -1,0 +1,6 @@
+--color
+always
+check
+--diagnostics
+json
+<repo>/tmp/t7-style/check-json-color/tally/main.byn

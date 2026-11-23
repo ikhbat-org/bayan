@@ -1,0 +1,15 @@
+error BYN2321: `-1` violates `requires it >= 0` of `Range`
+  --> <repo>/tests/cases/diag/requires-literal-violated.byn:8:26
+
+  8 │     let r = Range { low: -1, high: -5 }
+    │                          ^^ fails the contract
+    │
+  help: pass a value that meets `requires it >= 0`
+
+error BYN2321: `Range { low: 3, high: 1 }` violates `requires low <= high` of `Range`
+  --> <repo>/tests/cases/diag/requires-literal-violated.byn:9:13
+
+  9 │     let s = Range { low: 3, high: 1 }
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^ fails the contract
+    │
+  help: pass a value that meets `requires low <= high`

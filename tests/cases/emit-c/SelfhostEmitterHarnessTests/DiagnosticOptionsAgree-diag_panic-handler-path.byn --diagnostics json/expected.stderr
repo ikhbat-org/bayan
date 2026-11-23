@@ -1,0 +1,2 @@
+{"code":"BYN2612","severity":"error","file":"input.byn","span":{"start":212,"end":236,"line":4,"column":16,"endLine":4,"endColumn":40},"message":"allocation is not allowed in a panic handler","label":null,"help":"remove it; panic handlers can't recover","fixes":[]}
+{"code":"BYN2612","severity":"error","file":"input.byn","span":{"start":251,"end":290,"line":5,"column":15,"endLine":5,"endColumn":54},"message":"allocation is not allowed in a panic handler","label":null,"help":"remove it; panic handlers can't recover","fixes":[]}

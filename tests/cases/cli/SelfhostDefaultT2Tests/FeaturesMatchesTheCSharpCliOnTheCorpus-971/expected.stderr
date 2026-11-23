@@ -1,0 +1,7 @@
+error BYN1001: expected `}`, found end of file
+  --> <repo>/tests/cases/diag/unclosed-struct.byn:3:1
+
+  3 │ 
+    │ ^
+    │
+  help: close the struct opened on line 1

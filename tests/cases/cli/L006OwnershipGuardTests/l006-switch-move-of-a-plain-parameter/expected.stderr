@@ -1,0 +1,11 @@
+error BYN2789: `switch move …` needs a local or a `move` parameter, not parameter `plain`
+  --> <repo>/tmp/l006/switch-move-of-a-plain-parameter/main.byn:14:17
+
+  14 │     switch move plain {
+     │                 ^^^^^
+     │
+  help: drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection
+        field into a local first
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2789

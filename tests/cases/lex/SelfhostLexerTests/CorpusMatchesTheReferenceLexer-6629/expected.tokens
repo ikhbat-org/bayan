@@ -1,0 +1,10 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^

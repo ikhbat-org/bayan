@@ -1,0 +1,26 @@
+1:1 IntegerLiteral `0`
+1:2 NumericSuffix `b`
+1:4 Identifier `ys`
+2:2 CharLiteral `'é'`
+2:6 CharLiteral `'\\'`
+2:11 CharLiteral `'\0'`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:2 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  1 │ 0b�ys
+    │   ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x�= 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x�= 1
+    │   │      -

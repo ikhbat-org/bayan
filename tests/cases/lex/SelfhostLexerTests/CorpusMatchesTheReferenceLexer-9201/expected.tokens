@@ -1,0 +1,35 @@
+    doc `/// /* \u{202D} */`
+2:1 RawStringLiteral `""" ere"\n$"open {x"�\n test assert property fu�z model foreach� new goto\n0b1ms\n `
+6:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ �/// /* � */
+    │         ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �/// /* � */
+    │   │         -
+
+error BYN0003: unterminated string literal
+
+  2 │ """ ere"
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ $"open {x"�
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  4 │  test assert property fu�z model foreach� new goto
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  4 │  test assert property fu�z model foreach� new goto
+    │                                         ^

@@ -1,0 +1,30 @@
+== x-tuple
+BYN2411 12:9 3 names cannot match `(i64, bool)` ||name one loop variable, or iterate over pairs such as a map's entries|
+fn take
+block 17..20
+fn takeBool
+block 44..47
+fn walk
+block 84..206
+  forStmt 90..153
+    local 104..109 : List<(i64, bool)>
+    block 110..153
+      localDecl 95..96
+        tupleElement 95..96 : i64
+          local 95..96 : (i64, bool)
+      localDecl 98..99
+        tupleElement 98..99 : bool
+          local 98..99 : (i64, bool)
+      block 110..153
+        exprStmt 120..127
+          call 120..127 : void
+            local 125..126 : i64
+        exprStmt 136..147
+          call 136..147 : void
+            local 145..146 : bool
+  forStmt 158..204
+    local 175..180 : List<(i64, bool)>
+    block 181..204
+      exprStmt 191..198
+        call 191..198 : void
+          local 196..197 : ?

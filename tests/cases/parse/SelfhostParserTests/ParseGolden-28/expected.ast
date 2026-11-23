@@ -1,0 +1,19 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      For Let <missing> in xs
+        Block
+
+error BYN1019: `for (let x in xs)` is an input form; write `for x in xs`
+
+  2 │     for (let  in xs) {
+    │         ^^^^^^^^^^^^ the input form
+    │
+  help: write the loop variable and iterable without parentheses
+    │ 2 │     for <missing> in xs {
+    │   │         +++++++++++++++
+
+error BYN1001: expected a loop variable, found keyword `in`
+
+  2 │     for (let  in xs) {
+    │               ^^

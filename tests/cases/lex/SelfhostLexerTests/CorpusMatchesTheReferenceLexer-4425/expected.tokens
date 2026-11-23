@@ -1,0 +1,28 @@
+1:1 Identifier `Å`
+1:3 LetKeyword `let`
+1:7 Identifier `a`
+1:9 Equals `=`
+1:12 IntegerLiteral `1`
+2:1 Identifier `Fu`
+2:5 Equals `=`
+2:7 IntegerLiteral `1`
+3:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å let a� =$ 1
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å let a� =$ 1
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  1 │ Å let a� =$ 1
+    │        ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ Å let a� =$ 1
+    │           ^

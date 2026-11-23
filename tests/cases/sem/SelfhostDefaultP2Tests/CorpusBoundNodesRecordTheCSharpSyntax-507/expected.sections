@@ -1,0 +1,4 @@
+== tests/cases/diag/from-end-outside-index.byn
+0..10 globalStatement
+0..10 localDecl
+8..10 unaryExpr fromEnd operand 9..10

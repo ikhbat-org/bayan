@@ -1,0 +1,160 @@
+1:1 Identifier `tra`
+1:5 CloseBrace `}`
+1:7 Identifier `here`
+1:11 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+6:2 Identifier `café`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 StringLiteral `$"{$"`
+7:52 OpenBrace `{`
+7:53 StringLiteral `$"{x}"`
+7:59 CloseBrace `}`
+7:60 StringLiteral `"}"`
+7:63 InterpolationEnd `}`
+7:64 InterpolatedStringEnd `"`
+7:65 InterpolationEnd `}`
+7:66 InterpolatedStringEnd `"`
+7:67 InterpolationEnd `}`
+7:68 InterpolatedStringEnd `"`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringEnd `"`
+7:71 InterpolationEnd `}`
+7:72 InterpolatedStringEnd `"`
+7:73 InterpolationEnd `}`
+7:74 InterpolatedStringEnd `"`
+7:75 InterpolationEnd `}`
+7:76 InterpolatedStringEnd `"`
+7:77 InterpolationEnd `}`
+7:78 InterpolatedStringEnd `"`
+7:79 InterpolationEnd `}`
+7:80 InterpolatedStringEnd `"`
+7:81 InterpolationEnd `}`
+7:82 InterpolatedStringEnd `"`
+7:83 InterpolationEnd `}`
+7:84 InterpolatedStringEnd `"`
+7:85 InterpolationEnd `}`
+7:86 InterpolatedStringEnd `"`
+7:87 InterpolationEnd `}`
+7:88 InterpolatedStringEnd `"`
+7:90 Identifier `가`
+7:93 Identifier `O`
+7:94 Identifier `x`
+8:1 IntegerLiteral `1_`
+9:1 IntegerLiteral `0`
+10:1 StructKeyword `struct`
+10:8 Identifier `S`
+11:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ tra } here"
+    │           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  6 │  café� = 1
+    │  ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  café� = 1
+    │   │     +
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  6 │  café� = 1
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │                                               ^^
+
+error BYN0005: identifier `가` is not in Unicode normalization form C
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │                                                                                          ^^ same
+    │                                                                                             letters,
+    │                                                                                             different
+    │                                                                                             encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │   │                                                                                          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │                                                                                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │                                                                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  7 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 가�O�x
+    │                                                                                              ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1_
+    │  ^
+    │
+    │ 8 │ 1_
+    │   │  -

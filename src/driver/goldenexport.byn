@@ -1,0 +1,3634 @@
+// The exported `cli` cases of the golden runner (spec 019 T17b, R10). A case is a directory `cli/<Class>/<case>/` holding `args` (one argument per
+// line), `expected.exitcode`, `expected.stdout`, `expected.stderr` and, as the C# call site wrote them, `compare`, `env`, `stdin`, `cwd`,
+// `expected.argv`, `report` and `expected.report` (SelfhostExport.cs:132 `Cli`). Its inputs are `input.<ext>` (one plain file) or `input.tsv`
+// (T17a: `<name>\tfile:<sha256>`, `file+x:` or `tree:` lines over `<cases>/inputs/files/<sha256>` and `<cases>/inputs/trees/<sha256>.tsv`).
+//
+// A case runs in a fresh scratch directory tmp/cli/<Class>_<case>, which stands for the repo: `<repo>` (and the `<root>` and `{D}` of the classes
+// that recorded their tree's root so) in `args`, `env`, `stdin`, `cwd` and `report` reads as it. The inputs are placed back where the run read
+// them, the inverse of SelfhostExport.cs:91 `WriteInput`: one file, or one tree, at the first `<repo>/` path the case names (a `main.byn` stands
+// for its directory), else at the scratch root; several entries each at the named path of its name. The driver `$BAYAN_EXE` runs in the case's
+// `cwd` (else the scratch root), with `goldenEnv` and the case's `env` (`NAME=value`, or a bare `NAME` unset); the scratch directory reads back
+// as `<repo>` in what it prints, and the case's `compare` word picks what is compared and how it is masked, each as its C# call site does.
+// `links` and `modes` are read for the SelfhostDefault and SelfhostDriver classes, `env.git` for the SelfhostDefault ones (see `goldenCliStage`, `goldenCli`); `probe` and `expected.tree`, `expected.inputs` and `expected.names` are not read here.
+//
+// The other exported kinds (`emit-c`, `sem`, and `lex` and `parse` class directories) ran per-class harness programs the cases do not name
+// (T17b2a); each class directory is one skipped result, "unsupported kind", until T17b2b.
+
+/// The `compare` words, as the C# call sites wrote them (the empty word: no `compare` file, every stream exact).
+List<string> goldenCliWords() uses alloc {
+    var words = List<string>()
+    for w in [
+        "",
+        "argv-masked",
+        "argv-masked-arguments",
+        "dir-masked",
+        "dir-seconds-masked",
+        "exit",
+        "masked",
+        "mutation-masked",
+        "pass-count",
+        "repo-masked",
+        "root-masked",
+        "seconds-masked",
+        "stderr",
+        "stderr-bayan-prefix",
+        "stderr-prefix",
+        "stdout",
+        "stdout-exact-stderr-masked",
+        "version-masked",
+        "version-seconds-masked",
+    ] {
+        words.append(w)
+    }
+    return words
+}
+
+/// The sorted names of the directories in `dir`; none when it cannot be listed.
+List<string> goldenCliDirs(string dir) uses alloc, fs {
+    var names = List<string>()
+    let listed = Io.listDir(dir) catch return names
+    for name in listed {
+        // the listing of each entry is freed after its check (2026-11-20: 3.5 MB for the 20,075 of lex/SelfhostLexerTests)
+        var found = false
+        {
+            using let arena = Arena()
+            provide allocator: arena {
+                found = t6DirectoryExists(Path.combine(dir, name))
+            }
+        }
+        if found && !name.startsWith(".") {
+            names.append(name)
+        }
+    }
+    names.sort()
+    return names
+}
+
+/// The `cli` cases of `root`: `cli/<Class>/<case>`, its input the case's `args` file, or the case directory when it has none (reported by
+/// `goldenCliSkip`). Sorted by class, then case.
+void goldenCliCases(string root, to ref List<GoldenCase> cases) uses alloc, fs {
+    let dir = Path.combine(root, "cli")
+    return unless t6DirectoryExists(dir)
+    for cls in goldenCliDirs(dir) {
+        for name in goldenCliDirs(Path.combine(dir, cls)) {
+            let at = Path.combine(Path.combine(dir, cls), name)
+            let args = Path.combine(at, "args")
+            cases.append(GoldenCase { kind: "cli", name: $"{cls}/{name}", input: Fs.fileExists(args) ? args : at })
+        }
+    }
+}
+
+/// The exported case directories `<Class>/<case>` of `kind` (`emit-c`, `sem`, `lex`, `parse`) under `root`, each a case, its input the
+/// directory (run by goldenprograms.byn).
+void goldenExportClasses(string root, for string kind, to ref List<GoldenCase> cases) uses alloc, fs {
+    let dir = Path.combine(root, kind)
+    return unless t6DirectoryExists(dir)
+    for cls in goldenCliDirs(dir) {
+        for name in goldenCliDirs(Path.combine(dir, cls)) {
+            cases.append(
+                GoldenCase { kind: kind, name: $"{cls}/{name}", input: Path.combine(Path.combine(dir, cls), name) },
+            )
+        }
+    }
+}
+
+/// The skip text of an exported case that is not run: a `cli` case without `args` (the SelfhostDriverT3Tests probe cases), or a case whose `os`
+/// file does not name this OS; null for the others. An `os` file (T17e) is one line: the OSes the case's expected output can hold on, one or
+/// several separated by spaces, each as `Target.os` names it (`macos`, `linux`, `windows`), e.g. `macos linux` for output that names a POSIX
+/// path. One line, because the file says one thing, which OSes, and a case that holds on two of three needs both on it; the reason a case has
+/// one is not in it but in its class's EXPORT.tsv row (`<n> os: <case> (<OSes>: <reason>)`), where T17e lists it and land-export.sh keeps it.
+string? goldenCliSkip(string kind, at string input) uses alloc, fs {
+    if kind == "cli" && !input.endsWith("args") {
+        return $"skipped: no `args` file in {input}"
+    }
+    return null if kind != "cli" && !goldenExported(kind, at: input)
+    if kind == "cli" {
+        let dir = Path.directoryName(input) ?? ""
+        let cases = Path.directoryName(Path.directoryName(Path.directoryName(dir) ?? "") ?? "") ?? ""
+        let skip = goldenCliRunInputSkip(dir, from: cases, for: Target.os)
+        return skip if skip is not null
+    }
+    let os = Path.combine(kind == "cli" ? Path.directoryName(input) ?? "" : input, "os")
+    return null unless Fs.fileExists(os)
+    let line = goldenLines(goldenLf(Io.readText(os) catch ""))[0]
+    for word in line.parts(by: " ") {
+        return null if $"{word.trimmed()}" == Target.os
+    }
+    return $"skipped: its `os` file names {line.trimmed()}, not {Target.os}"
+}
+
+/// SelfhostDriverT5Tests.cs:77-78 `RunInputs`: the skip text of the RunAsCliAppOnEveryRunInput case `dir` on `os` (as `Target.os` names it)
+/// when the `.byn` its input.tsv points to below `cases`/inputs/files has the `// os:` line of another OS among its first two lines
+/// (`// os: unix` on windows, `// os: windows` elsewhere, as `goldenOsSkip`); null for any other case.
+string? goldenCliRunInputSkip(string dir, from string cases, for string os) uses alloc, fs {
+    return null unless Path.fileName(dir).startsWith("RunAsCliAppOnEveryRunInput")
+    let other = os == "windows" ? "// os: unix" : "// os: windows"
+    for line in goldenCliLines(Path.combine(dir, "input.tsv")) {
+        let tab = goldenOffset(line, for: "\tfile:")
+        continue if tab < 0 || !line[0..tab].endsWith(".byn")
+        let file = Path.combine(Path.combine(Path.combine(cases, "inputs"), "files"), line[tab + 6..line.length])
+        let lines = goldenLines(goldenLf(Io.readText(file) catch ""))
+        for i in 0..(lines.length < 2 ? lines.length : 2) {
+            return $"skipped: its input {line[0..tab]} has `{other}`, which the C# skips on {os}" if lines[i] == other
+        }
+    }
+    return null
+}
+
+/// The expected files of the `cli` case whose `args` is `input`, those update mode may rewrite.
+List<string> goldenCliExpectedFiles(string input) uses alloc {
+    let dir = Path.directoryName(input) ?? ""
+    var files = List<string>()
+    for name in ["expected.exitcode", "expected.stdout", "expected.stderr", "expected.argv", "expected.report"] {
+        files.append(Path.combine(dir, name))
+    }
+    return files
+}
+
+/// The lines of the file `path`, the empty one after a final LF dropped; none when it is absent.
+List<string> goldenCliLines(string path) uses alloc, fs {
+    var lines = List<string>()
+    return lines unless Fs.fileExists(path)
+    let all = goldenLines(goldenLf(Io.readText(path) catch ""))
+    for i in 0..all.length {
+        continue if i == all.length - 1 && all[i] == ""
+        lines.append(all[i])
+    }
+    return lines
+}
+
+/// The arguments of the `args` file `path`, one a line, each read back as the export escaped it (019-export-runners.md: `\\` a backslash,
+/// `\n` an LF, `\r` a CR).
+List<string> goldenArgLines(string path) uses alloc, fs {
+    var args = List<string>()
+    for line in goldenCliLines(path) {
+        args.append(goldenArgUnescape(line))
+    }
+    return args
+}
+
+/// The argument `a` with its `\\`, `\n` and `\r` escapes read as a backslash, an LF and a CR; another backslash kept.
+string goldenArgUnescape(string a) uses alloc {
+    return a unless a.contains("\\")
+    var sb = StrBuf()
+    var start = 0
+    var i = 0
+    while i < a.length {
+        if a.bytes[i] == 0x5c && i + 1 < a.length && a.bytes[i + 1] is 0x5c or 0x6e or 0x72 {
+            let c = a.bytes[i + 1]
+            sb.append(a[start..i])
+            sb.append(c == 0x6e ? "\n" : c == 0x72 ? "\r" : "\\")
+            i += 2
+            start = i
+        } else {
+            i += 1
+        }
+    }
+    sb.append(a[start..a.length])
+    return sb.finish()
+}
+
+/// `text` with the placeholders of the repo (`<repo>`, and `<root>` and `{D}` of SelfhostDefaultT3/T12 and SelfhostDefaultT4) read as `scratch`.
+string goldenCliPut(string text, for string scratch) uses alloc {
+    return text.replaced("<repo>", by: scratch).replaced("<root>", by: scratch).replaced("{D}", by: scratch)
+}
+
+/// SelfhostDriverFixTests.cs:64-131: `text` with the directory of the fix target `target` (the file's own for a file) as `<dir>`, both as
+/// `Path.directoryName` writes it and as the target spells it up to its last separator: the driver prints the target as given, which on
+/// Windows keeps the `/` after the scratch directory where `Path.directoryName` writes `\`. A Windows target (one holding `\`) is read
+/// through `goldenDirMasked`, so a file the driver found below it and printed as `<dir>\main.byn` reads as `<dir>/main.byn`.
+string goldenCliDirMasked(string text, at string target) uses alloc, fs {
+    let file = Fs.fileExists(target) || !t6DirectoryExists(target) && target.endsWith(".byn")
+    let masked = file ? Path.directoryName(target) ?? target : target
+    var cut = target.length
+    if file {
+        cut = 0
+        for i in 0..target.length {
+            if goldenCliSep(target, at: i) {
+                cut = i
+            }
+        }
+    }
+    let spelled = cut > 0 ? target[0..cut] : masked
+    if target.contains("\\") {
+        return goldenDirMasked(goldenDirMasked(text, at: masked, by: "<dir>"), at: spelled, by: "<dir>")
+    }
+    return text.replaced(masked, by: "<dir>").replaced(spelled, by: "<dir>")
+}
+
+/// What a `goldenCli` run in `scratch` printed, the scratch directory read as `tag` (`<repo>`, `<root>` or `<D>`, `goldenDirMasked`); with
+/// `t9` first the repo root of the `tmp/t9-cache/` PATH directories and its separator dropped (SelfhostDefaultT9Tests.cs:861 `Machineless`).
+string goldenCliScratchMasked(string text, at string scratch, by string tag, bool t9 = false) uses alloc {
+    let res = t9 ? goldenDirMasked(text, at: $"{scratch}-repo", by: "", drop: true) : text
+    return goldenDirMasked(res, at: scratch, by: tag)
+}
+
+/// The part of `path` below the directory `dir`, each read with `/` for `\` on Windows (`goldenSlashed`); empty when it is not below it.
+string goldenCliBelow(string path, at string dir) uses alloc {
+    let p = goldenSlashed(path)
+    let d = goldenSlashed(dir)
+    return "" unless p.startsWith($"{d}/")
+    return p[d.length + 1..p.length]
+}
+
+/// The paths below the repo that `args`, `env` and `cwd` of case `dir` name (`args` alone with `argsOnly`), in that order, each `<repo>/…` up
+/// to the end of its line or a `:`, read below `scratch`.
+List<string> goldenCliNamed(string dir, for string scratch, bool argsOnly = false) uses alloc, fs {
+    var named = List<string>()
+    for file in ["args", "env", "cwd"] {
+        continue if argsOnly && file != "args"
+        for line in file == "args" ? goldenArgLines(Path.combine(dir, file)) : goldenCliLines(Path.combine(dir, file)) {
+            var rest = line
+            var at = goldenOffset(rest, for: "<repo>/")
+            while at >= 0 {
+                rest = rest[at + "<repo>".length..rest.length]
+                let end = goldenOffset(rest, for: ":")
+                let path = end < 0 ? rest : rest[0..end]
+                named.append($"{scratch}{path}")
+                at = goldenOffset(rest, for: "<repo>/")
+            }
+        }
+    }
+    return named
+}
+
+/// Where the input named by `path` goes: `path` with `..` taken lexically (SelfhostDriverTests.cs:104 `GetFullPath`), or its directory
+/// when it is a `main.byn` (SelfhostExport.cs:93).
+string goldenCliTarget(string path) uses alloc {
+    let full = Path.fullPath(path)
+    return Path.fileName(full) == "main.byn" ? Path.directoryName(full) ?? full : full
+}
+
+/// The name of an input line `<name>\t<kind>:<sha256>`.
+string goldenCliEntryName(string line) uses alloc {
+    let tab = goldenOffset(line, for: "\t")
+    return tab < 0 ? line : line[0..tab]
+}
+
+/// Places the input line `line` (`<name>\tfile:`, `file+x:` or `tree:<sha256>`) at `path`, from `cases`/inputs; an executable file is added
+/// to `exec`. `failure` says what could not be read or written.
+void goldenCliPlace(
+    string line,
+    at string path,
+    from string cases,
+    to ref List<string> exec,
+    through ref string failure
+) uses alloc, fs {
+    return if failure != ""
+    let tab = goldenOffset(line, for: "\t")
+    let value = tab < 0 ? "" : line[tab + 1..line.length]
+    let colon = goldenOffset(value, for: ":")
+    if colon < 0 {
+        failure = $"not an input line: {line}"
+        return
+    }
+    let kind = value[0..colon]
+    let sha = value[colon + 1..value.length]
+    let inputs = Path.combine(cases, "inputs")
+    if kind == "tree" {
+        let tree = Path.combine(Path.combine(inputs, "trees"), $"{sha}.tsv")
+        let text = Io.readText(tree) catch {
+            failure = $"missing input tree {tree}"
+            return
+        }
+        Io.createDirectory(path) catch {
+            failure = $"cannot create {path}"
+            return
+        }
+        for entry in goldenLines(goldenLf(text)) {
+            continue if entry == ""
+            goldenCliPlace(
+                entry,
+                at: Path.combine(path, goldenCliEntryName(entry)),
+                from: cases,
+                to: ref exec,
+                through: ref failure,
+            )
+        }
+        return
+    }
+    unless kind is "file" or "file+x" {
+        failure = $"not an input line: {line}"
+        return
+    }
+    // the bytes of one input file live in an arena freed after its write (2026-11-21: 7.6 MB staged for FeaturesMatchesTheCSharpCli-13);
+    // `failure` and `exec` outlive the call, so the arena only decides: 1 missing, 2 cannot create, 3 cannot write
+    var bad = 0
+    {
+        using let arena = Arena()
+        provide allocator: arena {
+            let file = Path.combine(Path.combine(inputs, "files"), sha)
+            // one pass, so a failed step leaves it with `break`
+            for _ in 0..1 {
+                let bytes = Io.readFile(file) catch switch {
+                    IoError e => {
+                        bad = 1
+                        break
+                    }
+                }
+                Io.createDirectory(Path.directoryName(path) ?? ".") catch switch {
+                    IoError e => {
+                        bad = 2
+                        break
+                    }
+                }
+                Io.writeFile(path, bytes.span) catch switch {
+                    IoError e => {
+                        bad = 3
+                        break
+                    }
+                }
+            }
+        }
+    }
+    if bad == 1 {
+        failure = $"missing input file {Path.combine(Path.combine(inputs, "files"), sha)}"
+        return
+    }
+    if bad == 2 {
+        failure = $"cannot create {path}"
+        return
+    }
+    if bad == 3 {
+        failure = $"cannot write {path}"
+        return
+    }
+    if kind == "file+x" {
+        exec.append(path)
+    }
+}
+
+/// The inputs of case `dir` placed below `scratch` (see the head of this file), executable files marked so with `chmod +x` (there is no
+/// file-mode builtin); the working directory an entry that is not named itself lands in (the C#'s first input, the working directory of
+/// SelfhostDriverT5Tests.cs:85 `Oracle`), else `scratch`. `failure` says what could not be placed.
+string goldenCliStage(string dir, from string cases, to string scratch, through ref string failure)
+        uses alloc, fs, process {
+    var cwd = scratch
+    var exec = List<string>()
+    let named = goldenCliNamed(dir, for: scratch)
+    let cls = Path.fileName(Path.directoryName(dir) ?? "")
+    // SelfhostDriverTests.cs:66-120 `StageInputs` (the SelfhostDefault and SelfhostDriver classes): its single input's place, where `links` and `modes` lines
+    // start (their first path segment is that input's name)
+    let own = cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver")
+    var home = scratch
+    // the name the C# wrote the input as (`input.name`): the named path of that file name, else below the scratch directory
+    let original = goldenCliLines(Path.combine(dir, "input.name"))
+    let listed = Io.listDir(dir) catch List<string>()
+    for name in listed {
+        // a plain `input` is the one file `StageInputs` copied (SelfhostExport.cs:91 `WriteInput`), its name in `input.name`
+        continue if !((name.startsWith("input.") || own && name == "input")
+            && name != "input.tsv"
+            && name != "input.name"
+            && Fs.fileExists(Path.combine(dir, name)))
+        let plain = name == "input.byn.ref" ? "input.byn" : name
+        var to = named.length > 0 ? named[0] : Path.combine(scratch, original.length > 0 ? original[0] : plain)
+        if original.length > 0 {
+            for path in named {
+                if Path.fileName(path) == Path.fileName(original[0]) {
+                    to = path
+                    break
+                }
+            }
+        }
+        if name == "input.byn.ref" {
+            // T17a2: the pointer `file:<sha256>` into `cases`/inputs/files, placed where input.byn goes
+            let pointer = goldenCliLines(Path.combine(dir, name))
+            goldenCliPlace(
+                $"{plain}\t{pointer.length > 0 ? pointer[0] : ""}",
+                at: to,
+                from: cases,
+                to: ref exec,
+                through: ref failure,
+            )
+            let repoCases = Path.combine(Path.combine(scratch, "tests"), "cases")
+            let at = Path.directoryName(to) ?? scratch
+            let below = goldenCliBelow(at, at: repoCases)
+            if own && below != "" {
+                // a file of the repo's tests/cases: the C# read its module, the other `.byn` files beside it (SelfhostDriverTests.cs:154
+                // `DiagnosticsJsonAsCliAppDoes`), which the export left out; they are the files of `cases` at that place
+                let from = Path.combine(cases, below)
+                for file in Io.listDir(from) catch List<string>() {
+                    continue if !file.endsWith(".byn") || file == Path.fileName(to)
+                    let bytes = Io.readFile(Path.combine(from, file)) catch List<u8>()
+                    Io.writeFile(Path.combine(at, file), bytes.span) catch {
+                        failure = $"cannot write {Path.combine(at, file)}"
+                    }
+                }
+            }
+            continue
+        }
+        let bytes = Io.readFile(Path.combine(dir, name)) catch List<u8>()
+        Io.createDirectory(Path.directoryName(to) ?? scratch) catch {}
+        Io.writeFile(to, bytes.span) catch {
+            failure = $"cannot write {to}"
+        }
+        if name == "input" {
+            home = to
+            if goldenCliExecutable(Path.combine(dir, name)) {
+                exec.append(to)
+            }
+        }
+    }
+    let tsv = Path.combine(dir, "input.tsv")
+    if Fs.fileExists(tsv) {
+        let entries = goldenCliLines(tsv)
+        var placed = List<bool>()
+        for _ in entries {
+            placed.append(false)
+        }
+        var any = false
+        // the directory of the first entry placed at a named path: the root of a widened input tree (019-t19x export)
+        var beside = scratch
+        for path in named {
+            let target = goldenCliTarget(path)
+            for k in 0..entries.length {
+                if !placed[k] && goldenCliEntryName(entries[k]) == Path.fileName(target) {
+                    goldenCliPlace(entries[k], at: target, from: cases, to: ref exec, through: ref failure)
+                    placed[k] = true
+                    if !any {
+                        beside = Path.directoryName(target) ?? scratch
+                    }
+                    any = true
+                }
+            }
+        }
+        // the rest at the first path `args` names, a `main.byn` one first (SelfhostExport.cs:93), else at the scratch root: a path only
+        // `env` names (a PATH, a cache) is no input's place
+        let given = goldenCliNamed(dir, for: scratch, argsOnly: true)
+        var whole = any || given.length == 0 ? scratch : goldenCliTarget(given[0])
+        if !any {
+            for path in given {
+                if Path.fileName(path) == "main.byn" {
+                    whole = goldenCliTarget(path)
+                    break
+                }
+            }
+            if own {
+                // a widened input tree (019-t19x export): `input/` was the case root, an ancestor of the named path, which the
+                // first segment of a `links` line names when it is not the named path's own name
+                for line in goldenCliLines(Path.combine(dir, "links")) {
+                    let slash = goldenOffset(line, for: "/")
+                    let arrow = goldenOffset(line, for: " -> ")
+                    continue if slash < 0 || arrow >= 0 && slash > arrow || line[0..slash] == Path.fileName(whole)
+                    var up = Path.directoryName(whole) ?? ""
+                    while up.length > scratch.length {
+                        if Path.fileName(up) == line[0..slash] {
+                            whole = up
+                            break
+                        }
+                        up = Path.directoryName(up) ?? ""
+                    }
+                }
+            }
+            if cls == "SelfhostDefaultT5Tests" && given.length == 0 && named.length > 0 {
+                // SelfhostDefaultT5Tests.cs `Same`: the inputs are the env values that are paths, so a single tree is the first one's
+                // (a PATH, a cache, a HOME), created even when empty
+                whole = named[0]
+                Io.createDirectory(whole) catch {
+                    failure = $"cannot create {whole}"
+                }
+            }
+            if cls == "SelfhostDriverT1Tests" && entries.length == 0 && whole != scratch {
+                // an empty input.tsv is the empty directory `args` names (SelfhostDriverTests.cs:112-114 `StageInputs` copied it; T1's
+                // `Oracle` stages the paths of `args`)
+                Io.createDirectory(whole) catch {
+                    failure = $"cannot create {whole}"
+                }
+            }
+            home = whole
+        }
+        for k in 0..entries.length {
+            continue if placed[k]
+            let name = goldenCliEntryName(entries[k])
+            var target = Path.combine(whole, name)
+            if any {
+                var found = false
+                for path in named {
+                    if Path.fileName(path) == name {
+                        // a named `main.byn` beside another named entry: its own path, not its directory's
+                        target = path
+                        found = true
+                    }
+                    var up = Path.directoryName(path) ?? ""
+                    while up.length > scratch.length {
+                        if Path.fileName(up) == name {
+                            target = up
+                            cwd = up
+                            found = true
+                            break
+                        }
+                        up = Path.directoryName(up) ?? ""
+                    }
+                }
+                if !found && beside != scratch {
+                    // an entry no path names, in a widened input tree (019-t19x export): beside the named entry, at the case root,
+                    // where the `links` lines start
+                    target = Path.combine(beside, name)
+                    home = beside
+                }
+            }
+            goldenCliPlace(entries[k], at: target, from: cases, to: ref exec, through: ref failure)
+        }
+    }
+    if exec.length > 0 && failure == "" {
+        var args = List<string>()
+        args.append("+x")
+        for path in exec {
+            args.append(path)
+        }
+        let _ = Io.run("chmod", args.span) catch {
+            failure = "cannot run chmod +x"
+            return cwd
+        }
+    }
+    if own && failure == "" {
+        // `links` lines `<rel> -> <target>`: a target below the input's original place (`<repo>/…/<name>/…`) is read below `home`
+        for line in goldenCliLines(Path.combine(dir, "links")) {
+            let arrow = goldenOffset(line, for: " -> ")
+            continue if arrow < 0
+            let rel = line[0..arrow]
+            var target = line[arrow + 4..line.length]
+            let first = goldenOffset(rel, for: "/")
+            let inner = first < 0 ? -1 : goldenOffset(target, for: $"/{rel[0..first]}/")
+            if target.startsWith("<repo>/") && inner >= 0 {
+                target = Path.combine(home, target[inner + first + 2..target.length])
+            }
+            var path = goldenCliAt(rel, at: home)
+            if first < 0 {
+                // a named path that is itself a link (SelfhostDriverTests.cs:105-108): made at that path
+                for p in named {
+                    if Path.fileName(p) == rel {
+                        path = p
+                        break
+                    }
+                }
+            }
+            Io.createDirectory(Path.directoryName(path) ?? home) catch {}
+            failure = goldenCliRun(["ln", "-s", target, path])
+            return cwd if failure != ""
+        }
+        // `modes` lines `<rel> <UnixFileMode names>` (SelfhostDriverTests.cs:80), applied last: a locked directory takes no entries
+        for line in goldenCliLines(Path.combine(dir, "modes")) {
+            let space = goldenOffset(line, for: " ")
+            continue if space < 0
+            let path = goldenCliAt(line[0..space], at: home)
+            failure = goldenCliRun(["chmod", goldenCliMode(line[space + 1..line.length]), path])
+            return cwd if failure != ""
+        }
+    }
+    return cwd
+}
+
+/// The path of a `links` or `modes` line's `rel` (its first segment the input's name) for the input placed at `home`.
+string goldenCliAt(string rel, at string home) uses alloc {
+    let first = goldenOffset(rel, for: "/")
+    return first < 0 ? home : Path.combine(home, rel[first + 1..rel.length])
+}
+
+/// The octal `chmod` mode of .NET `UnixFileMode` names as `ToString` writes them (`UserExecute, UserRead`, `None`).
+string goldenCliMode(string names) uses alloc {
+    let bits = [
+        "UserRead", "UserWrite", "UserExecute", "GroupRead", "GroupWrite", "GroupExecute", "OtherRead", "OtherWrite",
+        "OtherExecute",
+    ]
+    let values = [256, 128, 64, 32, 16, 8, 4, 2, 1]
+    var mode = 0
+    for part in names.parts(by: ", ") {
+        for k in 0..bits.length {
+            if part == bits[k] {
+                mode += values[k]
+            }
+        }
+    }
+    return $"{mode / 64}{mode / 8 % 8}{mode % 8}"
+}
+
+/// The command `argv` (its first word the program), its stderr when it fails or cannot start, else "".
+string goldenCliRun(ReadOnlySpan<string> argv) uses alloc, process {
+    var args = List<string>()
+    for k in 1..argv.length {
+        args.append(argv[k])
+    }
+    let r = Io.run(argv[0], args.span) catch return $"cannot run {argv[0]}"
+    return r.exitCode == 0 ? "" : $"{argv[0]} failed: {r.stderr}"
+}
+
+/// SelfhostDefaultT4Tests.cs:78-81 `Export`: when the env of case `dir` names `<bin>`, the PATH directory the C# made, `bin` is created
+/// fresh, holding `env.git` as an executable `git` when the case has one. What failed, else "".
+string goldenCliBin(string dir, at string bin) uses alloc, fs, process {
+    return "" if goldenOffset(Io.readText(Path.combine(dir, "env")) catch "", for: "<bin>") < 0
+    return $"cannot create {bin}" unless goldenFresh(bin)
+    let text = Path.combine(dir, "env.git")
+    return "" unless Fs.fileExists(text)
+    let git = Path.combine(bin, "git")
+    let bytes = Io.readFile(text) catch List<u8>()
+    Io.writeFile(git, bytes.span) catch return $"cannot write {git}"
+    return goldenCliRun(["chmod", "+x", git])
+}
+
+/// Whether the file at `path` has an execute bit (`test -x`; there is no file-mode builtin).
+bool goldenCliExecutable(string path) uses alloc, process {
+    return goldenCliRun(["test", "-x", path]) == ""
+}
+
+/// SelfhostDefaultT9Tests.cs:870-925 `Same`: case `<test>-<name>[-n]` is step n of the steps whose first is `<test>-<name>`; the steps
+/// before it, oldest first, when that first case is beside it.
+List<string> goldenCliT9Steps(string dir) uses alloc, fs {
+    var steps = List<string>()
+    let name = Path.fileName(dir)
+    let parent = Path.directoryName(dir) ?? ""
+    var dash = -1
+    for i in 0..name.length {
+        if name[i..i + 1] == "-" {
+            dash = i
+        }
+    }
+    return steps if dash < 0
+    let n = i64.tryParse(name[dash + 1..name.length]) ?? 0
+    return steps if n < 2
+    let first = name[0..dash]
+    return steps unless t6DirectoryExists(Path.combine(parent, first))
+    steps.append(Path.combine(parent, first))
+    for k in 2..n {
+        steps.append(Path.combine(parent, $"{first}-{k}"))
+    }
+    return steps
+}
+
+/// An env value of SelfhostDefaultT9Tests' export: `$PATH` the inherited one (:909), a `tmp/t9-cache/` path (the repo root dropped, :909) below
+/// `repo`. For a windows `host` the export's `:` before either is `;`, the PATH separator there (:909 `Path.PathSeparator`), since a directory
+/// there starts with a drive (`C:`).
+string goldenCliT9Value(string value, at string repo, for string host = "") uses alloc, env {
+    let windows = host.startsWith("windows-")
+    let joined = windows ? value.replaced(
+        ":$PATH",
+        by: ";$PATH",
+    ).replaced(":tmp/t9-cache/", by: ";tmp/t9-cache/") : value
+    return joined.replaced("tmp/t9-cache/", by: $"{repo}/tmp/t9-cache/").replaced("$PATH", by: Env.get("PATH") ?? "")
+}
+
+/// The PATH separator of `host`: `;` on Windows, else `:`.
+string goldenCliPathSeparator(string host) => host.startsWith("windows-") ? ";" : ":"
+
+/// SelfhostDefaultT9Tests.cs:834-842 `Bayan`'s env for the step case `dir` run in `cwd`: the cache below it, BAYAN_CC unset, then the case's `env`.
+Map<string, string?> goldenCliT9Env(string dir, for string scratch, at string cwd) uses alloc, env, fs {
+    var env = goldenEnv()
+    for name in ["NO_COLOR", "FORCE_COLOR", "COLORTERM", "BAYAN_THEME", "COLORFGBG"] {
+        env[name] = null
+    }
+    env["GIT_CEILING_DIRECTORIES"] = Path.directoryName(scratch) ?? scratch
+    env["BAYAN_CACHE"] = Path.combine(cwd, "cache")
+    env["BAYAN_CC"] = null
+    for line in goldenCliLines(Path.combine(dir, "env")) {
+        let at = goldenOffset(line, for: "=")
+        if at < 0 {
+            env[line] = null
+        } else {
+            env[line[0..at]] = goldenCliT9Value(
+                goldenCliPut(line[at + 1..line.length], for: scratch),
+                at: $"{scratch}-repo",
+                for: targetHost() ?? "",
+            )
+        }
+    }
+    return env
+}
+
+/// SelfhostDefaultT9Tests.cs:1121-1136 `LoggingZig`: a `zig` in `bin` that appends its argv to `$CCLOG` and runs the zig on this PATH, its
+/// `zig version` `tag` when one is given. What failed, else "".
+string goldenCliT9Zig(string bin, as string tag) uses alloc, fs, process {
+    let found = Io.run("sh", ["-c", "command -v zig"]) catch return "cannot run sh"
+    return "no zig on PATH for the logging zig" if found.exitCode != 0
+    let real = found.stdout.trimmed()
+    let version = tag == "" ? "" : $"if [ \"$1\" = version ]; then echo '{tag}'; exit 0; fi\n"
+    let zig = Path.combine(bin, "zig")
+    let text = $"#!/bin/sh\nif [ -n \"$CCLOG\" ]; then printf '%s\\n' \"$*\" >> \"$CCLOG\"; fi\n{version}exec '{real}' \"$@\"\n"
+    Io.writeFile(zig, text.bytes) catch return $"cannot write {zig}"
+    return goldenCliRun(["chmod", "755", zig])
+}
+
+/// SelfhostDefaultT9Tests.cs:1010-1019 `AnOddCCompiler`: the `cc` of `shape` in `bin`. What failed, else "".
+string goldenCliT9Cc(string bin, as string shape) uses alloc, fs, process {
+    let parse = "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf x > \"$out\"\ncase $out in */*) dir=${out%/*};; *) dir=.;; esac\n"
+    var text = parse
+    if shape == "notexecutable" {
+        text = ""
+    } else if shape == "noexe" {
+        text = "#!/bin/sh\nexit 0\n"
+    } else if shape == "subdir" {
+        text = $"{parse}/bin/mkdir \"$dir/sub\"\n"
+    } else {
+        text = $"{parse}if [ -f \"$dir/../../racedir\" ]; then /bin/mkdir \"$(/bin/cat \"$dir/../../racedir\")\"; fi\n"
+    }
+    let cc = Path.combine(bin, "cc")
+    Io.writeFile(cc, text.bytes) catch return $"cannot write {cc}"
+    return goldenCliRun(["chmod", (shape == "notexecutable" ? "600" : "700"), cc])
+}
+
+/// The PATH directories below `repo/tmp/t9-cache/` the env of case `dir` names, made fresh once per case: `cc-bin-<shape>` an odd `cc`,
+/// another a logging `zig`; the PATH split at the separator of `host` (`goldenCliPathSeparator`). What failed, else "".
+string goldenCliT9Bins(string dir, at string repo, for string host) uses alloc, env, fs, process {
+    return $"cannot create {repo}" unless goldenFresh(repo)
+    for line in goldenCliLines(Path.combine(dir, "env")) {
+        continue unless line.startsWith("PATH=")
+        for part in goldenCliT9Value(
+            line[5..line.length],
+            at: repo,
+            for: host,
+        ).parts(by: goldenCliPathSeparator(host)) {
+            continue unless part.startsWith($"{repo}/tmp/t9-cache/")
+            Io.createDirectory(part) catch return $"cannot create {part}"
+            let name = Path.fileName(part)
+            let failure = name.startsWith(
+                "cc-bin-",
+            ) ? goldenCliT9Cc(part, as: name[7..name.length]) : goldenCliT9Zig(part, as: "")
+            return failure if failure != ""
+        }
+    }
+    return ""
+}
+
+/// The one directory below `root`'s `cache/v1/programs` or `cache/v1/runtime` (`kind`), "" when there is not exactly one.
+string goldenCliT9Entry(string root, for string kind) uses alloc, fs {
+    let base = Path.combine(Path.combine(Path.combine(root, "cache"), "v1"), kind)
+    let dirs = goldenCliDirs(base)
+    return dirs.length == 1 ? Path.combine(base, dirs[0]) : ""
+}
+
+/// The seed (`step` 0) and `Before` action of step `step` of SelfhostDefaultT9Tests' test `method` (`name` its `Same` name), on the tree `root`
+/// with its PATH directories below `repo`, as :931-1294 write them; what only the C# side asserts on (the pointer rewritten at
+/// script-oldpointer steps 2-3) is left out. What failed, else "".
+string goldenCliT9Before(string method, as string name, at i64 step, to string root, from string repo, for string host)
+        uses alloc, env, fs, process {
+    let v1 = Path.combine(Path.combine(root, "cache"), "v1")
+    let bin = Path.combine(Path.combine(Path.combine(repo, "tmp"), "t9-cache"), $"{name}-bin")
+    let zig = Path.combine(bin, "zig")
+    var three = List<u8>()
+    three.append(1)
+    three.append(2)
+    three.append(3)
+    let programs = goldenCliT9Entry(root, for: "programs")
+    let runtime = goldenCliT9Entry(root, for: "runtime")
+    if method == "ASecondBuildLinksFromTheCache" && step == 4 {
+        return "no single programs entry" if programs == ""
+        let program = Path.combine(programs, targetExecutableName("program", for: host))
+        Io.writeFile(program, three.span) catch return $"cannot write {program}"
+    } else if method == "ABuildThatCannotPublishFails" && step == 0 {
+        Io.createDirectory(v1) catch return $"cannot create {v1}"
+        let made = Path.combine(v1, "programs")
+        if name == "publish-programsfile" {
+            Io.writeFile(made, List<u8>().span) catch return $"cannot write {made}"
+        } else if name == "publish-programsreadonly" {
+            Io.createDirectory(made) catch return $"cannot create {made}"
+            return goldenCliRun(["chmod", "555", made])
+        }
+    } else if method == "ABuildThatCannotPublishFails" && step == 2 {
+        return "no single programs entry" if programs == ""
+        deleteWorkDir(programs)
+        Io.writeFile(programs, List<u8>().span) catch return $"cannot write {programs}"
+    } else if method == "AnOddCCompiler" && step == 2 {
+        return "no single programs entry" if programs == ""
+        deleteWorkDir(programs)
+        Io.writeFile(Path.combine(v1, "racedir"), programs.bytes) catch return "cannot write racedir"
+    } else if method == "ABuildTagsTheCache" && step >= 2 {
+        Io.remove(Path.combine(v1, "CACHEDIR.TAG")) catch {}
+    } else if method == "AnUnwritableCache" && step == 0 {
+        Io.writeFile(Path.combine(root, "cache"), List<u8>().span) catch return "cannot write cache"
+    } else if method == "ADamagedRuntimeObjectIsRebuiltAsToolchain" && step == 2 {
+        return "no single runtime entry" if runtime == ""
+        let obj = Path.combine(runtime, "bayan-rt.o")
+        Io.writeFile(obj, three.span) catch return $"cannot write {obj}"
+    } else if method == "ADifferentCompilerIdentityMissesTheKeysAsToolchain" && step % 2 == 1 {
+        let failure = goldenCliT9Zig(bin, as: step == 1 ? "1" : "2")
+        return failure if failure != ""
+        return goldenCliRun(["touch", "-m", "-t", "202001010000", zig])
+    } else if (method == "ACompilerWithANewWriteTimeMissesTheKeysAsToolchain"
+            || method == "ARememberedScriptMissesAfterTheCompilerChangesAsToolchain") && step % 2 == 1 {
+        return goldenCliRun(["touch", "-m", "-t", (step == 1 ? "202001010000" : "202101010000"), zig])
+    } else if method == "AnOldFormatPointerMissesOnceAndIsRewrittenAsToolchain" && step == 1 {
+        return goldenCliRun(["touch", "-m", "-t", "202001010000", zig])
+    }
+    return ""
+}
+
+/// SelfhostDefaultT9Tests.cs:870-925 `Same` up to step case `dir`, run by `exe` in `scratch`: the PATH directories made, the seed, then each
+/// earlier step's tree staged over the last, its `Before` and its run (output unread), then this step's tree and `Before`. What failed, else "".
+string goldenCliT9Replay(string dir, from string cases, by string exe, at string scratch, i64 deadline = 0)
+        uses alloc, clock, env, fs, process {
+    let repo = $"{scratch}-repo"
+    let name = Path.fileName(dir)
+    let dash = goldenOffset(name, for: "-")
+    let method = name[0..dash]
+    let steps = goldenCliT9Steps(dir)
+    let first = steps.length > 0 ? Path.fileName(steps[0]) : name
+    let same = first[dash + 1..first.length]
+    let host = targetHost() ?? ""
+    var failure = goldenCliT9Bins(dir, at: repo, for: host)
+    return failure if failure != ""
+    for k in 0..steps.length {
+        let _ = goldenCliStage(steps[k], from: cases, to: scratch, through: ref failure)
+        return failure if failure != ""
+        if k == 0 {
+            failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo, for: host)
+            return failure if failure != ""
+        }
+        failure = goldenCliT9Before(method, as: same, at: k + 1, to: scratch, from: repo, for: host)
+        return failure if failure != ""
+        var args = List<string>()
+        for line in goldenArgLines(Path.combine(steps[k], "args")) {
+            args.append(goldenCliPut(line, for: scratch))
+        }
+        let env = goldenCliT9Env(steps[k], for: scratch, at: scratch)
+        let none = List<u8>()
+        let _ = goldenChild(
+            exe,
+            by: in args,
+            at: scratch,
+            from: in none,
+            through: ref failure,
+            deadline: deadline,
+            env: env,
+        )
+        return failure if failure != ""
+    }
+    let _ = goldenCliStage(dir, from: cases, to: scratch, through: ref failure)
+    return failure if failure != ""
+    if steps.length == 0 {
+        failure = goldenCliT9Before(method, as: same, at: 0, to: scratch, from: repo, for: host)
+        return failure if failure != ""
+    }
+    return goldenCliT9Before(method, as: same, at: steps.length + 1, to: scratch, from: repo, for: host)
+}
+
+/// Whether `c` is an ASCII digit.
+bool goldenCliDigit(u8 c) => c >= 0x30 && c <= 0x39
+
+/// `text` with each `lead\d+\.\d\ds` (`two`) or `lead\d+\.\d+s` replaced by `by`, leftmost first as `Regex.Replace` does; with an empty
+/// `lead` a match starts only where a digit run does.
+string goldenCliTimes(string text, from string lead, by string repl, bool two = false) uses alloc {
+    let b = text.bytes
+    let n = text.length
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < n {
+        var starts = false
+        if lead == "" {
+            starts = i == 0 || !goldenCliDigit(b[i - 1])
+        } else {
+            starts = goldenCliHas(text, at: i, for: lead)
+        }
+        var end: i64 = -1
+        if starts {
+            var j = i + lead.length
+            let first = j
+            while j < n && goldenCliDigit(b[j]) {
+                j += 1
+            }
+            if j > first && j < n && b[j] == 0x2e {
+                let fraction = j + 1
+                if two {
+                    if fraction + 2 < n
+                            && goldenCliDigit(b[fraction])
+                            && goldenCliDigit(b[fraction + 1])
+                            && b[fraction + 2] == 0x73 {
+                        end = fraction + 3
+                    }
+                } else {
+                    j = fraction
+                    while j < n && goldenCliDigit(b[j]) {
+                        j += 1
+                    }
+                    if j > fraction && j < n && b[j] == 0x73 {
+                        end = j + 1
+                    }
+                }
+            }
+        }
+        if end >= 0 {
+            sb.append(text[copied..i])
+            sb.append(repl)
+            i = end
+            copied = end
+        } else {
+            i += 1
+        }
+    }
+    sb.append(text[copied..n])
+    return sb.finish()
+}
+
+/// SelfhostDriverTests.cs:31 `Mask` on one line: `^(bayan \S+) \(.*\)$` as `$1 (masked)`, the version then as `<version>`, as the
+/// land-time mask of land-export.sh wrote the expected side (T19: the tree's version moves on from the export's).
+string goldenCliVersionLine(string line) uses alloc {
+    return line unless line.startsWith("bayan ")
+    let b = line.bytes
+    var k: i64 = 6
+    while k < line.length && !(b[k] is 0x20 or 0x09 or 0x0b or 0x0c or 0x0d) {
+        k += 1
+    }
+    return line if k == 6 || k + 2 >= line.length || b[k] != 0x20 || b[k + 1] != 0x28 || b[line.length - 1] != 0x29
+    return "bayan <version> (masked)"
+}
+
+/// SelfhostDriverTests.cs:31 `Mask`: the version line's build detail masked.
+string goldenCliVersion(string text) uses alloc {
+    var sb = StrBuf()
+    let lines = goldenLines(text)
+    for i in 0..lines.length {
+        if i > 0 {
+            sb.append("\n")
+        }
+        sb.append(goldenCliVersionLine(lines[i]))
+    }
+    return sb.finish()
+}
+
+/// SelfhostDriverT2Tests.cs:30 `Mask` (and SelfhostDriverStyleLintsTests.cs:18): ` in \d+\.\d\ds` as ` in masked`.
+string goldenCliT2(string text) uses alloc => goldenCliTimes(text, from: " in ", by: " in masked", two: true)
+
+/// SelfhostDriverT5Tests.cs:22 `Mask`: `\d+\.\d\ds|from cache` as `masked`, ` · masked` dropped, then the version line.
+string goldenCliT5(string text) uses alloc {
+    let t = goldenCliTimes(text, from: "", by: "masked", two: true).replaced("from cache", by: "masked")
+    return goldenCliVersion(t.replaced(" · masked", by: ""))
+}
+
+/// `text` with each path after `tag` read with `/` for `\` up to the next space or line end, when `windows`: the driver prints the full path
+/// of a file it read with `\` there, where the export, made on macOS, holds `/` (the `<dir>/\S*` of `goldenStyleMask`).
+string goldenCliSlashedAfter(string text, at string tag, by bool windows) uses alloc {
+    return text unless windows
+    var sb = StrBuf()
+    var first = true
+    for part in text.parts(by: tag) {
+        if first {
+            sb.append(part)
+            first = false
+            continue
+        }
+        var end: i64 = 0
+        while end < part.length && !(part.bytes[end] is 0x20 or 0x09 or 0x0a or 0x0d) {
+            end += 1
+        }
+        sb.append($"{tag}{part[0..end].replaced("\\", by: "/")}{part[end..part.length]}")
+    }
+    return sb.finish()
+}
+
+/// SelfhostDefaultT5Tests.cs:25 `Mask`: `\(commit [^)]*\)` as `(commit <c>)`, then `isn't writable: [^\u001b\n]*` as `isn't writable: <message>`.
+string goldenCliCommit(string text) uses alloc {
+    var sb = StrBuf()
+    var rest = text
+    while true {
+        let at = goldenOffset(rest, for: "(commit ")
+        break if at < 0
+        let close = goldenOffset(rest[at + 8..rest.length], for: ")")
+        break if close < 0
+        sb.append(rest[0..at])
+        sb.append("(commit <c>)")
+        rest = rest[at + 8 + close + 1..rest.length]
+    }
+    sb.append(rest)
+    let commit = sb.finish()
+    var buf = StrBuf()
+    rest = commit
+    let lead = "isn't writable: "
+    while true {
+        let at = goldenOffset(rest, for: lead)
+        break if at < 0
+        var j = at + lead.length
+        while j < rest.length && rest.bytes[j] != 0x1b && rest.bytes[j] != 0x0a {
+            j += 1
+        }
+        buf.append(rest[0..at])
+        buf.append("isn't writable: <message>")
+        rest = rest[j..rest.length]
+    }
+    buf.append(rest)
+    return buf.finish()
+}
+
+/// `text` with the rest of each line after `lead…close` followed by `: ` read as `<message>`: the C# `(lead[^close]*close): .*` as `$1: <message>`.
+string goldenCliMessage(string text, from string lead, until u8 close) uses alloc {
+    let b = text.bytes
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < text.length {
+        if goldenCliHas(text, at: i, for: lead) {
+            var j = i + lead.length
+            while j < text.length && b[j] != close && b[j] != 0x0a {
+                j += 1
+            }
+            if j + 2 < text.length && b[j] == close && b[j + 1] == 0x3a && b[j + 2] == 0x20 {
+                sb.append(text[copied..j + 3])
+                sb.append("<message>")
+                var e = j + 3
+                while e < text.length && b[e] != 0x0a {
+                    e += 1
+                }
+                copied = e
+                i = e
+                continue
+            }
+        }
+        i += 1
+    }
+    sb.append(text[copied..text.length])
+    return sb.finish()
+}
+
+/// SelfhostDefaultT9Tests.cs:830-833 `Masked` after the root: `[0-9]+\.[0-9]{2}s` as `<t>s`, the message of an unwritable cache and of a C
+/// compiler that does not start as `<message>`, `scripts/[0-9a-f]{64}` as `scripts/<skey>`, `\(commit [^)]*\)` as `(commit <c>)`.
+string goldenCliT9(string text) uses alloc {
+    let t = goldenCliTimes(text, from: "", by: "<t>s", two: true)
+    let m = goldenCliMessage(
+        goldenCliMessage(t, from: "cannot write the build output or cache (<root>", until: 0x29),
+        from: "cannot run the C compiler `",
+        until: 0x60,
+    )
+    let b = m.bytes
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < m.length {
+        if goldenCliHas(m, at: i, for: "scripts/") && i + 8 + 64 <= m.length {
+            var hex = true
+            for k in i + 8..i + 8 + 64 {
+                hex = hex && (goldenCliDigit(b[k]) || b[k] >= 0x61 && b[k] <= 0x66)
+            }
+            if hex {
+                sb.append(m[copied..i])
+                sb.append("scripts/<skey>")
+                i += 8 + 64
+                copied = i
+                continue
+            }
+        }
+        if goldenCliHas(m, at: i, for: "(commit ") {
+            var j = i + 8
+            while j < m.length && b[j] != 0x29 {
+                j += 1
+            }
+            if j < m.length {
+                sb.append(m[copied..i])
+                sb.append("(commit <c>)")
+                i = j + 1
+                copied = i
+                continue
+            }
+        }
+        i += 1
+    }
+    sb.append(m[copied..m.length])
+    return sb.finish()
+}
+
+/// Whether `text` holds `word` from byte `i` on, compared as bytes (`i` need not start a character).
+bool goldenCliHas(string text, at i64 i, for string word) {
+    return false if i + word.length > text.length
+    for k in 0..word.length {
+        return false if text.bytes[i + k] != word.bytes[k]
+    }
+    return true
+}
+
+/// Whether `text` has `/` or `\` at `i`.
+bool goldenCliSep(string text, at i64 i) => i < text.length && (text.bytes[i] == 0x2f || text.bytes[i] == 0x5c)
+
+/// SelfhostDefaultT12Tests.cs:130 `Masked` after the root: `<root>[/\\]cache[/\\]v1[/\\]tmp[/\\][^/\\\s]+[/\\]` dropped, `(cannot write the
+/// build output or cache \(<root>[^)]*\)): .*` as `$1: <message>`, ` in \d+\.\d+s` as ` in <time>`.
+string goldenCliT12(string text) uses alloc {
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < text.length {
+        var end: i64 = -1
+        if goldenCliHas(text, at: i, for: "<root>") {
+            var j = i + 6
+            var ok = true
+            for word in ["cache", "v1", "tmp"] {
+                if ok && goldenCliSep(text, at: j) && goldenCliHas(text, at: j + 1, for: word) {
+                    j += 1 + word.length
+                } else {
+                    ok = false
+                }
+            }
+            if ok && goldenCliSep(text, at: j) {
+                j += 1
+                let first = j
+                while j < text.length
+                        && !goldenCliSep(text, at: j)
+                        && !(text.bytes[j] is 0x20 or 0x09 or 0x0a or 0x0b or 0x0c or 0x0d) {
+                    j += 1
+                }
+                if j > first && goldenCliSep(text, at: j) {
+                    end = j + 1
+                }
+            }
+        }
+        if end >= 0 {
+            sb.append(text[copied..i])
+            i = end
+            copied = end
+        } else {
+            i += 1
+        }
+    }
+    sb.append(text[copied..text.length])
+    var rest = sb.finish()
+    var buf = StrBuf()
+    let lead = "cannot write the build output or cache (<root>"
+    while true {
+        let at = goldenOffset(rest, for: lead)
+        break if at < 0
+        let close = goldenOffset(rest[at + lead.length..rest.length], for: ")")
+        break if close < 0
+        let group = at + lead.length + close + 1
+        if !rest[group..rest.length].startsWith(": ") {
+            buf.append(rest[0..at + 1])
+            rest = rest[at + 1..rest.length]
+            continue
+        }
+        var j = group + 2
+        while j < rest.length && rest.bytes[j] != 0x0a {
+            j += 1
+        }
+        buf.append(rest[0..group])
+        buf.append(": <message>")
+        rest = rest[j..rest.length]
+    }
+    buf.append(rest)
+    return goldenCliTimes(buf.finish(), from: " in ", by: " in <time>")
+}
+
+/// The index after an SGR sequence `ESC[<digits and ;>m` at `i` in `line`, else `i`.
+i64 goldenCliSgr(string line, at i64 i) {
+    let b = line.bytes
+    return i if !(i + 1 < line.length && b[i] == 0x1b && b[i + 1] == 0x5b)
+    var j = i + 2
+    while j < line.length && (goldenCliDigit(b[j]) || b[j] == 0x3b) {
+        j += 1
+    }
+    return j < line.length && b[j] == 0x6d ? j + 1 : i
+}
+
+/// land-export.sh `mask_doctor` (T17c land-time mask) on one line: the value of an ok row (marker `◆` or `*`, optionally in colour)
+/// labelled host, C compiler, zig or git, and cache when `cache`, as `<host>`, the one labelled bayan as `<version>`; a `not found` row
+/// and any other line as is.
+string goldenCliDoctorLine(string line, by bool cache) uses alloc {
+    let b = line.bytes
+    var k = goldenCliSgr(line, at: 0)
+    if goldenCliHas(line, at: k, for: "◆") {
+        k += "◆".length
+    } else if k < line.length && b[k] == 0x2a {
+        k += 1
+    } else {
+        return line
+    }
+    k = goldenCliSgr(line, at: k)
+    let marker = k
+    while k < line.length && b[k] == 0x20 {
+        k += 1
+    }
+    return line if k == marker
+    for label in ["host", "C compiler", "zig", "git", "cache", "bayan"] {
+        continue if label == "cache" && !cache || !goldenCliHas(line, at: k, for: label)
+        var j = k + label.length
+        let gap = j
+        while j < line.length && b[j] == 0x20 {
+            j += 1
+        }
+        return line if j == gap || j >= line.length || goldenCliHas(line, at: j, for: "not found")
+        return $"{line[0..j]}{label == "bayan" ? "<version>" : "<host>"}"
+    }
+    return line
+}
+
+/// land-export.sh `mask_doctor` on the actual side: each line of `text` through `goldenCliDoctorLine`.
+string goldenCliDoctor(string text, by bool cache) uses alloc {
+    var sb = StrBuf()
+    let lines = goldenLines(text)
+    for i in 0..lines.length {
+        if i > 0 {
+            sb.append("\n")
+        }
+        sb.append(goldenCliDoctorLine(lines[i], by: cache))
+    }
+    return sb.finish()
+}
+
+/// land-export.sh `mask_cc` (T17c land-time mask) on the actual side: everything after the first line `C compiler failed (exit N):` as
+/// the one line `<cc output>`; `text` as is when it has no such line.
+string goldenCliCc(string text) uses alloc {
+    let lead = "C compiler failed (exit "
+    var start: i64 = 0
+    while start < text.length {
+        var end = start
+        while end < text.length && text.bytes[end] != 0x0a {
+            end += 1
+        }
+        if goldenCliHas(text, at: start, for: lead) {
+            var j = start + lead.length
+            while j < end && goldenCliDigit(text.bytes[j]) {
+                j += 1
+            }
+            if j > start + lead.length && j + 2 == end && goldenCliHas(text, at: j, for: "):") {
+                return $"{text[0..end]}\n<cc output>\n"
+            }
+        }
+        start = end + 1
+    }
+    return text
+}
+
+/// Whether `c` is in the class `[0-9.E+-]` of SelfhostDriverMutateTests.cs:40.
+bool goldenCliTimingByte(u8 c) => goldenCliDigit(c) || c is 0x2e or 0x45 or 0x2b or 0x2d
+
+/// SelfhostDriverMutateTests.cs:40 `MaskMutation` on one line: on a `timing: ` line each `(?<= )[0-9.E+-]+(?= s|%)` as `<t>`.
+string goldenCliTimingLine(string line) uses alloc {
+    return line unless line.startsWith("timing: ")
+    let b = line.bytes
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 1
+    while i < line.length {
+        if b[i - 1] == 0x20 && goldenCliTimingByte(b[i]) {
+            var j = i
+            while j < line.length && goldenCliTimingByte(b[j]) {
+                j += 1
+            }
+            let rest = line[j..line.length]
+            if rest.startsWith(" s") || rest.startsWith("%") {
+                sb.append(line[copied..i])
+                sb.append("<t>")
+                copied = j
+            }
+            i = j
+        } else {
+            i += 1
+        }
+    }
+    sb.append(line[copied..line.length])
+    return sb.finish()
+}
+
+/// SelfhostDriverMutateTests.cs:40 `MaskMutation`: the `timing:` line, then each `"(build_s|mean_mutant_s|max_mutant_s|total_s|
+/// mutant_share_of_build)": (?!0[,\n])[^,\n]+` as `"$1": <t>`.
+string goldenCliMutation(string text) uses alloc {
+    var each = StrBuf()
+    let lines = goldenLines(text)
+    for i in 0..lines.length {
+        if i > 0 {
+            each.append("\n")
+        }
+        each.append(goldenCliTimingLine(lines[i]))
+    }
+    let t = each.finish()
+    let n = t.length
+    var sb = StrBuf()
+    var copied: i64 = 0
+    var i: i64 = 0
+    while i < n {
+        var end: i64 = -1
+        var head: i64 = 0
+        if t.bytes[i] == 0x22 {
+            for key in ["build_s", "mean_mutant_s", "max_mutant_s", "total_s", "mutant_share_of_build"] {
+                let lead = $"\"{key}\": "
+                if end < 0 && t[i..n].startsWith(lead) {
+                    let j = i + lead.length
+                    let zero = j + 1 < n && t.bytes[j] == 0x30 && (t.bytes[j + 1] == 0x2c || t.bytes[j + 1] == 0x0a)
+                    var k = j
+                    while !zero && k < n && t.bytes[k] != 0x2c && t.bytes[k] != 0x0a {
+                        k += 1
+                    }
+                    if k > j {
+                        end = k
+                        head = j
+                    }
+                }
+            }
+        }
+        if end >= 0 {
+            sb.append(t[copied..head])
+            sb.append("<t>")
+            i = end
+            copied = end
+        } else {
+            i += 1
+        }
+    }
+    sb.append(t[copied..n])
+    return sb.finish()
+}
+
+/// SelfhostDriverT3Tests.cs:212 `Masked`: the compiler's argv with the flags that name the machine's directories masked; `scratch` is the
+/// directory the build ran in, and a file below a cache's `v1/tmp/` (`main.c`, `program`) reads as the probe's, by its name. On a windows
+/// `host` a path is read with `/` for `\` for those checks (`Path.Combine` joins with `\` there).
+string goldenCliArgv(string argv, at string scratch, for string host) uses alloc {
+    var text = argv
+    while text.endsWith("\n") {
+        text = text[0..text.length - 1]
+    }
+    let lines = goldenLines(text)
+    var sb = StrBuf()
+    for i in 0..lines.length {
+        var line = lines[i]
+        let seen = host.startsWith("windows-") ? line.replaced("\\", by: "/") : line
+        if line.startsWith("-ffile-prefix-map=") {
+            line = "-ffile-prefix-map=<dir>=."
+        } else if i > 0 && lines[i - 1] == "-I" {
+            line = "<dir>"
+        } else if line == Path.combine(scratch, "main.c") {
+            line = "main.c"
+        } else if seen.contains("/cache/v1/tmp/") {
+            // the probe compiled in the scratch directory, the driver this runner runs in its cache's work directory
+            line = Path.fileName(seen)
+        } else if line == Path.combine(scratch, "bayan-rt.c") {
+            line = "bayan-rt.c"
+        } else if seen.endsWith("/bayan-rt.o") {
+            line = "bayan-rt.o"
+        }
+        if i > 0 {
+            sb.append("\n")
+        }
+        sb.append(line)
+    }
+    return sb.finish()
+}
+
+/// SelfhostDriverT5Tests.cs:488 `BayanPrefix` as :65 `Failure` writes it: the first `bayan:` line of `err` up to its first `(`, then LF; empty
+/// without one.
+string goldenCliBayanPrefix(string err) uses alloc {
+    for line in goldenLines(err) {
+        if line.startsWith("bayan:") {
+            let at = goldenOffset(line, for: "(")
+            return $"{at < 0 ? line : line[0..at]}\n"
+        }
+    }
+    return ""
+}
+
+/// SelfhostDefaultJsonCountTests.cs:20 `(\d+) passed`: the count of the first match in `text`, as `N passed` and LF; empty without one.
+string goldenCliPassCount(string text) uses alloc {
+    var rest = text
+    var at = goldenOffset(rest, for: " passed")
+    while at >= 0 {
+        var k = at
+        while k > 0 && goldenCliDigit(rest.bytes[k - 1]) {
+            k -= 1
+        }
+        return $"{rest[k..at]} passed\n" if k < at
+        rest = rest[at + 1..rest.length]
+        at = goldenOffset(rest, for: " passed")
+    }
+    return ""
+}
+
+/// `actual` against the expected file `name` of case `dir` (`goldenCompare`: update mode rewrites it), the failure added to `failures`. The
+/// host target is read as `<host>` on both sides as `goldenCliHost` says.
+void goldenCliCheck(string dir, for string name, as string actual, to ref List<string> failures) uses alloc, env, fs {
+    let expected = Path.combine(dir, name)
+    let host = goldenCliHost(dir, for: targetHost() ?? "")
+    if (goldenCompare(actual, for: expected, at: expected, by: host) is { } f) {
+        failures.append(f)
+    }
+}
+
+/// The host `goldenHostMasked` reads as `<host>` in case `dir`: `running`, or none when its `args` name a target other than `host`
+/// (`--target x`, `--target=x`), whose output names the target asked for; a mask there would let a run that built for the running host pass.
+string goldenCliHost(string dir, for string running) uses alloc, fs {
+    let args = goldenArgLines(Path.combine(dir, "args"))
+    for i in 0..args.length {
+        if args[i].startsWith("--target=") {
+            return "" if args[i] != "--target=host"
+        } else if args[i] == "--target" && i + 1 < args.length {
+            return "" if args[i + 1] != "host"
+        }
+    }
+    return running
+}
+
+/// SelfhostDriverTests.cs:721-731: `actual` starts with the expected file `name` of case `dir`, a prefix (update mode cannot rewrite a prefix).
+void goldenCliPrefix(string dir, for string name, as string actual, to ref List<string> failures) uses alloc, fs {
+    let expected = Path.combine(dir, name)
+    let want = Io.readText(expected) catch {
+        failures.append($"{expected}\nmissing expected file {expected}")
+        return
+    }
+    return if actual.startsWith(goldenLf(want))
+    failures.append($"{expected}\nexpected line 1: {want}(a prefix)\nactual line 1: {goldenLines(actual)[0]}")
+}
+
+/// The `compare` word of case `dir`: the first line of its `compare` file, empty when there is none.
+string goldenCliWord(string dir) uses alloc, fs {
+    let lines = goldenCliLines(Path.combine(dir, "compare"))
+    return lines.length == 0 ? "" : lines[0]
+}
+
+/// SelfhostDriverT5Tests.cs:573-577 and :647-651: the stub tool the C# wrote, mode 700, in the `PATH` directory `bin` before the run, which
+/// the export names in `env` but does not record: under `scratch`/tmp/t5/pdb-bin a zig that writes `exe` to its `-o` and `pdb` beside it,
+/// under `scratch`/tmp/t5/rejecting-bin a cc that rejects the C. Empty when `bin` is neither or the stub is written, else the failure.
+string goldenCliT5Stub(string bin, at string scratch) uses alloc, fs, process {
+    var name = ""
+    var text = ""
+    if bin == Path.combine(scratch, "tmp/t5/pdb-bin") {
+        name = "zig"
+        text = "#!/bin/sh\nout=\nwhile [ $# -gt 0 ]; do\n  if [ \"$1\" = -o ]; then out=$2; fi\n  shift\ndone\nprintf 'exe\\n' > \"$out\" || exit 1\nprintf 'pdb\\n' > \"${out%.exe}.pdb\"\n"
+    } else if bin == Path.combine(scratch, "tmp/t5/rejecting-bin") {
+        name = "cc"
+        text = "#!/bin/sh\necho \"main.c:2:5: error: injected\" >&2\nexit 1\n"
+    }
+    return "" if name == ""
+    let path = Path.combine(bin, name)
+    Io.createDirectory(bin) catch return $"cannot create {bin}"
+    Io.writeFile(path, text.bytes) catch return $"cannot write {path}"
+    var args = List<string>()
+    args.append("700")
+    args.append(path)
+    let _ = Io.run("chmod", args.span) catch return "cannot run chmod 700"
+    return ""
+}
+
+/// SelfhostDriverT3Tests.cs:134-160 `FakeSource`: the fake compiler as C, for Windows, which has no /bin/sh; the behaviour of each /bin/sh
+/// fake is chosen by the `<name>.mode` file beside it (`goldenCliT3Mode`).
+const goldenCliFakeSource: string = """
+#include <stdio.h>
+#include <string.h>
+int main(int argc, char **argv) {
+    char dir[1024], name[256], file[1400], mode[32] = "nothing";
+    const char *self = argv[0], *slash = strrchr(self, '\\'), *fwd = strrchr(self, '/');
+    if (fwd > slash) slash = fwd;
+    snprintf(dir, sizeof dir, "%.*s", slash ? (int)(slash - self) : 1, slash ? self : ".");
+    snprintf(name, sizeof name, "%s", slash ? slash + 1 : self);
+    size_t n = strlen(name);
+    if (n > 4 && strcmp(name + n - 4, ".exe") == 0) name[n - 4] = 0;
+    snprintf(file, sizeof file, "%s/%s.mode", dir, name);
+    FILE *m = fopen(file, "r");
+    if (m) { if (fscanf(m, "%31s", mode) != 1) strcpy(mode, "nothing"); fclose(m); }
+    if (strcmp(mode, "reject") == 0) { fputs("main.c:2:5: error: injected\n", stderr); puts("stdout note"); return 1; }
+    if (strcmp(mode, "bare") == 0) { fputs("no newline", stderr); return 1; }
+    if (strcmp(mode, "record") != 0) return 0;
+    snprintf(file, sizeof file, "%s/argv", dir);
+    FILE *f = fopen(file, "w");
+    if (!f) return 1;
+    fprintf(f, "%s\n", name);
+    for (int i = 1; i < argc; i++) fprintf(f, "%s\n", argv[i]);
+    fclose(f);
+    for (int i = 2; i < argc; i++)
+        if (strcmp(argv[i - 1], "-o") == 0) { FILE *o = fopen(argv[i], "w"); if (o) fclose(o); }
+    return 0;
+}
+"""
+
+/// SelfhostDriverT3Tests.cs:162-178 `FakeExe`: `goldenCliFakeSource` built once to `<tmp>/cli/t3-fake/fake.exe` (kept while its `fake.c` is
+/// unchanged) by the C compiler of Toolchain.cs:112-120 `FindCompiler`, `$BAYAN_CC` split at spaces, else `ccFindCompiler`: its path, or ""
+/// with `failure` set.
+string goldenCliFakeExe(through ref string failure) uses alloc, env, fs, process {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "cli"), "t3-fake")
+    let source = Path.combine(dir, "fake.c")
+    let exe = Path.combine(dir, "fake.exe")
+    return exe if Fs.fileExists(exe) && (Io.readText(source) catch "") == goldenCliFakeSource
+    Io.createDirectory(dir) catch {}
+    Io.writeFile(source, goldenCliFakeSource.bytes) catch {
+        failure = $"cannot write {source}"
+        return ""
+    }
+    var compiler = List<string>()
+    for word in (Env.get("BAYAN_CC") ?? "").parts(by: " ") {
+        if word.length > 0 {
+            compiler.append($"{word}")
+        }
+    }
+    if compiler.length == 0 {
+        compiler = ccFindCompiler()
+    }
+    if compiler.length == 0 {
+        failure = "no C compiler to build the fake compiler (SelfhostDriverT3Tests.cs:170)"
+        return ""
+    }
+    var args = List<string>()
+    for k in 1..compiler.length {
+        args.append(compiler[k])
+    }
+    args.append(source)
+    args.append("-o")
+    args.append(exe)
+    let r = Io.run(compiler[0], args.span) catch {
+        failure = $"cannot run {compiler[0]}"
+        return ""
+    }
+    if r.exitCode != 0 || !Fs.fileExists(exe) {
+        failure = $"the fake compiler did not build:\n{r.stderr}"
+        return ""
+    }
+    return exe
+}
+
+/// SelfhostDriverT3Tests.cs:127: the `.mode` word of the /bin/sh fake `text` (:181-200): `record` for `Recording` (it writes `argv`), `reject`
+/// for `Rejecting`, `bare` for `RejectingBare`, else `nothing`.
+string goldenCliT3Mode(string text) {
+    return "record" if text.contains("/argv\"")
+    return "reject" if text.contains("error: injected")
+    return "bare" if text.contains("no newline")
+    return "nothing"
+}
+
+/// The `.mode` word of the SelfhostDefaultT5Tests /bin/sh tool `text` (SelfhostDefaultT5Tests.cs:38-42 `Script`, `exit <code>`): `nothing`
+/// (exit 0) when it exits 0, else `reject` (exit 1). Doctor reads only the exit code of a tool (doctor.byn `t5Version`), and an ok row's
+/// version is read as `<host>` (`goldenCliDoctorLine`).
+string goldenCliT5Mode(string text) => text.contains("\nexit 0\n") ? "nothing" : "reject"
+
+/// SelfhostDriverT3Tests.cs:121-131 `Script` and :566 on Windows: in each directory of the PATH `path` (split at `;`), beside each /bin/sh
+/// fake `name` a copy of the fake compiler `exe` as `name.exe` and its behaviour in `name.mode`, and beside each directory `name` a directory
+/// `name.exe`, which FindOnPath must skip (Toolchain.cs:288 tries `.exe` first). For the class `cls` SelfhostDefaultT5Tests the mode is
+/// `goldenCliT5Mode`, no directory is staged, and the /bin/sh tool itself is overwritten by the fake too: `BAYAN_CC` names it with no
+/// extension, and the runtime starts a path as named (bayan-rt.c `byn_find_program`). What failed, else "".
+string goldenCliT3Fakes(string path, by string exe, for string cls) uses alloc, fs {
+    let t5 = cls == "SelfhostDefaultT5Tests"
+    for part in path.parts(by: ";") {
+        let dir = $"{part}"
+        continue if dir.length == 0
+        for name in Io.listDir(dir) catch List<string>() {
+            continue if name.contains(".")
+            let at = Path.combine(dir, name)
+            if t6DirectoryExists(at) {
+                continue if t5
+                Io.createDirectory($"{at}.exe") catch return $"cannot create {at}.exe"
+                continue
+            }
+            let text = Io.readText(at) catch ""
+            continue unless text.startsWith("#!/bin/sh\n")
+            let bytes = Io.readFile(exe) catch return $"cannot read {exe}"
+            Io.writeFile($"{at}.exe", bytes.span) catch return $"cannot write {at}.exe"
+            let mode = t5 ? goldenCliT5Mode(text) : goldenCliT3Mode(text)
+            Io.writeFile($"{at}.mode", mode.bytes) catch return $"cannot write {at}.mode"
+            if t5 {
+                Io.writeFile(at, bytes.span) catch return $"cannot write {at}"
+            }
+        }
+    }
+    return ""
+}
+
+/// A case's `env` PATH value `raw`, made on macOS with `:` between directories, each directory through `goldenCliPut` with `<bin>` read as
+/// `gitBin`, joined with the separator of `host` (`goldenCliPathSeparator`): on Windows a directory starts with a drive (`C:`), so the joined
+/// value is split at `;` (Toolchain.cs:288 `Path.PathSeparator`).
+string goldenCliPathJoined(string raw, for string scratch, by string gitBin, at string host) uses alloc {
+    var sb = StrBuf()
+    var first = true
+    for part in raw.parts(by: ":") {
+        sb.append(goldenCliPathSeparator(host)) unless first
+        first = false
+        sb.append(goldenCliPut($"{part}", for: scratch).replaced("<bin>", by: gitBin))
+    }
+    return sb.finish()
+}
+
+/// The masked argv `argv` of SelfhostDriverT3Tests read on a windows `host` as the C# made it on macOS, for the `--target` value `target`
+/// ("" for none): with no target the build is for the host, whose program is `program.exe` and links `-lshell32` (Toolchain.cs:330-331
+/// `ExecutableName`, :485), read as `program` and `-lm`; a target that is the host is no cross build (:320), so the `-target <triple>` the
+/// macOS run passed (:333) is read before `-std=c11`. Another host's argv is read as is.
+string goldenCliT3Windows(string argv, for string target, at string host) uses alloc {
+    return argv unless host.startsWith("windows-")
+    var sb = StrBuf()
+    var first = true
+    for part in argv.parts(by: "\n") {
+        let line = $"{part}"
+        sb.append("\n") unless first
+        first = false
+        if target == "" && line == "program.exe" {
+            sb.append("program")
+        } else if target == "" && line == "-lshell32" {
+            sb.append("-lm")
+        } else {
+            if target == host && line == "-std=c11" {
+                sb.append($"-target\n{targetTriple(host) ?? host}\n")
+            }
+            sb.append(line)
+        }
+    }
+    return sb.finish()
+}
+
+/// The scratch directory `goldenCli` runs the `cli` case whose `args` is `input` in: tmp/cli/<Class>_<case>, its `bin` directory beside it with
+/// `-bin` added.
+string goldenCliScratch(string input) uses alloc, fs {
+    let dir = Path.directoryName(input) ?? ""
+    let cls = Path.fileName(Path.directoryName(dir) ?? "")
+    return Path.combine(Path.combine(Path.fullPath("tmp"), "cli"), $"{cls}_{Path.fileName(dir)}")
+}
+
+/// The `cli` case whose `args` is `input` through the driver `exe` (spec 019 T17b): null when it passes, else the failures, each naming its
+/// expected file and first differing line. The word's comparison is the one its C# call site makes, named on each branch. Laws proven by exported cli cases run here (spec 019 T31b), by case-name prefix: L006 `cli/L006OwnershipGuardTests/l006-`, L007 `cli/L007UntrustedSinkTests/l007-`, L008 `cli/L008OwnershipRuntimeTests/l008-`, L010 `cli/L010Utf8DecodeTests/l010-`, L012 `cli/L012InterfaceDispatchTests/l012-`, L013 `cli/L013DirectAndIndirectCallsAgreeTests/l013-`, L015 `cli/SymbolLawTests/l015-`, L016 `cli/MapKeyLawTests/l016-`.
+string? goldenCli(string input, by string exe, i64 deadline = 0) uses alloc, clock, env, fs, process {
+    let dir = Path.directoryName(input) ?? ""
+    let classDir = Path.directoryName(dir) ?? ""
+    let cls = Path.fileName(classDir)
+    let cases = Path.directoryName(Path.directoryName(classDir) ?? "") ?? ""
+    let word = goldenCliWord(dir)
+    var known = false
+    for w in goldenCliWords() {
+        known = known || w == word
+    }
+    return $"{dir}\nunknown compare word `{word}`" unless known
+    let scratch = goldenCliScratch(input)
+    return $"{dir}\ncannot create {scratch}" unless goldenFresh(scratch)
+    var failure = ""
+    var cwd = goldenCliStage(dir, from: cases, to: scratch, through: ref failure)
+    return $"{dir}\n{failure}" if failure != ""
+    var args = List<string>()
+    for line in goldenArgLines(input) {
+        args.append(goldenCliPut(line, for: scratch))
+    }
+    var env = goldenEnv()
+    // the colour the export's process had none of (a case that sets one says so in `env`): this shell's would pick another palette
+    for name in ["NO_COLOR", "FORCE_COLOR", "COLORTERM", "BAYAN_THEME", "COLORFGBG"] {
+        env[name] = null
+    }
+    if cls == "SelfhostDriverStyleEnvironmentTests" {
+        // SelfhostDriverTests.cs:1710 ran the case in `CliEnvironmentTests.WithTerminalEnv` (CliEnvironmentTests.cs:35-41): TERM, LC_ALL and
+        // LC_CTYPE unset and LANG=en_US.UTF-8 below the case's `env`, so a host's locale (main.byn `t7Utf8`) cannot pick the glyphs
+        for name in ["TERM", "LC_ALL", "LC_CTYPE"] {
+            env[name] = null
+        }
+        env["LANG"] = "en_US.UTF-8"
+    }
+    // the C# ran in a fresh temp directory (SelfhostDefaultT4Tests.cs:43 `Fresh`) outside any git work tree; the scratch is in this one
+    env["GIT_CEILING_DIRECTORIES"] = Path.directoryName(scratch) ?? scratch
+    if cls == "SelfhostDefaultT9Tests" {
+        // SelfhostDefaultT9Tests.cs:813-814 `Bayan`: the cache below the working directory, BAYAN_CC unset
+        env["BAYAN_CACHE"] = Path.combine(cwd, "cache")
+        env["BAYAN_CC"] = null
+    }
+    var bin = scratch
+    let gitBin = $"{scratch}-bin"
+    let host = targetHost() ?? ""
+    var ccDir = ""
+    if cls.startsWith("SelfhostDefault") {
+        failure = goldenCliBin(dir, at: gitBin)
+        return $"{dir}\n{failure}" if failure != ""
+    }
+    for line in goldenCliLines(Path.combine(dir, "env")) {
+        let at = goldenOffset(line, for: "=")
+        if at < 0 {
+            env[line] = null
+        } else {
+            let raw = line[at + 1..line.length]
+            let path = line[0..at] == "PATH"
+            let value = path ? goldenCliPathJoined(
+                raw,
+                for: scratch,
+                by: gitBin,
+                at: host,
+            ) : goldenCliPut(raw, for: scratch).replaced(
+                "<bin>",
+                by: gitBin,
+            )
+            env[line[0..at]] = value
+            if line[0..at] == "PATH" {
+                bin = value
+            }
+            if line[0..at] == "BAYAN_CC" {
+                ccDir = Path.directoryName(value) ?? ""
+            }
+        }
+    }
+    if cls == "SelfhostDriverT5Tests" {
+        failure = goldenCliT5Stub(bin, at: scratch)
+        return $"{dir}\n{failure}" if failure != ""
+    }
+    if cls == "SelfhostDriverT3Tests" && host.startsWith("windows-") && bin != scratch {
+        // SelfhostDriverT3Tests.cs:121-131: on Windows the C# staged a FakeSource `.exe` and its `.mode` for each /bin/sh fake
+        let fake = goldenCliFakeExe(through: ref failure)
+        return $"{dir}\n{failure}" if failure != ""
+        failure = goldenCliT3Fakes(bin, by: fake, for: cls)
+        return $"{dir}\n{failure}" if failure != ""
+    }
+    if cls == "SelfhostDefaultT5Tests" && host.startsWith("windows-") {
+        // SelfhostDefaultT5Tests.cs:80-94 `Same` asserted on Windows too: the /bin/sh tools of :38-50 (PATH, and the directory of BAYAN_CC)
+        // as the fake compiler with the exit code of each (criterion 13, Decision 2026-11-20)
+        let fake = goldenCliFakeExe(through: ref failure)
+        return $"{dir}\n{failure}" if failure != ""
+        failure = goldenCliT3Fakes(bin == scratch ? ccDir : $"{bin};{ccDir}", by: fake, for: cls)
+        return $"{dir}\n{failure}" if failure != ""
+    }
+    let cwdLines = goldenCliLines(Path.combine(dir, "cwd"))
+    if cwdLines.length > 0 {
+        let named = goldenCliPut(cwdLines[0], for: scratch)
+        cwd = named.startsWith("/") ? named : Path.combine(scratch, named)
+    }
+    if word == "stdout-exact-stderr-masked" && args.length > 0 {
+        // SelfhostDriverT5Tests.cs:125-134 `Isolated`: the run input copied to `<repo>`/tmp/t5/emit/run_<its name without extension>/
+        // and built there
+        let file = args[args.length - 1]
+        let from = Path.combine(cwd, file)
+        cwd = Path.combine(scratch, $"tmp/t5/emit/run_{goldenStem(file)}")
+        Io.createDirectory(cwd) catch return $"{dir}\ncannot create {cwd}"
+        let bytes = Io.readFile(from) catch return $"{dir}\ncannot read {from}"
+        Io.writeFile(Path.combine(cwd, file), bytes.span) catch return $"{dir}\ncannot write {Path.combine(cwd, file)}"
+    }
+    if cls == "SelfhostDriverT5Tests" && Path.fileName(dir).startsWith("RunAsCliAppOnEveryRunInput") {
+        // SelfhostDriverT5Tests.cs:139-145 `Empty`: the run in a fresh empty `<repo>`/tmp/t5/cwd/<the input's name without extension>/
+        for a in args {
+            if a.endsWith(".byn") {
+                cwd = Path.combine(scratch, $"tmp/t5/cwd/{goldenStem(Path.fileName(a))}")
+                break
+            }
+        }
+    }
+    if cls == "SelfhostDriverT5Tests" && Path.fileName(dir).startsWith("OutputNamesAsCliApp") {
+        // SelfhostDriverT5Tests.cs:265-277, :194-212 `SameIn`: the run in `<repo>`/tmp/t5/cs/<the call's name>/ holding arithmetic.byn
+        let names = ["default", "dot", "named", "verbose", "json", "debug", "run-package", "run", "run-dir", "safe"]
+        for i in 0..names.length {
+            continue if Path.fileName(dir) != (i == 0 ? "OutputNamesAsCliApp" : $"OutputNamesAsCliApp-{i + 1}")
+            let from = Path.combine(cwd, "arithmetic.byn")
+            cwd = Path.combine(scratch, $"tmp/t5/cs/{names[i]}")
+            Io.createDirectory(cwd) catch return $"{dir}\ncannot create {cwd}"
+            let bytes = Io.readFile(from) catch return $"{dir}\ncannot read {from}"
+            Io.writeFile(
+                Path.combine(cwd, "arithmetic.byn"),
+                bytes.span,
+            ) catch return $"{dir}\ncannot write {cwd}/arithmetic.byn"
+        }
+    }
+    if word == "pass-count" {
+        // SelfhostDefaultJsonCountTests.cs:24: in the repo root, `BAYAN_CC` unset
+        cwd = Path.fullPath(".")
+        env["BAYAN_CC"] = null
+    }
+    if word is "argv-masked" or "argv-masked-arguments" || word == "exit" && cls == "SelfhostDriverT3Tests" {
+        // SelfhostDriverT3Tests.cs:262 `Both` and :647 `FindOnPathSkipsDirectoriesAndEmptyEntriesAsToolchain`: the build ran in the
+        // directory of its `-o` output, a fresh one (created below)
+        for i in 1..args.length {
+            if args[i - 1] == "-o" {
+                cwd = Path.directoryName(args[i]) ?? cwd
+            }
+        }
+    }
+    if cls == "SelfhostDefaultT9Tests" {
+        env = goldenCliT9Env(dir, for: scratch, at: cwd)
+        failure = goldenCliT9Replay(dir, from: cases, by: exe, at: scratch, deadline: deadline)
+        return $"{dir}\n{failure}" if failure != ""
+    }
+    Io.createDirectory(cwd) catch {}
+    let stdinPath = Path.combine(dir, "stdin")
+    let stdin = Fs.fileExists(
+        stdinPath,
+    ) ? goldenCliPut(goldenLf(Io.readText(stdinPath) catch ""), for: scratch).bytes.copy() : List<u8>()
+    let reportLines = goldenCliLines(Path.combine(dir, "report"))
+    let report = reportLines.length > 0 ? goldenCliPut(reportLines[0], for: scratch) : ""
+    if report != "" {
+        Io.remove(report) catch {}
+    }
+    let o = goldenChild(exe, by: in args, at: cwd, from: in stdin, through: ref failure, deadline: deadline, env: env)
+    return $"{dir}\n{failure}" if failure != ""
+    // what the run printed, the scratch directory read back as the placeholder the C# masked it to
+    var tag = "<repo>"
+    if word == "root-masked" || cls == "SelfhostDefaultT9Tests" {
+        tag = "<root>"
+    } else if word == "masked" && cls == "SelfhostDefaultT4Tests" {
+        tag = "<D>"
+    }
+    var buf = goldenLf(o.stdout)
+    var err = goldenLf(o.stderr)
+    if word == "dir-masked" && args.length > 1 {
+        buf = goldenCliDirMasked(buf, at: args[1])
+        err = goldenCliDirMasked(err, at: args[1])
+    }
+    if word == "dir-seconds-masked" && args.length > 1 {
+        // SelfhostDriverTests.cs:1492: the formatted directory as `{D}`
+        buf = buf.replaced(args[1], by: "{D}")
+        err = err.replaced(args[1], by: "{D}")
+    }
+    if cls == "SelfhostDefaultT9Tests"
+            || (cls.startsWith("SelfhostDefault") || cls.startsWith("SelfhostDriver"))
+            && Fs.fileExists(Path.combine(dir, "modes")) {
+        // what `modes` or a T9 seed locked, opened again for the next run's `goldenFresh`
+        let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch])
+    }
+    buf = goldenCliScratchMasked(buf, at: scratch, by: tag, t9: cls == "SelfhostDefaultT9Tests")
+    err = goldenCliScratchMasked(err, at: scratch, by: tag, t9: cls == "SelfhostDefaultT9Tests")
+    // the T17c land-time masks of land-export.sh, on the actual side: `mask_doctor` on a doctor run's stdout (the cache row too unless
+    // the case's env sets BAYAN_CACHE), `mask_cc` on SelfhostDefaultT12Tests's streams
+    var doctor = false
+    for a in args {
+        doctor = doctor || a == "doctor"
+    }
+    if doctor {
+        var cache = true
+        for line in goldenCliLines(Path.combine(dir, "env")) {
+            cache = cache && !line.startsWith("BAYAN_CACHE=")
+        }
+        buf = goldenCliDoctor(buf, by: cache)
+    }
+    if cls == "SelfhostDefaultT12Tests" {
+        buf = goldenCliCc(buf)
+        err = goldenCliCc(err)
+    }
+    if cls == "SelfhostDefaultT9Tests" {
+        buf = goldenCliT9(buf)
+        err = goldenCliT9(err)
+    }
+    let exit = $"{o.exitCode}\n"
+    var failures = List<string>()
+    switch word {
+        case "exit":
+            // SelfhostDriverTests.cs:465, SelfhostDriverT3Tests.cs:654: the exit code alone
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+        case "stdout":
+            // SelfhostDriverT2Tests.cs:187: exit code and stdout
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+        case "stderr":
+            // SelfhostDriverTests.cs:913-919: stderr alone
+            goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+        case "version-masked":
+            // SelfhostDriverTests.cs:142-149, SelfhostDriverApiTests.cs:45: stdout through `Mask`, stderr as is
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: goldenCliVersion(buf), to: ref failures)
+            goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+        case "version-seconds-masked":
+            // SelfhostDriverT2Tests.cs:33, :49-50: stdout through the version mask after `Mask`, stderr through `Mask`
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: goldenCliVersion(goldenCliT2(buf)), to: ref failures)
+            goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT2(err), to: ref failures)
+        case "seconds-masked":
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            if cls == "SelfhostDriverStyleCaseTests" {
+                // SelfhostDriverTests.cs:2199-2202, :2271: `\d+\.\d+s` as `0.00s`
+                goldenCliCheck(
+                    dir,
+                    for: "expected.stdout",
+                    as: goldenCliTimes(buf, from: "", by: "0.00s"),
+                    to: ref failures,
+                )
+                goldenCliCheck(
+                    dir,
+                    for: "expected.stderr",
+                    as: goldenCliTimes(err, from: "", by: "0.00s"),
+                    to: ref failures,
+                )
+            } else {
+                // SelfhostDriverT2Tests.cs:30, :50, SelfhostDriverStyleLintsTests.cs:18, :87: ` in \d+\.\d\ds` as ` in masked`
+                goldenCliCheck(dir, for: "expected.stdout", as: goldenCliT2(buf), to: ref failures)
+                goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT2(err), to: ref failures)
+            }
+        case "dir-seconds-masked":
+            // SelfhostDriverTests.cs:1492-1496, :1513-1515: the directory as `{D}`, then `\d+\.\d+s` as `0.00s`
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(
+                dir,
+                for: "expected.stdout",
+                as: goldenCliTimes(buf, from: "", by: "0.00s"),
+                to: ref failures,
+            )
+            goldenCliCheck(
+                dir,
+                for: "expected.stderr",
+                as: goldenCliTimes(err, from: "", by: "0.00s"),
+                to: ref failures,
+            )
+        case "stderr-prefix":
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            if cls == "SelfhostDriverT3Tests" {
+                // SelfhostDriverT3Tests.cs:450-453: stderr up to its first "`:", then LF
+                let at = goldenOffset(err, for: "`:")
+                goldenCliCheck(dir, for: "expected.stderr", as: $"{err[0..at + 1]}\n", to: ref failures)
+            } else {
+                // SelfhostDriverTests.cs:721-731: stdout as is, stderr starting with the expected prefix
+                goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+                goldenCliPrefix(dir, for: "expected.stderr", as: err, to: ref failures)
+            }
+        case "stderr-bayan-prefix":
+            // SelfhostDriverT5Tests.cs:65, :492-496 `SameFailure`: stdout as is, stderr as its `BayanPrefix` line
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stderr", as: goldenCliBayanPrefix(err), to: ref failures)
+        case "stdout-exact-stderr-masked":
+            // SelfhostDriverT5Tests.cs:166-171: stdout byte for byte, stderr through `Mask`
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(
+                dir,
+                for: "expected.stdout",
+                as: goldenDirMasked(o.stdout, at: scratch, by: tag),
+                to: ref failures,
+            )
+            let slashed = goldenCliSlashedAfter(err, at: tag, by: Target.os == "windows")
+            goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT5(slashed), to: ref failures)
+        case "masked":
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            if cls == "SelfhostDefaultT4Tests" {
+                // SelfhostDefaultT4Tests.cs:69, :79, :87-106: the directory as `<D>`
+                goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+                goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+            } else {
+                // SelfhostDriverT5Tests.cs:62, :91-97 `Differs`: both streams through `Mask`
+                goldenCliCheck(dir, for: "expected.stdout", as: goldenCliT5(buf), to: ref failures)
+                goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT5(err), to: ref failures)
+            }
+        case "repo-masked":
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            if cls == "SelfhostDefaultT5Tests" {
+                // SelfhostDefaultT5Tests.cs:19-25, :86-111: stdout through `Mask`, stderr as is
+                goldenCliCheck(dir, for: "expected.stdout", as: goldenCliCommit(buf), to: ref failures)
+            } else {
+                // SelfhostDefaultT2Tests.cs:30-40: the repo as `<repo>`, both streams as is
+                goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+            }
+            goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+        case "root-masked":
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            if cls == "SelfhostDefaultT12Tests" {
+                // SelfhostDefaultT12Tests.cs:50-55, :130-152 `Masked`
+                goldenCliCheck(dir, for: "expected.stdout", as: goldenCliT12(buf), to: ref failures)
+                goldenCliCheck(dir, for: "expected.stderr", as: goldenCliT12(err), to: ref failures)
+            } else {
+                // SelfhostDefaultT3Tests.cs:47, :88-111 `Masked`: the root as `<root>`, `[0-9]+\.[0-9]{2}s` as `<t>s`
+                goldenCliCheck(
+                    dir,
+                    for: "expected.stdout",
+                    as: goldenCliTimes(buf, from: "", by: "<t>s", two: true),
+                    to: ref failures,
+                )
+                goldenCliCheck(
+                    dir,
+                    for: "expected.stderr",
+                    as: goldenCliTimes(err, from: "", by: "<t>s", two: true),
+                    to: ref failures,
+                )
+            }
+        case "dir-masked":
+            // SelfhostDriverFixTests.cs:64-131: the target's directory as `<dir>`, both streams as is
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+        case "mutation-masked":
+            // SelfhostDriverMutateTests.cs:40, :52-71: stdout and the report through `MaskMutation`, stderr as is
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: goldenCliMutation(buf), to: ref failures)
+            goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+            if report != "" {
+                var text = "(none)"
+                if Fs.fileExists(report) {
+                    text = goldenCliScratchMasked(
+                        goldenCliMutation(goldenLf(Io.readText(report) catch "")),
+                        at: scratch,
+                        by: tag,
+                    )
+                }
+                goldenCliCheck(dir, for: "expected.report", as: text, to: ref failures)
+            }
+        case "pass-count":
+            // SelfhostDefaultJsonCountTests.cs:20-43: exit 0 and the count of the first `(\d+) passed`
+            if o.exitCode != 0 {
+                failures.append($"{dir}\nexited {o.exitCode}, not 0\n{buf}{err}")
+            } else {
+                goldenCliCheck(dir, for: "expected.stdout", as: goldenCliPassCount($"{buf}{err}"), to: ref failures)
+            }
+        case "argv-masked" or "argv-masked-arguments":
+            // SelfhostDriverT3Tests.cs:212-224 `Masked`, :262-281 `Both` (exit, stderr, argv); :410-423 (the arguments after the compiler's name)
+            var target = ""
+            for i in 1..args.length {
+                if args[i - 1] == "--target" {
+                    target = args[i]
+                }
+            }
+            let argv = goldenCliT3Windows(
+                goldenCliArgv(goldenLf(Io.readText(Path.combine(bin, "argv")) catch ""), at: cwd, for: host),
+                for: target,
+                at: host,
+            )
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            if word == "argv-masked" {
+                goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+                goldenCliCheck(dir, for: "expected.argv", as: argv, to: ref failures)
+            } else {
+                let lines = goldenLines(argv)
+                var rest = StrBuf()
+                for i in 1..lines.length {
+                    if i > 1 {
+                        rest.append("\n")
+                    }
+                    rest.append(lines[i])
+                }
+                goldenCliCheck(dir, for: "expected.argv", as: rest.finish(), to: ref failures)
+            }
+        default:
+            // no `compare` file: SelfhostDriverTests.cs:135 `Record` with no form, every stream as is
+            goldenCliCheck(dir, for: "expected.exitcode", as: exit, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stdout", as: buf, to: ref failures)
+            goldenCliCheck(dir, for: "expected.stderr", as: err, to: ref failures)
+    }
+    return null if failures.length == 0
+    var text = ""
+    for f in failures {
+        text = text == "" ? f : $"{text}\n{f}"
+    }
+    return text
+}
+
+const goldenCliSpecExit: string = """
+=== args
+--ascii
+<repo>/tmp/t1-driver/tool.byn
+--color
+bad
+=== compare
+exit
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+=== input.byn
+print("hi")
+"""
+
+const goldenCliSpecStdout: string = """
+=== args
+lex
+<repo>/tests/cases/lex/bad-chars.byn
+=== compare
+stdout
+=== expected.exitcode
+1
+=== expected.stderr
+=== expected.stdout
+1:1 CharLiteral `''`
+2:1 CharLiteral `'ab'`
+3:1 CharLiteral `'\q'`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{110000}'`
+6:1 CharLiteral `'x`
+7:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+=== input.byn
+''
+'ab'
+'\q'
+'\u{D800}'
+'\u{110000}'
+'x
+"""
+
+const goldenCliSpecStderr: string = """
+=== args
+build
+--emit-c
+<repo>/tmp/t1-driver-lib/plain
+=== compare
+stderr
+=== expected.exitcode
+0
+=== expected.stderr
+=== input/main.byn
+i32 main() => 0
+"""
+
+const goldenCliSpecVersion: string = """
+=== args
+audit
+=== compare
+version-masked
+=== expected.exitcode
+2
+=== expected.stderr
+usage: bayan audit <path>
+=== expected.stdout
+"""
+
+const goldenCliSpecVersionSeconds: string = """
+=== args
+--version
+=== compare
+version-seconds-masked
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+bayan <version> (masked)
+"""
+
+const goldenCliSpecSeconds: string = """
+=== args
+check
+<repo>/tmp/t2/clean/main.byn
+--diagnostics
+json
+=== compare
+seconds-masked
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+=== input/main.byn
+void main() {
+    print("hi")
+}
+"""
+
+const goldenCliSpecDirSeconds: string = """
+=== args
+format
+<repo>/tmp/t8-corpus/cs/lib
+=== compare
+dir-seconds-masked
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+"""
+
+const goldenCliSpecStderrPrefix: string = """
+=== args
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/no-exec/cs-out
+=== compare
+stderr-prefix
+=== env
+PATH=<repo>/tmp/t3/bin-no-exec
+=== expected.exitcode
+4
+=== expected.stderr
+bayan: cannot run the C compiler `<repo>/tmp/t3/bin-no-exec/cc`
+=== expected.stdout
+=== input/bin-no-exec/cc
+#!/bin/sh
+exit 0
+=== input/hello/main.byn
+print("Salam, world!")
+"""
+
+const goldenCliSpecBayanPrefix: string = """
+=== args
+build
+-o
+nodir/sub/prog
+arithmetic.byn
+=== compare
+stderr-bayan-prefix
+=== expected.exitcode
+4
+=== expected.stderr
+bayan: cannot write the build output or cache<space>
+=== expected.stdout
+=== input/arithmetic.byn
+let a: i64 = 17
+let b: i64 = 5
+print($"{a + b} {a - b} {a * b} {a / b} {a % b}")
+print($"{-a / b} {-a % b} {a / -b}")
+let x: u8 = 250
+print($"{x +% 10} {x +| 10} {u8(3) -| u8(5)} {u8(3) -% u8(5)}")
+let big: i32 = 2147483647
+print($"{big +| 1} {big +% 1} {big *| 2}")
+print($"{1 << 4} {256 >> 2} {0xF0 & 0x3C} {0xF0 | 0x0F} {0xFF ^ 0x0F}")
+let h: f64 = 1.0 / 3.0
+print($"{h} {0.1 + 0.2} {2.5 * 4.0} {7.5 % 2.0}")
+let single: f32 = 0.1
+print($"{single} {f64(single)}")
+print($"{i64(3.99)} {i64(-3.99)} {u8(300.0)} {i32(1.0 / 0.0)}")
+let wide: i64 = 1000
+print($"{i16(wide)} {u16(wide)}")
+let c = 'A'
+print($"{c} {c.value} {rune(0x1F600)} {'é'}")
+let abc = "abc"
+print($"{true} {false} {1 < 2} {2 <= 1} {abc < "abd"} {abc == "abc"}")
+let low: i64 = -9223372036854775808
+let high: u64 = 18446744073709551615
+print($"{low} {high} {low - 0}")
+let tiny: f64 = 0.00001
+let small: f64 = 0.0001
+let huge: f64 = 1000000000000000.0
+let large: f64 = 100000000000000.0
+print($"{tiny} {small} {huge} {large} {-2.5} {123.456} {1.0} {-0.0} {6.02e23}")
+=== input/file
+a file
+"""
+
+const goldenCliSpecExact: string = """
+=== args
+build
+--emit-c
+hello.byn
+=== compare
+stdout-exact-stderr-masked
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+/* Generated by the Bayan compiler. Do not edit. */
+#include "bayan-rt.h"
+#include <math.h>
+#include <stdlib.h>
+
+static const char byn_file_0[] = "hello.byn";
+
+typedef struct byn_err byn_err;
+
+struct byn_err {
+    uint32_t code;
+    union {
+        struct { int32_t signal; byn_str stdout_; byn_str stderr_; } e10;
+        struct { int64_t after; byn_str stdout_; byn_str stderr_; } e11;
+        struct { int64_t at; } e12;
+        struct { int64_t at; } e13;
+    } p;
+};
+
+static const byn_str byn_errors[] = {
+    BYN_STR("The file does not exist.", 24),
+    BYN_STR("Permission denied.", 18),
+    BYN_STR("The input is not valid UTF-8.", 29),
+    BYN_STR("The path exists but is not a directory.", 39),
+    BYN_STR("An input or output operation failed.", 36),
+    BYN_STR("An argument cannot be passed exactly, so nothing was done.", 58),
+    BYN_STR("The operation is not available on this platform.", 48),
+    BYN_STR("The source and the destination are on different devices.", 56),
+    BYN_STR("The path is a directory where a file is needed.", 47),
+    BYN_STR("The child process was ended by this signal; what it wrote to stdout and stderr before then is kept", 98),
+    BYN_STR("The child process ran longer than this and was stopped; what it wrote to stdout and stderr before then is kept", 110),
+    BYN_STR("The bytes are not well-formed UTF-8.", 36),
+    BYN_STR("The text has no digit, or a character that is not a digit, at this byte offset.", 79),
+    BYN_STR("The number does not fit the type.", 33),
+};
+
+static __attribute__((unused)) void byn_w_error(byn_writer* w, uint32_t code) {
+    if (code == 0 || code > 14) byn_w_str(w, BYN_STR("no error", 8));
+    else byn_w_str(w, byn_errors[code - 1]);
+}
+
+static const uint8_t byn_exit_codes[] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+void byn_main__main(void);
+
+
+void byn_main__main(void) {
+#line 1 "hello.byn"
+    (void)byn_print(((byn_builtin_Stream)0), BYN_STR("Salam, world!", 13));
+}
+#line 52 "main.c"
+
+int main(int argc, char** argv) {
+    byn_err err = {0};
+    (void)argv;
+    byn_str* byn_argv = byn_args(&argc, argv);
+    (void)byn_argv;
+    byn_main__main();
+    if (err.code != 0) { byn_report_error(byn_errors[err.code - 1]); return byn_exit_codes[err.code - 1]; }
+    byn_stdout_flush();
+    return 0;
+}
+=== input/hello.byn
+print("Salam, world!")
+"""
+
+const goldenCliSpecMasked: string = """
+=== args
+init
+nowhere
+=== compare
+masked
+=== expected.exitcode
+2
+=== expected.stderr
+bayan: `nowhere` doesn't exist; `bayan new nowhere` creates it
+=== expected.stdout
+"""
+
+const goldenCliSpecRepo: string = """
+=== args
+features
+--used
+<repo>/tmp/t2-features/sample/missing
+=== compare
+repo-masked
+=== expected.exitcode
+2
+=== expected.stderr
+bayan: not found: <repo>/tmp/t2-features/sample/missing
+=== expected.stdout
+"""
+
+const goldenCliSpecRoot: string = """
+=== args
+clean
+--cache
+=== compare
+root-masked
+=== cwd
+<root>
+=== env
+BAYAN_CACHE=<root>/cache
+HOME
+XDG_CACHE_HOME
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+"""
+
+const goldenCliSpecDir: string = """
+=== args
+fix
+<repo>/tmp/t9-fix/cs-selfhost/missing-nope.byn/nope.byn
+=== compare
+dir-masked
+=== expected.exitcode
+2
+=== expected.stderr
+bayan: not found: <dir>/nope.byn
+=== expected.stdout
+"""
+
+const goldenCliSpecMutation: string = """
+=== args
+mutate
+--binary
+<repo>/tmp/t13-mutate/external/prog
+--sites
+<repo>/tmp/t13-mutate/external/prog.sites.json
+--
+/bin/sh
+-c
+exit 3
+=== compare
+mutation-masked
+=== env
+CI=1
+BAYAN_CACHE=<repo>/tmp/t13-mutate-cache/csharp
+=== expected.exitcode
+1
+=== expected.report -n
+(none)
+=== expected.stderr
+bayan: the command does not exit 0 on the unmutated binary
+=== expected.stdout
+=== report
+<repo>/tmp/t13-mutate/external/bayan-quality.json
+=== input/prog
+=== input/prog.sites.json -n
+{ "version": 1, "sites": [
+  { "id": 1, "file": "a.byn", "line": 1, "column": 1, "operator": "arithmetic", "original": "a + b", "mutated": "a - b" },
+  { "id": 2, "file": "a.byn", "line": 2, "column": 1, "operator": "arithmetic", "original": "a * b", "mutated": "a / b" },
+  { "id": 3, "file": "a.byn", "line": 3, "column": 1, "operator": "bool", "original": "true", "mutated": "false", "emitted": false },
+  { "id": 4, "file": "a.byn", "line": 4, "column": 1, "operator": "arithmetic", "original": "a + 0", "mutated": "a - 0", "unobservable": "no test can see it" },
+  { "id": 5, "file": "b.byn", "line": 5, "column": 1, "operator": "statement", "original": "i += 1", "mutated": "" },
+  { "id": 6, "file": "b.byn", "line": 6, "column": 2, "operator": "mystery", "original": "x", "mutated": "y", "emitted": true, "unobservable": null },
+  { "id": 7, "file": "b.byn", "line": 7, "column": 3, "operator": "mystery", "original": "x", "mutated": "z", "emitted": false }
+] }
+"""
+
+const goldenCliSpecPassCount: string = """
+=== args
+test
+lib/std/json
+=== compare
+pass-count
+=== expected.exitcode
+0
+=== expected.stderr
+=== expected.stdout
+96 passed
+"""
+
+const goldenCliSpecArgv: string = """
+=== args
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/none/cs-out
+--mode
+safe
+=== compare
+argv-masked
+=== env
+PATH=<repo>/tmp/t3/bin-none
+=== expected.argv
+=== expected.exitcode
+4
+=== expected.stderr
+bayan: no C compiler found: install zig (https://ziglang.org) or set BAYAN_CC
+=== expected.stdout
+=== input/bin-none/
+=== input/hello/main.byn
+print("Salam, world!")
+"""
+
+const goldenCliSpecArgvArguments: string = """
+=== args
+build
+<repo>/examples/hello/main.byn
+-o
+<repo>/tmp/t3/null-args-debug/cs-out
+--mode
+debug
+=== compare
+argv-masked-arguments
+=== env
+PATH=<repo>/tmp/t3/bin-null-args
+=== expected.argv -n
+-std=c11
+-fwrapv
+-ffp-contract=off
+-w
+-O0
+-g
+-DBYN_DEBUG
+-ffile-prefix-map=<dir>=.
+-I
+<dir>
+main.c
+bayan-rt.o
+-o
+program
+-lm
+=== expected.exitcode
+0
+=== expected.stderr
+=== input+x/bin-null-args/cc -n
+#!/bin/sh
+printf '%s\n' "${0##*/}" "$@" > "${0%/*}/argv"
+prev=
+for a in "$@"; do
+  if [ "$prev" = "-o" ]; then : > "$a"; fi
+  prev=$a
+done
+exit 0
+=== input/hello/main.byn
+print("Salam, world!")
+"""
+
+/// Writes the `cli` case `name` (`<Class>/<case>`) below `root`/cli from `spec`, sections `=== <file>` each followed by its text (the export
+/// case's files, as tmp/export-full holds them with its worktree read as `<repo>`): `=== <file> -n` drops the text's final LF, `<space>` reads as a
+/// space, and `=== input/<path>` (`input+x/` executable, `input/<dir>/` an empty directory) is an input stored under `root`/inputs and listed
+/// in the case's input.tsv, its directories as `tree:` entries (the T17a form).
+void goldenCliFixture(string root, for string name, as string spec) uses alloc, fs {
+    let dir = Path.combine(Path.combine(root, "cli"), name)
+    var entries = StrBuf()
+    var rest = $"\n{spec}\n"
+    var at = goldenOffset(rest, for: "\n=== ")
+    while at >= 0 {
+        rest = rest[at + 5..rest.length]
+        let eol = goldenOffset(rest, for: "\n")
+        var file = rest[0..eol]
+        rest = rest[eol..rest.length]
+        let next = goldenOffset(rest, for: "\n=== ")
+        var text = (next < 0 ? rest[1..rest.length] : rest[1..next + 1]).replaced("<space>", by: " ")
+        if file.endsWith(" -n") {
+            file = file[0..file.length - 3]
+            text = text[0..text.length - 1]
+        }
+        if file.startsWith("input/") || file.startsWith("input+x/") {
+            let slash = goldenOffset(file, for: "/")
+            let path = file[slash + 1..file.length]
+            let sha = Hex.encode(sha256(text.bytes).span)
+            if !path.endsWith("/") {
+                goldenWrite(root, for: $"inputs/files/{sha}", as: text)
+            }
+            entries.append($"{path}\t{slash == 5 ? "file" : "file+x"}:{sha}\n")
+        } else {
+            goldenWrite(dir, for: file, as: text)
+        }
+        at = next
+    }
+    let tsv = goldenCliFixtureTree(root, at: "", from: entries.finish())
+    if tsv != "" {
+        goldenWrite(dir, for: "input.tsv", as: tsv)
+    }
+}
+
+/// The input.tsv lines of the `entries` (`<path>\t<kind>:<sha256>` lines) below `prefix`, each directory's own lines stored as
+/// `root`/inputs/trees/<sha256>.tsv.
+string goldenCliFixtureTree(string root, at string prefix, from string entries) uses alloc, fs {
+    var sb = StrBuf()
+    var done = List<string>()
+    for e in goldenLines(entries) {
+        continue if e == "" || !e.startsWith(prefix)
+        let tab = goldenOffset(e, for: "\t")
+        let rest = e[prefix.length..tab]
+        continue if rest == ""
+        let slash = goldenOffset(rest, for: "/")
+        if slash < 0 {
+            sb.append($"{rest}\t{e[tab + 1..e.length]}\n")
+            continue
+        }
+        let name = rest[0..slash]
+        var seen = false
+        for d in done {
+            seen = seen || d == name
+        }
+        continue if seen
+        done.append(name)
+        let tree = goldenCliFixtureTree(root, at: $"{prefix}{name}/", from: entries)
+        let sha = Hex.encode(sha256(tree.bytes).span)
+        goldenWrite(root, for: $"inputs/trees/{sha}.tsv", as: tree)
+        sb.append($"{name}\ttree:{sha}\n")
+    }
+    return sb.finish()
+}
+
+/// The failure text of the `cli` case `name` (`<Class>/<case>`) below `root` through `exe` (`$BAYAN_EXE` when empty); empty when it passes.
+string goldenCliFixtureRun(string root, for string name, by string exe = "") uses alloc, clock, env, fs, process {
+    var failure = ""
+    let driver = exe != "" ? exe : goldenExe(through: ref failure)
+    return $"no driver: {failure}" if driver == ""
+    return goldenCli(Path.combine(Path.combine(Path.combine(root, "cli"), name), "args"), by: driver) ?? ""
+}
+
+/// The failure texts of `spec` as the case `name` (`<Class>/<case>`) and of it with `from` replaced by `to` as `name`-changed, through `exe`
+/// (`$BAYAN_EXE` when empty); empty for a pass. Their directories and scratch directories are removed.
+List<string> goldenCliPair(string name, as string spec, from string a, to string b, by string exe = "")
+        uses alloc, clock, env, fs, process {
+    let root = Path.combine(Path.fullPath("tmp"), $"golden-cli-{Path.fileName(name)}")
+    deleteWorkDir(root)
+    let changed = spec.replaced(a, by: b)
+    var results = List<string>()
+    if changed == spec {
+        results.append("the change does not apply")
+        return results
+    }
+    goldenCliFixture(root, for: name, as: spec)
+    goldenCliFixture(root, for: $"{name}-changed", as: changed)
+    results.append(goldenCliFixtureRun(root, for: name, by: exe))
+    results.append(goldenCliFixtureRun(root, for: $"{name}-changed", by: exe))
+    deleteWorkDir(root)
+    let scratch = Path.combine(Path.fullPath("tmp"), "cli")
+    let cls = Path.directoryName(name) ?? ""
+    deleteWorkDir(Path.combine(scratch, $"{cls}_{Path.fileName(name)}"))
+    deleteWorkDir(Path.combine(scratch, $"{cls}_{Path.fileName(name)}-changed"))
+    return results
+}
+
+/// An executable shell script `body` at `root`/`name` for a fake driver; its path.
+string goldenCliFake(string root, for string name, as string body) uses alloc, fs, process {
+    goldenWrite(root, for: name, as: $"#!/bin/sh\n{body}\n")
+    let path = Path.combine(root, name)
+    var args = List<string>()
+    args.append("a+x")
+    args.append(path)
+    let _ = Io.run("chmod", args.span) catch { panic($"cannot make {path} executable") }
+    return path
+}
+
+test "`exit` compares the exit code alone (SelfhostDriverTests.cs:465), a changed one fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken",
+        as: goldenCliSpecExit,
+        from: "=== expected.exitcode\n0",
+        to: "=== expected.exitcode\n1",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.exitcode\nexpected line 1: 1\nactual line 1: 0"))
+}
+
+test "`stdout` compares the exit code and stdout (SelfhostDriverT2Tests.cs:187), a changed stdout line fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT2Tests/LexReadsStandardInput",
+        as: goldenCliSpecStdout,
+        from: "7:1 EndOfFile",
+        to: "7:1 Changed",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.stdout\nexpected line 7: 7:1 Changed\nactual line 7: 7:1 EndOfFile"))
+}
+
+test "`stderr` compares stderr alone (SelfhostDriverTests.cs:913-919), a changed one fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT1Tests/RefuseLibraryAsCliAppDoes-2",
+        as: goldenCliSpecStderr,
+        from: "=== expected.stderr\n",
+        to: "=== expected.stderr\nchanged\n",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.stderr\nexpected line 1: changed\nactual line 1: "))
+}
+
+test "`version-masked` masks the version line (SelfhostDriverTests.cs:142-149), a changed stderr fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT1Tests/AuditAsCliApp-10",
+        as: goldenCliSpecVersion,
+        from: "usage: bayan audit <path>",
+        to: "usage: changed",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.stderr\nexpected line 1: usage: changed\nactual line 1: usage: bayan audit <path>"))
+}
+
+test "`version-seconds-masked` masks the version line and times (SelfhostDriverT2Tests.cs:33, :49-50), a changed stdout fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT2Tests/DispatchAsCliApp",
+        as: goldenCliSpecVersionSeconds,
+        from: "bayan <version> (masked)",
+        to: "bayan 0.3.2 (masked)",
+    )
+    assert(r[0] == "")
+    assert(
+        r[1].contains("expected.stdout\nexpected line 1: bayan 0.3.2 (masked)\nactual line 1: bayan <version> (masked)")
+    )
+    assert(goldenCliVersion(
+        goldenCliT2("bayan 0.3.3-dev (selfhost)\nchecked in 1.25s\nbayan: x (y)\n"),
+    ) == "bayan <version> (masked)\nchecked in masked\nbayan: x (y)\n")
+}
+
+test "`seconds-masked` masks ` in <seconds>s` (SelfhostDriverT2Tests.cs:30, :50), a changed exit code fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT2Tests/ACleanProgramAsCliApp-2",
+        as: goldenCliSpecSeconds,
+        from: "=== expected.exitcode\n0",
+        to: "=== expected.exitcode\n1",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.exitcode\nexpected line 1: 1\nactual line 1: 0"))
+}
+
+test "`dir-seconds-masked` masks the directory and times (SelfhostDriverTests.cs:1492-1496), a changed stdout fails" {
+    // the recorded input is lib/std/json at the export's commit, byte for byte the same files here
+    var spec = goldenCliSpecDirSeconds
+    for name in ["json.test.byn", "reader.byn", "value.byn"] {
+        let text = Io.readText(Path.fullPath($"lib/std/json/{name}")) catch ""
+        spec = $"{spec}\n=== input/std/json/{name} -n\n{text}"
+    }
+    let r = goldenCliPair(
+        "SelfhostDriverStage2FormatTests/CorpusFormatsAsCliApp",
+        as: spec,
+        from: "=== expected.stdout\n",
+        to: "=== expected.stdout\nformatted {D}\n",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.stdout\nexpected line 1: formatted {D}\nactual line 1: "))
+}
+
+test "`stderr-prefix` compares stderr up to its first \"`:\" for SelfhostDriverT3Tests (:450-453), a changed one fails" {
+    if Target.os == "windows" {
+        todo("the case puts a `cc` with no execute mode on PATH, and Windows has no such mode")
+    }
+    let r = goldenCliPair(
+        "SelfhostDriverT3Tests/ACompilerThatCannotBeStartedIsReportedAsToolchain",
+        as: goldenCliSpecStderrPrefix,
+        from: "bayan: cannot run",
+        to: "bayan: cannot start",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains(
+        "expected.stderr\nexpected line 1: bayan: cannot start the C compiler `<repo>/tmp/t3/bin-no-exec/cc`",
+    ))
+}
+
+test "`stderr-bayan-prefix` compares stderr's `bayan:` line up to its `(` (SelfhostDriverT5Tests.cs:488-496), a changed one fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT5Tests/CannotWriteTheOutputAsCliApp",
+        as: goldenCliSpecBayanPrefix,
+        from: "or cache",
+        to: "or changed",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains(
+        "expected.stderr\nexpected line 1: bayan: cannot write the build output or changed \nactual line 1: bayan: cannot write",
+    ))
+}
+
+test "`stdout-exact-stderr-masked` compares stdout byte for byte (SelfhostDriverT5Tests.cs:166-171), a changed line fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-100",
+        as: goldenCliSpecExact,
+        from: "    byn_main__main();",
+        to: "    byn_changed();",
+    )
+    assert(r[0] == "")
+    assert(
+        r[1].contains("expected.stdout\nexpected line 58:     byn_changed();\nactual line 58:     byn_main__main();")
+    )
+}
+
+test "the T5 cases pass in their C# directories: emit in tmp/t5/emit, run in tmp/t5/cwd, a named build in tmp/t5/cs, stubs on PATH" {
+    if Target.os == "windows" {
+        todo(
+            "OutputNamesAsCliApp-2's stdout names the export host `macos-arm64`, and the PATH stubs of goldenCliT5Stub are `#!/bin/sh` scripts made executable by `chmod`, which Windows cannot start",
+        )
+    }
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(exe != "")
+    let root = Path.fullPath("tests/cases/cli/SelfhostDriverT5Tests")
+    for name in [
+        "EmitCAsCliAppOnEveryRunInput-145",
+        "RunAsCliAppOnEveryRunInput-123",
+        "OutputNamesAsCliApp-2",
+        "LeavesNoLinkByProductAsCliApp",
+        "RejectedCAsCliApp",
+    ] {
+        assert(goldenCli(Path.combine(Path.combine(root, name), "args"), by: exe) is null)
+        deleteWorkDir(Path.combine(Path.fullPath("tmp/cli"), $"SelfhostDriverT5Tests_{name}"))
+    }
+}
+
+test "a cli case run as a golden case leaves neither its scratch directory nor its bin directory under tmp/cli" {
+    let input = Path.fullPath("tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli/args")
+    let scratch = goldenCliScratch(input)
+    let c = GoldenCase { kind: "cli", name: "SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli", input: input }
+    let failure = goldenRun(in c)
+    assert(failure is null)
+    assert(!t6DirectoryExists(scratch) && !t6DirectoryExists($"{scratch}-bin"))
+}
+
+test "a SelfhostDriverStyleEnvironmentTests case runs in the C#'s terminal env, not under a host's UTF-8 LC_ALL, LC_CTYPE or TERM" {
+    // TheEnvironmentPaintsAsCliAppRun-38 sets LANG=C, so its success line has `*`; a host LC_ALL naming UTF-8 would win over it (`t7Utf8`)
+    if Target.os == "windows" {
+        todo("the case's `os` file names macos and linux, so Windows skips it")
+    }
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(exe != "")
+    let name = "cli/SelfhostDriverStyleEnvironmentTests/TheEnvironmentPaintsAsCliAppRun-38"
+    var args = List<string>()
+    for a in ["test", Path.fullPath("tests/cases"), "--only", name] {
+        args.append(a)
+    }
+    var env = goldenEnv()
+    env["LC_ALL"] = "en_US.UTF-8"
+    env["LC_CTYPE"] = "UTF-8"
+    env["TERM"] = "xterm-256color"
+    let r = Io.run(exe, args.span, env: env) catch { panic($"cannot run {exe}") }
+    print(r.stdout) if r.exitCode != 0
+    assert(r.exitCode == 0 && r.stdout.contains($"\npassed {name}\n"))
+}
+
+test "`masked` reads the SelfhostDefaultT4Tests directory as `<D>` (SelfhostDefaultT4Tests.cs:87-106), a changed stderr fails" {
+    let r = goldenCliPair(
+        "SelfhostDefaultT4Tests/InitReportsAMissingDirectoryAsCSharp",
+        as: goldenCliSpecMasked,
+        from: "doesn't exist",
+        to: "is missing",
+    )
+    assert(r[0] == "")
+    assert(
+        r[1].contains("expected.stderr\nexpected line 1: bayan: `nowhere` is missing; `bayan new nowhere` creates it")
+    )
+}
+
+test "`repo-masked` reads the repo as `<repo>` (SelfhostDefaultT2Tests.cs:30-40), a changed stderr fails" {
+    let r = goldenCliPair(
+        "SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-21",
+        as: goldenCliSpecRepo,
+        from: "sample/missing\n=== expected.stdout",
+        to: "sample/changed\n=== expected.stdout",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains(
+        "expected.stderr\nexpected line 1: bayan: not found: <repo>/tmp/t2-features/sample/changed\nactual line 1: bayan: not found: <repo>/tmp/t2-features/sample/missing",
+    ))
+}
+
+test "`root-masked` reads the root as `<root>` in the case's `cwd` and `env` (SelfhostDefaultT3Tests.cs:88-111), a changed exit code fails" {
+    let r = goldenCliPair(
+        "SelfhostDefaultT3Tests/CleanCacheOfAnEmptyCache",
+        as: goldenCliSpecRoot,
+        from: "=== expected.exitcode\n0",
+        to: "=== expected.exitcode\n2",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.exitcode\nexpected line 1: 2\nactual line 1: 0"))
+}
+
+test "`dir-masked` reads the target's directory as `<dir>` (SelfhostDriverFixTests.cs:64-131), a changed stderr fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverFixTests/FixAsCSharpCli-27",
+        as: goldenCliSpecDir,
+        from: "<dir>/nope.byn",
+        to: "<dir>/changed.byn",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains(
+        "expected.stderr\nexpected line 1: bayan: not found: <dir>/changed.byn\nactual line 1: bayan: not found: <dir>/nope.byn",
+    ))
+}
+
+test "the `dir-masked` mask reads the target's directory as `<dir>` both as `Path.directoryName` writes it and as the target spells it" {
+    // a doubled separator, which `Path.directoryName` writes once, stands for the `/` it writes as `\` on Windows
+    let target = "/nowhere//golden-dir-mask/missing.byn/nope.byn"
+    let dir = Path.directoryName(target) ?? ""
+    assert(dir != "/nowhere//golden-dir-mask/missing.byn")
+    assert(goldenCliDirMasked($"not found: {target}", at: target) == "not found: <dir>/nope.byn")
+    assert(goldenCliDirMasked($"not found: {Path.combine(dir, "nope.byn")}", at: target)
+        == $"not found: {Path.combine("<dir>", "nope.byn")}")
+}
+
+test "on Windows the T5 stderr reads a path after `<repo>` with `/` for `\\`, as the export made on macOS holds it" {
+    let text = "  --> <repo>\\tmp\\t5\\a.byn:3:10\nhelp: a\\b <repo>\\c d\n"
+    assert(
+        goldenCliSlashedAfter(text, at: "<repo>", by: true) == "  --> <repo>/tmp/t5/a.byn:3:10\nhelp: a\\b <repo>/c d\n"
+    )
+    assert(goldenCliSlashedAfter(text, at: "<repo>", by: false) == text)
+}
+
+test "a path below tests/cases is read below it with `/` or the OS separator, so the T5 sibling `.byn` files are copied on Windows too" {
+    let cases = Path.combine(Path.combine(Path.fullPath("tmp"), "tests"), "cases")
+    assert(goldenCliBelow(Path.combine(cases, "diag"), at: cases) == "diag")
+    assert(goldenCliBelow($"{cases}/diag", at: cases) == "diag")
+    assert(goldenCliBelow($"{cases}\\diag", at: cases) == (Target.os == "windows" ? "diag" : ""))
+    assert(goldenCliBelow(cases, at: cases) == "")
+    assert(goldenCliBelow($"{cases}-other/diag", at: cases) == "")
+}
+
+test "`mutation-masked` compares stdout, stderr and the report (SelfhostDriverMutateTests.cs:40, :45-95), a changed report fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverMutateTests/MutateExternalAsCliAppDoes-2",
+        as: goldenCliSpecMutation,
+        from: "(none)",
+        to: "{}",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.report\nexpected line 1: {}\nactual line 1: (none)"))
+}
+
+test "`pass-count` compares the first `N passed` (SelfhostDefaultJsonCountTests.cs:20-43), a changed count fails" {
+    let r = goldenCliPair(
+        "SelfhostDefaultJsonCountTests/Stage2PassesAsManyJsonTestsAsTheCsCli",
+        as: goldenCliSpecPassCount,
+        from: "96 passed",
+        to: "95 passed",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.stdout\nexpected line 1: 95 passed\nactual line 1: 96 passed"))
+    assert(goldenCliPassCount("◆ 12 passed · ✗ 1 failed\n") == "12 passed\n")
+}
+
+test "`argv-masked` compares exit, stderr and the compiler's argv (SelfhostDriverT3Tests.cs:262-281), a changed stderr fails" {
+    let r = goldenCliPair(
+        "SelfhostDriverT3Tests/NoCompilerIsExitFour",
+        as: goldenCliSpecArgv,
+        from: "no C compiler found",
+        to: "no compiler",
+    )
+    assert(r[0] == "")
+    assert(r[1].contains("expected.stderr\nexpected line 1: bayan: no compiler: install zig"))
+}
+
+test "`argv-masked-arguments` compares the argv after the compiler's name (SelfhostDriverT3Tests.cs:410-423), a changed one fails" {
+    if Target.os == "windows" {
+        todo("the fake driver is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
+    // this driver compiles main.c in its cache, not beside the output as the C# did (a T19 divergence), so a fake driver calls the
+    // recording `cc` with the arguments the C# passed it
+    let fakes = Path.combine(Path.fullPath("tmp"), "golden-cli-fake-argv")
+    deleteWorkDir(fakes)
+    let cc = "cc -std=c11 -fwrapv -ffp-contract=off -w -O0 -g -DBYN_DEBUG \"-ffile-prefix-map=$d=.\" -I \"$d\" \"$d/main.c\" \"$d/bayan-rt.o\" -o program -lm"
+    let exe = goldenCliFake(fakes, for: "bayan", as: $"d=$PWD\n{cc}")
+    let r = goldenCliPair(
+        "SelfhostDriverT3Tests/ArgumentsWithoutATargetAreTheHostsAsToolchain",
+        as: goldenCliSpecArgvArguments,
+        from: "-DBYN_DEBUG",
+        to: "-DBYN_CHANGED",
+        by: exe,
+    )
+    deleteWorkDir(fakes)
+    assert(r[0] == "")
+    assert(r[1].contains("expected.argv\nexpected line 7: -DBYN_CHANGED\nactual line 7: -DBYN_DEBUG"))
+}
+
+test "an unknown `compare` word fails the case naming the word" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-unknown")
+    deleteWorkDir(root)
+    goldenCliFixture(
+        root,
+        for: "SelfhostDriverT1Tests/AuditAsCliApp-10",
+        as: goldenCliSpecVersion.replaced("version-masked", by: "sideways"),
+    )
+    let failure = goldenCliFixtureRun(root, for: "SelfhostDriverT1Tests/AuditAsCliApp-10")
+    deleteWorkDir(root)
+    assert(
+        failure == $"{Path.combine(Path.combine(Path.combine(root, "cli"), "SelfhostDriverT1Tests"), "AuditAsCliApp-10")}\nunknown compare word `sideways`"
+    )
+}
+
+test "input.tsv entries and trees are placed below the scratch directory, an executable one marked so" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-inputs")
+    deleteWorkDir(root)
+    goldenCliFixture(
+        root,
+        for: "SelfhostDriverT3Tests/ArgumentsWithoutATargetAreTheHostsAsToolchain",
+        as: goldenCliSpecArgvArguments,
+    )
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let cwd = goldenCliStage(
+        Path.combine(root, "cli/SelfhostDriverT3Tests/ArgumentsWithoutATargetAreTheHostsAsToolchain"),
+        from: root,
+        to: scratch,
+        through: ref failure,
+    )
+    let main = Io.readText(Path.combine(scratch, "examples/hello/main.byn")) catch "-"
+    let cc = Path.combine(scratch, "tmp/t3/bin-null-args/cc")
+    var args = List<string>()
+    args.append("-x")
+    args.append(cc)
+    let exec = Io.run("test", args.span) catch return
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(cwd == scratch)
+    assert(main == "print(\"Salam, world!\")\n")
+    assert(exec.exitCode == 0)
+}
+
+test "a `main.byn` entry goes to the path `args` names when another entry is named too" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-named")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/C/named")
+    goldenWrite(dir, for: "args", as: "build\n-o\n<repo>/t/tally/tally\n<repo>/t/tally/main.byn\n")
+    goldenWrite(dir, for: "env", as: "PATH=<repo>/t/fakebin\n")
+    goldenWrite(dir, for: "input.tsv", as: "fakebin\ttree:tt\nmain.byn\tfile:aa\n")
+    goldenWrite(root, for: "inputs/trees/tt.tsv", as: "")
+    goldenWrite(root, for: "inputs/files/aa", as: "main\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let main = Io.readText(Path.combine(scratch, "t/tally/main.byn")) catch "-"
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(main == "main\n")
+}
+
+test "a SelfhostDefault plain `input` goes to the env path of its `input.name`, executable when it was" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-plain")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT5Tests/plain")
+    goldenWrite(dir, for: "args", as: "doctor\n")
+    goldenWrite(dir, for: "env", as: "BAYAN_CC=<repo>/t/fakecc\nPATH=<repo>/t/empty\n")
+    goldenWrite(dir, for: "input", as: "#!/bin/sh\n")
+    goldenWrite(dir, for: "input.name", as: "fakecc\n")
+    let _ = goldenCliRun(["chmod", "+x", Path.combine(dir, "input")])
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let cc = Io.readText(Path.combine(scratch, "t/fakecc")) catch "-"
+    let exec = goldenCliExecutable(Path.combine(scratch, "t/fakecc"))
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(cc == "#!/bin/sh\n")
+    assert(exec)
+}
+
+test "a T5 input tree no path names goes to its first env path, created even when empty, and `modes` lock it last" {
+    if Target.os == "windows" {
+        todo("`modes` is applied by `chmod` and read by `test -r` and `test -w`, and Windows has no POSIX modes")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-env")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT5Tests/env")
+    goldenWrite(dir, for: "args", as: "doctor\n")
+    goldenWrite(dir, for: "env", as: "BAYAN_CC\nPATH=<repo>/t/path\n")
+    goldenWrite(dir, for: "input.tsv", as: "zig\tfile:aa\n")
+    goldenWrite(dir, for: "modes", as: "path/zig None\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "z\n")
+    let empty = Path.combine(root, "cli/SelfhostDefaultT5Tests/empty")
+    goldenWrite(empty, for: "args", as: "doctor\n")
+    goldenWrite(empty, for: "env", as: "BAYAN_CACHE=<repo>/t/readonly\n")
+    goldenWrite(empty, for: "input.tsv", as: "")
+    goldenWrite(empty, for: "modes", as: "readonly UserExecute, UserRead\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let zig = Path.combine(scratch, "t/path/zig")
+    let placed = Fs.fileExists(zig)
+    let readable = goldenCliRun(["test", "-r", zig]) == ""
+    let _ = goldenCliStage(empty, from: root, to: scratch, through: ref failure)
+    let locked = Path.combine(scratch, "t/readonly")
+    let made = goldenCliRun(["test", "-d", locked]) == ""
+    let writable = goldenCliRun(["test", "-w", locked]) == ""
+    let _ = goldenCliRun(["chmod", "700", locked])
+    let _ = goldenCliRun(["chmod", "600", zig])
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(placed)
+    assert(!readable)
+    assert(made)
+    assert(!writable)
+    assert(goldenCliMode("UserExecute, UserRead") == "500")
+    assert(goldenCliMode("None") == "000")
+    assert(goldenCliMode("UserRead, UserWrite, GroupRead, OtherRead") == "644")
+}
+
+test "SelfhostDefault `links` are made below the input's place, a target below its original place read there" {
+    if Target.os == "windows" {
+        todo("`links` are made by `ln -s`, which on Windows copies a file and fails on a dangling target")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-stage-links")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT12Tests/links")
+    goldenWrite(dir, for: "args", as: "dist\ntally\n")
+    goldenWrite(dir, for: "cwd", as: "<root>\n")
+    goldenWrite(dir, for: "input.tsv", as: "real-src\ttree:tt\ntally\ttree:tt\n")
+    goldenWrite(dir, for: "links", as: "cs/tally/src -> <repo>/tmp/t12/x/cs/real-src\ncs/out -> outside\n")
+    goldenWrite(root, for: "inputs/trees/tt.tsv", as: "a\tfile:aa\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "z\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let through = Io.readText(Path.combine(scratch, "tally/src/a")) catch "-"
+    let linked = goldenCliRun(["test", "-L", Path.combine(scratch, "out")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(through == "z\n")
+    assert(linked)
+}
+
+test "a SelfhostDefault env naming `<bin>` gets a fresh bin directory holding `env.git` as an executable `git`" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-bin")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT4Tests/git")
+    goldenWrite(dir, for: "env", as: "PATH=<bin>\n")
+    goldenWrite(dir, for: "env.git", as: "#!/bin/sh\nkill -9 $$\n")
+    let bin = Path.combine(root, "bin")
+    let failure = goldenCliBin(dir, at: bin)
+    let git = Io.readText(Path.combine(bin, "git")) catch "-"
+    let exec = goldenCliExecutable(Path.combine(bin, "git"))
+    let none = goldenCliBin(Path.combine(root, "cli/SelfhostDefaultT4Tests/none"), at: Path.combine(root, "nobin"))
+    let made = goldenCliRun(["test", "-e", Path.combine(root, "nobin")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(git == "#!/bin/sh\nkill -9 $$\n")
+    assert(exec)
+    assert(none == "")
+    assert(!made)
+}
+
+test "a T9 step case replays the steps before it in one tree, each after its `Before`, and only when its first step is beside it" {
+    if Target.os == "windows" {
+        todo("the driver stand-in is a `#!/bin/sh` script made executable by `chmod`, which Windows cannot start")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-t9")
+    deleteWorkDir(root)
+    let cls = Path.combine(root, "cli/SelfhostDefaultT9Tests")
+    goldenWrite(Path.combine(cls, "ABuildTagsTheCache-tag"), for: "args", as: "one\n")
+    goldenWrite(Path.combine(cls, "ABuildTagsTheCache-tag-2"), for: "args", as: "two\n")
+    let last = Path.combine(cls, "ABuildTagsTheCache-tag-3")
+    goldenWrite(last, for: "args", as: "three\n")
+    goldenWrite(Path.combine(cls, "BayanCacheMaxMb-max-mb-1-11"), for: "args", as: "x\n")
+    // the driver stand-in logs its argv and whether the tag its last run wrote was there, then writes it
+    let exe = Path.combine(root, "exe")
+    goldenWrite(
+        root,
+        for: "exe",
+        as: "#!/bin/sh\ntest -f cache/v1/CACHEDIR.TAG && t=tagged || t=untagged\necho \"$* $t\" >> log\nmkdir -p cache/v1\necho s > cache/v1/CACHEDIR.TAG\n",
+    )
+    let _ = goldenCliRun(["chmod", "755", exe])
+    let scratch = Path.combine(root, "scratch")
+    let _ = goldenFresh(scratch)
+    let failure = goldenCliT9Replay(last, from: root, by: exe, at: scratch)
+    let log = Io.readText(Path.combine(scratch, "log")) catch "-"
+    let tag = Fs.fileExists(Path.combine(scratch, "cache/v1/CACHEDIR.TAG"))
+    let alone = goldenCliT9Steps(Path.combine(cls, "BayanCacheMaxMb-max-mb-1-11")).length
+    let first = goldenCliT9Steps(Path.combine(cls, "ABuildTagsTheCache-tag")).length
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(log == "one untagged\ntwo untagged\n")
+    assert(!tag)
+    assert(alone == 0)
+    assert(first == 0)
+}
+
+test "T9 seeds and PATH directories: an unwritable cache, a read-only `programs`, an odd `cc`, `$PATH` and `tmp/t9-cache/` read here" {
+    if Target.os == "windows" {
+        todo("the seeds lock directories and make a non-executable `cc` by `chmod`, and Windows has no POSIX modes")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-t9-seed")
+    deleteWorkDir(root)
+    let tree = Path.combine(root, "tree")
+    let repo = Path.combine(root, "repo")
+    let _ = goldenFresh(tree)
+    let unwritable = goldenCliT9Before(
+        "AnUnwritableCache",
+        as: "unwritable",
+        at: 0,
+        to: tree,
+        from: repo,
+        for: "macos-arm64",
+    )
+    let cache = Fs.fileExists(Path.combine(tree, "cache"))
+    Io.remove(Path.combine(tree, "cache")) catch {}
+    let publish = goldenCliT9Before(
+        "ABuildThatCannotPublishFails",
+        as: "publish-programsreadonly",
+        at: 0,
+        to: tree,
+        from: repo,
+        for: "macos-arm64",
+    )
+    let programs = Path.combine(tree, "cache/v1/programs")
+    let locked = t6DirectoryExists(programs) && goldenCliRun(["test", "-w", programs]) != ""
+    let _ = goldenCliRun(["chmod", "-R", "u+rwx", tree])
+    let odd = Path.combine(root, "cli/SelfhostDefaultT9Tests/AnOddCCompiler-cc-notexecutable")
+    goldenWrite(odd, for: "env", as: "PATH=tmp/t9-cache/cc-bin-notexecutable\n")
+    let bins = goldenCliT9Bins(odd, at: repo, for: "macos-arm64")
+    let cc = Path.combine(repo, "tmp/t9-cache/cc-bin-notexecutable/cc")
+    let placed = Fs.fileExists(cc) && !goldenCliExecutable(cc)
+    let value = goldenCliT9Value("tmp/t9-cache/a-bin:$PATH", at: repo)
+    deleteWorkDir(root)
+    assert(unwritable == "")
+    assert(cache)
+    assert(publish == "")
+    assert(locked)
+    assert(bins == "")
+    assert(placed)
+    assert(value == $"{repo}/tmp/t9-cache/a-bin:{Env.get("PATH") ?? ""}")
+}
+
+test "an `input.byn.ref` pointer is placed where input.byn goes, and BAYAN_UPDATE=1 keeps it and writes no input.byn" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-ref")
+    deleteWorkDir(root)
+    let name = "SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken"
+    let dir = Path.combine(root, $"cli/{name}")
+    goldenCliFixture(root, for: name, as: goldenCliSpecExit)
+    let text = "print(\"hi\")\n"
+    let sha = Hex.encode(sha256(text.bytes).span)
+    goldenWrite(root, for: $"inputs/files/{sha}", as: text)
+    goldenWrite(dir, for: "input.byn.ref", as: $"file:{sha}\n")
+    Io.remove(Path.combine(dir, "input.byn")) catch {}
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let staged = Io.readText(Path.combine(scratch, "tmp/t1-driver/tool.byn")) catch "-"
+    let run = goldenCliFixtureRun(root, for: name)
+    let update = goldenUpdateRun(root, as: "1", by: "1")
+    let pointer = Io.readText(Path.combine(dir, "input.byn.ref")) catch "-"
+    let written = Fs.fileExists(Path.combine(dir, "input.byn"))
+    deleteWorkDir(root)
+    deleteWorkDir(
+        Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT1Tests_AScriptRunsAndAGlobalOptionBeforeItIsTaken"),
+    )
+    assert(failure == "")
+    assert(staged == text)
+    assert(run == "")
+    assert(update.stdout.contains($"\npassed cli/{name}\n"))
+    assert(pointer == $"file:{sha}\n")
+    assert(!written)
+}
+
+test "an `input.byn.ref` pointer with no file below inputs/files fails the case naming the missing file" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-ref-missing")
+    deleteWorkDir(root)
+    let name = "SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken"
+    let dir = Path.combine(root, $"cli/{name}")
+    goldenCliFixture(root, for: name, as: goldenCliSpecExit)
+    let sha = Hex.encode(sha256("print(\"hi\")\n".bytes).span)
+    goldenWrite(dir, for: "input.byn.ref", as: $"file:{sha}\n")
+    Io.remove(Path.combine(dir, "input.byn")) catch {}
+    let failure = goldenCliFixtureRun(root, for: name)
+    deleteWorkDir(root)
+    deleteWorkDir(
+        Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT1Tests_AScriptRunsAndAGlobalOptionBeforeItIsTaken"),
+    )
+    assert(
+        failure.contains($"missing input file {Path.combine(Path.combine(Path.combine(root, "inputs"), "files"), sha)}")
+    )
+}
+
+test "the T12 and time masks compare bytes, so text with multibyte characters before a match does not stop them" {
+    assert(goldenCliT12("é<root>/cache/v1/tmp/x/a.byn in 1.5s") == "éa.byn in <time>")
+    assert(goldenCliT12("ـ<root>/cache/v1/tmp") == "ـ<root>/cache/v1/tmp")
+    assert(goldenCliTimes("ءé in 12.34s ب", from: " in ", by: " in masked", two: true) == "ءé in masked ب")
+}
+
+test "the doctor mask reads ok rows' values as `<host>`, bayan's as `<version>`, as land-export.sh `mask_doctor` does, `not found` and other rows as is" {
+    let text = "◆ bayan       0.3.3-dev (commit <c>)\n◆ host        macos-arm64\n\u{1b}[32m◆\u{1b}[0m C compiler  /usr/bin/cc (clang 17)\n* zig         not found\n* git         /opt/homebrew/bin/git (git 2.56.0)\n✗ cache       <root>/cache (not writable)\n◆ cache       <root>/cache (writable, 0 programs, 0.0 MB)\n"
+    let masked = "◆ bayan       <version>\n◆ host        <host>\n\u{1b}[32m◆\u{1b}[0m C compiler  <host>\n* zig         not found\n* git         <host>\n✗ cache       <root>/cache (not writable)\n◆ cache       <host>\n"
+    assert(goldenCliDoctor(text, by: true) == masked)
+    assert(goldenCliDoctor(
+        "◆ cache       <root>/cache (writable)\n",
+        by: false,
+    ) == "◆ cache       <root>/cache (writable)\n")
+    assert(goldenCliDoctor("◆ hostname    x\n◆ host\n", by: true) == "◆ hostname    x\n◆ host\n")
+}
+
+test "the T9 mask reads times, unwritable-cache and C compiler messages, script keys and the commit as SelfhostDefaultT9Tests' `Masked`" {
+    let key = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    assert(goldenCliT9("◆ built a (safe) in 12.34s · from cache\n") == "◆ built a (safe) in <t>s · from cache\n")
+    let unwritable = "bayan: cannot write the build output or cache (<root>/cache): Permission denied\nnext\n"
+    assert(goldenCliT9(unwritable) == "bayan: cannot write the build output or cache (<root>/cache): <message>\nnext\n")
+    assert(goldenCliT9(
+        "bayan: cannot run the C compiler `cc`: no such file\n",
+    ) == "bayan: cannot run the C compiler `cc`: <message>\n")
+    assert(
+        goldenCliT9($"<root>/cache/v1/scripts/{key}/x (commit abc)") == "<root>/cache/v1/scripts/<skey>/x (commit <c>)"
+    )
+    assert(goldenCliT9("scripts/0123 1.5s") == "scripts/0123 1.5s")
+}
+
+test "a Windows scratch directory is read as the goldenCli tag with the path after it in `/`, the T9 repo root dropped as `\\` (T17e)" {
+    let text = "PATH C:\\s-repo\\tmp\\t9-cache\\a\n  --> C:\\s\\tmp\\x.byn:1:2\n{\"file\": \"C:\\\\s\\\\a.byn\"}\n"
+    assert(goldenCliScratchMasked(text, at: "C:\\s", by: "<root>", t9: true)
+        == "PATH tmp/t9-cache/a\n  --> <root>/tmp/x.byn:1:2\n{\"file\": \"<root>/a.byn\"}\n")
+    assert(goldenCliScratchMasked(
+        "/s-repo/tmp/t9-cache/a /s/x\n",
+        at: "/s",
+        by: "<repo>",
+        t9: true,
+    ) == "tmp/t9-cache/a <repo>/x\n")
+    assert(goldenCliScratchMasked("/s-repo/tmp /s/x\n", at: "/s", by: "<repo>") == "<repo>-repo/tmp <repo>/x\n")
+}
+
+test "a Windows fix target reads as `<dir>` with the file the driver joined with `\\` after it in `/`, another file still differs (T41b)" {
+    let target = "C:\\w\\X/tmp/t9-fix/cs/post"
+    let got = "fixed C:\\w\\X/tmp/t9-fix/cs/post\\main.byn (2)\n  --> C:\\w\\X/tmp/t9-fix/cs/post\\main.byn:4:1\nfixed C:\\w\\X/tmp/t9-fix/cs/post/.\\main.byn (2)\n"
+    let want = "fixed <dir>/main.byn (2)\n  --> <dir>/main.byn:4:1\nfixed <dir>/./main.byn (2)\n"
+    assert(goldenCliDirMasked(got, at: target) == want)
+    assert(goldenCliDirMasked(got.replaced("main.byn:4", by: "other.byn:4"), at: target) != want)
+    assert(goldenCliDirMasked("fixed /s/post/main.byn (2)\n", at: "/s/post") == "fixed <dir>/main.byn (2)\n")
+}
+
+test "a cli case's host target reads as `<host>` on both sides unless its `args` pin another target (T41b)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-host")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "plain/args", as: "dist\ntally\n")
+    goldenWrite(root, for: "named-host/args", as: "dist\ntally\n--target\nhost\n")
+    goldenWrite(root, for: "pinned/args", as: "dist\ntally\n--target\nwindows-x64\n")
+    goldenWrite(root, for: "pinned-eq/args", as: "build\n--target=macos-arm64\n")
+    let want = "built local/tally 0.1.0 (safe) for macos-arm64 in dist/0.1.0/\n"
+    goldenWrite(root, for: "expected.stdout", as: want)
+    let expected = Path.combine(root, "expected.stdout")
+    let got = "built local/tally 0.1.0 (safe) for windows-x64 in dist/0.1.0/\n"
+    for name in ["plain", "named-host"] {
+        let host = goldenCliHost(Path.combine(root, name), for: "windows-x64")
+        assert(host == "windows-x64")
+        assert(goldenDiffer(got, for: expected, at: expected, by: host) is null)
+        assert(
+            goldenDiffer(got.replaced("0.1.0 (safe)", by: "0.1.0 (fast)"), for: expected, at: expected, by: host) is { }
+        )
+        assert(goldenDiffer(got.replaced("windows-x64", by: "linux-x64"), for: expected, at: expected, by: host) is { })
+    }
+    for name in ["pinned", "pinned-eq"] {
+        let host = goldenCliHost(Path.combine(root, name), for: "windows-x64")
+        assert(host == "")
+        assert(goldenDiffer(got, for: expected, at: expected, by: host) is { })
+        assert(goldenDiffer(want, for: expected, at: expected, by: host) is null)
+    }
+}
+
+test "the argv mask reads a file below a cache's `v1/tmp/` by its name, another path as is" {
+    let argv = "cc\n/r/tmp/cache/v1/tmp/ab-1/main.c\n-o\n/r/tmp/cache/v1/tmp/ab-1/program.exe\n/r/src/main.c\n"
+    assert(goldenCliArgv(argv, at: "/s", for: "macos-arm64") == "cc\nmain.c\n-o\nprogram.exe\n/r/src/main.c")
+}
+
+test "the cc mask reads everything after `C compiler failed (exit N):` as `<cc output>`, and a text without that line as is" {
+    assert(goldenCliCc(
+        "✗ build failed\nC compiler failed (exit 1):\nmain.c:2:5: error: x\n1 error\n",
+    ) == "✗ build failed\nC compiler failed (exit 1):\n<cc output>\n")
+    assert(goldenCliCc(
+        "C compiler failed (exit 1): x\nC compiler failed (exit ):\n",
+    ) == "C compiler failed (exit 1): x\nC compiler failed (exit ):\n")
+}
+
+test "a cli case without `args` is reported, and BAYAN_UPDATE=1 rewrites a cli case's expected files" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-cli-update")
+    deleteWorkDir(root)
+    let name = "SelfhostDriverT1Tests/AuditAsCliApp-10"
+    goldenCliFixture(
+        root,
+        for: name,
+        as: goldenCliSpecVersion.replaced("usage: bayan audit <path>", by: "usage: changed"),
+    )
+    goldenWrite(root, for: "cli/SelfhostDriverT3Tests/Probe/expected.stdout", as: "")
+    let before = goldenUpdateRun(root, as: "1", by: null)
+    let update = goldenUpdateRun(root, as: "1", by: "1")
+    let again = goldenUpdateRun(root, as: "1", by: null)
+    let stderr = Io.readText(Path.combine(root, $"cli/{name}/expected.stderr")) catch ""
+    deleteWorkDir(root)
+    let probe = Path.combine(Path.combine(Path.combine(root, "cli"), "SelfhostDriverT3Tests"), "Probe")
+    let expected = Path.combine(
+        Path.combine(Path.combine(Path.combine(root, "cli"), "SelfhostDriverT1Tests"), "AuditAsCliApp-10"),
+        "expected.stderr",
+    )
+    assert(before.exitCode == exitTestFailure)
+    assert(before.stdout.contains($"\nfailed cli/{name}\n"))
+    assert(
+        before.stdout.contains($"\nskipped cli/SelfhostDriverT3Tests/Probe\n    skipped: no `args` file in {probe}\n")
+    )
+    assert(update.stdout.contains(
+        $"\npassed cli/{name}\n    rewrote {expected}\n",
+    ))
+    assert(again.exitCode == exitOk)
+    assert(stderr == "usage: bayan audit <path>\n")
+}
+
+test "an exported case whose `os` line does not name this OS is skipped naming its OSes and counted pending; one naming it among others runs (T17e)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-os-file")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "emit-c/AlphaTests/Other/os", as: "plan9 beos\n")
+    goldenWrite(root, for: "emit-c/AlphaTests/Here/os", as: $"plan9 {Target.os} beos\n")
+    goldenWrite(root, for: "emit-c/AlphaTests/None/input.name", as: "a.byn\n")
+    let other = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/Other"))
+    let here = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/Here"))
+    let none = goldenCliSkip("emit-c", at: Path.combine(root, "emit-c/AlphaTests/None"))
+    deleteWorkDir(root)
+    // the runner over a cli case whose `os` line names two other OSes: reported skipped with its reason, counted as pending, exit 0
+    goldenWrite(root, for: "cli/AlphaTests/Other/args", as: "lex\n")
+    goldenWrite(root, for: "cli/AlphaTests/Other/os", as: "plan9 beos\n")
+    let run = goldenJobsRun(root, as: "1")
+    deleteWorkDir(root)
+    assert(other == $"skipped: its `os` file names plan9 beos, not {Target.os}")
+    assert(here is null && none is null)
+    assert(run.exitCode == exitOk)
+    assert(run.stdout.contains(
+        $"\nskipped cli/AlphaTests/Other\n    skipped: its `os` file names plan9 beos, not {Target.os}\n",
+    ))
+    assert(run.stdout.contains("◆ 0 passed · 1 pending · 0 test blocks, 1 golden case · Ts"))
+}
+
+test "a run-input cli case whose `.byn` starts `// os: unix` is skipped on windows, as RunInputs skips it (SelfhostDriverT5Tests.cs:77-78)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-run-input-os")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "inputs/files/unix", as: "// os: unix\nmodule app\n")
+    goldenWrite(root, for: "inputs/files/any", as: "module app\n")
+    goldenWrite(
+        root,
+        for: "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-1/input.tsv",
+        as: "io-run.byn\tfile:unix\n",
+    )
+    goldenWrite(
+        root,
+        for: "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-2/input.tsv",
+        as: "hello.byn\tfile:any\n",
+    )
+    goldenWrite(root, for: "cli/SelfhostDriverT5Tests/OutputNamesAsCliApp/input.tsv", as: "io-run.byn\tfile:unix\n")
+    let unix = Path.combine(root, "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-1")
+    let windows = goldenCliRunInputSkip(unix, from: root, for: "windows")
+    let macos = goldenCliRunInputSkip(unix, from: root, for: "macos")
+    let any = goldenCliRunInputSkip(
+        Path.combine(root, "cli/SelfhostDriverT5Tests/RunAsCliAppOnEveryRunInput-2"),
+        from: root,
+        for: "windows",
+    )
+    let other = goldenCliRunInputSkip(
+        Path.combine(root, "cli/SelfhostDriverT5Tests/OutputNamesAsCliApp"),
+        from: root,
+        for: "windows",
+    )
+    deleteWorkDir(root)
+    assert(windows == "skipped: its input io-run.byn has `// os: unix`, which the C# skips on windows")
+    assert(macos is null && any is null && other is null)
+}
+
+test "a Windows run reads a `files in` help directory with `/` and a line-final `.exe` the expected file does not name, and only on windows" {
+    let help = "  help: put the module's `.byn` files in `app\\users/` next to the entry file\r\n"
+    let built = "  arithmetic.exe\r\n  out/safe/<host>/demo.exe\r\n"
+    assert(goldenWindowsRead(
+        help,
+        for: "",
+        as: "cli/SelfhostDefaultT2Tests",
+        by: true,
+    ) == "  help: put the module's `.byn` files in `app/users/` next to the entry file\n")
+    assert(goldenWindowsRead(
+        built,
+        for: "  arithmetic\n",
+        as: "cli/SelfhostDriverT5Tests",
+        by: true,
+    ) == "  arithmetic\n  out/safe/<host>/demo\n")
+    let script = "created script `sub\\tool.byn`; run it with `bayan sub\\tool.byn`\r\n"
+    assert(goldenWindowsRead(
+        script,
+        for: "",
+        as: "cli/SelfhostDefaultT4Tests",
+        by: true,
+    ) == "created script `sub/tool.byn`; run it with `bayan sub/tool.byn`\n")
+    let path = "rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src\\app\\main.byn\ncombine rel x.byn rel\\x.byn\nfull a\\b\n"
+    assert(goldenWindowsRead(
+        path,
+        for: "",
+        as: "sem/SelfhostPathT7Tests",
+        by: true,
+    ) == "rel tmp/t7-path/helpers tmp/t7-path/helpers/src/app/main.byn src/app/main.byn\ncombine rel x.byn rel/x.byn\nfull a\\b\n")
+    let full = "fullpath /a/./b/../c.byn C:\\a\\c.byn\n"
+    assert(goldenWindowsRead(
+        full,
+        for: "",
+        as: "sem/SelfhostSemanticsT11Tests",
+        by: true,
+    ) == "fullpath /a/./b/../c.byn /a/c.byn\n")
+    assert(goldenWindowsRead(
+        built,
+        for: "  tally.exe\n",
+        as: "cli/SelfhostDriverT5Tests",
+        by: true,
+    ) == "  arithmetic.exe\n  out/safe/<host>/demo.exe\n")
+    assert(goldenWindowsRead(built, for: "  arithmetic\n", as: "cli/SelfhostDriverT5Tests", by: false) == built)
+}
+
+test "a Windows run reads a case of a class no Windows rule names as is, CR LF read as LF" {
+    let text = "  help: put the module's `.byn` files in `app\\users/` next to the entry file\r\ncreated script `sub\\tool.byn`\r\n"
+    let lines = "rel a\\b\nfullpath C:\\a\\c.byn\n  arithmetic.exe\n"
+    for cls in ["cli/SelfhostDriverT3Tests", "run/SelfhostRunTests", "sem/SelfhostPathT4Tests"] {
+        assert(goldenWindowsRead(text, for: "", as: cls, by: true) == goldenLf(text))
+        assert(goldenWindowsRead(lines, for: "", as: cls, by: true) == lines)
+    }
+    assert(goldenWindowsRead(lines, for: "", as: "sem/SelfhostPathT7Tests", by: true) != lines)
+    let expected = Path.combine(Path.combine("tests/cases/cli/SelfhostDriverT5Tests", "X"), "expected.stdout")
+    assert(goldenWindowsClass(expected) == "cli/SelfhostDriverT5Tests")
+}
+
+test "a Windows run reads the T11 `fullpath` answer `\\\\` for `//` as `/`, only that answer and only in that class (SelfhostSemanticsT11Tests.cs:409, 019-win9)" {
+    let t11 = "sem/SelfhostSemanticsT11Tests"
+    assert(goldenWindowsRead("fullpath // \\\\\n", for: "", as: t11, by: true) == "fullpath // /\n")
+    assert(goldenWindowsRead("fullpath /a//b/ C:\\a\\b\\\n", for: "", as: t11, by: true) == "fullpath /a//b/ /a/b/\n")
+    assert(goldenWindowsRead("fullpath //x //x\n", for: "", as: t11, by: true) == "fullpath //x //x\n")
+    assert(goldenWindowsRead("fullpath // //\n", for: "", as: t11, by: false) == "fullpath // //\n")
+    assert(
+        goldenWindowsRead("fullpath // //\n", for: "", as: "sem/SelfhostPathT7Tests", by: true) == "fullpath // //\n"
+    )
+}
+
+test "a Windows run reads a SelfhostDefaultT5Tests `can't be run` tool with `/` and no `.exe`, other lines and classes as is (019-win9)" {
+    let cc = "✗ C compiler: `<repo>/tmp/t5-doctor/path-broken\\zig.exe cc` can't be run\n"
+    let zig = "✗ zig: <repo>/tmp/t5-doctor/path-broken\\zig.exe can't be run"
+    let bare = "✗ C compiler: `<repo>/tmp/t5-doctor/path-cc\\cc.exe` can't be run\n"
+    let help = "  help: put a.exe in b\\c\n"
+    let t5 = "cli/SelfhostDefaultT5Tests"
+    assert(goldenWindowsRead(
+        cc,
+        for: "",
+        as: t5,
+        by: true,
+    ) == "✗ C compiler: `<repo>/tmp/t5-doctor/path-broken/zig cc` can't be run\n")
+    assert(
+        goldenWindowsRead(zig, for: "", as: t5, by: true) == "✗ zig: <repo>/tmp/t5-doctor/path-broken/zig can't be run"
+    )
+    assert(goldenWindowsRead(
+        bare,
+        for: "",
+        as: t5,
+        by: true,
+    ) == "✗ C compiler: `<repo>/tmp/t5-doctor/path-cc/cc` can't be run\n")
+    assert(goldenWindowsRead(help, for: "", as: t5, by: true) == help)
+    assert(goldenWindowsRead(cc, for: "", as: t5, by: false) == cc)
+    assert(goldenWindowsRead(cc, for: "", as: "cli/SelfhostDefaultT4Tests", by: true) == cc)
+}
+
+test "on a Windows host the T3 argv mask reads a `\\` path below a cache's `v1\\tmp\\` and a `\\` runtime object by name, elsewhere as is" {
+    let argv = "zig\ncc\nC:\\r\\tmp\\cache\\v1\\tmp\\ab-1\\main.c\nC:\\r\\tmp\\cache\\v1\\runtime\\k\\bayan-rt.o\n-o\nC:\\r\\tmp\\cache\\v1\\tmp\\ab-1\\program.exe\n"
+    assert(goldenCliArgv(argv, at: "C:\\s", for: "windows-x64") == "zig\ncc\nmain.c\nbayan-rt.o\n-o\nprogram.exe")
+    assert(goldenCliArgv(argv, at: "C:\\s", for: "macos-arm64") == argv[0..argv.length - 1])
+}
+
+test "a Windows run reads the T3 argv of a host build as the macOS run made it, and only on windows (Toolchain.cs:320-333, :485)" {
+    let argv = "zig\ncc\n-std=c11\n-O2\nmain.c\nbayan-rt.o\n-o\nprogram.exe\n-lshell32"
+    assert(goldenCliT3Windows(
+        argv,
+        for: "",
+        at: "windows-x64",
+    ) == "zig\ncc\n-std=c11\n-O2\nmain.c\nbayan-rt.o\n-o\nprogram\n-lm")
+    assert(goldenCliT3Windows(
+        argv,
+        for: "windows-x64",
+        at: "windows-x64",
+    ) == "zig\ncc\n-target\nx86_64-windows-gnu\n-std=c11\n-O2\nmain.c\nbayan-rt.o\n-o\nprogram.exe\n-lshell32")
+    assert(goldenCliT3Windows(argv, for: "windows-arm64", at: "windows-x64") == argv)
+    assert(goldenCliT3Windows(argv, for: "", at: "macos-arm64") == argv)
+}
+
+test "on a Windows host a T3 PATH is joined with `;` and each /bin/sh fake gets the fake compiler as `.exe` with its `.mode` (SelfhostDriverT3Tests.cs:121-131, :566)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-t3-fakes")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "bin/first/cc/kept", as: "")
+    goldenWrite(
+        root,
+        for: "bin/second/cc",
+        as: "#!/bin/sh\nprintf '%s\\n' \"${0##*/}\" \"$@\" > \"${0%/*}/argv\"\nexit 0",
+    )
+    goldenWrite(root, for: "bin/second/clang", as: "#!/bin/sh\nprintf 'no newline' >&2\nexit 1")
+    goldenWrite(
+        root,
+        for: "bin/second/gcc",
+        as: "#!/bin/sh\necho \"main.c:2:5: error: injected\" >&2\necho \"stdout note\"\nexit 1",
+    )
+    goldenWrite(root, for: "bin/second/zig", as: "#!/bin/sh\nexit 0\n")
+    goldenWrite(root, for: "fake.exe", as: "MZ")
+    let raw = "<repo>/bin/first::<repo>/bin/second"
+    let path = goldenCliPathJoined(raw, for: root, by: "", at: "windows-x64")
+    let unix = goldenCliPathJoined(raw, for: root, by: "", at: "macos-arm64")
+    let staged = goldenCliT3Fakes(path, by: Path.combine(root, "fake.exe"), for: "SelfhostDriverT3Tests")
+    let second = Path.combine(root, "bin/second")
+    let dirExe = t6DirectoryExists(Path.combine(root, "bin/first/cc.exe"))
+    let exe = Io.readText(Path.combine(second, "cc.exe")) catch ""
+    var modes = List<string>()
+    for name in ["cc", "clang", "gcc", "zig"] {
+        modes.append(Io.readText(Path.combine(second, $"{name}.mode")) catch "")
+    }
+    deleteWorkDir(root)
+    assert(path == $"{root}/bin/first;;{root}/bin/second")
+    assert(unix == goldenCliPut(raw, for: root))
+    assert(staged == "")
+    assert(dirExe)
+    assert(exe == "MZ")
+    assert(modes[0] == "record" && modes[1] == "bare" && modes[2] == "reject" && modes[3] == "nothing")
+}
+
+test "on a Windows host each SelfhostDefaultT5Tests /bin/sh tool is the fake compiler, as `.exe` and as itself, exiting as the script did (SelfhostDefaultT5Tests.cs:38-50, 019-win9)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-t5-fakes")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "path/zig", as: "#!/bin/sh\necho '0.99.0'\nexit 0\n")
+    goldenWrite(root, for: "path/git/kept", as: "")
+    goldenWrite(root, for: "cc/fakecc", as: "#!/bin/sh\necho 'x'\nexit 1\n")
+    goldenWrite(root, for: "fake.exe", as: "MZ")
+    let path = $"{Path.combine(root, "path")};{Path.combine(root, "cc")}"
+    let staged = goldenCliT3Fakes(path, by: Path.combine(root, "fake.exe"), for: "SelfhostDefaultT5Tests")
+    let zigMode = Io.readText(Path.combine(root, "path/zig.mode")) catch ""
+    let ccMode = Io.readText(Path.combine(root, "cc/fakecc.mode")) catch ""
+    let zigExe = Io.readText(Path.combine(root, "path/zig.exe")) catch ""
+    let cc = Io.readText(Path.combine(root, "cc/fakecc")) catch ""
+    let dirExe = t6DirectoryExists(Path.combine(root, "path/git.exe"))
+    deleteWorkDir(root)
+    assert(staged == "")
+    assert(zigMode == "nothing" && ccMode == "reject")
+    assert(zigExe == "MZ" && cc == "MZ")
+    assert(!dirExe)
+}
+
+test "on a Windows host the T9 PATH is joined and split at `;`, so a directory that starts with a drive survives" {
+    let value = goldenCliT9Value("tmp/t9-cache/a-bin:$PATH", at: "C:\\r", for: "windows-x64")
+    assert(value == $"C:\\r/tmp/t9-cache/a-bin;{Env.get("PATH") ?? ""}")
+    let root = Path.combine(Path.fullPath("tmp"), "golden-t9-windows-path")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDefaultT9Tests/AnOddCCompiler-x")
+    goldenWrite(dir, for: "env", as: "PATH=tmp/t9-cache/a-bin:$PATH\n")
+    let repo = Path.combine(root, "repo")
+    let bins = goldenCliT9Bins(dir, at: repo, for: "windows-x64")
+    let zig = Fs.fileExists(Path.combine(repo, "tmp/t9-cache/a-bin/zig"))
+    deleteWorkDir(root)
+    assert(bins == "" && zig)
+    var count = 0
+    for part in "C:\\r/tmp/t9-cache/a-bin;C:\\Windows".parts(by: goldenCliPathSeparator("windows-x64")) {
+        count += 1
+        assert(count != 1 || part == "C:\\r/tmp/t9-cache/a-bin")
+    }
+    assert(count == 2)
+}
+
+test "the T9 step that spoils the cached program writes `program.exe` for a windows host, the name the build looks up (SelfhostDefaultT9Tests.cs:881)" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-t9-program-exe")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "tree/cache/v1/programs/one/kept", as: "")
+    let tree = Path.combine(root, "tree")
+    let repo = Path.combine(root, "repo")
+    let windows = goldenCliT9Before(
+        "ASecondBuildLinksFromTheCache",
+        as: "hit",
+        at: 4,
+        to: tree,
+        from: repo,
+        for: "windows-x64",
+    )
+    let exe = Fs.fileExists(Path.combine(tree, "cache/v1/programs/one/program.exe"))
+    let macos = goldenCliT9Before(
+        "ASecondBuildLinksFromTheCache",
+        as: "hit",
+        at: 4,
+        to: tree,
+        from: repo,
+        for: "macos-arm64",
+    )
+    let bare = Fs.fileExists(Path.combine(tree, "cache/v1/programs/one/program"))
+    deleteWorkDir(root)
+    assert(windows == "" && exe)
+    assert(macos == "" && bare)
+}

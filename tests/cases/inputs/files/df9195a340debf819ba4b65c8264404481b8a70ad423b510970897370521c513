@@ -1,0 +1,7 @@
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+$"x{ $"{
+let café = 2
+c >>= 1
+let law = 3
+"{
+test assert property fuzz model foreach new goto

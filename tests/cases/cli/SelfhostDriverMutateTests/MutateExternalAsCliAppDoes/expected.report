@@ -1,0 +1,194 @@
+{
+  "version": 1,
+  "kind": "mutation",
+  "tool": "bayan mutate",
+  "timing": {
+    "build_s": 0,
+    "mean_mutant_s": <t>,
+    "max_mutant_s": <t>,
+    "total_s": <t>,
+    "mutant_share_of_build": 0
+  },
+  "files": [
+    {
+      "path": "a.byn",
+      "mutants": [
+        {
+          "site": {
+            "id": 1,
+            "file": "a.byn",
+            "line": 1,
+            "column": 1,
+            "operator": "arithmetic",
+            "original": "a + b",
+            "mutated": "a - b"
+          },
+          "status": "survived",
+          "suggestion": "add a case whose result differs under the changed operator"
+        },
+        {
+          "site": {
+            "id": 2,
+            "file": "a.byn",
+            "line": 2,
+            "column": 1,
+            "operator": "arithmetic",
+            "original": "a * b",
+            "mutated": "a / b"
+          },
+          "status": "killed"
+        },
+        {
+          "site": {
+            "id": 4,
+            "file": "a.byn",
+            "line": 4,
+            "column": 1,
+            "operator": "arithmetic",
+            "original": "a + 0",
+            "mutated": "a - 0",
+            "unobservable": "no test can see it"
+          },
+          "status": "killed"
+        }
+      ]
+    },
+    {
+      "path": "b.byn",
+      "mutants": [
+        {
+          "site": {
+            "id": 5,
+            "file": "b.byn",
+            "line": 5,
+            "column": 1,
+            "operator": "statement",
+            "original": "i += 1",
+            "mutated": ""
+          },
+          "status": "survived",
+          "suggestion": "assert the effect of this statement"
+        },
+        {
+          "site": {
+            "id": 6,
+            "file": "b.byn",
+            "line": 6,
+            "column": 2,
+            "operator": "mystery",
+            "original": "x",
+            "mutated": "y"
+          },
+          "status": "survived",
+          "suggestion": "add a case that fails under this change"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "killed": 2,
+    "survived": 3,
+    "timeout": 0,
+    "marked": 0,
+    "not_reached": 0,
+    "not_emitted": 2
+  },
+  "operators": {
+    "boundary": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "relational": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "logical": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "condition": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "bool": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 1
+    },
+    "arithmetic": {
+      "killed": 2,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "literal": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "negation": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "statement": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "emptyReturn": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "variant": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "mystery": {
+      "killed": 0,
+      "survived": 1,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 1
+    }
+  }
+}

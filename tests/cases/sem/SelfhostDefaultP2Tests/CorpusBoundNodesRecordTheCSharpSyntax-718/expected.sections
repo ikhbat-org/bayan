@@ -1,0 +1,13 @@
+== tests/cases/diag/on-panic-not-first.byn
+22..46 blockStmt
+28..44 exprStmt
+28..44 callExpr
+34..43 memberExpr
+34..35 nameExpr
+28..44 callExpr
+60..113 blockStmt
+66..83 exprStmt
+66..83 callExpr
+72..82 literalExpr string
+66..83 callExpr
+88..111 assignStmt assign target 88..101 value 104..111

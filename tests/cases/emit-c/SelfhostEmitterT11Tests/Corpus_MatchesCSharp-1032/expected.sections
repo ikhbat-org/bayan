@@ -1,0 +1,20 @@
+== locals
+visitDyn:
+lex: tokens
+main: list numbers t t t t t stream sum t n a m
+count:
+get:
+moveNext:
+current:
+eval:
+name: t
+eval:
+name: t
+eval:
+name: t
+describe: t
+describe: t t
+describe: t t
+visitStatic:
+visitStatic:
+visitStatic:

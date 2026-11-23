@@ -1,0 +1,9 @@
+CompilationUnit
+  Let int = 1
+
+error BYN0012: `int` is reserved and cannot be used as an identifier
+
+  1 │ let int = 1
+    │     ^^^ a C# primitive type name
+    │
+  help: choose another name

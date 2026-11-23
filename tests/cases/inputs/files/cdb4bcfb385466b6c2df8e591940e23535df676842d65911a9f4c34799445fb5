@@ -1,0 +1,8 @@
+Ã
+0xFFs
+
+let b = "bad \q escape"
+
+ ÿ = 2
+// ok þ in comment
+_ /// 

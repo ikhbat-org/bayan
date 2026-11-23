@@ -1,0 +1,3 @@
+== diags.diag/format-debug-struct-field
+BYN2225 6:10 `Q` cannot be formatted
+  label field `xs` is `List<i64>`

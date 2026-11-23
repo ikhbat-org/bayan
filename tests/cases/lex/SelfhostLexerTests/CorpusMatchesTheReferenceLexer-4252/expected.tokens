@@ -1,0 +1,105 @@
+1:1 Identifier `n`
+2:1 Identifier `D3`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+4:3 Identifier `x_1`
+4:7 Identifier `é`
+5:1 Identifier `b`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolatedStringEnd `"`
+6:47 OpenBrace `{`
+6:48 InterpolatedStringStart `$"`
+6:50 InterpolationStart `{`
+6:51 InterpolatedStringStart `$"`
+6:53 InterpolationStart `{`
+6:54 StringLiteral `$"{$"`
+6:59 OpenBrace `{`
+6:60 StringLiteral `$"{$"`
+6:65 OpenBrace `{`
+6:66 Identifier `x`
+6:67 CloseBrace `}`
+6:68 StringLiteral `"}"`
+6:71 CloseBrace `}`
+6:72 StringLiteral `"}"`
+6:75 InterpolationEnd `}`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
+6:79 CloseBrace `}`
+6:80 StringLiteral `"}"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+6:89 InterpolationEnd `}`
+6:90 InterpolatedStringEnd `"`
+6:91 InterpolationEnd `}`
+6:92 InterpolatedStringEnd `"`
+6:93 InterpolationEnd `}`
+6:94 InterpolatedStringEnd `"`
+6:95 InterpolationEnd `}`
+6:96 InterpolatedStringEnd `"`
+6:97 InterpolationEnd `}`
+6:98 InterpolatedStringEnd `"`
+6:99 InterpolationEnd `}`
+6:100 InterpolatedStringEnd `"`
+6:101 InterpolationEnd `}`
+6:102 InterpolatedStringEnd `"`
+6:103 InterpolationEnd `}`
+6:104 InterpolatedStringEnd `"`
+6:105 InterpolationEnd `}`
+6:106 InterpolatedStringEnd `"`
+6:107 InterpolationEnd `}`
+6:108 InterpolatedStringEnd `"`
+6:110 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$""{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$""{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                      ^^

@@ -1,0 +1,11 @@
+error BYN2613: a panic handler reads only `let` bindings and parameters
+  --> tmp/t26-tests/cli/diag_panic-handler-reads.byn/panic-handler-reads.byn:4:67
+
+  4 │     defer panicking (p) print($"{p.message}: {total} of {limit}, {count} done")
+    │                                                                   ^^^^^ `count` is not a `let`
+    │                                                                         or a parameter
+    │
+  help: copy the value into a `let` before the handler and read that
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2613

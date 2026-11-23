@@ -1,0 +1,24 @@
+1:1 Bar `|`
+1:3 Caret `^`
+1:5 Tilde `~`
+1:7 Bang `!`
+1:9 Equals `=`
+1:11 EqualsEquals `==`
+1:14 BangEquals `!=`
+1:17 Less `<`
+1:19 LessEquals `<=`
+1:22 Greater `>`
+1:24 GreaterEquals `>=`
+1:27 LessLess `<<`
+1:30 Greater `>`
+1:31 Greater `>`
+1:33 Greater `>`
+1:34 GreaterEquals `>=`
+2:1 PlusEquals `+=`
+2:5 CloseBrace `}`
+3:1 Identifier `o`
+3:2 Dot `.`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+6:1 Identifier `b`
+7:2 EndOfFile

@@ -1,0 +1,73 @@
+1:1 Identifier `ạ̇`
+1:5 LetKeyword `let`
+1:9 Identifier `b`
+1:11 Equals `=`
+1:15 IntegerLiteral `2`
+3:2 Identifier `E`
+4:1 CloseBrace `}`
+4:3 Identifier `here`
+4:7 StringLiteral `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+6:4 RawStringLiteral `""" c"ttext" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n`
+7:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇‏let b = ` 2
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇‏let b = ` 2
+    │   │ +
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ạ̇‏let b = ` 2
+    │    ^
+
+error BYN0002: unexpected character ```
+
+  1 │ ạ̇‏let b = ` 2
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ �E�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  3 │ �E�
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ } here"
+    │       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │    """ c"ttext" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

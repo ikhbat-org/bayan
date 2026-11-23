@@ -1,0 +1,4 @@
+CI=1
+BAYAN_CC
+PATH=<repo>/tmp/t27-diag/empty
+BAYAN_CACHE=<repo>/tmp/t27-diag/cache

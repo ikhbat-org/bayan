@@ -1,0 +1,28 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+1:7 Identifier `d`
+2:1 Identifier `b`
+4:3 IntegerLiteral `1`
+4:4 NumericSuffix `B`
+4:9 Identifier `commen`
+4:16 Star `*`
+4:17 Slash `/`
+4:19 Identifier `a`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ ��1B    commen */ a
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ ��1B    commen */ a
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  4 │ ��1B    commen */ a
+    │  ^

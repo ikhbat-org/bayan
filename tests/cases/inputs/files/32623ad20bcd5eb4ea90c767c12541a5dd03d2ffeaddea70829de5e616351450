@@ -1,0 +1,9 @@
+AÌŠ /* block
+
+let c = """never closed
+
+$"{"
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$,"{$"{$"{$"{$"{$"{x}"}" ''
+ // ok þ in comment
+ fails try catch never noúalloc nosuspend suspends async await
+

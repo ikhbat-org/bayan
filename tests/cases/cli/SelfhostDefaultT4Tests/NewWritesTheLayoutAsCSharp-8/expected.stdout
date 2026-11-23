@@ -1,0 +1,4 @@
+created library `local/my-lib` in `my-lib`
+
+  cd my-lib
+  bayan test

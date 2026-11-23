@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/generic-conflicting-inference.byn
+--package
+<repo>/tests/cases/diag

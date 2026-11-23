@@ -1,0 +1,6 @@
+== tests/cases/diag/not-callable.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..22 localDecl
+18..22 callExpr

@@ -1,0 +1,7 @@
+== diags.diag/not-an-interface
+BYN2804 9:34 `Point` is not an interface
+  label a struct
+  help list an `interface` here
+BYN2804 5:17 `Point` is not an interface
+  label a struct
+  help list an `interface` here

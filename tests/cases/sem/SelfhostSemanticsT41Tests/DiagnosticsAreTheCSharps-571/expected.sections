@@ -1,0 +1,5 @@
+== diags.diag/type-mismatch
+BYN2202 2:18 expected `i32`, found `i64`
+  help convert it if the value always fits; `i64` does not convert to `i32` without loss
+  fix 2:18-2:21 i32(big)
+BYN2202 3:18 expected `bool`, found `i32`

@@ -1,0 +1,35 @@
+== tests/cases/run/provide-alloc.byn
+23..116 blockStmt
+29..49 localDecl
+38..49 callExpr
+54..100 forStmt
+63..67 rangeExpr
+63..64 literalExpr integer
+66..67 nameExpr
+68..100 blockStmt
+78..94 exprStmt
+78..94 callExpr
+78..80 nameExpr
+88..93 binaryExpr mul right 92..93
+88..89 nameExpr
+92..93 literalExpr integer
+105..114 returnStmt value 112..114
+112..114 nameExpr
+130..260 blockStmt
+136..161 localDecl
+154..161 callExpr
+166..258 contextStmt
+181..186 nameExpr
+187..258 blockStmt
+197..214 localDecl
+206..214 callExpr
+212..213 literalExpr integer
+223..252 exprStmt
+223..252 callExpr
+229..251 interpolatedExpr
+232..241 memberExpr
+232..234 nameExpr
+244..249 indexExpr
+244..246 nameExpr
+247..248 literalExpr integer
+223..252 callExpr

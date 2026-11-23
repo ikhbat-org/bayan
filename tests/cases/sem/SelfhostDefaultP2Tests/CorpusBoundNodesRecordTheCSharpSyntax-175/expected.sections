@@ -1,0 +1,30 @@
+== tests/cases/run/log-builtin.byn
+12..216 blockStmt
+18..27 localDecl
+26..27 literalExpr integer
+32..47 exprStmt
+32..47 callExpr
+38..46 literalExpr string
+32..47 callExpr
+52..67 exprStmt
+52..67 callExpr
+56..66 literalExpr string
+52..67 callExpr
+72..108 exprStmt
+72..108 callExpr
+76..95 interpolatedExpr
+86..87 nameExpr
+101..107 targetMemberExpr
+113..147 exprStmt
+113..147 callExpr
+117..135 literalExpr string
+141..146 targetMemberExpr
+152..195 exprStmt
+152..195 callExpr
+156..182 interpolatedExpr
+179..180 nameExpr
+188..194 targetMemberExpr
+200..214 exprStmt
+200..214 callExpr
+206..213 literalExpr string
+200..214 callExpr

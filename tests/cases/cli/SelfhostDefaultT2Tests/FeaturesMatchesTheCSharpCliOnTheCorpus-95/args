@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/function-value-receiver-once.byn
+--package
+<repo>/tests/cases/run

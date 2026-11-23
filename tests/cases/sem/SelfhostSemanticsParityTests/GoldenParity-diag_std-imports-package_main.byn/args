@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag/std-imports-package
+--include-path
+<repo>/tests/cases/diag/std-imports-package/main.byn

@@ -1,0 +1,8 @@
+10:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ /*test assert property fuzz mo�el foreach new goto
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

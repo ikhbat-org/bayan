@@ -1,0 +1,61 @@
+1:2 Identifier `μετ`
+2:1 ForKeyword `for`
+2:5 InKeyword `in`
+2:8 WhileKeyword `while`
+2:14 DoKeyword `do`
+2:17 BreakKeyword `break`
+2:23 Identifier `contin`
+2:31 OpenParen `(`
+2:33 CloseParen `)`
+2:35 OpenBracket `[`
+2:37 CloseBracket `]`
+2:39 OpenBrace `{`
+2:41 CloseBrace `}`
+3:2 Identifier `t`
+3:4 Identifier `c`
+3:6 Equals `=`
+3:10 IntegerLiteral `3`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ � μετ�
+    │ ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ � μετ�
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � μετ�
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  2 │ for in while do break contin��( ) [ ] { }�
+    │                             ^
+
+error BYN0002: unexpected character `\u{1A}`
+
+  2 │ for in while do break contin��( ) [ ] { }�
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  2 │ for in while do break contin��( ) [ ] { }�
+    │                                          ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │  t c = � 3
+    │        ^

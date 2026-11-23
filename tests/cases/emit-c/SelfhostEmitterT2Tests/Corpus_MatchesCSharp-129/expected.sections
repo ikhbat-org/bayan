@@ -1,0 +1,23 @@
+== ctype
+byn_dyn_main__ICounter
+int64_t
+void
+byn_dyn_main__ICounter
+void
+bynt_main__Counter
+void
+bynt_main__Pair
+byn_dyn_main__ICounter
+int64_t
+bynt_main__Counter
+void
+int64_t
+int64_t
+void
+void
+void
+error byn_err
+order byn_dyn_main__ICounter
+order bynt_main__Counter
+order bynt_main__Pair
+order byn_err

@@ -1,0 +1,19 @@
+2:1 CharLiteral `'$"{"D�  `
+2:9 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  2 │ '$"{"D�  
+    │ ^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  2 │ '$"{"D�  
+    │       ^

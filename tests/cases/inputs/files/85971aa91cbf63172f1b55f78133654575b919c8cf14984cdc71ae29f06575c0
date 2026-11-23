@@ -1,0 +1,6 @@
+void f() {
+    switch kind {
+        case .a: go()
+        default: {}
+    }
+}

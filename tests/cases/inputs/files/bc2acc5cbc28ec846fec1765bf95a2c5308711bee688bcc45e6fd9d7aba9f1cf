@@ -1,0 +1,14 @@
+var xs: List<List<i64>>
+
+var xs: List<List<i64>>
+
+fails try catch never noalloc nosuspen‘ suspends async await
+ 'a' '\n' '\u{1F6"0}' '\'' '√©' '\\' '\0'
+
+ng context
+fails try catch never no 0xFFs
+0b1ms
+0x_
+0b__
+1_^
+0xF__

@@ -1,0 +1,34 @@
+== tests/cases/run/format-width-cut-code-point.byn
+96..112 globalStatement
+96..112 localDecl
+104..112 callExpr
+113..144 exprStmt
+113..144 callExpr
+113..114 nameExpr
+130..133 literalExpr char
+139..143 literalExpr integer
+145..159 exprStmt
+145..159 callExpr
+145..146 nameExpr
+154..158 literalExpr string
+160..181 localDecl
+171..181 callExpr
+171..172 nameExpr
+182..233 localDecl
+200..233 interpolatedExpr
+203..207 nameExpr
+234..298 exprStmt
+234..298 callExpr
+240..297 interpolatedExpr
+243..259 memberExpr
+243..252 memberExpr
+243..246 nameExpr
+262..277 indexExpr
+262..271 memberExpr
+262..265 nameExpr
+272..276 literalExpr integer
+280..295 indexExpr
+280..289 memberExpr
+280..283 nameExpr
+290..294 literalExpr integer
+234..298 callExpr

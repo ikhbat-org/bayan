@@ -1,0 +1,7 @@
+◆ bayan       <version>
+◆ host        <host>
+◆ C compiler  <host>
+◆ zig         <host>
+◆ git         not found; `bayan new` skips `git init`, `bayan dist` records no commit, `bayan test --changed` is unavailable
+  help: install git
+◆ cache       <host>

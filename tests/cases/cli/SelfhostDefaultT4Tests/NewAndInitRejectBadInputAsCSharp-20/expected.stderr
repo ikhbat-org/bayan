@@ -1,0 +1,2 @@
+bayan: unexpected argument `b`
+usage: bayan init [<dir>] [--lib|--script] [--vcs git|none] [--ci github|none]

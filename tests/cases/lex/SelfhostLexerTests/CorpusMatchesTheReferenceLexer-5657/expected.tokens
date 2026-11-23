@@ -1,0 +1,11 @@
+1:1 LetKeyword `let`
+1:5 Identifier `cafe̦`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:2 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 EndOfFile

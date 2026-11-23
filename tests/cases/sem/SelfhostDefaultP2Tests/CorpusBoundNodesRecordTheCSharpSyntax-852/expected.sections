@@ -1,0 +1,61 @@
+== tests/cases/diag/string-bytes-read-only.byn
+26..45 blockStmt
+32..43 assignStmt assign target 32..39 value 42..43
+32..39 indexExpr
+32..36 nameExpr
+37..38 literalExpr integer
+42..43 literalExpr integer
+82..89 indexExpr
+82..89 indexExpr
+82..89 indexExpr
+82..86 nameExpr
+87..88 literalExpr integer
+91..104 globalStatement
+91..104 localDecl
+99..104 literalExpr string
+105..120 localDecl
+113..120 memberExpr
+113..114 nameExpr
+121..130 assignStmt assign target 121..125 value 128..130
+121..125 indexExpr
+121..122 nameExpr
+123..124 literalExpr integer
+128..130 literalExpr integer
+131..154 localDecl
+142..154 indexExpr
+142..149 memberExpr
+142..143 nameExpr
+150..151 literalExpr integer
+155..167 assignStmt assign target 155..162 value 165..167
+155..162 indexExpr
+155..159 nameExpr
+160..161 literalExpr integer
+165..167 literalExpr integer
+168..196 localDecl
+181..196 callExpr
+188..195 memberExpr
+197..211 exprStmt
+197..211 callExpr
+203..210 memberExpr
+212..240 localDecl
+224..240 stackallocExpr
+241..253 exprStmt
+241..253 callExpr
+247..252 nameExpr
+254..327 exprStmt
+254..327 callExpr
+260..326 interpolatedExpr
+263..277 callExpr
+269..276 memberExpr
+269..270 nameExpr
+280..288 callExpr
+286..287 nameExpr
+286..287 nameExpr
+291..303 callExpr
+297..302 nameExpr
+306..310 indexExpr
+306..307 nameExpr
+308..309 literalExpr integer
+313..324 memberExpr
+313..317 nameExpr
+254..327 callExpr

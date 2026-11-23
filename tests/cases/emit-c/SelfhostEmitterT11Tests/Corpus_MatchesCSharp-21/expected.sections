@@ -1,0 +1,7 @@
+== cases
+0 (((l0_a > INT64_C(0)) || (byn_main__bump(&l1_calls) > INT64_C(0))) && (l1_calls == INT64_C(1)))
+1 ((l0_a > INT64_C(0)) || (byn_main__bump(&l1_calls) > INT64_C(0)))
+2 (l0_a > INT64_C(0))
+3 (byn_main__bump(&l1_calls) > INT64_C(0))
+4 (l1_calls == INT64_C(1))
+count 5

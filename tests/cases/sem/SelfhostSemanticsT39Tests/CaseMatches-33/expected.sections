@@ -1,0 +1,3 @@
+== exh.e1
+result false
+BYN2410 28:12 `switch` does not handle every `Suit` |not covered: .clubs, .diamonds, .spades|add the missing cases or a `default:` section|

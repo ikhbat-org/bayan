@@ -1,0 +1,8 @@
+== case manifest/missing-fields
+errors 2
+error BYN3103: `package.byn` has no `name`
+  1 │ Package {
+    │ ^^^^^^^
+error BYN3103: `package.byn` has no `version`
+  1 │ Package {
+    │ ^^^^^^^

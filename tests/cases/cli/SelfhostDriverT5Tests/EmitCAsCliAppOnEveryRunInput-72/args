@@ -1,0 +1,3 @@
+build
+--emit-c
+for-enumerator-rvalue.byn

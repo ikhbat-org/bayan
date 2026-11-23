@@ -1,0 +1,12 @@
+CompilationUnit
+  Function f() -> void
+    Block
+
+error BYN1043: `f(…)` is an input form; write `void f(…)`
+
+  1 │ f() { }
+    │ ^ no return type
+    │
+  help: put `void` before the name when the function returns nothing
+    │ 1 │ void f() { }
+    │   │ +++++

@@ -1,0 +1,18 @@
+error BYN7001: `ship` needs `order` to be `.paid`, but it is `Order`
+  --> tmp/t26-tests/cli/diag_wrong-state-member-test.byn/wrong-state-member-test.byn:14:16
+
+  14 │         return order.ship()
+     │                ^^^^^
+     │
+  help: `isPaid` doesn't narrow; write `if order is .paid`
+
+error BYN7001: `ship` needs `order` to be `.paid`, but it is `Order`
+  --> tmp/t26-tests/cli/diag_wrong-state-member-test.byn/wrong-state-member-test.byn:17:16
+
+  17 │         return order.ship()
+     │                ^^^^^
+     │
+  help: check the state with `is` or `switch` first
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN7001

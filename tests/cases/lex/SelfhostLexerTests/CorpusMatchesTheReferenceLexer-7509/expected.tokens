@@ -1,0 +1,54 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `eạ̇`
+2:1 IntegerLiteral `0b__`
+3:1 IntegerLiteral `1__`
+4:1 IntegerLiteral `0`
+4:2 Identifier `F_`
+5:1 IntegerLiteral `0b__`
+6:2 Identifier `a`
+8:5 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  4 │ 0�F_
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__�
+    │ ^^^^
+
+error BYN0002: unexpected character `\u{2}`
+
+  5 │ 0b__�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �a /* neve� closed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �a /* neve� closed
+    │  ^
+
+error BYN0004: unterminated block comment
+
+  6 │ �a /* neve� closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

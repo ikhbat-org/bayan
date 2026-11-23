@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `""" fails try catch never noalloc nosuspend suspends async await\n( ) [ ] { }\n if else unless switch case default for in while do break continue return yield defer errdefer using context\n \u{202E} hidden\nlet x `
+5:7 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ fails try catch never noalloc nosuspend suspends async await
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

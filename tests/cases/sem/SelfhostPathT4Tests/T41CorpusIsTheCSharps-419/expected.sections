@@ -1,0 +1,5 @@
+== diags.diag/noalloc-removed
+BYN6001 1:18 `noalloc` is removed; a function without `uses` is already pure
+  label removed
+  help remove `noalloc`
+  fix 1:17-1:25 

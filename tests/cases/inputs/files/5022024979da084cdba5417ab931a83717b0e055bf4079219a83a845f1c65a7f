@@ -1,0 +1,5 @@
+$"open {x";
+ /—// Doc line one.
+
+extensible interface let b = "bad \ï escape"
+

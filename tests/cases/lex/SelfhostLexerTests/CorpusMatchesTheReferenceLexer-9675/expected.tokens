@@ -1,0 +1,57 @@
+1:1 CharLiteral `'����� 각'`
+1:9 CharLiteral `'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" `
+1:81 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │ ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │      ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │   │            -
+
+error BYN0008: unterminated char literal
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ '����� 각'�'00 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{x}"}"}"}"}"}" 
+    │                                                              ^

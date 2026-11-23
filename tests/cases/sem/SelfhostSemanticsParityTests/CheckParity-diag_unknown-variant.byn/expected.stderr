@@ -1,0 +1,8 @@
+error BYN2228: `overflow` is not a variant of `MoneyError`
+  --> tmp/t26-tests/cli/diag_unknown-variant.byn/unknown-variant.byn:5:20
+
+  5 │ let e = MoneyError.overflow
+    │                    ^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2228

@@ -1,0 +1,6 @@
+error BYN2003: `set` is not a member of `Env`
+
+  3 │     let x = Env.set("A")
+    │                 ^^^
+    │
+  help: did you mean `get`?

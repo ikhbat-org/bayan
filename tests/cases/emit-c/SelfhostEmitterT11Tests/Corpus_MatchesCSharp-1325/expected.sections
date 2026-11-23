@@ -1,0 +1,13 @@
+== cases
+0 (!(byn_str_rune_count((*self).name) >= INT64_C(3)))
+1 (byn_str_rune_count((*self).name) >= INT64_C(3))
+2 byn_str_rune_count((*self).name)
+3 bynh_add_list_builtin__Violation__main__Signup(&l1_violations, ((bynt_builtin__Violation__main__Signup){((byn_main_Signup_Field)0), ((byn_builtin_Rule){.tag = 2})}))
+4 (!(l1_violations.len == 0))
+5 (l1_violations.len == 0)
+6 (!(!byn_str_eq((*self).city, BYN_STR("", 0))))
+7 (!byn_str_eq((*self).city, BYN_STR("", 0)))
+8 bynh_add_list_builtin__Violation__main__Address(&l1_violations, ((bynt_builtin__Violation__main__Address){((byn_main_Address_Field)0), ((byn_builtin_Rule){.tag = 2})}))
+9 (!(l1_violations.len == 0))
+10 (l1_violations.len == 0)
+count 11

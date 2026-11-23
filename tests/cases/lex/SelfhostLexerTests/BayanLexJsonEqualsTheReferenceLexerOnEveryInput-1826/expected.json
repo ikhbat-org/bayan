@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"RawStringLiteral","start":0,"end":26,"text":"\"\"\"let café = 2\n 1\u001Be1__\n ","doc":null},{"kind":"EndOfFile","start":26,"end":26,"text":"","doc":null}],"diagnostics":[{"code":"BYN0003","severity":"error","start":0,"end":3,"message":"unterminated string literal","label":"raw string starts here","help":"close it with `\"\"\"`","fixes":[]}]}

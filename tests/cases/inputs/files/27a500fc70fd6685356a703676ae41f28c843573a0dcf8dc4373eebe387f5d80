@@ -1,0 +1,11 @@
+lt a = 1
+macro select become
+
+let a = 1
+}'
+'\u{110000}'
+'x
+
+"aâ§b" ô€€a /* never closed
+ b
+

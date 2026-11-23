@@ -1,0 +1,13 @@
+error BYN1003: expected a type, found `{`
+  --> tmp/t26-tests/broken/broken.byn:1:12
+
+  1 │ void main( {
+    │            ^
+
+error BYN1001: expected `}`, found end of file
+  --> tmp/t26-tests/broken/broken.byn:2:1
+
+  2 │ 
+    │ ^
+    │
+  help: close the block opened on line 1

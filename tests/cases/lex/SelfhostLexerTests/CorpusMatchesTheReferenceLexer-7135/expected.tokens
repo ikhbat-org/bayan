@@ -1,0 +1,43 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+2:1 Identifier `stuct`
+2:7 Identifier `S`
+3:1 BangEquals `!=`
+3:4 Less `<`
+3:6 LessEquals `<=`
+3:9 Greater `>`
+3:11 GreaterEquals `>=`
+3:14 Less `<`
+4:1 IntegerLiteral `1__`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 FlagsKeyword `flags`
+5:32 OpenKeyword `open`
+5:37 ExtensibleKeyword `extensible`
+5:48 InterfaceKeyword `interface`
+5:58 DelegateKeyword `delegate`
+5:67 ExtensionKeyword `extension`
+5:77 DerivationKeyword `derivation`
+5:88 AttributeKeyword `attribute`
+6:2 IntegerLiteral `1__`
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │  1__
+    │   ^^
+    │
+    │ 6 │  1__
+    │   │   --

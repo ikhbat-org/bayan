@@ -1,0 +1,86 @@
+1:3 StructKeyword `struct`
+1:10 UniqueKeyword `unique`
+1:17 UnionKeyword `union`
+1:23 EnumKeyword `enum`
+1:28 FlagsKeyword `flags`
+1:34 OpenKeyword `open`
+1:39 Identifier `ext`
+1:43 Identifier `ensible`
+1:51 InKeyword `in`
+1:54 Identifier `erface`
+1:61 DelegateKeyword `delegate`
+1:70 ExtensionKeyword `extension`
+1:80 DerivationKeyword `derivation`
+1:91 AttributeKeyword `attribute`
+4:1 Identifier `owed`
+4:6 InKeyword `in`
+4:9 Identifier `strings`
+4:16 StringLiteral `" "`
+4:19 StringLiteral `" "`
+4:23 Identifier `u`
+4:24 OpenBrace `{`
+4:25 IntegerLiteral `48`
+4:27 CloseBrace `}`
+4:28 Identifier `i`
+4:29 StringLiteral `"`
+6:1 RawStringLiteral `"""\n�\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� struct unique union enum flags open ext�ensible in�erface delegate extension derivation attribute
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� struct unique union enum flags open ext�ensible in�erface delegate extension derivation attribute
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  1 │ �� struct unique union enum flags open ext�ensible in�erface delegate extension derivation attribute
+    │                                           ^
+
+error BYN0002: unexpected character `\u{8}`
+
+  1 │ �� struct unique union enum flags open ext�ensible in�erface delegate extension derivation attribute
+    │                                                      ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // �x
+    │   │    -
+
+error BYN0002: unexpected character `\`
+
+  4 │ owed in strings" "" "\u{48}i"
+    │                      ^
+
+error BYN0003: unterminated string literal
+
+  4 │ owed in strings" "" "\u{48}i"
+    │                             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �
+    │ ^

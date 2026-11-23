@@ -1,0 +1,3 @@
+== diags.diag/argument-modifier-mismatch
+BYN2306 6:6 argument for `total` must be passed as `ref`
+  fix 6:6-6:6 ref 

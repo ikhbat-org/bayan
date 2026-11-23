@@ -1,0 +1,19 @@
+CompilationUnit
+  If a
+    <error>
+
+error BYN1017: parentheses around a condition are an input form
+
+  1 │ if (a) else
+    │    ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 1 │ if a else
+    │   │    +
+
+error BYN1001: expected a statement, found keyword `else`
+
+  1 │ if (a) else
+    │        ^^^^
+    │
+  help: remove this `else`; it has no matching `if`

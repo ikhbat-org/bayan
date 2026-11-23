@@ -1,0 +1,5 @@
+error BYN2011: type alias `Alpha` refers to itself
+  --> <repo>/tests/cases/diag/circular-alias.byn:1:6
+
+  1 │ type Alpha = Beta
+    │      ^^^^^

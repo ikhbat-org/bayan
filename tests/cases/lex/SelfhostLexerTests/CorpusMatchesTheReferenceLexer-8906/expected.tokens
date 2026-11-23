@@ -1,0 +1,49 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c 1_`
+1:11 InterpolatedStringEnd
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:14 MinusPercent `-%`
+3:17 StarPercent `*%`
+3:20 PlusBar `+|`
+3:23 MinusBar `-|`
+3:26 Star `*`
+3:28 Bar `|`
+3:30 PlusPlus `++`
+3:33 MinusMinus `--`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}c 1_
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `̈́`
+
+  2 │  ̈́�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  ̈́�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  ̈́�
+    │    ^
+
+error BYN0002: unexpected character `\u{13}`
+
+  3 │ + - * / % +% -% *% +| -| *�| ++ --
+    │                           ^

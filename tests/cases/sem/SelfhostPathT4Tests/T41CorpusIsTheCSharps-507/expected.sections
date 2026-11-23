@@ -1,0 +1,3 @@
+== diags.diag/positional-arguments
+BYN1016 1:1 `@positional(strict)` is not allowed here
+  help write `@positional` with no arguments and no `because`

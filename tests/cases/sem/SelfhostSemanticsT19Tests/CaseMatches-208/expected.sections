@@ -1,0 +1,3 @@
+== bind.probes.r3
+flags 0
+range:Range<i64>[3141:4]=-(false literal:i64[3141:1]=1(1) local:i64[3144:1]=-(n))

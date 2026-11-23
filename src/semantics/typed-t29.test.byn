@@ -1,0 +1,72 @@
+// 019 T29 (coverage ratchet): typed.byn's JSON escapes, hex digits and path separators, which no golden case reaches. The
+// expected text is the output of the self-hosted code at the commit that added the test.
+
+import lexer
+
+test "typed t29: a JSON string escapes quotes, controls, separators and astral code points" {
+    assert t29s0Same(
+        t26JsonString("\"\\\u{8}\t\n\u{C}\r\u{1}\u{7F}\u{85}\u{2028}\u{1F600}é"),
+        as: "\"\\\"\\\\\\b\\t\\n\\f\\r\\u0001\\u007F\\u0085\\u2028\\uD83D\\uDE00é\"",
+    )
+}
+
+test "typed t29: four hex digits" {
+    assert t26Hex4(0xABCD) == "ABCD"
+    assert t26Hex4(0x0009) == "0009"
+}
+
+test "typed t29: a path with backslashes and a module file index" {
+    var c = t29s0Compile(
+        "T id<T>(T x) => x\n\ninterface IArea {\n    i64 area() => 1\n    i64 run(by () -> i64 g = () => 1)\n}\n\ni64 call(by () -> i64 g = () => 2) => g()\n\nstruct Sq : IArea {\n    i64 side\n    i64 run(by () -> i64 g = () => 1) => g()\n}\n\nstruct Ci : IArea {\n    i64 r\n    i64 run(by () -> i64 g = () => 1) => g()\n}\n\nvoid main() {\n    let n: i64 = id(1)\n    let f: () -> i64 = () => n + 1\n    print($\"{f()}\")\n}\n",
+    )
+    assert t26PathOf(ref c, for: "a\\b\\c.byn") == "a/b/c.byn"
+    assert t26FileIndex(ref c, by: c.entryModule, for: 9999) == -1
+    var last = ""
+    for part in typedDump(ref c).parts(by: "\"captures\": ") {
+        last = part
+    }
+    assert t29s0Same(
+        last,
+        as: "[\n        {\n          \"name\": \"n\",\n          \"type\": \"i64\"\n        }\n      ]\n    }\n  ]\n}\n",
+    )
+}
+
+test "typed t29: a lambda in a field default has no enclosing body to find it in" {
+    var c = t29s0Compile(
+        "struct S {\n    () -> i64 f = () => 1\n}\n\nenum K {\n    a\n}\n\nvoid main() {\n    let s = S {}\n    print($\"{s.f()}\")\n}\n",
+    )
+    var last = ""
+    for part in typedDump(ref c).parts(by: "\"captures\": ") {
+        last = part
+    }
+    assert t29s0Same(
+        last,
+        as: "{\n  \"version\": 1,\n  \"functions\": [\n    {\n      \"path\": \"a.byn\",\n      \"name\": \"main\",\n      \"span\": {\n        \"start\": 63,\n        \"end\": 67\n      },\n      \"bindings\": [\n        {\n          \"name\": \"s\",\n          \"kind\": \"let\",\n          \"span\": {\n            \"start\": 80,\n            \"end\": 81\n          },\n          \"type\": \"S\"\n        }\n      ]\n    }\n  ]\n}\n",
+    )
+}
+
+test "typed t29: equal spans, a lambda with no enclosing function and a function with no file" {
+    var c = t29s0Compile(
+        "void main() {\n    let n: i64 = 1\n    let f: () -> i64 = () => n + 1\n    print($\"{f()}\")\n}\n",
+    )
+    var main: FuncId = -1
+    var lambda: FuncId = -1
+    for f in c.modules[c.entryModule].allFunctions {
+        if c.functions[f].kind == .lambda {
+            lambda = f
+        } else if c.functions[f].name == "main" {
+            main = f
+        }
+    }
+    assert !t26FunctionBefore(ref c, by: c.entryModule, from: main, to: main)
+    c.functions[lambda].enclosing = -1
+    var sb = StrBuf()
+    t26WriteCaptures(ref c, for: lambda, to: ref sb)
+    assert t29s0Same($"{sb.finish()}", as: ",\n      \"captures\": []")
+    c.functions[lambda].file = -1
+    var parts = 0
+    for part in typedDump(ref c).parts(by: "\"captures\"") {
+        parts += 1
+    }
+    assert parts == 1
+}

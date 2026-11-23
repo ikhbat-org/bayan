@@ -1,0 +1,3 @@
+== case name-generic-args
+errorExpr 173..181 : ?
+BYN2019 9:18 `gen` is a function, not a value ||call it: `gen()`|

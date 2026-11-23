@@ -1,0 +1,6 @@
+CompilationUnit
+  Attribute @positional
+  Struct Door
+    Field string label
+    State Open
+    State Closed

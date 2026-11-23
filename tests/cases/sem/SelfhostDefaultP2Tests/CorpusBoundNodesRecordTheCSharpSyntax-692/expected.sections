@@ -1,0 +1,4 @@
+== tests/cases/diag/not-a-value.byn
+32..45 globalStatement
+32..45 localDecl
+40..45 nameExpr

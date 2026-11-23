@@ -1,0 +1,73 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:4 Identifier `ae`
+2:7 Greater `>`
+2:8 Greater `>`
+2:10 Identifier `b`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 StringLiteral `"open`
+6:1 Amp `&`
+6:3 AmpAmp `&&`
+6:6 Bar `|`
+6:8 BarBar `||`
+6:11 Caret `^`
+6:13 Tilde `~`
+6:15 Bang `!`
+6:17 Equals `=`
+6:19 EqualsEquals `==`
+6:22 BangEquals `!=`
+6:25 Less `<`
+6:27 LessEquals `<=`
+6:30 Greater `>`
+6:32 Comma `,`
+6:33 Equals `=`
+6:35 LessLess `<<`
+6:38 Greater `>`
+6:39 Greater `>`
+6:41 Greater `>`
+6:42 GreaterEquals `>=`
+7:1 Identifier `ist`
+7:4 Less `<`
+7:5 Identifier `List`
+7:9 Less `<`
+7:10 Identifier `i64`
+7:13 Greater `>`
+7:14 Greater `>`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:6 Identifier `b`
+9:1 Identifier `c`
+9:3 Greater `>`
+9:4 GreaterEquals `>=`
+9:7 IntegerLiteral `1`
+10:1 IntegerLiteral `0xF__`
+11:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  4 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 0xF__
+     │    ^^
+     │
+     │ 10 │ 0xF__
+     │    │    --

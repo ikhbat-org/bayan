@@ -1,0 +1,45 @@
+1:1 Identifier `ạ̇`
+1:5 CStringLiteral `c"text"`
+1:13 U16StringLiteral `u16"wide"`
+1:23 StringLiteral `"\u{202E} allowed in strings"`
+1:46 StringLiteral `""`
+1:49 StringLiteral `"\u{48}i"`
+2:3 Plus `+`
+2:5 Minus `-`
+2:7 Star `*`
+2:9 Slash `/`
+2:11 Percent `%`
+2:13 PlusPercent `+%`
+2:16 MinusPercent `-%`
+2:19 StarPercent `*%`
+2:22 PlusBar `+|`
+2:25 MinusBar `-|`
+2:28 StarBar `*|`
+2:31 PlusPlus `++`
+2:34 MinusMinus `--`
+4:1 IntegerLiteral `0x`
+5:4 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ � + - * / % +% -% *% +| -| *| ++ --
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │  � 
+    │  ^

@@ -1,0 +1,47 @@
+1:2 Amp `&`
+1:4 AmpAmp `&&`
+1:7 Bar `|`
+1:9 BarBar `||`
+1:12 Caret `^`
+1:14 Tilde `~`
+1:16 Bang `!`
+1:18 Equals `=`
+1:20 EqualsEquals `==`
+1:23 BangEquals `!=`
+1:26 Less `<`
+1:28 LessEquals `<=`
+1:31 Greater `>`
+1:33 GreaterEquals `>=`
+1:36 LessLess `<<`
+1:39 Greater `>`
+1:40 Greater `>`
+1:42 Greater `>`
+1:43 GreaterEquals `>=`
+2:2 StringLiteral `"a\u{2067}b"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\n �   raw "quoted"\n\n0xFFs\n\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ �& && | || ^ ~ �! = == != < <= > >= << >> >>=
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ � "a�b"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │  �   raw "quoted"
+    │  ^

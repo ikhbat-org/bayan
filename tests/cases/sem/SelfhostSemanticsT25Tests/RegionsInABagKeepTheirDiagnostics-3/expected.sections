@@ -1,0 +1,3 @@
+== bag rest-escapes
+BYN3214 2:12 `xs` is borrowed for the call and cannot be stored ||copy it first: `xs.copy()`|
+BYN3214 7:12 `xs` is borrowed for the call and cannot be stored ||copy it first: `xs.copy()`|

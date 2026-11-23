@@ -1,0 +1,10 @@
+error BYN5002: `isEmpty` reads as state but modifies `this`
+  --> <repo>/tmp/t2/diag/state-member-mutates/state-member-mutates.byn:4:10
+
+  4 │     bool isEmpty(ref this) {
+    │          ^^^^^^^ declared `ref this`
+    │
+  help: remove `ref this` so it only reads, or name the action with a verb
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN5002

@@ -1,0 +1,19 @@
+1:1 RawStringLiteral `"""\net c = """`
+2:11 NeverKeyword `never`
+2:17 Identifier `closed`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ���
+    │   ^

@@ -1,0 +1,17 @@
+1:1 StringLiteral `"q"`
+2:1 Identifier `_x`
+2:4 Identifier `cam`
+2:8 Identifier `elCase2`
+2:16 Identifier `بيا`
+2:20 Identifier `μετρητή`
+2:27 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  2 │ _x cam�elCase2 بيا� μετρητή
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  2 │ _x cam�elCase2 بيا� μετρητή
+    │                   ^

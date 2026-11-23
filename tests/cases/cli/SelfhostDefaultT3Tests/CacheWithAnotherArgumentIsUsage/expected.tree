@@ -1,0 +1,16 @@
+cache/
+cache/keep.txt 3
+cache/v1/
+cache/v1/CACHEDIR.TAG 170
+cache/v1/programs/
+cache/v1/programs/k1/
+cache/v1/programs/k1/nested/
+cache/v1/programs/k1/program 1572864
+cache/v1/programs/k1/program.sha256 64
+cache/v1/programs/k2/
+cache/v1/programs/k2/program 100000
+cache/v1/programs/stray.txt 7
+cache/v1/scripts/
+cache/v1/scripts/a 1
+cache/v1/scripts/b 1
+cache/v1/scripts/c.tmp 1

@@ -1,0 +1,30 @@
+1:1 Identifier `ome`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:1 Identifier `lect`
+3:6 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 Identifier `ble`
+5:6 InterfaceKeyword `interface`
+5:16 DelegateKeyword `delegate`
+5:25 ExtensionKeyword `extension`
+5:35 DerivationKeyword `derivation`
+5:46 Identifier `att`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolatedStringText `x`
+5:53 InterpolationStart `{`
+5:55 InterpolatedStringStart `$"`
+5:57 InterpolationStart `{`
+5:59 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │  ble interface delegate extension derivation att $"x{ $"{ 
+    │                                                       ^^ this string never ends
+    │
+  help: close the `{` and the string

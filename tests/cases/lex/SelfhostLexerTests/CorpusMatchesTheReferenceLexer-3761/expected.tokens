@@ -1,0 +1,88 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:2 FailsKeyword `fails`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 NeverKeyword `never`
+2:24 Identifier `noallo`
+2:32 NosuspendKeyword `nosuspend`
+2:42 SuspendsKeyword `suspends`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
+5:2 Identifier `et`
+5:7 LetKeyword `let`
+5:11 Identifier `a`
+5:13 Equals `=`
+5:17 IntegerLiteral `1`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:8 CloseBracket `]`
+6:10 OpenBrace `{`
+6:12 CloseBrace `}`
+7:4 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:5 Identifier `b`
+8:7 Equals `=`
+8:11 IntegerLiteral `2`
+9:1 LetKeyword `let`
+9:5 Identifier `c`
+9:7 Equals `=`
+9:11 IntegerLiteral `3`
+10:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xEB)
+
+  2 │  fails try catch never noallo� nosuspend suspends async await
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │  et � let a = $ 1
+    │     ^
+
+error BYN0002: unexpected character `$`
+
+  5 │  et � let a = $ 1
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  6 │ ( ) [ �] { }
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │  � 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │  � 1
+    │   ^
+
+error BYN0002: unexpected character ```
+
+  8 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  9 │ let c = � 3
+    │         ^

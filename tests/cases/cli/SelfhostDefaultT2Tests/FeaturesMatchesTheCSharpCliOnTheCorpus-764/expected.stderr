@@ -1,0 +1,5 @@
+error BYN2019: `Money` is a type, not a value
+  --> <repo>/tests/cases/diag/not-a-value.byn:5:9
+
+  5 │ let m = Money
+    │         ^^^^^

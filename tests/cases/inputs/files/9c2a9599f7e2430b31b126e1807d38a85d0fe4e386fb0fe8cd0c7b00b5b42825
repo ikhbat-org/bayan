@@ -1,0 +1,9 @@
+let a = 1
+ let actor = 1
+q'
+'\u{D800}'
+'\u{11
+let c = """never closed
+ fails try catch never noallocDnosuspend suspends async await
+ // comment ‮ hidden
+

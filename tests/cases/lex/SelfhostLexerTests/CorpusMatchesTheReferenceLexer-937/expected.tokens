@@ -1,0 +1,67 @@
+    doc `/// Doc line one.`
+3:2 IntegerLiteral `0x`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `total `
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 InterpolationEnd `}`
+6:12 InterpolatedStringEnd `"`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolatedStringText `a `
+6:18 InterpolationStart `{`
+6:19 Identifier `f`
+6:20 OpenParen `(`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolatedStringText `b `
+6:25 InterpolationStart `{`
+6:26 Identifier `c`
+6:27 InterpolationEnd `}`
+6:28 InterpolatedStringEnd `"`
+6:29 CloseParen `)`
+6:30 InterpolationEnd `}`
+6:31 InterpolatedStringText ` d`
+6:33 InterpolatedStringEnd `"`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolatedStringText `{{literal}}`
+6:48 InterpolatedStringEnd `"`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 Identifier `Point`
+6:59 OpenBrace `{`
+6:61 Identifier `x`
+6:63 Equals `=`
+6:65 IntegerLiteral `1`
+6:67 CloseBrace `}`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringText `!`
+6:70 InterpolatedStringEnd `"`
+6:72 InterpolatedStringStart `$"`
+6:74 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  2 │ ‏ /// Doc line one.
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x
+    │  ^^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

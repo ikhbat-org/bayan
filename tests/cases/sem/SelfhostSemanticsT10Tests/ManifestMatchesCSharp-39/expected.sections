@@ -1,0 +1,59 @@
+== case inline/escapes
+errors 10
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                            ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+error BYN0006: invalid escape sequence `\q`
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                        ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+error BYN0006: invalid escape sequence `\u{00000004`
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                              ^^^^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+error BYN0013: `\u{FFFFFFFF}` is not a Unicode scalar value
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                               ^^^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                                               ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+error BYN0006: invalid escape sequence `\u{`
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                                                                                          ^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+error BYN0006: invalid escape sequence `\u{41`
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                                                                                                  ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+error BYN0006: invalid escape sequence `\u{4`
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                                                                                                           ^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+error BYN0013: `\u{7FFFFFFF}` is not a Unicode scalar value
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                                                                                                                                 ^^^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+error BYN0003: unterminated string literal
+  4 │     grammar: Grammar { verbs: ["a\nb", "\u{1F600}", "\u{e9}x", "\u{800}", "\u{D800}", "\q", "\u{000000041}", "\u{FFFFFFFF}", "\u{110000}", "t\t\r\0", "\\", "\"", "\'", "\u{}", "\u{41", "\u{4g}", "\u{0041}", "\u{7FFFFFFF}", "end\"] },
+    │                                                                                                                                                                                                                                ^^^^^^^^^^ string
+    │                                                                                                                                                                                                                                           ends
+    │                                                                                                                                                                                                                                           at
+    │                                                                                                                                                                                                                                           the
+    │                                                                                                                                                                                                                                           end
+    │                                                                                                                                                                                                                                           of
+    │                                                                                                                                                                                                                                           the
+    │                                                                                                                                                                                                                                           line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

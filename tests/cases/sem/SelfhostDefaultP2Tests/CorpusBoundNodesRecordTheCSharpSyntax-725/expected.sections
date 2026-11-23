@@ -1,0 +1,18 @@
+== tests/cases/diag/owned-escapes-arena.byn
+64..252 blockStmt
+70..99 localDecl
+95..99 literalExpr nullKeyword
+104..250 blockStmt
+114..139 localDecl
+132..139 callExpr
+148..244 contextStmt
+167..172 nameExpr
+173..244 blockStmt
+187..234 assignStmt assign target 187..191 value 194..234
+187..191 nameExpr
+194..234 callExpr
+194..234 callExpr
+200..233 structLiteralExpr
+213..214 literalExpr integer
+222..226 moveExpr
+227..231 nameExpr

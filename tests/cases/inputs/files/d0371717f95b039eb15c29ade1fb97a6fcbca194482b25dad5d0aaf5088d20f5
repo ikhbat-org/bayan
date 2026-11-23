@@ -1,0 +1,15 @@
+let xâ§ = 1
+
+'\u{110000}'
+ >>
+a >> b
+c >>= 1
+ 'ab'
+let c = """never closed
+ test assert property fuzz model foreach new goto
+ = 1
+let ÿ = 2
+// ok þ in comment
+
+ catch never noalloc nosuspend suspends async await
+is and or n 

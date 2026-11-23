@@ -1,0 +1,4 @@
+== diags.diag/lambda-capture-borrow-modified
+BYN3004 8:5 `buf` is modified while `f` still borrows it
+  label `f` is used again on line 9
+  help finish using `f` first, or copy what it needs before changing `buf`

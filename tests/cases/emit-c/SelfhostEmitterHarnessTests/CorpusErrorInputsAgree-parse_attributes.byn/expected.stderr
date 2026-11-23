@@ -1,0 +1,26 @@
+error BYN2770: unknown attribute `experimental`
+  --> input.byn:10:2
+
+  10 │ @experimental
+     │  ^^^^^^^^^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+error BYN2770: unknown attribute `tag`
+  --> input.byn:11:2
+
+  11 │ @tag(level: 2)
+     │  ^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+error BYN2770: unknown attribute `experimental`
+  --> input.byn:14:2
+
+  14 │ @experimental
+     │  ^^^^^^^^^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2770

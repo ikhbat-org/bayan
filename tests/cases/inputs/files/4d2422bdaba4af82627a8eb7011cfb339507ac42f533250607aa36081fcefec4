@@ -1,0 +1,51 @@
+union error E {
+    a
+    b
+}
+
+union error F {
+    c
+}
+
+struct Box {
+    i64 value
+    i64 get() => value
+}
+
+i64 f(i64 x) fails E, F {
+    if x < 0 && x != -5 || x == 9 { fail .a }
+    fail .b if x > 100
+    fail .c if x == 7
+    return x
+}
+
+i64 g(i64 x) fails E, F {
+    let y = try f(x)
+    let z = f(y) catch (E.a) 0
+    let w = z switch {
+        1 when y > 0 => 1,
+        _ => z,
+    }
+    switch w {
+        case 2 when y > 1:
+            return 2
+        default:
+            return w
+    }
+}
+
+i64 consume(move List<i64> xs) => xs.length
+
+i64 again() {
+    var xs = List<i64>()
+    let n = consume(move xs)
+    xs = List<i64>()
+    return n + xs.length
+}
+
+void main() {
+    print($"{again()}")
+    let b = Box { value: 1 }
+    let r = g(b.get()) catch 0
+    print($"{r}")
+}

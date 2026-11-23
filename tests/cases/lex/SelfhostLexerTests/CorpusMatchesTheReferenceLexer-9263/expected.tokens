@@ -1,0 +1,127 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 CharLiteral `'\u{202E}'`
+1:8 FloatLiteral `3.14`
+1:13 FloatLiteral `1e5`
+1:17 FloatLiteral `2.5e-3`
+1:24 FloatLiteral `6E+2`
+1:29 FloatLiteral `1.50`
+1:33 NumericSuffix `dec`
+1:37 IntegerLiteral `1`
+1:38 DotDot `..`
+1:40 IntegerLiteral `2`
+1:42 IntegerLiteral `1`
+1:43 DotDotEquals `..=`
+1:46 IntegerLiteral `3`
+1:48 IntegerLiteral `5`
+1:49 NumericSuffix `e`
+1:51 Identifier `x`
+1:52 Dot `.`
+1:53 Identifier `y`
+1:55 FloatLiteral `2.5`
+1:58 NumericSuffix `f`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:14 At `@`
+2:15 OpenBrace `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 StringLiteral `$"{$�{$"`
+2:56 OpenBrace `{`
+2:57 Identifier `x`
+2:58 CloseBrace `}`
+2:59 StringLiteral `"}"`
+2:62 InterpolationEnd `}`
+2:63 InterpolatedStringEnd `"`
+2:64 InterpolationEnd `}`
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringEnd `"`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringEnd `"`
+2:70 InterpolationEnd `}`
+2:71 InterpolatedStringEnd `"`
+2:72 InterpolationEnd `}`
+2:73 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 Identifier `effec`
+4:12 OpenBrace `{`
+4:13 Identifier `x`
+4:14 StringLiteral `";`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'\n'`
+6:10 CharLiteral `'\u{1F600}'`
+6:22 CharLiteral `'\''`
+6:26 Hash `#`
+6:28 CharLiteral `'é'`
+6:32 CharLiteral `'\\'`
+6:37 CharLiteral `'\0'`
+7:3 StringLiteral `"\u{202E} allowed in strings"`
+7:26 StringLiteral `""`
+7:29 StringLiteral `"\u{48}i"`
+8:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ $"{'�' 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ $"{'�' 3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │   │     -
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ $"{$"{$"{$"{$@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB4)
+
+  2 │ $"{$"{$"{$"{$@{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{x}"}"}"}"}"}"}"}"
+    │                                                     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ let effec  {x";
+    │              ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

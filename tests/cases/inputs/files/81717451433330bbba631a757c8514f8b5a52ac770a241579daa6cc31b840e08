@@ -1,0 +1,5 @@
+is anÂ or not with Ëmove ref out this null true false comptime checked
+ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+0b102
+ 

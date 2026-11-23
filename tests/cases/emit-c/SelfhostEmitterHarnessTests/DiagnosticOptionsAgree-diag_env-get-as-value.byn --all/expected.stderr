@@ -1,0 +1,18 @@
+error BYN2019: `get` is a method, not a value
+  --> input.byn:3:16
+
+  3 │     let read = Env.get
+    │                ^^^^^^^
+    │
+  help: call it: `get(…)`
+
+error BYN2019: `fileExists` is a method, not a value
+  --> input.byn:4:18
+
+  4 │     let exists = Fs.fileExists
+    │                  ^^^^^^^^^^^^^
+    │
+  help: call it: `fileExists(…)`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2019

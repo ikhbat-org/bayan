@@ -1,0 +1,5 @@
+error BYN3102: `style.booleans` must be `.symbols` or `.words`
+  --> package.byn:4:30
+
+  4 │     style: Style { booleans: .both },
+    │                              ^^^^^

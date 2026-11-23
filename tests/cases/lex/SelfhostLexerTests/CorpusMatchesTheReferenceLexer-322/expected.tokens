@@ -1,0 +1,59 @@
+1:1 StringLiteral `"{$"`
+1:5 OpenBrace `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:13 Identifier `ạ̇`
+1:18 Identifier `_`
+1:20 IntegerLiteral `0xF__`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │             ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │   │             +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │                    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │                           ^^
+    │
+    │ 1 │ "{$"{$"{$"{ ạ̇����� _ 0xF__
+    │   │                           --

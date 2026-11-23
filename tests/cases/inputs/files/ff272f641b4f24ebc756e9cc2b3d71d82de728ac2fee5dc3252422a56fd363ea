@@ -1,0 +1,1 @@
+Package { name: "a/b", version: "0.0.0", kind: .app, style: Style { booleans: .symbols, primitives: .sized, align: .runs, trailingCommas: .multiline, lints: [] }, dist: Dist { mode: .debug } }

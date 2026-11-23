@@ -1,0 +1,21 @@
+== tests/cases/diag/effect-bound-exceeded.byn
+325..365 blockStmt
+331..347 localDecl
+339..347 callExpr
+352..363 exprStmt
+352..363 callExpr
+352..353 nameExpr
+359..362 literalExpr string
+171..233 blockStmt
+181..206 exprStmt
+181..206 callExpr
+187..205 interpolatedExpr
+198..203 nameExpr
+181..206 callExpr
+215..227 returnStmt value 222..227
+222..227 nameExpr
+282..309 blockStmt
+292..303 exprStmt
+292..303 callExpr
+298..302 nameExpr
+292..303 callExpr

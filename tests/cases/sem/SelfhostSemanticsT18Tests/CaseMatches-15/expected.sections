@@ -1,0 +1,4 @@
+== module.probes.-.u4
+errorExpr|?|-|-|-|-|-|2507:9|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 130:19 `nope` is not a member of `module main` |||

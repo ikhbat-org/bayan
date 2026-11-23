@@ -1,0 +1,21 @@
+1:1 Identifier `k`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 IntegerLiteral `8`
+2:7 NumericSuffix `b`
+4:1 IntegerLiteral `1__`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  1 │ �k
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --

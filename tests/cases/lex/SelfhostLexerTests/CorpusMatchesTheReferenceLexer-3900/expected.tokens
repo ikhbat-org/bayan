@@ -1,0 +1,42 @@
+1:1 Star `*`
+1:2 Slash `/`
+2:1 Identifier `b`
+3:2 Identifier `b`
+4:1 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+6:1 LetKeyword `let`
+6:5 Identifier `c`
+6:7 Equals `=`
+6:11 IntegerLiteral `3`
+8:1 ErrorKeyword `error`
+8:7 SetKeyword `set`
+8:11 UnitKeyword `unit`
+8:16 DistinctKeyword `distinct`
+8:25 TypeKeyword `type`
+8:30 ImportKeyword `import`
+8:37 AsKeyword `as`
+8:40 PublicKeyword `public`
+8:47 PrivateKeyword `private`
+8:55 StaticKeyword `static`
+8:62 ReadonlyKeyword `readonly`
+8:71 RequiredKeyword `required`
+8:80 ConstKeyword `const`
+8:86 LetKeyword `let`
+8:90 VarKeyword `var`
+8:94 EmbedKeyword `embed`
+8:100 ExternKeyword `extern`
+8:107 UnsafeKeyword `unsafe`
+9:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  5 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │ let c = � 3
+    │         ^

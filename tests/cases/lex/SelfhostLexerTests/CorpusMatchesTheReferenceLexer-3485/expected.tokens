@@ -1,0 +1,43 @@
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `open `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 StringLiteral `";`
+3:7 Identifier `n`
+    doc `/// let café = 1;\r`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+4:13 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\`
+
+  3 │   \\ \n/// let café = 1;
+    │   ^
+
+error BYN0002: unexpected character `\`
+
+  3 │   \\ \n/// let café = 1;
+    │    ^
+
+error BYN0002: unexpected character `\`
+
+  3 │   \\ \n/// let café = 1;
+    │      ^

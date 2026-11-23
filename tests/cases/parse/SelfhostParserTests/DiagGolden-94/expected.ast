@@ -1,0 +1,13 @@
+CompilationUnit
+  Function f(bool ok) -> void
+    Block
+      Unless ok
+        Block
+          Expr (call retry)
+
+error BYN1006: `unless` cannot have an `else` branch
+
+  2 │     unless ok { retry() } else { done() }
+    │                           ^^^^ `else` after `unless`
+    │
+  help: use `if` with the opposite condition, so both branches read positively

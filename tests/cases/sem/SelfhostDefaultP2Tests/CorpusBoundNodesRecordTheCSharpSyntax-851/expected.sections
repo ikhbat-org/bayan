@@ -1,0 +1,4 @@
+== tests/cases/diag/strbuf-unknown-static-member.byn
+139..166 blockStmt
+145..164 localDecl
+153..164 memberExpr

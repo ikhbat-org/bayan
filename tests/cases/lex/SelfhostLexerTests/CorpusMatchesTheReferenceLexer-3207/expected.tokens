@@ -1,0 +1,68 @@
+1:1 Identifier `t`
+1:3 Identifier `café`
+1:8 Equals `=`
+1:10 IntegerLiteral `2`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:4 VarKeyword `var`
+3:8 Identifier `xs`
+3:10 Colon `:`
+3:12 Identifier `List`
+3:16 Less `<`
+3:17 Identifier `List`
+3:21 Less `<`
+3:22 Identifier `i64`
+3:25 Greater `>`
+3:26 Greater `>`
+6:1 CharLiteral `''`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  � var xs: List<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  � var xs: List<List<i64>>
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ ��
+    │   ^
+
+error BYN0007: empty char literal
+
+  6 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,45 @@
+2:1 CharLiteral `'\u{202E}'`
+2:5 Equals `=`
+2:7 IntegerLiteral `2`
+4:1 StructKeyword `struct`
+4:8 UniqueKeyword `unique`
+4:15 UnionKeyword `union`
+4:21 EnumKeyword `enum`
+4:25 FlagsKeyword `flags`
+4:31 Identifier `opeZ`
+4:36 Identifier `extens`
+4:42 Identifier `ble`
+4:46 InterfaceKeyword `interface`
+4:56 DelegateKeyword `delegate`
+4:65 ExtensionKeyword `extension`
+4:75 DerivationKeyword `derivation`
+4:86 AttributeKeyword `attribute`
+6:1 StringLiteral `"`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '�' = 2
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '�' = 2
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ struct unique union enum�flags opeZ extens�ble interface delegate extension derivation attribute
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  4 │ struct unique union enum�flags opeZ extens�ble interface delegate extension derivation attribute
+    │                                           ^
+
+error BYN0003: unterminated string literal
+
+  6 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

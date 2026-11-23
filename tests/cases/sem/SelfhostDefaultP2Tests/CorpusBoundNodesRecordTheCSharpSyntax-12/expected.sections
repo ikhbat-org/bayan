@@ -1,0 +1,27 @@
+== tests/cases/run/assert-values-once.byn
+20..47 blockStmt
+26..32 assignStmt add target 26..27 value 31..32
+26..27 nameExpr
+31..32 literalExpr integer
+37..45 returnStmt value 44..45
+44..45 nameExpr
+49..67 globalStatement
+49..67 localDecl
+66..67 literalExpr integer
+68..96 assertStmt
+75..95 binaryExpr eq right 94..95
+75..90 callExpr
+84..89 nameExpr
+94..95 literalExpr integer
+97..120 exprStmt
+97..120 callExpr
+103..119 interpolatedExpr
+112..117 nameExpr
+97..120 callExpr
+121..156 assertStmt
+128..155 binaryExpr gt right 146..155
+128..143 callExpr
+137..142 nameExpr
+146..155 binaryExpr add right 154..155
+146..151 nameExpr
+154..155 literalExpr integer

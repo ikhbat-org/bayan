@@ -1,0 +1,73 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c`
+2:8 InterpolatedStringEnd
+3:1 IntegerLiteral `0b__`
+5:2 Identifier `rings`
+5:7 StringLiteral `" "`
+5:10 StringLiteral `" "`
+5:14 Identifier `u`
+5:15 OpenBrace `{`
+5:16 IntegerLiteral `48`
+5:18 CloseBrace `}`
+5:19 Identifier `i`
+5:20 StringLiteral `"`
+6:2 VarKeyword `var`
+6:6 Identifier `xs`
+6:8 Colon `:`
+6:10 Identifier `List`
+6:14 Less `<`
+6:15 Identifier `List`
+6:19 Less `<`
+6:20 Identifier `i64`
+6:23 Greater `>`
+6:24 Greater `>`
+7:1 CharLiteral `'\u{202E}'`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0002: unexpected character `\`
+
+  5 │  rings" "" "\u{48}i"
+    │             ^
+
+error BYN0003: unterminated string literal
+
+  5 │  rings" "" "\u{48}i"
+    │                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ '�'
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ �
+    │ ^

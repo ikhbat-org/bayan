@@ -1,0 +1,8 @@
+i64 cents(i64 units) {
+    return units * 100
+}
+
+test "leftover cents" {
+    let net = cents(2) - 1
+    assert(net == cents(2))
+}

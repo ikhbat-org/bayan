@@ -1,0 +1,6 @@
+== pattern.property
+counts 0 2 2
+loan bg whole 2858 0
+loan bg its 2846 0
+BYN3002 168:14 `bg` does not live as long as `whole`, which borrows it |`bg` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|
+BYN3002 168:23 `bg` does not live as long as `its`, which borrows it |`bg` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

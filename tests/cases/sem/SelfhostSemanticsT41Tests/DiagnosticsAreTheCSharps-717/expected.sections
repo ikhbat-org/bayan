@@ -1,0 +1,9 @@
+== diags.diag/error-payload-pattern
+BYN2706 17:5 variant `closed` has no payload
+  help match it with `.closed`
+BYN2703 22:5 variant `rejected` has 2 payload field(s), but the pattern lists 1
+  help list every field: `.rejected(let reason, let code)`, or `_` to skip one
+BYN2411 27:5 `QuoteError.stale` cannot match `CarrierError`
+BYN2228 32:18 `timeot` is not a variant of `CarrierError`
+  help did you mean `timeout`?
+BYN2003 37:25 `after` is not a member of `CarrierError`

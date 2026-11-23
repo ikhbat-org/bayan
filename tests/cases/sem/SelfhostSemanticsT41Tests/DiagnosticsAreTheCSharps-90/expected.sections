@@ -1,0 +1,4 @@
+== diags.diag/in-range-unassigned
+BYN2102 3:19 `hi` is used before it is assigned
+  label declared without a value on line 1
+  help assign it on every path before this, or give the declaration a value

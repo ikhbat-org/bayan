@@ -1,0 +1,82 @@
+// 019 T29 (coverage ratchet): dump2.byn paths no golden case reaches: an eight-digit `\u{…}` escape, flattened text with
+// blank and indented lines, a function type whose one parameter is a function or tuple type, `:` format specs, a
+// member with type arguments, a labelled `break` inside an expression, and the `ReadOnlySpan` of a `params` input form.
+// The helpers are `t3ParserOf` (recover.test.byn) and `t29DumpOf` (dump-t29.test.byn). The expected texts are the
+// output of the self-hosted parser at the commit that added the test.
+
+test "parser t29: the S-expression dump of rare expressions and types" {
+    var sb = StrBuf()
+    appendUnicodeEscape(0xFFFFFFFF, to: ref sb)
+    appendUnicodeEscape(0x10000000, to: ref sb)
+    appendUnicodeEscape(0, to: ref sb)
+    sb.append("\n[")
+    appendFlattened("", to: ref sb)
+    sb.append("] [")
+    appendFlattened("\n\n", to: ref sb)
+    sb.append("] [")
+    appendFlattened("  a \t\n\t b  \n \t \n\nc\n\n", to: ref sb)
+    sb.append("]\n")
+    for text in ["(A -> B) -> C", "((A, B)) -> C", "A -> B", "(A, B) -> C", "ReadOnlySpan<u8>", "Span<u8>"] {
+        var p = t3ParserOf(text)
+        let t = parseType(ref p)
+        dumpType(in t, from: ref p, to: ref sb)
+        sb.append("\n")
+    }
+    for text in [
+        "$\"{n:hex}\"",
+        "$\"{n:.2}\"",
+        "a.b<int>()",
+        "x => { while true { break outer } }",
+        "x ?? break outer",
+        "x ?? break",
+        "x ?? continue",
+    ] {
+        var p = t3ParserOf(text)
+        let e = parseExpression(ref p)
+        dumpExpr(in e, from: ref p, to: ref sb)
+        sb.append("\n")
+    }
+    sb.append(t29DumpOf("void f(params int[] xs) { }\nvoid g(int... ys) { }\n"))
+    let expected = """
+            \u{FFFFFFFF}\u{10000000}\u{0}
+            [] [] [a; b; ; ; c]
+            (A -> B) -> C
+            ((A, B)) -> C
+            A -> B
+            (A, B) -> C
+            ReadOnlySpan<u8>
+            Span<u8>
+            (interp (hole n (as: .hex)))
+            (interp (hole n (digits: 2)))
+            (call (. a b<i32>))
+            (lambda (x) (block {While true; Block; Break outer}))
+            (?? x (break outer))
+            (?? x (break))
+            (?? x (continue))
+            CompilationUnit
+              Function f(rest ReadOnlySpan<i32> xs) -> void
+                Block
+              Function g(rest ReadOnlySpan<i32> ys) -> void
+                Block
+
+            error BYN1058: `params int[] xs` is an input form; write `rest ReadOnlySpan<int> xs`
+
+              1 │ void f(params int[] xs) { }
+                │        ^^^^^^ the input form
+                │
+              help: declare the variadic parameter with `rest`
+                │ 1 │ void f(rest ReadOnlySpan<int> xs) { }
+                │   │        ++++++++++++++++++++++
+
+            error BYN1058: `int... ys` is an input form; write `rest ReadOnlySpan<int> ys`
+
+              2 │ void g(int... ys) { }
+                │           ^^^ the input form
+                │
+              help: declare the variadic parameter with `rest`
+                │ 2 │ void g(rest ReadOnlySpan<int> ys) { }
+                │   │        ++++++++++++++++++++++
+
+            """
+    assert sb.finish() == expected
+}

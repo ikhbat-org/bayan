@@ -1,0 +1,26 @@
+== helpers
+bynh_at_span_u32 static uint32_t* bynh_at_span_u32(bynt_span_u32 s, int64_t i, bool from_end, const char* file, int line) | static uint32_t* bynh_at_span_u32(bynt_span_u32 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_slice_arr12_u32 static bynt_span_u32 bynh_slice_arr12_u32(bynt_arr12_u32* x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_u32 bynh_slice_arr12_u32(bynt_arr12_u32* x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(12, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_u32){x->v + from, to - from};
+}
+bynh_at_arr12_u32 static uint32_t* bynh_at_arr12_u32(bynt_arr12_u32* a, int64_t i, bool from_end, const char* file, int line) | static uint32_t* bynh_at_arr12_u32(bynt_arr12_u32* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 12 - i;
+    return &a->v[byn_index(i, 12, file, line)];
+}
+bynh_at_arr3_bool static bool* bynh_at_arr3_bool(bynt_arr3_bool* a, int64_t i, bool from_end, const char* file, int line) | static bool* bynh_at_arr3_bool(bynt_arr3_bool* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 3 - i;
+    return &a->v[byn_index(i, 3, file, line)];
+}
+bynh_at_arr3_rune static uint32_t* bynh_at_arr3_rune(bynt_arr3_rune* a, int64_t i, bool from_end, const char* file, int line) | static uint32_t* bynh_at_arr3_rune(bynt_arr3_rune* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 3 - i;
+    return &a->v[byn_index(i, 3, file, line)];
+}
+bynh_at_arr2_f64 static double* bynh_at_arr2_f64(bynt_arr2_f64* a, int64_t i, bool from_end, const char* file, int line) | static double* bynh_at_arr2_f64(bynt_arr2_f64* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 2 - i;
+    return &a->v[byn_index(i, 2, file, line)];
+}

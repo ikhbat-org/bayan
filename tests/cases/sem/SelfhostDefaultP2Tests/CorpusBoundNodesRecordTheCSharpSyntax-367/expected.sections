@@ -1,0 +1,34 @@
+== tests/cases/diag/becomes-on-ref-parameter.byn
+344..381 blockStmt
+350..362 exprStmt
+350..362 callExpr
+350..355 nameExpr
+367..379 exprStmt
+367..379 callExpr
+367..372 nameExpr
+377..378 literalExpr integer
+413..478 blockStmt
+419..432 localDecl
+427..432 nameExpr
+437..476 ifStmt
+440..451 isExpr
+440..441 nameExpr
+445..451 constantPattern
+452..476 blockStmt
+462..470 exprStmt
+462..470 callExpr
+462..463 nameExpr
+468..469 literalExpr integer
+144..180 blockStmt
+154..174 becomeStmt
+167..173 nameExpr
+205..228 blockStmt
+215..222 assignStmt add target 215..217 value 221..222
+215..217 nameExpr
+215..217 nameExpr
+221..222 literalExpr integer
+277..305 blockStmt
+287..299 exprStmt
+287..299 callExpr
+287..292 nameExpr
+297..298 literalExpr integer

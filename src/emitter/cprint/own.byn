@@ -150,6 +150,7 @@ public string ownReturn(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
 /// CEmitter.cs:771 `IntSuffix`: the runtime suffix (`i8` .. `u64`) of integer type `t`.
 public string intSuffix(Type t) uses alloc {
     // C# `(PrimitiveType)t` throws on any other type.
+    // coverage-exempt: Q1286 through `intSuffix of a non-primitive type` leads only to the panic
     if semantics.kindOf(t) != .primitive {
         panic("intSuffix of a non-primitive type")
     }

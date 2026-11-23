@@ -1,0 +1,199 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{x}"`
+1:55 InterpolationEnd `}`
+1:56 InterpolatedStringEnd `"`
+1:57 InterpolationEnd `}`
+1:58 InterpolatedStringEnd `"`
+1:59 InterpolationEnd `}`
+1:60 InterpolatedStringEnd `"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:72 LetKeyword `let`
+1:76 Identifier `s`
+1:78 Equals `=`
+1:80 InterpolatedStringStart `$"`
+1:82 InterpolationStart `{`
+1:83 InterpolatedStringStart `$"`
+1:85 InterpolationStart `{`
+1:86 InterpolatedStringStart `$"`
+1:88 InterpolationStart `{`
+1:89 InterpolatedStringStart `$"`
+1:91 InterpolationStart `{`
+1:92 InterpolatedStringStart `$"`
+1:94 InterpolationStart `{`
+1:95 InterpolatedStringStart `$"`
+1:97 InterpolationStart `{`
+1:98 InterpolatedStringStart `$"`
+1:100 InterpolationStart `{`
+1:101 InterpolatedStringStart `$"`
+1:103 InterpolationStart `{`
+1:104 StringLiteral `$"{$"`
+1:109 OpenBrace `{`
+1:110 StringLiteral `$"{$"`
+1:115 OpenBrace `{`
+1:116 StringLiteral `$"{$"`
+1:121 OpenBrace `{`
+1:122 StringLiteral `$"{$"`
+1:127 OpenBrace `{`
+1:128 StringLiteral `$"{$"`
+1:133 OpenBrace `{`
+1:134 StringLiteral `$"{$"`
+1:139 OpenBrace `{`
+1:140 Identifier `x`
+1:141 CloseBrace `}`
+1:142 StringLiteral `"}"`
+1:145 CloseBrace `}`
+1:146 StringLiteral `"}"`
+1:149 CloseBrace `}`
+1:150 StringLiteral `"}"`
+1:153 CloseBrace `}`
+1:154 StringLiteral `"}"`
+1:157 CloseBrace `}`
+1:158 StringLiteral `"}"`
+1:161 CloseBrace `}`
+1:162 StringLiteral `"}"`
+1:165 InterpolationEnd `}`
+1:166 InterpolatedStringEnd `"`
+1:167 InterpolationEnd `}`
+1:168 InterpolatedStringEnd `"`
+1:169 InterpolationEnd `}`
+1:170 InterpolatedStringEnd `"`
+1:171 InterpolationEnd `}`
+1:172 InterpolatedStringEnd `"`
+1:173 InterpolationEnd `}`
+1:174 InterpolatedStringEnd `"`
+1:175 InterpolationEnd `}`
+1:176 InterpolatedStringEnd `"`
+1:177 InterpolationEnd `}`
+1:178 InterpolatedStringEnd `"`
+1:179 InterpolationEnd `}`
+1:180 InterpolatedStringEnd `"`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:11 IntegerLiteral `1`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCase2`
+4:23 Identifier `ب`
+4:24 Identifier `ان`
+4:27 Identifier `μετρητής`
+4:36 Identifier `x_1`
+4:40 Identifier `é`
+5:1 Identifier `foo`
+5:5 Identifier `Bar`
+5:9 Identifier `_x`
+5:12 Identifier `camelCase2`
+5:23 Identifier `بيان`
+5:28 Identifier `μετρητής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
+6:1 FailsKeyword `fails`
+6:7 TryKeyword `try`
+6:11 CatchKeyword `catch`
+6:17 NeverKeyword `never`
+6:23 NoallocKeyword `noalloc`
+6:31 NosuspendKeyword `nosuspend`
+6:41 SuspendsKeyword `suspends`
+6:50 AsyncKeyword `async`
+6:56 AwaitKeyword `await`
+8:1 IntegerLiteral `0b1`
+8:4 NumericSuffix `ms`
+9:2 Identifier `ms`
+10:1 IntegerLiteral `0x_`
+11:1 IntegerLiteral `0b__`
+12:1 IntegerLiteral `1__`
+13:1 IntegerLiteral `0xF`
+13:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0002: unexpected character `$`
+
+  2 │ let a = $ 1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  4 │ foo Bar _x camelCase2 ب��ان μετρητής x_1 é
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  4 │ foo Bar _x camelCase2 ب��ان μετρητής x_1 é
+    │                         ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  8 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  10 │ 0x_
+     │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  11 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │ 1__
+     │  ^^
+     │
+     │ 12 │ 1__
+     │    │  --

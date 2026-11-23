@@ -1,0 +1,1 @@
+{"code":"BYN1046","severity":"error","file":"input.byn","span":{"start":59,"end":66,"line":6,"column":17,"endLine":6,"endColumn":24},"message":"`pattern` is allowed only after `=` in a `const`","label":"`pattern` outside a `const`","help":"declare the pattern as `const name = pattern T { … }`","fixes":[]}

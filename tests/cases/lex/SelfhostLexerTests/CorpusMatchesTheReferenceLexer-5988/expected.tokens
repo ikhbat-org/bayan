@@ -1,0 +1,55 @@
+1:1 IntegerLiteral `1__`
+2:1 LetKeyword `let`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
+3:4 Identifier `raw`
+3:8 StringLiteral `"quoted"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolationEnd `}`
+5:5 InterpolatedStringEnd `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 Identifier `a`
+7:1 Identifier `t`
+7:3 Identifier `a`
+7:5 Equals `=`
+7:7 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:7 Equals `=`
+8:9 IntegerLiteral `2`
+10:1 StringLiteral `"a\u{2067}b"`
+10:7 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  2 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  9 │ // ok � in comment
+    │       ^

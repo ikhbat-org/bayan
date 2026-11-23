@@ -1,0 +1,4 @@
+run
+--mode
+debug
+<repo>/tmp/l012/seed-14-debug/main.byn

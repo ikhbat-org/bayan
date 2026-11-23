@@ -1,0 +1,106 @@
+== tests/cases/diag/lambda-capture-copyable.byn
+29..33 callExpr
+29..33 callExpr
+29..33 callExpr
+29..30 nameExpr
+31..32 literalExpr integer
+74..81 callExpr
+74..81 callExpr
+74..81 callExpr
+74..75 nameExpr
+76..80 callExpr
+76..77 nameExpr
+78..79 nameExpr
+101..206 blockStmt
+107..121 localDecl
+120..121 literalExpr integer
+126..166 localDecl
+146..166 lambdaExpr
+155..157 nameExpr
+160..166 nameExpr
+171..204 returnStmt value 178..204
+178..204 binaryExpr add right 189..204
+178..186 callExpr
+184..185 nameExpr
+189..204 callExpr
+195..196 literalExpr integer
+202..203 nameExpr
+220..506 blockStmt
+226..235 localDecl
+234..235 literalExpr integer
+240..269 localDecl
+263..269 lambdaExpr
+274..329 blockStmt
+284..293 localDecl
+292..293 literalExpr integer
+302..323 assignStmt assign target 302..306 value 309..323
+302..306 nameExpr
+309..323 lambdaExpr
+318..319 nameExpr
+322..323 nameExpr
+334..347 localDecl
+346..347 literalExpr integer
+352..461 forStmt
+361..365 rangeExpr
+361..362 literalExpr integer
+364..365 literalExpr integer
+366..461 blockStmt
+376..406 localDecl
+396..406 lambdaExpr
+405..406 nameExpr
+415..455 assignStmt assign target 415..420 value 423..455
+415..420 nameExpr
+423..455 binaryExpr add right 438..455
+423..435 binaryExpr add right 431..435
+423..428 nameExpr
+431..435 callExpr
+431..432 nameExpr
+433..434 nameExpr
+433..434 nameExpr
+438..455 callExpr
+444..454 lambdaExpr
+453..454 nameExpr
+466..504 exprStmt
+466..504 callExpr
+472..503 interpolatedExpr
+475..501 binaryExpr add right 493..501
+475..490 binaryExpr add right 485..490
+475..482 callExpr
+475..479 nameExpr
+480..481 literalExpr integer
+485..490 nameExpr
+493..501 callExpr
+499..500 literalExpr integer
+466..504 callExpr
+151..166 binaryExpr add right 160..166
+151..166 binaryExpr add right 160..166
+151..166 binaryExpr add right 160..166
+151..157 binaryExpr mul right 155..157
+151..152 nameExpr
+155..157 nameExpr
+160..166 nameExpr
+160..166 nameExpr
+268..269 nameExpr
+268..269 nameExpr
+268..269 nameExpr
+314..323 binaryExpr add right 322..323
+314..323 binaryExpr add right 322..323
+314..323 binaryExpr add right 322..323
+314..319 binaryExpr add right 318..319
+314..315 nameExpr
+318..319 nameExpr
+318..319 nameExpr
+322..323 nameExpr
+322..323 nameExpr
+401..406 binaryExpr add right 405..406
+401..406 binaryExpr add right 405..406
+401..406 binaryExpr add right 405..406
+401..402 nameExpr
+405..406 nameExpr
+405..406 nameExpr
+449..454 binaryExpr add right 453..454
+449..454 binaryExpr add right 453..454
+449..454 binaryExpr add right 453..454
+449..450 nameExpr
+453..454 nameExpr
+453..454 nameExpr

@@ -1,0 +1,103 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:2 FailsKeyword `fails`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 NeverKeyword `never`
+2:24 NoallocKeyword `noalloc`
+2:32 NosuspendKeyword `nosuspend`
+2:42 SuspendsKeyword `suspends`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
+3:2 StringLiteral `"{$"`
+3:6 OpenBrace `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolatedStringText `�����`
+3:34 InterpolatedStringEnd
+4:2 ComptimeKeyword `comptime`
+4:11 LetKeyword `let`
+4:15 Identifier `c`
+4:17 Equals `=`
+4:19 RawStringLiteral `"""never closed\n test assert property fuzz model foreach new goto\n�� `
+6:3 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                               ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�����
+    │                                     ^
+
+error BYN0003: unterminated string literal
+
+  4 │  comptime let c = """never closed
+    │                   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │ �� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �� 
+    │  ^

@@ -1,0 +1,5 @@
+== locals
+inc:
+call: t
+main:
+main$lambda1:

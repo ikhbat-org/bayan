@@ -1,0 +1,139 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:20 OpenBrace `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 StringLiteral `$"H{$"`
+2:60 OpenBrace `{`
+2:61 StringLiteral `$"{x}"`
+2:67 CloseBrace `}`
+2:68 StringLiteral `"}"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 StructKeyword `struct`
+2:88 UniqueKeyword `unique`
+2:95 UnionKeyword `union`
+2:101 EnumKeyword `enum`
+2:106 FlagsKeyword `flags`
+2:112 OpenKeyword `open`
+2:117 ExtensibleKeyword `extensible`
+2:128 InterfaceKeyword `interface`
+2:138 DelegateKeyword `delegate`
+2:147 ExtensionKeyword `extension`
+2:157 Identifier `derivat`
+2:164 Identifier `on`
+2:167 AttributeKeyword `attribute`
+3:3 OpenBrace `{`
+3:4 Identifier `D800`
+3:8 CloseBrace `}`
+3:9 CharLiteral `'`
+4:1 CharLiteral `'\u{110000}'`
+5:1 CharLiteral `'x`
+8:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `$`
+
+  2 │  1.$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"H{$"{$"{x}"}"}"}"}"}"}"}"struct unique union enum flags open extensible interface delegate extension derivat�on attribute
+    │                   ^
+
+error BYN0003: unterminated string literal
+
+  2 │  1.$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"H{$"{$"{x}"}"}"}"}"}"}"}"struct unique union enum flags open extensible interface delegate extension derivat�on attribute
+    │                                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  1.$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"H{$"{$"{x}"}"}"}"}"}"}"}"struct unique union enum flags open extensible interface delegate extension derivat�on attribute
+    │                                                      ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  2 │  1.$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"H{$"{$"{x}"}"}"}"}"}"}"}"struct unique union enum flags open extensible interface delegate extension derivat�on attribute
+    │                                                                                                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  �{D800}'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  �{D800}'
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  3 │  �{D800}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  6 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,16 @@
+== helpers
+bynh_own_main__Node static bynt_main__Node* bynh_own_main__Node(bynt_main__Node v) | static bynt_main__Node* bynh_own_main__Node(bynt_main__Node v) {
+    return (bynt_main__Node*)byn_copy_bytes(&v, (int64_t)sizeof v, byn_context);
+}
+bynh_eq_main__Node static bool bynh_eq_main__Node(bynt_main__Node a, bynt_main__Node b) | static bool bynh_eq_main__Node(bynt_main__Node a, bynt_main__Node b) {
+    return (a.item == b.item)
+        && bynh_eq_opt_own_main__Node(a.next, b.next);
+}
+bynh_eq_opt_own_main__Node static bool bynh_eq_opt_own_main__Node(bynt_opt_own_main__Node a, bynt_opt_own_main__Node b) | static bool bynh_eq_opt_own_main__Node(bynt_opt_own_main__Node a, bynt_opt_own_main__Node b) {
+    return a.has == b.has && (!a.has || bynh_eq_main__Node((*a.value), (*b.value)));
+}
+bynh_add_list_main__Tree static void bynh_add_list_main__Tree(bynt_list_main__Tree* l, bynt_main__Tree v) | static void bynh_add_list_main__Tree(bynt_list_main__Tree* l, bynt_main__Tree v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_main__Tree), l->alloc);
+    l->ptr[l->len++] = v;
+}

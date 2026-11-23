@@ -1,0 +1,4 @@
+// ── Helpers ──────
+bool f(i32 x) {
+    return x == 1 || x == 2
+}

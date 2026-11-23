@@ -1,0 +1,5 @@
+== tests/cases/diag/duplicate-field-init.byn
+28..56 globalStatement
+28..56 localDecl
+36..56 structLiteralExpr
+47..48 literalExpr integer

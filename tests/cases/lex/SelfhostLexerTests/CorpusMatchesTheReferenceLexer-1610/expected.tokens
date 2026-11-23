@@ -1,0 +1,34 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:1 IntegerLiteral `0xF__`
+3:1 IntegerLiteral `0x`
+4:2 Star `*`
+4:3 Identifier `N`
+4:4 Slash `/`
+4:6 Percent `%`
+4:8 PlusPercent `+%`
+4:11 Percent `%`
+4:13 StarPercent `*%`
+4:16 PlusBar `+|`
+    doc `/// Doc lin one.`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `̈́`
+
+  5 │ ̈́/// Doc lin one.
+    │ ^

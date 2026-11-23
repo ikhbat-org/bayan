@@ -1,0 +1,3 @@
+build
+--emit-c
+errors-except-narrowing.byn

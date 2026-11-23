@@ -1,0 +1,15 @@
+enum Color {
+    red
+    green
+}
+
+i64 colorCode(Color c) => c switch {
+    .red => 1,
+    .green => 2,
+}
+
+void main() {
+    var total: i64 = 0
+    total += colorCode(Color.green)
+    print($"{total}")
+}

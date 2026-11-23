@@ -1,0 +1,16 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:12 CatchKeyword `catch`
+1:18 NeverKeyword `never`
+1:24 NoallocKeyword `noalloc`
+1:32 NosuspendKeyword `nosuspend`
+1:42 SuspendsKeyword `suspends`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
+    doc `/// DocWline one.`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{1E}`
+
+  1 │ fails try� catch never noalloc nosuspend suspends async await
+    │          ^

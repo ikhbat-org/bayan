@@ -1,0 +1,16 @@
+== helpers
+bynh_eq_err static bool bynh_eq_err(byn_err a, byn_err b) | static bool bynh_eq_err(byn_err a, byn_err b) {
+    if (a.code != b.code) return false;
+    switch (a.code) {
+    case 10: return (a.p.e10.signal == b.p.e10.signal)
+        && byn_str_eq(a.p.e10.stdout_, b.p.e10.stdout_)
+        && byn_str_eq(a.p.e10.stderr_, b.p.e10.stderr_);
+    case 11: return (a.p.e11.after == b.p.e11.after)
+        && byn_str_eq(a.p.e11.stdout_, b.p.e11.stdout_)
+        && byn_str_eq(a.p.e11.stderr_, b.p.e11.stderr_);
+    case 12: return (a.p.e12.at == b.p.e12.at);
+    case 14: return (a.p.e14.at == b.p.e14.at);
+    case 16: return (a.p.e16.at == b.p.e16.at);
+    }
+    return true;
+}

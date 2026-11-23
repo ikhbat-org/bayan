@@ -1,0 +1,4 @@
+int { x = 1 }}!"6$""
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ /// Doc line one.
+ 

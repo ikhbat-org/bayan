@@ -1,0 +1,16 @@
+1:1 AmpEquals `&=`
+1:4 BarEquals `|=`
+1:7 CaretEquals `^=`
+1:10 LessLessEquals `<<=`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""eve[r closed\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """eve[r closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,3 @@
+== cases
+0 byn_cast_u8_i((int64_t)l0_wide, byn_file_0, 2)
+count 1

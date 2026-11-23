@@ -1,0 +1,106 @@
+1:1 IntegerLiteral `0b__`
+3:1 Identifier `aw`
+3:4 Equals `=`
+3:6 IntegerLiteral `3`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolationStart `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 Identifier `x`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `x`
+9:4 InterpolationStart `{`
+9:6 InterpolatedStringStart `$"`
+9:8 InterpolationStart `{`
+9:17 StringLiteral `$"stray } here"`
+10:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xB2)
+
+  8 │ $"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"x{ $"{ /* � */$"stray } here"
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+   9 │ $"x{ $"{ /* � */$"stray } here"
+     │          ^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │  9 │ $"x{ $"{ // �
+     │    │           +++
+     │ 10 │ $"stray } here"
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  9 │ $"x{ $"{ /* � */$"stray } here"
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ $"x{ $"{ /* � */$"stray } here"
+    │   │             -
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"x{ $"{ /* � */$"stray } here"
+    │                 ^^

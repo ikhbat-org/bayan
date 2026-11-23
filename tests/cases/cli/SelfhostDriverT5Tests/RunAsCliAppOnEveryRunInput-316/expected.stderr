@@ -1,0 +1,7 @@
+warning BYN2405: unreachable code
+  --> <repo>/tmp/t5/run/run_todo/todo.byn:6:1
+
+  6 │ print(label)
+    │ ^^^^^^^^^^^^
+pending: label for 41
+  at todo.byn:5

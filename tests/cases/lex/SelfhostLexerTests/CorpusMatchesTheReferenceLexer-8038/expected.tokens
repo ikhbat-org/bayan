@@ -1,0 +1,9 @@
+1:1 CharLiteral `' let café = ; `
+1:17 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' let café = ; 
+    │ ^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`

@@ -1,0 +1,6 @@
+--ascii
+--color
+always
+test
+-v
+<repo>/tmp/t7-style/test-verbose-ascii/tally

@@ -1,0 +1,79 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:33 Identifier `pen`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 CharLiteral `'ab'`
+4:1 Identifier `b`
+5:3 InterpolatedStringStart `$"`
+5:5 InterpolationStart `{`
+5:6 InterpolationEnd `}`
+5:7 InterpolatedStringEnd `"`
+5:9 ErrorKeyword `error`
+5:15 SetKeyword `set`
+5:19 Identifier `un`
+5:22 Identifier `it`
+5:25 DistinctKeyword `distinct`
+5:34 TypeKeyword `type`
+5:39 ImportKeyword `import`
+5:46 AsKeyword `as`
+5:49 PublicKeyword `public`
+5:56 PrivateKeyword `private`
+5:64 StaticKeyword `static`
+5:71 ReadonlyKeyword `readonly`
+5:80 RequiredKeyword `required`
+5:89 ConstKeyword `const`
+5:95 LetKeyword `let`
+5:99 VarKeyword `var`
+5:103 EmbedKeyword `embed`
+5:109 ExternKeyword `extern`
+5:116 UnsafeKeyword `unsafe`
+6:1 Identifier `er`
+6:4 Identifier `closed`
+6:10 Identifier `b`
+    doc `/// Doc line one.`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  1 │ struct unique union enum flags �pen extensible interface delegate extension derivation attribute
+    │                                ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │  ���$"{}" error set un�it distinct type import as public private static readonly required const let var embed extern unsafe
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │  ���$"{}" error set un�it distinct type import as public private static readonly required const let var embed extern unsafe
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ���$"{}" error set un�it distinct type import as public private static readonly required const let var embed extern unsafe
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │  ���$"{}" error set un�it distinct type import as public private static readonly required const let var embed extern unsafe
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  6 │ er closed�b
+    │          ^

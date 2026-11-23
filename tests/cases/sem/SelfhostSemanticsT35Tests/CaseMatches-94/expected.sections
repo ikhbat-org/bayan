@@ -1,0 +1,3 @@
+== expr.probes.c12
+errorExpr:?[1171:3]=-()
+BYN2202 71:23 expected `string`, found `a collection literal` |||

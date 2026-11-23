@@ -1,0 +1,51 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray } here`
+2:15 InterpolatedStringEnd `"`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolationEnd `}`
+3:6 InterpolatedStringEnd `"`
+4:1 CharLiteral `'a'`
+4:5 CharLiteral `'\n'`
+4:10 CharLiteral `'\u{1F600}'`
+4:22 CharLiteral `'\''`
+4:27 CharLiteral `'é'`
+4:31 CharLiteral `'\\'`
+4:36 CharLiteral `'\0'`
+6:5 Identifier `raw`
+6:9 StringLiteral `"quoted"`
+7:2 OpenBrace `{`
+7:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �
+    │  ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │ $"stray } here"
+    │         ^
+    │
+    │ 2 │ $"stray }} here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���   raw "quoted"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���   raw "quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���   raw "quoted"
+    │   ^

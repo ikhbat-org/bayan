@@ -1,0 +1,4 @@
+check
+<repo>/tests/cases/lex/bad-chars.byn
+--diagnostics
+json

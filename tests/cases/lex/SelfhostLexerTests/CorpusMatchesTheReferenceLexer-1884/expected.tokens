@@ -1,0 +1,87 @@
+1:1 StringLiteral `" { x = 1 }}!"`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolatedStringEnd `"`
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_000`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0xFF`
+2:60 NumericSuffix `u`
+2:62 IntegerLiteral `0b1`
+2:65 NumericSuffix `ul`
+2:68 IntegerLiteral `7`
+2:69 NumericSuffix `l`
+3:10 Identifier `x_`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1__`
+6:1 IntegerLiteral `0xF__`
+8:1 OpenParen `(`
+8:3 CloseParen `)`
+8:5 OpenBracket `[`
+8:7 CloseBracket `]`
+8:9 OpenBrace `{`
+8:11 CloseBrace `}`
+11:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │  /* � */ x_
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │  // �
+    │   │   +++
+    │ 4 │   x_
+    │   │ +
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │  /* � */ x_
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  /* � */ x_
+    │   │     -
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  10 │ // comment � hidden
+     │            ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ // comment � hidden
+     │    │            -

@@ -1,0 +1,37 @@
+1:1 FloatLiteral `3.14`
+1:6 FloatLiteral `1e5`
+1:10 Identifier `z`
+1:11 Dot `.`
+1:12 FloatLiteral `5e-3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:39 IntegerLiteral `3`
+1:41 IntegerLiteral `5`
+1:42 NumericSuffix `ex`
+1:44 Dot `.`
+1:45 Identifier `y`
+1:47 FloatLiteral `2.5`
+1:50 NumericSuffix `f`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed� 0xFFs\n \u{202E}\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never closed� 0xFFs
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ let c = """never closed� 0xFFs
+    │                        ^

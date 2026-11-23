@@ -1,0 +1,4 @@
+== s50
+switchExpr|i64|4140:33
+value local:(i64 a, i64 b)=tp
+arm 4152:19 propertyPattern[4152:14]:(i64 a, i64 b)((i64 a, i64 b);#0:i64=bindPattern[4153:3]:i64(x:i64:b:-:let);#1:i64=bindPattern[4160:3]:i64(y:i64:b:-:let)|-) guard - value local:i64=x

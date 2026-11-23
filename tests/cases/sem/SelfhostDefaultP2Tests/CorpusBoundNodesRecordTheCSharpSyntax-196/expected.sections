@@ -1,0 +1,17 @@
+== tests/cases/run/memory-arena-repeated-too-large.byn
+129..278 blockStmt
+135..160 localDecl
+153..160 callExpr
+165..276 contextStmt
+184..189 nameExpr
+190..276 blockStmt
+200..241 localDecl
+208..241 callExpr
+208..211 literalExpr string
+221..240 literalExpr integer
+250..270 exprStmt
+250..270 callExpr
+256..269 interpolatedExpr
+259..267 memberExpr
+259..260 nameExpr
+250..270 callExpr

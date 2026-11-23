@@ -1,0 +1,9 @@
+t this null true fa�se comptime checked
+test assertlet c =  3
+
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ struct S
+
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+// ‮x

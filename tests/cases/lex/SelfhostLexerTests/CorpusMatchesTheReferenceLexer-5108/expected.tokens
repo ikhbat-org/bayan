@@ -1,0 +1,51 @@
+1:1 Star `*`
+1:2 Slash `/`
+1:3 TestKeyword `test`
+1:8 AssertKeyword `assert`
+1:15 PropertyKeyword `property`
+1:24 Identifier `fzz`
+1:28 ModelKeyword `model`
+1:34 ForeachKeyword `foreach`
+1:42 NewKeyword `new`
+1:46 GotoKeyword `goto`
+1:52 LetKeyword `let`
+1:56 LawKeyword `law`
+1:60 Equals `=`
+1:62 IntegerLiteral `3`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `1`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{E}`
+
+  1 │ */test assert property fzz model foreach new goto� let law = 3
+    │                                                  ^
+
+error BYN0004: unterminated block comment
+
+  4 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  �
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �
+    │  ^

@@ -1,0 +1,1 @@
+{"code":"BYN2603","severity":"error","file":"input/main.byn","span":{"start":250,"end":259,"line":13,"column":5,"endLine":13,"endColumn":14},"message":"`ValidationError<b.Point>` is not in the `fails` clause of `ga`","label":null,"help":"add it to the signature: `fails ValidationError<a.Point>, Other, ValidationError<b.Point>`","fixes":[]}

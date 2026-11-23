@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"StringLiteral","start":0,"end":23,"text":"\"‮ allowed in trings\"","doc":null},{"kind":"StringLiteral","start":24,"end":26,"text":"\"\"","doc":null},{"kind":"StringLiteral","start":27,"end":36,"text":"\"\\u{48}i\"","doc":null},{"kind":"EndOfFile","start":38,"end":38,"text":"","doc":null}],"diagnostics":[]}

@@ -1,0 +1,8 @@
+== tests/cases/run/assert-values.byn
+0..18 globalStatement
+0..18 localDecl
+15..18 unaryExpr negate operand 16..18
+19..37 assertStmt
+26..36 binaryExpr eq right 33..36
+26..29 nameExpr
+33..36 unaryExpr negate operand 34..36

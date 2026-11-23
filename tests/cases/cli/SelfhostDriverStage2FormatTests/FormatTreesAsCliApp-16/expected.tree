@@ -1,0 +1,12 @@
+== outside/x.byn OtherRead, GroupRead, UserWrite, UserRead
+long i8(long x) => x
+== pkg/main.byn OtherRead, GroupRead, UserWrite, UserRead
+void main() {
+    let n = sbyte(3)
+}
+== pkg/package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { primitives: .csharp },
+}

@@ -1,0 +1,6 @@
+let label = order switch {
+    .placed => "Awaiting payment",
+    .paid p => $"Paid via {p.payment.method}",
+    .shipped s => $"Shipped, tracking {s.tracking}",
+    .canceled => "Canceled",
+}

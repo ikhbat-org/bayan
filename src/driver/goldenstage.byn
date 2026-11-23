@@ -1,0 +1,177 @@
+// Tests of the SelfhostDriver staging of the golden runner's `cli` cases (spec 019 T19c): `goldenCliStage`, `goldenCliTarget` and `goldenCli`
+// in goldenexport.byn, which place a case's inputs, links and modes as SelfhostDriverTests.cs:66-120 `StageInputs` did.
+
+test "a SelfhostDriver plain `input` goes to the path of its `input.name`, and its `links` are made below the input's place" {
+    if Target.os == "windows" {
+        todo("`ln -s` makes no symbolic link on Windows")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-stage-driver")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDriverT2Tests/dash")
+    goldenWrite(dir, for: "args", as: "parse\n<repo>/t/-\n")
+    goldenWrite(dir, for: "input", as: "x\n")
+    goldenWrite(dir, for: "input.name", as: "-\n")
+    let tree = Path.combine(root, "cli/SelfhostDriverT1Tests/tree")
+    goldenWrite(tree, for: "args", as: "format\n<repo>/t/proj\n")
+    goldenWrite(tree, for: "input.tsv", as: "a.byn\tfile:aa\n")
+    goldenWrite(tree, for: "links", as: "proj/b.byn -> a.byn\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "z\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let dash = Io.readText(Path.combine(scratch, "t/-")) catch "-"
+    let _ = goldenCliStage(tree, from: root, to: scratch, through: ref failure)
+    let linked = goldenCliRun(["test", "-L", Path.combine(scratch, "t/proj/b.byn")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(dash == "x\n")
+    assert(linked)
+}
+
+test "a `links` line naming no directory is made at the path `args` names when one ends in that name" {
+    if Target.os == "windows" {
+        todo("`ln -s` makes no symbolic link on Windows")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-stage-toplink")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDriverT1Tests/loop")
+    goldenWrite(dir, for: "args", as: "format\n<repo>/tmp/t6/loop.byn\n")
+    goldenWrite(dir, for: "links", as: "loop.byn -> loop.byn\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let linked = goldenCliRun(["test", "-L", Path.combine(scratch, "tmp/t6/loop.byn")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(linked)
+}
+
+test "an input's place takes `..` lexically, and a `main.byn` stands for its directory" {
+    let a = Path.fullPath("/a/b")
+    assert(goldenCliTarget(Path.combine(a, "link/../c.byn")) == Path.combine(a, "c.byn"))
+    assert(goldenCliTarget(Path.combine(a, "link/../main.byn")) == a)
+}
+
+test "an empty T1 input.tsv is the empty directory `args` names, and another class's empty input.tsv creates nothing" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-stage-empty")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDriverT1Tests/empty")
+    goldenWrite(dir, for: "args", as: "audit\n<repo>/tmp/t6-audit/empty\n")
+    goldenWrite(dir, for: "input.tsv", as: "")
+    let fix = Path.combine(root, "cli/SelfhostDriverFixTests/nope")
+    goldenWrite(fix, for: "args", as: "fix\n<repo>/tmp/fix/nope.byn\n")
+    goldenWrite(fix, for: "input.tsv", as: "")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let _ = goldenCliStage(fix, from: root, to: scratch, through: ref failure)
+    let made = goldenCliRun(["test", "-d", Path.combine(scratch, "tmp/t6-audit/empty")]) == ""
+    let nope = goldenCliRun(["test", "-e", Path.combine(scratch, "tmp/fix/nope.byn")]) == ""
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(made)
+    assert(!nope)
+}
+
+test "an input below the repo's tests/cases gets the other `.byn` files of the cases at that place beside it" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-stage-siblings")
+    deleteWorkDir(root)
+    let dir = Path.combine(root, "cli/SelfhostDriverT1Tests/json")
+    goldenWrite(dir, for: "args", as: "check\n<repo>/tests/cases/lex/x.byn\n")
+    goldenWrite(dir, for: "input.byn.ref", as: "file:aa\n")
+    goldenWrite(dir, for: "input.name", as: "x.byn\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "x\n")
+    goldenWrite(root, for: "lex/x.byn", as: "old\n")
+    goldenWrite(root, for: "lex/y.byn", as: "y\n")
+    goldenWrite(root, for: "lex/z.txt", as: "z\n")
+    let scratch = Path.combine(root, "scratch")
+    var failure = ""
+    let _ = goldenCliStage(dir, from: root, to: scratch, through: ref failure)
+    let x = Io.readText(Path.combine(scratch, "tests/cases/lex/x.byn")) catch "-"
+    let y = Io.readText(Path.combine(scratch, "tests/cases/lex/y.byn")) catch "-"
+    let z = Fs.fileExists(Path.combine(scratch, "tests/cases/lex/z.txt"))
+    deleteWorkDir(root)
+    assert(failure == "")
+    assert(x == "x\n")
+    assert(y == "y\n")
+    assert(!z)
+}
+
+test "a widened input tree (019-t19x export) is the case root a `links` line starts at, or holds a named entry and its siblings" {
+    let root = Path.combine(Path.fullPath("tmp"), "golden-stage-widened")
+    deleteWorkDir(root)
+    let sym = Path.combine(root, "cli/SelfhostDriverT1Tests/sym")
+    goldenWrite(sym, for: "args", as: "format\n<repo>/tmp/t8/symlink/link.byn\n")
+    goldenWrite(sym, for: "input.tsv", as: "real.byn\tfile:aa\n")
+    goldenWrite(sym, for: "links", as: "symlink/link.byn -> real.byn\n")
+    let up = Path.combine(root, "cli/SelfhostDriverT1Tests/up")
+    goldenWrite(up, for: "args", as: "audit\n<repo>/tmp/t6/parent-link/dir\n")
+    goldenWrite(up, for: "input.tsv", as: "dir\ttree:tt\noutside.byn\tfile:aa\n")
+    goldenWrite(up, for: "links", as: "parent-link/dir/link -> ..\n")
+    let module = Path.combine(root, "cli/SelfhostDriverT5Tests/module")
+    goldenWrite(module, for: "args", as: "build\n--emit-c\n<repo>/tmp/t5/empty/e.byn\n")
+    goldenWrite(module, for: "input.tsv", as: "e.byn\tfile:aa\nf.byn\tfile:aa\n")
+    goldenWrite(root, for: "inputs/files/aa", as: "z\n")
+    goldenWrite(root, for: "inputs/trees/tt.tsv", as: "")
+    let scratch = Path.combine(root, "scratch")
+    var linkFailure = ""
+    var failure = ""
+    let _ = goldenCliStage(sym, from: root, to: scratch, through: ref linkFailure)
+    let _ = goldenCliStage(up, from: root, to: scratch, through: ref linkFailure)
+    let _ = goldenCliStage(module, from: root, to: scratch, through: ref failure)
+    let real = Fs.fileExists(Path.combine(scratch, "tmp/t8/symlink/real.byn"))
+    let link = goldenCliRun(["test", "-L", Path.combine(scratch, "tmp/t8/symlink/link.byn")]) == ""
+    let outside = Fs.fileExists(Path.combine(scratch, "tmp/t6/parent-link/outside.byn"))
+    let parent = goldenCliRun(["test", "-L", Path.combine(scratch, "tmp/t6/parent-link/dir/link")]) == ""
+    let sibling = Fs.fileExists(Path.combine(scratch, "tmp/t5/empty/f.byn"))
+    deleteWorkDir(root)
+    // a `links` case runs only on macos and linux (its `os` file, 019-win8): on Windows Git bash's `ln -s` copies or fails
+    let windows = Target.os == "windows"
+    assert(linkFailure == "" || windows && linkFailure.startsWith("ln failed"))
+    assert(failure == "")
+    assert(real)
+    assert(windows || link)
+    assert(outside)
+    assert(windows || parent)
+    assert(sibling)
+}
+
+test "a T3 `exit` case runs in the fresh directory of its `-o` output, and a SelfhostDriver case with `modes` is opened again after its run" {
+    if Target.os == "windows" {
+        todo("the driver is a `sh` script, and `chmod 500` locks no directory on Windows")
+    }
+    let root = Path.combine(Path.fullPath("tmp"), "golden-stage-run")
+    deleteWorkDir(root)
+    let exe = Path.combine(root, "exe")
+    let seen = Path.combine(root, "seen")
+    goldenWrite(root, for: "exe", as: $"#!/bin/sh\npwd -P > {seen}\nmkdir locked\nchmod 500 locked\n")
+    let _ = goldenCliRun(["chmod", "+x", exe])
+    let dir = Path.combine(root, "cases/cli/SelfhostDriverT3Tests/stage-out")
+    goldenWrite(dir, for: "args", as: "build\n-o\n<repo>/tmp/t3/out/app\n<repo>/main.byn\n")
+    goldenWrite(dir, for: "compare", as: "exit\n")
+    goldenWrite(dir, for: "expected.exitcode", as: "0\n")
+    let locked = Path.combine(root, "cases/cli/SelfhostDriverT1Tests/stage-modes")
+    goldenWrite(locked, for: "args", as: "audit\n")
+    goldenWrite(locked, for: "compare", as: "exit\n")
+    goldenWrite(locked, for: "expected.exitcode", as: "0\n")
+    goldenWrite(locked, for: "modes", as: "")
+    let scratch = Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT3Tests_stage-out")
+    let lockedScratch = Path.combine(Path.fullPath("tmp"), "cli/SelfhostDriverT1Tests_stage-modes")
+    let ran = goldenCli(Path.combine(dir, "args"), by: exe)
+    let cwd = goldenLf(Io.readText(seen) catch "-")
+    let _ = goldenCli(Path.combine(locked, "args"), by: exe)
+    let writable = goldenCliRun(["test", "-w", Path.combine(lockedScratch, "locked")]) == ""
+    let _ = goldenCliRun(["chmod", "-R", "u+rwx", scratch, lockedScratch])
+    deleteWorkDir(scratch)
+    deleteWorkDir(lockedScratch)
+    deleteWorkDir(root)
+    assert(ran is null)
+    assert(cwd == $"{scratch}/tmp/t3/out\n")
+    assert(writable)
+}
+
+test "the T10 edge input blob keeps the CRLF line ending its name hashes (`EdgeText`), which git's `text=auto` dropped at landing" {
+    let name = "a7f3b60a435b22526b0424e1a931459ba7982002f219b2e53b17d85e9a6c1d8f"
+    let bytes = Io.readFile(Path.combine(Path.fullPath("tests/cases/inputs/files"), name)) catch List<u8>()
+    assert(Hex.encode(sha256(bytes.span).span) == name)
+}

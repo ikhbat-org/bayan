@@ -1,0 +1,8 @@
+let b = "bad \q escape"
+
+'‮'��� fails try catch never noalloc nosuspend suspends async await
+
+|= ^= <=
+
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+let cafà� = 2

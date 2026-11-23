@@ -1,0 +1,20 @@
+# BYN2606: `defer failing` in a function that cannot fail
+
+**Why.** `defer failing` runs only when the function fails. In a function without a `fails` clause it would never run.
+
+**Example.**
+
+```
+void cleanup() { }
+void f() {
+    defer failing cleanup()
+}
+```
+
+**Fix.** Remove `failing` so the cleanup runs on every exit, or add a `fails` clause if the function can fail:
+
+```
+void f() {
+    defer cleanup()
+}
+```

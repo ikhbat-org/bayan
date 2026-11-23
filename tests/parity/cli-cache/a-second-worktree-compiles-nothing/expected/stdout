@@ -1,0 +1,12 @@
+== 1 exit 0
+new 0
+worktree 0
+== 2 exit 0
+build 0
+test 0
+2
+== 3 exit 0
+build 0
+test 0
+stats unchanged
+Salam, world!

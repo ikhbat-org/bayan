@@ -1,0 +1,140 @@
+warning BYN2311: `e` is never reassigned; declare it with `let`
+  --> input.byn:6:9
+
+  6 │     var e: u8 = 5
+    │         ^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 6 │     let e: u8 = 5
+    │   │     +++
+
+error BYN2002: unknown type `Money`
+  --> input.byn:8:12
+
+  8 │     var m: Money
+    │            ^^^^^
+
+error BYN2001: `xs` is not defined
+  --> input.byn:22:5
+
+  22 │     xs[0] = 1
+     │     ^^
+
+error BYN2001: `_` is not defined
+  --> input.byn:26:5
+
+  26 │     _ = f()
+     │     ^
+     │
+  help: did you mean `a`?
+     │ 26 │     a = f()
+     │    │     +
+
+error BYN2220: `i64` cannot be called
+  --> input.byn:26:9
+
+  26 │     _ = f()
+     │         ^
+
+error BYN2001: `ok` is not defined
+  --> input.byn:28:12
+
+  28 │     unless ok { retry() }
+     │            ^^
+
+error BYN2001: `retry` is not defined
+  --> input.byn:28:17
+
+  28 │     unless ok { retry() }
+     │                 ^^^^^
+
+error BYN2001: `total` is not defined
+  --> input.byn:31:22
+
+  31 │     for i in 0..10 { total += i }
+     │                      ^^^^^
+
+error BYN2001: `xs` is not defined
+  --> input.byn:32:14
+
+  32 │     for x in xs { print(x) }
+     │              ^^
+
+error BYN2001: `n` is not defined
+  --> input.byn:33:23
+
+  33 │     for i: i64 in 0..=n {}
+     │                       ^
+     │
+  help: did you mean `a`?
+     │ 33 │     for i: i64 in 0..=a {}
+     │    │                       +
+
+error BYN2001: `ys` is not defined
+  --> input.byn:34:14
+
+  34 │     for y in ys {}
+     │              ^^
+
+error BYN2001: `grid` is not defined
+  --> input.byn:35:23
+
+  35 │     outer: for row in grid {
+     │                       ^^^^
+
+error BYN2001: `close` is not defined
+  --> input.byn:41:11
+
+  41 │     defer close(f)
+     │           ^^^^^
+
+error BYN2606: `defer failing` in a function that cannot fail
+  --> input.byn:42:5
+
+  42 │     defer failing rollback()
+     │     ^^^^^^^^^^^^^
+     │
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function
+
+error BYN2001: `rollback` is not defined
+  --> input.byn:42:19
+
+  42 │     defer failing rollback()
+     │                   ^^^^^^^^
+
+error BYN2606: `defer failing` in a function that cannot fail
+  --> input.byn:43:5
+
+  43 │     defer failing (e) { log(e) }
+     │     ^^^^^^^^^^^^^^^^^
+     │
+  help: remove `failing` to run it on every exit, or add a `fails` clause to the function
+
+error BYN2007: `e` is already a local here
+  --> input.byn:43:20
+
+  43 │     defer failing (e) { log(e) }
+     │                    ^ already declared on line 6
+     │
+  help: pick a different name; Bayan does not let a local hide another one
+
+error BYN2202: expected `string`, found `error`
+  --> input.byn:43:29
+
+  43 │     defer failing (e) { log(e) }
+     │                             ^
+
+error BYN2001: `work` is not defined
+  --> input.byn:45:9
+
+  45 │         work()
+     │         ^^^^
+
+error BYN2001: `nested` is not defined
+  --> input.byn:48:9
+
+  48 │         nested()
+     │         ^^^^^^
+
+✗ build failed: 19 errors, 1 warning
+  explain: bayan explain BYN2002

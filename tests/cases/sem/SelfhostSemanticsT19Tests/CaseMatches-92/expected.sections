@@ -1,0 +1,4 @@
+== bind.probes.s7
+flags 0
+errorExpr:?[4327:24]=-()
+BYN2111 218:14 `Ratio` has a constructor; call it instead of using a struct literal ||call the constructor: `Ratio()`|

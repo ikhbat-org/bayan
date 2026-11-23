@@ -1,0 +1,62 @@
+import lexer
+import parser
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 4 < args.length {
+        let kind = args[i]
+        let name = args[i + 1]
+        let path = args[i + 2]
+        let stdDir = args[i + 3]
+        let flags = args[i + 4]
+        print($"== {kind} {name}")
+        var std = List<StdSource>()
+        readStd(stdDir, at: "", to: ref std)
+        var options = CompilationOptions { std: move std }
+        if flags.contains("c") {
+            var capabilities = List<string>()
+            capabilities.append("net")
+            options.capabilities = move capabilities
+            options.packageName = "local/p"
+        }
+        if kind == "project" {
+            let c = fromProject(path, for: "app", by: in options)
+            dump(in c)
+        } else {
+            let c = fromPath(path, by: in options, wholeDirectory: flags.contains("w"))
+            dump(in c)
+        }
+        i += 5
+    }
+    return 0
+}
+
+/// Every file under `dir`, its path under the std directory (`prefix` so far) and its text.
+void readStd(string dir, at string prefix, to ref List<StdSource> std) {
+    for name in t11ListFiles(dir) {
+        let full = t11Combine(dir, by: name)
+        let path = prefix.length == 0 ? name : $"{prefix}/{name}"
+        if t11DirectoryExists(full) {
+            readStd(full, at: path, to: ref std)
+        } else {
+            let bytes = t11ReadAllBytes(full)
+            std.append(StdSource { path: path, text: $"{Utf8.decode(bytes.span, invalid: .replace)}" })
+        }
+    }
+}
+
+string diagLine(in Ctx c, for in Diag d) {
+    let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+    return $"diag {d.code} {c.files[d.file].displayPath} {pos.line}:{pos.column} {d.message} | {d.label} | {d.help}"
+}
+
+void dump(in Ctx c) {
+    for m in c.moduleOrder {
+        print($"module {c.modules[m].name} {c.modules[m].directory} {c.modules[m].cName}")
+        for f in c.modules[m].files {
+            print($"file {c.files[f].displayPath}")
+            for (alias, imported) in c.files[f].imports { print($"import {alias} {c.modules[imported].name}") }
+        }
+    }
+    for d in c.diagnostics { print(diagLine(in c, for: in d)) }
+}

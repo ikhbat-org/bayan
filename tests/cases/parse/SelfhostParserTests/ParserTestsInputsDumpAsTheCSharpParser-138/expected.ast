@@ -1,0 +1,2 @@
+CompilationUnit
+  TypeAlias F = () -> void uses io fails E

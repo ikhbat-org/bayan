@@ -1,0 +1,4 @@
+== subj.w2
+local|i64|-|n|2440:1|-
+owns false
+BYN2789 106:19 `switch move …` needs a local or a `move` parameter, not `n` ||drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection field into a local first|

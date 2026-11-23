@@ -1,0 +1,18 @@
+== cases
+0 bynh_add_list_main__Token(&l0_tokens, ((bynt_main__Token){((byn_main_TokenKind)0), INT64_C(2)}))
+1 bynh_add_list_main__Token(&l0_tokens, ((bynt_main__Token){((byn_main_TokenKind)1), INT64_C(0)}))
+2 bynh_add_list_main__Token(&l0_tokens, ((bynt_main__Token){((byn_main_TokenKind)0), INT64_C(3)}))
+3 bynh_add_list_main__Token(&l0_tokens, ((bynt_main__Token){((byn_main_TokenKind)2), INT64_C(0)}))
+4 bynh_add_list_main__Token(&l0_tokens, ((bynt_main__Token){((byn_main_TokenKind)0), INT64_C(4)}))
+5 (l2_t.kind == ((byn_main_TokenKind)0))
+6 ((byn_dyn_main__INode){&l10_n, &bynh_vtab_main__Num_main__INode})
+7 ((byn_dyn_main__INode){&l11_a, &bynh_vtab_main__Add_main__INode})
+8 ((byn_dyn_main__INode){&l12_m, &bynh_vtab_main__Mul_main__INode})
+9 (*self).tokens.len
+10 (*bynh_at_list_main__Token((*self).tokens, (int64_t)p_index, false, byn_file_0, 19))
+11 ((*self).at < (*self).tokens.len)
+12 (*self).tokens.len
+13 (*bynh_at_list_main__Token((*self).tokens, (int64_t)(*self).at, false, byn_file_0, 33))
+14 byn_add_i64((*self).left, (*self).right, byn_file_0, 54)
+15 byn_mul_i64((*self).left, (*self).right, byn_file_0, 63)
+count 16

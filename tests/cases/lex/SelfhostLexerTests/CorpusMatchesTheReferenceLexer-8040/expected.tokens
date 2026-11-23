@@ -1,0 +1,26 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:3 IsKeyword `is`
+1:6 AndKeyword `and`
+1:10 OrKeyword `or`
+1:13 NotKeyword `not`
+1:17 WithKeyword `with`
+1:22 MoveKeyword `move`
+1:27 RefKeyword `ref`
+1:31 OutKeyword `out`
+1:35 ThisKeyword `this`
+1:40 NullKeyword `null`
+1:45 TrueKeyword `true`
+1:50 FalseKeyword `false`
+1:56 ComptimeKeyword `comptime`
+1:65 CheckedKeyword `checked`
+2:1 IntegerLiteral `1_`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -

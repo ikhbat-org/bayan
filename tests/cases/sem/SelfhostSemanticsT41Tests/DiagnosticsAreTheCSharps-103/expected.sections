@@ -1,0 +1,2 @@
+== diags.diag/branch-type-mismatch
+BYN2216 2:9 branches have different types: `i32` and `string`

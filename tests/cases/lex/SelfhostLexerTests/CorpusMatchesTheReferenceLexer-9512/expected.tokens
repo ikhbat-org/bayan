@@ -1,0 +1,56 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:22 CaseKeyword `case`
+1:27 DefaultKeyword `default`
+1:35 ForKeyword `for`
+1:39 InKeyword `in`
+1:42 WhileKeyword `while`
+1:48 DoKeyword `do`
+1:51 BreakKeyword `break`
+1:57 ContinueKeyword `continue`
+1:66 ReturnKeyword `return`
+1:73 YieldKeyword `yield`
+1:79 DeferKeyword `defer`
+1:85 ErrdeferKeyword `errdefer`
+1:94 UsingKeyword `using`
+1:100 ContextKeyword `context`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:10 StringLiteral `"bad \q escape"`
+3:2 LetKeyword `let`
+3:6 Identifier `c`
+3:8 Equals `=`
+3:10 RawStringLiteral `"""never closed\nx́́��\n̈́\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x95)
+
+  1 │ if else unless switch�case default for in while do break continue return yield defer errdefer using context
+    │                      ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  3 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ x́́��
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ x́́��
+    │     ^

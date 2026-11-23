@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""\n0x_\n\nvar xs: List<List<i�64>>\n\n// line comment\n let law = 3\n\nان  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"\n`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  4 │ var xs: List<List<i�64>>
+    │                    ^

@@ -1,0 +1,85 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+5:1 IntegerLiteral `0b1`
+5:4 NumericSuffix `ms`
+6:1 Identifier `ray`
+6:6 Identifier `here`
+6:10 StringLiteral `"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `";`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `x`
+8:4 InterpolationStart `{`
+8:6 InterpolatedStringStart `$"`
+8:8 InterpolationStart `{`
+8:9 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  6 │ ray  here"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

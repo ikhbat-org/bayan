@@ -1,0 +1,4 @@
+block 9..39 < if 15..37 while 22..37 block 30..37 < > else none >
+BYN1017 18+3 parentheses around a condition are an input form fix 18+19 'x { while y {
+    } }'
+BYN1018 22+15 the body of `if` must be a block

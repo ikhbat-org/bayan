@@ -1,0 +1,6 @@
+== particle-as-member-name
+BYN5009 104+7 `asCount` spells a conversion with `as`; write `count` |  | use a view noun, `copy()`, or a `T(x)` conversion | 
+BYN5009 133+8 `toString` spells a conversion with `to`; write `string(shelf)` |  | use a view noun, `copy()`, or a `T(x)` conversion | 
+BYN5009 38+2 `at` is a particle; name the member with a verb or a noun |  | rename the member, for example `tryGet(at:)` instead of `at(…)` | 
+BYN5009 78+5 `toI64` spells a conversion with `to`; write `i64(shelf)` |  | use a view noun, `copy()`, or a `T(x)` conversion | 
+end

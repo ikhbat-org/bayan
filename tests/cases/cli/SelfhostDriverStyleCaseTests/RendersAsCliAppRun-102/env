@@ -1,0 +1,5 @@
+FORCE_COLOR=1
+COLORTERM=truecolor
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/build-ice-force-csharp
+PATH=<repo>/tmp/t7-style/build-ice-force/tally/fakebin

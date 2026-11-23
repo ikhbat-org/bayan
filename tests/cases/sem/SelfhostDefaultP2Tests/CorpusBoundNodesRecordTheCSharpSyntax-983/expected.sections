@@ -1,0 +1,46 @@
+== tests/cases/diag/wildcard-on-local-union.byn
+88..141 switchExpr
+88..141 switchExpr
+88..141 switchExpr
+88..89 nameExpr
+103..117 variantPattern
+111..114 varPattern
+121..126 binaryExpr mul right 125..126
+121..122 nameExpr
+125..126 nameExpr
+132..133 discardPattern
+137..138 literalExpr integer
+165..256 switchExpr
+165..256 switchExpr
+165..256 switchExpr
+165..166 nameExpr
+180..194 variantPattern
+188..191 varPattern
+198..199 nameExpr
+205..220 variantPattern
+211..214 varPattern
+218..219 discardPattern
+224..225 nameExpr
+231..236 constantPattern
+240..241 literalExpr integer
+247..248 discardPattern
+252..253 literalExpr integer
+284..335 switchExpr
+284..335 switchExpr
+284..335 switchExpr
+284..285 nameExpr
+299..304 constantPattern
+308..314 literalExpr string
+320..321 discardPattern
+325..332 literalExpr string
+337..389 globalStatement
+337..389 exprStmt
+337..389 callExpr
+343..388 interpolatedExpr
+346..357 callExpr
+351..356 targetMemberExpr
+360..372 callExpr
+366..371 targetMemberExpr
+375..386 callExpr
+381..385 literalExpr nullKeyword
+337..389 callExpr

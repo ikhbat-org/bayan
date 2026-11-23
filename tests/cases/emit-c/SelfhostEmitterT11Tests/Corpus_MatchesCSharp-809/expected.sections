@@ -1,0 +1,14 @@
+== cases
+0 p_s.xs.len
+1 bynh_add_list_i64(&l0_xs, INT64_C(42))
+2 ((byn_dyn_main__IThing){&l1_s, &bynh_vtab_main__S_main__IThing})
+3 bynh_span_list_i64(l1_s.xs)
+4 (*bynh_at_span_i64(l3_sp, (int64_t)INT64_C(0), false, byn_file_0, 22))
+5 bynh_add_list_i64(&l4_t.xs, INT64_C(1))
+6 bynh_add_list_i64(&l5_ys, INT64_C(7))
+7 bynh_span_list_i64(l5_ys)
+8 (*bynh_at_span_i64(l6_view, (int64_t)INT64_C(0), false, byn_file_0, 29))
+10 bynh_add_list_i64(&l7_zs, INT64_C(8))
+11 l7_zs.len
+12 (*bynh_at_list_i64((*self).xs, (int64_t)INT64_C(0), false, byn_file_0, 9))
+count 13

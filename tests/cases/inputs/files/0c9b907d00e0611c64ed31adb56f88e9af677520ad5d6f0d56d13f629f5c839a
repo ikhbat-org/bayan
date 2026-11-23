@@ -1,0 +1,6 @@
+// ok þ in omment
+ var xs: List<Lis<i64>>
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{x}"}"let b = "bad \q escape"
+
+var xs: List<List<i64>>
+ 

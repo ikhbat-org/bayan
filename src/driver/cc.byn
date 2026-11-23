@@ -233,7 +233,7 @@ List<string> ccArguments(
 interface ICCompiler {
     /// Writes `source` and the runtime into `dir` and links `output`; `target` is the `--target` value, else `targetHost()` (Toolchain.cs:262).
     NativeBuild compile(ref this, string dir, from string source, to string output, by string mode, for string? target)
-            uses alloc, env, fs, process
+            uses alloc, clock, env, fs, process
 }
 
 /// The one implementation (plan D3): the `FindCompiler` order.
@@ -269,30 +269,36 @@ struct ZigOrCc : ICCompiler {
         }
         // Toolchain.cs:397-402: the runtime object first. A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode`.
         let runtimeArgs = ccRuntimeArguments(in compiler, for: dir, by: mode, through: resolved)
-        let rt = Io.run(compiler[0], runtimeArgs.span) catch switch {
+        let rt = Io.run(compiler[0], runtimeArgs.span, env: zigCacheEnv(compiler)) catch switch {
+            // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
             },
+            // coverage-exempt: Q1286 `ccFindOnPath` checks `Fs.fileExists` before the run
             IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`" },
         }
         return NativeBuild {
             errors: $"C compiler failed (exit {rt.exitCode}):\n{rt.stdout}{rt.stderr}",
             rejected: true,
         } if rt.exitCode != 0
+            // coverage-exempt: Q1286 a compiler that exits 0 without writing bayan-rt.o
             || !t1FileExists(Path.combine(dir, "bayan-rt.o"))
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
-        let r = Io.run(compiler[0], args.span) catch switch {
+        let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+            // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
             },
+            // coverage-exempt: Q1286 `ccFindOnPath` checks `Fs.fileExists` before the run
             IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`" },
         }
         return NativeBuild {
             errors: $"C compiler failed (exit {r.exitCode}):\n{r.stdout}{r.stderr}",
             rejected: true,
         } if r.exitCode != 0
+            // coverage-exempt: Q1286 a compiler that exits 0 without writing the output
             || !t1FileExists(output)
         return NativeBuild { succeeded: true }
     }
@@ -310,32 +316,77 @@ void ccReportToolchainBy(in NativeBuild result, by in semantics.T26Symbols symbo
         Io.stderr.write($"bayan: {result.errors}\n")
         return
     }
+    Io.stderr.write(ccRejectedText(result, by: in symbols))
+}
+
+/// What `ccReportToolchainBy` writes for a rejected build: the BYN4001 head in `symbols`, then the C compiler's output.
+string ccRejectedText(in NativeBuild result, by in semantics.T26Symbols symbols) uses alloc {
+    // DiagnosticCodes.cs:330 BYN4001
+    let head = ccIceText(
+        "BYN4001",
+        for: "internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler",
+        as: result.errors,
+        by: in symbols,
+    )
+    return $"{head}{result.errors.endsWith("\n") ? result.errors : $"{result.errors}\n"}"
+}
+
+/// An internal compiler error with no location, rendered in `symbols`: the renderer prints the head only.
+string ccIceText(string code, for string message, as string help, by in semantics.T26Symbols symbols) uses alloc {
     var c = CcCtx {
         files: List<semantics.SourceFile>(),
         modules: List<semantics.Mod>(),
         diagnostics: List<CcDiag>(),
         bags: List<semantics.DiagBag>(),
     }
-    // DiagnosticCodes.cs:330 BYN4001; without a location the renderer prints the head only.
     let ice = CcDiag {
-        code: "BYN4001",
+        code: code,
         span: CcSpan { start: 0, length: 0 },
         fixSpan: CcSpan { start: 0, length: 0 },
-        message: "internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler",
-        help: result.errors,
+        message: message,
+        help: help,
         related: List<CcRelated>(),
     }
     c.diagnostics.append(move ice)
     var omitted: i64 = 0
-    Io.stderr.write(
-        semantics.renderAllBy(
-            in c,
-            from: in c.diagnostics,
-            by: true,
-            until: 2147483647,
-            to: ref omitted,
-            through: in symbols,
-        ),
+    return semantics.renderAllBy(
+        in c,
+        from: in c.diagnostics,
+        by: true,
+        until: 2147483647,
+        to: ref omitted,
+        through: in symbols,
     )
-    Io.stderr.write(result.errors.endsWith("\n") ? result.errors : $"{result.errors}\n")
+}
+
+test "build-ice: a rejected build renders as tests/cases/style/build-ice in each style" {
+    // StyleTests.cs:188 `Ice`: the NativeBuild it hands `CliApp.ReportToolchain`.
+    let rejected = NativeBuild {
+        errors: "C compiler failed (exit 1):\nmain.byn:2:5: error: use of undeclared identifier 'l0_y'\n",
+        rejected: true,
+    }
+    for ending in goldenStyleEndings() {
+        let text = ccRejectedText(rejected, by: in t19Symbols(in goldenStyleOf(ending)))
+        let failure = goldenStyleCompare(
+            "build-ice",
+            for: ending,
+            as: $"# CliApp.ReportToolchain\n{goldenStreams("", for: text)}",
+        )
+        assert(failure is null)
+    }
+}
+
+test "lower-ice: an error node that reached lowering renders as tests/cases/style/lower-ice in each style" {
+    // StyleTests.cs:197 `LowerIce`: `Lowerer.CannotLower` is BYN4002 with codes.byn's `.errorNodeReachedLowering` message and no help;
+    // the self-hosted lowerer raises none (`CliApp.ReportInternalError` has no port), so it renders as the BYN4001 head does.
+    let message = "internal compiler error: a bound error expression reached lowering with no error reported; this is a bug in the Bayan compiler"
+    for ending in goldenStyleEndings() {
+        let text = ccIceText("BYN4002", for: message, as: "", by: in t19Symbols(in goldenStyleOf(ending)))
+        let failure = goldenStyleCompare(
+            "lower-ice",
+            for: ending,
+            as: $"# CliApp.ReportInternalError\n{goldenStreams("", for: text)}",
+        )
+        assert(failure is null)
+    }
 }

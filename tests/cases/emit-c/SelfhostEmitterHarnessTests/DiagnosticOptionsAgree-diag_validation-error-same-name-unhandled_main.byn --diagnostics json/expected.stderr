@@ -1,0 +1,1 @@
+{"code":"BYN2410","severity":"error","file":"input/main.byn","span":{"start":246,"end":252,"line":11,"column":26,"endLine":11,"endColumn":32},"message":"`switch` does not handle every `ValidationError<a.Point> | ValidationError<b.Point>`","label":"not covered: ValidationError<b.Point>","help":"add the missing arms, or `_ => …` for the rest","fixes":[]}

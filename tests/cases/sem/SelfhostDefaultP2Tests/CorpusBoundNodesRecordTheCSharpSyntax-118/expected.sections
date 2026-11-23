@@ -1,0 +1,44 @@
+== tests/cases/run/interface-field-witness.byn
+257..290 globalStatement
+257..290 localDecl
+265..290 structLiteralExpr
+278..279 literalExpr integer
+287..288 literalExpr integer
+291..310 exprStmt
+291..310 callExpr
+297..309 interpolatedExpr
+300..307 memberExpr
+300..301 nameExpr
+291..310 callExpr
+311..326 exprStmt
+311..326 callExpr
+317..325 callExpr
+317..318 nameExpr
+311..326 callExpr
+327..355 exprStmt
+327..355 callExpr
+333..354 callExpr
+333..347 structLiteralExpr
+344..345 literalExpr integer
+327..355 callExpr
+147..156 interpolatedExpr
+147..156 interpolatedExpr
+147..156 interpolatedExpr
+150..154 nameExpr
+150..154 nameExpr
+124..125 literalExpr integer
+124..125 literalExpr integer
+124..125 literalExpr integer
+147..156 interpolatedExpr
+147..156 interpolatedExpr
+147..156 interpolatedExpr
+150..154 nameExpr
+150..154 nameExpr
+124..125 literalExpr integer
+124..125 literalExpr integer
+124..125 literalExpr integer
+147..156 interpolatedExpr
+147..156 interpolatedExpr
+147..156 interpolatedExpr
+150..154 nameExpr
+150..154 nameExpr

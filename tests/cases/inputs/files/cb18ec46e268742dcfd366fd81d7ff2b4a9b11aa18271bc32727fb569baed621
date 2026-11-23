@@ -1,0 +1,11 @@
+'\u{110000}'
+ $"{$"{$"{Ë$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+if else unless switch case default for in while do break continue returnyield defer errdefer using context
+ ''
+ let c = """never closed
+
+'x
+let effect = 2
+
+/// Doc line two.
+

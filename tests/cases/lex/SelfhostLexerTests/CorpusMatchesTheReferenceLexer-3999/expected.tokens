@@ -1,0 +1,78 @@
+1:1 Semicolon `;`
+2:2 Identifier `각let`
+2:9 Identifier `c`
+2:11 Equals `=`
+2:15 IntegerLiteral `3`
+3:2 Identifier `ect`
+3:6 Equals `=`
+3:8 IntegerLiteral `2`
+4:1 Identifier `macr1`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:2 VarKeyword `var`
+6:6 Identifier `xs`
+6:8 Colon `:`
+6:10 Identifier `List`
+6:14 Less `<`
+6:15 Identifier `List`
+6:19 Less `<`
+6:20 Identifier `i64`
+6:23 Greater `>`
+6:24 Greater `>`
+8:1 Identifier `den`
+9:1 LetKeyword `let`
+9:5 Identifier `x`
+9:8 Equals `=`
+9:10 IntegerLiteral `1`
+11:2 CharLiteral `''`
+11:5 CharLiteral `'é'`
+11:9 CharLiteral `'\\'`
+11:14 CharLiteral `'\0'`
+12:1 EndOfFile
+
+error BYN0005: identifier `각let` is not in Unicode normalization form C
+
+  2 │  각let c = � 3
+    │  ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  각let c = � 3
+    │   │  +
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  각let c = � 3
+    │             ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macr1 select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  9 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `\`
+
+  11 │ \'' 'é' '\\' '\0'
+     │ ^
+
+error BYN0007: empty char literal
+
+  11 │ \'' 'é' '\\' '\0'
+     │  ^^
+     │
+  help: write the character between the quotes, e.g. `' '`

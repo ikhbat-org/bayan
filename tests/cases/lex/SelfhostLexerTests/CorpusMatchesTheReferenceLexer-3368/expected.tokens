@@ -1,0 +1,17 @@
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never cl�osed\n1. `
+4:4 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never cl�osed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  3 │ let c = """never cl�osed
+    │                    ^

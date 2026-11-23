@@ -1,0 +1,8 @@
+error BYN2204: constant arithmetic overflows `i32`
+  --> input.byn:1:18
+
+  1 │ const big: i32 = 2_000_000_000 * 2
+    │                  ^^^^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2204

@@ -1,0 +1,3 @@
+== diags.diag/open-range
+BYN2215 1:10 a range needs both ends here
+  help use open ranges (`a..`, `..b`) only inside `[ ]`

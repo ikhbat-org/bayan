@@ -1,0 +1,4 @@
+== diags.diag/ref-this-not-first
+BYN2117 4:22 `ref this` must be the first parameter
+  label after other parameters
+  help move `ref this` to the start of the parameter list

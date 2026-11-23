@@ -1,0 +1,81 @@
+1:1 CharLiteral `'x\r`
+3:1 IntegerLiteral `0xF__`
+6:2 LetKeyword `let`
+6:6 Identifier `c`
+6:8 Equals `=`
+6:12 IntegerLiteral `3`
+9:1 StringLiteral `"}"`
+9:4 CloseBrace `}`
+9:5 StringLiteral `"`
+10:3 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `\u{7}`
+
+  6 │  let c = � 3
+    │          ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  8 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 8 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  8 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ /* � */
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  9 │ "}"}"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  10 │ ����� 
+     │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  10 │ ����� 
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ ����� 
+     │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ ����� 
+     │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ ����� 
+     │     ^

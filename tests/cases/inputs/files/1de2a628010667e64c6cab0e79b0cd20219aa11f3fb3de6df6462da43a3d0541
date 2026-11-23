@@ -1,0 +1,7 @@
+//// not a doc comment
+
+ô€€  raw "quoted"
+ let b = "bad \q escape"
+ t c
+''
+1.

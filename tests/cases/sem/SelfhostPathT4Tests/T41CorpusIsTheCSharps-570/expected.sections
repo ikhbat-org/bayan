@@ -1,0 +1,3 @@
+== diags.diag/duplicate-declaration
+BYN2006 3:5 `area` is declared twice
+  label already declared on line 1

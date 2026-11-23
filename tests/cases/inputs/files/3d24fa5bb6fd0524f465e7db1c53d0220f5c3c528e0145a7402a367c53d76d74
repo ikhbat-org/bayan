@@ -1,0 +1,11 @@
+import lib
+
+void main() {
+    var kept = ""
+    {
+        using let arena = Arena()
+        let name = "ann".copy(to: arena)
+        lib.keep(name, to: ref kept)
+    }
+    print(kept)
+}

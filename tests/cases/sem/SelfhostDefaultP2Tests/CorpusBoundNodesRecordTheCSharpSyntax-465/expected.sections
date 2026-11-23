@@ -1,0 +1,72 @@
+== tests/cases/diag/error-payload-pattern.byn
+184..227 blockStmt
+190..212 guardedStmt
+206..212 binaryExpr eq right 211..212
+206..207 nameExpr
+211..212 literalExpr integer
+190..194 failStmt
+195..202 targetMemberExpr
+217..225 returnStmt value 224..225
+224..225 nameExpr
+248..309 catchExpr
+248..309 catchExpr
+248..309 catchExpr
+248..255 callExpr
+253..254 nameExpr
+262..309 switchExpr
+262..268 caughtErrorExpr
+275..289 variantPattern
+293..294 nameExpr
+300..301 discardPattern
+305..306 literalExpr integer
+329..397 catchExpr
+329..397 catchExpr
+329..397 catchExpr
+329..336 callExpr
+334..335 nameExpr
+343..397 switchExpr
+343..349 caughtErrorExpr
+356..377 variantPattern
+381..382 literalExpr integer
+388..389 discardPattern
+393..394 literalExpr integer
+421..495 catchExpr
+421..495 catchExpr
+421..495 catchExpr
+421..428 callExpr
+426..427 nameExpr
+435..495 switchExpr
+435..441 caughtErrorExpr
+448..473 positionalPattern
+477..480 nameExpr
+486..487 discardPattern
+491..492 literalExpr integer
+519..592 catchExpr
+519..592 catchExpr
+519..592 catchExpr
+519..526 callExpr
+524..525 nameExpr
+533..592 switchExpr
+533..539 caughtErrorExpr
+546..572 positionalPattern
+576..577 nameExpr
+583..584 discardPattern
+588..589 literalExpr integer
+619..674 catchExpr
+619..674 catchExpr
+619..674 catchExpr
+619..626 callExpr
+624..625 nameExpr
+633..674 switchExpr
+633..639 caughtErrorExpr
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+646..660 declarationPattern
+664..671 memberExpr

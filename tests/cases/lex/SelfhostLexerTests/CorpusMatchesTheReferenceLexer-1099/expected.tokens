@@ -1,0 +1,98 @@
+1:1 OpenBrace `{`
+2:1 Identifier `l`
+2:3 Identifier `t`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+4:2 LetKeyword `let`
+4:6 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:37 StringLiteral `"{$"`
+5:41 OpenBrace `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 InterpolatedStringStart `$"`
+5:56 InterpolationStart `{`
+5:57 Identifier `x`
+5:58 InterpolationEnd `}`
+5:59 InterpolatedStringEnd `"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 CloseBrace `}`
+5:69 StringLiteral `"}"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:81 Identifier `r`
+5:83 UsingKeyword `using`
+5:89 Identifier `conte`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  2 │ l�t café = 2
+    │  ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" r using conte
+    │                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{1A}`
+
+  5 │ $"x{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}" r using conte
+    │                                    ^

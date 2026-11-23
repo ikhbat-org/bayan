@@ -1,0 +1,118 @@
+1:3 StructKeyword `struct`
+1:10 Identifier `S`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+4:3 LetKeyword `let`
+4:7 Identifier `s`
+4:9 Equals `=`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolatedStringStart `$"`
+4:19 InterpolationStart `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 StringLiteral `"{$"`
+4:57 OpenBrace `{`
+4:58 InterpolatedStringStart `$"`
+4:60 InterpolationStart `{`
+4:61 InterpolatedStringStart `$"`
+4:63 InterpolationStart `{`
+4:64 StringLiteral `$"{$"`
+4:69 OpenBrace `{`
+4:70 Identifier `x`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}}"`
+4:76 InterpolationEnd `}`
+4:77 InterpolatedStringEnd `"`
+4:78 InterpolationEnd `}`
+4:79 InterpolatedStringEnd `"`
+4:80 CloseBrace `}`
+4:81 StringLiteral `"}"`
+4:84 InterpolationEnd `}`
+4:85 InterpolatedStringEnd `"`
+4:86 InterpolationEnd `}`
+4:87 InterpolatedStringEnd `"`
+4:88 InterpolationEnd `}`
+4:89 InterpolatedStringEnd `"`
+4:90 InterpolationEnd `}`
+4:91 InterpolatedStringEnd `"`
+4:92 InterpolationEnd `}`
+4:93 InterpolatedStringEnd `"`
+4:94 InterpolationEnd `}`
+4:95 InterpolatedStringEnd `"`
+4:96 InterpolationEnd `}`
+4:97 InterpolatedStringEnd `"`
+4:98 InterpolationEnd `}`
+4:99 InterpolatedStringEnd `"`
+4:100 InterpolationEnd `}`
+4:101 InterpolatedStringEnd `"`
+4:102 InterpolationEnd `}`
+4:103 InterpolatedStringEnd `"`
+4:104 InterpolationEnd `}`
+4:105 InterpolatedStringEnd `"`
+4:106 InterpolationEnd `}`
+4:107 InterpolatedStringEnd `"`
+4:108 InterpolationEnd `}`
+4:109 InterpolatedStringEnd `"`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `x`
+5:5 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 VarKeyword `var`
+5:14 Identifier `xs`
+5:16 Colon `:`
+5:18 Identifier `List`
+5:22 Less `<`
+5:23 Identifier `List`
+5:27 Less `<`
+5:28 Identifier `i64`
+5:31 Greater `>`
+5:32 Greater `>`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ � struct S
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ � let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ � let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                ^^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"x{ $"{var xs: List<List<i64>>
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string

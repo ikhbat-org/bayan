@@ -1,0 +1,40 @@
+== tests/cases/run/fs-real-path.byn
+152..567 blockStmt
+158..200 exprStmt
+158..200 tryExpr
+162..200 callExpr
+181..199 literalExpr string
+205..271 localDecl
+216..271 tryExpr
+220..271 callExpr
+232..270 literalExpr string
+276..315 exprStmt
+276..315 callExpr
+282..314 interpolatedExpr
+293..312 callExpr
+307..311 nameExpr
+276..315 callExpr
+320..346 exprStmt
+320..346 callExpr
+326..345 callExpr
+340..344 nameExpr
+320..346 callExpr
+351..499 localDecl
+365..499 catchExpr
+365..404 callExpr
+377..403 literalExpr string
+411..499 switchExpr
+411..417 caughtErrorExpr
+428..437 constantPattern
+428..437 targetMemberExpr
+441..461 literalExpr string
+471..472 discardPattern
+476..492 literalExpr string
+504..518 exprStmt
+504..518 callExpr
+510..517 nameExpr
+504..518 callExpr
+523..565 exprStmt
+523..565 tryExpr
+527..565 callExpr
+546..564 literalExpr string

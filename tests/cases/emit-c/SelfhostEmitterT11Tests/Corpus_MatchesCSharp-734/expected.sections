@@ -1,0 +1,59 @@
+== helpers
+bynh_hash_str static uint64_t bynh_hash_str(byn_str k) | static uint64_t bynh_hash_str(byn_str k) {
+    return byn_hash_bytes(k.ptr, k.len);
+}
+bynh_keq_str static bool bynh_keq_str(const void* a, const void* b) | static bool bynh_keq_str(const void* a, const void* b) {
+    return byn_str_eq(*(const byn_str*)a, *(const byn_str*)b);
+}
+bynh_slot_map_str_i64 static int64_t* bynh_slot_map_str_i64(bynt_map_str_i64* m, byn_str k, int64_t d) | static int64_t* bynh_slot_map_str_i64(bynt_map_str_i64* m, byn_str k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(byn_str), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_str(k), bynh_keq_str, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_try_get_map_str_i64 static bynt_opt_i64 bynh_try_get_map_str_i64(bynt_map_str_i64 m, byn_str k) | static bynt_opt_i64 bynh_try_get_map_str_i64(bynt_map_str_i64 m, byn_str k) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(byn_str), &k, bynh_hash_str(k), bynh_keq_str);
+    return i < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, m.vals[i]};
+}
+bynh_add_list_map_str_i64 static void bynh_add_list_map_str_i64(bynt_list_map_str_i64* l, bynt_map_str_i64 v) | static void bynh_add_list_map_str_i64(bynt_list_map_str_i64* l, bynt_map_str_i64 v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(bynt_map_str_i64), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k) | static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_i64 static bool bynh_keq_i64(const void* a, const void* b) | static bool bynh_keq_i64(const void* a, const void* b) {
+    return (*(const int64_t*)a == *(const int64_t*)b);
+}
+bynh_slot_map_i64_map_str_i64 static bynt_map_str_i64* bynh_slot_map_i64_map_str_i64(bynt_map_i64_map_str_i64* m, int64_t k, bynt_map_str_i64 d) | static bynt_map_str_i64* bynh_slot_map_i64_map_str_i64(bynt_map_i64_map_str_i64* m, int64_t k, bynt_map_str_i64 d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(int64_t), (void**)&m->vals, (int64_t)sizeof(bynt_map_str_i64), &k, bynh_hash_i64(k), bynh_keq_i64, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_at_arr2_map_str_i64 static bynt_map_str_i64* bynh_at_arr2_map_str_i64(bynt_arr2_map_str_i64* a, int64_t i, bool from_end, const char* file, int line) | static bynt_map_str_i64* bynh_at_arr2_map_str_i64(bynt_arr2_map_str_i64* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 2 - i;
+    return &a->v[byn_index(i, 2, file, line)];
+}
+bynh_at_list_map_str_i64 static bynt_map_str_i64* bynh_at_list_map_str_i64(bynt_list_map_str_i64 s, int64_t i, bool from_end, const char* file, int line) | static bynt_map_str_i64* bynh_at_list_map_str_i64(bynt_list_map_str_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_value_res_map_str_i64 static bynt_map_str_i64 bynh_value_res_map_str_i64(bynt_res_map_str_i64 r, const char* file, int line) | static bynt_map_str_i64 bynh_value_res_map_str_i64(bynt_res_map_str_i64 r, const char* file, int line) {
+    if (r.err.code) byn_panic("result holds an error", file, line);
+    return r.value;
+}
+bynh_index_map_i64_map_str_i64 static bynt_map_str_i64 bynh_index_map_i64_map_str_i64(bynt_map_i64_map_str_i64 m, int64_t k, const char* file, int line) | static bynt_map_str_i64 bynh_index_map_i64_map_str_i64(bynt_map_i64_map_str_i64 m, int64_t k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}

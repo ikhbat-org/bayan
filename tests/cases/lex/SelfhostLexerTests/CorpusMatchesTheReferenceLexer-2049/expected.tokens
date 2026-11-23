@@ -1,0 +1,35 @@
+    doc `/// Doc line one.`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+6:1 LetKeyword `let`
+6:7 Equals `=`
+6:9 IntegerLiteral `2`
+8:1 CharLiteral `'\u{D800}'`
+9:1 StringLiteral `"a\u{2067}b"`
+10:2 FloatLiteral `2.5`
+10:5 NumericSuffix `f`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ let � = 2
+    │     ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  8 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

@@ -1,0 +1,63 @@
+== tests/cases/run/interface-default-method.byn
+290..316 globalStatement
+290..316 localDecl
+298..316 structLiteralExpr
+313..314 literalExpr integer
+317..340 localDecl
+325..340 structLiteralExpr
+337..338 literalExpr integer
+341..360 exprStmt
+341..360 callExpr
+347..359 callExpr
+347..348 nameExpr
+341..360 callExpr
+361..380 exprStmt
+361..380 callExpr
+367..379 callExpr
+367..368 nameExpr
+361..380 callExpr
+381..394 exprStmt
+381..394 callExpr
+387..393 memberExpr
+387..388 nameExpr
+381..394 callExpr
+163..174 binaryExpr mul right 170..174
+163..174 binaryExpr mul right 170..174
+163..174 binaryExpr mul right 170..174
+163..167 nameExpr
+163..167 nameExpr
+170..174 nameExpr
+170..174 nameExpr
+232..241 binaryExpr mul right 240..241
+232..241 binaryExpr mul right 240..241
+232..241 binaryExpr mul right 240..241
+232..237 binaryExpr mul right 236..237
+232..233 literalExpr integer
+236..237 nameExpr
+236..237 nameExpr
+240..241 nameExpr
+240..241 nameExpr
+268..286 interpolatedExpr
+268..286 interpolatedExpr
+268..286 interpolatedExpr
+278..284 callExpr
+278..282 nameExpr
+59..75 interpolatedExpr
+59..75 interpolatedExpr
+59..75 interpolatedExpr
+67..73 callExpr
+67..71 nameExpr
+95..102 literalExpr string
+95..102 literalExpr string
+95..102 literalExpr string
+59..75 interpolatedExpr
+59..75 interpolatedExpr
+59..75 interpolatedExpr
+67..73 callExpr
+67..71 nameExpr
+95..102 literalExpr string
+95..102 literalExpr string
+95..102 literalExpr string
+95..102 literalExpr string
+95..102 literalExpr string
+95..102 literalExpr string

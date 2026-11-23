@@ -1,0 +1,31 @@
+error BYN2104: `plain` is immutable
+  --> <repo>/tests/cases/diag/take-immutable.byn:7:13
+
+  7 │     let a = plain.take()
+    │             ^^^^^ `take` modifies it; parameters are immutable
+    │
+  help: copy it into a local `var`, or take it by `ref` if the caller's value should change
+
+error BYN2104: `bag` is immutable
+  --> <repo>/tests/cases/diag/take-immutable.byn:11:13
+
+  11 │     let b = bag.items.take()
+     │             ^^^^^^^^^ `take` modifies it; parameters are immutable
+     │
+  help: copy it into a local `var`, or take it by `ref` if the caller's value should change
+
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/take-immutable.byn:15:13
+
+  15 │     let c = view[0].take()
+     │             ^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2104: `items` is immutable
+  --> <repo>/tests/cases/diag/take-immutable.byn:20:13
+
+  20 │     let d = items.take()
+     │             ^^^^^ `take` modifies it; declared with `let` on line 19
+     │
+  help: declare it with `var` if it should change
+     │ 19 │     var items = List<i64>()
+     │    │     +++

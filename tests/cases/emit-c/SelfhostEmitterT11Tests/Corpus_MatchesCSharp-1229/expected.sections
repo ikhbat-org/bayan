@@ -1,0 +1,5 @@
+== cases
+0 byn_sym_text(((byn_sym){0}))
+1 byn_sym_text(((byn_sym){1}))
+2 ((((byn_sym){0})).id == (l1_t).id)
+count 3

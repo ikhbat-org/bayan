@@ -1,0 +1,5 @@
+== case inline/dist-scalar
+errors 1
+error BYN3102: `dist` must be a `Dist { … }`
+  1 │ Package { name: "local/a", version: "0.1.0", dist: [.host], kind: .lib }
+    │                                                    ^^^^^^^

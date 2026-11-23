@@ -1,0 +1,6 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"is and or not with move ref out thisnull true false comptime checked
+ = 1
+let ÿ = 2
+// ok þ in comment
+ ÿlet c =  3
+ 

@@ -1,0 +1,13 @@
+CompilationUnit
+  Function f() -> void becomes .done fails E
+    Block
+
+error BYN1065: `becomes` must come before `fails`; the order is `where`, `expects`, `uses`,
+`becomes`, `fails`
+
+  1 │ void f() fails E becomes .done {
+    │                  ^^^^^^^ out of order
+    │
+  help: move `becomes` before `fails`
+    │ 1 │ void f() becomes .done fails E {
+    │   │          +++++++++++++++++++++

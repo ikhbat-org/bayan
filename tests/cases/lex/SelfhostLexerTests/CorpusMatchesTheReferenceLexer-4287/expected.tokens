@@ -1,0 +1,4 @@
+1:2 Identifier `café`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:1 EndOfFile

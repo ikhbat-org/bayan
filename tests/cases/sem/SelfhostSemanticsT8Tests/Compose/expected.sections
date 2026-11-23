@@ -1,0 +1,13 @@
+== compose
+a: A | B
+b: A | B except .x
+c: () -> void uses console, fs, net
+d: ?
+e: ?
+f: ?
+g: ?
+h: ?
+i: ?
+j: ?
+k: A | B except .x
+l: Result<i32, A>

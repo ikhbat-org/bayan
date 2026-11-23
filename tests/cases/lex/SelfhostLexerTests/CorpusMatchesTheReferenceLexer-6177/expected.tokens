@@ -1,0 +1,62 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 Plus `+`
+2:4 Minus `-`
+2:6 Star `*`
+2:8 Slash `/`
+2:10 Percent `%`
+2:12 PlusPercent `+%`
+2:15 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:33 Minus `-`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `{{`
+3:5 InterpolatedStringEnd `"`
+3:6 IntegerLiteral `0x`
+4:2 IntegerLiteral `0`
+4:4 IntegerLiteral `42`
+4:7 IntegerLiteral `1_000_00`
+4:15 IntegerLiteral `0`
+4:17 IntegerLiteral `0xFF`
+4:22 IntegerLiteral `0xff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0B11`
+4:39 IntegerLiteral `5`
+4:40 NumericSuffix `s`
+4:42 IntegerLiteral `250`
+4:45 NumericSuffix `ms`
+4:48 IntegerLiteral `4`
+4:49 NumericSuffix `KiB`
+4:53 IntegerLiteral `1`
+4:54 NumericSuffix `u`
+4:56 IntegerLiteral `0xFF`
+4:60 NumericSuffix `u`
+4:62 IntegerLiteral `0b1`
+4:65 NumericSuffix `ul`
+4:68 IntegerLiteral `7`
+4:69 NumericSuffix `l`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ $"{{"0x
+    │      ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │  0 42 1_000_00�0 0xFF 0xff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │               ^

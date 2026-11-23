@@ -1,0 +1,4 @@
+== cases
+0 l0_t.nanos
+1 ((byn_time){INT64_C(-1)}).nanos
+count 2

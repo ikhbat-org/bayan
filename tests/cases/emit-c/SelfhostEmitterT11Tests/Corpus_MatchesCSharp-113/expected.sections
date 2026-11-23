@@ -1,0 +1,6 @@
+== cases
+0 bynh_add_list_i64(&l0_b.items, INT64_C(1))
+1 bynh_span_list_i64(l0_b.items)
+2 ((byn_dyn_main__IC){&l0_b.c, &bynh_vtab_main__C_main__IC})
+3 (*bynh_at_span_i64(l1_t, (int64_t)INT64_C(0), false, byn_file_0, 17))
+count 4

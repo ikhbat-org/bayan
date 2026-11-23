@@ -1,0 +1,11 @@
+$"stray } here"
+0b1ms
+ : List<List<i64>>
+a >> b
+c >>= 1'a' '\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'
+test assert property fuzz model oreach new goto
+
+0b__
+ let a = 1
+let ÿ = 2
+// ok þ in ôcomment 

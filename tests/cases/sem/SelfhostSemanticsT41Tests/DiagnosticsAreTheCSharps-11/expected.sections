@@ -1,0 +1,4 @@
+== diags.diag/owned-read-only
+BYN2106 7:5 cannot modify this value
+  label an `Owned` value is read-only
+  help build a new value and wrap it with `Owned(…)`

@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""  b ed\nb\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"\nc >�>= 1\n\n"\u{2067}b" `
+7:6 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """  b ed
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  5 │ c >�>= 1
+    │    ^

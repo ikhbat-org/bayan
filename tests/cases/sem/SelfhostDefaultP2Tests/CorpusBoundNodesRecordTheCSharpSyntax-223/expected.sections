@@ -1,0 +1,41 @@
+== tests/cases/run/path-directory-name.byn
+164..263 blockStmt
+170..199 localDecl
+178..199 callExpr
+197..198 nameExpr
+204..243 ifStmt
+208..220 isExpr
+208..209 nameExpr
+213..220 propertyPattern
+222..243 blockStmt
+224..241 returnStmt value 231..241
+231..241 interpolatedExpr
+235..238 nameExpr
+248..261 returnStmt value 255..261
+255..261 literalExpr string
+265..430 globalStatement
+265..430 forStmt
+274..396 collectionExpr
+275..285 literalExpr string
+287..292 literalExpr string
+294..300 literalExpr string
+302..308 literalExpr string
+310..313 literalExpr string
+315..319 literalExpr string
+321..325 literalExpr string
+327..334 literalExpr string
+336..338 literalExpr string
+340..343 literalExpr string
+345..349 literalExpr string
+351..356 literalExpr string
+358..372 literalExpr string
+374..385 literalExpr string
+387..395 literalExpr string
+397..430 blockStmt
+403..428 exprStmt
+403..428 callExpr
+409..427 interpolatedExpr
+413..414 nameExpr
+418..425 callExpr
+423..424 nameExpr
+403..428 callExpr

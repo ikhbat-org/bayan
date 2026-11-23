@@ -1,0 +1,45 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+4:1 Identifier `t`
+4:3 Identifier `café`
+4:8 Equals `=`
+4:10 IntegerLiteral `2`
+4:11 NumericSuffix `r`
+5:1 Identifier `i64`
+5:4 Greater `>`
+5:5 Greater `>`
+5:6 Identifier `a`
+5:8 Greater `>`
+5:9 Greater `>`
+5:11 Identifier `b`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �t café = 2r
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  7 │ �
+    │ ^

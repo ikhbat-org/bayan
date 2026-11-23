@@ -1,0 +1,31 @@
+== tests/cases/diag/symbol-intern-needs-alloc.byn
+156..190 blockStmt
+162..188 returnStmt value 169..188
+169..188 callExpr
+183..187 nameExpr
+239..273 blockStmt
+245..271 returnStmt value 252..271
+252..271 callExpr
+266..270 nameExpr
+296..344 blockStmt
+302..324 localDecl
+318..324 literalExpr string
+329..342 returnStmt value 336..342
+336..342 memberExpr
+336..337 nameExpr
+358..470 blockStmt
+364..393 localDecl
+372..393 callExpr
+386..392 literalExpr string
+398..419 localDecl
+406..419 callExpr
+415..418 literalExpr string
+424..468 exprStmt
+424..468 callExpr
+430..467 interpolatedExpr
+433..434 nameExpr
+437..438 nameExpr
+441..456 callExpr
+452..455 literalExpr string
+459..465 callExpr
+424..468 callExpr

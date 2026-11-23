@@ -1,0 +1,67 @@
+1:1 CharLiteral `'\q'`
+1:6 Identifier `e`
+2:1 LetKeyword `let`
+2:5 Identifier `actor`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+4:2 Identifier `ꐀ`
+5:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q' e��� �
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ '\q' e��� �
+    │       ^
+
+error BYN0002: unexpected character `\u{1E}`
+
+  1 │ '\q' e��� �
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ '\q' e��� �
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ '\q' e��� �
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ '\q' e��� �
+    │            ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ �ꐀ� ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �ꐀ� ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ �ꐀ� ��
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �ꐀ� ��
+    │      ^

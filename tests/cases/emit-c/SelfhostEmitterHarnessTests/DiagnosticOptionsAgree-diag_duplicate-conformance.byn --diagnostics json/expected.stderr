@@ -1,0 +1,1 @@
+{"code":"BYN2805","severity":"error","file":"input.byn","span":{"start":61,"end":67,"line":5,"column":25,"endLine":5,"endColumn":31},"message":"`Square` lists `IShape` twice","label":"already listed","help":"remove the second `IShape`","fixes":[]}

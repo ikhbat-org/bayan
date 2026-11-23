@@ -1,0 +1,3 @@
+== bind.probes.b26
+flags 0
+binary:bool[2171:22]=-(eq errorVariant:MyError[2171:16]=-() local:MyError[2191:2]=-(me))

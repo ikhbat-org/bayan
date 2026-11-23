@@ -1,0 +1,97 @@
+== tests/cases/diag/valid-naming.byn
+1157..1168 globalStatement
+1157..1168 exprStmt
+1157..1168 callExpr
+1163..1167 literalExpr string
+1157..1168 callExpr
+219..244 blockStmt
+229..238 assignStmt assign target 229..234 value 237..238
+229..234 nameExpr
+229..234 nameExpr
+237..238 literalExpr integer
+268..314 structLiteralExpr
+268..314 structLiteralExpr
+268..314 structLiteralExpr
+283..288 nameExpr
+283..288 nameExpr
+296..300 nameExpr
+296..300 nameExpr
+308..312 nameExpr
+308..312 nameExpr
+343..367 blockStmt
+353..361 assignStmt assign target 353..357 value 360..361
+353..357 nameExpr
+353..357 nameExpr
+360..361 literalExpr integer
+391..437 structLiteralExpr
+391..437 structLiteralExpr
+391..437 structLiteralExpr
+406..410 nameExpr
+406..410 nameExpr
+418..423 nameExpr
+418..423 nameExpr
+431..435 nameExpr
+431..435 nameExpr
+513..518 nameExpr
+513..518 nameExpr
+513..518 nameExpr
+513..518 nameExpr
+537..538 literalExpr integer
+537..538 literalExpr integer
+537..538 literalExpr integer
+555..556 literalExpr integer
+555..556 literalExpr integer
+555..556 literalExpr integer
+579..582 literalExpr integer
+579..582 literalExpr integer
+579..582 literalExpr integer
+693..718 blockStmt
+703..712 assignStmt assign target 703..708 value 711..712
+703..708 nameExpr
+703..708 nameExpr
+711..712 literalExpr integer
+740..750 binaryExpr eq right 749..750
+740..750 binaryExpr eq right 749..750
+740..750 binaryExpr eq right 749..750
+740..745 nameExpr
+740..745 nameExpr
+749..750 literalExpr integer
+774..783 binaryExpr ne right 782..783
+774..783 binaryExpr ne right 782..783
+774..783 binaryExpr ne right 782..783
+774..778 nameExpr
+774..778 nameExpr
+782..783 literalExpr integer
+804..809 unaryExpr notKeyword operand 805..809
+804..809 unaryExpr notKeyword operand 805..809
+804..809 unaryExpr notKeyword operand 805..809
+805..809 nameExpr
+805..809 nameExpr
+839..849 binaryExpr eq right 844..849
+839..849 binaryExpr eq right 844..849
+839..849 binaryExpr eq right 844..849
+839..840 nameExpr
+844..849 nameExpr
+844..849 nameExpr
+876..880 literalExpr trueKeyword
+876..880 literalExpr trueKeyword
+876..880 literalExpr trueKeyword
+963..1009 blockStmt
+973..983 assignStmt add target 973..978 value 982..983
+973..978 nameExpr
+973..978 nameExpr
+982..983 literalExpr integer
+992..1003 returnStmt value 999..1003
+999..1003 literalExpr trueKeyword
+1044..1072 blockStmt
+1054..1066 returnStmt value 1061..1066
+1061..1066 nameExpr
+1061..1066 nameExpr
+1097..1101 literalExpr nullKeyword
+1097..1101 literalExpr nullKeyword
+1097..1101 literalExpr nullKeyword
+1128..1153 blockStmt
+1138..1147 assignStmt assign target 1138..1143 value 1146..1147
+1138..1143 nameExpr
+1138..1143 nameExpr
+1146..1147 literalExpr integer

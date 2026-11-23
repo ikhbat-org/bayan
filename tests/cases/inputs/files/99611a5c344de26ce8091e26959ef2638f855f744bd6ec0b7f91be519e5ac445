@@ -1,0 +1,7 @@
+union error E {
+    a
+}
+i32!E g() uses console {
+    print("g")
+    return 1
+}

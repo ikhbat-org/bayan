@@ -1,0 +1,3 @@
+build
+--emit-c
+format-spec-struct.byn

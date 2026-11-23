@@ -1,0 +1,63 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 StringLiteral `"{x}"`
+4:45 InterpolationEnd `}`
+4:46 InterpolatedStringEnd `"`
+4:47 InterpolationEnd `}`
+4:48 InterpolatedStringEnd `"`
+5:1 RawStringLiteral `"""$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"`
+5:69 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{x}"}"}"
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�"{x}"}"}"
+    │                                        ^
+
+error BYN0003: unterminated string literal
+
+  5 │ """$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

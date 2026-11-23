@@ -1,0 +1,5 @@
+ $ 1
+let // ok þ incomment
+
+let effect = 2
+ 

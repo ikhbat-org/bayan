@@ -1,0 +1,3 @@
+== case fn-overload-second
+errorExpr 2219..2221 : ?
+BYN2202 115:15 expected `string -> i32`, found `i32 ov(i32)` ||pass a function of type `string -> i32`|

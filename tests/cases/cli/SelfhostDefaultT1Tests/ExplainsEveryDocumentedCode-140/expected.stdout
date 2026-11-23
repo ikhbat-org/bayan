@@ -1,0 +1,11 @@
+# BYN2206: invalid cast
+
+**Why.** Casts convert between numeric types and between `rune` and integers. Other conversions are functions (`parse`, `formatInto`). Converting `f32` or `f64` to `dec` with `dec(x)` is also rejected (not in 0.3, spec §3.1, §6.2): binary floating-point fractions do not represent most decimal fractions, so a float literal takes the `dec` suffix (`0.025dec` instead of `dec(0.025)`) and a runtime float converts through `dec.fromF64(x, digits: n)`.
+
+**Example.**
+
+```
+let n = i64("42")
+```
+
+**Fix.** Call a conversion function instead (`i64.tryParse("42")`). For `dec` on a float literal, write the `dec` suffix (`0.025dec`); for `dec(x)` on a runtime `f32` or `f64`, call `dec.fromF64(x, digits: 2)`.

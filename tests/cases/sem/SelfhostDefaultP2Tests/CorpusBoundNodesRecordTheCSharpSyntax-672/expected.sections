@@ -1,0 +1,31 @@
+== tests/cases/diag/mutates-without-ref-this.byn
+66..88 blockStmt
+76..82 assignStmt add target 76..77 value 81..82
+76..77 nameExpr
+76..77 nameExpr
+81..82 literalExpr integer
+161..205 blockStmt
+171..180 assignStmt assign target 171..176 value 179..180
+171..176 nameExpr
+171..176 nameExpr
+179..180 literalExpr integer
+189..199 assignStmt assign target 189..195 value 198..199
+189..195 memberExpr
+189..193 thisExpr
+198..199 literalExpr integer
+228..255 blockStmt
+238..249 assignStmt add target 238..243 value 247..249
+238..243 nameExpr
+238..243 nameExpr
+247..249 nameExpr
+336..373 blockStmt
+346..352 exprStmt
+346..352 callExpr
+346..350 nameExpr
+361..367 exprStmt
+361..367 callExpr
+361..365 nameExpr
+393..394 nameExpr
+393..394 nameExpr
+393..394 nameExpr
+393..394 nameExpr

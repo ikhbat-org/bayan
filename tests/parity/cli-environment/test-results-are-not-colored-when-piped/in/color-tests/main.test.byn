@@ -1,0 +1,7 @@
+test "passes" {
+    assert(true)
+}
+
+test "breaks" {
+    assert(false)
+}

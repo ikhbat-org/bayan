@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `""" 0x\r\n += -= *= /= %= &= |= ^= <<=\r\n /* \u{202D} */let af = 1\r\n\r\n�} ever closed\r\nb\r\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """ 0x
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ �} ever closed
+    │ ^

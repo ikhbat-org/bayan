@@ -1,0 +1,22 @@
+== helpers
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k) | static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_i64 static bool bynh_keq_i64(const void* a, const void* b) | static bool bynh_keq_i64(const void* a, const void* b) {
+    return (*(const int64_t*)a == *(const int64_t*)b);
+}
+bynh_index_map_i64_str static byn_str bynh_index_map_i64_str(bynt_map_i64_str m, int64_t k, const char* file, int line) | static byn_str bynh_index_map_i64_str(bynt_map_i64_str m, int64_t k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_slot_map_i64_str static byn_str* bynh_slot_map_i64_str(bynt_map_i64_str* m, int64_t k, byn_str d) | static byn_str* bynh_slot_map_i64_str(bynt_map_i64_str* m, int64_t k, byn_str d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(int64_t), (void**)&m->vals, (int64_t)sizeof(byn_str), &k, bynh_hash_i64(k), bynh_keq_i64, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}

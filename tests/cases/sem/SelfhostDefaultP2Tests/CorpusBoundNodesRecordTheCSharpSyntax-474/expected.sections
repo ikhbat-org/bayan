@@ -1,0 +1,39 @@
+== tests/cases/diag/expects-single-parameter.byn
+48..68 blockStmt
+31..47 inExpr
+31..47 inExpr
+31..47 inExpr
+31..36 nameExpr
+40..47 rangeExpr
+40..41 literalExpr integer
+44..47 literalExpr integer
+31..47 inExpr
+31..47 inExpr
+31..47 inExpr
+48..68 blockStmt
+54..66 returnStmt value 61..66
+61..66 nameExpr
+119..141 blockStmt
+110..118 binaryExpr le right 116..118
+110..118 binaryExpr le right 116..118
+110..118 binaryExpr le right 116..118
+110..112 nameExpr
+116..118 nameExpr
+110..118 binaryExpr le right 116..118
+110..118 binaryExpr le right 116..118
+110..118 binaryExpr le right 116..118
+119..141 blockStmt
+125..139 returnStmt value 132..139
+132..139 binaryExpr sub right 137..139
+132..134 nameExpr
+137..139 nameExpr
+143..186 globalStatement
+143..186 exprStmt
+143..186 callExpr
+149..185 interpolatedExpr
+152..162 callExpr
+160..161 literalExpr integer
+165..183 callExpr
+171..172 literalExpr integer
+181..182 literalExpr integer
+143..186 callExpr

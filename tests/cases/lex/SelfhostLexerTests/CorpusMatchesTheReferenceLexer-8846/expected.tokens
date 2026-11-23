@@ -1,0 +1,19 @@
+1:1 Identifier `ry`
+1:4 CatchKeyword `catch`
+1:10 NeverKeyword `never`
+1:16 NoallocKeyword `noalloc`
+1:24 NosuspendKeyword `nosuspend`
+1:34 SuspendsKeyword `suspends`
+1:43 AsyncKeyword `async`
+1:49 LetKeyword `let`
+1:53 Identifier `c`
+1:55 Equals `=`
+1:57 RawStringLiteral `"""never closed\n `
+2:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ ry catch never noalloc nosuspend suspends async let c = """never closed
+    │                                                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

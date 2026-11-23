@@ -1,0 +1,540 @@
+// MapModelTests (spec 019 T27; L003, docs/laws/003-map-insertion-order.md): `Map` against an insertion-ordered reference model. The first
+// block pins tests/cases/run/map-model.stdout to the model; the others generate programs, build them with `$BAYAN_EXE` in safe mode (the
+// C# `Toolchain.Build(…, BuildMode.Safe)`) with `BAYAN_CACHE` at tmp/cache, run them in tmp/map-model/<name> and compare their output with
+// the model. The model keeps keys 0..n-1 in lists, not in a `Map`, so it does not lean on what it checks.
+
+/// The law's model: live keys in first-insertion order since their last removal.
+struct MmModel {
+    List<i64>  order
+    List<bool> live
+    List<i64>  values
+
+    static MmModel create(i64 keys) uses alloc {
+        var live = List<bool>()
+        var values = List<i64>()
+        for _ in 0..keys {
+            live.append(false)
+            values.append(0)
+        }
+        return MmModel { order: List<i64>(), live: move live, values: move values }
+    }
+
+    /// `Values.GetValueOrDefault(k, fallback)`.
+    i64 get(i64 k, as i64 fallback) => live[k] ? values[k] : fallback
+
+    void set(ref this, i64 k, as i64 v) uses alloc {
+        if !this.live[k] {
+            this.live[k] = true
+            this.order.append(k)
+        }
+        this.values[k] = v
+    }
+
+    void remove(ref this, i64 k) uses alloc {
+        return if !this.live[k]
+        this.live[k] = false
+        var kept = List<i64>()
+        for x in this.order {
+            kept.append(x) if x != k
+        }
+        this.order = move kept
+    }
+
+    void clear(ref this) {
+        for k in this.order {
+            this.live[k] = false
+        }
+        this.order.clear()
+    }
+}
+
+/// The C# local `Next`: xorshift64 over `state`.
+struct MmRng {
+    u64 state
+
+    u64 step(ref this) {
+        this.state ^= this.state << 13
+        this.state ^= this.state >> 7
+        this.state ^= this.state << 17
+        return this.state
+    }
+
+    /// `(long)((state >> 11) % (ulong)bound)` after a step.
+    i64 next(ref this, i64 bound) {
+        return i64((this.step() >> 11) % u64(bound))
+    }
+}
+
+/// `Run(name, source)`: `source` built by `$BAYAN_EXE` in safe mode and run in an empty tmp/map-model/<name>.
+GoldenOutcome mmRun(string name, from string source) uses alloc, clock, console, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "map-model"), name)
+    deleteWorkDir(dir)
+    let src = Path.combine(dir, "src")
+    goldenWrite(src, for: $"{name}.byn", as: source)
+    let program = Path.combine(dir, targetExecutableName("program", for: t5HostTarget()))
+    var args = List<string>()
+    for a in ["build", "--mode", "safe", "-o", program, Path.combine(src, $"{name}.byn")] {
+        args.append(a)
+    }
+    let none = List<u8>()
+    let build = goldenChild(exe, by: in args, at: Path.fullPath("."), from: in none, through: ref failure)
+    print($"{failure}{build.stdout}{build.stderr}\n{source}") if failure != "" || build.exitCode != 0
+    assert(failure == "" && build.exitCode == 0)
+    let work = Path.combine(dir, "work")
+    Io.createDirectory(work) catch { panic($"cannot create {work}") }
+    let o = goldenChild(program, by: in List<string>(), at: work, from: in none, through: ref failure)
+    print(failure) if failure != ""
+    assert(failure == "")
+    deleteWorkDir(dir)
+    return GoldenOutcome { stdout: goldenLf(o.stdout), stderr: goldenLf(o.stderr), exitCode: o.exitCode }
+}
+
+test "map model: golden matches reference model" {
+    var law = MmModel.create(64)
+    var state: u64 = 0x9E3779B97F4A7C15
+    for step in 0..5000 {
+        state ^= state << 13
+        state ^= state >> 7
+        state ^= state << 17
+        let key = i64(state % 64)
+        if (state >> 8) % 3 == 2 {
+            law.remove(key)
+        } else {
+            law.set(key, as: step)
+        }
+    }
+    var expected = StrBuf()
+    expected.append($"count {law.order.length}\n")
+    for k in law.order {
+        expected.append($"{k} {law.get(k, as: 0)}\n")
+    }
+    let golden = goldenLf(Io.readText(Path.fullPath("tests/cases/run/map-model.stdout")) catch "")
+    assert(expected.finish() == golden)
+}
+
+const mmKeySpace: i64       = 8
+const mmOpsPerSequence: i64 = 200
+const mmOpsPerPhase: i64    = 40
+
+/// `Key(k)` of `L003GeneratedSequenceMatchesModel`.
+string mmKey(i64 k, as bool stringKeys) uses alloc => stringKeys ? $"\"k{k}\"" : $"{k}"
+
+/// `KeyText(k)`.
+string mmKeyText(i64 k, as bool stringKeys) uses alloc => stringKeys ? $"k{k}" : $"{k}"
+
+@cases(
+    (1, false),
+    (2, true),
+    (3, false),
+    (4, true),
+    (5, false),
+    (6, true),
+    (7, false),
+    (8, true),
+    (9, false),
+    (10, true),
+    (11, false),
+    (12, true),
+    (13, false),
+    (14, true),
+    (15, false),
+    (16, true),
+    (17, false),
+    (18, true),
+    (19, false),
+    (20, true),
+    (21, false),
+    (22, true),
+    (23, false),
+    (24, true),
+)
+test "map model: L003 generated sequence matches model" (i64 seed, bool stringKeys) {
+    var r = MmRng { state: 0x9E3779B97F4A7C15 ^ (u64(seed) *% 0xD1B54A32D192ED03) }
+    var law = MmModel.create(mmKeySpace)
+    var source = StrBuf()
+    source.append("void bump(ref i64 n) {\n    n += 100\n}\n")
+    source.append(stringKeys ? "var m = Map<string, i64>()\n" : "var m = Map<i64, i64>()\n")
+    var expected = StrBuf()
+    for step in 0..mmOpsPerSequence {
+        let k = r.next(mmKeySpace)
+        let v = r.next(1000)
+        let op = r.next(10)
+        if op < 4 {
+            source.append($"m[{mmKey(k, as: stringKeys)}] = {v}\n")
+            law.set(k, as: v)
+        } else if op < 6 {
+            source.append($"let _ = m.remove({mmKey(k, as: stringKeys)})\n")
+            law.remove(k)
+        } else if op == 6 {
+            source.append($"m.slot({mmKey(k, as: stringKeys)}) += {v}\n")
+            law.set(k, as: law.get(k, as: 0) + v)
+        } else if op == 7 {
+            source.append($"bump(ref m.slot({mmKey(k, as: stringKeys)}))\n")
+            law.set(k, as: law.get(k, as: 0) + 100)
+        } else if op == 8 {
+            source.append($"m.slot({mmKey(k, as: stringKeys)}) = {v}\n")
+            law.set(k, as: v)
+        } else if r.next(4) == 0 {
+            source.append("m.clear()\n")
+            law.clear()
+        } else {
+            source.append($"m[{mmKey(k, as: stringKeys)}] = {v}\n")
+            law.set(k, as: v)
+        }
+        continue if (step + 1) % mmOpsPerPhase != 0
+        source.append($"print(\"phase {step + 1}\")\n")
+        source.append("print($\"length {m.length}\")\n")
+        source.append("for e in m { print($\"{e.key} {e.value}\") }\n")
+        expected.append($"phase {step + 1}\nlength {law.order.length}\n")
+        for key in law.order {
+            expected.append($"{mmKeyText(key, as: stringKeys)} {law.get(key, as: 0)}\n")
+        }
+        for key in 0..mmKeySpace {
+            source.append($"print($\"get {mmKeyText(key, as: stringKeys)} ")
+            source.append("{m.tryGet(at: ")
+            source.append(mmKey(key, as: stringKeys))
+            source.append(") ?? -1}\")\n")
+            expected.append($"get {mmKeyText(key, as: stringKeys)} {law.get(key, as: -1)}\n")
+        }
+    }
+    let o = mmRun($"l003-{seed}", from: source.finish())
+    assert(o.exitCode == 0)
+    assert(o.stdout == expected.finish())
+}
+
+// `KeyGen` (L003, L016): a generated map key type, a struct or tuple mixing `bool`, `i8`, `i64`, `rune`, `string`, `Symbol`, a plain enum
+// and one level of nested structs and tuples (a struct nests only structs: a tuple-typed field does not parse), each composite holding a
+// small part before a larger one so its layout has padding. A key value is a code whose mixed-radix digits pick each leaf's value;
+// `mmLiteral` spells it in place and `mmDeclarations` declares `make(i64 code)`, which builds the same value at run time in another
+// frame, with its `string` and `Symbol` parts interpolated rather than literal. Leaves are the C# `Leaf` ordinals: bool 0, i8 1, i64 2,
+// rune 3, string 4, Symbol 5, Tint 6.
+
+/// A `Part`: a leaf (`leaf` >= 0) or a struct or tuple whose parts are `kids[first..first + count]` of its `MmGen`.
+struct MmNode {
+    i64    leaf     = -1
+    bool   isStruct = false
+    string name     = ""
+    i64    first    = 0
+    i64    count    = 0
+}
+
+struct MmGen {
+    List<MmNode> nodes
+    List<i64>    kids
+    i64          root = 0
+    List<i64>    structs
+    List<i64>    leaves
+    List<i64>    strides
+}
+
+MmGen mmGenEmpty() uses alloc {
+    return MmGen {
+        nodes: List<MmNode>(),
+        kids: List<i64>(),
+        structs: List<i64>(),
+        leaves: List<i64>(),
+        strides: List<i64>(),
+    }
+}
+
+i64 mmRadix(i64 leaf) => leaf == 0 ? 2 : leaf == 1 || leaf == 6 ? 3 : 8
+
+i64 mmLeafPart(ref MmGen g, as i64 leaf) uses alloc {
+    g.nodes.append(MmNode { leaf: leaf })
+    return g.nodes.length - 1
+}
+
+/// `Composite(next, isStruct, depth, count)`.
+i64 mmComposite(ref MmGen g, by ref MmRng r, as bool isStruct, at i64 depth, for ref i64 counter) uses alloc {
+    let small = [0, 1, 3, 6, 5]
+    let large = [2, 4]
+    var parts = List<i64>()
+    parts.append(mmLeafPart(ref g, as: small[r.next(5)]))
+    parts.append(mmLeafPart(ref g, as: large[r.next(2)]))
+    var i = r.next(3)
+    while i > 0 {
+        let at = r.next(parts.length + 1)
+        var part: i64 = 0
+        if depth == 0 && r.next(3) == 0 {
+            let nested = isStruct || r.next(2) == 0
+            part = mmComposite(ref g, by: ref r, as: nested, at: depth + 1, for: ref counter)
+        } else {
+            part = mmLeafPart(ref g, as: r.next(7))
+        }
+        var placed = List<i64>()
+        for j in 0..parts.length + 1 {
+            if j == at {
+                placed.append(part)
+            }
+            if j < parts.length {
+                placed.append(parts[j])
+            }
+        }
+        parts = move placed
+        i -= 1
+    }
+    let first = g.kids.length
+    for p in parts {
+        g.kids.append(p)
+    }
+    g.nodes.append(MmNode { isStruct: isStruct, name: $"K{counter}", first: first, count: parts.length })
+    counter += 1
+    return g.nodes.length - 1
+}
+
+/// `Collect(p)`: the leaves in order with their strides, and the structs after their parts.
+void mmCollect(ref MmGen g, at i64 node) uses alloc {
+    let n = g.nodes[node]
+    if n.leaf >= 0 {
+        let last = g.leaves.length - 1
+        g.strides.append(last < 0 ? 1 : g.strides[last] * mmRadix(g.leaves[last]))
+        g.leaves.append(n.leaf)
+        return
+    }
+    for k in n.first..n.first + n.count {
+        mmCollect(ref g, at: g.kids[k])
+    }
+    g.structs.append(node) if n.isStruct
+}
+
+/// `KeyGen.SymbolKey()`.
+MmGen mmSymbolKey() uses alloc {
+    var g = mmGenEmpty()
+    g.root = mmLeafPart(ref g, as: 5)
+    mmCollect(ref g, at: g.root)
+    return g
+}
+
+/// `KeyGen.Generate(next)`.
+MmGen mmGenerate(by ref MmRng r) uses alloc {
+    var g = mmGenEmpty()
+    var counter: i64 = 0
+    let isStruct = r.next(2) == 0
+    g.root = mmComposite(ref g, by: ref r, as: isStruct, at: 0, for: ref counter)
+    mmCollect(ref g, at: g.root)
+    return g
+}
+
+/// `Count`: the number of distinct key values.
+i64 mmCount(MmGen g) {
+    let last = g.leaves.length - 1
+    return g.strides[last] * mmRadix(g.leaves[last])
+}
+
+/// `TypeOf(p)`.
+string mmTypeOf(MmGen g, at i64 node) uses alloc {
+    let n = g.nodes[node]
+    switch n.leaf {
+        case 0: return "bool"
+        case 1: return "i8"
+        case 2: return "i64"
+        case 3: return "rune"
+        case 4: return "string"
+        case 5: return "Symbol"
+        case 6: return "Tint"
+        default:
+    }
+    return n.name if n.isStruct
+    var text = "("
+    for k in n.first..n.first + n.count {
+        text = $"{text}{k == n.first ? "" : ", "}{mmTypeOf(g, at: g.kids[k])}"
+    }
+    return $"{text})"
+}
+
+/// `Random()` of `Pool`: each leaf's digit drawn in leaf order.
+i64 mmRandom(MmGen g, by ref MmRng r) {
+    var code: i64 = 0
+    for i in 0..g.leaves.length {
+        code += r.next(mmRadix(g.leaves[i])) * g.strides[i]
+    }
+    return code
+}
+
+bool mmHas(List<i64> xs, for i64 x) {
+    for y in xs {
+        return true if y == x
+    }
+    return false
+}
+
+/// `Pool(n, next)`: `n` distinct codes: a random one, then codes that differ from it in exactly one leaf, then random ones.
+List<i64> mmPool(MmGen g, for i64 n, by ref MmRng r) uses alloc {
+    var pool = List<i64>()
+    pool.append(mmRandom(g, by: ref r))
+    for i in 0..g.leaves.length {
+        let radix = mmRadix(g.leaves[i])
+        let stride = g.strides[i]
+        let digit = pool[0] / stride % radix
+        let other = pool[0] + ((digit + 1) % radix - digit) * stride
+        pool.append(other) if pool.length < n && !mmHas(pool, for: other)
+    }
+    let count = mmCount(g)
+    while pool.length < (n < count ? n : count) {
+        let code = mmRandom(g, by: ref r)
+        pool.append(code) if !mmHas(pool, for: code)
+    }
+    return pool
+}
+
+/// `Build(p, code, ref leaf)`: a literal for `code` when `literal`, else the run-time expression over `code`.
+string mmBuild(MmGen g, at i64 node, for i64 code, as bool literal, to ref i64 leaf) uses alloc {
+    let n = g.nodes[node]
+    if n.leaf >= 0 {
+        let stride = g.strides[leaf]
+        leaf += 1
+        let radix = mmRadix(n.leaf)
+        if literal {
+            let d = code / stride % radix
+            switch n.leaf {
+                case 0: return d == 1 ? "true" : "false"
+                case 1: return $"i8({d * 50 - 60})"
+                case 2: return $"i64({d * 1000003 + 7})"
+                case 3: return $"'{"abcdefgh"[d..d + 1]}'"
+                case 4: return $"\"s{d}\""
+                case 5: return $"\"y{d}\""
+                default: return $"Tint.{["red", "green", "blue"][d]}"
+            }
+        }
+        let digit = $"code / {stride} % {radix}"
+        switch n.leaf {
+            case 0: return $"{digit} == 1"
+            case 1: return $"i8(({digit}) * 50 - 60)"
+            case 2: return $"({digit}) * 1000003 + 7"
+            case 3: return $"rune(u32(97 + {digit}))"
+            case 4: return $"$\"s{{{digit}}}\""
+            case 5: return $"Symbol.intern($\"y{{{digit}}}\")"
+            default: return $"tint({digit})"
+        }
+    }
+    var text = n.isStruct ? $"{n.name} {{ " : "("
+    for k in n.first..n.first + n.count {
+        let i = k - n.first
+        let part = mmBuild(g, at: g.kids[k], for: code, as: literal, to: ref leaf)
+        text = $"{text}{i == 0 ? "" : ", "}{n.isStruct ? $"f{i}: " : ""}{part}"
+    }
+    return n.isStruct ? $"{text} }}" : $"{text})"
+}
+
+/// `Literal(code)`: the key with `code`, spelled in place with literals.
+string mmLiteral(MmGen g, for i64 code) uses alloc {
+    var leaf: i64 = 0
+    return mmBuild(g, at: g.root, for: code, as: true, to: ref leaf)
+}
+
+/// `Declarations()`: the enum, the struct declarations and `make`.
+string mmDeclarations(MmGen g) uses alloc {
+    var sb = StrBuf()
+    sb.append("enum Tint {\n    red\n    green\n    blue\n}\n\n")
+    sb.append(
+        "Tint tint(i64 c) {\n    if c < 1 {\n        return .red\n    }\n    if c < 2 {\n        return .green\n    }\n    return .blue\n}\n\n",
+    )
+    for s in g.structs {
+        let n = g.nodes[s]
+        sb.append($"struct {n.name} ")
+        sb.append("{\n")
+        for k in n.first..n.first + n.count {
+            sb.append($"    {mmTypeOf(g, at: g.kids[k])} f{k - n.first}\n")
+        }
+        sb.append("}\n\n")
+    }
+    var effects = ""
+    for l in g.leaves {
+        effects = " uses alloc" if l == 4 || l == 5
+    }
+    var leaf: i64 = 0
+    sb.append($"{mmTypeOf(g, at: g.root)} make(i64 code){effects} ")
+    sb.append("{\n")
+    sb.append($"    return {mmBuild(g, at: g.root, for: 0, as: false, to: ref leaf)}\n")
+    sb.append("}\n\n")
+    return sb.finish()
+}
+
+/// `Key(i)` of `L003GeneratedKeyTypeMatchesModel`: a literal or a `make` call, chosen by the next draw.
+string mmGenKey(MmGen g, at i64 i, from List<i64> keys, by ref MmRng r) uses alloc {
+    return r.next(2) == 0 ? mmLiteral(g, for: keys[i]) : $"make({keys[i]})"
+}
+
+/// L003 over generated `Symbol` and composite keys (spec 008, L016): the same operations as the generated sequences on eight keys of a
+/// generated type, each written either as a literal or built separately in another function, so the model is keyed by value, not by
+/// spelling.
+@cases(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)
+test "map model: L003 generated key type matches model" (i64 seed) {
+    var r = MmRng { state: 0xA0761D6478BD642F ^ (u64(seed) *% 0xD1B54A32D192ED03) }
+    let g = seed % 4 == 0 ? mmSymbolKey() : mmGenerate(by: ref r)
+    let keys = mmPool(g, for: mmKeySpace, by: ref r)
+    var law = MmModel.create(mmKeySpace)
+    var source = StrBuf()
+    source.append(mmDeclarations(g))
+    source.append("void bump(ref i64 n) {\n    n += 100\n}\n")
+    source.append($"var m = Map<{mmTypeOf(g, at: g.root)}, i64>()\n")
+    var expected = StrBuf()
+    for step in 0..mmOpsPerSequence {
+        let i = r.next(mmKeySpace)
+        let v = (step + 1) * 1000 + r.next(1000)
+        let op = r.next(10)
+        if op < 4 {
+            source.append($"m[{mmGenKey(g, at: i, from: keys, by: ref r)}] = {v}\n")
+            law.set(i, as: v)
+        } else if op < 6 {
+            source.append($"let _ = m.remove({mmGenKey(g, at: i, from: keys, by: ref r)})\n")
+            law.remove(i)
+        } else if op == 6 {
+            source.append($"m.slot({mmGenKey(g, at: i, from: keys, by: ref r)}) += {v}\n")
+            law.set(i, as: law.get(i, as: 0) + v)
+        } else if op == 7 {
+            source.append($"bump(ref m.slot({mmGenKey(g, at: i, from: keys, by: ref r)}))\n")
+            law.set(i, as: law.get(i, as: 0) + 100)
+        } else if r.next(4) == 0 {
+            source.append("m.clear()\n")
+            law.clear()
+        } else {
+            source.append($"m[{mmGenKey(g, at: i, from: keys, by: ref r)}] = {v}\n")
+            law.set(i, as: v)
+        }
+        continue if (step + 1) % mmOpsPerPhase != 0
+        source.append($"print(\"phase {step + 1}\")\n")
+        source.append("print($\"length {m.length}\")\n")
+        source.append("for e in m { print($\"{e.value}\") }\n")
+        expected.append($"phase {step + 1}\nlength {law.order.length}\n")
+        for key in law.order {
+            expected.append($"{law.get(key, as: 0)}\n")
+        }
+        for key in 0..mmKeySpace {
+            source.append($"print($\"get {key} ")
+            source.append("{m.tryGet(at: ")
+            source.append(mmGenKey(g, at: key, from: keys, by: ref r))
+            source.append(") ?? -1}\")\n")
+            expected.append($"get {key} {law.get(key, as: -1)}\n")
+        }
+    }
+    let o = mmRun($"l003-key-{seed}", from: source.finish())
+    assert(o.exitCode == 0)
+    assert(o.stdout == expected.finish())
+}
+
+@cases(
+    ("m[3] = 30", "m[3]", true),
+    ("m[3] = 30\nm[3] = 31", "m[3]", true),
+    ("m[3] = 30\nm.slot(4) += 1", "m[4]", true),
+    ("m[3] = 30", "m[4]", false),
+    ("m[3] = 30\nlet _ = m.remove(3)", "m[3]", false),
+    ("m[3] = 30\nm.clear()", "m[3]", false),
+    ("m[3] = 30\nlet _ = m.remove(3)\nm[3] = 5", "m[3]", true),
+    ("let _ = m.tryGet(at: 3) ?? 0\nlet _ = m.contains(3)", "m[3]", false),
+)
+test "map model: L003 index panics exactly for non-live keys" (string setup, string read, bool live) {
+    let o = mmRun("l003-index", from: $"var m = Map<i64, i64>()\n{setup}\nprint($\"got {{{read}}}\")\n")
+    if live {
+        assert(o.exitCode == 0)
+        assert(o.stdout.startsWith("got "))
+    } else {
+        assert(o.exitCode != 0)
+        assert(o.stderr.startsWith("panic: key not found in map"))
+        assert(o.stdout == "")
+    }
+}

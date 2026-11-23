@@ -1,0 +1,122 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{x}"`
+1:61 CloseBrace `}`
+1:62 StringLiteral `"}"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:78 Amp `&`
+1:80 AmpAmp `&&`
+1:83 Bar `|`
+1:85 BarBar `||`
+1:88 Caret `^`
+1:90 Tilde `~`
+1:92 Bang `!`
+1:94 Equals `=`
+1:96 EqualsEquals `==`
+1:99 BangEquals `!=`
+1:102 Less `<`
+1:104 LessEquals `<=`
+1:107 Greater `>`
+1:109 GreaterEquals `>=`
+1:112 LessLess `<<`
+1:115 Greater `>`
+1:116 Greater `>`
+1:118 Greater `>`
+1:119 GreaterEquals `>=`
+3:3 IntegerLiteral `1`
+3:4 NumericSuffix `e`
+4:1 Dot `.`
+4:3 CharLiteral `'ab'`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}" & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ��� 1e��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ��� 1e��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��� 1e��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��� 1e��
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��� 1e��
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ .�'ab'
+    │  ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ .�'ab'
+    │   ^^^^
+    │
+  help: use a string literal ("…") for text

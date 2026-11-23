@@ -1,0 +1,34 @@
+== body conds
+block 332..533
+  ifStmt 338..353
+    literal 341..345 : bool = true
+    block 346..353
+  ifStmt 358..406
+    local 361..362 : bool p
+    block 363..393
+      localDecl 373..387
+        literal 386..387 : i32 = 1
+    block 399..406
+  ifStmt 411..445
+    local 414..415 : bool p
+    block 416..423
+    ifStmt 429..445
+      literal 432..437 : bool = false
+      block 438..445
+  ifStmt 450..468 never
+    local 459..460 : bool p
+    block 461..468
+  ifStmt 473..493
+    literal 480..485 : bool = true
+    block 486..493
+  ifStmt 498..514
+    unary 505..506 : bool
+      local 505..506 : bool p
+    block 507..514
+  ifStmt 519..531
+    errorExpr 522..523 : ?
+    block 524..531
+local p 0 3 bool using false keyword - const -
+local a 1 0 i32 using false keyword 373..376 const -
+BYN2202 40:8 expected `bool`, found `i32` |||
+handled -

@@ -1,0 +1,21 @@
+1:1 CharLiteral `'\u{202E}'`
+1:4 LetKeyword `let`
+1:8 Identifier `b`
+1:10 Equals `=`
+1:14 IntegerLiteral `2`
+2:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'let b = ` 2
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'let b = ` 2
+    │   │  -
+
+error BYN0002: unexpected character ```
+
+  1 │ '�'let b = ` 2
+    │            ^

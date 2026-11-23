@@ -1,0 +1,133 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:1 Identifier `é`
+5:1 IntegerLiteral `1`
+5:3 IntegerLiteral `5`
+5:4 NumericSuffix `s`
+5:6 IntegerLiteral `250`
+5:9 NumericSuffix `ms`
+5:12 IntegerLiteral `4`
+5:13 NumericSuffix `KiB`
+5:17 IntegerLiteral `1`
+5:18 NumericSuffix `u`
+5:20 IntegerLiteral `0xFF`
+5:24 NumericSuffix `u`
+5:26 IntegerLiteral `0b1`
+5:29 NumericSuffix `ul`
+5:32 IntegerLiteral `7`
+5:33 NumericSuffix `l`
+7:1 Identifier `foo`
+7:5 Identifier `Bar`
+7:9 Identifier `_x`
+7:12 Identifier `camelCase2`
+7:23 Identifier `بيان`
+7:28 Identifier `μετρητής`
+7:37 Identifier `x_1`
+7:41 Identifier `é`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 InterpolatedStringStart `$"`
+8:49 InterpolationStart `{`
+8:50 StringLiteral `$"{$"`
+8:55 OpenBrace `{`
+8:56 StringLiteral `$"{x}"`
+8:62 CloseBrace `}`
+8:63 StringLiteral `"}"`
+8:66 InterpolationEnd `}`
+8:67 InterpolatedStringEnd `"`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringEnd `"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+8:76 InterpolationEnd `}`
+8:77 InterpolatedStringEnd `"`
+8:78 InterpolationEnd `}`
+8:79 InterpolatedStringEnd `"`
+8:80 InterpolationEnd `}`
+8:81 InterpolatedStringEnd `"`
+8:82 InterpolationEnd `}`
+8:83 InterpolatedStringEnd `"`
+8:84 InterpolationEnd `}`
+8:85 InterpolatedStringEnd `"`
+8:86 InterpolationEnd `}`
+8:87 InterpolatedStringEnd `"`
+9:1 Identifier `line`
+9:6 Identifier `one`
+9:9 Dot `.`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                  ^^

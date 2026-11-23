@@ -1,0 +1,63 @@
+== x-for
+BYN2202 55:12 expected `bool`, found `i64` |||
+BYN2221 59:17 `Lines` cannot be iterated |each step can fail|write `for try`|fix 860..860  try
+BYN2221 62:18 `List<i64>` cannot be iterated ||give `for try` a value with a failing `next()` that returns `T?`; write `for x in …` for a sequence that cannot fail|
+BYN2411 65:9 2 names cannot match `i64` ||name one loop variable, or iterate over pairs such as a map's entries|
+fn from
+block 455..476
+  returnStmt 455..476
+    structLiteral 455..476 : Countdown
+      local 473..474 : i64
+fn main2
+block 569..995
+  localDecl 575..593
+    structLiteral 586..593 : Rows
+  forStmt 598..635 user indexable count get -
+    local 607..611 : Rows
+    block 612..635
+      exprStmt 622..629
+        call 622..629 : void
+          local 627..628 : i64
+  localDecl 640..673
+    structLiteral 652..673 : Countdown
+      literal 670..671 : i64
+  forStmt 678..716 user enumerator moveNext current -
+    local 687..692 : Countdown
+    block 693..716
+      exprStmt 703..710
+        call 703..710 : void
+          local 708..709 : i64
+  forStmt 721..772 user enumerator moveNext current enumerator_5
+    call 736..743 : Countdown
+      literal 741..742 : i64
+    block 744..772
+      exprStmt 754..766
+        call 754..766 : void
+          local 764..765 : i64?
+  forStmt 777..820 user indexable count get -
+    local 792..796 : Rows
+    block 797..820
+      exprStmt 807..814
+        call 807..814 : void
+          local 812..813 : i64
+  localDecl 825..852
+    structLiteral 837..852 : Lines
+      literal 849..850 : i64
+  forStmt 857..901
+    local 869..874 : Lines
+    block 875..901
+      exprStmt 885..895
+        call 885..895 : void
+          literal 891..894 : string
+          enumMember 885..895 : Stream
+  errorStmt 906..948
+  forStmt 953..993
+    local 967..969 : List<i64>
+    block 970..993
+      exprStmt 980..987
+        call 980..987 : void
+          local 985..986 : ?
+fn take
+block 495..498
+fn takeMaybe
+block 523..526

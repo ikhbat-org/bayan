@@ -1,0 +1,7 @@
+2:1 Identifier `v_`
+2:3 EndOfFile
+
+error BYN0002: unexpected character `\u{C}`
+
+  1 │ �
+    │ ^

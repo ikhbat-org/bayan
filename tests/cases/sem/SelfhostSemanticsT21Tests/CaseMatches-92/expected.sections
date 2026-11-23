@@ -1,0 +1,5 @@
+== diag.collection-copy-unique-element
+BYN2784 7:13 a `List<List<i64>>` holding `List<i64>` cannot be copied: the copy would share its storage ||build the copy with a loop that copies each element, or share the original by `ref`|
+BYN2784 9:13 a `Map<string, StrBuf>` holding `StrBuf` cannot be copied: the copy would share its storage ||build the copy with a loop that copies each element, or share the original by `ref`|
+BYN2784 11:13 a `Map<i64, Holder>` holding `List<i64>` cannot be copied: the copy would share its storage ||build the copy with a loop that copies each element, or share the original by `ref`|
+BYN2784 13:13 a `List<Owned<i64>?>` holding `Owned<i64>` cannot be copied: the copy would share its storage ||build the copy with a loop that copies each element, or share the original by `ref`|

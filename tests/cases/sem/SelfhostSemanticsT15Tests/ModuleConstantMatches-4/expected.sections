@@ -1,0 +1,4 @@
+== const M
+const M i64 value - static false elements 0
+none
+BYN2101 56:7 `const M` needs a value |||

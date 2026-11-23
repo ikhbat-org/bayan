@@ -1,0 +1,3 @@
+build
+--emit-c
+log-level-after-text.byn

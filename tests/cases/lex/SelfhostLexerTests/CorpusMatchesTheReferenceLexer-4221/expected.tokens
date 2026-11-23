@@ -1,0 +1,89 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 Identifier `r`
+1:63 Tilde `~`
+1:64 Identifier `e`
+1:65 Identifier `adonly`
+1:72 RequiredKeyword `required`
+1:81 ConstKeyword `const`
+1:87 LetKeyword `let`
+1:91 VarKeyword `var`
+1:95 EmbedKeyword `embed`
+1:101 ExternKeyword `extern`
+1:108 UnsafeKeyword `unsafe`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  1 │ error set unit distinct type import as public private static r~e�adonly required const let var embed extern unsafe
+    │                                                                 ^
+
+error BYN0004: unterminated block comment
+
+  2 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ �����af�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ �����af�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����af�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����af�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �����af�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ �����af�
+    │        ^

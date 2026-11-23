@@ -1,0 +1,45 @@
+== tests/cases/run/errors-defer-failing.byn
+113..278 blockStmt
+119..124 deferStmt
+125..139 exprStmt
+125..139 callExpr
+131..138 literalExpr string
+125..139 callExpr
+144..157 deferStmt
+158..180 exprStmt
+158..180 callExpr
+164..179 literalExpr string
+158..180 callExpr
+185..202 deferStmt
+203..234 exprStmt
+203..234 callExpr
+209..233 interpolatedExpr
+230..231 nameExpr
+203..234 callExpr
+239..263 guardedStmt
+253..263 nameExpr
+239..243 failStmt
+244..249 targetMemberExpr
+268..276 returnStmt value 275..276
+275..276 literalExpr integer
+280..331 globalStatement
+280..331 exprStmt
+280..331 callExpr
+286..330 interpolatedExpr
+296..328 catchExpr
+296..319 callExpr
+313..318 literalExpr falseKeyword
+326..328 unaryExpr negate operand 327..328
+280..331 callExpr
+332..344 exprStmt
+332..344 callExpr
+338..343 literalExpr string
+332..344 callExpr
+345..395 exprStmt
+345..395 callExpr
+351..394 interpolatedExpr
+361..392 catchExpr
+361..383 callExpr
+378..382 literalExpr trueKeyword
+390..392 unaryExpr negate operand 391..392
+345..395 callExpr

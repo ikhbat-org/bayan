@@ -1,0 +1,5 @@
+== diags.diag/requires-on-function
+BYN1063 1:17 `requires` on a function is an input form; write `expects`
+  label the input form
+  help use `expects` for a precondition; `requires` is checked at construction
+  fix 1:17-1:25 expects

@@ -1,0 +1,13 @@
+let a = "open
+
+ne one.
+/// D2c line two.
+struct S
+////$not a doc comment
+b
+ a >> b
+ /// Doc line two.
+ // line comment
+ /* block
+
+let café = 2

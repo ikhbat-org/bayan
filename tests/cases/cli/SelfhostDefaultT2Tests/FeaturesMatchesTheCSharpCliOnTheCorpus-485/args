@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/compact-format-spec.byn
+--package
+<repo>/tests/cases/diag

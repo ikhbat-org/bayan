@@ -1,0 +1,127 @@
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+4:3 Equals `=`
+4:6 IntegerLiteral `2`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolatedStringText `$`
+7:37 InterpolatedStringEnd `"`
+7:38 OpenBrace `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 Identifier `x`
+7:46 InterpolationEnd `}`
+7:47 InterpolatedStringEnd `"`
+7:48 InterpolationEnd `}`
+7:49 InterpolatedStringEnd `"`
+7:50 CloseBrace `}`
+7:51 StringLiteral `"}"`
+7:54 InterpolationEnd `}`
+7:55 InterpolatedStringEnd `"`
+7:56 InterpolationEnd `}`
+7:57 InterpolatedStringEnd `"`
+7:58 InterpolationEnd `}`
+7:59 InterpolatedStringEnd `"`
+7:60 InterpolationEnd `}`
+7:61 InterpolatedStringEnd `"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:73 IntegerLiteral `0b__`
+8:2 Identifier `Å`
+9:2 Arrow `->`
+9:5 At `@`
+9:7 Hash `#`
+10:1 Plus `+`
+10:3 Minus `-`
+10:5 Star `*`
+10:7 Slash `/`
+10:9 Percent `%`
+10:11 PlusPercent `+%`
+10:14 MinusPercent `-%`
+10:17 StarPercent `*%`
+10:20 PlusBar `+|`
+10:23 MinusBar `-|`
+10:26 StarBar `*|`
+10:29 PlusPlus `++`
+10:32 MinusMinus `--`
+11:1 Amp `&`
+11:3 AmpAmp `&&`
+11:6 Bar `|`
+11:8 BarBar `||`
+11:11 Caret `^`
+11:13 Tilde `~`
+11:15 Bang `!`
+12:1 Identifier `_`
+13:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // o � in comment
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ � =� 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ � =� 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ // ok � in comment
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 0b__
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 0b__
+    │                                                                         ^^^^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  8 │  Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │  Å
+    │   │  +

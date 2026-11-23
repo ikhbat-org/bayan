@@ -1,0 +1,5 @@
+== diags.diag/lambda-member-not-lambda
+BYN2823 9:32 `.name` is a member, not a lambda
+  help write `it.name`
+  fix 9:32-9:37 it.name
+returns label 0 1

@@ -1,0 +1,182 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 Identifier `x`
+1:56 CloseBrace `}`
+1:57 StringLiteral `"}"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:91 StructKeyword `struct`
+1:98 UniqueKeyword `unique`
+1:105 UnionKeyword `union`
+1:111 EnumKeyword `enum`
+1:116 FlagsKeyword `flags`
+1:122 OpenKeyword `open`
+1:127 ExtensibleKeyword `extensible`
+1:138 InterfaceKeyword `interface`
+1:148 DelegateKeyword `delegate`
+1:157 ExtensionKeyword `extension`
+1:167 DerivationKeyword `derivation`
+1:178 AttributeKeyword `attribute`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:33 CharLiteral `' '`
+3:37 IntegerLiteral `0`
+3:38 CharLiteral `'`
+4:2 StringLiteral `" 1ms`
+5:1 IntegerLiteral `0x_`
+6:1 IntegerLiteral `0b__`
+7:1 IntegerLiteral `1__`
+8:1 IntegerLiteral `0xF__`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"��struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"��struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"��struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                                                          ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"��struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                                                                           ^ invisible
+    │                                                                                             character
+    │                                                                                             that
+    │                                                                                             reorders
+    │                                                                                             how
+    │                                                                                             the
+    │                                                                                             text
+    │                                                                                             displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"��struct unique union enum flags open extensible interface delegate extension derivation attribute
+    │   │                                                                                           -
+
+error BYN0002: unexpected character `\`
+
+  3 │ 'a' '\n' '\u{1F600}' '\'' 'é' \\' '\0'
+    │                               ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ 'a' '\n' '\u{1F600}' '\'' 'é' \\' '\0'
+    │                                ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ 'a' '\n' '\u{1F600}' '\'' 'é' \\' '\0'
+    │                                    ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 'a' '\n' '\u{1F600}' '\'' 'é' \\' '\0'
+    │                                      ^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │  " 1ms
+    │  ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1__
+    │  ^^
+    │
+    │ 7 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 0xF__
+    │    ^^
+    │
+    │ 8 │ 0xF__
+    │   │    --

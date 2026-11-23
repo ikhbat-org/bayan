@@ -1,0 +1,10 @@
+== tests/cases/run/time-now.byn
+107..176 blockStmt
+113..174 exprStmt
+113..174 callExpr
+119..173 interpolatedExpr
+134..171 binaryExpr gt right 153..171
+134..150 memberExpr
+134..144 callExpr
+153..171 literalExpr integer
+113..174 callExpr

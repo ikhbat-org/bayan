@@ -1,0 +1,1 @@
+{"code":"BYN2320","severity":"error","file":"input.byn","span":{"start":24,"end":25,"line":1,"column":25,"endLine":1,"endColumn":26},"message":"a `requires` clause must be `bool`, got `i32`","label":null,"help":"write a condition the arguments must meet, such as `count > 0`","fixes":[]}

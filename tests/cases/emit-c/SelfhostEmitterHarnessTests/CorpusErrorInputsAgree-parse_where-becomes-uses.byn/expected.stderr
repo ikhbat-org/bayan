@@ -1,0 +1,39 @@
+error BYN2002: unknown type `I`
+  --> input.byn:1:26
+
+  1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │                          ^
+
+error BYN6003: `io` is not an effect
+  --> input.byn:1:33
+
+  1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │                                 ^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN2002: unknown type `E`
+  --> input.byn:1:56
+
+  1 │ void f<T>(T x) where T : I uses io becomes .done fails E {
+    │                                                        ^
+
+error BYN6002: `f` uses `console` but does not declare it
+  --> input.byn:2:5
+
+  2 │     print(x)
+    │     ^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 1 │ void f<T>(T x) where T : I uses io, console becomes .done fails E {
+    │   │                                   +++++++++
+
+error BYN2202: expected `string`, found `T`
+  --> input.byn:2:11
+
+  2 │     print(x)
+    │           ^
+
+✗ build failed: 5 errors, 0 warnings
+  explain: bayan explain BYN2002

@@ -1,0 +1,13 @@
+== cases
+0 p_r.exit_code
+1 p_r.out
+2 p_r.err
+3 ((bynt_span_str){l0_script.v, 2})
+4 ((bynt_span_str){l3_quoted.v, 4})
+5 ((bynt_span_str){l6_big.v, 2})
+6 l7_r.exit_code
+7 l7_r.out.len
+8 l7_r.out
+9 l7_r.err.len
+10 l7_r.err
+count 11

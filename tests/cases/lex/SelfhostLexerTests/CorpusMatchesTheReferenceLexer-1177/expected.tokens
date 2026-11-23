@@ -1,0 +1,34 @@
+4:2 LetKeyword `let`
+4:6 Identifier `a`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+6:1 CharLiteral `'��'`
+6:4 OpenParen `(`
+6:6 CloseParen `)`
+6:8 OpenBracket `[`
+6:10 CloseBracket `]`
+6:12 OpenBrace `{`
+6:14 CloseBrace `}`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ '��' ( ) [ ] { }
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ '��' ( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  6 │ '��' ( ) [ ] { }
+    │   ^

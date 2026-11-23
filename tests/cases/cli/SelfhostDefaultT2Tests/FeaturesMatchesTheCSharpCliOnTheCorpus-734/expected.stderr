@@ -1,0 +1,7 @@
+error BYN2101: `let total` needs a value
+  --> <repo>/tests/cases/diag/missing-initializer.byn:1:5
+
+  1 │ let total
+    │     ^^^^^
+    │
+  help: give it a value, or declare it with `var` and assign it on every path before use

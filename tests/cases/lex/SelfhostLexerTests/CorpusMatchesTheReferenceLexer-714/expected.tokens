@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `0b__`
+2:2 Identifier `me`
+3:1 LetKeyword `let`
+4:1 LawKeyword `law`
+4:5 Equals `=`
+4:7 IntegerLiteral `3`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+    doc `/// Doc line two.`
+7:2 LetKeyword `let`
+7:6 Identifier `actor`
+7:14 IntegerLiteral `1`
+8:1 PlusEquals `+=`
+8:4 MinusEquals `-=`
+8:7 StarEquals `*=`
+8:10 SlashEquals `/=`
+8:13 PercentEquals `%=`
+8:16 AmpEquals `&=`
+8:19 BarEquals `|=`
+8:21 CloseBrace `}`
+8:23 CaretEquals `^=`
+8:26 LessLessEquals `<<=`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0002: unexpected character ```
+
+  5 │ let b = ` 2
+    │         ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  7 │  let actor � 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  7 │  let actor � 1
+    │            ^

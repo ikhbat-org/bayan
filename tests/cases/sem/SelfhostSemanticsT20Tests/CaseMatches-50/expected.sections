@@ -1,0 +1,4 @@
+== call.c25
+errorExpr|?|-|-|-|2071:21|-
+BYN2742 119:15 `pick` takes 1 type argument(s), not 2 |||
+BYN2001 119:30 `zz` is not defined |||

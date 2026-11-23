@@ -1,0 +1,7 @@
+
+struct Aisha {
+  i64 total
+}
+void showA() {
+  let x = total
+}

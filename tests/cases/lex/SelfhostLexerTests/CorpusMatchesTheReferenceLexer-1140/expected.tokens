@@ -1,0 +1,63 @@
+1:1 CharLiteral `'\u{202E}'`
+1:4 StringLiteral `" $"`
+1:8 OpenBrace `{`
+1:9 OpenBrace `{`
+1:10 Identifier `literal`
+1:17 CloseBrace `}`
+1:18 CloseBrace `}`
+1:19 StringLiteral `"� $"`
+1:24 OpenBrace `{`
+1:25 Identifier `Point`
+1:31 OpenBrace `{`
+1:33 Identifier `x`
+1:35 Equals `=`
+1:37 IntegerLiteral `1`
+1:39 CloseBrace `}`
+1:40 CloseBrace `}`
+1:41 Bang `!`
+1:42 StringLiteral `" $"`
+1:46 StringLiteral `"`
+2:2 OpenBrace `{`
+2:3 IntegerLiteral `1`
+2:4 NumericSuffix `F600`
+2:8 CloseBrace `}`
+2:9 CharLiteral `' '`
+2:13 CharLiteral `''`
+2:15 CharLiteral `'é'`
+2:19 CharLiteral `'\\'`
+2:24 CharLiteral `'\0'`
+3:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�'" $"{{literal}}"� $"{Point { x = 1 }}!" $""
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�'" $"{{literal}}"� $"{Point { x = 1 }}!" $""
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ '�'" $"{{literal}}"� $"{Point { x = 1 }}!" $""
+    │                    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ '�'" $"{{literal}}"� $"{Point { x = 1 }}!" $""
+    │                                              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\`
+
+  2 │  {1F600}' '\'''é' '\\' '\0'
+    │            ^
+
+error BYN0007: empty char literal
+
+  2 │  {1F600}' '\'''é' '\\' '\0'
+    │             ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

@@ -1,0 +1,29 @@
+error BYN2202: expected `string`, found `Untrusted<string>`
+  --> <repo>/tests/cases/diag/untrusted-no-implicit.byn:6:17
+
+  6 │ let s: string = u
+    │                 ^
+
+error BYN2202: expected `Untrusted<string>`, found `string`
+  --> <repo>/tests/cases/diag/untrusted-no-implicit.byn:7:28
+
+  7 │ let v: Untrusted<string> = "y"
+    │                            ^^^
+
+error BYN2202: expected `string`, found `Untrusted<string>`
+  --> <repo>/tests/cases/diag/untrusted-no-implicit.byn:8:6
+
+  8 │ show(u)
+    │      ^
+
+error BYN2225: `Untrusted<string>` cannot be formatted
+  --> <repo>/tests/cases/diag/untrusted-no-implicit.byn:9:10
+
+  9 │ print($"{u}")
+    │          ^
+
+error BYN2202: expected `Untrusted<string>`, found `string`
+  --> <repo>/tests/cases/diag/untrusted-no-implicit.byn:10:7
+
+  10 │ print("z".trustUnchecked() because "not wrapped")
+     │       ^^^

@@ -1,0 +1,9 @@
+{"raw":"Content-Length: 43\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"foo/bar\"}"}
+{"raw":"Content-Length: 78\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":\"abc\",\"method\":\"x\\\"y\\\\z\\n\\t\\u0001é ​﻿￿<>&'+`\"}"}
+{"raw":"Content-Length: 45\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":null,\"method\":\"nullid\"}"}
+{"raw":"Content-Length: 45\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1.50E+3,\"method\":\"num\"}"}
+{"raw":"Content-Length: 40\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":-0,\"method\":\"neg\"}"}
+{"raw":"Content-Length: 43\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1e400,\"method\":\"big\"}"}
+{"raw":"Content-Length: 58\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":\"\\u00e9\\/\\ud83d\\ude00\",\"method\":\"a\"}"}
+{"raw":"Content-Length: 40\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"😀\"}"}
+{"jsonrpc":"2.0","method":"unknown/notification","params":{}}

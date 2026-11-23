@@ -1,0 +1,66 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c `
+1:9 InterpolationStart `{`
+1:11 ErrorKeyword `error`
+1:17 SetKeyword `set`
+1:21 UnitKeyword `unit`
+1:26 DistinctKeyword `distinct`
+1:35 TypeKeyword `type`
+1:40 ImportKeyword `import`
+1:47 AsKeyword `as`
+1:50 PublicKeyword `public`
+1:57 PrivateKeyword `private`
+1:65 StaticKeyword `static`
+1:72 ReadonlyKeyword `readonly`
+1:81 RequiredKeyword `required`
+1:90 ConstKeyword `const`
+1:96 LetKeyword `let`
+1:100 VarKeyword `var`
+1:104 EmbedKeyword `embed`
+1:110 ExternKeyword `extern`
+1:117 UnsafeKeyword `unsafe`
+2:1 Identifier `a`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}c { error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0004: unterminated block comment
+
+  2 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │  ���// comment � hidden
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  5 │  ���// comment � hidden
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │  ���// comment � hidden
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │  ���// comment � hidden
+    │                ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  ���// comment � hidden
+    │   │                -

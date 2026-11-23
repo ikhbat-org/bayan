@@ -1,0 +1,56 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+3:1 IntegerLiteral `2`
+5:1 CharLiteral `'x`
+7:1 LetKeyword `let`
+7:5 Identifier `a`
+7:7 Equals `=`
+7:11 IntegerLiteral `1`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `stray } here`
+9:15 InterpolatedStringEnd `"`
+10:1 TestKeyword `test`
+10:6 Identifier `assertproperty`
+10:21 FuzzKeyword `fuzz`
+10:26 ModelKeyword `model`
+10:32 ForeachKeyword `foreach`
+10:40 NewKeyword `new`
+10:44 GotoKeyword `goto`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ �   comment */ a
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  7 │ let a = $ 1
+    │         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  9 │ $"stray } here"
+    │         ^
+    │
+    │ 9 │ $"stray }} here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  10 │ �test assertproperty fuzz model foreach new goto
+     │ ^

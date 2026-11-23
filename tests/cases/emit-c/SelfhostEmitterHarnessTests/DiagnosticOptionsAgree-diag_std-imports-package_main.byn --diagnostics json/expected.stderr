@@ -1,0 +1,1 @@
+{"code":"BYN2032","severity":"error","file":"input/main.byn","span":{"start":7,"end":12,"line":1,"column":8,"endLine":1,"endColumn":13},"message":"no std module `std.a`","label":null,"help":"import one of <std modules>","fixes":[]}

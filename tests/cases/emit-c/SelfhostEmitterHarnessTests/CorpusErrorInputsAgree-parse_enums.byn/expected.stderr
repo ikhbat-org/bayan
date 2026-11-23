@@ -1,0 +1,10 @@
+error BYN2722: enum `Empty` has no members
+  --> input.byn:21:14
+
+  21 │ private enum Empty { }
+     │              ^^^^^
+     │
+  help: add the members, or remove the enum
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2722

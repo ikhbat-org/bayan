@@ -1,0 +1,101 @@
+== tests/cases/diag/validation-error-same-name-unhandled
+120..153 blockStmt
+126..151 returnStmt value 133..151
+133..151 tryExpr
+137..151 structLiteralExpr
+137..151 structLiteralExpr
+148..149 nameExpr
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+47..62 requiresRule
+47..62 requiresRule
+56..62 binaryExpr gt right 61..62
+56..58 nameExpr
+56..58 nameExpr
+61..62 literalExpr integer
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+120..153 blockStmt
+126..151 returnStmt value 133..151
+133..151 tryExpr
+137..151 structLiteralExpr
+137..151 structLiteralExpr
+148..149 nameExpr
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+47..62 requiresRule
+47..62 requiresRule
+56..62 binaryExpr gt right 61..62
+56..58 nameExpr
+56..58 nameExpr
+61..62 literalExpr integer
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+47..62 requiresRule
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+0..64 structDecl
+103..205 blockStmt
+109..139 localDecl
+126..139 tryExpr
+130..139 callExpr
+137..138 nameExpr
+144..174 localDecl
+161..174 tryExpr
+165..174 callExpr
+172..173 nameExpr
+179..203 exprStmt
+179..203 callExpr
+185..202 interpolatedExpr
+191..194 memberExpr
+191..192 nameExpr
+197..200 memberExpr
+197..198 nameExpr
+179..203 callExpr
+219..321 blockStmt
+225..319 exprStmt
+225..319 catchExpr
+225..239 callExpr
+230..231 literalExpr integer
+237..238 literalExpr integer
+246..319 switchExpr
+246..252 caughtErrorExpr
+263..289 declarationPattern
+263..289 declarationPattern
+263..289 declarationPattern
+263..289 declarationPattern
+293..312 callExpr
+299..311 literalExpr string
+293..312 callExpr

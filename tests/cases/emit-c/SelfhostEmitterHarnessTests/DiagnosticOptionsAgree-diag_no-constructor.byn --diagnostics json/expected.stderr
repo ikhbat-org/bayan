@@ -1,0 +1,1 @@
+{"code":"BYN2112","severity":"error","file":"input.byn","span":{"start":46,"end":51,"line":6,"column":9,"endLine":6,"endColumn":14},"message":"`Point` has no constructor","label":null,"help":"set the fields with a struct literal: `Point { x: …, y: … }`","fixes":[]}

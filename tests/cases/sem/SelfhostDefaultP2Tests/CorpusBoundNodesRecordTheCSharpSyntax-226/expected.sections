@@ -1,0 +1,25 @@
+== tests/cases/run/path-full-path.byn
+184..200 callExpr
+184..200 callExpr
+184..200 callExpr
+198..199 nameExpr
+202..334 globalStatement
+202..334 forStmt
+211..295 collectionExpr
+212..218 literalExpr string
+220..228 literalExpr string
+230..241 literalExpr string
+243..250 literalExpr string
+252..255 literalExpr string
+257..264 literalExpr string
+266..271 literalExpr string
+273..283 literalExpr string
+285..294 literalExpr string
+296..334 blockStmt
+302..332 exprStmt
+302..332 callExpr
+308..331 interpolatedExpr
+312..313 nameExpr
+321..328 callExpr
+326..327 nameExpr
+302..332 callExpr

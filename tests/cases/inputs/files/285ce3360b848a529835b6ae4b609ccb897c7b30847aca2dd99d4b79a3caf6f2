@@ -1,0 +1,6 @@
+'\u{D800}'
+"a {f($"b {c}")} d" $"{{literal}}" 
+1__
+
+$"stray } here"
+ "a⁧b"

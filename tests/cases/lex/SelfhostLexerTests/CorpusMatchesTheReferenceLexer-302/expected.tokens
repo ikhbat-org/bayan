@@ -1,0 +1,39 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_000`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms4KiB`
+2:52 IntegerLiteral `1`
+2:53 NumericSuffix `u`
+2:55 IntegerLiteral `0xFF`
+2:59 NumericSuffix `u`
+2:61 IntegerLiteral `0b1`
+2:64 NumericSuffix `ul`
+2:67 IntegerLiteral `7`
+2:68 NumericSuffix `l`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \"q\" \\ \n"`
+3:26 RawStringLiteral `"""\n\n\r각\t `
+5:7 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

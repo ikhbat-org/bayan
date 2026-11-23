@@ -1,0 +1,2 @@
+== expr.probes.i3
+interpolated:string[3464:18]=-(v:local:Point[3467:1]=-(p)/0,true,0,32,-1,-1)

@@ -1,0 +1,67 @@
+1:2 Identifier `ạ̇`
+2:1 CharLiteral `''`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+4:2 Identifier `c`
+4:5 StringLiteral `"q"`
+4:13 Identifier `n`
+4:14 StringLiteral `" "`
+4:17 StringLiteral `""`
+5:3 Identifier `raw`
+5:7 StringLiteral `"qumacro select become`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � ạ̇
+    │ ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ � ạ̇
+    │   ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ � ạ̇
+    │   │   +
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  c \"q" \\ \n" """
+    │    ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  c \"q" \\ \n" """
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  c \"q" \\ \n" """
+    │          ^
+
+error BYN0002: unexpected character `\`
+
+  4 │  c \"q" \\ \n" """
+    │            ^
+
+error BYN0003: unterminated string literal
+
+  5 │   raw "qumacro select become
+    │       ^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

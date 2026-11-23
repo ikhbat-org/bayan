@@ -1,0 +1,5 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Greater `>`
+1:11 IntegerLiteral `3`
+2:1 EndOfFile

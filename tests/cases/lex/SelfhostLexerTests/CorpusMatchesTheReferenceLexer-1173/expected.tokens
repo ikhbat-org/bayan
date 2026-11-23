@@ -1,0 +1,68 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 Plus `+`
+2:4 Minus `-`
+2:6 Star `*`
+2:8 Slash `/`
+2:10 Percent `%`
+2:12 PlusPercent `+%`
+2:15 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:33 MinusMinus `--`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `stray } here`
+3:16 InterpolatedStringEnd `"`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 Identifier `s`
+4:56 CloseBrace `}`
+4:57 Identifier `atic`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 ConstKeyword `const`
+4:86 LetKeyword `let`
+4:90 VarKeyword `var`
+4:94 EmbedKeyword `embed`
+4:100 ExternKeyword `extern`
+4:107 UnsafeKeyword `unsafe`
+5:3 Identifier `t`
+5:5 WithKeyword `with`
+5:10 MoveKeyword `move`
+5:15 RefKeyword `ref`
+5:19 OutKeyword `out`
+5:23 ThisKeyword `this`
+5:28 Identifier `nll`
+5:32 TrueKeyword `true`
+5:37 Identifier `fa`
+6:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"stray } here"
+    │          ^
+    │
+    │ 3 │  $"stray }} here"
+    │   │           +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ �� t with move ref out this nll true fa
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �� t with move ref out this nll true fa
+    │  ^

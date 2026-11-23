@@ -1,0 +1,29 @@
+1:1 IntegerLiteral `0b102`
+2:2 LetKeyword `let`
+2:6 Identifier `c`
+2:11 IntegerLiteral `3`
+    doc `///`
+4:1 RawStringLiteral `"""\n�\n`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │  let c  � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  4 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �
+    │ ^

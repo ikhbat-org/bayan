@@ -1,0 +1,54 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:2 PlusEquals `+=`
+2:5 MinusEquals `-=`
+2:8 StarEquals `*=`
+2:11 SlashEquals `/=`
+2:14 PercentEquals `%=`
+2:17 AmpEquals `&=`
+2:20 BarEquals `|=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Minus `-`
+4:31 Greater `>`
+4:33 At `@`
+4:35 Hash `#`
+5:2 StringLiteral `"`
+6:4 Identifier `comment`
+6:12 Star `*`
+6:13 Slash `/`
+6:15 Identifier `a`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  4 │ , . .. ..= : ? ?? ??= ?. => -�> @ #
+    │                              ^
+
+error BYN0003: unterminated string literal
+
+  5 │  "
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │    comment */ �a
+    │               ^

@@ -1,0 +1,3 @@
+== pat.probes.-.q7
+bindPattern|-
+BYN2411 61:20 `NetError.timeout` cannot match `OtherError` |||

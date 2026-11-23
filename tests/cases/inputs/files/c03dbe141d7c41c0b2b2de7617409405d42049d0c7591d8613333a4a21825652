@@ -1,0 +1,4 @@
+ = 1
+let effect = 2
+macro select become
+let lawallowed in strings" "" "\u{48}i"

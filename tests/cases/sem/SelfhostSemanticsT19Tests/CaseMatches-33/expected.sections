@@ -1,0 +1,3 @@
+== bind.probes.c5
+flags 0
+conditional:i64[3671:12]=-(local:bool[3671:4]=-(flag) conversion:i64[3678:1]=-(widen local:i32[3678:1]=-(a)) literal:i64[3682:1]=2(2))

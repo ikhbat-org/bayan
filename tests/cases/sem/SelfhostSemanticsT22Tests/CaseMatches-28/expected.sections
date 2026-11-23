@@ -1,0 +1,3 @@
+== pat.probes.-.q9
+bindPattern|-
+BYN2228 63:29 `refusd` is not a variant of `NetError` ||did you mean `refused`?|

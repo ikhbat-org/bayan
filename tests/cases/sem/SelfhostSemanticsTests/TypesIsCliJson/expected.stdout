@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "lambda.byn",
+      "name": "apply",
+      "span": {
+        "start": 4,
+        "end": 9
+      },
+      "bindings": [
+        {
+          "name": "f",
+          "kind": "param",
+          "span": {
+            "start": 23,
+            "end": 24
+          },
+          "type": "i64 -> i64"
+        },
+        {
+          "name": "x",
+          "kind": "param",
+          "span": {
+            "start": 33,
+            "end": 34
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "lambda.byn",
+      "name": "main",
+      "span": {
+        "start": 50,
+        "end": 54
+      },
+      "bindings": [
+        {
+          "name": "k",
+          "kind": "let",
+          "span": {
+            "start": 67,
+            "end": 68
+          },
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "path": "lambda.byn",
+      "name": "main$lambda1",
+      "span": {
+        "start": 92,
+        "end": 104
+      },
+      "bindings": [
+        {
+          "name": "x",
+          "kind": "param",
+          "span": {
+            "start": 93,
+            "end": 94
+          },
+          "type": "i64"
+        }
+      ],
+      "captures": [
+        {
+          "name": "k",
+          "type": "i32"
+        }
+      ]
+    }
+  ]
+}

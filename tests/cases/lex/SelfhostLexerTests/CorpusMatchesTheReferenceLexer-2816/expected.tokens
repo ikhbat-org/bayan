@@ -1,0 +1,57 @@
+1:2 IntegerLiteral `50`
+1:4 NumericSuffix `dec`
+1:8 IntegerLiteral `1`
+1:9 DotDot `..`
+1:11 IntegerLiteral `2`
+1:13 IntegerLiteral `1`
+1:14 DotDotEquals `..=`
+1:17 IntegerLiteral `3`
+1:19 IntegerLiteral `5`
+1:20 NumericSuffix `e`
+1:22 Identifier `x`
+1:23 Dot `.`
+1:24 Identifier `y`
+1:26 FloatLiteral `2.5`
+1:29 NumericSuffix `f`
+3:1 IntegerLiteral `3`
+3:3 FloatLiteral `6E+2`
+3:8 FloatLiteral `1.50`
+3:12 NumericSuffix `dec`
+3:16 IntegerLiteral `1`
+3:17 DotDot `..`
+3:19 IntegerLiteral `2`
+3:21 IntegerLiteral `1`
+3:22 DotDotEquals `..=`
+3:25 IntegerLiteral `3`
+3:27 IntegerLiteral `5`
+3:28 NumericSuffix `e`
+3:30 Identifier `x`
+3:31 Dot `.`
+3:32 Identifier `y`
+3:34 FloatLiteral `2.5`
+3:37 NumericSuffix `f`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolatedStringText `x`
+3:41 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��50dec 1..2 1..=3 5e x.y 2.5f
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��50dec 1..2 1..=3 5e x.y 2.5f
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ 3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f$"x{ $"{
+    │                                           ^^ this string never ends
+    │
+  help: close the `{` and the string

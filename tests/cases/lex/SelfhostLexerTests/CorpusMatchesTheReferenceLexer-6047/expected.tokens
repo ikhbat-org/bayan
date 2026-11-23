@@ -1,0 +1,56 @@
+2:1 LetKeyword `let`
+2:5 EffectKeyword `effect`
+2:14 IntegerLiteral `2`
+4:1 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'\u{10000}'`
+6:1 CharLiteral `'x`
+9:3 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xEE)
+
+  2 │ let effect � 2
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �
+    │  ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  9 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │  ���
+    │    ^

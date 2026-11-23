@@ -1,0 +1,207 @@
+bool call0(i64 a0, to bool a1, by ((i64, bool) -> bool) f) => f(a0, a1)
+
+bool relay0(i64 a0, to bool a1, by ((i64, bool) -> bool) f) => call0(a0, to: a1, by: f)
+
+void host0Direct(bool q0) {
+    let k0: i64 = 18
+    let p0: i64 = 9
+    let r: bool = p0 == k0 && 5 > k0
+    print($"c0 {r}")
+}
+
+void host0Local(bool q0) {
+    let k0: i64 = 18
+    let f: (i64, bool) -> bool = (p0, p1) => {
+        return p0 == k0 && 5 > k0
+    }
+    let r: bool = f(9, false)
+    print($"c0 {r}")
+}
+
+void host0Via1(bool q0) {
+    let k0: i64 = 18
+    let r: bool = call0(9, to: false, by: (p0, p1) => {
+        return p0 == k0 && 5 > k0
+    })
+    print($"c0 {r}")
+}
+
+void host0Via2(bool q0) {
+    let k0: i64 = 18
+    let f: (i64, bool) -> bool = (p0, p1) => {
+        return p0 == k0 && 5 > k0
+    }
+    let r: bool = relay0(9, to: false, by: f)
+    print($"c0 {r}")
+}
+
+string call1(i64 a0, to string a1, by ((i64, string) -> string) f) => f(a0, a1)
+
+string relay1(i64 a0, to string a1, by ((i64, string) -> string) f) => call1(a0, to: a1, by: f)
+
+void host1Direct() {
+    let p0: i64 = -8
+    let p1: string = "x"
+    let r: string = $"{p1}-{p0}"
+    print($"c1 {r}")
+}
+
+void host1Local() {
+    let f: (i64, string) -> string uses alloc = (p0, p1) => $"{p1}-{p0}"
+    let r: string = f(-8, "x")
+    print($"c1 {r}")
+}
+
+void host1Via1() {
+    let r: string = call1(-8, to: "x", by: (p0, p1) => $"{p1}-{p0}")
+    print($"c1 {r}")
+}
+
+void host1Via2() {
+    let r: string = relay1(-8, to: "x", by: (p0, p1) => $"{p1}-{p0}")
+    print($"c1 {r}")
+}
+
+string call2(by (() -> string) f) => f()
+
+string relay2(by (() -> string) f) => call2(by: f)
+
+void host2Direct() {
+    let k0: string = "ab"
+    let r: string = $"{k0}-{k0}"
+    print($"c2 {r}")
+}
+
+void host2Local() {
+    let k0: string = "ab"
+    let f: () -> string uses alloc = () => $"{k0}-{k0}"
+    let r: string = f()
+    print($"c2 {r}")
+}
+
+void host2Via1() {
+    let k0: string = "ab"
+    let r: string = call2(by: () => $"{k0}-{k0}")
+    print($"c2 {r}")
+}
+
+void host2Via2() {
+    let k0: string = "ab"
+    let r: string = relay2(by: () => $"{k0}-{k0}")
+    print($"c2 {r}")
+}
+
+string call3(by (() -> string) f) => f()
+
+string relay3(by (() -> string) f) => call3(by: f)
+
+void host3Direct() {
+    let r: string = $"{3}-{1}"
+    print($"c3 {r}")
+}
+
+void host3Local() {
+    let f: () -> string uses alloc = () => $"{3}-{1}"
+    let r: string = f()
+    print($"c3 {r}")
+}
+
+void host3Via1() {
+    let r: string = call3(by: () => $"{3}-{1}")
+    print($"c3 {r}")
+}
+
+void host3Via2() {
+    let r: string = relay3(by: () => $"{3}-{1}")
+    print($"c3 {r}")
+}
+
+bool call4(bool a0, to bool a1, by ((bool, bool) -> bool) f) => f(a0, a1)
+
+bool relay4(bool a0, to bool a1, by ((bool, bool) -> bool) f) => call4(a0, to: a1, by: f)
+
+void host4Direct() {
+    let r: bool = 9 == 3
+    print($"c4 {r}")
+}
+
+void host4Local() {
+    let f: (bool, bool) -> bool = (p0, p1) => {
+        return 9 == 3
+    }
+    let r: bool = f(false, false)
+    print($"c4 {r}")
+}
+
+void host4Via1() {
+    let r: bool = call4(a0: false, to: false, by: (p0, p1) => {
+        return 9 == 3
+    })
+    print($"c4 {r}")
+}
+
+void host4Via2() {
+    let r: bool = relay4(a0: false, to: false, by: (p0, p1) => {
+        return 9 == 3
+    })
+    print($"c4 {r}")
+}
+
+i64 fn5() => 6 + 4 - 8
+
+i64 call5(by (() -> i64) f) => f()
+
+i64 relay5(by (() -> i64) f) => call5(by: f)
+
+void host5Direct() {
+    let r: i64 = fn5()
+    print($"c5 {r}")
+}
+
+void host5Local() {
+    let f: () -> i64 = fn5
+    let r: i64 = f()
+    print($"c5 {r}")
+}
+
+void host5Via1() {
+    let r: i64 = call5(by: fn5)
+    print($"c5 {r}")
+}
+
+void host5Via2() {
+    let f: () -> i64 = fn5
+    let r: i64 = relay5(by: f)
+    print($"c5 {r}")
+}
+
+void main() {
+    print("== direct")
+    host0Direct(q0: false)
+    host1Direct()
+    host2Direct()
+    host3Direct()
+    host4Direct()
+    host5Direct()
+    print("== local")
+    host0Local(q0: false)
+    host1Local()
+    host2Local()
+    host3Local()
+    host4Local()
+    host5Local()
+    print("== via1")
+    host0Via1(q0: false)
+    host1Via1()
+    host2Via1()
+    host3Via1()
+    host4Via1()
+    host5Via1()
+    print("== via2")
+    host0Via2(q0: false)
+    host1Via2()
+    host2Via2()
+    host3Via2()
+    host4Via2()
+    host5Via2()
+}

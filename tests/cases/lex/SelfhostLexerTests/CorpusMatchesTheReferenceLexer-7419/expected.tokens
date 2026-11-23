@@ -1,0 +1,51 @@
+1:1 CharLiteral `'x`
+2:3 Percent `%`
+2:5 PlusPercent `+%`
+2:8 MinusPercent `-%`
+2:11 Percent `%`
+2:13 PlusBar `+|`
+2:16 MinusBar `-|`
+2:19 StarBar `*|`
+2:22 PlusPlus `++`
+2:25 MinusMinus `--`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 Bar `|`
+3:10 Caret `^`
+3:12 Tilde `~`
+3:14 Bang `!`
+3:16 Equals `=`
+3:18 EqualsEquals `==`
+3:21 BangEquals `!=`
+3:24 Less `<`
+3:26 LessEquals `<=`
+3:29 Greater `>`
+4:1 FailsKeyword `fails`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 NeverKeyword `never`
+4:23 NoallocKeyword `noalloc`
+4:31 Identifier `no`
+4:34 Identifier `suspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
+5:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ � % +% -% % +| -| *| ++ --
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC4)
+
+  4 │ fails try catch never noalloc no�suspend suspends async await
+    │                                 ^

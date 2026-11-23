@@ -1,0 +1,134 @@
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+4:1 Identifier `b`
+5:1 IntegerLiteral `1_`
+6:4 LetKeyword `let`
+6:8 Identifier `s`
+6:10 Equals `=`
+6:12 InterpolatedStringStart `$"`
+6:14 InterpolationStart `{`
+6:15 InterpolatedStringStart `$"`
+6:17 InterpolationStart `{`
+6:18 InterpolatedStringStart `$"`
+6:20 InterpolationStart `{`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolationStart `{`
+6:24 InterpolatedStringStart `$"`
+6:26 InterpolationStart `{`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolationStart `{`
+6:30 InterpolatedStringStart `$"`
+6:32 InterpolationStart `{`
+6:33 InterpolatedStringStart `$"`
+6:35 InterpolationStart `{`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolationStart `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 InterpolatedStringStart `$"`
+6:44 InterpolationStart `{`
+6:45 InterpolatedStringStart `$"`
+6:47 InterpolationStart `{`
+6:48 InterpolatedStringStart `$"`
+6:50 InterpolationStart `{`
+6:51 InterpolatedStringStart `$"`
+6:53 InterpolationStart `{`
+6:54 InterpolatedStringStart `$"`
+6:56 InterpolationStart `{`
+6:57 InterpolatedStringStart `$"`
+6:59 InterpolationStart `{`
+6:60 StringLiteral `$"{$"`
+6:65 OpenBrace `{`
+6:66 StringLiteral `$"{$"`
+6:71 OpenBrace `{`
+6:72 Identifier `x`
+6:73 CloseBrace `}`
+6:74 StringLiteral `"}"`
+6:77 CloseBrace `}`
+6:78 StringLiteral `"}"`
+6:81 InterpolationEnd `}`
+6:82 InterpolatedStringEnd `"`
+6:83 InterpolationEnd `}`
+6:84 InterpolatedStringEnd `"`
+6:85 InterpolationEnd `}`
+6:86 InterpolatedStringEnd `"`
+6:87 InterpolationEnd `}`
+6:88 InterpolatedStringEnd `"`
+6:89 InterpolationEnd `}`
+6:90 InterpolatedStringEnd `"`
+6:91 InterpolationEnd `}`
+6:92 InterpolatedStringEnd `"`
+6:93 InterpolationEnd `}`
+6:94 InterpolatedStringEnd `"`
+6:95 InterpolationEnd `}`
+6:96 InterpolatedStringEnd `"`
+6:97 InterpolationEnd `}`
+6:98 InterpolatedStringEnd `"`
+6:99 InterpolationEnd `}`
+6:100 InterpolatedStringEnd `"`
+6:101 InterpolationEnd `}`
+6:102 InterpolatedStringEnd `"`
+6:103 InterpolationEnd `}`
+6:104 InterpolatedStringEnd `"`
+6:105 InterpolationEnd `}`
+6:106 InterpolatedStringEnd `"`
+6:107 InterpolationEnd `}`
+6:108 InterpolatedStringEnd `"`
+6:109 InterpolationEnd `}`
+6:110 InterpolatedStringEnd `"`
+6:111 InterpolationEnd `}`
+6:112 InterpolatedStringEnd `"`
+8:1 LetKeyword `let`
+8:5 Identifier `café`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+8:14 Semicolon `;`
+    doc `///� `
+9:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  3 │ //// not a doc comme�nt
+    │                     ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │  � let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │  � let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                            ^^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  8 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ let café = 1;
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  9 │ ///� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  9 │ ///� 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  9 │ ///� 
+    │     ^

@@ -1,0 +1,18 @@
+== tests/cases/diag/fs-file-exists-needs-fs.byn
+138..169 blockStmt
+144..167 returnStmt value 151..167
+151..167 callExpr
+165..166 nameExpr
+216..247 blockStmt
+222..245 returnStmt value 229..245
+229..245 callExpr
+243..244 nameExpr
+261..326 blockStmt
+267..324 exprStmt
+267..324 callExpr
+273..323 interpolatedExpr
+276..298 callExpr
+293..297 literalExpr string
+301..321 callExpr
+316..320 literalExpr string
+267..324 callExpr

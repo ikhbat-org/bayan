@@ -1,0 +1,91 @@
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+5:1 CharLiteral `''`
+6:1 Semicolon `;`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:11 Identifier `x`
+7:12 StringLiteral `"{$"`
+7:16 OpenBrace `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 InterpolatedStringStart `$"`
+7:49 InterpolationStart `{`
+7:50 InterpolatedStringStart `$"`
+7:52 InterpolationStart `{`
+7:53 InterpolatedStringStart `$"`
+7:55 InterpolationStart `{`
+7:56 StringLiteral `$"{$"`
+7:61 OpenBrace `{`
+8:1 CloseBrace `}`
+8:2 StringLiteral `"}"`
+8:5 InterpolationEnd `}`
+8:6 InterpolatedStringEnd `"`
+8:7 InterpolationEnd `}`
+8:8 InterpolatedStringEnd `"`
+8:9 InterpolationEnd `}`
+8:10 InterpolatedStringEnd `"`
+9:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ � 
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � 
+    │   │ -
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0007: empty char literal
+
+  5 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `$`
+
+  7 │ $"{$"{$"{$x"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$x"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$x"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │                                                        ^^

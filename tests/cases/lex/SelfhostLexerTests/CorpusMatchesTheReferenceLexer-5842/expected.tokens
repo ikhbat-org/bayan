@@ -1,0 +1,34 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 CharLiteral `'null true false cmptime checked`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+4:2 StringLiteral `"{0x_`
+6:4 Identifier `comment`
+6:12 Star `*`
+6:13 Slash `/`
+6:15 Identifier `a`
+7:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ is and or not with move ref out this 'null true false cmptime checked
+    │                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │  "{0x_
+    │  ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

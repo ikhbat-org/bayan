@@ -1,0 +1,11 @@
+// 019 T29 (coverage ratchet): main.byn paths no golden case reaches: `refuse` and a terminal of no width. The expected
+// values are the output of the self-hosted driver at the commit that added the test.
+
+test "driver t29: refuse is a usage error" {
+    assert refuse("parse") == exitUsage
+}
+
+test "driver t29: decideStyle on a terminal of width 0 keeps 100 columns" {
+    let style = decideStyle("never", by: false, through: true, for: 0)
+    assert style.width == 100 && !style.color
+}

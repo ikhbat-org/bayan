@@ -1,0 +1,8 @@
+1:2 Identifier `b`
+2:2 Identifier `le`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 StringLiteral `""`
+2:11 Identifier `netver`
+2:18 Identifier `closed`
+3:2 EndOfFile

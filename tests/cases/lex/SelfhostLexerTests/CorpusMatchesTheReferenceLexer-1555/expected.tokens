@@ -1,0 +1,85 @@
+1:1 Identifier `é`
+1:4 Equals `=`
+1:6 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+2:14 Equals `=`
+2:16 IntegerLiteral `1`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:3 Identifier `café`
+4:8 Equals `=`
+4:10 IntegerLiteral `2`
+6:1 IsKeyword `is`
+6:4 AndKeyword `and`
+6:8 OrKeyword `or`
+6:11 NotKeyword `not`
+6:15 WithKeyword `with`
+6:20 MoveKeyword `move`
+6:25 RefKeyword `ref`
+6:29 OutKeyword `out`
+6:33 ThisKeyword `this`
+6:38 NullKeyword `null`
+6:43 TrueKeyword `true`
+6:48 FalseKeyword `false`
+6:54 ComptimeKeyword `comptime`
+6:63 CheckedKeyword `checked`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolatedStringText `{{literal}}`
+7:15 InterpolatedStringEnd `"`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 Identifier `Point`
+7:26 OpenBrace `{`
+7:28 Identifier `x`
+7:30 Equals `=`
+7:32 IntegerLiteral `1`
+7:34 CloseBrace `}`
+7:35 InterpolationEnd `}`
+7:36 InterpolatedStringText `!`
+7:37 InterpolatedStringEnd `"`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolatedStringEnd `"`
+    doc `/// Doc line one.`
+9:3 Identifier `a`
+10:2 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é = 1
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é = 1
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xEB)
+
+  2 │ let café = 2�= 1
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  9 │  �a /* never closed
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  9 │  �a /* never closed
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  9 │  �a /* never closed
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  9 │  �a /* never closed
+    │     ^^ comment starts here
+    │
+  help: close it with `*/`

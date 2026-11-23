@@ -1,0 +1,5 @@
+== templateOf
+instance need owner -
+member get owner Box<T>
+template null
+templateMember null

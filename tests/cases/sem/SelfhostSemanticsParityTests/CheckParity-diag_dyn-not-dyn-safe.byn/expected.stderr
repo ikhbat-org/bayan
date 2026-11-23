@@ -1,0 +1,18 @@
+error BYN2808: `IMap` cannot be used with `dyn`: `get` is generic
+  --> tmp/t26-tests/cli/diag_dyn-not-dyn-safe.byn/dyn-not-dyn-safe.byn:10:13
+
+  10 │ void lookup(dyn ref IMap m) { }
+     │             ^^^^^^^^^^^^ used with `dyn` here
+     │
+  help: use a `where` constraint instead
+
+error BYN2808: `ICursor` cannot be used with `dyn`: `Item` is an associated type
+  --> tmp/t26-tests/cli/diag_dyn-not-dyn-safe.byn/dyn-not-dyn-safe.byn:12:11
+
+  12 │ void walk(dyn ref readonly ICursor c) { }
+     │           ^^^^^^^^^^^^^^^^^^^^^^^^ used with `dyn` here
+     │
+  help: use a `where` constraint instead
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2808

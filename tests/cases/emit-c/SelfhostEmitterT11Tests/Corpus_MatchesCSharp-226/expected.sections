@@ -1,0 +1,26 @@
+== helpers
+bynh_value_res_i64 static int64_t bynh_value_res_i64(bynt_res_i64 r, const char* file, int line) | static int64_t bynh_value_res_i64(bynt_res_i64 r, const char* file, int line) {
+    if (r.err.code) byn_panic("result holds an error", file, line);
+    return r.value;
+}
+bynh_error_res_i64 static byn_err bynh_error_res_i64(bynt_res_i64 r, const char* file, int line) | static byn_err bynh_error_res_i64(bynt_res_i64 r, const char* file, int line) {
+    if (!r.err.code) byn_panic("result holds a value", file, line);
+    return r.err;
+}
+bynh_eq_err static bool bynh_eq_err(byn_err a, byn_err b) | static bool bynh_eq_err(byn_err a, byn_err b) {
+    if (a.code != b.code) return false;
+    switch (a.code) {
+    case 10: return (a.p.e10.signal == b.p.e10.signal)
+        && byn_str_eq(a.p.e10.stdout_, b.p.e10.stdout_)
+        && byn_str_eq(a.p.e10.stderr_, b.p.e10.stderr_);
+    case 11: return (a.p.e11.after == b.p.e11.after)
+        && byn_str_eq(a.p.e11.stdout_, b.p.e11.stdout_)
+        && byn_str_eq(a.p.e11.stderr_, b.p.e11.stderr_);
+    case 12: return (a.p.e12.at == b.p.e12.at);
+    case 15: return (a.p.e15.at == b.p.e15.at);
+    }
+    return true;
+}
+bynh_eq_res_i64 static bool bynh_eq_res_i64(bynt_res_i64 a, bynt_res_i64 b) | static bool bynh_eq_res_i64(bynt_res_i64 a, bynt_res_i64 b) {
+    return a.err.code == b.err.code && (a.err.code != 0 ? bynh_eq_err(a.err, b.err) : (a.value == b.value));
+}

@@ -1,0 +1,54 @@
+2:7 GreaterEquals `>=`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:23 CaretEquals `^=`
+3:26 LessLessEquals `<<=`
+4:2 RawStringLiteral `"""`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ ��﻿ � >=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ ��﻿ � >=
+    │  ^
+
+error BYN0002: unexpected character `﻿`
+
+  2 │ ��﻿ � >=
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ ��﻿ � >=
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  2 │ ��﻿ � >=
+    │      ^
+
+error BYN0002: unexpected character `\u{12}`
+
+  3 │ += -= *= /= %= &= |= �^= <<=
+    │                      ^
+
+error BYN0003: unterminated string literal
+
+  4 │  """
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

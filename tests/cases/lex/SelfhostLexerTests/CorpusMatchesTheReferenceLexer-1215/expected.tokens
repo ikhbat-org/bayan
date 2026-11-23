@@ -1,0 +1,102 @@
+1:1 Greater `>`
+1:2 GreaterEquals `>=`
+1:5 IntegerLiteral `1`
+4:1 OpenBrace `{`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 PrivateKeyword `private`
+5:55 StaticKeyword `static`
+5:62 ReadonlyKeyword `readonly`
+5:71 RequiredKeyword `required`
+5:80 ConstKeyword `const`
+5:86 LetKeyword `let`
+5:90 VarKeyword `var`
+5:94 EmbedKeyword `embed`
+5:100 ExternKeyword `extern`
+5:107 UnsafeKeyword `unsafe`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `a`
+7:4 InterpolationStart `{`
+7:5 Identifier `b`
+7:6 InterpolationEnd `}`
+7:7 InterpolatedStringText `c`
+7:8 InterpolatedStringEnd
+8:1 Identifier `_`
+9:1 IntegerLiteral `0b102`
+10:1 IntegerLiteral `0xFF`
+10:5 NumericSuffix `s`
+11:1 IntegerLiteral `0b1`
+11:4 NumericSuffix `ms`
+12:1 IntegerLiteral `0x_`
+13:1 IntegerLiteral `0b__`
+14:1 IntegerLiteral `1__`
+15:1 IntegerLiteral `0xF__`
+16:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │  // ok � iQ comment
+    │        ^
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  9 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  10 │ 0xFFs
+     │     ^
+     │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  11 │ 0b1ms
+     │    ^^
+     │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  12 │ 0x_
+     │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  13 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  14 │ 1__
+     │  ^^
+     │
+     │ 14 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  15 │ 0xF__
+     │    ^^
+     │
+     │ 15 │ 0xF__
+     │    │    --

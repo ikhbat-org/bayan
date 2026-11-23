@@ -1,0 +1,36 @@
+== tests/cases/diag/borrow-escapes-region.byn
+12..306 blockStmt
+18..31 localDecl
+29..31 literalExpr string
+36..168 blockStmt
+46..75 localDecl
+58..75 stackallocExpr
+84..106 localDecl
+93..106 callExpr
+100..105 nameExpr
+115..135 exprStmt
+115..135 callExpr
+115..117 nameExpr
+125..134 literalExpr string
+144..162 assignStmt assign target 144..148 value 151..162
+144..148 nameExpr
+151..162 callExpr
+151..153 nameExpr
+173..184 exprStmt
+173..184 callExpr
+179..183 nameExpr
+173..184 callExpr
+189..202 localDecl
+200..202 literalExpr string
+207..288 blockStmt
+217..242 localDecl
+235..242 callExpr
+251..282 assignStmt assign target 251..255 value 258..282
+251..255 nameExpr
+258..282 callExpr
+258..266 literalExpr string
+276..281 nameExpr
+293..304 exprStmt
+293..304 callExpr
+299..303 nameExpr
+293..304 callExpr

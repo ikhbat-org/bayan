@@ -1,0 +1,23 @@
+== case000.byn
+public Money quote(Cart cart, for Customer customer)
+        expects cart.lines.length > 0
+        uses db
+        fails QuoteError {
+    let rates = taxRates.forRegion(customer.region) ?? fail .noTaxRegion
+    var subtotal = Money.zero(cart.currency)
+    for line in cart.lines {
+        let product = try catalog.find(line.sku)
+        fail .discontinued(line.sku) if product.isDiscontinued
+        subtotal = subtotal + product.price * line.quantity
+    }
+    let discount = customer.tier.discount(on: subtotal)
+    let total = (subtotal - discount) * rates.multiplier
+    log($"quote {cart.id}: {total}", as: .debug)
+    return total
+}
+== package.byn
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { width: 100 },
+}

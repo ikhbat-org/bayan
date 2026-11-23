@@ -1,0 +1,8 @@
+/// Doc line one.
+1.
+let b = "bad \q escape"
+0xFFsæ
+/// Doc line one.
+/// Doc line two.
+¹truct S
+//// not a doc c

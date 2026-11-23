@@ -1,0 +1,33 @@
+== tests/cases/run/interface-direct-call.byn
+211..238 globalStatement
+211..238 localDecl
+219..238 structLiteralExpr
+229..230 literalExpr integer
+235..236 literalExpr integer
+239..281 exprStmt
+239..281 callExpr
+245..280 interpolatedExpr
+248..254 memberExpr
+248..249 nameExpr
+257..265 callExpr
+257..258 nameExpr
+268..278 callExpr
+268..269 nameExpr
+276..277 literalExpr integer
+239..281 callExpr
+137..142 binaryExpr mul right 141..142
+137..142 binaryExpr mul right 141..142
+137..142 binaryExpr mul right 141..142
+137..138 nameExpr
+137..138 nameExpr
+141..142 nameExpr
+141..142 nameExpr
+163..169 literalExpr string
+163..169 literalExpr string
+163..169 literalExpr string
+196..207 binaryExpr mul right 205..207
+196..207 binaryExpr mul right 205..207
+196..207 binaryExpr mul right 205..207
+196..202 callExpr
+196..200 nameExpr
+205..207 nameExpr

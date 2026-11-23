@@ -1,0 +1,4 @@
+== locals
+build:
+main: arena extra fill t
+main$lambda1: xs i t t

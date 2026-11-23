@@ -1,0 +1,7 @@
+각
+// line comment
+
+l@t b = "bad \q escape"
+let c = """never closed
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+

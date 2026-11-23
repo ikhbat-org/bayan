@@ -1,0 +1,4 @@
+== tests/cases/diag/missing-fields.byn
+38..60 globalStatement
+38..60 localDecl
+46..60 structLiteralExpr

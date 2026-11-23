@@ -1,0 +1,9 @@
+note BYN1072: an early exit in a block can be a postfix guard
+  --> tmp/semantics-corpus/parity/seeds/valid-seed-001/main.byn:27:5
+
+  27 │     if n < 0 { fail .badDigit(n) }
+     │     ^^^^^^^^^ an early exit in a block
+     │
+  help: write it as a postfix guard
+     │ 27 │     fail .badDigit(n) if n < 0
+     │    │     ++++++++++++++++++++++++++

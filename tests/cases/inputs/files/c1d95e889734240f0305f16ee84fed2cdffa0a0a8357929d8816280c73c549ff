@@ -1,0 +1,9 @@
+c >>= 1
+let c =  3
+
+let effect  2
+var xs: List<List<i64>>
+a >> b
+c >>= 1
+
+"{

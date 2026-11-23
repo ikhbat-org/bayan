@@ -1,0 +1,72 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:5 IntegerLiteral `10`
+2:8 Identifier `B1`
+2:11 IntegerLiteral `5`
+2:12 NumericSuffix `s`
+2:14 IntegerLiteral `250`
+2:17 NumericSuffix `ms`
+2:21 Identifier `KiB`
+2:25 IntegerLiteral `1`
+2:26 NumericSuffix `u`
+2:28 IntegerLiteral `0xFF`
+2:32 NumericSuffix `u`
+2:34 IntegerLiteral `0b1`
+2:37 NumericSuffix `ul`
+2:40 IntegerLiteral `7`
+2:41 NumericSuffix `l`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  2 │  �������� 10 B1 5s 250ms �KiB 1u 0xFFu 0b1ul 7l
+    │                          ^

@@ -1,0 +1,43 @@
+1:1 CloseBrace `}`
+1:2 CharLiteral `''`
+1:5 Identifier `u`
+1:6 OpenBrace `{`
+1:7 IntegerLiteral `110000`
+1:13 CloseBrace `}`
+1:14 CharLiteral `'`
+2:1 CharLiteral `'x`
+3:2 CharLiteral `''`
+4:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ }''\u{110000}'
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `\`
+
+  1 │ }''\u{110000}'
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  1 │ }''\u{110000}'
+    │              ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0007: empty char literal
+
+  3 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

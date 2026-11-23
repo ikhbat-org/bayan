@@ -1,0 +1,39 @@
+1:1 CharLiteral `'x`
+2:2 FailsKeyword `fails`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 NeverKeyword `never`
+2:24 NoallocKeyword `noalloc`
+2:32 Identifier `nosuspen`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+4:1 IntegerLiteral `1__`
+5:2 Identifier `closed`
+6:1 Identifier `b`
+7:1 StringLiteral `"text"`
+7:8 StringLiteral `"esc \"q\" \\ \n"`
+7:26 RawStringLiteral `"""\n\n`
+9:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  7 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

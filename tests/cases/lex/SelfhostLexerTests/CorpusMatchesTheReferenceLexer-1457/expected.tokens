@@ -1,0 +1,73 @@
+1:1 CharLiteral `'\u{D800}'`
+2:2 IntegerLiteral `0xF_`
+2:6 CloseParen `)`
+2:7 Identifier `_`
+3:4 Identifier `a`
+3:6 Equals `=`
+3:8 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+5:1 IntegerLiteral `5`
+6:1 Identifier `ạ̇1_`
+6:6 Dot `.`
+7:2 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  0xF_)_
+    │     ^
+    │
+    │ 2 │  0xF_)_
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  5 │ 5// ok � in co ̈́
+    │        ^
+
+error BYN0005: identifier `ạ̇1_` is not in Unicode normalization form C
+
+  6 │ ạ̇1_.
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ ạ̇1_.
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  7 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  7 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ �����
+    │     ^

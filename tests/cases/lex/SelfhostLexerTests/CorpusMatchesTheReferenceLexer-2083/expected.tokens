@@ -1,0 +1,41 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"}"`
+1:9 CloseBrace `}`
+1:10 StringLiteral `"}"`
+1:13 CloseBrace `}`
+1:14 StringLiteral `"}"`
+1:17 CloseBrace `}`
+1:18 StringLiteral `"}"`
+1:21 CloseBrace `}`
+1:22 StringLiteral `"}"`
+1:25 CloseBrace `}`
+1:26 StringLiteral `"}"`
+3:1 IntegerLiteral `0xF__`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 0xF__
+    │    ^^
+    │
+    │ 3 │ 0xF__
+    │   │    --
+
+error BYN0004: unterminated block comment
+
+  5 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │                          -

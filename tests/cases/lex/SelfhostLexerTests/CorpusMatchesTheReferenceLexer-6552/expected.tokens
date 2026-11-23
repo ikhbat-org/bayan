@@ -1,0 +1,61 @@
+1:1 Identifier `ment`
+3:1 CharLiteral `'x`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 Identifier `reak`
+5:57 ContinueKeyword `continue`
+5:66 ReturnKeyword `return`
+5:73 YieldKeyword `yield`
+5:79 DeferKeyword `defer`
+5:85 Identifier `erdefer`
+5:93 UsingKeyword `using`
+5:99 ContextKeyword `context`
+7:2 Identifier `a`
+9:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │      ^
+
+error BYN0004: unterminated block comment
+
+  7 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`

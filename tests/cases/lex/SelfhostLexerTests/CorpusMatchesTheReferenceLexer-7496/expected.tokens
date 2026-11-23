@@ -1,0 +1,82 @@
+2:1 CharLiteral `''`
+5:1 VarKeyword `var`
+5:5 Identifier `xs`
+5:7 Colon `:`
+5:9 Identifier `List`
+5:13 Less `<`
+5:14 Identifier `List`
+5:18 Less `<`
+5:19 Identifier `i64`
+5:22 Greater `>`
+5:23 Greater `>`
+7:1 IsKeyword `is`
+7:4 AndKeyword `and`
+7:8 OrKeyword `or`
+7:11 NotKeyword `not`
+7:15 WithKeyword `with`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 NullKeyword `null`
+7:43 Identifier `t`
+7:44 CloseParen `)`
+7:45 Identifier `rue`
+7:49 FalseKeyword `false`
+7:55 ComptimeKeyword `comptime`
+7:64 CheckedKeyword `checked`
+9:1 IntegerLiteral `0x`
+9:3 Colon `:`
+9:5 Identifier `List`
+9:9 Less `<`
+9:10 Identifier `List`
+9:14 Less `<`
+9:15 Identifier `i64`
+9:18 Greater `>`
+9:19 Greater `>`
+10:1 Identifier `a`
+10:3 Greater `>`
+10:4 Greater `>`
+10:6 Identifier `b`
+11:1 Identifier `c`
+11:3 Greater `>`
+11:4 GreaterEquals `>=`
+11:7 IntegerLiteral `1`
+12:1 Identifier `ạ̇`
+12:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ���
+    │   ^
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x: List<List<i64>>
+    │ ^^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  12 │ ạ̇ 
+     │ ^^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 12 │ ạ̇ 
+     │    │ ++

@@ -1,0 +1,10 @@
+error BYN2017: `count` needs an instance
+  --> <repo>/tmp/t2/diag/instance-member-without-this/instance-member-without-this.byn:4:27
+
+  4 │     static i64 twice() => count * 2
+    │                           ^^^^^
+    │
+  help: call it on an instance; a `static` method has no `this`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2017

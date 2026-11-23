@@ -1,0 +1,10 @@
+‮00}' '\'' 'é' '\\' '\0'
+
+let b = ` 2
+ //// not a doc comme1t
+// ok � �in comment
+ var xs: List<List<i64>>
+
+̈́
+é
+

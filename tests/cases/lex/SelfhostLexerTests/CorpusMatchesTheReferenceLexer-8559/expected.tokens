@@ -1,0 +1,71 @@
+2:1 Identifier `c`
+2:3 Equals `=`
+2:7 IntegerLiteral `3`
+5:2 Minus `-`
+5:4 Star `*`
+5:6 Slash `/`
+5:8 Percent `%`
+5:10 PlusPercent `+%`
+5:13 MinusPercent `-%`
+5:16 StarPercent `*%`
+5:19 PlusBar `+|`
+5:23 Amp `&`
+5:25 AmpAmp `&&`
+5:28 Bar `|`
+5:30 BarBar `||`
+5:33 Caret `^`
+5:35 Tilde `~`
+5:37 Bang `!`
+5:39 Equals `=`
+5:41 EqualsEquals `==`
+5:44 BangEquals `!=`
+5:47 Less `<`
+5:49 LessEquals `<=`
+5:52 Greater `>`
+5:54 GreaterEquals `>=`
+5:57 LessLess `<<`
+5:60 Greater `>`
+5:61 Greater `>`
+5:63 Greater `>`
+5:64 GreaterEquals `>=`
+6:1 CharLiteral `' a /* never \u{7}losed\u{6}`
+8:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC6)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ c = � 3
+    │     ^
+
+error BYN0008: unterminated char literal
+
+  6 │ ' a /* never �losed�
+    │ ^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  8 │ /* 
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

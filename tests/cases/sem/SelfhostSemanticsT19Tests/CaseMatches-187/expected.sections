@@ -1,0 +1,3 @@
+== bind.probes.k4
+flags 0
+local:i32[3919:1]=-(a)

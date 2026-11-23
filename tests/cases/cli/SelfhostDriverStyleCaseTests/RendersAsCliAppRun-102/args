@@ -1,0 +1,4 @@
+build
+-o
+<repo>/tmp/t7-style/build-ice-force/tally/tally
+<repo>/tmp/t7-style/build-ice-force/tally/main.byn

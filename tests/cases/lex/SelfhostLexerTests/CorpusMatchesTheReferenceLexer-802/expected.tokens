@@ -1,0 +1,72 @@
+1:1 Identifier `b`
+3:2 Identifier `comment`
+3:12 Identifier `hidden`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+7:1 Identifier `i64`
+7:4 Greater `>`
+7:5 Greater `>`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:6 Identifier `b`
+9:1 Identifier `c`
+9:3 Greater `>`
+9:4 GreaterEquals `>=`
+9:7 IntegerLiteral `1`
+11:1 InterpolatedStringStart `$"`
+11:3 InterpolationStart `{`
+11:4 InterpolationEnd `}`
+11:5 InterpolatedStringEnd `"`
+11:6 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // �x
+    │   │    -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  comment � hidden
+    │          ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  comment � hidden
+    │   │          -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /* � */
+    │   │    -

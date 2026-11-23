@@ -1,0 +1,2 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+type distinct Percent = i32 requires value in 0..=100

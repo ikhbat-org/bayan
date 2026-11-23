@@ -1,0 +1,80 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:26 Identifier `c`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringEnd `"`
+1:29 CloseParen `)`
+1:30 InterpolationEnd `}`
+1:31 InterpolatedStringText ` d`
+1:33 InterpolatedStringEnd `"`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolatedStringText `{{literal \u{202E}`
+1:48 InterpolatedStringEnd
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:8 StringLiteral `"\u{1E}"`
+2:11 StringLiteral `" c"`
+2:15 Identifier `text`
+2:19 StringLiteral `" u16"`
+2:25 Identifier `wide`
+2:29 StringLiteral `" "`
+2:34 Identifier `allowed`
+2:42 InKeyword `in`
+2:45 Identifier `strings`
+2:52 StringLiteral `" "`
+2:55 StringLiteral `" "`
+2:59 Identifier `u`
+2:60 OpenBrace `{`
+2:61 IntegerLiteral `48`
+2:63 CloseBrace `}`
+2:64 Identifier `i`
+2:65 StringLiteral `"`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal �
+    │                                   ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �$"{{"  "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ �$"{{"  "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �$"{{"  "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   │                                 -
+
+error BYN0002: unexpected character `\`
+
+  2 │ �$"{{"  "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                           ^
+
+error BYN0003: unterminated string literal
+
+  2 │ �$"{{"  "�"" c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │                                                                  ^ string ends at the end of
+    │                                                                    the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

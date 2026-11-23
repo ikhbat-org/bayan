@@ -1,0 +1,50 @@
+union error StepError {
+    /// The step was told to fail.
+    told
+}
+
+void note(string s) {
+    print(s)
+}
+
+i64 work(bool shouldFail) fails StepError {
+    note("enter")
+    defer note("defer 1")
+    defer failing note("errdefer 1")
+    defer note("defer 2")
+    defer failing (e) {
+        print($"errdefer 2 saw {e}")
+    }
+    {
+        defer note("inner defer")
+        note("inner body")
+    }
+    fail .told if shouldFail
+    note("success path")
+    return 42
+}
+
+void loops() {
+    for i in 0..3 {
+        defer print($"end {i}")
+        continue if i == 0
+        break if i == 2
+        print($"body {i}")
+    }
+}
+
+i64 outer() fails StepError {
+    defer note("outer defer")
+    defer failing note("outer errdefer")
+    let v = try work(shouldFail: true)
+    note("not reached")
+    return v
+}
+
+print($"result {work(shouldFail: false) catch -1}")
+print("---")
+print($"result {work(shouldFail: true) catch -1}")
+print("---")
+loops()
+print("---")
+print($"result {outer() catch -1}")

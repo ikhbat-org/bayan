@@ -1,0 +1,6 @@
+== 1
+== 2
+== 3
+== 4
+== 5
+bayan: `local/my-lib` is a library, so there is no program to run; `bayan test` runs its tests

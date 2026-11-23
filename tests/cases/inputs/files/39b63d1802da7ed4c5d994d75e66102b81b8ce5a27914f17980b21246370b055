@@ -1,0 +1,7 @@
+/// The line this app prints.
+string greeting() {
+    return "Salam, world!"
+}
+
+print(greeting())
+

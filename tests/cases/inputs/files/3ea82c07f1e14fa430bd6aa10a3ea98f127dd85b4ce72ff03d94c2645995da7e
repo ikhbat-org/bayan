@@ -1,0 +1,8 @@
+/// Doc lin one.
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ let} café = 1
+
+$"{ _�
+
+ let effect = 2
+

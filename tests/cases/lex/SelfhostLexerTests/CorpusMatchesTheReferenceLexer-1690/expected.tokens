@@ -1,0 +1,14 @@
+1:2 Identifier `Lit`
+1:5 Less `<`
+1:6 Identifier `i64`
+1:9 Greater `>`
+1:10 Greater `>`
+2:1 Identifier `a`
+2:2 Greater `>`
+2:3 Greater `>`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{C}`
+
+  1 │ �Lit<i64>>
+    │ ^

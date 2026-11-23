@@ -1,0 +1,3 @@
+build
+--emit-c
+dyn-ref-this-map-slot.byn

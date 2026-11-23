@@ -1,0 +1,40 @@
+== body decls
+block 71..311
+  localDecl 77..91
+    literal 90..91 : i32 = 1
+  localDecl 96..110
+    literal 109..110 : i32 = 2
+  localDecl 115..131
+    literal 130..131 : i32 = 5
+  localDecl 136..153
+    local 152..153 : i32 p
+  localDecl 158..168
+  localDecl 173..185
+  localDecl 190..195
+  localDecl 200..210
+  localDecl 215..235
+    literal 234..235 : i32 = 5
+  localDecl 240..262
+  localDecl 267..286
+  localDecl 291..309
+    errorExpr 307..309 : ?
+local p 0 3 i32 using false keyword - const -
+local a 1 0 i32 using false keyword 77..80 const -
+local b 2 1 i32 using false keyword 96..99 const -
+local k 3 2 i32 using false keyword - const 5
+local kp 4 2 i32 using false keyword - const -
+local u 5 0 i32 using false keyword 158..161 const -
+local v 6 2 i32 using false keyword - const -
+local w 7 1 ? using false keyword 190..193 const -
+local x 8 1 i32 using false keyword 200..203 const -
+local n 9 0 i32 using true keyword - const -
+local l 10 1 List<i32> using true keyword - const -
+local ar 11 1 Arena using true keyword - const -
+local ke 12 2 i32 using false keyword - const -
+BYN2219 13:21 a `const` must be a compile-time constant |||
+BYN2101 14:9 `let u` needs a value ||give it a value, or declare it with `var` and assign it on every path before use|
+BYN2101 15:11 `const v` needs a value |||
+BYN2217 16:9 cannot infer the type of `w` ||write the type: `var i64 w`|
+BYN2226 18:15 `using` needs a value that owns memory, not `i32` ||use `using` only for values that own memory: `Arena` and `List<T>`|
+BYN2001 21:21 `zz` is not defined |||
+handled -

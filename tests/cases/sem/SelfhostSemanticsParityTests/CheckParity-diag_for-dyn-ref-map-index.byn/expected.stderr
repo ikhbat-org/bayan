@@ -1,0 +1,8 @@
+error BYN2106: cannot modify this value
+  --> tmp/t26-tests/cli/diag_for-dyn-ref-map-index.byn/for-dyn-ref-map-index.byn:16:26
+
+  16 │     for x: dyn ref IC in k["a"] { x.bump() }
+     │                          ^^^^^^ it is borrowed element by element as `dyn ref IC`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2106

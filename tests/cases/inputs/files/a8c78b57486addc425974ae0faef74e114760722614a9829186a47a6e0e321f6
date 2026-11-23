@@ -1,0 +1,23 @@
+public struct Line {
+    public i64 grams
+    public List<Line> line
+    public i64 linesCount
+}
+
+public i64 total(List<Line> line) => line.length
+
+public interface IOrder {
+    List<Line> item
+}
+
+public union Delivery {
+    shipped(List<Line> item, i64 numBoxes)
+}
+
+public union error OrderError {
+    rejected(List<Line> line)
+}
+
+public struct CsvParser {
+    i64 n
+}

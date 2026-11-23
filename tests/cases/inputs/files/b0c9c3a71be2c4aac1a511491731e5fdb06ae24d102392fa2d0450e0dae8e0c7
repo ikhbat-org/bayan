@@ -1,0 +1,13 @@
+union error IoError {
+    full
+}
+
+void flush() fails IoError {
+    fail .full if false
+}
+
+void work() fails IoError {
+    defer try flush()
+}
+
+work() catch return

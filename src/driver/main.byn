@@ -12,7 +12,7 @@ const exitTestFailure: i32 = 3
 const exitToolchain: i32   = 4
 
 /// Toolchain.CompilerVersion (Toolchain.cs:33).
-const version: string = "0.3.3-dev"
+const version: string = "0.4.0-dev"
 
 /// Messages.Usage (Messages.cs:32), kept equal by SelfhostDriverTests.
 const usageText: string = """
@@ -89,10 +89,13 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
     unless takeGlobalOptions(args, to: ref kept, through: ref d) {
         return exitUsage
     }
-    // no-builtin: Q1117 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0
-    d.styleOut = decideStyle(d.color, by: d.ascii, through: false, for: 0)
-    d.styleErr = decideStyle(d.color, by: d.ascii, through: false, for: 0)
-    d.stderrTty = false
+    // no-builtin: Q1117 the `Terminal` of CliApp.cs:27 is what `Run(args, stdout, stderr)` gives: neither stream a tty, width 0.
+    // `BAYAN_TERMINAL=<width>`, a positive integer, makes both streams a terminal of that width (019 T2a); any other value is ignored.
+    let width = i64.tryParse(Env.get("BAYAN_TERMINAL") ?? "") ?? 0
+    let tty = width > 0
+    d.styleOut = decideStyle(d.color, by: d.ascii, through: tty, for: width)
+    d.styleErr = decideStyle(d.color, by: d.ascii, through: tty, for: width)
+    d.stderrTty = tty
     if kept.length == 0 {
         Io.stderr.write($"{usageText}\n")
         return exitUsage
@@ -228,6 +231,7 @@ DStyle decideStyle(string colorFlag, by bool ascii, through bool isTty, for i64 
                 color = false
             } else if (Env.get("FORCE_COLOR") ?? "").length > 0 && Env.get("FORCE_COLOR") != "0" {
                 color = true
+                // coverage-exempt: Q1286 through `color = false` `decideStyle` reads TERM itself: needs TERM=dumb
             } else if dumb {
                 color = false
             } else {
@@ -318,6 +322,7 @@ bool t7Utf8() uses alloc, env {
         continue if locale.length == 0
         return locale.lowercased().contains("utf-8") || locale.lowercased().contains("utf8")
     }
+    // coverage-exempt: Q1286 needs LC_ALL, LC_CTYPE and LANG all unset
     return true
 }
 

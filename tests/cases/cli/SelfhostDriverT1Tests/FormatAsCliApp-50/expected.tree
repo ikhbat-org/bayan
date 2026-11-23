@@ -1,0 +1,19 @@
+== a.byn OtherRead, GroupRead, UserWrite, UserRead
+bool f(bool a, bool b, int n) => a and not b or n is not 0
+void main() {
+    let x: nint = 3
+    switch x {
+        case 1 or 2: print("a")
+        default: print("b")
+    }
+    print("s") if not f(true, false, 1) and x > 0
+}
+== other/b.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if (a) { print("x") }
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { booleans: .both },
+}

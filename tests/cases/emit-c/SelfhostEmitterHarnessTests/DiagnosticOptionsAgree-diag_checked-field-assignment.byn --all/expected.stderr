@@ -1,0 +1,11 @@
+error BYN3208: fields of `Range` cannot be assigned one at a time; its `requires` are checked at
+construction
+  --> input.byn:7:9
+
+  7 │         this.high = this.high + 1
+    │         ^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: build a new value with `with`: `try x with { f: v }`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3208

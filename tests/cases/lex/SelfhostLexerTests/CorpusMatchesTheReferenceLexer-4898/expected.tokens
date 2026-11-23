@@ -1,0 +1,84 @@
+1:1 IntegerLiteral `1__`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `{{`
+2:6 InterpolatedStringEnd `"`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 InterpolationEnd `}`
+3:7 InterpolatedStringEnd `"`
+    doc `/// Doc line tw\u{11}o.`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:14 OpenBrace `{`
+4:15 StringLiteral `"{$"`
+4:19 OpenBrace `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 Identifier `x`
+4:42 InterpolationEnd `}`
+4:43 InterpolatedStringEnd `"`
+4:44 InterpolationEnd `}`
+4:45 InterpolatedStringEnd `"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+5:1 Star `*`
+5:2 Slash `/`
+5:4 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ��� $"{}"/// Doc line tw�o.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ��� $"{}"/// Doc line tw�o.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��� $"{}"/// Doc line tw�o.
+    │   ^
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$�{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  4 │ $"{$"{$"{$"{$�{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │              ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$�{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"
+    │                              ^^ this string never ends
+    │
+  help: close the `{` and the string

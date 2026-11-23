@@ -1,0 +1,4 @@
+a /* never closed
+ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+  """ c"text" u16"wide" "â€® allowed in òstrings" "" "\u{48}i"
+

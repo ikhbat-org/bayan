@@ -1,0 +1,9 @@
+struct CCtx {
+    /// `OwnershipChecks`.
+    public bool   checks = false
+    /// `_packageRoot`.
+    public string root   = ""
+    // ── T2 state
+    public i64    n      = 0
+    public string longer = ""
+}
