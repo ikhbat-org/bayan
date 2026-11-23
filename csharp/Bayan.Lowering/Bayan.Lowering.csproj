@@ -1,5 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup>
-    <ProjectReference Include="../Bayan.Semantics/Bayan.Semantics.csproj" />
-  </ItemGroup>
-</Project>
