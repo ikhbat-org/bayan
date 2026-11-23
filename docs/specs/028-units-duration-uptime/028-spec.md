@@ -1,6 +1,6 @@
 # 028 — Units, `Duration` and `Uptime`
 Status: draft
-Release: 0.5.0
+Release: unscheduled (planned for 0.5.0)
 Sources: owner decisions 2026-11-23 (spec 027 D1; this spec D1–D8); spec 023 row 9 and OQ6; spec 021 Decisions; `docs/bayan-spec.md` §2.3, §3.4, §16.5
 Created: 2026-11-23
 
