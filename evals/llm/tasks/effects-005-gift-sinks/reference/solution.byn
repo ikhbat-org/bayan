@@ -1,0 +1,64 @@
+/// Something that takes in each gift as it is made.
+public interface IGiftSink {
+    void take(ref this, string donor, for i64 amount) uses alloc
+}
+
+/// A sink that keeps one line of text for each gift.
+public struct GiftBook : IGiftSink {
+    List<string> lines
+
+    public GiftBook() {
+        lines = List<string>()
+    }
+
+    public i64 count => lines.length
+
+    public bool isEmpty => lines.isEmpty
+
+    public string lineAt(i64 index) => lines[index]
+
+    public void take(ref this, string donor, for i64 amount) uses alloc {
+        lines.append($"{donor} gave {amount}")
+    }
+}
+
+/// A sink that keeps only how many gifts were made and what they came to.
+public struct GiftTally : IGiftSink {
+    public i64 count   = 0
+    public i64 total   = 0
+    public i64 largest = 0
+
+    public void take(ref this, string donor, for i64 amount) {
+        count += 1
+        total += amount
+        if amount > largest {
+            largest = amount
+        }
+    }
+}
+
+/// Gives `amount` from each donor to the sink, in order.
+public void giveAll<S>(ref S sink, from List<string> donors, for i64 amount) where S : IGiftSink uses alloc {
+    for donor in donors {
+        sink.take(donor, for: amount)
+    }
+}
+
+/// Prints each line of the book.
+public void announceBook(GiftBook book) uses console {
+    var index: i64 = 0
+    while index < book.count {
+        print(book.lineAt(index))
+        index += 1
+    }
+}
+
+/// One line that says what the tally holds.
+public string describeTally(GiftTally tally) uses alloc {
+    return $"{tally.count} gifts, {tally.total} dirhams"
+}
+
+/// Prints the line that `describeTally` gives.
+public void announceTally(GiftTally tally) uses alloc, console {
+    print(describeTally(tally))
+}

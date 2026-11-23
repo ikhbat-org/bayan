@@ -1,5 +1,5 @@
 # 024 — Sabk, the native debug backend (phase 1)
-Status: draft
+Status: done
 Release: unscheduled (phase 1 ships no user-visible flag)
 Sources: `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-roadmap.md` (Next releases, item 5), `docs/bayan-milestones.md` (Target: zero dependencies)
 Created: 2026-11-16

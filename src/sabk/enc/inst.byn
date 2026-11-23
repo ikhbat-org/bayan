@@ -1,0 +1,114 @@
+// sabk phase 1 (spec 024): the arm64 instruction subset as a closed union, one variant per form of the
+// plan's subset table, with the register, condition and shift types its operands use. `encode` is T3.
+
+/// `x`: the 64-bit register view, `w`: the 32-bit one.
+public enum Width {
+    x
+    w
+}
+
+/// Register 31 is `sp` or the zero register depending on the instruction, so the kind says which.
+public enum RegKind {
+    general
+    sp
+    zero
+}
+
+/// `x0`-`x30` are `general` with their number, `sp` and `xzr`/`wzr` carry number 31.
+public struct Reg {
+    public RegKind kind
+    public u8 number
+}
+
+public enum Cond {
+    eq
+    ne
+    hs
+    lo
+    mi
+    pl
+    vs
+    vc
+    hi
+    ls
+    ge
+    lt
+    gt
+    le
+    al
+}
+
+public enum ShiftKind {
+    lsl
+    lsr
+    asr
+}
+
+/// Where a `stp`/`ldp` offset applies: `offset` leaves the base alone, `pre` and `post` write it back.
+public enum Indexing {
+    offset
+    pre
+    post
+}
+
+/// A label id; T5 binds it to an offset.
+public type distinct Label = i64
+
+public union Inst {
+    // Move
+    movz(Width width, Reg rd, u16 imm, u8 shift)
+    movk(Width width, Reg rd, u16 imm, u8 shift)
+    movReg(Width width, Reg rd, Reg rm)
+    /// `add rd, rn, #0` where either side is `sp`.
+    movSp(Reg rd, Reg rn)
+
+    // Arithmetic
+    addImm(Width width, Reg rd, Reg rn, u16 imm12, bool shift12)
+    subImm(Width width, Reg rd, Reg rn, u16 imm12, bool shift12)
+    addReg(Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+    subReg(Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+    subsImm(Width width, Reg rd, Reg rn, u16 imm12, bool shift12)
+    subsReg(Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+    cmpImm(Width width, Reg rn, u16 imm12, bool shift12)
+    cmpReg(Width width, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+    mul(Width width, Reg rd, Reg rn, Reg rm)
+    sdiv(Width width, Reg rd, Reg rn, Reg rm)
+    msub(Width width, Reg rd, Reg rn, Reg rm, Reg ra)
+    neg(Width width, Reg rd, Reg rm)
+
+    // Logic
+    andReg(Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+    orrReg(Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+    eorReg(Width width, Reg rd, Reg rn, Reg rm, ShiftKind shift, u8 amount)
+
+    // Compare
+    cset(Width width, Reg rd, Cond cond)
+    csel(Width width, Reg rd, Reg rn, Reg rm, Cond cond)
+
+    // Memory: `ldr`/`str` take an unsigned byte offset, `ldur`/`stur` a signed 9-bit one, `stp`/`ldp` are x only.
+    ldrImm(Width width, Reg rt, Reg rn, u16 offset)
+    strImm(Width width, Reg rt, Reg rn, u16 offset)
+    ldur(Width width, Reg rt, Reg rn, i16 offset)
+    stur(Width width, Reg rt, Reg rn, i16 offset)
+    stp(Indexing mode, Reg rt, Reg rt2, Reg rn, i16 offset)
+    ldp(Indexing mode, Reg rt, Reg rt2, Reg rn, i16 offset)
+
+    // Branch
+    b(Label target)
+    bl(Label target)
+    bCond(Cond cond, Label target)
+    cbz(Width width, Reg rt, Label target)
+    cbnz(Width width, Reg rt, Label target)
+    br(Reg rn)
+    blr(Reg rn)
+    ret(Reg rn)
+
+    // Address: `adrp` and `addPageOff` are the `@PAGE`/`@PAGEOFF` pair, resolved by a relocation against `symbol`.
+    adrp(Reg rd, string symbol)
+    addPageOff(Reg rd, Reg rn, string symbol)
+    adr(Reg rd, Label target)
+}
+
+public union error EncodeError {
+    refused(string mnemonic, string reason)
+}

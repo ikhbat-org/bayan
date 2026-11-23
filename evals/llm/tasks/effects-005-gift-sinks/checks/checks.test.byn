@@ -1,0 +1,82 @@
+struct Counter : IGiftSink {
+    i64 gifts = 0
+
+    public void take(ref this, string donor, for i64 amount) uses alloc {
+        let line = $"{donor}:{amount}"
+        gifts += line.length
+    }
+}
+
+List<string> donors() {
+    var list = List<string>()
+    list.append("Aisha")
+    list.append("Bilal")
+    list.append("Zaynab")
+    return list
+}
+
+public i64 tallyWithoutEffects(ref GiftTally tally, from List<string> names) {
+    for name in names {
+        tally.take(name, for: 7)
+    }
+    return tally.count
+}
+
+test "a book keeps one line per gift in order" {
+    var book = GiftBook()
+    assert book.isEmpty
+    giveAll(ref book, from: donors(), for: 5)
+    assert book.count == 3
+    assert !book.isEmpty
+    assert book.lineAt(0) == "Aisha gave 5"
+    assert book.lineAt(1) == "Bilal gave 5"
+    assert book.lineAt(2) == "Zaynab gave 5"
+}
+
+test "a tally counts, adds and remembers the largest" {
+    var tally = GiftTally()
+    assert tally.count == 0
+    assert tally.total == 0
+    assert tally.largest == 0
+    giveAll(ref tally, from: donors(), for: 9)
+    tally.take("Aisha", for: 20)
+    assert tally.count == 4
+    assert tally.total == 47
+    assert tally.largest == 20
+}
+
+test "the tally's take declares no effect" {
+    var tally = GiftTally()
+    assert tallyWithoutEffects(ref tally, from: donors()) == 3
+    assert tally.total == 21
+}
+
+test "giveAll works with a sink of the caller's own" {
+    var counter = Counter()
+    giveAll(ref counter, from: donors(), for: 5)
+    assert counter.gifts == 22
+}
+
+test "describeTally says the count and the total" {
+    var tally = GiftTally()
+    giveAll(ref tally, from: donors(), for: 4)
+    assert describeTally(tally) == "3 gifts, 12 dirhams"
+}
+
+test "the printing functions can be called" {
+    var book = GiftBook()
+    giveAll(ref book, from: donors(), for: 2)
+    announceBook(book)
+    var tally = GiftTally()
+    giveAll(ref tally, from: donors(), for: 2)
+    announceTally(tally)
+}
+
+test "each function declares no more than it needs" {
+    let announce: GiftBook -> void uses console = announceBook
+    let describe: GiftTally -> string uses alloc = describeTally
+    let announceSum: GiftTally -> void uses alloc, console = announceTally
+    assert describe(GiftTally()) == "0 gifts, 0 dirhams"
+    announce(GiftBook())
+    announceSum(GiftTally())
+}

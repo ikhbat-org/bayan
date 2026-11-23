@@ -33,6 +33,7 @@ grep -q 'timeout-minutes: 180' "$ln" || fail "laws-nightly.yml's job no longer a
 if grep -qE '^check:.*bootstrap-check\.sh' "$root"/docs/laws/*.md; then
   grep -qE 'git fetch .*--depth=([2-9]|[1-9][0-9]+) ' "$ln" || fail "laws-nightly.yml fetches no parent commit, but a law's check: runs bootstrap-check.sh (needs HEAD^1)"
 fi
+awk '/^  laws:/{j=1;next} j&&/^    steps:/{exit} j' "$ln" | grep -qx '      PINNED_BAYAN_REF: HEAD' || fail "laws-nightly.yml's laws job does not set PINNED_BAYAN_REF: HEAD (no local dev in its checkout)"
 grep -qF '$(bash scripts/release/package.sh release-flags "$v")' "$wf" || fail "release.yml's gh release create lost release-flags (0.x prerelease)"
 # 019 R37: each archive holds bayan-lsp, built by the shipped (stage 2) bayan after its smoke test and before Package;
 # the C# server (editors/language-server/*.csproj) is never built or shipped.

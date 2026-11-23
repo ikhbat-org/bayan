@@ -1,0 +1,41 @@
+/// One person's promise to give.
+public struct Pledge {
+    string donor
+    i64    amount
+}
+
+/// A line of text that says who pledged what.
+public string describePledge(Pledge pledge) uses alloc {
+    return $"{pledge.donor} pledged {pledge.amount}"
+}
+
+/// Prints the line that `describePledge` gives.
+public void announcePledge(Pledge pledge) uses alloc, console {
+    print(describePledge(pledge))
+}
+
+/// What all the pledges come to.
+public i64 pledgedTotal(List<Pledge> pledges) {
+    var total: i64 = 0
+    for pledge in pledges {
+        total += pledge.amount
+    }
+    return total
+}
+
+/// The lines for every pledge, in order.
+public List<string> describeAll(List<Pledge> pledges) uses alloc {
+    var lines = List<string>()
+    for pledge in pledges {
+        lines.append(describePledge(pledge))
+    }
+    return lines
+}
+
+/// Prints every pledge's line, then a line with the total.
+public void announceAll(List<Pledge> pledges) uses alloc, console {
+    for line in describeAll(pledges) {
+        print(line)
+    }
+    print($"total {pledgedTotal(pledges)}")
+}

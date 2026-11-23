@@ -1,0 +1,28 @@
+import std.path
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var pattern = ""
+    var seen = false
+    var matched: i64 = 0
+    for line in read.value.lines {
+        if !seen {
+            pattern = line
+            seen = true
+            continue
+        }
+        let text = line.trimmed()
+        continue if text.isEmpty
+        if path.Glob.matches(pattern, for: text) {
+            matched += 1
+            print($"{text}: match")
+        } else {
+            print($"{text}: no match")
+        }
+    }
+    print($"matched: {matched}")
+}

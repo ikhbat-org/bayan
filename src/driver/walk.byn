@@ -154,9 +154,11 @@ Map<string, bool> t6OtherUses(
 }
 
 /// Format.cs:230 `ManifestFor`: the `package.byn` in the file's directory or the nearest one above it, with its directory; null when there is none.
-/// `cache` is the dictionary the C# caller (`Format.Run`) owns: each directory walked maps to what was found.
+/// `cache` is the dictionary the C# caller (`Format.Run`) owns: each directory walked maps to what was found. Unlike the C#, which
+/// starts from the path as given, the search starts from the file's real path, so a file under a directory link takes the manifest of
+/// the package the link leads into.
 T6Found? manifestFor(string file, through ref Map<string, T6Found?> cache) uses alloc, fs fails IoError {
-    var dir = Path.directoryName(Path.fullPath(file))
+    var dir = Path.directoryName(try realPath(file))
     var seen = List<string>()
     var found: T6Found? = null
     while let current = dir {

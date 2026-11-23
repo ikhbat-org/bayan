@@ -1,0 +1,15 @@
+dates: sweep [Aisha, Bilal, Zaynab]
+kitchen: sweep [Aisha, Bilal, Zaynab]
+water: carry []
+dates: cook [Aisha, Bilal, Zaynab]
+kitchen: cook [Aisha, Bilal, Zaynab]
+water: carry [Hamza]
+skipped: rest Bilal
+skipped: team tents
+skipped: duty Idris cook
+skipped: join Sumayya nowhere
+skipped: alias tents shade
+skipped: show now
+dates: fetch [Hamza, Bilal]
+kitchen: wash [Aisha, Bilal, Zaynab, Maryam]
+water: fetch [Hamza, Bilal]

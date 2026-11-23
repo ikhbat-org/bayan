@@ -82,6 +82,26 @@ jobs:
         if: runner.os != 'Windows' && matrix.part == 'other'
         shell: bash
         run: bash scripts/ci/bootstrap-check.sh
+      # The 12 dev tasks of evals/llm/smoke.txt and every task the push changed must score all four results on the commit under
+      # test (spec 025, R29, T31); the whole set took 5 min 39 s here at 40 tasks (run 44477075278), so it runs nightly on `dev`
+      # in llm-eval-nightly.yml. The previous commit (the push's `before`, or the pull request's base) is fetched at depth 1 for
+      # --changed-since; when it is unknown (empty, all-zero on a new branch, gone after a force push, a failed fetch) the
+      # script re-checks the whole set. Before Test so a broken reference turns this step red instead of being skipped
+      # behind a failed earlier step.
+      - name: LLM eval re-check
+        if: runner.os == 'Linux' && matrix.part == 'other'
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          prev="$BEFORE"; [ "$EVENT" != pull_request ] || prev="$BASE_SHA"
+          case "$prev" in
+            (*[!0]*) git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$prev" ||
+              echo "llm-eval re-check: fetching $prev failed" ;;
+          esac
+          bash scripts/ci/llm-eval-smoke.sh --changed-since "$prev"
       # macos-latest hit the same 600 s zig cc timeout on src/semantics as Windows below (ci run 43583631792,
       # 2026-11-14: 118 SelfhostSemanticsT17 tests failed on the one timed-out build).
       # The self-hosted runner limits each golden case and test block to 60 s by default; this step sets 300 s (BAYAN_TEST_TIMEOUT_MS). The C# ran

@@ -1,0 +1,20 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    let readers = 0
+    let pages: i64 = 0
+    for line in read.value.lines {
+        var fields = List<string>()
+        for part in line.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length != 2
+        readers += 1
+        pages += i64.tryParse(fields[1]) ?? 0
+    }
+    print($"readers: {readers}")
+    print($"pages: {pages}")
+}

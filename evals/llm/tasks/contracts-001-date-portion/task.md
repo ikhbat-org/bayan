@@ -18,12 +18,6 @@ Check: tests
 The hidden tests build valid and invalid portions and assert `fails ValidationError<Portion>`; a solution that checks the rules by hand in `portion` instead of with `requires` cannot produce that error set.
 
 ## Check command
-Run from the repository root. It prints `PASS contracts-001-date-portion` when the reference compiles with no diagnostic, is unchanged by `bayan format`, and passes its checks.
-
 ```sh
-B=$(bash scripts/pinned-bayan.sh); t=evals/llm/tasks/contracts-001-date-portion; d=tmp/llm-eval/contracts-001-date-portion
-mkdir -p "$d" && cp "$t/reference/solution.byn" "$t"/checks/*.byn "$d/"
-[ -z "$("$B" check --diagnostics json "$d" 2>&1)" ] && "$B" format --check "$d" &&
-  "$B" test "$d" &&
-  echo "PASS contracts-001-date-portion"
+bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks --only contracts-001-date-portion
 ```

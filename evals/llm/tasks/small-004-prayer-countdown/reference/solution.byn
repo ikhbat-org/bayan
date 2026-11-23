@@ -1,0 +1,57 @@
+/// The minutes since midnight of `text` written `HH:MM`, or -1 when it is not a valid time.
+i64 minutes(string text) {
+    return -1 if text.length != 5 || text[2..3] != ":"
+    for i in 0..5 {
+        continue if i == 2
+        return -1 if text.bytes[i] < '0' || text.bytes[i] > '9'
+    }
+    let hours = i64.tryParse(text[0..2]) ?? 99
+    let mins = i64.tryParse(text[3..5]) ?? 99
+    return hours > 23 || mins > 59 ? -1 : hours * 60 + mins
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var now: i64 = -1
+    var first = true
+    var nextName = ""
+    var nextAt: i64 = -1
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        if first {
+            first = false
+            now = minutes(text)
+            if now < 0 {
+                print("invalid time")
+                return
+            }
+            continue
+        }
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        let at = fields.length == 2 ? minutes(fields[1]) : -1
+        if at < 0 {
+            print($"skipped: {text}")
+            continue
+        }
+        if at < now {
+            print($"{fields[0]}: passed")
+        } else if at == now {
+            print($"{fields[0]}: now")
+        } else {
+            print($"{fields[0]}: in {(at - now) / 60}h {(at - now) % 60}m")
+        }
+        if at >= now && (nextAt < 0 || at < nextAt) {
+            nextName = fields[0]
+            nextAt = at
+        }
+    }
+    print(nextAt < 0 ? "next: none" : $"next: {nextName}")
+}

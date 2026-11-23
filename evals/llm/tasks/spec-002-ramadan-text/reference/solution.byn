@@ -1,0 +1,5 @@
+void main() {
+    let month = "Ramaḍān"
+    print($"month bytes: {month.length}")
+    print($"month letters: {month.runeCount}")
+}

@@ -1,0 +1,22 @@
+void main() {
+    let debt: i8 = -2
+    let capacity: u16 = 4095
+    let empty: u8 = 0
+    let rows: u8 = 10
+    print($"debt hex: {string(debt, as: .hex)}")
+    print($"capacity hex: {string(capacity, as: .hex)}")
+    print($"empty hex: {string(empty, as: .hex)}")
+    print($"rows binary: {string(rows, as: .binary)}")
+
+    var seats = Map<string, i64>()
+    seats["Quba"] = 120
+    seats["Nabawi"] = 900
+    seats["Aqsa"] = 400
+    seats["Haram"] = 1500
+    var total: i64 = 0
+    for (name, count) in seats {
+        print($"masjid {name}: {count}")
+        total += count
+    }
+    print($"masjid total: {total}")
+}

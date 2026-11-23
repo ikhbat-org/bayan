@@ -17,12 +17,6 @@ Check: stdout
 The input covers: two full guests, a guest with no `dishes`, a guest with no `name`. Invalid JSON is described in the prompt and not checked by the seed input.
 
 ## Check command
-Run from the repository root. It prints `PASS std-001-json-iftar-guests` when the reference compiles with no diagnostic, is unchanged by `bayan format`, and passes its checks.
-
 ```sh
-B=$(bash scripts/pinned-bayan.sh); t=evals/llm/tasks/std-001-json-iftar-guests; d=tmp/llm-eval/std-001-json-iftar-guests
-mkdir -p "$d" && cp "$t/reference/solution.byn" "$d/"
-[ -z "$("$B" check --diagnostics json "$d" 2>&1)" ] && "$B" format --check "$d" &&
-  "$B" run "$d/solution.byn" < "$t/checks/stdin" > "$d/actual.stdout" && diff "$d/actual.stdout" "$t/checks/expected.stdout" &&
-  echo "PASS std-001-json-iftar-guests"
+bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks --only std-001-json-iftar-guests
 ```

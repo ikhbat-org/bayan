@@ -1,0 +1,61 @@
+KhutbahRoster threeImams() {
+    var roster = KhutbahRoster("Yusuf")
+    roster.add("Hamza")
+    roster.add("Bilal")
+    return roster
+}
+
+public string turnWithoutEffects(KhutbahRoster roster, at i64 week) {
+    let size = roster.count
+    let imam = roster.nameFor(week)
+    return size > 0 ? imam : ""
+}
+
+test "a new roster has its first imam only" {
+    let roster = KhutbahRoster("Idris")
+    assert roster.count == 1
+    assert roster.names == "Idris"
+    assert roster.nameFor(0) == "Idris"
+    assert roster.nameFor(5) == "Idris"
+}
+
+test "added imams take later turns" {
+    let roster = threeImams()
+    assert roster.count == 3
+    assert roster.names == "Yusuf, Hamza, Bilal"
+    assert roster.nameFor(0) == "Yusuf"
+    assert roster.nameFor(2) == "Bilal"
+    assert roster.nameFor(3) == "Yusuf"
+    assert roster.nameFor(7) == "Hamza"
+}
+
+test "count and nameFor declare no effect" {
+    assert turnWithoutEffects(threeImams(), at: 4) == "Hamza"
+}
+
+test "the functions report the roster" {
+    assert rosterOf("Salman").names == "Salman"
+    assert rosterSize(threeImams()) == 3
+    assert rosterLine(threeImams()) == "Yusuf, Hamza, Bilal"
+    assert rosterLine(rosterOf("Salman")) == "Salman"
+    announceRoster(threeImams())
+}
+
+test "the roster works under a provided arena" {
+    using var arena = Arena()
+    provide allocator: arena {
+        var roster = rosterOf("Umar")
+        roster.add("Ali")
+        assert rosterLine(roster) == "Umar, Ali"
+    }
+}
+
+test "each function declares no more than it needs" {
+    let start: string -> KhutbahRoster uses alloc = rosterOf
+    let size: KhutbahRoster -> i64 = rosterSize
+    let line: KhutbahRoster -> string uses alloc = rosterLine
+    let announce: KhutbahRoster -> void uses alloc, console = announceRoster
+    assert size(start("Umar")) == 1
+    assert line(start("Umar")) == "Umar"
+    announce(start("Umar"))
+}

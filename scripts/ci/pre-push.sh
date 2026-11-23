@@ -4,7 +4,7 @@
 # The git pre-push hook calls it when a push updates dev or main; a non-zero exit refuses the push (bypass once: git push --no-verify).
 # A passing tree is recorded in tmp/pre-push/passed, so the same tree is not tested twice.
 # Before the tests it runs scripts/ci/golden-commit-check.sh over the commits not yet on origin/dev or origin/main (skipped with neither).
-# PRE_PUSH_TEST_CMD names the test command, run in the checkout (default: /bin/bash scripts/ci/script-tests.sh, or bash if there is no /bin/bash).
+# PRE_PUSH_TEST_CMD names the test command, run in the checkout (default: /bin/bash scripts/ci/script-tests.sh quick, or bash if there is no /bin/bash).
 set -uo pipefail
 root="$(git rev-parse --show-toplevel)" || { echo "pre-push: not in a git repo" >&2; exit 2; }
 [ $# = 1 ] || { echo "usage: scripts/ci/pre-push.sh <sha>" >&2; exit 2; }
@@ -32,7 +32,7 @@ if grep -qx "$tree" "$state/passed" 2>/dev/null; then
 fi
 cmd="${PRE_PUSH_TEST_CMD:-}"
 if [ -z "$cmd" ]; then
-  cmd="bash scripts/ci/script-tests.sh"; [ -x /bin/bash ] && cmd="/bin/bash scripts/ci/script-tests.sh"
+  cmd="bash scripts/ci/script-tests.sh quick"; [ -x /bin/bash ] && cmd="/bin/bash scripts/ci/script-tests.sh quick"
 fi
 wt="$state/wt-$$"
 out="$state/out-$$"

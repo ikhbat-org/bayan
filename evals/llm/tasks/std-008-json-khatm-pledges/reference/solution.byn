@@ -1,0 +1,47 @@
+import std.json
+
+/// `n` as a JSON number.
+json.JsonValue numberValue(i64 n) {
+    return .number(value: f64(n), text: $"{n}")
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var readers = List<json.JsonValue>()
+    var skipped = List<json.JsonValue>()
+    var total: i64 = 0
+    var number = 0
+    for line in read.value.lines {
+        number += 1
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        let juz = fields.length == 2 ? i64.tryParse(fields[1]) : null
+        if juz is null || juz < 1 || juz > 30 {
+            skipped.append(numberValue(number))
+            continue
+        }
+        total += juz
+        var members = List<json.JsonMember>()
+        members.append({ key: "name", value: .text(fields[0]) })
+        members.append({ key: "juz", value: numberValue(juz) })
+        readers.append(.object(move members))
+    }
+    var report = List<json.JsonMember>()
+    report.append({ key: "total", value: numberValue(total) })
+    report.append({ key: "complete", value: .flag(total >= 30) })
+    report.append({ key: "readers", value: .list(move readers) })
+    report.append({ key: "skipped", value: .list(move skipped) })
+    let text = json.Json.encode(.object(move report), indent: 2) catch {
+        print("cannot write the report", to: .stderr)
+        return
+    }
+    print(text)
+}

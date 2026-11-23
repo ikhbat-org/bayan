@@ -43,7 +43,7 @@ public static class SelfhostDriverHarness
     /// (the real lines keep their numbers): <c>style &lt;args&gt;</c> runs <c>run</c> and prints the decided style,
     /// <c>library &lt;path&gt; &lt;command&gt;</c> prints <c>refuseLibrary</c>'s result, <c>isscript &lt;path&gt;</c> <c>t1IsScript</c>'s,
     /// <c>walk &lt;dir&gt; &lt;within|-&gt; &lt;silent&gt;</c> lists <c>bynFiles</c> and its exit, <c>manifest &lt;files&gt;</c> the directory <c>manifestFor</c> finds for each
-    /// and the size of its cache, <c>names &lt;dir&gt;</c> the <c>packageNames</c>.
+    /// and the size of its cache, <c>words &lt;files&gt;</c> whether the manifest found for each has <c>booleans: .words</c>, <c>names &lt;dir&gt;</c> the <c>packageNames</c>.
     /// </summary>
     private const string ProbeMain = """
 
@@ -70,6 +70,14 @@ public static class SelfhostDriverHarness
                     if (package is { } found) { Io.stdout.write($"{found.dir}\n") } else { Io.stdout.write("none\n") }
                 }
                 Io.stdout.write($"{cache.length}\n")
+                return 0
+            }
+            if args[0] == "words" {
+                var cache: Map<string, T6Found?> = []
+                for f in args[1..args.length] {
+                    let package = manifestFor(f, through: ref cache) catch null
+                    if (package is { } found) { Io.stdout.write($"{found.booleans == semantics.BooleanStyle.words}\n") } else { Io.stdout.write("none\n") }
+                }
                 return 0
             }
             if args[0] == "names" {

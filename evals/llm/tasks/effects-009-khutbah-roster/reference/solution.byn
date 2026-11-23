@@ -1,0 +1,53 @@
+/// The imams who give the Friday khutbah, in the order they take turns.
+public struct KhutbahRoster {
+    List<string> imams
+
+    public KhutbahRoster(string first) {
+        imams = List<string>()
+        imams.append(first)
+    }
+
+    /// How many imams take turns.
+    public i64 count => imams.length
+
+    /// The imams' names in order, separated by `, `.
+    public string names => joined()
+
+    /// Adds an imam at the end of the turns.
+    public void add(ref this, string imam) uses alloc {
+        imams.append(imam)
+    }
+
+    /// The imam whose turn falls in `week`, counting weeks from 0.
+    public string nameFor(i64 week) => imams[week % imams.length]
+
+    string joined() {
+        var text = imams[0]
+        var i = 1
+        while i < imams.length {
+            text = $"{text}, {imams[i]}"
+            i += 1
+        }
+        return text
+    }
+}
+
+/// A roster with `first` as its only imam.
+public KhutbahRoster rosterOf(string first) uses alloc {
+    return KhutbahRoster(first)
+}
+
+/// How many imams the roster has.
+public i64 rosterSize(KhutbahRoster roster) {
+    return roster.count
+}
+
+/// The roster's names on one line.
+public string rosterLine(KhutbahRoster roster) uses alloc {
+    return roster.names
+}
+
+/// Prints the roster's names on one line.
+public void announceRoster(KhutbahRoster roster) uses alloc, console {
+    print(roster.names)
+}

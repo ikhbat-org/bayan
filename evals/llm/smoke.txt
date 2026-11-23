@@ -1,0 +1,16 @@
+# The 12-task smoke subset of evals/llm/tasks that CI re-checks on every push (spec 025 R29, T31); the whole set is
+# re-checked nightly (.github/workflows/llm-eval-nightly.yml). Rule: one task from each of the 8 categories at tier 1 or 2,
+# plus 4 tier-3 tasks from four different categories. One task directory name per line; `#` lines are comments.
+# Checked by: bash scripts/ci/llm-eval-smoke.sh --check-list
+small-006-locker-codes
+std-002-base64-salam
+errors-003-zakat-nisab
+contracts-004-iftar-seats
+port-002-shell-numbered-lines
+repair-001-missing-particle
+effects-002-gift-thanks
+spec-002-ramadan-text
+small-005-pledge-ledger
+port-010-python-volunteer-teams
+repair-005-missing-field
+spec-005-prayer-checklist

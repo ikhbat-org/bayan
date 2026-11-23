@@ -1,0 +1,26 @@
+team dates sweep
+join Aisha dates
+join Bilal dates
+alias dates kitchen
+
+team water carry
+join Zaynab kitchen
+show
+duty Bilal cook
+join Hamza water
+show
+team dates serve
+join Yusuf dates
+duty Aisha wash
+alias water dates
+duty Yusuf rest
+join Bilal water
+duty Bilal fetch
+rest Bilal
+team tents
+join   Maryam   kitchen
+duty Idris cook
+join Sumayya nowhere
+alias tents shade
+show now
+  show  

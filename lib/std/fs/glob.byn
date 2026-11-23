@@ -10,7 +10,7 @@ const maxDepth: i64 = 64
 /// The files whose path matches `pattern` (`**`, `*`, `?`, `[…]`, `{a,b}` as `Glob.matches` reads them), sorted by byte
 /// order, written with `/` separators and starting as `pattern` does. Directories are walked but not listed; a base
 /// directory that is missing or unreadable gives an empty list, and a directory below it that cannot be read is
-/// skipped. Names starting with `.` are listed and dot-directories
+/// skipped. Directory links are followed, except one back to a directory being walked (an ancestor). Names starting with `.` are listed and dot-directories
 /// are entered, as any other name (the Go and Rust rule); a caller that wants them hidden filters the result. A
 /// pattern with `**` or `{` is walked 64 directory levels below its base directory; matches deeper than that are not
 /// returned.
@@ -18,7 +18,8 @@ public List<string> glob(string pattern) uses fs, alloc {
     var found = List<string>()
     let base = baseOf(pattern)
     let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
-    walk(pattern, from: base, until: depth, to: ref found)
+    var seen: Map<string, bool> = []
+    walk(pattern, from: base, until: depth, through: ref seen, to: ref found)
     var j = 0
     while j < found.length {
         var k = j
@@ -39,30 +40,53 @@ string baseOf(string pattern) {
     var slash = -1
     while i < pattern.length {
         let b = pattern.bytes[i]
-        if b == '*' || b == '?' || b == '[' || b == '{' { break }
-        if b == '/' { slash = i }
+        if b == '*' || b == '?' || b == '[' || b == '{' {
+            break
+        }
+        if b == '/' {
+            slash = i
+        }
         i += 1
     }
-    if slash < 0 { return "" }
+    if slash < 0 {
+        return ""
+    }
     return slash == 0 ? "/" : pattern[0..slash]
 }
 
 /// The number of times `part` occurs in `text`.
 i64 count(string text, for string part) {
     var n = 0
-    for _ in text.parts(by: part) { n += 1 }
+    for _ in text.parts(by: part) {
+        n += 1
+    }
     return n - 1
 }
 
-/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`.
-void walk(string pattern, from string dir, until i64 depth, to ref List<string> found) uses fs, alloc {
+/// Adds every file under `dir` (to `depth` levels) whose path matches `pattern`. Directory links are followed; a directory whose
+/// real path is in `seen` (the directories being walked, from the base down to `dir`) is an ancestor and is not entered, so a
+/// link back up the tree (`a/loop -> ..`) ends the walk. A directory reached through two different links is walked under each.
+void walk(
+    string pattern,
+    from string dir,
+    until i64 depth,
+    through ref Map<string,
+    bool> seen,
+    to ref List<string> found
+) uses fs, alloc {
+    let real = Fs.realPath(dir.isEmpty ? "." : dir) catch { return }
+    return if seen.contains(real)
+    seen[real] = true
     let names = Io.listDir(dir.isEmpty ? "." : dir) catch { return }
     for name in names {
         let entry = dir.isEmpty ? $"{name}" : (dir.endsWith("/") ? $"{dir}{name}" : $"{dir}/{name}")
         if Fs.fileExists(entry) {
-            if Glob.matches(pattern, for: entry) { found.append(entry) }
+            if Glob.matches(pattern, for: entry) {
+                found.append(entry)
+            }
         } else if depth > 1 {
-            walk(pattern, from: entry, until: depth - 1, to: ref found)
+            walk(pattern, from: entry, until: depth - 1, through: ref seen, to: ref found)
         }
     }
+    let _ = seen.remove(real)
 }
