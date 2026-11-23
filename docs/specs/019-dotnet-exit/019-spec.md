@@ -3,6 +3,7 @@ Status: approved as amended through 2026-11-18 (owner, 2026-11-18)
 Release: unscheduled
 Sources: docs/bayan-milestones.md (Target: zero dependencies; user 2026-11-13); docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md (§1 order, §2 freeze E1–E3, §3 option (c), §4 ratchet, C# archive plan; user 2026-11-16); docs/decisions/2026-11-16-007-additional-concepts-review.md (Q9, syntax freeze until 019a); docs/bayan-roadmap.md (row 3)
 Created: 2026-11-17
+Landed: 019a on `dev` at e57839016, 2026-11-23; the syntax freeze of revision 0023 is over (R29).
 
 ## Problem
 Building, testing and shipping Bayān needs the .NET 10 SDK today, although the compiler people download has been the self-hosted one since 0.3.0. Measured on `dev` at 06eab86f (the 0.3.2 release merge):
