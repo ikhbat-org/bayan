@@ -2744,13 +2744,20 @@ uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc
     FILE* f = byn_io_open(path, "rb");
     if (!f) return byn_io_error(errno);
     /* One buffer of the file's size plus one byte, so EOF shows without growing: inside an arena every buffer a resize
-     * leaves behind stays live until the arena ends (a 1.5 MiB file kept about 4 MiB). Unseekable inputs start at 4 KiB. */
+     * leaves behind stays live until the arena ends (a 1.5 MiB file kept about 4 MiB). Unseekable inputs start at 4 KiB.
+     * POSIX trusts only a regular file's st_size: ext4 seeks a directory's end to about LONG_MAX (laws-nightly 45095535473).
+     * Windows cannot open a directory here, so its seek is used. */
     int64_t size = 0;
+#ifndef _WIN32
+    struct stat st;
+    if (fstat(fileno(f), &st) == 0 && S_ISREG(st.st_mode) && st.st_size > 0) size = (int64_t)st.st_size;
+#else
     if (fseek(f, 0, SEEK_END) == 0) {
         long end = ftell(f);
         if (end > 0) size = (int64_t)end;
     }
     if (fseek(f, 0, SEEK_SET) != 0) size = 0, clearerr(f);
+#endif
     uint8_t* buf = NULL;
     int64_t cap = 0;
     int64_t n = 0;
