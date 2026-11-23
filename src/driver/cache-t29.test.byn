@@ -126,6 +126,42 @@ test "driver t29: zigTrimEntries keeps an unreadable and an empty entry and remo
     deleteWorkDir(dir)
 }
 
+test "driver t29: zigTrimEntries removes the manifest of a trimmed object, so zig cc builds it again" {
+    if ccFindOnPath("zig", for: Target.os) is null {
+        print("skipped: no zig on PATH")
+        return
+    }
+    let zig = ccFindOnPath("zig", for: Target.os) ?? ""
+    let dir = t29CacheDir("zigrebuild")
+    goldenWrite(dir, for: "src/main.c", as: "int main(void) { return 0; }\n")
+    let compiler = boundList([zig, "cc"])
+    let args = boundList(["cc", "-c", Path.combine(Path.combine(dir, "src"), "main.c"), "-o", Path.combine(dir, "main.o")])
+    // the first compile trims nothing; the second trims the `o/` entry of the first's `main.o` before zig runs
+    for limit in [100, 0] {
+        let env = zigCacheEnvFor(compiler, from: null, at: dir, by: limit, until: 0)
+        let r = Io.run(zig, args.span, env: env) catch { panic("cannot run zig") }
+        print(r.stderr) if r.exitCode != 0
+        assert r.exitCode == 0
+    }
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimManifests keeps a manifest of another input and a missing h" {
+    let dir = t29CacheDir("zigmanifests")
+    goldenWrite(dir, for: "h/rt", as: "\u{0}/w/bayan-rt.c\u{0}")
+    goldenWrite(dir, for: "h/main", as: "\u{0}/w/main.c\u{0}")
+    goldenWrite(dir, for: "h/libc", as: "\u{0}/lib/compiler_rt.zig\u{0}")
+    goldenWrite(dir, for: "h/timestamp", as: "")
+    zigTrimManifests(Path.combine(dir, "h")) catch { panic("trim") }
+    zigTrimManifests(Path.combine(dir, "none")) catch { panic("missing") }
+    let left = Io.listDir(Path.combine(dir, "h")) catch { panic("list") }
+    assert left.length == 2 && left[0] != left[1]
+    for name in left {
+        assert name == "libc" || name == "timestamp"
+    }
+    deleteWorkDir(dir)
+}
+
 test "driver t29: t9Evict passes over a file among the programs" {
     let data = t29CacheDir("evict")
     goldenWrite(data, for: "programs/f", as: "x")

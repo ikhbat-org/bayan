@@ -817,14 +817,54 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
     }
     var count = paths.length
     let cutoff = Time.now().nanos - minAgeNanos
+    var gone = List<i64>()
     for i in order {
         break if count <= limit
         continue if used[i] > cutoff
         continue if t9DirectoryExists(paths[i]) && !zigDriverObject(paths[i])
         count -= 1
+        gone.append(i)
+    }
+    return if gone.length == 0
+    // A manifest in `h/` names its inputs, not its `o/` entry, so a hit on one whose entry is gone fails `FileNotFound`; a manifest
+    // gone is only a miss. Only a driver object is trimmed, so the rule is: before any `o/` entry goes, every manifest naming
+    // `main.c` or `bayan-rt.c` goes. The toolchain manifests stay (removing all of `h/` rebuilds compiler_rt, 6.5 s, every trim).
+    // The manifests go first, so a failure there ends the trim with `o/` whole.
+    try zigTrimManifests(Path.combine(Path.directoryName(dir) ?? "", "h"))
+    for i in gone {
         continue if t3Unlinked(paths[i])
         try t9DeleteTree(paths[i])
     }
+}
+
+/// Removes each file of zig's manifest directory `h` whose bytes name `main.c` or `bayan-rt.c` (zig 0.17 stores an input's path
+/// as its bytes; a manifest of another file that matches is only a miss). A missing `h` has none.
+void zigTrimManifests(string h) uses alloc, fs fails IoError {
+    return unless t9DirectoryExists(h)
+    for name in try Io.listDir(h) {
+        let path = Path.combine(h, name)
+        continue if name == "timestamp" || t9DirectoryExists(path)
+        let bytes = try Io.readFile(path)
+        if zigNamesBytes(bytes, as: "main.c") || zigNamesBytes(bytes, as: "bayan-rt.c") {
+            try Io.remove(path)
+        }
+    }
+}
+
+/// Whether `bytes` holds `text`'s bytes.
+bool zigNamesBytes(List<u8> bytes, as string text) {
+    let want = text.bytes
+    for at in 0..bytes.length - want.length + 1 {
+        var same = true
+        for k in 0..want.length {
+            if bytes[at + k] != want[k] {
+                same = false
+                break
+            }
+        }
+        return true if same
+    }
+    return false
 }
 
 /// Whether the `o/` entry `path` holds only objects of the driver's own compiles (`main.c`, `bayan-rt.c`), so it may be trimmed.
