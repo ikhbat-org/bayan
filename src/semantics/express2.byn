@@ -510,7 +510,7 @@ BExpr bindMember(ref Binder b, through ref Ctx c, for in parser.MemberExpr m) {
                 if member == -1 {
                     let near = suggest(
                         name,
-                        by: in ["fileExists", "rename", "copy", "modified", "setModified", "realPath"],
+                        by: in ["fileExists", "rename", "copy", "modified", "fileSize", "setModified", "realPath"],
                     )
                     let help = near is { } ? $"did you mean `{near}`?" : ""
                     report(

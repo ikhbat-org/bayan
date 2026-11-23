@@ -797,6 +797,14 @@ public struct Workspace {
         let known = at >= 0
         return false if known && docs[at].isOpen
         return false if !known && (isExcludedKey(k) || isLink(full))
+        // Sized before it is read, as Workspace.cs checks FileInfo.Length; the length is checked again, the file can grow between.
+        let size = Fs.fileSize(full) catch { return false }
+        if size > maxFileBytes {
+            if known {
+                removeSlot(at)
+            }
+            return false
+        }
         let bytes = Io.readFile(full) catch { return false }
         if bytes.length > maxFileBytes {
             if known {

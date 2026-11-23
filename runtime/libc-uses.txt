@@ -19,6 +19,7 @@ GetCurrentProcessId
 GetEnvironmentStringsW
 GetEnvironmentVariableW
 GetExitCodeProcess
+GetFileAttributesExW
 GetFileAttributesW
 GetFileInformationByHandle
 GetFileTime

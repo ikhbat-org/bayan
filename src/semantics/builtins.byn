@@ -553,6 +553,16 @@ ModId t9Create(ref Ctx c) {
         at: "Fs.modified",
     )
     t9Fails(ref c, for: fsModified, by: ioError)
+    let fsFileSize = t9Make(
+        ref c,
+        by: m,
+        for: "fileSize",
+        as: .fsFileSize,
+        to: prim(.i64),
+        from: t9One("path", as: prim(.string)),
+        at: "Fs.fileSize",
+    )
+    t9Fails(ref c, for: fsFileSize, by: ioError)
     let fsSetModified = t9Make(
         ref c,
         by: m,
@@ -855,6 +865,7 @@ FuncId findFs(ref Ctx c, for string name) {
             or "rename"
             or "copy"
             or "modified"
+            or "fileSize"
             or "setModified"
             or "realPath": return t9Function(ref c, for: $"Fs.{name}")
     }

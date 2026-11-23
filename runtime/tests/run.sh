@@ -225,6 +225,18 @@ if build io-read-presize; then
     else bad io-read-presize.c "unexpected output: $out"; fi
 else bad io-read-presize.c "build failed: $(cat "$work/io-read-presize.build")"; fi
 
+# fs-size.c: the size of a 12345-byte file, and notFound (code 1) for a missing path.
+if build fs-size; then
+    "$work/fs-size.exe" "$work/io/size.bin" >"$work/fsz.out" 2>"$work/fsz.err"
+    rc=$?
+    out=$(tr -d '\r' <"$work/fsz.out")
+    want='file 0 size 12345
+missing 1 size -1'
+    if [ $rc -ne 0 ]; then bad fs-size.c "exit $rc"
+    elif [ "$out" = "$want" ]; then ok fs-size.c
+    else bad fs-size.c "unexpected output: $out"; fi
+else bad fs-size.c "build failed: $(cat "$work/fs-size.build")"; fi
+
 # cov-flush.c: a panic aborts the program (non-zero exit) after the coverage flush printed its line.
 if build cov-flush; then
     bash -c '"$0"; exit $?' "$work/cov-flush.exe" >"$work/cov.out" 2>/dev/null
