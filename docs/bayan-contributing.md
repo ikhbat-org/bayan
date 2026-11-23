@@ -12,7 +12,7 @@ How work on the compiler is done. The spec (`docs/bayan-spec.md`) is the source 
 
 ## Stack and constraints
 
-The .NET, NativeAOT, reflection and lexer rules are in `AGENTS.md`. Beyond those:
+The stack and lexer rules are in `AGENTS.md`. Beyond those:
 
 - Hand-written lexer and recursive-descent parser with Pratt-style expression parsing.
 - C output is **C11** and is compiled with `zig cc` (found on `PATH`, or via the `BAYAN_CC` environment variable). Default flags: `-std=c11 -fwrapv -ffp-contract=off` (`-fwrapv` applies to `fast` builds; `debug`/`safe` use checked arithmetic; see M4).
@@ -24,15 +24,7 @@ The main directories (the top level also holds `bench/`, `dist/`, `editors/`, `s
 
 ```
 bayan/
-  csharp/                   the compiler in C#
-    Bayan.Cli/              bayan executable: run, build, test, explain, --version
-    Bayan.Syntax/           source text, lexer, tokens, parser, AST, diagnostics
-    Bayan.Semantics/        binder, symbols, types, checks
-    Bayan.Lowering/         typed AST → lowered tree (seam for DIR later)
-    Bayan.Backend.C/        C emitter, toolchain invocation
-    Bayan.Testing/
-    tests/Bayan.Tests/      the test assembly (it also compiles src/tests/)
-  src/                      the compiler in Bayān: lexer, parser, semantics, emitter, driver
+  src/                      the compiler in Bayān: lexer, parser, semantics, emitter, sabk, driver
     tests/                  its tests (Selfhost* classes), built into Bayan.Tests
   runtime/                  bayan-rt.h / bayan-rt.c: panic, print, bounds checks, arena, list
     tests/                  the runtime's C tests
@@ -67,6 +59,8 @@ Plan 017 (2026-11-15) moved the tree; the last commit before it is `3c3ccc82`. D
 | `selfhost/` | `src/` |
 | `tests/cases/`, `tests/parity/` | unchanged |
 
+Spec 019b removed `csharp/`, `src/tests/*.cs`, `Bayan.slnx`, the C# language server and the two C# tools; they are kept in the tag `csharp-final` (`docs/decisions/2026-11-23-011-csharp-archive.md`).
+
 ## Conventions
 
 ### Diagnostics
@@ -89,7 +83,7 @@ error BYN2104: `total` is immutable
 
 ### Golden tests
 
-- One input file per case; expected output beside it. `dotnet test` runs everything.
+- One input file per case; expected output beside it. `bash scripts/test.sh` runs everything.
 - Updating expected files: see `AGENTS.md`; the diffs are reviewed like code.
 - What needs a `diag/` or `run/` case: see `AGENTS.md`.
 
@@ -106,8 +100,8 @@ error BYN2104: `total` is immutable
 ## Testing the compiler itself
 
 - Golden tests for every phase (above).
-- The lexer and parser are the compiler's untrusted-input surface: add **SharpFuzz** on `bayan parse` once M2 is stable (nightly CI).
-- Run **Stryker.NET** on `Bayan.Syntax` and `Bayan.Semantics` before v0.1 to find weak tests.
+- The lexer and parser are the compiler's untrusted-input surface. The C# fuzzer (`tools/Bayan.SyntaxFuzz`) left with the C# compiler; a Bayān fuzzer is not written yet.
+- Mutation testing finds weak tests: `bayan test --mutate` (spec 013). Mutation runs go to wp1 or wlt1.
 - Reproducibility: CI compiles `examples/` twice and compares the emitted C byte-for-byte.
 
 ## Before a push
