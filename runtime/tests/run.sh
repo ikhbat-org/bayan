@@ -215,6 +215,16 @@ if build io-read-release; then
     else bad io-read-release.c "unexpected output: $out"; fi
 else bad io-read-release.c "build failed: $(cat "$work/io-read-release.build")"; fi
 
+# io-read-presize.c: a 1.5 MiB file is read into one buffer of its size (spec 019 T44a, golden-bound on macOS).
+if build io-read-presize; then
+    "$work/io-read-presize.exe" "$work/io/presize.bin" >"$work/irp.out" 2>"$work/irp.err"
+    rc=$?
+    out=$(tr -d '\r' <"$work/irp.out")
+    if [ $rc -ne 0 ]; then bad io-read-presize.c "exit $rc"
+    elif [ "$out" = "file 0 resizes 1 same 1" ]; then ok io-read-presize.c
+    else bad io-read-presize.c "unexpected output: $out"; fi
+else bad io-read-presize.c "build failed: $(cat "$work/io-read-presize.build")"; fi
+
 # cov-flush.c: a panic aborts the program (non-zero exit) after the coverage flush printed its line.
 if build cov-flush; then
     bash -c '"$0"; exit $?' "$work/cov-flush.exe" >"$work/cov.out" 2>/dev/null
