@@ -1399,7 +1399,8 @@ const goldenWorkerBatch: i64 = 100
 
 /// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`, after their programs are built (each within
 /// `buildMs`): one result per case added to `results`, in case order. `listed` is the cases as their `<kind>\t<case>\t<input>` lines when the
-/// caller holds them (`goldenTest`), written as they are. One worker runs with no `sh` (`goldenWorkerOne`). A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
+/// caller holds them (`goldenTest`), written as they are to `dir`/cases (the prebuild's list), and to `dir`/cases-<k> for each worker k only
+/// the lines whose index is k modulo the number of workers, so a worker holds its share alone. One worker runs with no `sh` (`goldenWorkerOne`). A case whose worker wrote no result (it could not start or stopped) fails with that worker's stderr, or naming the case it stopped on.
 void goldenJobs(
     in List<GoldenCase> cases,
     by string exe,
@@ -1419,7 +1420,23 @@ void goldenJobs(
         }
     }
     let n = jobs < cases.length ? jobs : cases.length
-    let wrote = goldenWrote(Path.combine(dir, "cases"), as: listed ?? list.finish())
+    let lines = listed ?? list.finish()
+    var wrote = goldenWrote(Path.combine(dir, "cases"), as: lines)
+    for k in 0..n {
+        // each slice is freed once written (2026-11-23: a worker holding the whole 5.9 MB list of the full tree peaked at 16.8 MB on CI)
+        using let arena = Arena()
+        provide allocator: arena {
+            var slice = StrBuf()
+            var i: i64 = 0
+            for line in lines.parts(by: "\n") {
+                if i % n == k {
+                    slice.append($"{line}\n")
+                }
+                i += 1
+            }
+            wrote = wrote && goldenWrote(Path.combine(dir, $"cases-{k}"), as: slice.finish())
+        }
+    }
     if wrote && n == 1 {
         goldenWorkerOne(exe, at: dir, for: $"{limitMs}", by: $"{buildMs}")
     } else if wrote {
@@ -1505,16 +1522,16 @@ void goldenRestarted(string exe, by in List<string> args, to string err) uses al
     let _ = goldenWrote(err, as: text.finish())
 }
 
-/// `bayan test --golden-worker <dir> <k> <n> <limitMs>`: the cases of `dir`/cases (`<kind>\t<case>\t<input>` lines) whose index is `k` modulo
-/// `n`, each through `goldenResult` with the time limit `limitMs`, its status line and detail written to `dir`/<index>; at most
-/// `goldenWorkerBatch` of them, from the index in `dir`/next-<k> if there is one, then `goldenWorkerMore` when some are left. `exitUsage` on a bad
-/// number.
+/// `bayan test --golden-worker <dir> <k> <n> <limitMs>`: the cases of `dir`/cases-<k> (`<kind>\t<case>\t<input>` lines, those of the run's
+/// list whose index is `k` modulo `n`: its line j is the run's case `k + j * n`), each through `goldenResult` with the time limit `limitMs`, its
+/// status line and detail written to `dir`/<index> (the run's index); at most `goldenWorkerBatch` of them, from the run's index in
+/// `dir`/next-<k> if there is one, then `goldenWorkerMore` when some are left. `exitUsage` on a bad number.
 i32 goldenWorker(string dir, at string k, for string n, by string limit) uses alloc, clock, console, env, fs, process {
     let index = t9Digits(k, until: 2147483647) ?? return exitUsage
     let count = t9Digits(n, until: 2147483647) ?? return exitUsage
     let limitMs = t9Digits(limit, until: 9223372036854775807) ?? return exitUsage
     return exitUsage if count == 0
-    let text = Io.readText(Path.combine(dir, "cases")) catch return exitFailure
+    let text = Io.readText(Path.combine(dir, $"cases-{index}")) catch return exitFailure
     var lines = List<string>()
     for line in text.parts(by: "\n") {
         lines.append(line)
@@ -1522,8 +1539,8 @@ i32 goldenWorker(string dir, at string k, for string n, by string limit) uses al
     let next = Path.combine(dir, $"next-{index}")
     let from = t9Digits((Io.readText(next) catch "").trimmed(from: .end), until: 2147483647) ?? index
     var ran: i64 = 0
-    for i in from..lines.length {
-        continue if i % count != index
+    for j in (from > index ? (from - index) / count : 0)..lines.length {
+        let i = index + j * count
         if ran == goldenWorkerBatch {
             return goldenWrote(next, as: $"{i}\n") ? goldenWorkerMore : exitFailure
         }
@@ -1532,7 +1549,7 @@ i32 goldenWorker(string dir, at string k, for string n, by string limit) uses al
         using let arena = Arena()
         provide allocator: arena {
             var fields = List<string>()
-            for f in lines[i].parts(by: "\t") {
+            for f in lines[j].parts(by: "\t") {
                 fields.append(f)
             }
             if fields.length == 3 {
@@ -3257,7 +3274,7 @@ test "a worker resumes at its next-<k> index and stops after a batch with more o
     for _ in 0..goldenWorkerBatch + 3 {
         list.append($"lex\tbad-chars\t{input}\n")
     }
-    goldenWrite(dir, for: "cases", as: list.finish())
+    goldenWrite(dir, for: "cases-0", as: list.finish())
     goldenWrite(dir, for: "next-0", as: "2\n")
     let first = goldenWorker(dir, at: "0", for: "1", by: "60000")
     let skipped = Io.readText(Path.combine(dir, "1")) catch "-"
@@ -3270,6 +3287,36 @@ test "a worker resumes at its next-<k> index and stops after a batch with more o
     assert(first == goldenWorkerMore && skipped == "-" && last.startsWith("passed\n") && unrun == "-")
     assert(next == $"{goldenWorkerBatch + 2}\n")
     assert(second == exitOk && rest.startsWith("passed\n"))
+}
+
+test "a worker reads only its cases-<k>, its line j the run's case k + j * n, not the run's whole list" {
+    let dir = Path.combine(Path.fullPath("tmp"), "golden-worker-slice")
+    deleteWorkDir(dir)
+    let input = Path.fullPath("tests/cases/lex/bad-chars.byn")
+    // `cases` is a directory, which a worker reading it cannot read
+    goldenWrite(dir, for: Path.combine("cases", "unread"), as: "")
+    goldenWrite(dir, for: "cases-1", as: $"lex\tbad-chars\t{input}\nlex\tbad-chars\t{input}\n")
+    let code = goldenWorker(dir, at: "1", for: "4", by: "60000")
+    let first = Io.readText(Path.combine(dir, "1")) catch "-"
+    let second = Io.readText(Path.combine(dir, "5")) catch "-"
+    let local = Io.readText(Path.combine(dir, "0")) catch "-"
+    deleteWorkDir(dir)
+    assert(code == exitOk && first.startsWith("passed\n") && second.startsWith("passed\n") && local == "-")
+}
+
+test "a worker resumes in its cases-<k> at the run's index in next-<k>" {
+    let dir = Path.combine(Path.fullPath("tmp"), "golden-worker-slice-next")
+    deleteWorkDir(dir)
+    let input = Path.fullPath("tests/cases/lex/bad-chars.byn")
+    let line = $"lex\tbad-chars\t{input}\n"
+    goldenWrite(dir, for: "cases-1", as: $"{line}{line}{line}")
+    goldenWrite(dir, for: "next-1", as: "5\n")
+    let code = goldenWorker(dir, at: "1", for: "4", by: "60000")
+    let skipped = Io.readText(Path.combine(dir, "1")) catch "-"
+    let fifth = Io.readText(Path.combine(dir, "5")) catch "-"
+    let ninth = Io.readText(Path.combine(dir, "9")) catch "-"
+    deleteWorkDir(dir)
+    assert(code == exitOk && skipped == "-" && fifth.startsWith("passed\n") && ninth.startsWith("passed\n"))
 }
 
 test "--jobs 8 fails the changed case naming its path and the expected and actual fourth line, the others passing" {
