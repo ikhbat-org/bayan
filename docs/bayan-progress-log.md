@@ -509,3 +509,12 @@ One entry per working session, added at the end of the session. Entries are kept
 - 025: T38 (L050 proof) landed; 025 merged into dev as 1f7dfe6d0 (partial: T43, T44, T34, T36, T38; heldout tasks open); all 33 enacted laws hold. Unpushed.
 - 019: T19d, T19f, T19e landed on feat/019-dotnet-exit; T19y running at handoff. Handoff: docs/handoffs/2026-11-19-019-025-handoff.md.
 - Later 2026-11-19 (CPU-light session): dev review fixes merged and pushed by the owner (5b753d2c2); 019 T44a editor-gate half, T17c/T19f ticks, T31d part 2 drafts, spec-index and header fixes, and three review-fix writers (scripts, driver, LSP) landed on feat/019; llm-eval timing/pin fix on `fix/llm-eval-timing`, unmerged until one test run. Bootstrap regens and test runs deferred for CPU.
+
+## 2026-11-22/23 (unattended 019 + 025)
+- 019 T59 (L043 proof) closed: freeze-check 56,231 frozen files ok; weekly replay 472 files, 1 on the divergence list, 0 failed (63a8cd340, merged f5288c4d1).
+- Laws gate L019, L028, L048 failures were load timeouts: alone L019 rc=0 (89 s), L028 590/590 (1,210 s), L048 80/80 (791 s).
+- `mutate-plan --files` narrows the group filter to the chosen files (dev c4edaa543; ported to 019 with the selector filter form, merged 320361774); parity baselines for `files-filter-one` updated on both lines (dev ef1f965c8, 019 803966062). Handoff record headers fixed (dev 83fe306f1). Owner pushed dev 1c20c18e8..83fe306f1 after two pre-push refusals (parity baseline, docs check (h)); lesson: run `scripts/ci/script-tests.sh` before asking for a push.
+- Owner decisions 2026-11-22: 0.4.0 after 019a+019b; 019a merges to dev after T44a/T44b green and T51; agent tags `csharp-final` locally on the merge; T67/T68 on a branch only.
+- 025 heldout drafts: the Anthropic API pilot was refused by the $180 worker API budget (spend about $196); owner chose Gemini (`gem-code-sh`, Neon) on bayan-heldout `feat/gemini-drafts`, pilot of 8 in two writers with a recheck loop, then 64 in batches of 8; owner spot-checks.
+- Qwen 16k rerun (27 earlier no-compile or truncated dev tasks, grammar context except 2): 27/27 still no-compile, 3 at the 16,384-token cap; raising the cap does not change the outcome.
+- T64 evidence so far: T33–T39, T29, T43b done; release dry run 44860518829 green on feat/019. ci, laws nightly and a release dry run on dev wait for the 019a merge.
