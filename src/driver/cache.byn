@@ -786,8 +786,9 @@ Map<string, string?> zigCacheEnvFor(
     return env
 }
 
-/// Removes the oldest entries of `dir` by write time, each whole, until at most `limit` are left, as `t9Evict` trims programs; a
-/// link is removed and its target kept. An entry written less than `minAgeNanos` ago is kept, as `evictWith` keeps one. An IO
+/// When `dir` holds more than `limit` entries, removes the oldest by write time, each whole, until at most `limit - limit / 4` are
+/// left (1500 for 2000), as `t9Evict` trims programs; the slack makes a trim, and its read of `h/`, one per ~`limit / 4` compiles,
+/// not one per compile past the limit. A link is removed and its target kept. An entry written less than `minAgeNanos` ago is kept, as `evictWith` keeps one. An IO
 /// error (`dir` missing, an entry gone in between) ends it.
 void zigTrim(string dir, by i64 limit, until i64 minAgeNanos) uses alloc, clock, fs {
     zigTrimEntries(dir, by: limit, until: minAgeNanos) catch return
@@ -816,10 +817,11 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
         order[at] = i
     }
     var count = paths.length
+    let keep = limit - limit / 4
     let cutoff = Time.now().nanos - minAgeNanos
     var gone = List<i64>()
     for i in order {
-        break if count <= limit
+        break if count <= keep
         continue if used[i] > cutoff
         continue if t9DirectoryExists(paths[i]) && !zigDriverObject(paths[i])
         count -= 1
@@ -837,7 +839,7 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
     }
 }
 
-/// Removes each file of zig's manifest directory `h` whose bytes name `main.c` or `bayan-rt.c` (zig 0.17 stores an input's path
+/// Removes each file of zig's manifest directory `h` that names a file `main.c` or `bayan-rt.c` (zig 0.17 stores an input's path
 /// as its bytes; a manifest of another file that matches is only a miss). A missing `h` has none.
 void zigTrimManifests(string h) uses alloc, fs fails IoError {
     return unless t9DirectoryExists(h)
@@ -851,10 +853,15 @@ void zigTrimManifests(string h) uses alloc, fs fails IoError {
     }
 }
 
-/// Whether `bytes` holds `text`'s bytes.
+/// Whether `bytes` names a file whose whole name is `text`: `text`'s bytes after a `/`, `\` or space and before a `\n`, `\r`,
+/// `\0` or the end, so zig's own `gccmain.c`, `dllmain.c` and `__libc_start_main.c` do not match `main.c`.
 bool zigNamesBytes(List<u8> bytes, as string text) {
     let want = text.bytes
-    for at in 0..bytes.length - want.length + 1 {
+    for at in 1..bytes.length - want.length + 1 {
+        continue unless bytes[at - 1] is 0x2F or 0x5C or 0x20
+        let end = at + want.length
+        let ends = end == bytes.length || bytes[end] is 0x0A or 0x0D or 0x00
+        continue unless ends
         var same = true
         for k in 0..want.length {
             if bytes[at + k] != want[k] {
@@ -1270,8 +1277,9 @@ test "zig-cache-toolchain: past the limit an entry holding anything but main or 
     assert(!t9DirectoryExists(win))
     assert(Fs.fileExists(Path.combine(crt, "Scrt1.o")))
     assert(t9DirectoryExists(empty))
-    assert(Fs.fileExists(Path.combine(Path.combine(o, "e4"), "main.o")))
-    assert((Io.listDir(o) catch List<string>()).length == 4)
+    // past the limit of 4 the trim goes down to 3 (`limit - limit / 4`), so the newest driver object goes too
+    assert(!t9DirectoryExists(Path.combine(o, "e4")))
+    assert((Io.listDir(o) catch List<string>()).length == 3)
 }
 
 test "zig-cache-set: a set ZIG_GLOBAL_CACHE_DIR is passed through unchanged and nothing is trimmed" {

@@ -85,8 +85,10 @@ $(ls -At "$zig_o" | tail -n +$((zig_keep + 1)))
 EOF
     if [ -n "$zig_gone" ]; then
       if [ -d "$zig_h" ]; then
-        find "$zig_h" -type f -exec grep -l -a -F -e main.c -e bayan-rt.c {} + 2>/dev/null | while IFS= read -r m; do
-          rm -f "$m"
+        # A whole file name, as zigNamesBytes: after / \ or a space, before a line end, NUL or EOF (zig 0.17 ends a path
+        # with NUL, so tr makes it a line end), so zig's own gccmain.c, dllmain.c, __libc_start_main.c stay.
+        find "$zig_h" -type f | while IFS= read -r m; do
+          tr '\000\r' '\n\n' < "$m" | grep -q -a -E '[/\\ ](main|bayan-rt)\.c$' && rm -f "$m"
         done
       fi
       printf '%s' "$zig_gone" | while IFS= read -r e; do

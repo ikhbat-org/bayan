@@ -146,19 +146,37 @@ test "driver t29: zigTrimEntries removes the manifest of a trimmed object, so zi
     deleteWorkDir(dir)
 }
 
-test "driver t29: zigTrimManifests keeps a manifest of another input and a missing h" {
+test "driver t29: zigTrimManifests removes only manifests naming main.c or bayan-rt.c, and keeps a missing h" {
     let dir = t29CacheDir("zigmanifests")
-    goldenWrite(dir, for: "h/rt", as: "\u{0}/w/bayan-rt.c\u{0}")
-    goldenWrite(dir, for: "h/main", as: "\u{0}/w/main.c\u{0}")
+    goldenWrite(dir, for: "h/main", as: "\u{0}/w/x/main.c\u{0}")
+    goldenWrite(dir, for: "h/rt", as: "0 1 2 abc C:\\w\\x\\bayan-rt.c\r\n")
+    goldenWrite(dir, for: "h/end", as: "0 1 2 abc main.c")
     goldenWrite(dir, for: "h/libc", as: "\u{0}/lib/compiler_rt.zig\u{0}")
+    goldenWrite(dir, for: "h/gcc", as: "\u{0}/zig/lib/libc/mingw/crt/gccmain.c\u{0}")
+    goldenWrite(dir, for: "h/dll", as: "\u{0}/zig/lib/libc/mingw/misc/dllmain.c\n")
+    goldenWrite(dir, for: "h/musl", as: "\u{0}/zig/lib/libc/musl/src/env/__libc_start_main.c\u{0}")
+    goldenWrite(dir, for: "h/cpp", as: "\u{0}/w/x/main.cpp\u{0}")
     goldenWrite(dir, for: "h/timestamp", as: "")
     zigTrimManifests(Path.combine(dir, "h")) catch { panic("trim") }
     zigTrimManifests(Path.combine(dir, "none")) catch { panic("missing") }
     let left = Io.listDir(Path.combine(dir, "h")) catch { panic("list") }
-    assert left.length == 2 && left[0] != left[1]
-    for name in left {
-        assert name == "libc" || name == "timestamp"
+    assert left.length == 6
+    for name in ["libc", "gcc", "dll", "musl", "cpp", "timestamp"] {
+        assert Fs.fileExists(Path.combine(Path.combine(dir, "h"), name))
     }
+    deleteWorkDir(dir)
+}
+
+test "driver t29: zigTrimEntries leaves 2000 entries and trims 2001 to 1500" {
+    let dir = t29CacheDir("zigslack")
+    for i in 0..2000 {
+        goldenWrite(dir, for: $"{i}/main.o", as: "x")
+    }
+    zigTrimEntries(dir, by: 2000, until: 0) catch { panic("trim") }
+    assert (Io.listDir(dir) catch { panic("list") }).length == 2000
+    goldenWrite(dir, for: "2000/main.o", as: "x")
+    zigTrimEntries(dir, by: 2000, until: 0) catch { panic("trim") }
+    assert (Io.listDir(dir) catch { panic("list") }).length == 1500
     deleteWorkDir(dir)
 }
 
