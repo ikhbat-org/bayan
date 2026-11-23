@@ -86,8 +86,12 @@ jobs:
           path: dist/bayan-*
 
   # The memory and disk release gate (docs/memory-leaks.md): a release waits for it on both hosts.
+  # The timeout sums the gate's own bounds (scripts/release/memory-gate.sh), so a hang ends with the gate's named bound, not
+  # the runner's: test blocks at the driver's 60 s each, 23 bayan-lsp + 13 `bound: ` + 2 T12 cases = 38 min; the golden
+  # runner bound's 30 min; four C compiles (src/driver, the two test binaries, the golden bound's) at BAYAN_CC_TIMEOUT_S's
+  # 10 min = 40 min; 108 min, plus stage 0 (an unbounded cc of bootstrap/bayan.c), checkout and zig, with a margin: 150.
   memory-gate:
-    timeout-minutes: 30
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:

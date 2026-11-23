@@ -28,8 +28,11 @@
 #              --jobs 3, so about 3 hours). The release memory gate samples shard 1/12 only (Decision 2026-11-20, Fable for the
 #              owner). Not a default mode and not per case (--only, --limit and --cases do not apply): laws-nightly.yml runs it in
 #              a job of its own. Its output goes to tmp/nightly-modes/bound.log.
-# Prints one line per failing case, then the counts of each mode. Everything goes under tmp/nightly-modes/. No run has a time
-# limit. Exit 0 when no case failed, 1 when one did, 2 on a usage error. bash 3.2.
+# Prints one line per failing case, then the counts of each mode. Everything goes under tmp/nightly-modes/. Each run of a built
+# program or test binary is killed after 120 s times BAYAN_TEST_TIME_SCALE (CoverageTests.cs:49 and MutantSchemataTests.cs:72
+# `TestTime.Scale(120_000)`), each driver run after BAYAN_CC_TIMEOUT_S seconds, default 600 (Toolchain.cs:146 `CompileTimeout`);
+# a killed run fails its case as `<program> timed out after N s`. The bound mode has its own BAYAN_TEST_TIMEOUT_MS.
+# Exit 0 when no case failed, 1 when one did, 2 on a usage error. bash 3.2.
 set -uo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root" || exit 2
@@ -58,9 +61,26 @@ x=""; other="// os: windows"
 case "$(uname -s)" in (MINGW*|MSYS*|CYGWIN*) x=.exe; other="// os: unix" ;; esac
 out="$root/tmp/nightly-modes"
 rm -rf "$out"; mkdir -p "$out/result" || exit 2
+# the time limits in seconds: a program run (120 s scaled, rounded up; TestTime.cs: 1 when unset or not positive), a driver run
+run_s=$(awk -v f="${BAYAN_TEST_TIME_SCALE:-1}" 'BEGIN { f += 0; if (f <= 0) f = 1; s = 120 * f; c = int(s); if (c < s) c++; print c }')
+case ${BAYAN_CC_TIMEOUT_S:-} in (''|*[!0-9]*|0) driver_s=600 ;; (*) driver_s=$BAYAN_CC_TIMEOUT_S ;; esac
+
+# waits for the process $1, killed after $2 s (no GNU timeout on macOS): a watchdog polls each second and, at the limit,
+# writes "$4 timed out after $2 s" to $3 and kills it; returns its status
+watch() {
+  local pid=$1 s=$2 mark=$3 what=$4 w code
+  ( i=0
+    while [ $i -lt "$s" ]; do sleep 1; kill -0 "$pid" 2>/dev/null || exit 0; i=$((i + 1)); done
+    echo "$what timed out after $s s" > "$mark"; kill -KILL "$pid" ) > /dev/null 2>&1 &
+  w=$!
+  wait "$pid"; code=$?
+  kill "$w" 2>/dev/null; wait "$w" 2>/dev/null
+  return $code
+}
 
 # runs $1 in the fresh work directory $2 with BAYAN_MUTANT $3 and BAYAN_COVERAGE $4 (`-` unset), the stdin file $5 and the
-# argument file $6 (each skipped when "" or absent), then the arguments after them; leaves $2.o, $2.e (CR dropped) and $2.c
+# argument file $6 (each skipped when "" or absent), then the arguments after them; leaves $2.o, $2.e (CR dropped) and $2.c,
+# and $2.timeout when it was killed at run_s
 run() {
   local bin=$1 work=$2 mut=$3 cov=$4 stdin=$5 argf=$6 l code; shift 6
   local a=("$@")
@@ -72,17 +92,19 @@ run() {
   ( unset BAYAN_MUTANT BAYAN_COVERAGE
     [ "$mut" = - ] || export BAYAN_MUTANT="$mut"
     [ "$cov" = - ] || export BAYAN_COVERAGE="$cov"
-    cd "$work" && exec "$bin" ${a[@]+"${a[@]}"} < "$stdin" > "$work.out" 2> "$work.err" )
-  code=$?
+    cd "$work" && exec "$bin" ${a[@]+"${a[@]}"} < "$stdin" > "$work.out" 2> "$work.err" ) &
+  watch $! "$run_s" "$work.timeout" "$(basename "$bin")"; code=$?
   # PanicExit.Portable: the Windows fail-fast status is the 134 of an abort
   case $code in (3221226505) code=134 ;; esac
   tr -d '\r' < "$work.out" > "$work.o"; tr -d '\r' < "$work.err" > "$work.e"; echo "$code" > "$work.c"
 }
 
-# the driver with `$@` in the directory $1, BAYAN_MUTANT and BAYAN_COVERAGE unset; stdout to $2.out, stderr to $2.err
+# the driver with `$@` in the directory $1, BAYAN_MUTANT and BAYAN_COVERAGE unset; stdout to $2.out, stderr to $2.err, and
+# $2.timeout when it was killed at driver_s
 driver() {
   local dir=$1 log=$2; shift 2
-  ( unset BAYAN_MUTANT BAYAN_COVERAGE; cd "$dir" && exec "$exe" "$@" > "$log.out" 2> "$log.err" )
+  ( unset BAYAN_MUTANT BAYAN_COVERAGE; cd "$dir" && exec "$exe" "$@" > "$log.out" 2> "$log.err" ) &
+  watch $! "$driver_s" "$log.timeout" "the driver's \`$1\`"
 }
 
 # the first line of a driver log $1 (.out then .err), for a failure message
@@ -247,7 +269,7 @@ done
 
 # worker $1 of $jobs: the units whose index is $1 modulo $jobs; result/<index> holds `ok`, `skip` or `fail <message>`
 worker() {
-  local k=$1 i=0 mode name d src r
+  local k=$1 i=0 mode name d src r t
   while IFS=' ' read -r mode name; do
     if [ $((i % jobs)) = "$k" ]; then
       src="$cases/$name"; d="$out/$mode/$(echo "${name%.byn}" | tr / _)"; mkdir -p "$d"
@@ -257,6 +279,8 @@ worker() {
       elif head -2 "$src" | tr -d '\r' | grep -qxF "$other"; then r=skip
       else r=$(program_case "$d" "$src" "$name" "$mode")
       fi
+      # a run killed at its time limit fails the case, whatever its output compared as
+      t=$(find "$d" -name '*.timeout' -exec cat {} + 2>/dev/null | head -1); [ -z "$t" ] || r=$t
       case $r in ('') echo ok ;; (skip) echo skip ;; (*) echo "fail $r" ;; esac > "$out/result/$i"
     fi
     i=$((i + 1))

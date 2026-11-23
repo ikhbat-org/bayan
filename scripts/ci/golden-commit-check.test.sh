@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/golden-commit-check.sh in a scratch repo under tmp/: a mixed commit is refused, a golden-only commit with
-# no cause is refused, with a sha cause it passes, manifest plus golden passes, an unrelated commit passes, merges are skipped,
+# no cause is refused, with a sha or a task id (T30, T41b, T123) cause it passes and with "Txyz" it is refused, manifest plus golden passes, an unrelated commit passes, merges are skipped,
 # a mixed commit in scripts/ci/golden-commit-allow.txt passes and one not in it is refused.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
@@ -27,6 +27,11 @@ echo e > tests/cases/diag/a.diag; git commit -qam "regenerate after Q1272"
 expect "golden-only, Q cause" 0
 echo f > tests/cases/diag/a.diag; printf 'k\t1\n' > tests/cases/FREEZE.tsv; git add -A; git commit -qm "refresh for T21"
 expect "manifest and golden" 0
+for m in "fix per T41b" "T123 follow" "T30 x"; do
+  echo "$m" >> tests/cases/diag/a.diag; git commit -qam "$m"; expect "golden-only, task id cause '$m'" 0
+done
+echo n >> tests/cases/diag/a.diag; git commit -qam "Txyz goldens"
+expect "golden-only, Txyz is no task id" 1
 mkdir -p tests/cases/cli/C-1; echo j > tests/cases/cli/C-1/expected.sections; echo j > tests/cases/cli/C-1/expected.golden; git add -A; git commit -qm "exported case for Q1018"
 expect "exported case expected files" 0
 echo k > tests/cases/cli/C-1/expected.golden; echo k > src/a.txt; git commit -qam "exported case with src for Q1018"
@@ -39,7 +44,7 @@ git checkout -q main; echo i > src/c.txt; git add -A; git commit -qm "main work"
 git merge -q --no-ff side -m "merge side" 2>/dev/null
 expect "merge commit" 0
 run_check "$(git rev-list --max-parents=0 HEAD)"; [ "$rc" = 1 ] || fail "whole range exit $rc"
-[ "$(grep -c 'golden-commit-check: [0-9a-f]\{7\} ' <<<"$out")" = 3 ] || fail "whole range should name 3 commits: $out"
+[ "$(grep -c 'golden-commit-check: [0-9a-f]\{7\} ' <<<"$out")" = 4 ] || fail "whole range should name 4 commits: $out"
 rc=0; bash "$gc" nonsense >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "bad usage exit $rc"
 # a mixed commit listed in scripts/ci/golden-commit-allow.txt (as of the range's head) passes; one not listed is refused
 start="$(git rev-parse HEAD)"

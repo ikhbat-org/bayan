@@ -103,7 +103,7 @@ has "$mapped" "ok tests (3 run: bayan parity emit/)" || fail "a change to src/em
 test.sh --only parity
 bayan test tests/cases --only emit/" ] || fail "the words did not run as parts then a selector: '$mapruns'" "$mapped"
 has "$wmulti" "ok wp1 (parts: bayan,golden)" || fail "a selector's wp1 run with bayan and golden did not pass" "$wmulti"
-grep -q "^FAIL wp1: tmp/wp1/$esha.out ran 'bayan', without golden; run: bash scripts/selfhost/wp1-test.sh emitter bayan,golden$" <<< "$wpart" || fail "a selector's wp1 run without golden passed" "$wpart"
+grep -q "^FAIL wp1: tmp/wp1/$esha.out ran 'bayan', without golden; run: bash scripts/selfhost/wp1-test.sh emitter bayan && bash scripts/selfhost/wp1-test.sh emitter golden$" <<< "$wpart" || fail "a selector's wp1 run without golden passed" "$wpart"
 [ "$runs" = "test.sh --only bayan
 test.sh --only parity" ] || fail "the smoke words ran as '$runs'" "$good"
 [ ! -f "$aux/dotnet-called" ] || fail "preflight called dotnet" "$good"

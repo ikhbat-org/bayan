@@ -168,7 +168,9 @@ CLASSES=($(printf '%s\n' "${CLASSES[@]}" | awk '!seen[$0]++'))
 part_of() { case $1 in golden|bayan|parity|scripts|runtime) echo "$1";; *) echo golden;; esac; }
 NEED=(); for c in "${CLASSES[@]}"; do p=$(part_of "$c"); case $p in parity|scripts) ;; *) NEED+=("$p");; esac; done
 NEED=($(printf '%s\n' "${NEED[@]+"${NEED[@]}"}" | awk 'NF && !seen[$0]++'))
-FILT=$(IFS=,; echo "${NEED[*]+"${NEED[*]}"}")
+# the wp1 command: wp1-test.sh takes one part, so one run per needed part, in sequence (bayan when none is needed: any run records)
+RUN=""; for p in "${NEED[@]+"${NEED[@]}"}"; do RUN="${RUN:+$RUN && }bash scripts/selfhost/wp1-test.sh $BR $p"; done
+[ -n "$RUN" ] || RUN="bash scripts/selfhost/wp1-test.sh $BR bayan"
 BEXE=${BAYAN_EXE:-}
 [ -n "$BEXE" ] || BEXE=$(bash "$PWD/scripts/bootstrap-build.sh" 2> "$L/build.txt" | tail -1)
 if [ ! -x "$BEXE" ]; then fail "tests: build failed — $(tail -1 "$L/build.txt" 2> /dev/null)"
@@ -188,7 +190,7 @@ if bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-st
 else fail "tests: plan-strings-check --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
 
 # wp1
-W=$OUT/tmp/wp1/$SHA.out; RUN="bash scripts/selfhost/wp1-test.sh $BR $FILT"
+W=$OUT/tmp/wp1/$SHA.out
 if [ -n "$(git status --porcelain)" ]; then fail "wp1: the working tree has uncommitted changes; after the commit, run: $RUN"
 elif [ ! -f "$W" ]; then fail "wp1: no tmp/wp1/$SHA.out for $BR's HEAD; run: $RUN"
 elif [ "$(tail -1 "$W")" != "exit 0" ]; then fail "wp1: tmp/wp1/$SHA.out ends in '$(tail -1 "$W")', not 'exit 0'"
