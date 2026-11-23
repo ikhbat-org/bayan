@@ -2743,12 +2743,20 @@ static FILE* byn_io_open(byn_str path, const char* mode) {
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc) {
     FILE* f = byn_io_open(path, "rb");
     if (!f) return byn_io_error(errno);
+    /* One buffer of the file's size plus one byte, so EOF shows without growing: inside an arena every buffer a resize
+     * leaves behind stays live until the arena ends (a 1.5 MiB file kept about 4 MiB). Unseekable inputs start at 4 KiB. */
+    int64_t size = 0;
+    if (fseek(f, 0, SEEK_END) == 0) {
+        long end = ftell(f);
+        if (end > 0) size = (int64_t)end;
+    }
+    if (fseek(f, 0, SEEK_SET) != 0) size = 0, clearerr(f);
     uint8_t* buf = NULL;
     int64_t cap = 0;
     int64_t n = 0;
     for (;;) {
         if (n == cap) {
-            int64_t grown = cap < 4096 ? 4096 : cap * 2;
+            int64_t grown = cap == 0 && size > 0 ? size + 1 : cap < 4096 ? 4096 : cap * 2;
             buf = (uint8_t*)alloc->resize(alloc, buf, cap, grown);
             cap = grown;
         }
