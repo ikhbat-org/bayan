@@ -19,8 +19,11 @@ on:
 permissions:
   contents: read
 
+# One run at a time per branch for a scheduled or dispatched run. A run called by release.yml gets a group of its own
+# (github.workflow is then the caller's name), as laws-nightly.yml does: in one shared group a second waiting run cancels
+# the first (laws-nightly.yml records two such cancelled runs, 44689818294 and 44695267947).
 concurrency:
-  group: ddc-${{ github.ref }}
+  group: ddc-${{ github.workflow == 'ddc' && github.ref || github.run_id }}
   cancel-in-progress: false
 
 jobs:

@@ -3,7 +3,7 @@
 # copy passes in every mode; an altered .stdout of the copy fails mutate and coverage naming the case; a stand-in driver that
 # drops `build --coverage` fails coverage on the missing counter file, naming the case; a stand-in driver whose `--emit-c` adds
 # `byn_own` fails ownership naming the case; a stand-in driver whose `--emit-c` adds a call to an unlisted function fails libc
-# naming the case; libc with no --limit runs the corpus check, which the three cases alone fail; bound runs the golden runner
+# naming the case; a hanging program and a hanging driver are killed at their limits, failing the case as timed out; libc with no --limit runs the corpus check, which the three cases alone fail; bound runs the golden runner
 # bound block through a stand-in driver over the full tree with a 5 hour timeout and fails on a failed or pending block; an
 # unknown mode is a usage error.
 # BAYAN_EXE: the self-hosted driver; unset, bootstrap/bayan.c is built with cc into tmp/. bash 3.2, no dotnet.
@@ -70,6 +70,22 @@ BAYAN_EXE=$bayan bash "$tmp/repo/scripts/ci/nightly-modes.sh" --cases "$tmp/case
 grep -q '^nightly-modes: FAIL libc corpus: listed in 011-c-inventory.md but no emitted unit calls it: ' "$tmp/out" \
   || fail "the corpus check did not run" "$(cat "$tmp/out")"
 grep -q '^nightly-modes: libc 3 ok, 0 failed' "$tmp/out" || fail "a case failed the per-case check" "$(cat "$tmp/out")"
+
+# time limits: a built program that hangs is killed at 120 s times BAYAN_TEST_TIME_SCALE, a hanging driver at BAYAN_CC_TIMEOUT_S
+cat > "$tmp/stand-in" <<'STUB'
+#!/usr/bin/env bash
+[ "${1:-}" = build ] || exit 2
+[ -z "${HANG_DRIVER:-}" ] || exec sleep 30
+p=""; for x in "$@"; do [ "$p" != -o ] || o=$x; p=$x; done
+printf '#!/bin/sh\nexec sleep 30\n' > "$o"; chmod +x "$o"
+STUB
+chmod +x "$tmp/stand-in"
+[ "$(BAYAN_TEST_TIME_SCALE=0.01 run "$tmp/stand-in" --mode mutate --only arithmetic)" = fail ] || fail "a hanging program passed" "$(cat "$tmp/out")"
+grep -qx 'nightly-modes: FAIL mutate run/arithmetic.byn: prog timed out after 2 s' "$tmp/out" \
+  || fail "the case whose program hangs was not named" "$(cat "$tmp/out")"
+[ "$(HANG_DRIVER=1 BAYAN_CC_TIMEOUT_S=2 run "$tmp/stand-in" --mode coverage --only arithmetic)" = fail ] || fail "a hanging driver passed" "$(cat "$tmp/out")"
+grep -qx "nightly-modes: FAIL coverage run/arithmetic.byn: the driver's \`build\` timed out after 2 s" "$tmp/out" \
+  || fail "the case whose driver hangs was not named" "$(cat "$tmp/out")"
 
 # bound: a stand-in driver logs its environment and arguments and reports what BOUND_SAYS says
 cat > "$tmp/stand-in" <<'STUB'

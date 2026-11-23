@@ -13,8 +13,9 @@
 #              one test: a word is a scripts/test.sh part (golden|bayan|parity|scripts|runtime), run as `scripts/test.sh --only <part>`, or a
 #              `<kind>/<Class>/` selector, run as `bayan test tests/cases --only <word>` (BAYAN_EXE, else the stage-1 binary scripts/bootstrap-build.sh
 #              prints); plan-strings-check passes (scripts/bayan-tool.sh)
-#   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, holds `test: all passed`, and its `filter:` line (comma-separated
-#              parts) names the part of every word above (a selector's part is golden; parity and scripts are skipped on Windows and not needed)
+#   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, holds `test: all passed`, and the part of every word above
+#              is its `filter:` line or has wp1-test.sh's pass cache for the commit's tree (tmp/wp1/cache/<tree>-<part hash>.out), since each
+#              run records only its own part (a selector's part is golden; parity and scripts are skipped on Windows and not needed)
 # On a checkout of <branch> the working tree is checked (a writer before its commit), else the branch's commit in a temporary worktree.
 # Logs go to tmp/preflight/<t>/.
 set -u
@@ -168,7 +169,9 @@ CLASSES=($(printf '%s\n' "${CLASSES[@]}" | awk '!seen[$0]++'))
 part_of() { case $1 in golden|bayan|parity|scripts|runtime) echo "$1";; *) echo golden;; esac; }
 NEED=(); for c in "${CLASSES[@]}"; do p=$(part_of "$c"); case $p in parity|scripts) ;; *) NEED+=("$p");; esac; done
 NEED=($(printf '%s\n' "${NEED[@]+"${NEED[@]}"}" | awk 'NF && !seen[$0]++'))
-FILT=$(IFS=,; echo "${NEED[*]+"${NEED[*]}"}")
+# the wp1 command: wp1-test.sh takes one part, so one run per needed part, in sequence (bayan when none is needed: any run records)
+RUN=""; for p in "${NEED[@]+"${NEED[@]}"}"; do RUN="${RUN:+$RUN && }bash scripts/selfhost/wp1-test.sh $BR $p"; done
+[ -n "$RUN" ] || RUN="bash scripts/selfhost/wp1-test.sh $BR bayan"
 BEXE=${BAYAN_EXE:-}
 [ -n "$BEXE" ] || BEXE=$(bash "$PWD/scripts/bootstrap-build.sh" 2> "$L/build.txt" | tail -1)
 if [ ! -x "$BEXE" ]; then fail "tests: build failed — $(tail -1 "$L/build.txt" 2> /dev/null)"
@@ -188,15 +191,18 @@ if bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-st
 else fail "tests: plan-strings-check --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
 
 # wp1
-W=$OUT/tmp/wp1/$SHA.out; RUN="bash scripts/selfhost/wp1-test.sh $BR $FILT"
+W=$OUT/tmp/wp1/$SHA.out
 if [ -n "$(git status --porcelain)" ]; then fail "wp1: the working tree has uncommitted changes; after the commit, run: $RUN"
 elif [ ! -f "$W" ]; then fail "wp1: no tmp/wp1/$SHA.out for $BR's HEAD; run: $RUN"
 elif [ "$(tail -1 "$W")" != "exit 0" ]; then fail "wp1: tmp/wp1/$SHA.out ends in '$(tail -1 "$W")', not 'exit 0'"
 elif ! grep -qx 'test: all passed' "$W"; then fail "wp1: tmp/wp1/$SHA.out ran no tests"
 else
-  wf=$(sed -n 's/^filter: //p' "$W" | head -1); miss=()
-  for c in "${NEED[@]+"${NEED[@]}"}"; do [[ ",$wf," == *",$c,"* ]] || miss+=("$c"); done
-  if [ ${#miss[@]} = 0 ]; then ok "wp1 (parts: ${wf:-none})"
+  # a part ran when it is the latest run's filter, or when wp1-test.sh cached a pass of it for this tree (an earlier run of the sequence)
+  wf=$(sed -n 's/^filter: //p' "$W" | head -1); TREE=$(git rev-parse "$SHA^{tree}"); miss=(); got=""
+  for c in "${NEED[@]+"${NEED[@]}"}"; do
+    if [ "$c" = "$wf" ] || [ -f "$OUT/tmp/wp1/cache/$TREE-$(printf '%s' "$c" | shasum | cut -c1-16).out" ]; then got="${got:+$got,}$c"; else miss+=("$c"); fi
+  done
+  if [ ${#miss[@]} = 0 ]; then ok "wp1 (parts: ${got:-${wf:-none}})"
   else fail "wp1: tmp/wp1/$SHA.out ran '$wf', without ${miss[*]}; run: $RUN"; fi
 fi
 exit $F

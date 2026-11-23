@@ -11,7 +11,8 @@
 #     (.tokens .ast .diag .jsonl .types .stdout .stderr .exitcode .tree .color .plain .ascii), tests/cases/out/results-fail.json,
 #     or any expected.* file of an exported case directory (T17c: expected.golden, expected.sections, expected.c, ...).
 #   manifest: tests/cases/FREEZE.tsv (it may not exist yet).
-#   cause: the message holds a 7-40 hex commit sha containing a digit, a question number Q### or Q####, or a task reference T##.
+#   cause: the message holds a 7-40 hex commit sha containing a digit, a question number Q### or Q####, or a task reference T<digits>
+#     with an optional lowercase suffix (T21, T41b, T123).
 # Exit 0 clean, 1 refused (sha, subject and reason on stderr), 2 usage or git error.
 set -uo pipefail
 [ $# = 1 ] && [[ "$1" == *..* ]] || { echo "usage: scripts/ci/golden-commit-check.sh <base>..<head>" >&2; exit 2; }
@@ -27,7 +28,7 @@ is_expected() {
 }
 has_cause() {
   local tok
-  git log -1 --format=%B "$1" | grep -Eq '(^|[^[:alnum:]])(Q[0-9]{3,4}|T[0-9]{2})([^[:alnum:]]|$)' && return 0
+  git log -1 --format=%B "$1" | grep -Eq '(^|[^[:alnum:]])(Q[0-9]{3,4}|T[0-9]+[a-z]*)([^[:alnum:]]|$)' && return 0
   for tok in $(git log -1 --format=%B "$1" | grep -oE '(^|[^[:alnum:]])[0-9a-f]{7,40}([^[:alnum:]]|$)' | tr -c '0-9a-f\n' ' '); do
     case "$tok" in (*[0-9]*) return 0 ;; esac
   done
@@ -49,7 +50,7 @@ EOT
   [ $exp = 1 ] || continue
   reason=""
   if [ $other = 1 ]; then reason="changes an expected file together with a file that is not an expected file or the manifest"
-  elif ! has_cause "$c"; then reason="changes only expected files but its message names no cause (a commit sha, Q### or T##)"; fi
+  elif ! has_cause "$c"; then reason="changes only expected files but its message names no cause (a commit sha, Q### or a task id like T41b)"; fi
   if [ -n "$reason" ]; then
     echo "golden-commit-check: $(git log -1 --format='%h %s' "$c"): $reason" >&2
     bad=$((bad + 1))
