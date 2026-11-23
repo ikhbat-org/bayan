@@ -217,6 +217,18 @@ i64 t11Line(in List<u8> text, at i64 offset) {
     return line
 }
 
+/// The first option of `o` that `t11Golden` does not read (it reads `--only`, `--jobs`, `--json` and `--mode`), or null.
+string? t11GoldenUnsupported(in T11Options o) {
+    return "--coverage" if o.coverage
+    return "--base" if o.baseRef is not null
+    return "--changed" if o.changed
+    return "--run" if o.run is not null
+    return "--package" if o.package is not null
+    return "--mutate" if o.mutate
+    return "-v" if o.verbose
+    return null
+}
+
 /// CliApp.cs:639 `Test`. `kept` is the command and its arguments.
 i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console, env, fs, process, random {
     let args = t2Rest(kept)
@@ -238,7 +250,13 @@ i32 testCommand(in List<string> kept, by ref DCtx d) uses alloc, clock, console,
     }
     let o = t11ParseBuildOptions(in args) ?? return exitUsage
     // A cases directory (spec 019 T4): each golden case is one test with the time limit of a test block; golden.byn.
-    return t11Golden(in o, by: ref d) if goldenIsCasesDir(o.path)
+    if goldenIsCasesDir(o.path) {
+        if (t11GoldenUnsupported(in o) is { } option) {
+            Io.stderr.write($"bayan: `{option}` does not apply to a golden cases directory\n")
+            return exitUsage
+        }
+        return t11Golden(in o, by: ref d)
+    }
     if o.jobs is not null {
         Io.stderr.write("bayan: unexpected argument `--jobs`\n")
         return exitUsage
@@ -1127,4 +1145,51 @@ test "a run of test blocks keeps the C# summary and results.json (L028): no gold
     assert(results.contains("\"name\": \"one plus one\",")
         && !results.contains("\"kind\"")
         && !results.contains("goldenCases"))
+}
+
+test "a cases directory refuses each option the golden run does not read, and keeps --only, --jobs, --json and --mode" {
+    let dir = Path.combine(Path.fullPath("tmp"), "t11-golden-options")
+    deleteWorkDir(dir)
+    let source = Io.readText("tests/cases/lex/bad-chars.byn") catch { panic("source") }
+    let tokens = Io.readText("tests/cases/lex/bad-chars.tokens") catch { panic("tokens") }
+    goldenWrite(dir, for: "lex/ok.byn", as: source)
+    goldenWrite(dir, for: "lex/ok.tokens", as: tokens)
+    let refused: List<List<string>> = [
+        ["--coverage"],
+        ["--changed"],
+        ["--base", "HEAD"],
+        ["--run", "r"],
+        ["--package", "src"],
+        ["--mutate"],
+        ["-v"],
+        ["--verbose"],
+    ]
+    let named: List<string> = ["--coverage", "--changed", "--base", "--run", "--package", "--mutate", "-v", "-v"]
+    var exits = List<i32>()
+    var names = List<string>()
+    for k in 0..refused.length {
+        var args = List<string>()
+        for a in refused[k] {
+            args.append(a)
+        }
+        args.append(dir)
+        if (t11ParseBuildOptions(in args) is { } o) {
+            names.append(t11GoldenUnsupported(in o) ?? "-")
+        }
+        var kept = List<string>()
+        kept.append("test")
+        for a in args {
+            kept.append(a)
+        }
+        var d = newDCtx()
+        exits.append(testCommand(in kept, by: ref d))
+    }
+    var d = newDCtx()
+    let supported = testCommand(in ["test", "--only", "ok", "--jobs", "1", "--json", "--mode", "debug", dir], by: ref d)
+    deleteWorkDir(dir)
+    for e in exits {
+        assert(e == exitUsage)
+    }
+    assert(names.joined(by: " ") == named.joined(by: " "))
+    assert(supported == exitOk)
 }

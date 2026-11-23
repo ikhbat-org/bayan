@@ -788,15 +788,20 @@ string t13MissingMember(ref Ctx c, for Type t, to InterfaceId i) {
     return $": {typeDisplay(ref c, by: interfaceTypeOf(i))}"
 }
 
-/// How deep instances may nest while declaring members before a type counts as expanding without end
-/// (Bayan only, L023: `struct G<T> { G<Owned<T>>? g }` otherwise recurses until the stack runs out).
+/// How many instances of one template may nest while declaring members before it counts as expanding without
+/// end (Bayan only, L023: `struct G<T> { G<Owned<T>>? g }` otherwise recurses until the stack runs out).
 const instantiationDepthLimit: i64 = 64
 
-/// True, after reporting BYN2745 once per template, when instantiating `template` now would nest past
-/// `instantiationDepthLimit`: each instance's members need a deeper instance of the same template. The report
-/// names the outermost instance of `template` being declared and the next one inside it (`declaringInstances`).
+/// True, after reporting BYN2745 once per template, when instantiating `template` now would nest it inside
+/// itself past `instantiationDepthLimit`: each instance's members need a deeper instance of the same template.
+/// The report names the outermost instance of `template` being declared and the next one inside it
+/// (`declaringInstances`).
 bool t13ExpandsWithoutEnd(ref Ctx c, for Type template, from FileId file, at TextSpan nameSpan) {
-    return false if c.instantiating < instantiationDepthLimit
+    var nested: i64 = 0
+    for d in c.declaringInstances {
+        nested += d.item1 == template ? 1 : 0
+    }
+    return false if nested < instantiationDepthLimit
     var reported = false
     for t in c.inReportedCycle {
         reported = reported || t == template
