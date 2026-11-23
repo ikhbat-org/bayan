@@ -95,10 +95,11 @@ mkdir -p "$tmp/fake/scripts" "$tmp/fake/tmp/zig-global/o" "$tmp/own-zig/o"; cp "
 mkdir -p "$tmp/fake/tmp/zig-global/h"
 printf '0 1 2 abc /w/tmp/x/main.c\n' > "$tmp/fake/tmp/zig-global/h/prog.txt"
 printf '0 1 2 abc /zig/lib/compiler_rt.zig\n' > "$tmp/fake/tmp/zig-global/h/rt.txt"
-# zig 0.17 writes a path NUL-terminated; zig's own gccmain.c is not main.c.
-printf '\001\000/w/tmp/y/bayan-rt.c\000\000' > "$tmp/fake/tmp/zig-global/h/bin"
+# zig 0.17 writes a path NUL-terminated among bytes that are not UTF-8 (a UTF-8 locale stops BSD tr at them); zig's own
+# gccmain.c is not main.c.
+printf '\273\224\001\000/w/tmp/y/bayan-rt.c\000\273\224' > "$tmp/fake/tmp/zig-global/h/bin"
 printf '\001\000/zig/lib/libc/mingw/crt/gccmain.c\000\000' > "$tmp/fake/tmp/zig-global/h/gcc"
-rc=0; (unset ZIG_GLOBAL_CACHE_DIR; "$BASH" "$tmp/fake/scripts/test.sh" --only runtime >/dev/null 2>&1) || rc=$?
+rc=0; (unset ZIG_GLOBAL_CACHE_DIR; LC_ALL=en_US.UTF-8 "$BASH" "$tmp/fake/scripts/test.sh" --only runtime >/dev/null 2>&1) || rc=$?
 [ ! -e "$tmp/fake/tmp/zig-global/h/prog.txt" ] || fail "a zig manifest naming main.c outlived the o/ trim"
 [ ! -e "$tmp/fake/tmp/zig-global/h/bin" ] || fail "a NUL-terminated zig manifest naming bayan-rt.c outlived the o/ trim"
 [ -f "$tmp/fake/tmp/zig-global/h/rt.txt" ] || fail "a zig manifest naming only zig's sources was removed"

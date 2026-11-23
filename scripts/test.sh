@@ -86,9 +86,11 @@ EOF
     if [ -n "$zig_gone" ]; then
       if [ -d "$zig_h" ]; then
         # A whole file name, as zigNamesBytes: after / \ or a space, before a line end, NUL or EOF (zig 0.17 ends a path
-        # with NUL, so tr makes it a line end), so zig's own gccmain.c, dllmain.c, __libc_start_main.c stay.
-        find "$zig_h" -type f | while IFS= read -r m; do
-          tr '\000\r' '\n\n' < "$m" | grep -q -a -E '[/\\ ](main|bayan-rt)\.c$' && rm -f "$m"
+        # with NUL, so tr makes it a line end), so zig's own gccmain.c, dllmain.c, __libc_start_main.c stay. LC_ALL=C: under a
+        # UTF-8 locale BSD tr stops at the first byte that is not UTF-8, and a manifest holds such bytes. One batched grep picks
+        # the candidates, so tr and the exact match run only on manifests that name one of the two files.
+        find "$zig_h" -type f -exec env LC_ALL=C grep -l -a -E '[/\\ ](main|bayan-rt)\.c' {} + | while IFS= read -r m; do
+          LC_ALL=C tr '\000\r' '\n\n' < "$m" | LC_ALL=C grep -q -a -E '[/\\ ](main|bayan-rt)\.c$' && rm -f "$m"
         done
       fi
       printf '%s' "$zig_gone" | while IFS= read -r e; do
