@@ -2,7 +2,7 @@
 # Tests scripts/test.sh with each part replaced by a stub (TEST_SH_*): all passing exits 0 with one pass line per part;
 # one failing exits 1 naming it, after the parts behind it ran; --jobs reaches the golden part; --only runs one part;
 # --skip golden runs the others; --shard i/n reaches only the golden part as BAYAN_TEST_SHARD; a bad --jobs, --only, --skip
-# or --shard exits 2; the default zig cache's o/ is trimmed to 2000 entries, a caller-set one is not.
+# or --shard exits 2; the default zig cache's o/ is trimmed once over 2000 entries to 1500 plus recent entries, a caller-set one is not.
 # No driver is built: every part is stubbed.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -83,7 +83,7 @@ rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null
 [ $rc = 0 ] && [ "$(cat "$tmp/zig.dir")" = "$tmp/own-zig" ] || fail "a set ZIG_GLOBAL_CACHE_DIR was replaced: $(cat "$tmp/zig.dir")"
 stub runtime 0
 
-# the default zig cache's o/ is trimmed to the newest 2000 entries, keeping one written in the last 10 minutes; a copy of
+# the default zig cache's o/ is trimmed once over 2000 entries to the newest 1500 plus any written in the last 10 minutes; a copy of
 # test.sh under $tmp/fake makes $tmp/fake/tmp/zig-global the default, so the checkout's own cache is not touched. Entries hold
 # a main.o; rt, the oldest, holds zig's libcompiler_rt.a and is kept (laws-nightly 44901747519).
 mkdir -p "$tmp/fake/scripts" "$tmp/fake/tmp/zig-global/o" "$tmp/own-zig/o"; cp "$s" "$tmp/fake/scripts/test.sh"
@@ -96,16 +96,18 @@ mkdir -p "$tmp/fake/tmp/zig-global/h"
 printf '0 1 2 abc /w/tmp/x/main.c\n' > "$tmp/fake/tmp/zig-global/h/prog.txt"
 printf '0 1 2 abc /zig/lib/compiler_rt.zig\n' > "$tmp/fake/tmp/zig-global/h/rt.txt"
 # zig 0.17 writes a path NUL-terminated among bytes that are not UTF-8 (a UTF-8 locale stops BSD tr at them); zig's own
-# gccmain.c is not main.c.
+# gccmain.c and a prefix like main.c.o are not main.c.
 printf '\273\224\001\000/w/tmp/y/bayan-rt.c\000\273\224' > "$tmp/fake/tmp/zig-global/h/bin"
 printf '\001\000/zig/lib/libc/mingw/crt/gccmain.c\000\000' > "$tmp/fake/tmp/zig-global/h/gcc"
+printf '\001\000/w/tmp/y/main.c.o\000' > "$tmp/fake/tmp/zig-global/h/ext"
 rc=0; (unset ZIG_GLOBAL_CACHE_DIR; LC_ALL=en_US.UTF-8 "$BASH" "$tmp/fake/scripts/test.sh" --only runtime >/dev/null 2>&1) || rc=$?
 [ ! -e "$tmp/fake/tmp/zig-global/h/prog.txt" ] || fail "a zig manifest naming main.c outlived the o/ trim"
 [ ! -e "$tmp/fake/tmp/zig-global/h/bin" ] || fail "a NUL-terminated zig manifest naming bayan-rt.c outlived the o/ trim"
 [ -f "$tmp/fake/tmp/zig-global/h/rt.txt" ] || fail "a zig manifest naming only zig's sources was removed"
 [ -f "$tmp/fake/tmp/zig-global/h/gcc" ] || fail "a zig manifest naming zig's gccmain.c was removed"
+[ -f "$tmp/fake/tmp/zig-global/h/ext" ] || fail "a zig manifest naming main.c.o was removed"
 [ $rc = 0 ] || fail "test.sh with an old zig cache exited $rc"
-[ "$(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l | tr -d ' ')" = 2001 ] || fail "the default zig cache's o/ has $(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l) entries, not 2001"
+[ "$(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l | tr -d ' ')" = 1502 ] || fail "the default zig cache's o/ has $(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l) entries, not 1502"
 [ -d "$tmp/fake/tmp/zig-global/o/new" ] || fail "an o/ entry written in the last 10 minutes was trimmed"
 [ -f "$tmp/fake/tmp/zig-global/o/rt/libcompiler_rt.a" ] || fail "the o/ entry holding zig's libcompiler_rt.a was trimmed"
 rc=0; ZIG_GLOBAL_CACHE_DIR="$tmp/own-zig" "$BASH" "$s" --only runtime >/dev/null 2>&1 || rc=$?

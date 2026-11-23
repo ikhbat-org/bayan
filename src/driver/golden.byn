@@ -1397,6 +1397,31 @@ const goldenWorkersScript: string = "while \"$1\" test --golden-prebuild \"$3\" 
 const goldenWorkerMore: i32  = 75
 const goldenWorkerBatch: i64 = 100
 
+/// Writes `lines` (one `<kind>\t<case>\t<input>` per line, empty lines skipped) to `dir`/cases-<k> for k in 0..n,
+/// putting line i in `cases-(i % n)` in a single pass.
+bool goldenWriteSlices(string dir, from string lines, for i64 n) uses alloc, fs {
+    return true if n <= 0
+    // all slices are freed once written (2026-11-23: a worker holding the whole 5.9 MB list of the full tree peaked at 16.8 MB on CI)
+    using let arena = Arena()
+    provide allocator: arena {
+        var slices = List<StrBuf>()
+        for _ in 0..n {
+            slices.append(StrBuf())
+        }
+        var i: i64 = 0
+        for line in lines.parts(by: "\n") {
+            continue if line.length == 0
+            slices[i % n].append($"{line}\n")
+            i += 1
+        }
+        var ok = true
+        for k in 0..n {
+            ok = ok && goldenWrote(Path.combine(dir, $"cases-{k}"), as: slices[k].finish())
+        }
+        return ok
+    }
+}
+
 /// `cases` run by `jobs` workers through the driver `exe`, each with the time limit `limitMs`, after their programs are built (each within
 /// `buildMs`): one result per case added to `results`, in case order. `listed` is the cases as their `<kind>\t<case>\t<input>` lines when the
 /// caller holds them (`goldenTest`), written as they are to `dir`/cases (the prebuild's list), and to `dir`/cases-<k> for each worker k only
@@ -1422,21 +1447,7 @@ void goldenJobs(
     let n = jobs < cases.length ? jobs : cases.length
     let lines = listed ?? list.finish()
     var wrote = goldenWrote(Path.combine(dir, "cases"), as: lines)
-    for k in 0..n {
-        // each slice is freed once written (2026-11-23: a worker holding the whole 5.9 MB list of the full tree peaked at 16.8 MB on CI)
-        using let arena = Arena()
-        provide allocator: arena {
-            var slice = StrBuf()
-            var i: i64 = 0
-            for line in lines.parts(by: "\n") {
-                if i % n == k {
-                    slice.append($"{line}\n")
-                }
-                i += 1
-            }
-            wrote = wrote && goldenWrote(Path.combine(dir, $"cases-{k}"), as: slice.finish())
-        }
-    }
+    wrote = wrote && goldenWriteSlices(dir, from: lines, for: n)
     if wrote && n == 1 {
         goldenWorkerOne(exe, at: dir, for: $"{limitMs}", by: $"{buildMs}")
     } else if wrote {
@@ -3317,6 +3328,25 @@ test "a worker resumes in its cases-<k> at the run's index in next-<k>" {
     let ninth = Io.readText(Path.combine(dir, "9")) catch "-"
     deleteWorkDir(dir)
     assert(code == exitOk && skipped == "-" && fifth.startsWith("passed\n") && ninth.startsWith("passed\n"))
+}
+
+test "goldenWriteSlices writes one line per case with no empty line when the cases list ends with a newline" {
+    let dir = Path.combine(Path.fullPath("tmp"), "golden-write-slices")
+    deleteWorkDir(dir)
+    let lines = "lex\ta\ta.byn\nlex\tb\tb.byn\nlex\tc\tc.byn\n"
+    let ok = goldenWriteSlices(dir, from: lines, for: 2)
+    let s0 = Io.readText(Path.combine(dir, "cases-0")) catch "-"
+    let s1 = Io.readText(Path.combine(dir, "cases-1")) catch "-"
+    deleteWorkDir(dir)
+    var total: i64 = 0
+    for s in [s0, s1] {
+        for b in s.bytes {
+            if b == 0x0a {
+                total += 1
+            }
+        }
+    }
+    assert(ok && total == 3 && s0 == "lex\ta\ta.byn\nlex\tc\tc.byn\n" && s1 == "lex\tb\tb.byn\n")
 }
 
 test "--jobs 8 fails the changed case naming its path and the expected and actual fourth line, the others passing" {

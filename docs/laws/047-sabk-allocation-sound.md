@@ -7,7 +7,7 @@ release: unscheduled
 sources: spec 024 R7
 kind: property
 scope: src/sabk/ra/linear.byn, src/sabk/ra/liveness.byn, src/sabk/check/sound.byn
-proof: src/tests/SabkLawTests.cs
+proof: scripts/sabk/l047.sh
 check: bash scripts/sabk/l047.sh
 ---
 
