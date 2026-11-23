@@ -90,7 +90,14 @@ mkdir -p "$tmp/fake/scripts" "$tmp/fake/tmp/zig-global/o" "$tmp/own-zig/o"; cp "
 (cd "$tmp/fake/tmp/zig-global/o" && seq 1 2001 | xargs mkdir && seq 1 2001 | sed 's#$#/main.o#' | xargs touch \
   && mkdir rt && touch rt/libcompiler_rt.a && touch -t 202001010000 * && touch -t 201901010000 rt && mkdir new)
 (cd "$tmp/own-zig/o" && seq 1 2001 | xargs mkdir && touch -t 202001010000 *)
+# h/ manifests name inputs, not o/ entries: one naming main.c must go with the trim (else a hit fails FileNotFound), one
+# naming only zig's own sources stays.
+mkdir -p "$tmp/fake/tmp/zig-global/h"
+printf '0 1 2 abc /w/tmp/x/main.c\n' > "$tmp/fake/tmp/zig-global/h/prog.txt"
+printf '0 1 2 abc /zig/lib/compiler_rt.zig\n' > "$tmp/fake/tmp/zig-global/h/rt.txt"
 rc=0; (unset ZIG_GLOBAL_CACHE_DIR; "$BASH" "$tmp/fake/scripts/test.sh" --only runtime >/dev/null 2>&1) || rc=$?
+[ ! -e "$tmp/fake/tmp/zig-global/h/prog.txt" ] || fail "a zig manifest naming main.c outlived the o/ trim"
+[ -f "$tmp/fake/tmp/zig-global/h/rt.txt" ] || fail "a zig manifest naming only zig's sources was removed"
 [ $rc = 0 ] || fail "test.sh with an old zig cache exited $rc"
 [ "$(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l | tr -d ' ')" = 2001 ] || fail "the default zig cache's o/ has $(ls -A "$tmp/fake/tmp/zig-global/o" | wc -l) entries, not 2001"
 [ -d "$tmp/fake/tmp/zig-global/o/new" ] || fail "an o/ entry written in the last 10 minutes was trimmed"
