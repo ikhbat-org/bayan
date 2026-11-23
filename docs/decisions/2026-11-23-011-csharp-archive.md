@@ -44,4 +44,4 @@ Restore `csharp/` into the current tree:
 git restore --source=csharp-final -- csharp/
 ```
 
-The tag is frozen: it is never moved, and C# fixes are not made after it. Once the owner has pushed it, T65 switches the weekly ddc job (`.github/workflows/ddc.yml`) from `v0.3.2` to it; ddc builds the C# compiler from it to reproduce `bootstrap/bayan.c` (diverse double-compiling). Until then ddc stays on `v0.3.2`, since a default naming a tag the remote lacks fails every ddc run and the release job that needs it.
+The tag is frozen: it is never moved, and C# fixes are not made after it. The weekly ddc job (`.github/workflows/ddc.yml`) defaults to it since T65 (pushed 2026-11-23) and builds the C# compiler from it to reproduce `bootstrap/bayan.c` (diverse double-compiling).
