@@ -5,7 +5,7 @@
 # questions (a number twice, one already on the base, one outside the range, a task with no range; a range from the task line or
 # BAYAN_QRANGES), tests (the words of test-map.tsv: a part runs as scripts/test.sh --only <part>, a selector as bayan test tests/cases --only <word>;
 # a selector that matches no case, a failed or skipped part, a build error, plan-strings-check), wp1 (missing, not `exit 0`, no `test: all passed`,
-# a filter without a needed part (a selector needs golden; parity and scripts are not needed), uncommitted changes); on a checkout of
+# a filter without a needed part, unless the pass cache has it (a selector needs golden; parity and scripts are not needed), uncommitted changes); on a checkout of
 # the branch it checks the working tree. It exits early on a spec with no specs.tsv row, an unknown branch or base, a worktree it
 # cannot make, or a branch with no merge base; a pinned bayan that cannot be found fails the tests check.
 set -e
@@ -76,8 +76,10 @@ printf 'filter: %s\nexit 0\n' "$F" > $W; wnone=$(pf T99 good)
 printf 'filter: golden\ntest: all passed\nexit 0\n' > $W; wfilt=$(pf T99 good)
 # a branch changing src/emitter adds the emit/ selector: run by bayan test, its part golden joins bayan in the wp1 parts
 esha=$(git rev-parse emitter); rm -f "$aux/runs.txt"; mapped=$(pf T99 emitter); mapruns=$(cat "$aux/runs.txt")
-printf 'filter: bayan,golden\ntest: all passed\nexit 0\n' > tmp/wp1/$esha.out; wmulti=$(pf T99 emitter)
+# wp1-test.sh emitter bayan && wp1-test.sh emitter golden: the .out holds golden's run, bayan's pass is in the tree's cache
 printf 'filter: bayan\ntest: all passed\nexit 0\n' > tmp/wp1/$esha.out; wpart=$(pf T99 emitter)
+mkdir -p tmp/wp1/cache; etree=$(git rev-parse "$esha^{tree}"); cp tmp/wp1/$esha.out "tmp/wp1/cache/$etree-$(printf bayan | shasum | cut -c1-16).out"
+printf 'filter: golden\ntest: all passed\nexit 0\n' > tmp/wp1/$esha.out; wmulti=$(pf T99 emitter)
 touch "$aux/nomatch"; zero=$(pf T99 emitter); rm "$aux/nomatch"
 touch "$aux/skip"; skipped=$(pf T99 good); rm "$aux/skip"
 stale=$(pf T99 stale); outside=$(pf T99 outside)
