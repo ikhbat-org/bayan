@@ -41,6 +41,7 @@ QueryPerformanceFrequency
 ReadFile
 RemoveDirectoryW
 ResumeThread
+S_ISREG
 SetFileTime
 SetHandleInformation
 SetInformationJobObject
@@ -77,6 +78,7 @@ fclose
 fcntl
 ferror
 fflush
+fileno
 fopen
 fork
 fprintf
