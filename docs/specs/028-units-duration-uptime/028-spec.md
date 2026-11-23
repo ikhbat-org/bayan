@@ -159,10 +159,11 @@ surface still uses.
   from integers or `Duration`. `Duration + Uptime`, adding two `Uptime` values, and combining `Uptime` with non-time
   units are compile errors (`BYN2208`); combining `Uptime` with a bare literal (`start + 1`) is `BYN3203`.
 - **R16 Platform monotonic clocks (§16.5; 021 Decisions).** `Uptime.now()` reads `CLOCK_BOOTTIME` on Linux,
-  `mach_continuous_time` on macOS, and `QueryInterruptTimePrecise` on Windows, scaled to nanoseconds without
-  overflowing intermediate tick products. Windows does not use QueryPerformanceCounter, whose behavior across sleep
-  is not documented; interrupt time includes sleep (its unbiased variants are the ones that exclude it). Compiling a
-  program that calls `Uptime.now()` for a target without a suspend-including monotonic clock is a compile error (a
+  `mach_continuous_time` on macOS, and `QueryInterruptTimePrecise` on Windows, each scaled to nanoseconds
+  exactly: Linux reads nanoseconds directly, Windows multiplies its 100 ns units by 100, and macOS scales ticks by
+  the timebase ratio without overflowing the intermediate product. Windows does not use QueryPerformanceCounter,
+  whose behavior across sleep is not documented; interrupt time includes sleep (its unbiased variants are the ones
+  that exclude it). Compiling a program that calls `Uptime.now()` for a target without a suspend-including monotonic clock is a compile error (a
   new diagnostic), never a silent fallback to another clock.
 - **R17 `Millis` retired (§16.5).** The name `Millis` no longer exists in the language surface, the standard
   library, the compiler, or the spec; no alias remains. `Io.run(timeout:)` takes a `Duration`, and

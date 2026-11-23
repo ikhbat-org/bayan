@@ -51,8 +51,8 @@ Gaps the design also covers:
 - **Parse limits.** At most 9 fraction digits and a maximum input length; rejecting is cheaper than reading unbounded hostile input.
 - **Zone ID path traversal.** An `Untrusted` ID such as `../../etc/passwd` never becomes a file path. IDs resolve only through the database index.
 - **Serialization.** A `TimeZone` serializes as its ID, never as the u32 handle.
-- **Platform clocks.** `Uptime` is Linux `CLOCK_BOOTTIME`, macOS `mach_continuous_time`, Windows QPC. A target with no such clock is a compile error, not a silent fallback. (`AwakeTime`, the clock that excludes suspend, was dropped on 2026-11-08: `Uptime` only.)
-- **Performance.** Neri–Schneider calendar algorithms for date conversion; per-zone transition binary search with a cached current period; 128-bit multiply for QPC tick scaling.
+- **Platform clocks.** `Uptime` is Linux `CLOCK_BOOTTIME`, macOS `mach_continuous_time`, Windows `QueryInterruptTimePrecise`. A target with no such clock is a compile error, not a silent fallback. (`AwakeTime`, the clock that excludes suspend, was dropped on 2026-11-08: `Uptime` only.)
+- **Performance.** Neri–Schneider calendar algorithms for date conversion; per-zone transition binary search with a cached current period; on macOS, a 128-bit multiply scales `mach_continuous_time` ticks by `mach_timebase_info` numer/denom (Windows interrupt time is in 100 ns units, scaled ×100).
 - **The `m` slip.** `5m` written without a meters import gets the help line "minutes are `min`".
 
 ## Decisions
