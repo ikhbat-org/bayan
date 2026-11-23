@@ -6,7 +6,7 @@ Design source: `docs/bayan-concurrency.md` (confirmed 2026-11-01, decisions desi
 are not confused with this spec's R1–R20). Consumer: the Rein IDE core (`docs/handoffs/2026-11-23-rein-ide-needs.md`).
 Owner decisions 2026-11-23: concurrency is next after 0.4.0; phased delivery (below); 0.5.0 ships spec 023's units
 (#9) and `Uptime` (from #16b) together with phase 1. Review: Gemini Neon 2026-11-23, gated by the owner (decisions
-D1–D7 below); consistency pass against SPEC 0.3.3-dev (revisions 0001–0024), 2026-11-23.
+D1–D8 below); consistency pass against SPEC 0.3.3-dev (revisions 0001–0024), 2026-11-23.
 
 ## Problem
 A Bayān program cannot do two things at once. `Io.run` and `Io.runBatch` block until the child exits, and there is
@@ -23,10 +23,13 @@ A12), and the `suspend` effect is checked but nothing parks a fiber.
 - D4 The streamed child is a `unique` handle whose stdin, stdout and stderr can be split into independent handles
   for separate fibers, and which keeps spec 023 R14's combined next-chunk read for a single reader.
 - D5 Channels have many senders and one receiver.
-- D6 `scope`, `spawn` and `shield` are reserved keywords; `canceling` is contextual after `defer`; `async` and
-  `await` stay reserved with a teaching error.
+- D6 `scope`, `spawn` and `shield` are contextual keywords (§2.4), so existing names keep working: `scope` and
+  `shield` at the start of a statement before `{` or `( … ) {`, `spawn` before a name; `canceling` is contextual
+  after `defer`; `async` and `await` stay reserved with a teaching error.
 - D7 `Io.Blocking` panics naming the blocked fiber and the operation it waits on (design §12's "naming both" is
   corrected with the §13 revision).
+- D8 `share()` is the one verb for another handle to the same resource (`Sender<T>` now, phase 2's `Arc<T>`),
+  recorded in §5.2 beside `copy()`, which keeps meaning an independent value.
 
 ## Goals
 - Phase 1 (0.5.0): one worker runs many fibers. `scope`/`spawn`/`join`, implicit and on-demand cancellation,
@@ -37,9 +40,9 @@ A12), and the `suspend` effect is checked but nothing parks a fiber.
   `scope(workers: .compute)` (design R6, CPU part), `Mutex` guards and `AsyncMutex` (design R5). IDE row P5 passes.
 - Phase 3: `@blocking` externs on a bounded pool (design R6, blocking part), as the IDE's pty, file watching and
   libgit2 bindings need.
-- The §13 rewrite and its companion edits (§1, §2.4, §7.6, §7.7 including its `Io.evented()` spelling, §8, §9.2,
-  §9.4, §14, §16.5, §20, §21.4, §23, Appendix A; design §12 and its `bayan new --script` row) land as a spec
-  revision before phase 1 code.
+- The §13 rewrite and its companion edits (§1, §2.4, §5.2 for `share()`, §7.6, §7.7 including its `Io.evented()`
+  spelling, §8, §9.2, §9.4, §14, §16.5, §20, §21.4, §23, Appendix A; design §12 and its `bayan new --script` row)
+  land as a spec revision before phase 1 code.
 
 ## Non-goals
 - `select` over channels, the stale-write lint, the 49xx long-loop lint (design §10).
@@ -118,9 +121,9 @@ Phase 1:
 - R9 Channels: `Channel<T>.open(capacity: n)` (`n >= 1`) returns a `unique` `Sender<T>` and a `unique`
   `Receiver<T>`, so the runtime sees each sender dropped. `share()` makes another sender for the same channel, so
   many fibers send; `copy()` keeps its meaning of an independent value and does not apply. `send` parks when full
-  and fails `ChannelError.closed` when the receiver is gone; `receive` returns `T?`: it parks when empty, drains buffered items
-  after every sender is gone or closed, then returns `null`, so `T` may not itself be optional (BYN2024). Both are
-  suspend points that unwind on cancel. In phase 1, `T` may not hold a borrowed reference (BYN3217; phase 2's
+  and fails `ChannelError.closed` when the receiver is gone; `receive` returns `T?`: it parks when empty, drains
+  buffered items after every sender is gone or closed, then returns `null`, so `T` may not itself be optional
+  (BYN2024). Both are suspend points that unwind on cancel. In phase 1, `T` may not hold a borrowed reference (BYN3217; phase 2's
   `ISendable` replaces the rule).
 - R10 Streamed child process: a `unique` child handle. Starting one keeps `Io.run`'s rules: no shell, `.bat`/`.cmd`
   refused on Windows, parent `PATH`/cwd lookup, and `Untrusted<T>` arguments rejected (BYN2786). The child starts
@@ -155,9 +158,8 @@ Phase 1:
 - R13 The compiler's own source does not use these features, so bootstrapping stays single-threaded and free of
   the fiber runtime; the compiler and its C backend still compile them for user programs.
 - R14 Every new diagnostic takes the next free code in its area with a `// target:` comment (Addendum A2): 6xxx
-  for the concurrency and effect rules, 1xxx for input forms, 3xxx for borrow errors; `scope`, `spawn` or `shield`
-  used as a name is the existing BYN0012. Each has a `diag/` case and an explain page; every runtime feature has a
-  `run/` case. New built-in error sets
+  for the concurrency and effect rules, 1xxx for input forms, 3xxx for borrow errors. Each has a `diag/` case and
+  an explain page; every runtime feature has a `run/` case. New built-in error sets
   (`DeadlineError`, `ChannelError`) take the next built-in codes, and §8's "user variants from 13" moves with them.
   `docs/memory-leaks.md` gets rows for fiber stacks, child arenas and child pipes, and
   `scripts/release/memory-gate.sh` covers them.
@@ -268,10 +270,6 @@ Per requirement:
 - Whether the new stdin and child reads return `Untrusted<…>` now (§15.1 lists stdin as a source) or follow
   `readAll`'s interim plain `string`. For the owner.
 - What `Io.Simulated` does with real stdin and child processes: pass through, or refuse. For `/plan`.
-- D6 check: if `src/` or `lib/` use `scope`, `spawn` or `shield` as names, make them contextual like `states`
-  (each is unambiguous in its position: `scope (`/`scope {`, `spawn <expr>`, `shield (`/`shield {`). For the owner.
-- `share()` as the one verb for another handle to the same resource (`Sender<T>` now, phase 2's `Arc<T>`),
-  recorded in §5.2 beside `copy()`. For the owner.
 - What owns a `CancelSource`'s shared state: copies cannot count themselves (only `unique` types have cleanup), so
   a handle with a generation check (like §9.6's `Handle<T>`) fits "after, it does nothing", but a source canceled
   and never attached still needs an owner. For `/plan`.
