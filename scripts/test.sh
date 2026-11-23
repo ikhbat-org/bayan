@@ -67,15 +67,32 @@ else
   # driver trims its own (zigCacheEntries, zigCacheMinAge in src/driver/cache.byn). A caller's directory is the caller's to trim.
   # Only entries holding nothing but main/bayan-rt objects go, as zigDriverObject: zig's toolchain pieces (libcompiler_rt.a, libc,
   # crt) are built once and read by every later link through h/, so removing one fails that link with FileNotFound.
+  # A manifest in h/ names its inputs, not its o/ entry, so a hit on one whose entry is gone fails FileNotFound; a manifest gone
+  # is only a miss. So before any o/ entry goes, every manifest naming main.c or bayan-rt.c goes, as zigTrimEntries does.
   zig_o="$ZIG_GLOBAL_CACHE_DIR/o"
+  zig_h="$ZIG_GLOBAL_CACHE_DIR/h"
   if [ -d "$zig_o" ]; then
     zig_keep=$(( $(find "$zig_o" -mindepth 1 -maxdepth 1 -mmin -10 | wc -l) ))
     [ "$zig_keep" -gt 2000 ] || zig_keep=2000
-    ls -At "$zig_o" | tail -n +$((zig_keep + 1)) | while IFS= read -r e; do
+    zig_gone=""
+    while IFS= read -r e; do
       [ -d "$zig_o/$e" ] && [ ! -L "$zig_o/$e" ] || continue
       zig_other=$(ls -A "$zig_o/$e" | grep -cvxE 'main\.o|main\.obj|bayan-rt\.o|bayan-rt\.obj')
-      [ "$zig_other" = 0 ] && [ -n "$(ls -A "$zig_o/$e")" ] && rm -rf "${zig_o:?}/$e"
-    done
+      [ "$zig_other" = 0 ] && [ -n "$(ls -A "$zig_o/$e")" ] && zig_gone="$zig_gone$e
+"
+    done <<EOF
+$(ls -At "$zig_o" | tail -n +$((zig_keep + 1)))
+EOF
+    if [ -n "$zig_gone" ]; then
+      if [ -d "$zig_h" ]; then
+        find "$zig_h" -type f -exec grep -l -a -F -e main.c -e bayan-rt.c {} + 2>/dev/null | while IFS= read -r m; do
+          rm -f "$m"
+        done
+      fi
+      printf '%s' "$zig_gone" | while IFS= read -r e; do
+        [ -n "$e" ] && rm -rf "${zig_o:?}/$e"
+      done
+    fi
   fi
 fi
 logs="$(mktemp -d "$root/tmp/test.XXXXXX")" || exit 2
