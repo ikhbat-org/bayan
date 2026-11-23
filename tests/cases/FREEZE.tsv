@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	676
+cases	diag	677
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	353
+cases	run	354
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -14273,6 +14273,7 @@ file	0daaa00382f09125dd7c1184e47acbda3c6bfcb3	tests/cases/diag/else-on-new-line.
 file	02a9c1a387f2abeca32f4d9ec937d2055c070492	tests/cases/diag/empty-enum.diag
 file	f7591df1adfa064fd9574c6d2ef83e9ddaf528de	tests/cases/diag/empty-error-set.diag
 file	da90b17dfce8b8e17c14c46d7470810fa9ca1a84	tests/cases/diag/empty-union.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/endless-instantiation-distinct-chain.diag
 file	dc7954dfee9486d4d10cca32cdd17b02cd3ea939	tests/cases/diag/enum-argument-count.diag
 file	a746d4616cda4c8b6629250968c89e69951521b6	tests/cases/diag/enum-argument-not-constant.diag
 file	c80901a5d6292e52ddab0bc92d2f08f4a85b350a	tests/cases/diag/env-fs-target-far-member.diag
@@ -26903,7 +26904,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	917013ef0787fe9b9884df99b999077c4032b51b	tests/cases/emit/run-c.sha256
+file	2bd6d91edb2750279b1c80fd09b61668c294e26a	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -48454,6 +48455,7 @@ file	60a0cdee1dd6203a8a5e254e8db455645a399b6e	tests/cases/run/format-specs.stdou
 file	68a060db485ec21b13f67dfd8b76019db6a255e1	tests/cases/run/format-width-cut-code-point.stdout
 file	e6b024b5e7f90819b3f9758cc574b2c302aa3c90	tests/cases/run/fs-copy.stdout
 file	a93b2a307f17f3e6a0d16e1a138601b2a9ae7e44	tests/cases/run/fs-file-exists.stdout
+file	a0f07d2a073a9a8d56ff5b91f413a3dd22277077	tests/cases/run/fs-file-size.stdout
 file	9c88751475293cf565fd5f6ee070e76c259a8a22	tests/cases/run/fs-modified.stdout
 file	0ede831897ef34e7a9533b55086ff6d11951ca6f	tests/cases/run/fs-real-path.stdout
 file	bf6f836c4c9dd53e0b5fe78078ca115235d97b4d	tests/cases/run/fs-rename.stdout
