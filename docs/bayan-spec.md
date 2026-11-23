@@ -270,7 +270,7 @@ void main() {
 unit Seconds(s): i64             // name, literal symbol, storage
 unit Millis(ms) = Seconds / 1000
 unit Bytes(B): i64
-unit KiB = 1024 B
+unit KiB(KiB) = 1024 B
 unit Cents: i64                  // no symbol
 unit Speed = Meters / Seconds
 
@@ -2253,7 +2253,7 @@ Calling a mutating verb on a `let` raises [BYN2104](diagnostics/BYN2104.md); for
 - **Effects:** readings use the `clock` effect: `Instant.now()`, `Uptime.now()`, `ZonedDateTime.now(at: zone)`, `Date.today(at: zone)`.
 - **No ambient zone:** `Date.now()` is a compile error (`DateHasNoNow`).
 - **Durations and serialization:** time elapsed since an `Uptime` reading is `Uptime.now() - start`, a `Duration`. `Uptime` does not mix with `Instant`, and deriving a serializer for `Uptime` is a compile error (`UptimeSerialized`).
-- **Platform clocks:** `Uptime` monotonic readings include suspend on every platform (Linux `CLOCK_BOOTTIME`, macOS `mach_continuous_time`, Windows QPC). No `AwakeTime` clock exists. A compilation target lacking such a clock produces a compile error.
+- **Platform clocks:** `Uptime` monotonic readings include suspend on every platform (Linux `CLOCK_BOOTTIME`, macOS `mach_continuous_time`, Windows `QueryInterruptTimePrecise`). No `AwakeTime` clock exists. A compilation target lacking such a clock produces a compile error.
 - **Fakes:** `provide clock: FakeClock(at: t) { }` and `ManualClock` with `advance(by:)`.
 - **Smearing:** `Instant.now()` may be smeared or stepped across leap seconds.
 - **Sleep:** `sleep(for: duration)` uses `Uptime`; `sleep(until: Instant)` is a wall-clock deadline that re-checks after clock steps.
@@ -2282,7 +2282,7 @@ let meeting = ZonedDateTime(local, at: kl) catch switch {
 #### Format and parse
 
 - **Standards:** `Display` and `.iso` follow RFC 3339 and RFC 9557. `.rfc3339` is strict and fails for years outside 0000–9999; `.iso` uses expanded `±YYYYYY` representation for those years.
-- **Durations and periods:** durations format with exact ISO units (`PT1H30M`, `-PT5S`); `Period` formats as `P1Y2M3D`.
+- **Durations and periods:** a `Duration` displays in unit form (`1500000000 ns`, §3.4); ISO units (`PT1H30M`, `-PT5S`) come from an explicit formatter; `Period` formats as `P1Y2M3D`.
 - **Custom output:** formatted via interpolation specs, `$"{d.year}-{d.month, as: .digits(2)}"`, written into the caller's buffer.
 - **Custom input:**
   - Layouts are compile-time constants: `const DateLayout(.day(digits: 2), "/", .month(digits: 2), "/", .year)`. Invalid layouts fail at compile time (`InvalidDateLayout`).
@@ -2336,7 +2336,7 @@ Hijri and other non-ISO calendars are out of scope for `std.time` and live in `k
 
 | Module | Contents |
 |---|---|
-| `std.time` | Core date and time types, time and calendar units, civil arithmetic, clocks, formatting and parsing, fixed offsets, `TimeZone.utc` |
+| `std.time` | Core date and time types, calendar units (time units are in `core`), civil arithmetic, clocks, formatting and parsing, fixed offsets, `TimeZone.utc` |
 | `kit.tz` | IANA timezone database, system or bundled; runtime reload into immutable tables; Windows ID mapping; system-zone lookup (`uses env, fs`); `TimeZone.database.version` |
 | `kit.intl` | Localized names, culture-sensitive formatting, locale weeks |
 | `kit.calendar` | Non-ISO calendars, converting through `Date` (proposed) |

@@ -91,7 +91,7 @@ surface still uses.
   symbol (such as `5s` or `250ms`) produces a value of that unit type. The symbol must match a unit visible from
   `core`, the current module, or an explicit import; an unknown symbol is a compile error (a new diagnostic). A
   unit suffix on a hexadecimal or binary literal is a compile error with `BYN0011`. A unit suffix on a
-  floating-point literal (such as `1.5s`) is a compile error (a new diagnostic) whose help suggests a finer unit
+  float literal (§2.3, such as `1.5s`) is a compile error (a new diagnostic) whose help suggests a finer unit
   (`1500ms`). Built-in suffixes (`u`, `l`, `ul`, `f`, `dec`) remain reserved (§2.3). A literal value outside the
   unit's `StorageType` range is a compile error with `BYN2203`.
 - **R5 Symbol collisions and suffix spelling rules (§16.5, §21.5).** Two visible units declaring the same literal
@@ -165,11 +165,9 @@ surface still uses.
 - **R17 `Millis` retired (§16.5).** The name `Millis` no longer exists in the language surface, the standard
   library, the compiler, or the spec; no alias remains. `Io.run(timeout:)` takes a `Duration`, and
   `IoError.timeout` carries `Duration after`. A program that names `Millis` gets the ordinary unknown-type error.
-  The spec text is brought in line in the same change: §2.3 and §3.4 (`:271` becomes
-  `unit Milliseconds(ms) = 1000 us`, `:273` becomes `unit KiB(KiB) = 1024 B`, `:281` names `Milliseconds`),
-  `:381`, `:484`, `:1417`, `:1989`, `:1994`, `:1996`, the §16.5 clock line (`:2256`, Windows interrupt time),
-  the duration formatting line (`:2285`, ISO is an explicit formatter), the placement table (`:2339`, `std.time`
-  holds calendar units only), and spec 023 `:72` and `:158`.
+  The spec's `Millis` sites change in the same change as the code: §3.4 (`:271` becomes
+  `unit Milliseconds(ms) = 1000 us`, `:281` names `Milliseconds`), `:381`, `:484`, `:1417`, `:1989`, `:1994`,
+  `:1996`, and spec 023 `:72` and `:158`. (`:273`, `:2256`, `:2285` and `:2339` landed with this spec.)
 
 ## Acceptance criteria
 - **R1:** Given `unit Grams(g): i64`, `unit Cents: i64`, `unit Packets(pk): u32`, and a local `let unit = 1`, when
