@@ -128817,7 +128817,7 @@ bynt_opt_list_tup2_i64_i64 byn_semantics__t13BindBody(bynt_semantics__Ctx* p_c, 
 #line 1225 "semantics/generics.byn"
             if ((!l7_found)) {
 #line 1226 "semantics/generics.byn"
-                (void)byn_panic_str(BYN_STR("internal error: a getter without its property", 45), byn_file_50, 1226);
+                return ((bynt_opt_list_tup2_i64_i64){0});
             }
         }
 #line 1211 "semantics/generics.byn"

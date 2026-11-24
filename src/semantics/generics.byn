@@ -1223,7 +1223,7 @@ List<(LocalId, Type)>? t13BindBody(ref Ctx c, for FuncId fn, by in List<(LocalId
                     }
                 }
                 if !found {
-                    panic("internal error: a getter without its property")
+                    return null
                 }
             }
         case .constructor:
