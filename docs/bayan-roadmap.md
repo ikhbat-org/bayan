@@ -1,10 +1,10 @@
 # Bayān roadmap
 
-Version: 0.4.0-dev (matches `bayan --version`)
+Version: 0.4.0 (matches `bayan --version`)
 
-State of `dev` at da562b8b, 2026-11-16. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
+State of `dev` at 72885a5e, 2026-11-24. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
-Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-milestones.md`, Target: zero dependencies) and to land the tooling ports.
+Bayān compiles itself. Release 0.3.0 made the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). Release 0.4.0 completes the .NET exit (spec 019): the compiler, its tests and the language server are Bayān, built from `bootstrap/bayan.c` with a C compiler, and the C# compiler is archived as the tag `csharp-final`. The next goals are spec 023 (catch-up), sabk and the tooling ports.
 
 ## Where we are
 
@@ -14,6 +14,8 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 | 0.2.0 | 2026-11-06 | `v0.2.0` | shipped | `CHANGELOG.md` `[0.2.0]` |
 | 0.3.0 | 2026-11-14 | `v0.3.0` | shipped | `CHANGELOG.md` `[0.3.0]` |
 | 0.3.1 | 2026-11-15 | `v0.3.1` | shipped | `CHANGELOG.md` `[0.3.1]` |
+| 0.3.2 | 2026-11-16 | `v0.3.2` | shipped | `CHANGELOG.md` `[0.3.2]` |
+| 0.4.0 | 2026-11-24 | `v0.4.0` | being cut | `CHANGELOG.md` `[0.4.0]` |
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
@@ -64,6 +66,14 @@ Source: `CHANGELOG.md` `[0.3.0]`, `docs/specs/017-selfhost-default/017-tasks.md`
 | License | ISL-P 1.2 with the ISL-OE 1.2 output exception |
 
 Known limits of 0.3.0: Windows expects no failing test; archives do not include `bayan-lsp` (`CHANGELOG.md` `[0.3.0]` Known limits). The stage-2 build peak of 2.94 GB is named in the release notes (`docs/bayan-progress-log.md`, 2026-11-12 decisions).
+
+### 0.3.2: the style guide
+
+Source: `CHANGELOG.md` `[0.3.2]`. `bayan format` is a layout engine, `bayan fix` applies the style lints BYN1072–BYN1080 (spec 022), and bayan.run publishes the release docs, the roadmap and the manifesto.
+
+### 0.4.0: the .NET exit (spec 019)
+
+Source: `CHANGELOG.md` `[0.4.0]`, `docs/specs/019-dotnet-exit/019-tasks.md`. 019a moved the C# test outputs into goldens, the language server into Bayān and CI onto `bootstrap/bayan.c`; 019b archived the C# compiler as `csharp-final` (`docs/decisions/2026-11-23-011-csharp-archive.md`) and removed it (493d3fd78). Archives hold `bayan-lsp` beside `bayan`. Sabk phase 1 (spec 024) is in the tree, not yet reachable from the command line.
 
 ## Next releases
 
