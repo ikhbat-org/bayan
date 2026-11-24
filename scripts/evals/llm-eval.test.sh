@@ -690,14 +690,13 @@ check "retry: an error caused only by the hidden checks is not sent" \
   "$code $asked $(get rq-hidden outcome) $(grep -c 'shout()\|checks.test\|entry.byn\|BYN' "$root/rq/hidden/prompt.2") $(echo "$said" | wc -l | tr -d ' ')" \
   '0 2 "no-compile" 0 1'
 # Without the flag, records and summary are the base commit's for the same replies (wall times set to 0). The base tool runs
-# from a copy of the files it needs.
-base=52b9b1ce765464b8c654c44f6e210523a07ade99
+# from a copy of the files it needs; its llm-eval.byn is commit 52b9b1ce's, kept in fixtures/ (CI checks out depth 2).
 brepo=$root/base-repo
 mkdir -p "$brepo/scripts/evals" "$brepo/tools" "$brepo/evals/llm"
 cp scripts/bayan-tool.sh scripts/pinned-bayan.sh "$brepo/scripts/"
 cp scripts/evals/llm-sandbox.sh scripts/evals/llm-prime.c "$brepo/scripts/evals/"
 cp evals/llm/preamble.md "$brepo/evals/llm/"
-git show "$base:tools/llm-eval.byn" > "$brepo/tools/llm-eval.byn"
+cp scripts/evals/fixtures/llm-eval-52b9b1ce.byn.txt "$brepo/tools/llm-eval.byn"
 mkdir -p "$root/rq/base"
 cp "$root/cand/broken.byn" "$root/rq/base/1.byn"; cp "$root/cand/right.byn" "$root/rq/base/2.byn"; cp "$root/cand/wrong-code.byn" "$root/rq/base/3.byn"
 PINNED_BAYAN=$(bash scripts/pinned-bayan.sh) bash "$brepo/scripts/bayan-tool.sh" llm-eval run "$root/sets/retry" \
