@@ -2,7 +2,7 @@
 
 Local benchmark harness (A2.2 to A2.4). **Not a CI gate yet**: it runs by hand on one machine, and nothing fails on a slow result. Scratch and build outputs go under `tmp/bench/` (gitignored); only `bench/results/*.txt` is committed.
 
-Needs the bootstrap `bayan` (published on demand with `dotnet publish`, or set `BAYAN_BIN`). `cc`, `rustc` and `zig` are optional: a missing one prints `n/a (no <tool>)` in its cells.
+Needs the bootstrap `bayan` (built on demand with `bash scripts/bootstrap-build.sh`, or set `BAYAN_BIN`). `cc`, `rustc` and `zig` are optional: a missing one prints `n/a (no <tool>)` in its cells.
 
 | Script | Measures | Writes |
 | --- | --- | --- |

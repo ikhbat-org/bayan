@@ -49,8 +49,8 @@ expect "(c) edited generated row" "docs/STATUS.md is stale; run bash scripts/doc
 sed -i.bak 's/^Status: done$/Status: in progress/' "$t/repo/docs/specs/001-first/001-spec.md"
 expect "(c) stale spec index" "docs/specs/README.md is stale; run bash scripts/docs/gen-spec-index.sh --write"
 
-sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/csharp/Bayan.Backend.C/Toolchain.cs"
-expect "(d) Toolchain.cs" "csharp/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
+sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/src/driver/main.byn"
+expect "(d) main.byn" "src/driver/main.byn says 1.2.4-dev, VERSION says 1.2.3-dev"
 sed -i.bak '6s/bayan 1.2.3-dev/bayan 1.2.2/' "$t/repo/tests/cases/out/dist.tree"
 expect "(d) second dist.tree line" "tests/cases/out/dist.tree says 1.2.2, VERSION says 1.2.3-dev"
 printf 'Units (partial in 1.2: no suffixes). Handles (not in 1.2).\n' >> "$t/repo/docs/bayan-spec.md"

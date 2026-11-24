@@ -6,11 +6,12 @@
 #
 #     bash bench/friction.sh
 #
-# Environment: BAYAN_BIN (default tmp/bench/publish/bayan, published on demand), BENCH_TMP (default tmp/bench),
-# BENCH_RESULTS (default bench/results), FRICTION_SRC (default src; a directory of *.byn to count in).
+# Environment: BAYAN_BIN (default tmp/bench/bootstrap/bayan-stage1, built on demand by BENCH_BUILD, default
+# scripts/bootstrap-build.sh), BENCH_TMP (default tmp/bench), BENCH_RESULTS (default bench/results),
+# FRICTION_SRC (default src; a directory of *.byn to count in).
 set -u
 
-usage() { echo "usage: bash bench/friction.sh   (environment: BAYAN_BIN, BENCH_TMP, BENCH_RESULTS, FRICTION_SRC)" >&2; }
+usage() { echo "usage: bash bench/friction.sh   (environment: BAYAN_BIN, BENCH_BUILD, BENCH_TMP, BENCH_RESULTS, FRICTION_SRC)" >&2; }
 case "${1:-}" in
     "") ;;
     -h|--help) usage; exit 0 ;;
@@ -28,12 +29,11 @@ W="$T/friction-$commit-$$"
 mkdir -p "$W" "$results"
 [ -d "$src" ] || { echo "bench/friction.sh: no such directory: $src" >&2; exit 1; }
 
-bayan=${BAYAN_BIN:-$T/publish/$(bench_exe "$(uname -s)")}
-if [ ! -x "$bayan" ] && [ -z "${BAYAN_BIN:-}" ] && command -v dotnet >/dev/null 2>&1 && rid=$(bench_rid "$(uname -s)" "$(uname -m)"); then
-    dotnet publish csharp/Bayan.Cli -c Release -r "$rid" -o "$T/publish" >"$W/publish.log" 2>&1
-fi
-if [ ! -x "$bayan" ] && [ -z "${BAYAN_BIN:-}" ] && ! bench_rid "$(uname -s)" "$(uname -m)" >/dev/null; then
-    echo "bench/friction.sh: no runtime identifier for $(uname -s)-$(uname -m); set BAYAN_BIN" >&2; exit 1
+x=$(bench_exe "$(uname -s)")
+bayan=${BAYAN_BIN:-$T/bootstrap/bayan-stage1${x#bayan}}
+if [ ! -x "$bayan" ] && [ -z "${BAYAN_BIN:-}" ]; then
+    bayan=$(bash "${BENCH_BUILD:-scripts/bootstrap-build.sh}" --out "$T/bootstrap" 2>"$W/build.log" | tail -1)
+    [ -x "$bayan" ] || { echo "bench/friction.sh: bootstrap build failed, see $W/build.log (or set BAYAN_BIN)" >&2; exit 1; }
 fi
 [ -x "$bayan" ] || { echo "bench/friction.sh: no executable bayan at $bayan (set BAYAN_BIN, or run bench/run.sh first)" >&2; exit 1; }
 bayan=$(cd "$(dirname "$bayan")" && pwd)/$(basename "$bayan")

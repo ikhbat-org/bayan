@@ -4,7 +4,7 @@
 # cites (past the end, a quoted symbol not on a single cited line or the 2 after it, nor in a cited range, a missing file; a bare name resolves), files (a brace list is one name each; a listed .github/ workflow passes; prints the addition),
 # questions (a number twice, one already on the base, one outside the range, a task with no range; a range from the task line or
 # BAYAN_QRANGES), tests (the words of test-map.tsv: a part runs as scripts/test.sh --only <part>, a selector as bayan test tests/cases --only <word>;
-# a selector that matches no case, a failed or skipped part, a build error, plan-strings-check), wp1 (missing, not `exit 0`, no `test: all passed`,
+# a selector that matches no case, a failed or skipped part, a build error, plan-strings-check, skipped on a tree without csharp/), wp1 (missing, not `exit 0`, no `test: all passed`,
 # a filter without a needed part, unless the pass cache has it (a selector needs golden; parity and scripts are not needed), uncommitted changes); on a checkout of
 # the branch it checks the working tree. It exits early on a spec with no specs.tsv row, an unknown branch or base, a worktree it
 # cannot make, or a branch with no merge base; a pinned bayan that cannot be found fails the tests check.
@@ -87,6 +87,8 @@ qdup=$(pf T99 qdup); qans=$(pf T99 qans); qrow=$(pf T99 qrow); qout=$(pf T99 qou
 echo 1 > "$aux/test-rc"; failed=$(pf T99 good); passing
 touch "$aux/build-fail"; build=$(pf T99 good); rm "$aux/build-fail"
 touch "$aux/tool-fail"; tool=$(pf T99 good); rm "$aux/tool-fail"
+git switch -q -c nocs base; rm -rf csharp; git add -A; git commit -qm "test: no csharp"; git switch -q base
+touch "$aux/tool-fail"; nocs=$(pf T99 nocs); rm "$aux/tool-fail"
 git switch -q good; printf 'int c;\n' > csharp/c.c; writer=$(pf T99 good); rm csharp/c.c; git switch -q base
 # the exits before any check: no specs.tsv row, an unknown branch or base, a worktree that cannot be made, no merge base
 nospec=$(PATH="$aux/bin:$PATH" /bin/bash "$root/scripts/selfhost/preflight.sh" 999 T99 good 2>&1 && echo "rc=0" || echo "rc=$?")
@@ -134,6 +136,7 @@ has "$skipped" "FAIL tests: bayan was skipped (tmp/preflight/t99/test-1.txt)" ||
 has "$failed" "FAIL tests: bayan failed, exit 1 (tmp/preflight/t99/test-1.txt)" || fail "a failed part passed" "$failed"
 grep -q '^FAIL tests: build failed — bootstrap-build.sh: stage 1 failed$' <<< "$build" || fail "a build error passed" "$build"
 grep -q '^FAIL tests: plan-strings-check --base base failed — BYN1001 message missing$' <<< "$tool" || fail "a plan-strings failure passed" "$tool"
+has "$nocs" "skip plan-strings: no csharp/ (retired by spec 019b)" && ! grep '^FAIL' <<< "$nocs" | grep -q plan-strings || fail "a tree without csharp/ ran plan-strings-check" "$nocs"
 has "$writer" 'FAIL files: 1 changed outside T99'"'"'s files list; append to its files: in docs/specs/012-self-hosted-bootstrap/012-tasks.md: `csharp/c.c`' || fail "on the branch's checkout an untracked file is not checked" "$writer"
 grep -q '^FAIL wp1: the working tree has uncommitted changes' <<< "$writer" || fail "uncommitted changes did not make wp1 fail" "$writer"
 has "$nospec" "FAIL spec: no row for spec 999 in scripts/selfhost/specs.tsv" && has "$nospec" "rc=1" || fail "a spec without a specs.tsv row did not fail" "$nospec"

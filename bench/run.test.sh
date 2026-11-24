@@ -71,13 +71,18 @@ check "non-numeric ns" "$(lexer 1 fast | cut -c1-30)" "lexer n/a (bad output) n/
 BENCH_RUNS=00 bash bench/run.sh >/dev/null 2>&1; check "BENCH_RUNS=00 exits 2" "$?" 2
 check "BENCH_RUNS=08 is decimal" "$(lexer 08 1000000 1000000 1000000 1000000 1000000 1000000 1000000 1000000 | cut -c1-12)" "lexer 1.0 ms"
 
-# A set but missing BAYAN_BIN never publishes.
-mkdir -p "$d/fakedotnet"
-printf '#!/bin/sh\ntouch "%s/published"\nexit 1\n' "$d" > "$d/fakedotnet/dotnet"
-chmod +x "$d/fakedotnet/dotnet"
-out=$(PATH="$d/fakedotnet:$PATH" BENCH_RUNS=1 BAYAN_BIN="$d/missing" BENCH_TMP="$d/t4" BENCH_RESULTS="$d/results4" bash bench/run.sh 2>&1)
-check "missing BAYAN_BIN does not publish" "$([ -e "$d/published" ] && echo yes || echo no)" no
+# A set but missing BAYAN_BIN never builds; an unset one runs BENCH_BUILD, whose failure is noted.
+printf '#!/bin/sh\ntouch "%s/built"\necho "stage 1 failed" >&2\nexit 1\n' "$d" > "$d/fakebuild"
+out=$(BENCH_BUILD="$d/fakebuild" BENCH_RUNS=1 BAYAN_BIN="$d/missing" BENCH_TMP="$d/t4" BENCH_RESULTS="$d/results4" bash bench/run.sh 2>&1)
+check "missing BAYAN_BIN does not build" "$([ -e "$d/built" ] && echo yes || echo no)" no
 check "missing BAYAN_BIN is noted" "$(echo "$out" | grep -c "^lexer .*n/a (no bayan at $d/missing)")" 1
+out=$(unset BAYAN_BIN; BENCH_BUILD="$d/fakebuild" BENCH_RUNS=1 BENCH_TMP="$d/t5" BENCH_RESULTS="$d/results5" bash bench/run.sh 2>&1)
+check "unset BAYAN_BIN runs the bootstrap build" "$([ -e "$d/built" ] && echo yes || echo no)" yes
+check "a failed bootstrap build is noted" "$(echo "$out" | grep -c "^lexer .*n/a (no bayan: bootstrap build failed)")" 1
+printf '#!/bin/sh\n[ "$1" = --out ] && echo "%s/fakebayan"\n' "$PWD/$d" > "$d/okbuild"
+echo 4000000 > "$d/seq"
+check "the built bayan is used" "$(unset BAYAN_BIN; BENCH_BUILD="$d/okbuild" BENCH_RUNS=1 FAKE_SEQ="$d/seq" FAKE_PROG="$d/fake" BENCH_TMP="$d/t6" BENCH_RESULTS="$d/results6" bash bench/run.sh 2>&1 | grep '^lexer ' | tr -s ' ')" "lexer 4.0 ms (n/a) n/a (no port) n/a (no port) n/a (no port) abc"
+check "no dotnet in bench/run.sh, baseline.sh, friction.sh" "$(cat bench/run.sh bench/baseline.sh bench/friction.sh | grep -c dotnet)" 0
 
 # zig needs -lc on Linux.
 check "zig build passes -lc" "$(grep -c 'zig build-exe -lc ' bench/run.sh)" 1

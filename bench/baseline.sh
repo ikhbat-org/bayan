@@ -5,11 +5,12 @@
 #
 #     bash bench/baseline.sh
 #
-# Environment: BAYAN_BIN (skip the NativeAOT publish and use this bayan; its size is still recorded),
-# BENCH_TMP (default tmp/bench), BENCH_RESULTS (default bench/results).
+# Environment: BAYAN_BIN (skip the bootstrap build and use this bayan; its size is still recorded),
+# BENCH_BUILD (default scripts/bootstrap-build.sh; prints the bayan it built), BENCH_TMP (default tmp/bench),
+# BENCH_RESULTS (default bench/results).
 set -u
 
-usage() { echo "usage: bash bench/baseline.sh   (environment: BAYAN_BIN, BENCH_TMP, BENCH_RESULTS)" >&2; }
+usage() { echo "usage: bash bench/baseline.sh   (environment: BAYAN_BIN, BENCH_BUILD, BENCH_TMP, BENCH_RESULTS)" >&2; }
 case "${1:-}" in
     "") ;;
     -h|--help) usage; exit 0 ;;
@@ -18,7 +19,6 @@ esac
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$root" || exit 1
-. bench/rid.sh
 T=${BENCH_TMP:-tmp/bench}
 results=${BENCH_RESULTS:-bench/results}
 commit=$(git rev-parse --short HEAD 2>/dev/null || echo nogit)
@@ -27,10 +27,8 @@ mkdir -p "$W" "$results"
 
 bayan=${BAYAN_BIN:-}
 if [ -z "$bayan" ]; then
-    rid=$(bench_rid "$(uname -s)" "$(uname -m)") || { echo "bench/baseline.sh: no runtime identifier for $(uname -s)-$(uname -m)" >&2; exit 1; }
-    command -v dotnet >/dev/null 2>&1 || { echo "bench/baseline.sh: dotnet not found (needed to publish bayan)" >&2; exit 1; }
-    dotnet publish csharp/Bayan.Cli -c Release -r "$rid" -o "$W/publish" >"$W/publish.log" 2>&1 || { echo "bench/baseline.sh: publish failed, see $W/publish.log" >&2; exit 1; }
-    bayan="$W/publish/$(bench_exe "$(uname -s)")"
+    bayan=$(bash "${BENCH_BUILD:-scripts/bootstrap-build.sh}" --out "$W/build" 2>"$W/build.log" | tail -1)
+    [ -x "$bayan" ] || { echo "bench/baseline.sh: bootstrap build failed, see $W/build.log" >&2; exit 1; }
 fi
 [ -x "$bayan" ] || { echo "bench/baseline.sh: no executable bayan at $bayan" >&2; exit 1; }
 bayan=$(cd "$(dirname "$bayan")" && pwd)/$(basename "$bayan")

@@ -1353,3 +1353,9 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
   - tests/cases/emit/exit/expected.diag.exitcode and emit/modes/expected.*.sha256 hold 676/353 rows after the new diag and run cases (677/354); check whether L017/L024, freeze-csharp or reexport-check need a row per case.
   - .github/workflows/llm-eval-nightly.yml:44-47: a dispatch on a ref from before e95baa653 (pinned-bayan.sh still needed .NET) fails at build now that .NET is not installed.
 - 019b (2026-11-24): ci.yml `osx-arm64 other parts` hits its 55 min timeout inside the scripts part (bayan 966-1019 s, parity 193-209 s before it); dev run of 2026-11-23 17:08 and 019b run 45274663769 both cancelled there. Split the part or raise the macOS bound after measuring the scripts part alone.
+- Review c5b7f3707..48b9d5b57 (2026-11-24): C#-port tooling left after 019b needs an owner decision (retire or rewrite): tools/review-brief.byn:419-434 and tools/wave-brief.byn:47-75 (briefs say read the C#, oracle from in-process C#, run `dotnet test`), land.sh's C# review, tools/plan-strings-check.byn (reads csharp/), scripts/selfhost/freeze-csharp.sh, reexport-check.
+- Review c5b7f3707..48b9d5b57 (2026-11-24): scripts/ci/inventory-check.sh check (a) scans csharp/tests and src/tests for [Fact] classes; both are gone, so (a) is vacuous.
+- Review c5b7f3707..48b9d5b57 (2026-11-24): docs/laws/{003,004,006,007,009,011,012,013,014,016,019,020,021,024,026,028,039}: `scope:` names deleted csharp/ files (owner edits laws).
+- Review c5b7f3707..48b9d5b57 (2026-11-24): docs/specs/011-self-hosted-emitter/011-c-inventory.md:7 R4 names the deleted CInventoryTests.cs as its enforcer.
+- Review c5b7f3707..48b9d5b57 (2026-11-24): AGENTS.md:38 and the C# stack lines are stale after 019b (owner's file).
+- Review c5b7f3707..48b9d5b57 (2026-11-24): .config/dotnet-tools.json (dotnet-stryker) and .claude/settings.json dotnet permissions are dead config (removal is a confirm-first item).

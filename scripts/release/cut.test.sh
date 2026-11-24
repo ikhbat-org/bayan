@@ -95,7 +95,7 @@ cmp -s "$t/VERSION" "$r/VERSION" || fail "an undated-roadmap refusal changed VER
 g checkout -q HEAD -- docs/bayan-roadmap.md
 
 out="$(bash "$cut" 1.2.3)"
-for f in VERSION csharp/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
+for f in VERSION docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
   echo "$out" | grep -qx "changed $f" || fail "no 'changed $f' in: $out"
 done
 [ "$(cat "$r/VERSION")" = 1.2.3 ] || fail "cut VERSION: $(cat "$r/VERSION")"
