@@ -2,12 +2,42 @@
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-24
+
+Bayān no longer needs .NET (spec 019). The compiler, its test suite and the language server are Bayān programs, built from `bootstrap/bayan.c` with a C compiler.
+The C# compiler is removed from the tree; its last state is the tag `csharp-final`, kept buildable for diverse double-compiling.
+
+### Known limits
+- The Visual Studio extension (`editors/visualstudio`) still builds with .NET; `dotnet` also runs in the weekly `ddc` workflow, which rebuilds the compiler from `csharp-final`.
+- Sabk (spec 024) is in the tree but not reachable from the command line; `bayan build` uses the C backend.
+
 ### Added
+- `bayan test tests/cases` runs the golden cases itself, one line per failing case with its first differing line; `scripts/test.sh` runs every part of the suite (golden cases, Bayān `test` blocks, CLI parity, script tests, runtime C tests), `--only <part>` for one (spec 019a).
+- Expected outputs that came from the C# compiler are golden files, frozen at the `v0.3.2` tag (spec 019a).
+- `bayan-lsp` is a Bayān program (`editors/language-server/src`) and answers the same requests as the C# server did, with its memory bounds in the release gate (spec 019a).
+- CI, the laws gate and the release build start from `bootstrap/bayan.c` with no .NET SDK (spec 019a).
+- `.github/workflows/ddc.yml`: a weekly diverse double-compiling check against `csharp-final` (spec 019b).
+- `std.regex`, `std.encoding` `Base64`, and glob matching in `std.fs` and `std.path` (spec 015 T13, T14, T16).
+- `tools/*.byn` ports of `gen-lowercase`, `quality-baseline`, `report-paths`, `coverage-missing`, `stryker-to-quality` and `manifest-builds` (spec 015).
+- Evaluation set for LLM-written Bayān, with a nightly recheck (`llm-eval-nightly.yml`, spec 025, partial).
+- Specs 026 (extensible error sets), 027 (concurrency, `scope` and `spawn`) and 028 (units, `Duration`, `Uptime`), as documents; none is built yet.
 - Release archives hold `bayan-lsp` (`bayan-lsp.exe` on Windows) beside `bayan`, the Bayān language server built by that release's own `bayan` (spec 019 R37); `scripts/dist.sh` builds it too and records it in `BUILD-INFO`.
+- sabk phase 1 (spec 024), not yet reachable from the command line: an arm64 encoder checked against the reference assembler, a Mach-O object writer, a linear-scan register allocator and an independent soundness checker under `src/sabk/`. Laws L046 (encoder output equals the assembler's) and L047 (allocation is sound) hold.
+
+### Changed
+- Revision 0024, numeric conversions and `dec`, is applied to the spec text; the compiler does not implement it yet.
+- Directory links are followed by their real path.
+- macOS `bayan-lsp` memory bounds read the `vmmap` footprint minus freed malloc caches (T43).
 
 ### Removed
+- The C# compiler (`csharp/`) and its xUnit suite, in commit 493d3fd78; restore steps are in `docs/decisions/2026-11-23-011-csharp-archive.md` (spec 019b).
 - `scripts/selfhost/shard-test.sh` and its test are retired (spec 019 T48b); `wp1-test.sh` takes a `scripts/test.sh` part and runs `bootstrap-build.sh` then `scripts/test.sh`.
-- sabk phase 1 (spec 024), not yet reachable from the command line: an arm64 encoder checked against the reference assembler, a Mach-O object writer, a linear-scan register allocator and an independent soundness checker under `src/sabk/`. Laws L046 (encoder output equals the assembler's) and L047 (allocation is sound) hold.
+
+### Revisions
+- 0024 — Numeric conversions and `dec` (`docs/revisions/0024-numeric-conversions-and-dec.md`)
+
+### Status changes
+- `dec` (Features): new, spec-only
 
 ## [0.3.2] - 2026-11-16
 
