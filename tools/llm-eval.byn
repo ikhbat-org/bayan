@@ -23,7 +23,7 @@
 // Exit 0 when every task passed, 1 when one failed or the recheck could not start, 2 on bad usage.
 //
 //   bash scripts/bayan-tool.sh llm-eval run <tasks-dir> --model '<command>' (--machine <text> | --remote <provider>)
-//        [--samples <k>] [--context <file>] [--label <text>] [--settings <text>] [--only <task>] [--out <dir>]
+//        [--samples <k>] [--context <file>] [--label <text>] [--settings <text>] [--only <task>] [--out <dir>] [--retry-diagnostics]
 //
 // `run` sends each task's prompt to the model command k times (--samples, default 1) and scores each reply as `score`
 // does, in <out>/<n>/work/<task>/<sample>/ (<n> the first free number; --out defaults to tmp/llm-eval/run/). The prompt is
@@ -39,8 +39,12 @@
 // only when every sample printed `tokens:` (R31). --machine or --remote is required, so speed is never unnamed (R32).
 // `verified` says whether the task set is committed and recheck's stamp for its commit and the compiler's is there; the
 // `headline`, pass@1 over the `heldout` tasks, is written only when they are verified (R21, R29). The runner opens no
-// socket (R34). Exit 0 when the summary is written, 1 when the run could not start or the model command failed, 2 on
-// bad usage.
+// socket (R34). With --retry-diagnostics, each sample whose outcome is `no-compile` gets one more request (R42): the prompt,
+// a blank line, `Your program:`, the first program, a blank line, `The compiler said:` and the compiler's errors for the
+// program built alone, in a directory with no file of the task's `checks/` (R3); a `tests` candidate's lone error that it has
+// no entry point is not sent. Its record adds `retryReply` and `retryOutcome`, and each metrics block adds
+// `pass@1 after retry`: first samples that passed, or that were `no-compile` and whose retry passed. Exit 0 when the
+// summary is written, 1 when the run could not start or the model command failed, 2 on bad usage.
 
 import std.json
 
@@ -48,7 +52,7 @@ type JsonValue  = json.JsonValue
 type JsonMember = json.JsonMember
 type Json       = json.Json
 
-const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' (--machine <text> | --remote <provider>) [--samples <k>] [--context <file>]\n            [--label <text>] [--settings <text>] [--only <task>] [--out <dir>]"
+const usage: string = "usage: llm-eval score <task-dir> <candidate-file> [--out <dir>]\n       llm-eval recheck <tasks-dir> [--only <task>] [--out <dir>]\n       llm-eval run <tasks-dir> --model '<command>' (--machine <text> | --remote <provider>) [--samples <k>] [--context <file>]\n            [--label <text>] [--settings <text>] [--only <task>] [--out <dir>] [--retry-diagnostics]"
 const buildMs: i64 = 120000
 const runMs: i64 = 10000
 const outputBytes: i64 = 1048576
@@ -131,6 +135,7 @@ Task readTask(string dir) fails EvalError {
 /// Runs `command` (tab-separated) through the launcher in `src`, writable only under `write`, with standard input from `stdin` (empty when
 /// null) and standard output to `outPath`. The launcher is stopped after `limitMs`, which is the time limit. With `noFork` the
 /// program may not fork. With `prime` the program is only started suspended and killed (R14). Every process left under the sample directory is killed when the step ends (M3).
+/// It runs in `directory`, `src` when null.
 Step launch(
     string command,
     at Places p,
@@ -139,7 +144,8 @@ Step launch(
     for string write,
     until i64 limitMs,
     bool noFork = false,
-    bool prime = false
+    bool prime = false,
+    string? directory = null
 ) fails EvalError {
     let status = $"{outPath}.status"
     var args = List<string>()
@@ -174,7 +180,7 @@ Step launch(
     let r = Io.run(
         "bash",
         args.span,
-        directory: Path.combine(p.sample, "src"),
+        directory: directory ?? Path.combine(p.sample, "src"),
         env: env,
         timeout: Millis(limitMs),
     ) catch switch {
@@ -202,6 +208,17 @@ bool namesSolution(string stderr) {
         return true if file == "solution.byn" || file.endsWith("/solution.byn") || file.endsWith("\\\\solution.byn")
     }
     return false
+}
+
+/// Whether every error of the text diagnostics `text` is BYN2014, no entry point, and there is one.
+bool onlyNoEntry(string text) {
+    var any = false
+    for line in text.parts(by: "\n") {
+        continue if !line.startsWith("error ")
+        return false if !line.startsWith("error BYN2014:")
+        any = true
+    }
+    return any
 }
 
 bool isDirectory(string path) {
@@ -328,6 +345,8 @@ struct Scored {
     bool   lintClean    = false
     bool   formatStable = false
     string sandbox      = ""
+    string outcome      = ""
+    string errors       = ""
 }
 
 /// The limits of R14 as JSON.
@@ -347,19 +366,22 @@ struct Reply {
 }
 
 /// Scores `candidate` against the task in `taskDir` with the copies in `tools`, in a new sample directory under `outDir`
-/// named by the sample's number `n`. A model's reply, when given, is added at the end of the record.
+/// named by the sample's number `n` and `tag`. A model's reply, when given, is added at the end of the record. With
+/// `diagnose`, a candidate that does not compile is also checked alone for the errors a retry is sent (R42).
 Scored scoreSample(
     string taskDir,
     for string candidate,
     from Tools tools,
     to string outDir,
     at Reply? reply,
-    as i64 n
+    as i64 n,
+    bool diagnose = false,
+    string tag = ""
 ) fails EvalError {
     let root = try repoRoot()
     let task = try readTask(taskDir)
     let source = Io.readFile(candidate) catch fail .failed(message: $"cannot read {candidate}")
-    let sample = Path.combine(outDir, $"work/{task.name}/{n}")
+    let sample = Path.combine(outDir, $"work/{task.name}/{n}{tag}")
     fail .failed(message: $"{sample} exists; give another --out") if isDirectory(sample)
     let p = Places {
         bayan: tools.bayan,
@@ -498,6 +520,29 @@ Scored scoreSample(
     }
     let lintClean = !namesSolution(check.stderr)
     let outcome = compiles ? (passes ? "pass" : (limit ? "limit" : "fail")) : (limit ? "limit" : "no-compile")
+    // The errors of the candidate alone (R42): checked in a directory that holds only solution.byn, so no line comes from
+    // or is caused by the task's hidden checks (R3).
+    var errors = ""
+    if diagnose && outcome == "no-compile" {
+        let alone = Path.combine(sample, "alone")
+        Io.createDirectory(alone) catch fail .failed(message: $"cannot make {alone}")
+        Io.writeFile(
+            Path.combine(alone, "solution.byn"),
+            source.span,
+        ) catch fail .failed(message: $"cannot write {alone}/solution.byn")
+        let own = try launch(
+            $"{p.bayan}\tcheck\t{alone}/solution.byn",
+            at: p,
+            to: Path.combine(sample, "alone.stdout"),
+            from: null,
+            for: sample,
+            until: buildMs,
+            directory: alone,
+        )
+        errors = own.limit ? "" : own.stderr.replaced($"{alone}/", by: "")
+        // A `tests` candidate has no entry point; the hidden checks give it one.
+        errors = "" if task.check == "tests" && onlyNoEntry(errors)
+    }
 
     var m = List<JsonMember>()
     m.append(JsonMember { key: "task", value: .text(value: task.name) })
@@ -538,6 +583,8 @@ Scored scoreSample(
         lintClean: compiles && lintClean,
         formatStable: compiles && formatStable,
         sandbox: probe.sandbox,
+        outcome: outcome,
+        errors: errors,
     }
 }
 
@@ -947,6 +994,7 @@ struct RunOptions {
     string? settings    = null
     string? machine     = null
     string? remote      = null
+    bool    retry       = false
 }
 
 /// What one task counts for in the summary (R30): the first sample's results, and whether any sample passed.
@@ -957,6 +1005,7 @@ struct Counted {
     string split
     bool   passedFirst
     bool   passedAny
+    bool   passedRetry
     bool   compiles
     bool   lintClean
     bool   formatStable
@@ -993,10 +1042,12 @@ string groupKey(Counted c, by string kind) {
     return ""
 }
 
-/// The five metrics of R30 over the tasks of `counts` whose `kind` key is `key`, with the number of tasks.
-JsonValue metrics(List<Counted> counts, by string kind, at string key) {
+/// The five metrics of R30 over the tasks of `counts` whose `kind` key is `key`, with the number of tasks, and with
+/// `retry` pass@1 after retry (R42).
+JsonValue metrics(List<Counted> counts, by string kind, at string key, bool retry = false) {
     var tasks: i64 = 0
     var passedFirst: i64 = 0
+    var passedRetry: i64 = 0
     var passedAny: i64 = 0
     var compiles: i64 = 0
     var lintClean: i64 = 0
@@ -1005,6 +1056,7 @@ JsonValue metrics(List<Counted> counts, by string kind, at string key) {
         continue if groupKey(c, by: kind) != key
         tasks += 1
         passedFirst += 1 if c.passedFirst
+        passedRetry += 1 if c.passedRetry
         passedAny += 1 if c.passedAny
         compiles += 1 if c.compiles
         lintClean += 1 if c.lintClean
@@ -1013,6 +1065,9 @@ JsonValue metrics(List<Counted> counts, by string kind, at string key) {
     var m = List<JsonMember>()
     m.append(JsonMember { key: "tasks", value: number(tasks) })
     m.append(JsonMember { key: "pass@1", value: countAndRate(passedFirst, by: tasks) })
+    if retry {
+        m.append(JsonMember { key: "pass@1 after retry", value: countAndRate(passedRetry, by: tasks) })
+    }
     m.append(JsonMember { key: "pass@k", value: countAndRate(passedAny, by: tasks) })
     m.append(JsonMember { key: "compile", value: countAndRate(compiles, by: tasks) })
     m.append(JsonMember { key: "lintClean", value: countAndRate(lintClean, by: tasks) })
@@ -1031,10 +1086,10 @@ List<string> groupKeys(List<Counted> counts, by string kind) {
 }
 
 /// The metrics per `kind` key, as one object.
-JsonValue grouped(List<Counted> counts, by string kind) {
+JsonValue grouped(List<Counted> counts, by string kind, bool retry = false) {
     var m = List<JsonMember>()
     for k in groupKeys(counts, by: kind) {
-        m.append(JsonMember { key: k, value: metrics(counts, by: kind, at: k) })
+        m.append(JsonMember { key: k, value: metrics(counts, by: kind, at: k, retry: retry) })
     }
     return .object(members: move m)
 }
@@ -1064,6 +1119,31 @@ string? firstLine(string program, for List<string> args, at string directory) {
     return null if r.exitCode != 0
     let text = r.stdout.trimmed()
     return text[..(text.position("\n") ?? text.length)]
+}
+
+/// Sends `prompt` to the model command `command` for the task `name` and returns its reply (R31, R33).
+Reply ask(string prompt, by string command, for string name) fails EvalError {
+    var args = List<string>()
+    args.append("-c")
+    args.append(command)
+    let started = Io.monotonicNanos()
+    let r = Io.run("sh", args.span, input: prompt.bytes) catch switch {
+        IoError e => fail .failed(message: $"cannot run the model command for {name}: {e}"),
+    }
+    let wallMs = (Io.monotonicNanos() - started) / 1000000
+    fail .failed(
+        message: $"the model command exited {r.exitCode} for {name}: {r.stderr.trimmed()}",
+    ) if r.exitCode != 0
+    return Reply { wallMs: wallMs, tokens: i64.tryParse(field(r.stderr, for: "tokens") ?? ""), text: r.stdout }
+}
+
+/// `text` ending in a newline, unless it is empty.
+string endLine(string text) => text.isEmpty || text.endsWith("\n") ? text : $"{text}\n"
+
+/// The prompt of a retry (R42): `prompt`, a blank line, `Your program:` and `program`, a blank line, `The compiler said:`
+/// and `errors`.
+string retryPrompt(string prompt, for string program, from string errors) {
+    return $"{endLine(prompt)}\nYour program:\n{endLine(program)}\nThe compiler said:\n{endLine(errors)}"
 }
 
 /// Sends the prompt of every task in `tasksDir`, or only of `o.only`, to the model command `o.samples` times, prints
@@ -1112,39 +1192,63 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
             split: header.split,
             passedFirst: false,
             passedAny: false,
+            passedRetry: false,
             compiles: false,
             lintClean: false,
             formatStable: false,
         }
         for s in 1..o.samples + 1 {
-            var args = List<string>()
-            args.append("-c")
-            args.append(o.command)
-            let started = Io.monotonicNanos()
-            let r = Io.run("sh", args.span, input: prompt.bytes) catch switch {
-                IoError e => fail .failed(message: $"cannot run the model command for {name}: {e}"),
-            }
-            let wallMs = (Io.monotonicNanos() - started) / 1000000
-            fail .failed(
-                message: $"the model command exited {r.exitCode} for {name}: {r.stderr.trimmed()}",
-            ) if r.exitCode != 0
+            let reply = try ask(prompt, by: o.command, for: name)
+            let program = extracted(reply.text)
             let candidate = Path.combine(replies, $"{s}.byn")
-            Io.writeFile(candidate, extracted(r.stdout).bytes) catch fail .failed(message: $"cannot write {candidate}")
-            let tokens = i64.tryParse(field(r.stderr, for: "tokens") ?? "")
-            let reply = Reply { wallMs: wallMs, tokens: tokens, text: r.stdout }
-            let scored = try scoreSample(dir, for: candidate, from: tools, to: runDir, at: reply, as: s)
-            print(scored.record)
-            try appendText($"{scored.record}\n", to: recordsPath)
+            Io.writeFile(candidate, program.bytes) catch fail .failed(message: $"cannot write {candidate}")
+            let scored = try scoreSample(
+                dir,
+                for: candidate,
+                from: tools,
+                to: runDir,
+                at: reply,
+                as: s,
+                diagnose: o.retry,
+            )
+            var record = scored.record
+            var passedRetry = scored.passed
+            // One retry, only after `no-compile` and never after a limit (R42, R14).
+            if o.retry && scored.outcome == "no-compile" {
+                let again = try ask(retryPrompt(prompt, for: program, from: scored.errors), by: o.command, for: name)
+                let second = Path.combine(replies, $"{s}-retry.byn")
+                Io.writeFile(second, extracted(again.text).bytes) catch fail .failed(message: $"cannot write {second}")
+                let rescored = try scoreSample(
+                    dir,
+                    for: second,
+                    from: tools,
+                    to: runDir,
+                    at: again,
+                    as: s,
+                    tag: "-retry",
+                )
+                passedRetry = rescored.passed
+                var extra = List<JsonMember>()
+                extra.append(JsonMember { key: "retryReply", value: .text(value: again.text) })
+                extra.append(JsonMember { key: "retryOutcome", value: .text(value: rescored.outcome) })
+                let tail = Json.encode(
+                    .object(members: move extra),
+                ) catch fail .failed(message: "cannot encode the record")
+                record = $"{record[..record.length - 1]}, {tail[1..]}"
+            }
+            print(record)
+            try appendText($"{record}\n", to: recordsPath)
             samples += 1
-            wallTotal += wallMs
-            if tokens is not null {
-                tokensTotal += tokens
+            wallTotal += reply.wallMs
+            if reply.tokens is not null {
+                tokensTotal += reply.tokens ?? 0
             } else {
                 everyTokens = false
             }
             sandbox = scored.sandbox if samples == 1
             if s == 1 {
                 counted.passedFirst = scored.passed
+                counted.passedRetry = passedRetry
                 counted.compiles = scored.compiles
                 counted.lintClean = scored.lintClean
                 counted.formatStable = scored.formatStable
@@ -1194,10 +1298,10 @@ void run(string tasksDir, by RunOptions o, to string outDir) fails EvalError {
         }
         var b = List<JsonMember>()
         b.append(JsonMember { key: "split", value: .text(value: split) })
-        b.append(JsonMember { key: "overall", value: metrics(part, by: "all", at: "") })
-        b.append(JsonMember { key: "byCategory", value: grouped(part, by: "category") })
-        b.append(JsonMember { key: "byTier", value: grouped(part, by: "tier") })
-        b.append(JsonMember { key: "byRevision", value: grouped(part, by: "revision") })
+        b.append(JsonMember { key: "overall", value: metrics(part, by: "all", at: "", retry: o.retry) })
+        b.append(JsonMember { key: "byCategory", value: grouped(part, by: "category", retry: o.retry) })
+        b.append(JsonMember { key: "byTier", value: grouped(part, by: "tier", retry: o.retry) })
+        b.append(JsonMember { key: "byRevision", value: grouped(part, by: "revision", retry: o.retry) })
         blocks.append(.object(members: move b))
     }
     var m = List<JsonMember>()
@@ -1261,13 +1365,17 @@ i32 main(ReadOnlySpan<string> argv) {
     var settings: string? = null
     var machine: string? = null
     var remote: string? = null
+    var retry = false
     var rest = List<string>()
     var i: i64 = 1
     while i < args.length {
         let a = args[i]
         let runOption = command == "run"
             && (a is "--model" or "--context" or "--samples" or "--label" or "--settings" or "--machine" or "--remote")
-        if a == "--out" || (command != "score" && a == "--only") || runOption {
+        if command == "run" && a == "--retry-diagnostics" {
+            retry = true
+            i += 1
+        } else if a == "--out" || (command != "score" && a == "--only") || runOption {
             if i + 1 >= args.length {
                 print(usage, to: .stderr)
                 return 2
@@ -1319,6 +1427,7 @@ i32 main(ReadOnlySpan<string> argv) {
             settings: settings,
             machine: machine,
             remote: remote,
+            retry: retry,
         }
         run(Path.fullPath(rest[0]), by: options, to: Path.fullPath(outDir)) catch switch {
             .failed(let message) => {
