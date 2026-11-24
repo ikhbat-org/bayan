@@ -1,6 +1,6 @@
 # Bayān roadmap
 
-Version: 0.4.0 (matches `bayan --version`)
+Version: 0.4.1-dev (matches `bayan --version`)
 
 State of `dev` at 72885a5e, 2026-11-24. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 

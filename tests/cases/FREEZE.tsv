@@ -47058,7 +47058,7 @@ file	07f2e2825795521757d33be2f441c5d7f44e2376	tests/cases/manifest/valid.diag
 file	9d0ec8e40ddc093246f2f5a755f4e51207531a33	tests/cases/new/app.tree
 file	6c620b54cfc88c2910f39fa3359a12cb98cd9bac	tests/cases/new/lib.tree
 file	e64e8206bd28f3975054a28411630eea727f1289	tests/cases/new/script.tree
-file	8eeb7fba0eebdc8fe28c2d595ae133a57779c9c1	tests/cases/out/dist.tree
+file	8d430b5415a1db608788948d4e32708f21f647b8	tests/cases/out/dist.tree
 file	1a83e05f54bb8fea25c28cdd6ffe8282c3eef191	tests/cases/out/out.tree
 file	04bf9ce1197b03578343ac6c73df73fa0661e408	tests/cases/out/results-fail.json
 file	f2afb8f176c9738adbfc9ee62d1bf6d50ceb6754	tests/cases/parse/SelfhostParserO3Tests/FieldRulesSplitAsTheCSharpParser-2/expected.ast
