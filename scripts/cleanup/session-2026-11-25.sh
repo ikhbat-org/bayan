@@ -42,7 +42,12 @@ while read -r dir need; do
     printf 'keep:  worktree audit-040 (audit chunks 17/18 have no verdicts yet)\n'; continue
   fi
   head=$(git -C "$wt" rev-parse HEAD)
-  if ! in_dev "$head" && ! in_dev "$need"; then
+  if [ "$dir" = audit-040 ]; then
+    # a read-only checkout of the tag; the tag keeps its commit, so only HEAD == tag is checked
+    if [ "$head" != "$(git rev-parse "$need^{commit}")" ]; then
+      printf 'keep:  worktree audit-040 HEAD %s is not %s\n' "${head:0:9}" "$need"; failed=1; continue
+    fi
+  elif ! in_dev "$head" && ! in_dev "$need"; then
     printf 'keep:  worktree %s (HEAD %s and %s not in dev)\n' "$dir" "${head:0:9}" "$need"; failed=1; continue
   fi
   if [ -n "$(git -C "$wt" status --porcelain)" ]; then
