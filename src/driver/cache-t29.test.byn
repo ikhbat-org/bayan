@@ -117,7 +117,8 @@ test "driver t29: zigTrimEntries keeps an unreadable and an empty entry and remo
     }
     let lock = Path.combine(dir, "lock")
     t29CacheRun("chmod", by: ["000", lock])
-    zigTrimEntries(dir, by: 3, until: 0) catch { panic("trim") }
+    // only driver objects count toward the limit (`obj`, `new`), so 1 trims the older one
+    zigTrimEntries(dir, by: 1, until: 0) catch { panic("trim") }
     t29CacheRun("chmod", by: ["755", lock])
     assert t9DirectoryExists(lock) && Fs.fileExists(Path.combine(lock, "main.o"))
     assert t9DirectoryExists(Path.combine(dir, "empty"))
