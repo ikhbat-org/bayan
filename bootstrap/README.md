@@ -15,12 +15,13 @@ cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstr
 The result is `a.out`; `./a.out version` prints `bayan <version> (selfhost)`.
 
 Regenerate the three files with no .NET (spec 019 R26): copy `runtime/bayan-rt.h` and `runtime/bayan-rt.c` here, then
+run `bash scripts/ci/bootstrap-check.sh`. When it reports that `bootstrap/bayan.c` is not the C that `src/driver` emits,
+copy the C it kept (stage 1 and its C stay in `tmp/bootstrap-check/`) and run the check again:
 
 ```
-stage0=$(bash scripts/pinned-bayan.sh)
-"$stage0" build --mode safe --package src -o tmp/stage1 src/driver
-tmp/stage1 build --emit-c --mode safe --package src src/driver > bootstrap/bayan.c
+bash scripts/ci/bootstrap-check.sh
+cp tmp/bootstrap-check/bayan.c bootstrap/bayan.c
+bash scripts/ci/bootstrap-check.sh
 ```
 
-and check the result with `bash scripts/ci/bootstrap-check.sh`.
 `scripts/selfhost/land.sh` does this when it lands a change under `src/` or `runtime/`.

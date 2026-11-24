@@ -12,7 +12,7 @@
 #   tests      the words of test-map.tsv (the smoke set always, a row when the branch changes a file its glob matches) pass, each running at least
 #              one test: a word is a scripts/test.sh part (golden|bayan|parity|scripts|runtime), run as `scripts/test.sh --only <part>`, or a
 #              `<kind>/<Class>/` selector, run as `bayan test tests/cases --only <word>` (BAYAN_EXE, else the stage-1 binary scripts/bootstrap-build.sh
-#              prints); plan-strings-check passes (scripts/bayan-tool.sh)
+#              prints); plan-strings-check passes (scripts/bayan-tool.sh), skipped when the tree has no csharp/ (retired by spec 019b)
 #   wp1        tmp/wp1/<sha>.out (wp1-test.sh) exists for the branch's HEAD, ends in `exit 0`, holds `test: all passed`, and the part of every word above
 #              is its `filter:` line or has wp1-test.sh's pass cache for the commit's tree (tmp/wp1/cache/<tree>-<part hash>.out), since each
 #              run records only its own part (a selector's part is golden; parity and scripts are skipped on Windows and not needed)
@@ -187,7 +187,8 @@ else
   done
   [ $bad = 1 ] || ok "tests (${#CLASSES[@]} run: ${CLASSES[*]})"
 fi
-if bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
+if [ ! -d "$WT/csharp" ]; then echo "skip plan-strings: no csharp/ (retired by spec 019b)"
+elif bash "$HERE/../bayan-tool.sh" plan-strings-check --base "$BASE" > "$L/plan-strings.txt" 2>&1; then ok "plan-strings"
 else fail "tests: plan-strings-check --base $BASE failed — $(tail -1 "$L/plan-strings.txt")"; fi
 
 # wp1

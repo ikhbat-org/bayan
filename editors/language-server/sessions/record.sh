@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Records the language server sessions of spec 019 (T34, R21) against the C# bayan-lsp, or checks them.
+# Records the language server sessions of spec 019 (T34, R21) against bayan-lsp, or checks them.
 #   record.sh [--check] [session...]   a session is a name under this directory or a path to a session directory;
 #                                      none means every directory here that holds an in.jsonl.
 # A session directory holds:
@@ -20,8 +20,9 @@
 # Every session runs twice; two different outputs are a failure ("nondeterministic"). With --check the output is
 # compared with out.jsonl instead of written, and a difference is a failure. Exit 0 on success, 1 on a failure,
 # 2 on a usage or build error.
-# BAYAN_LSP  the server executable; unset, the C# server in editors/language-server is built with dotnet into
+# BAYAN_LSP  the server executable; unset, it is built from editors/language-server/src with BAYAN_EXE into
 #            tmp/lsp-sessions-build/.
+# BAYAN_EXE  the self-hosted compiler; unset, scripts/bootstrap-build.sh builds it from bootstrap/ with a C compiler.
 set -uo pipefail
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -48,9 +49,11 @@ trap 'chmod -R u+rwX "$scratch" 2>/dev/null; rm -rf "$scratch"' EXIT
 server="${BAYAN_LSP:-}"
 if [ -z "$server" ]; then
   build="$root/tmp/lsp-sessions-build"
+  if [ -z "${BAYAN_EXE:-}" ]; then BAYAN_EXE="$(bash "$root/scripts/bootstrap-build.sh")" || { echo "record: bootstrap build failed" >&2; exit 2; }; fi
   echo "record: building bayan-lsp into $build" >&2
-  PATH="$HOME/.dotnet:$PATH" DOTNET_ROOT="$HOME/.dotnet" nice dotnet build "$root/editors/language-server/Bayan.LanguageServer.csproj" \
-    -c Release -v q -nologo -o "$build" >&2 || { echo "record: build failed" >&2; exit 2; }
+  mkdir -p "$build"
+  (cd "$root" && "$BAYAN_EXE" build --package editors/language-server/src -o "$build/bayan-lsp" editors/language-server/src/app) >&2 \
+    || { echo "record: build failed" >&2; exit 2; }
   server="$build/bayan-lsp"
 fi
 [ -x "$server" ] || { echo "record: $server is not executable" >&2; exit 2; }

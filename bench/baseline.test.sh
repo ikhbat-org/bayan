@@ -19,6 +19,12 @@ BAYAN_BIN="$d/bayan" BENCH_TMP="$d/t" BENCH_RESULTS="$d/results" bash bench/base
 check "failing clean build exits 1" "$?" 1
 check "no result file after a failure" "$(ls "$d/results" | wc -l | tr -d ' ')" 0
 
+# An unset BAYAN_BIN builds with BENCH_BUILD (scripts/bootstrap-build.sh): a failed build exits 1 and says so.
+printf '#!/bin/sh\necho "stage 1 failed" >&2\nexit 1\n' > "$d/failbuild"
+err=$(unset BAYAN_BIN; BENCH_BUILD="$d/failbuild" BENCH_TMP="$d/t" BENCH_RESULTS="$d/results" bash bench/baseline.sh 2>&1 >/dev/null)
+check "failed bootstrap build exits 1" "$?" 1
+check "failed bootstrap build is reported" "$(echo "$err" | grep -c '^bench/baseline.sh: bootstrap build failed, see ')" 1
+
 # A stub bayan whose `build ... -o <out>` writes a 7-byte file: the result file format.
 cat > "$d/stub" <<'STUB'
 #!/bin/sh
@@ -35,6 +41,9 @@ check "clean build line" "$(grep -c -E '^clean_build_selfhost_seconds [0-9]+\.[0
 check "rebuild line" "$(grep -c -E '^rebuild_one_file_seconds [0-9]+\.[0-9]+$' "$f")" 1
 check "bayan size line" "$(grep -c -E '^size bayan [0-9]+$' "$f")" 1
 check "three golden size lines" "$(grep -c -E '^size golden [a-z-]+ [0-9]+$' "$f")" 3
+printf '#!/bin/sh\n[ "$1" = --out ] && echo "%s/stub"\n' "$PWD/$d" > "$d/okbuild"
+(unset BAYAN_BIN; BENCH_BUILD="$d/okbuild" BENCH_TMP="$d/t4" BENCH_RESULTS="$d/results4" bash bench/baseline.sh >/dev/null 2>&1)
+check "the bootstrap-built bayan is used" "$?" 0
 
 # An absolute BENCH_TMP is used as is: its cache lands under it and nothing is created at $PWD$PWD/$d.
 touch "$d/marker"; sleep 1

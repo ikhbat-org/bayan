@@ -5,11 +5,11 @@
 #
 #     bash bench/run.sh
 #
-# Environment: BENCH_RUNS (default 5), BAYAN_BIN (default tmp/bench/publish/bayan, published on demand),
-# BENCH_TMP (default tmp/bench), BENCH_RESULTS (default bench/results).
+# Environment: BENCH_RUNS (default 5), BAYAN_BIN (default tmp/bench/bootstrap/bayan-stage1, built on demand
+# by BENCH_BUILD, default scripts/bootstrap-build.sh), BENCH_TMP (default tmp/bench), BENCH_RESULTS (default bench/results).
 set -u
 
-usage() { echo "usage: bash bench/run.sh   (environment: BENCH_RUNS, BAYAN_BIN, BENCH_TMP, BENCH_RESULTS)" >&2; }
+usage() { echo "usage: bash bench/run.sh   (environment: BENCH_RUNS, BAYAN_BIN, BENCH_BUILD, BENCH_TMP, BENCH_RESULTS)" >&2; }
 case "${1:-}" in
     "") ;;
     -h|--help) usage; exit 0 ;;
@@ -25,7 +25,8 @@ runs=$((10#$runs))
 [ "$runs" -gt 0 ] || { echo "bench/run.sh: BENCH_RUNS must be a positive integer" >&2; exit 2; }
 T=${BENCH_TMP:-tmp/bench}
 results=${BENCH_RESULTS:-bench/results}
-bayan=${BAYAN_BIN:-$T/publish/$(bench_exe "$(uname -s)")}
+x=$(bench_exe "$(uname -s)")
+bayan=${BAYAN_BIN:-$T/bootstrap/bayan-stage1${x#bayan}}
 commit=$(git rev-parse --short HEAD 2>/dev/null || echo nogit)
 mkdir -p "$T/bin" "$T/res" "$results"
 export BAYAN_CACHE="$T/cache-run-$$"
@@ -36,12 +37,8 @@ if [ ! -x "$bayan" ]; then
     if [ -n "${BAYAN_BIN:-}" ]; then
         bayan_note="n/a (no bayan at $bayan)"
     else
-        if ! rid=$(bench_rid "$(uname -s)" "$(uname -m)"); then
-            bayan_note="n/a (no runtime identifier for $(uname -s)-$(uname -m); set BAYAN_BIN)"
-        elif command -v dotnet >/dev/null 2>&1; then
-            dotnet publish csharp/Bayan.Cli -c Release -r "$rid" -o "$T/publish" >"$T/publish.log" 2>&1
-        fi
-        [ -x "$bayan" ] || [ -n "$bayan_note" ] || bayan_note="n/a (no bayan: dotnet publish failed or dotnet missing)"
+        bayan=$(bash "${BENCH_BUILD:-scripts/bootstrap-build.sh}" --out "$T/bootstrap" 2>"$T/build.log" | tail -1)
+        [ -x "$bayan" ] || bayan_note="n/a (no bayan: bootstrap build failed)"
     fi
 fi
 

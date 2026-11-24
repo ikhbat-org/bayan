@@ -5,14 +5,13 @@
 
 docs_fixture() {
   local r="$1" d
-  mkdir -p "$r/scripts/release" "$r/scripts/docs" "$r/docs/revisions" "$r/docs/diagnostics" "$r/csharp/Bayan.Backend.C" \
+  mkdir -p "$r/scripts/release" "$r/scripts/docs" "$r/docs/revisions" "$r/docs/diagnostics" \
     "$r/csharp/Bayan.Syntax/Diagnostics" "$r/csharp/Bayan.Syntax/Lexing" "$r/csharp/Bayan.Semantics/Binding" "$r/src/driver" \
     "$r/tests/cases/out"
   cp "$root"/scripts/release/{version,set-version,package}.sh "$r/scripts/release/"
   for f in cut next-dev; do [ ! -f "$root/scripts/release/$f.sh" ] || cp "$root/scripts/release/$f.sh" "$r/scripts/release/"; done
   cp "$root"/scripts/docs/{gen-diagnostics,gen-status,gen-spec-index,check,check-history}.sh "$r/scripts/docs/"
   printf '1.2.3-dev\n' > "$r/VERSION"
-  printf 'public static class Toolchain\n{\n    public const string CompilerVersion = "1.2.3-dev";\n}\n' > "$r/csharp/Bayan.Backend.C/Toolchain.cs"
   printf '// driver\nconst version: string = "1.2.3-dev"\n' > "$r/src/driver/main.byn"
   printf '{\n  "compiler": "bayan 1.2.3-dev",\n  "x": 1\n}\n{\n  "compiler": "bayan 1.2.3-dev"\n}\n' > "$r/tests/cases/out/dist.tree"
   printf '# Bayan\n\n```sh\nscripts/dist.sh                                # this host: dist/macos-arm64/1.2.3-dev/bayan\n```\n' > "$r/README.md"
