@@ -1,0 +1,14 @@
+// A raw string whose text shares the line of its closing quotes keeps that text (0.4.0 audit: it decoded to "").
+void main() {
+    let s = """
+Salam"""
+    print($"[{s}] {s.length}")
+    let t = """
+    Aisha
+    Bilal"""
+    print($"[{t}]")
+    let u = """
+    iftar
+    """
+    print($"[{u}]")
+}

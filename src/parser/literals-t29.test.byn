@@ -97,7 +97,7 @@ test "parser t29: literal decoding at the edges" {
             raw 2 `abc"x"`
             raw 3 `abcd""`
             raw 4 `abc`
-            raw 5 ``
+            raw 5 `abc`
             raw 6 `x\nab`
             raw 7 `x\n \tz`
             raw 8 `x`
