@@ -15,6 +15,11 @@ FRICTION_SRC="$d/nope" BENCH_TMP="$d/t" BENCH_RESULTS="$d/results" bash bench/fr
 check "missing source directory exits 1" "$?" 1
 BAYAN_BIN="$d/missing" BENCH_TMP="$d/t" BENCH_RESULTS="$d/results" FRICTION_SRC="$d/src" bash bench/friction.sh >/dev/null 2>&1
 check "missing bayan exits 1" "$?" 1
+# An unset BAYAN_BIN builds with BENCH_BUILD (scripts/bootstrap-build.sh): a failed build exits 1 and says so.
+printf '#!/bin/sh\necho "stage 1 failed" >&2\nexit 1\n' > "$d/failbuild"
+err=$(unset BAYAN_BIN; BENCH_BUILD="$d/failbuild" BENCH_TMP="$d/t" BENCH_RESULTS="$d/results" FRICTION_SRC="$d/src" bash bench/friction.sh 2>&1 >/dev/null)
+check "failed bootstrap build exits 1" "$?" 1
+check "failed bootstrap build is reported" "$(echo "$err" | grep -c '^bench/friction.sh: bootstrap build failed, see ')" 1
 
 cat > "$d/src/a.byn" <<'SRC'
 // unsafe in a comment does not count
@@ -52,6 +57,9 @@ check "@allow count" "$(grep '^@allow ' "$f")" "@allow 1"
 check "Unchecked count" "$(grep '^Unchecked_calls ' "$f")" "Unchecked_calls 1"
 check "@unformatted count" "$(grep '^@unformatted ' "$f")" "@unformatted 1"
 check "BYN50xx line" "$(grep '^BYN50xx_reported ' "$f")" "BYN50xx_reported (selfhost compiler package) 1 (BYN5014=1)"
+printf '#!/bin/sh\n[ "$1" = --out ] && echo "%s/bayan"\n' "$PWD/$d" > "$d/okbuild"
+(unset BAYAN_BIN; BENCH_BUILD="$d/okbuild" BENCH_TMP="$d/t4" BENCH_RESULTS="$d/results4" FRICTION_SRC="$d/src" bash bench/friction.sh >/dev/null 2>&1)
+check "the bootstrap-built bayan is used" "$?" 0
 
 # An absolute BENCH_TMP is used as is: its cache lands under it and nothing is created at $PWD$PWD/$d.
 touch "$d/marker"; sleep 1

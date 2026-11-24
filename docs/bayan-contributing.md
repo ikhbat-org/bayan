@@ -25,7 +25,6 @@ The main directories (the top level also holds `bench/`, `dist/`, `editors/`, `s
 ```
 bayan/
   src/                      the compiler in Bayān: lexer, parser, semantics, emitter, sabk, driver
-    tests/                  its tests (Selfhost* classes), built into Bayan.Tests
   runtime/                  bayan-rt.h / bayan-rt.c: panic, print, bounds checks, arena, list
     tests/                  the runtime's C tests
   bootstrap/                bayan.c and the runtime, the C that builds the self-hosted compiler

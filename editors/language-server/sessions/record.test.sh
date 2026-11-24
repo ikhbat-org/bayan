@@ -100,6 +100,13 @@ printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}' '{"ra
 bash "$record" "$r" 2> "$tmp/err" || fail "the raw session failed: $(cat "$tmp/err")"
 [ "$(wc -l < "$r/out.jsonl" | tr -d ' ')" = 1 ] || fail "a message after the truncated body was answered: $(cat "$r/out.jsonl")"
 
+# BAYAN_LSP unset: the server is built with BAYAN_EXE from editors/language-server/src (a stub compiler copies the stub).
+printf '#!/bin/sh\necho "$*" > "%s/build-args"\nwhile [ $# -gt 0 ]; do [ "$1" = -o ] && cp "%s/stub" "$2"; shift; done\n' "$tmp" "$tmp" > "$tmp/bayan"
+chmod +x "$tmp/bayan"
+(unset BAYAN_LSP; BAYAN_EXE="$tmp/bayan" bash "$record" "$r") 2> "$tmp/err" || fail "record with BAYAN_EXE failed: $(cat "$tmp/err")"
+[ "$(cat "$tmp/build-args")" = "build --package editors/language-server/src -o $root/tmp/lsp-sessions-build/bayan-lsp editors/language-server/src/app" ] \
+  || fail "bayan-lsp was not built with BAYAN_EXE: $(cat "$tmp/build-args")"
+
 bash "$record" nosuch > /dev/null 2>&1 && st=0 || st=$?
 [ $st = 2 ] || fail "an unknown session exited $st, not 2"
 
