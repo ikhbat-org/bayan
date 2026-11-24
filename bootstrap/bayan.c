@@ -64265,7 +64265,7 @@ bool byn_semantics__exits(bynt_semantics__Ctx p_c, int64_t p_s) {
 #line 723 "semantics/binder2.byn"
     t0 = byn_semantics__boundKind(p_s);
 #line 724 "semantics/binder2.byn"
-    if ((((t0 == ((byn_semantics_BoundKind)47)) || (t0 == ((byn_semantics_BoundKind)50))) || (t0 == ((byn_semantics_BoundKind)51)))) {
+    if (((((t0 == ((byn_semantics_BoundKind)47)) || (t0 == ((byn_semantics_BoundKind)50))) || (t0 == ((byn_semantics_BoundKind)51))) || (t0 == ((byn_semantics_BoundKind)48)))) {
 #line 725 "semantics/binder2.byn"
         return true;
 #line 724 "semantics/binder2.byn"
