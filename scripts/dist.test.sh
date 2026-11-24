@@ -14,7 +14,7 @@ d="$t/dist"
 # `build --package editors/language-server/src [--target <t>] -o <exe> editors/language-server/src/app` writes "lsp <target|host> $FAKE_BUILD"
 # (FAKE_LSPFAIL=1: that build fails).
 g="$t/repo"; mkdir -p "$g/scripts/release" "$g/src/driver" "$g/editors/language-server/src/app"
-cp "$root/scripts/dist.sh" "$g/scripts/"; cp "$root/scripts/release/version.sh" "$g/scripts/release/"; cp "$root/VERSION" "$g/"
+cp "$root/scripts/dist.sh" "$g/scripts/"; cp "$root/scripts/release/version.sh" "$g/scripts/release/"; printf '1.2.3-dev\n' > "$g/VERSION"  # a prerelease, so the default label carries the commit whatever the repo VERSION is
 echo tmp/ > "$g/.gitignore"
 touch "$g/src/driver/main.bn" "$g/editors/language-server/src/app/main.bn"
 cat > "$g/scripts/bootstrap-build.sh" <<'FAKE'
