@@ -1352,3 +1352,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
   - scripts/ci/script-tests.sh:23: sabk.test.sh in `quick` builds the pinned bayan and the driver on an arm64 Mac without `BAYAN_EXE`, lengthening pre-push past its ~90 s.
   - tests/cases/emit/exit/expected.diag.exitcode and emit/modes/expected.*.sha256 hold 676/353 rows after the new diag and run cases (677/354); check whether L017/L024, freeze-csharp or reexport-check need a row per case.
   - .github/workflows/llm-eval-nightly.yml:44-47: a dispatch on a ref from before e95baa653 (pinned-bayan.sh still needed .NET) fails at build now that .NET is not installed.
+- 019b (2026-11-24): ci.yml `osx-arm64 other parts` hits its 55 min timeout inside the scripts part (bayan 966-1019 s, parity 193-209 s before it); dev run of 2026-11-23 17:08 and 019b run 45274663769 both cancelled there. Split the part or raise the macOS bound after measuring the scripts part alone.
