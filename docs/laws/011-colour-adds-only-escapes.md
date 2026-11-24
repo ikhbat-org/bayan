@@ -6,7 +6,7 @@ release: 0.1.0
 sources: none recorded
 kind: property
 scope: csharp/Bayan.Syntax/Diagnostics/Style.cs, csharp/Bayan.Syntax/Diagnostics/DiagnosticRenderer.cs, csharp/Bayan.Cli/CliApp.cs
-proof: csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs
+proof: scripts/ci/bootstrap-check.sh
 check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'style/'
 enacted: 2026-10-21
 ---
@@ -19,3 +19,6 @@ A coloured `◆ built tally (safe, macos-arm64) in 0.84s` that reads `◆ built 
 
 ## Proof notes
 `csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs`, tagged `[Trait("Law", "L011")]`, strips `\e[…m` and compares. Unicode symbols: every `tests/cases/style/*.color` golden (written by `StyleTests`: a TTY of width 100, `COLORTERM=truecolor`, `BAYAN_THEME=dark`, `LANG=en_US.UTF-8`, `CI=1`) must equal its `.plain` twin (`NO_COLOR=1`), and the test checks there is one `.color` per shape. ASCII: each shape is rendered in memory with `--ascii` and colour on, and with `--ascii` and `NO_COLOR=1`. The 18 shapes cover diagnostics with an insertion fix, a removal fix and a related span, the error cap with and without `--all`, `build` success (cold, cached, `-v`) and failure, `check`, `run` failure, `test` (pass, fail, pending, `-v`, assertion values) and `doctor` (ok, failing); seconds, the host target, the version and temp paths are masked before comparing. Measured 2026-10-22 on macOS arm64: 18 shapes, 54 goldens, 19 test cases, about 10 s. Mutation: appending `" ok"` to `Style.Paint`'s colour branch for `Role.Success` failed the in-memory ASCII case for 6 shapes (`build-ok`, `build-ok-cache`, `build-ok-verbose`, `check-ok`, `doctor-ok`, `doctor-fail`; first `* built tally (safe, <host>) in 0.00s ok`); editing `built` to `built!` in `style/build-ok.color` failed the goldens case at line 4. On failure the test prints the shape and its first differing line.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `csharp/tests/Bayan.Tests/L011ColourAddsOnlyEscapesTests.cs` this law cited before is at the tag `csharp-final`.

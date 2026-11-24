@@ -4,7 +4,7 @@ Status: done
 Release: 0.2.0
 Sources: Q7, Q828, Q1040
 
-R4. Every hit of the token regex in `csharp/tests/Bayan.Tests/CInventoryTests.cs` is one row of the table below, and every row has a hit; the test fails on either gap. Scope: `runtime/bayan-rt.{h,c}` as C, `csharp/Bayan.Backend.C/CEmitter.cs` and `src/emitter/cprint/*.byn` over their string literals only (interpolation holes removed; Q828). An `__attribute__((a, b))` list is one row per item. `alloca` and the other regex tokens without a row have no use. A site is a file and an anchor (Q1040): a quoted fragment that must match exactly one line of the file, the line of the hit; an anchor that matches no line or more than one is a test failure naming it, and a moved line is not.
+R4. Every hit of the token regex in `csharp/tests/Bayan.Tests/CInventoryTests.cs` is one row of the table below, and every row has a hit; the test fails on either gap. Scope: `runtime/bayan-rt.{h,c}` as C, `csharp/Bayan.Backend.C/CEmitter.cs` and `src/emitter/cprint/*.byn` over their string literals only (interpolation holes removed; Q828). An `__attribute__((a, b))` list is one row per item. `alloca` and the other regex tokens without a row have no use. A site is a file and an anchor (Q1040): a quoted fragment that must match exactly one line of the file, the line of the hit; an anchor that matches no line or more than one is a test failure naming it, and a moved line is not. Since spec 019 T67 removed the C# compiler, `CEmitter.cs` is out of the scope and its rows are gone; the `cctx.byn` and `program.byn` rows that port them stay.
 
 | Site | Token | Why it is needed |
 |---|---|---|
@@ -23,11 +23,8 @@ R4. Every hit of the token regex in `csharp/tests/Bayan.Tests/CInventoryTests.cs
 | runtime/bayan-rt.c `__builtin_mul_overflow(n - 1, sep.len, &len)` | `__builtin_mul_overflow` | `joined` panics when its length overflows. C11 replacement: as the checked `*` row. |
 | runtime/bayan-rt.c `__builtin_add_overflow(len, xs[i].len, &len)` | `__builtin_add_overflow` | `joined` panics when its length overflows. C11 replacement: as the checked `+` row. |
 | runtime/bayan-rt.c `__builtin_mul_overflow(grown, elem_size, &bytes)` | `__builtin_mul_overflow` | `byn_list_reserve` panics when the byte size overflows. C11 replacement: as the checked `*` row. |
-| csharp/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `asm` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
-| csharp/Bayan.Backend.C/CEmitter.cs `"NULL", "asm", "typeof"` | `typeof` | In the reserved-identifier list; reserved word, not a use; no replacement needed. |
 | src/emitter/cprint/cctx.byn `"NULL", "asm",` | `asm` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
 | src/emitter/cprint/cctx.byn `"typeof",` | `typeof` | Port of the `CEmitter.cs` reserved-identifier list; reserved word, not a use; no replacement needed. |
-| csharp/Bayan.Backend.C/CEmitter.cs `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Emitted on `byn_w_error` so an unused static does not warn. C11 replacement: `(void)byn_w_error;` or drop it. |
 | src/emitter/cprint/program.byn `static __attribute__((unused)) void byn_w_error` | `__attribute__((unused))` | Port of the `CEmitter.cs` `__attribute__((unused))` on `byn_w_error`; same C11 replacement. |
 
 ## Platform guards (not extensions, not checked by the regex)

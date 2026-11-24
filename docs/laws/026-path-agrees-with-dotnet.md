@@ -6,7 +6,7 @@ release: 0.2.0
 sources: none recorded
 kind: property
 scope: runtime/bayan-rt.c (byn_path_*), csharp/Bayan.Semantics/Builtins.cs (Path members), csharp/Bayan.Backend.C/CEmitter.cs (Path calls)
-proof: csharp/tests/Bayan.Tests/StdPathLawTests.cs
+proof: runtime/tests/run.sh
 check: bash runtime/tests/run.sh && bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'run/path'
 timeout: 300
 enacted: 2026-11-05
@@ -24,3 +24,6 @@ An input and function name, the Bayan output, and the .NET result (or exception)
 
 ## Proof notes
 `BAYAN_LAW_TIER`: unset runs a fixed seeded subset sized to about 3 minutes; `full` runs the whole corpus. The proof runs on macOS and on wp1, each against .NET on that host; no expected value is shared across hosts. Amended and enacted by the user 2026-11-05 ("agrees with .NET running on the same host"). It reuses the `StdPathTests` corpus generator and runs every function's whole corpus in one program per seed.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `csharp/tests/Bayan.Tests/StdPathLawTests.cs` this law cited before is at the tag `csharp-final`.

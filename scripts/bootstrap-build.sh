@@ -2,7 +2,7 @@
 # Builds the self-hosted compiler from the bootstrap with no .NET (spec 019 R24, T40).
 #   bash scripts/bootstrap-build.sh [--out DIR]
 # Stage 0: bootstrap/bayan.c + bootstrap/bayan-rt.c with a C compiler ($CC, else cc, else zig cc), the flags of README.md
-#          (the `safe` ones of csharp/Bayan.Backend.C/Toolchain.cs); -lshell32 instead of -lm on Windows, as runtime/tests/run.sh.
+#          (the `safe` ones of src/driver/cc.byn); -lshell32 instead of -lm on Windows, as runtime/tests/run.sh.
 # Stage 1: stage 0 builds src/driver: `<stage0> build --mode safe --package src -o <stage1> src/driver`, as scripts/test.sh.
 # DIR (default <root>/tmp/bootstrap-build) gets bayan-stage0 and bayan-stage1 (.exe on Windows) and the stage logs. Prints
 # the stage-1 path on success; exit 1 names the failed stage, 2 is a usage error or no C compiler. bash 3.2.
