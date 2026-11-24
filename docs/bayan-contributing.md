@@ -105,7 +105,7 @@ error BYN2104: `total` is immutable
 
 ## Before a push
 
-The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` reaches it through `scripts/test.sh` (its `scripts` part) and runs no script test of its own. Run it on macOS under the system bash, the bash the macOS job uses. With no group it runs both: `unix`, the macOS job's list, and `docs`, which ci runs only on Linux:
+The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` reaches it through `scripts/test.sh` (its `scripts` part) and runs no script test of its own. Run it on macOS under the system bash, the bash the macOS job uses. With no group it runs both: `unix` (ci splits it into `fast`, in the other-parts job, and `slow`, its own job) and `docs`, which ci runs only on Linux:
 
 ```
 /bin/bash scripts/ci/script-tests.sh
