@@ -4,7 +4,8 @@
 # Sections:
 #   1. worktrees under .worktrees/ this session made; each is removed only when its HEAD is in dev, or (for the
 #      branches the split superseded) when the split copy is in dev; audit-040 waits until chunks 17 and 18 have
-#      verdicts. A worktree holding ignored files (tmp/ builds) is kept unless --delete-worktree-scratch.
+#      verdicts. A worktree holding ignored files (tmp/ builds) is kept unless --delete-worktree-scratch, because
+#      git worktree remove deletes ignored files without --force.
 #   2. branches merged into dev: git branch -d.
 #   3. branches the split superseded (their commits are in dev only as split copies, so -d refuses them): archived to
 #      refs/archive/<name> and deleted at the recorded sha, only with --delete-superseded-branches, and only once
@@ -28,6 +29,8 @@ repo=$(cd "$(git rev-parse --git-common-dir)/.." && pwd)
 failed=0
 
 # in_dev REF: the commit is reachable from dev.
+# checked_out BRANCH: some worktree has refs/heads/BRANCH checked out.
+checked_out() { git worktree list --porcelain | grep -qx "branch refs/heads/$1"; }
 in_dev() { git merge-base --is-ancestor "$1" dev 2>/dev/null; }
 
 # 1. worktrees: "dir branch-whose-copy-must-be-in-dev"
@@ -41,7 +44,7 @@ while read -r dir need; do
   if [ "$dir" = audit-040 ] && [ $audit_done = 0 ]; then
     printf 'keep:  worktree audit-040 (audit chunks 17/18 have no verdicts yet)\n'; continue
   fi
-  head=$(git -C "$wt" rev-parse HEAD)
+  head=$(git -C "$wt" rev-parse HEAD 2>/dev/null) || { printf "keep:  worktree %s has no readable HEAD (broken link?)\n" "$dir"; failed=1; continue; }
   if [ "$dir" = audit-040 ]; then
     # a read-only checkout of the tag; the tag keeps its commit, so only HEAD == tag is checked
     if [ "$head" != "$(git rev-parse "$need^{commit}")" ]; then
@@ -59,8 +62,8 @@ while read -r dir need; do
       "$dir" "$ignored" "$(du -sh "$wt" | cut -f1)"; continue
   fi
   if [ $execute = 1 ]; then
-    if [ "$ignored" -gt 0 ]; then git worktree remove --force "$wt"; else git worktree remove "$wt"; fi
-    printf 'removed worktree %s\n' "$dir"
+    if git worktree remove "$wt"; then printf 'removed worktree %s\n' "$dir"
+    else printf 'keep:  git worktree remove refused %s. Left alone.\n' "$dir"; failed=1; fi
   else
     printf 'would remove worktree %s (%s)\n' "$dir" "$(du -sh "$wt" | cut -f1)"
   fi
@@ -83,6 +86,7 @@ for b in fix/llm-eval-base-fixture fix/ci-slow-script-tests chore/next-dev-0.4.1
   fix/raw-string-closing-line-split fix/getter-name-clash-panic-split fix/fail-narrows-split \
   docs/audit-0.4.0-report-split docs/audit-snapshot-line dev-split; do
   if ! git rev-parse --verify --quiet "refs/heads/$b" >/dev/null; then printf 'skip:  branch %s gone\n' "$b"; continue; fi
+  if checked_out "$b"; then printf 'keep:  branch %s is checked out in a worktree (kept above). Left alone.\n' "$b"; failed=1; continue; fi
   if [ $execute = 1 ]; then
     git branch -d "$b" || { printf '  refused: %s not merged. Left alone.\n' "$b"; failed=1; }
   else
@@ -97,8 +101,11 @@ while read -r b sha; do
   cur=$(git rev-parse --verify --quiet "refs/heads/$b" || true)
   [ -n "$cur" ] || { printf 'skip:  branch %s gone\n' "$b"; continue; }
   if [ "$cur" != "$(git rev-parse "$sha")" ]; then printf 'keep:  %s moved since 2026-11-25 (now %s)\n' "$b" "${cur:0:9}"; failed=1; continue; fi
+  if checked_out "$b"; then printf 'keep:  branch %s is checked out in a worktree (kept above). Left alone.\n' "$b"; failed=1; continue; fi
   if [ $superseded = 0 ] || [ $execute = 0 ]; then
-    printf 'would archive refs/archive/%s and delete %s at %s (needs -e --delete-superseded-branches)\n' "$b" "$b" "$sha"; continue
+    if [ $pushed = 1 ]; then printf 'would archive refs/archive/%s and delete %s at %s (needs -e --delete-superseded-branches)\n' "$b" "$b" "$sha"
+    else printf 'would refuse %s: origin/dev does not hold dev yet (local tracking ref; fetch first)\n' "$b"; fi
+    continue
   fi
   if [ $pushed = 0 ]; then printf 'refuse: origin/dev does not hold dev yet; push dev first. %s left alone.\n' "$b"; failed=1; continue; fi
   if git rev-parse --verify --quiet "refs/archive/$b" >/dev/null; then
