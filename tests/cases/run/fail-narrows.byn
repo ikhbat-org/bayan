@@ -1,0 +1,23 @@
+// A branch that ends in `fail` leaves the rest of the block narrowed, as `return` does (0.4.0 audit: BYN2208 on valid code).
+union error E {
+    missing
+}
+
+i64 next(i64? x) fails E {
+    fail .missing if x is null
+    return x + 1
+}
+
+i64 after(i64? x) fails E {
+    if x is null {
+        fail .missing
+    }
+    return x * 2
+}
+
+void main() {
+    print($"{next(41) catch -1}")
+    print($"{next(null) catch -1}")
+    print($"{after(21) catch -1}")
+    print($"{after(null) catch -1}")
+}
