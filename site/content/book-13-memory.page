@@ -46,7 +46,7 @@ template: docs
 <p>Three things follow from the picture.</p>
 <ul>
 <li>A struct, a tuple and a fixed-size array are values. The whole value sits in the frame, and assigning it makes another whole value.</li>
-<li>A <code>List</code>, <code>Map</code> or <code>StrBuf</code> is a small header in the frame plus a buffer somewhere else. That buffer has exactly one owner.</li>
+<li>A <code>List</code>, <code>Map</code> or <code>StrBuf</code> is a small header in the frame plus a buffer somewhere else. That buffer has a single owner.</li>
 <li>Where the buffer lives depends on the <em>current allocator</em>, not on the type. The same <code>List</code> code puts its buffer on the heap in one place and in an arena in another.</li>
 </ul>
 <p>This program touches each place once. Read the comments, then the output.</p>
@@ -81,7 +81,7 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2780</span></pre>
       <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>copy-list.byn</code>.</figcaption>
     </figure>
-<p>A type that owns storage is called <em>unique</em>: there is exactly one owner at a time. Every <code>List</code>, <code>Map</code>, <code>Set</code> and <code>StrBuf</code> is unique. So is a struct that has a unique field. The error names the type, says why, and offers three fixes. Pick by what you mean:</p>
+<p>A type that owns storage is called <em>unique</em>: there is one owner at a time. Every <code>List</code>, <code>Map</code>, <code>Set</code> and <code>StrBuf</code> is unique. So is a struct that has a unique field. The error names the type, says why, and offers three fixes. Pick by what you mean:</p>
 <ul>
 <li><code>move xs</code>: <code>ys</code> takes over and <code>xs</code> is gone.</li>
 <li><code>xs.copy(to: alloc)</code>: two independent lists.</li>
@@ -261,3 +261,7 @@ void main() {
 <p>The loop borrows <code>cart.lines</code> while it runs, and <code>cart.add</code> is a <code>ref this</code> method that changes <code>cart</code>. That is BYN3004. A fix is to collect the new lines in a separate list inside the loop and append them after the loop ends. Changing the loop to count with an index does not make the rule go away if the call still changes <code>cart</code> while a borrow of it is alive. Copying the list first (<code>cart.lines.copy()</code>) also works, at the cost of an allocation.</p></details>
 <details class="quiz"><summary>5. A function builds a string inside <code>provide allocator: arena { … }</code> and returns it. Why does the compiler refuse, and what are two ways out?</summary>
 <p>The string's bytes live in the arena, and the arena is freed when the function returns, so the returned string would point at freed memory (BYN3003). One way out: copy the string into an allocator that outlives the call, <code>s.copy(to: alloc)</code>. The other: let the caller own the arena and wrap the call in <code>provide allocator</code>, so the memory lasts as long as the caller's block. Making the string <code>static</code> is not an option for data built at run time; only literals and <code>const</code> data are static.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-14-effects.html">14. Effects and capabilities (<code>uses fs</code>, <code>provide</code>/<code>context</code>)</a> covers effects that declare what functions do to the outside world and how the compiler checks them.</p>
+</div>

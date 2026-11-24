@@ -1,0 +1,38 @@
+1:1 CharLiteral `'\u110000}'`
+3:1 IntegerLiteral `0b_`
+3:5 Identifier `_`
+5:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ '\u110000}'
+    │ ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u`
+
+  1 │ '\u110000}'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b_�_
+    │ ^^^
+
+error BYN0002: unexpected character `\u{8}`
+
+  3 │ 0b_�_
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  // comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  // comment � hidden
+    │   │             -

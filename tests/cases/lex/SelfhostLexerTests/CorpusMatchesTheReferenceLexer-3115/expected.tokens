@@ -1,0 +1,40 @@
+1:1 CharLiteral `''`
+3:1 IntegerLiteral `0b102`
+    doc `/// Do\u{1F}c lin\u{1}e two.`
+7:1 IntegerLiteral `0x`
+8:2 Identifier `b`
+9:2 CharLiteral `'\u{202E}'`
+10:1 Plus `+`
+10:3 CloseParen `)`
+10:5 OpenBracket `[`
+10:7 CloseBracket `]`
+10:9 OpenBrace `{`
+10:11 CloseBrace `}`
+11:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  3 │ 0b102
+    │     ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x
+    │ ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │  '�'
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  '�'
+    │   │   -

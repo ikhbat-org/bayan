@@ -1,0 +1,29 @@
+[1m[31merror BYN1040[0m: `;` is an input form; a statement ends at the newline
+[2m  -->[0m <repo>/tmp/t7-style/test-control-chars-dumb/tally/main.test.byn:2:17
+
+  [2m2[0m [2m|[0m     assert(true);
+    [2m|[0m                 [1m[31m^ remove `;`[0m
+    [2m|[0m
+  [1m[34mhelp:[0m remove the `;`
+    [2m|[0m [2m2[0m [2m|[0m     assert(true);
+    [2m|[0m   [2m|[0m                 [34m-[0m
+
+[1m[31merror BYN1040[0m: `;` is an input form; a statement ends at the newline
+[2m  -->[0m <repo>/tmp/t7-style/test-control-chars-dumb/tally/main.test.byn:6:17
+
+  [2m6[0m [2m|[0m     todo("soon");
+    [2m|[0m                 [1m[31m^ remove `;`[0m
+    [2m|[0m
+  [1m[34mhelp:[0m remove the `;`
+    [2m|[0m [2m6[0m [2m|[0m     todo("soon");
+    [2m|[0m   [2m|[0m                 [34m-[0m
+
+[1m[31merror BYN1040[0m: `;` is an input form; a statement ends at the newline
+[2m  -->[0m <repo>/tmp/t7-style/test-control-chars-dumb/tally/main.test.byn:10:36
+
+  [2m10[0m [2m|[0m     panic("boom\u{1b}[2J\u{9b}31m");
+     [2m|[0m                                    [1m[31m^ remove `;`[0m
+     [2m|[0m
+  [1m[34mhelp:[0m remove the `;`
+     [2m|[0m [2m10[0m [2m|[0m     panic("boom\u{1b}[2J\u{9b}31m");
+     [2m|[0m    [2m|[0m                                    [34m-[0m

@@ -1,0 +1,110 @@
+enum Color {
+    red
+    green
+}
+
+void strings() {
+    var s = "ab"
+    var t = "cd"
+    var n = 0
+    var m = 1
+    var ch = 'x'
+    var w = StrBuf()
+    var ss = List<string>()
+    let a = s.length
+    let e = s.isEmpty
+    let rc = s.runeCount
+    let ascii = s.isAscii
+    let by = s.bytes
+    var bs = by.copy()
+    var bsp = bs.span
+    let st = string(bsp)
+    let it = string(n)
+    let p = i32.tryParse(s)
+    let q = u8.tryParse(s)
+    let pf = f64.tryParse(s)
+    let pf32 = f32.tryParse(s)
+    let j = ss.joined(by: s)
+    let lt = s < t
+    let ge = s >= t
+    let sl = s[n..m]
+    let sl2 = s[n..=m]
+    let sl3 = s[..m]
+    let cv = ch.value
+    let wl = w.length
+    let ws = w.finish()
+    let sw = s.startsWith(t)
+    let ew = s.endsWith(t)
+    let co = s.contains(t)
+    let tr = s.trimmed()
+    let lo = s.lowercased()
+    let up = s.uppercased()
+}
+
+void lists() {
+    var xs = List<i64>()
+    var ys = List<string>()
+    var i = 0
+    var k = 1
+    var zs = xs.copy()
+    let s1 = xs.span
+    var sp = xs.span
+    let n = xs.length
+    let e = xs.isEmpty
+    let g = xs.tryGet(i)
+    let v = xs[i]
+    let w = sp[i]
+    let s2 = sp[i..k]
+    let s4 = xs[i..k]
+    let sc = sp.copy()
+    let sn = sp.length
+    zs.sort()
+    var ws = ys.copy()
+    ws.sort()
+    zs.clear()
+    let last = zs.removeLast()
+    zs.remove(from: i, until: k)
+    zs.remove(from: i, through: k)
+    zs.remove(at: i)
+}
+
+void numbers() {
+    var a = 1
+    var b = 2
+    var x = 1.5
+    var y = 2.5
+    var z = f32(1.5)
+    var zz = f32(2.5)
+    var p = true
+    var q = false
+    var h = i32(3)
+    var g = u32(4)
+    let r1 = a & b
+    let r2 = a | b
+    let r3 = a ^ b
+    let r4 = x % y
+    let r5 = z % zz
+    let r6 = x + y
+    let r7 = x < y
+    let r8 = p && q
+    let r9 = p || q
+    let r10 = !p
+    let r11 = ~a
+    let r12 = -x
+    let r13 = +a
+    let r14 = f64(a)
+    let r15 = i64(h)
+    let r16 = f32(x)
+    let r17 = rune(g)
+    let r18 = rune(h)
+}
+
+void options() {
+    var a = 1
+    var xs = List<i64>()
+    var col = Color.red
+    let p: i64? = a
+    let ord = col.ordinal
+}
+
+void main() { }

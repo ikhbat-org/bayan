@@ -1,0 +1,107 @@
+1:1 Identifier `oo`
+1:4 Identifier `Bar`
+1:8 Identifier `_x`
+1:11 Identifier `camelCase2`
+1:22 Identifier `بيان`
+1:27 Identifier `μετρητή`
+1:43 Amp `&`
+1:45 AmpAmp `&&`
+1:48 Bar `|`
+1:50 BarBar `||`
+1:53 Caret `^`
+1:55 Tilde `~`
+1:57 Bang `!`
+1:59 Equals `=`
+1:61 EqualsEquals `==`
+1:64 BangEquals `!=`
+1:67 Less `<`
+1:69 LessEquals `<=`
+1:72 Greater `>`
+1:74 GreaterEquals `>=`
+1:77 LessLess `<<`
+1:80 Greater `>`
+1:81 Greater `>`
+1:83 Greater `>`
+1:84 GreaterEquals `>=`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+5:1 CharLiteral `'a3 '`
+5:7 Identifier `n`
+5:8 CharLiteral `' '`
+5:12 Identifier `u`
+5:13 OpenBrace `{`
+5:14 IntegerLiteral `1`
+5:15 NumericSuffix `F600`
+5:19 CloseBrace `}`
+5:20 CharLiteral `' '`
+5:24 CharLiteral `''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+7:1 IntegerLiteral `1__`
+8:5 Identifier `comment`
+8:13 Star `*`
+8:14 Slash `/`
+8:16 Identifier `a`
+9:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ oo Bar _x camelCase2 بيان μετρητή /* � */ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │                                   ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ oo Bar _x camelCase2 بيان μετρητή // �
+    │   │                                    +++
+    │ 2 │  & && | || ^ ~ ! = == != < <= > >= << >> >>=
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ oo Bar _x camelCase2 بيان μετρητή /* � */ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │                                      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ oo Bar _x camelCase2 بيان μετρητή /* � */ & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   │                                      -
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │ 'a3 '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  5 │ 'a3 '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │      ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ 'a3 '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │           ^
+
+error BYN0002: unexpected character `\`
+
+  5 │ 'a3 '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                       ^
+
+error BYN0007: empty char literal
+
+  5 │ 'a3 '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                        ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1__
+    │  ^^
+    │
+    │ 7 │ 1__
+    │   │  --

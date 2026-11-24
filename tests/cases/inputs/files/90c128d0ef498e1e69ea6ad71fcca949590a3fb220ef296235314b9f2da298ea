@@ -1,0 +1,56 @@
+union V {
+    a(List<i64> xs)
+    b(i64 n, List<i64> ys)
+    c
+}
+
+struct W {
+    List<i64> ys
+    i64 n
+}
+
+union error F {
+    bad(i64 n)
+}
+
+void sw(move V v, from move W w, to ref V r) {
+    switch v {
+        case .a(let xs): print("a")
+        case .b(1, let ys): print("b")
+        case not .c: print("x")
+        case .c: print("c")
+        default: print("d")
+    }
+    switch w {
+        case { n: 1, ys: let ys }: print("w")
+        case { n: let n } and not { n: 3 }: print("n")
+        case { n: 2 } wb: print("wb")
+        default: print("d")
+    }
+    switch r {
+        case .a(let xs): print("r")
+        default: print("d")
+    }
+}
+
+void sw2(move V v, from move W w, to ref V r, by F f) {
+    switch move v {
+        case .a ax: print("a")
+        case .b(_, let ys): print("b")
+        default: print("d")
+    }
+    switch move w {
+        case { n: 1 } wd: print("w")
+        default: print("d")
+    }
+    switch r {
+        case .a ra: print("r")
+        case .b(let n, _): print("n")
+        default: print("d")
+    }
+    switch f {
+        case .bad(let n): print("f")
+    }
+}
+
+void main() { }

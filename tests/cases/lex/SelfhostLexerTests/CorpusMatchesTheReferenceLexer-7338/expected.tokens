@@ -1,0 +1,90 @@
+2:1 Identifier `j`
+2:2 StringLiteral `"a�b}c`
+3:1 LetKeyword `let`
+3:5 Identifier `actor`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:9 StringLiteral `"open`
+6:2 Amp `&`
+6:4 AmpAmp `&&`
+6:7 Bar `|`
+6:9 BarBar `||`
+6:12 Caret `^`
+6:14 Tilde `~`
+6:16 Bang `!`
+6:18 Equals `=`
+6:20 EqualsEquals `==`
+6:23 BangEquals `!=`
+6:26 Less `<`
+6:28 LessEquals `<=`
+6:31 Greater `>`
+6:33 GreaterEquals `>=`
+6:36 LessLess `<<`
+6:39 Greater `>`
+6:40 Greater `>`
+6:42 Greater `>`
+6:43 GreaterEquals `>=`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ j"a�b}c
+    │  ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  2 │ j"a�b}c
+    │    ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �����
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  5 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

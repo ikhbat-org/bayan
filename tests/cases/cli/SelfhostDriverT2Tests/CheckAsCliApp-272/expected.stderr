@@ -1,0 +1,8 @@
+error BYN2304: a positional argument cannot follow a named one
+  --> <repo>/tmp/t2/diag/positional-after-named/positional-after-named.byn:2:20
+
+  2 │ print($"{add(a: 1, "x")}")
+    │                    ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2304

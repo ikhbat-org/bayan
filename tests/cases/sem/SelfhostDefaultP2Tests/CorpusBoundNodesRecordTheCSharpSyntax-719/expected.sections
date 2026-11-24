@@ -1,0 +1,8 @@
+== tests/cases/diag/on-panic-signature.byn
+28..50 blockStmt
+34..48 exprStmt
+34..48 callExpr
+40..47 nameExpr
+34..48 callExpr
+64..94 blockStmt
+70..92 assignStmt assign target 70..83 value 86..92

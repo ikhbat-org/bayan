@@ -1,0 +1,98 @@
+1:1 Identifier `ρητής`
+1:7 Identifier `x_1`
+1:11 Identifier `é`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+4:1 IntegerLiteral `4`
+4:2 NumericSuffix `KiB`
+4:6 IntegerLiteral `1`
+4:7 NumericSuffix `u`
+4:9 IntegerLiteral `0xFF`
+4:13 NumericSuffix `u`
+4:15 IntegerLiteral `0b1`
+4:18 NumericSuffix `ul`
+4:21 IntegerLiteral `7`
+4:22 NumericSuffix `l`
+5:1 PlusEquals `+=`
+5:4 MinusEquals `-=`
+5:7 StarEquals `*=`
+5:10 SlashEquals `/=`
+5:13 PercentEquals `%=`
+5:16 AmpEquals `&=`
+5:19 BarEquals `|=`
+5:22 CaretEquals `^=`
+5:25 LessLessEquals `<<=`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 StringLiteral `$"{$"`
+7:51 OpenBrace `{`
+7:52 StringLiteral `$"{x}"`
+7:58 CloseBrace `}`
+7:59 StringLiteral `"}"`
+7:62 InterpolationEnd `}`
+7:63 InterpolatedStringEnd `"`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+    doc `/// `
+8:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ �ρητής x_1 é
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}" 
+    │                                              ^^

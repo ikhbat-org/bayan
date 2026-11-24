@@ -1,0 +1,3 @@
+== diags.diag/expects-single-parameter
+BYN5011 1:24 this `expects` reads only `value`; a type with `requires` checks it once
+  help declare a type with `requires` for `value`

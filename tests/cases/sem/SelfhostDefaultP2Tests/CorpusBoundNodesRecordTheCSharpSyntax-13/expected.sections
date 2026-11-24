@@ -1,0 +1,35 @@
+== tests/cases/run/assert-values-types.byn
+34..53 globalStatement
+34..53 localDecl
+42..53 memberExpr
+54..72 localDecl
+65..72 literalExpr string
+73..93 localDecl
+90..93 literalExpr floatKeyword
+94..116 localDecl
+111..116 literalExpr falseKeyword
+117..141 assertStmt
+124..140 binaryExpr eq right 129..140
+124..125 nameExpr
+129..140 memberExpr
+142..164 assertStmt
+149..163 binaryExpr ne right 157..163
+149..153 nameExpr
+157..163 literalExpr string
+165..184 assertStmt
+172..183 binaryExpr lt right 180..183
+172..177 nameExpr
+180..183 literalExpr floatKeyword
+185..206 assertStmt
+192..205 binaryExpr eq right 200..205
+192..196 nameExpr
+200..205 literalExpr falseKeyword
+207..222 exprStmt
+207..222 callExpr
+213..221 literalExpr string
+207..222 callExpr
+223..245 assertStmt
+230..244 binaryExpr eq right 238..244
+230..234 nameExpr
+238..244 memberExpr
+238..239 nameExpr

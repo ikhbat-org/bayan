@@ -1,0 +1,7 @@
+note BYN1074: this condition wraps; name it with a `let`
+  --> <repo>/tmp/t2/diag/style-conditions-named/style-conditions-named.byn:5:8
+
+  5 │     if a > 0
+    │        ^^^^^ the condition wraps
+    │
+  help: name the condition with a `let`

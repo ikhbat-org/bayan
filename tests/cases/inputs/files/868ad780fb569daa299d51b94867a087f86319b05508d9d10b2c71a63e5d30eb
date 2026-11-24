@@ -1,0 +1,26 @@
+// BYN1072: an `if` block holding only an early exit; the fix is the postfix guard. Reported by `bayan check` at its default severity.
+union error CartError {
+    empty
+}
+
+i32 firstLine(List<i32> lines) fails CartError {
+    if lines.isEmpty {
+        fail .empty
+    }
+    return lines[0]
+}
+
+void main() fails CartError {
+    var n = 0
+    while n < 3 {
+        n += 1
+        if n == 2 {
+            break
+        }
+    }
+    if n == 3 {
+        print("three")
+    }
+    let lines: List<i32> = [1]
+    print($"{try firstLine(lines)}")
+}

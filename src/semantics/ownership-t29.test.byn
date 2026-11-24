@@ -1,0 +1,11 @@
+// 019 T29 (coverage ratchet): ownership.byn's panic-handler bindings no golden case reaches. Each program is compiled as
+// `a.byn` and its diagnostics compared; the expected text is the output of the self-hosted checker at the commit that
+// added the test.
+
+test "ownership t29: a panic handler's own bindings and the restricted statements of `Panic.handler`" {
+    let text = "union error E {\n    bad\n}\n\nunion Shape {\n    circle(i64 r)\n    dot\n}\n\ni64 step() fails E {\n    return 1\n}\n\nvoid onCrash(Panic p) {\n    for i in 0..2 {\n        if i == 1 {\n            break\n        }\n        continue\n    }\n    let r = try step()\n    return\n}\n\nvoid work(i64? found, by Shape s) fails E {\n    defer panicking {\n        for i in 0..2 {\n            print(\"i\")\n        }\n        if found is let v {\n            print(\"v\")\n        }\n        if s is .circle(let r) {\n            print(\"r\")\n        }\n        let k = step() catch switch {\n            E.bad => 0,\n        }\n    }\n    print(\"w\")\n}\n\nvoid main() {\n    Panic.handler = onCrash\n    work(found: 1, by: .dot) catch {}\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2612 183+0 `break` is not allowed in a panic handler;BYN2612 207+0 `continue` is not allowed in a panic handler;BYN2612 234+10 `try` is not allowed in a panic handler;BYN2612 249+6 `return` is not allowed in a panic handler;BYN2604 234+10 `onCrash` cannot fail, so it cannot pass on `E`;",
+    )
+}

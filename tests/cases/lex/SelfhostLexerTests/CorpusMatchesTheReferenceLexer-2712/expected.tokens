@@ -1,0 +1,134 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:41 OpenBrace `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:50 StringLiteral `"{x}"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 CloseBrace `}`
+2:60 StringLiteral `"}"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 InterpolationEnd `}`
+2:86 InterpolatedStringEnd `"`
+2:87 InterpolationEnd `}`
+2:88 InterpolatedStringEnd `"`
+2:90 IntegerLiteral `1_`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:6 PlusEquals `+=`
+4:9 MinusEquals `-=`
+4:12 StarEquals `*=`
+4:15 SlashEquals `/=`
+4:18 Identifier `v`
+4:19 PercentEquals `%=`
+4:22 AmpEquals `&=`
+4:25 BarEquals `|=`
+4:28 CaretEquals `^=`
+4:31 LessLessEquals `<<=`
+6:1 Slash `/`
+6:3 Identifier `Doc`
+6:7 Identifier `line`
+6:12 Identifier `two`
+6:15 Dot `.`
+7:1 Identifier `struc`
+7:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$�"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 1_
+    │                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB0)
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$�"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 1_
+    │                                         ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$�"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 1_
+    │                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$�"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 1_
+    │                                                  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$�"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 1_
+    │                                                                                            ^
+    │
+    │ 2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$�"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" 1_
+    │   │                                                                                            -
+
+error BYN0002: unexpected character `﻿`
+
+  4 │ ﻿$"{ += -= *= /= v%= &= |= ^= <<=
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ﻿$"{ += -= *= /= v%= &= |= ^= <<=
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

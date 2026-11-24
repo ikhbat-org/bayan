@@ -1,0 +1,13 @@
+== unit fullpath
+fullpath /a/./b/../c.byn /a/c.byn
+fullpath /a//b/ /a/b/
+fullpath /.. /
+fullpath /../x /x
+fullpath /a/b/.. /a
+fullpath /a/b/../ /a/
+fullpath /a/. /a
+fullpath /. /
+fullpath // /
+fullpath /a/..b/.c/ /a/..b/.c/
+fullpath /a/b/c/../../d /a/d
+fullpath /a/b/../.. /

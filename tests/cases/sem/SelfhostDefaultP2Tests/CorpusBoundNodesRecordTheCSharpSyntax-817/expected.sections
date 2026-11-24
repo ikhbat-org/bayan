@@ -1,0 +1,6 @@
+== tests/cases/diag/return-value-in-void.byn
+11..27 blockStmt
+17..25 returnStmt value 24..25
+29..34 globalStatement
+29..34 exprStmt
+29..34 callExpr

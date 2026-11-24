@@ -1,0 +1,27 @@
+1:1 LetKeyword `let`
+1:6 EffectKeyword `effect`
+1:13 Equals `=`
+1:15 IntegerLiteral `2`
+1:16 OpenParen `(`
+4:1 StringLiteral `"a\u{2067}b"`
+4:7 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF5)
+
+  1 │ let� effect = 2(
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  2 │ � // �x
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ � // �x
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ � // �x
+    │   │      -

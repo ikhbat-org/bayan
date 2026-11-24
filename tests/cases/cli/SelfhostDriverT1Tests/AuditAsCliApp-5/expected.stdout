@@ -1,0 +1,6 @@
+[2m<repo>/tmp/t6-audit/color/main.byn:1:1[0m  @allow(BYN2230)  because "kept for the C ABI"
+[2m<repo>/tmp/t6-audit/color/main.byn:5:1[0m  unsafe void poke()  [33mno reason given[0m
+[2m<repo>/tmp/t6-audit/color/main.byn:9:19[0m  trustUnchecked()  because "a fixture"
+[2m<repo>/tmp/t6-audit/color/main.byn:10:5[0m  unsafe  because "raw write"
+[2m<repo>/tmp/t6-audit/color/main.byn:14:1[0m  extern i32 puts(cstr s)  [33mno reason given[0m
+[32m◆ 5 bypasses in <repo>/tmp/t6-audit/color[0m

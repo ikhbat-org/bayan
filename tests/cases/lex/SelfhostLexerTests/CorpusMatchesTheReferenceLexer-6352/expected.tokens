@@ -1,0 +1,24 @@
+1:1 IntegerLiteral `0x_`
+4:4 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0004: unterminated block comment
+
+  2 │ /*let café = 1
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  '�' café =T 1let café = 2
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  '�' café =T 1let café = 2
+    │   │   -

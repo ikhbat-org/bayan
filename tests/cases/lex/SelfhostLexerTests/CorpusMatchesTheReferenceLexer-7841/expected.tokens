@@ -1,0 +1,25 @@
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `stray> } here`
+3:17 InterpolatedStringEnd `"`
+4:2 Identifier `et`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"stray> } here"
+    │           ^
+    │
+    │ 3 │  $"stray> }} here"
+    │   │            +
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │  et c = � 3
+    │         ^

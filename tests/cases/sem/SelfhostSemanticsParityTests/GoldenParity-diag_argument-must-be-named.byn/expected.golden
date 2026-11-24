@@ -1,0 +1,8 @@
+error BYN2305: argument for `verbose` must be named
+
+  6 │ show(true)
+    │      ^^^^
+    │
+  help: write `verbose: …`; a `bool` argument says nothing at the call site
+    │ 6 │ show(verbose: true)
+    │   │      +++++++++

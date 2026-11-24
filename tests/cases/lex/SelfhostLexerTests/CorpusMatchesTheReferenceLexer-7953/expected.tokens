@@ -1,0 +1,15 @@
+1:1 Identifier `foo`
+1:6 Identifier `Bar`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:24 Identifier `بيان`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+    doc `/// not a doc comment`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  1 │ foo �Bar _x camelCase2 بيان μετρητής x_1 é
+    │     ^

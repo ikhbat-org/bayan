@@ -1,0 +1,11 @@
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    grammar: Grammar {
+        verbs: ["upsert"],
+        nouns: ["sku", "criterion"],
+        adjectives: ["kyc"],
+        collectives: ["ledger"],
+        forms: ["upsert": "upserted", "criterion": "criteria", "sku": "skus"],
+    },
+}

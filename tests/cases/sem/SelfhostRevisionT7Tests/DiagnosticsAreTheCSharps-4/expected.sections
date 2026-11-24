@@ -1,0 +1,11 @@
+== diags.exempt
+BYN2770 15:6 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN2770 17:6 unknown attribute `column`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN5104 9:34 `draft` holds a collection; name it with a plural, `drafts`
+  help rename it `drafts`
+  fix 9:34-9:39 drafts
+BYN5104 11:24 `entry` holds a collection; name it with a plural, `entries`
+  help rename it `entries`
+  fix 11:24-11:29 entries

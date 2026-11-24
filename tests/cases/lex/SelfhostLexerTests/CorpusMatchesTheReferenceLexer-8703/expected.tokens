@@ -1,0 +1,47 @@
+1:1 IntegerLiteral `00`
+1:3 CloseBrace `}`
+1:4 CharLiteral `'`
+2:1 CharLiteral `'x`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+8:16 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 00}'
+    │    ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  3 │ let a� = "open
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let a� = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0004: unterminated block comment
+
+  5 │ /* bl�ck
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  � = "bad \q escape"
+    │  ^

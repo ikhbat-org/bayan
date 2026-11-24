@@ -1,0 +1,75 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 StringLiteral `"var xs: List<List<i64>>`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:2 CharLiteral `' '`
+3:7 CharLiteral `' '`
+3:11 IntegerLiteral `0`
+3:12 CharLiteral `'`
+4:1 IntegerLiteral `0x`
+5:1 IntegerLiteral `1_`
+6:2 Identifier `her`
+6:6 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{"var xs: List<List<i64>>
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{"var xs: List<List<i64>>
+    │    ^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  3 │  �' '\\' '\0'
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  3 │  �' '\\' '\0'
+    │      ^
+
+error BYN0002: unexpected character `\`
+
+  3 │  �' '\\' '\0'
+    │       ^
+
+error BYN0002: unexpected character `\`
+
+  3 │  �' '\\' '\0'
+    │           ^
+
+error BYN0008: unterminated char literal
+
+  3 │  �' '\\' '\0'
+    │             ^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -

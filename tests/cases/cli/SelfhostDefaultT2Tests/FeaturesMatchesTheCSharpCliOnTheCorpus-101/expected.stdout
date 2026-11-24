@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CaughtErrorExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "JumpExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "SwitchExpr",
+    "TargetMemberExpr",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "HexDecode",
+    "HexEncode",
+    "ListAsSpan",
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

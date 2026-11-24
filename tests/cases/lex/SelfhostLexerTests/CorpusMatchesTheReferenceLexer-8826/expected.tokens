@@ -1,0 +1,96 @@
+1:2 Comma `,`
+1:4 Dot `.`
+1:6 DotDot `..`
+1:9 DotDotEquals `..=`
+1:13 Colon `:`
+1:14 CloseBrace `}`
+1:15 Question `?`
+1:17 QuestionQuestion `??`
+1:20 QuestionQuestionEquals `??=`
+1:24 QuestionDot `?.`
+1:27 FatArrow `=>`
+1:30 Arrow `->`
+1:33 At `@`
+1:35 Hash `#`
+3:1 CharLiteral `'$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:12 IntegerLiteral `1`
+8:1 Identifier `FFs`
+9:1 IntegerLiteral `0b1`
+9:4 NumericSuffix `ms`
+10:1 IntegerLiteral `0x_`
+11:1 IntegerLiteral `0b__`
+12:1 IntegerLiteral `1__`
+13:1 IntegerLiteral `0xF__`
+14:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  1 │ �, . .. ..= :}? ?? ??= ?. => -> @ #
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  3 │ '$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  3 │ '$"{$"{$�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `$`
+
+  5 │  let a = $ 1
+    │          ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  9 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  10 │ 0x_
+     │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  11 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │ 1__
+     │  ^^
+     │
+     │ 12 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  13 │ 0xF__
+     │    ^^
+     │
+     │ 13 │ 0xF__
+     │    │    --

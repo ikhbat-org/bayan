@@ -1,0 +1,64 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolationEnd `}`
+2:5 InterpolatedStringEnd `"`
+2:6 TestKeyword `test`
+2:11 AssertKeyword `assert`
+2:18 PropertyKeyword `property`
+2:27 FuzzKeyword `fuzz`
+2:32 Identifier `moel`
+2:37 ForeachKeyword `foreach`
+2:45 NewKeyword `new`
+2:49 GotoKeyword `goto`
+4:1 Star `*`
+4:2 Slash `/`
+4:5 Greater `>`
+4:6 Greater `>`
+4:8 Identifier `b`
+5:1 Bar `|`
+5:3 StarBar `*|`
+5:6 PlusPlus `++`
+5:9 MinusMinus `--`
+6:1 Amp `&`
+6:3 AmpAmp `&&`
+6:6 Bar `|`
+6:8 BarBar `||`
+6:11 Caret `^`
+6:13 Tilde `~`
+6:15 Bang `!`
+6:17 Equals `=`
+6:19 IntegerLiteral `1_`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �����
+    │      ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ & && | || ^ ~ ! = 1_
+    │                    ^
+    │
+    │ 6 │ & && | || ^ ~ ! = 1_
+    │   │                    -

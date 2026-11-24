@@ -1,0 +1,2 @@
+== diags.diag/too-many-arguments
+BYN2302 2:19 `twice` takes 1 argument(s)

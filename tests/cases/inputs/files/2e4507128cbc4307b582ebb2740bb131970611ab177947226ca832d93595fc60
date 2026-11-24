@@ -1,0 +1,20 @@
+void p(i64 a) { }
+void p(i64 b) { }
+void p(i64 a, bool b) { }
+void q(by i64 x) { }
+void q(for i64 y) { }
+void q(by i64 z) { }
+void r(i64 a, by i64 b = 1) { }
+void r(i64 c) { }
+void s(rest ReadOnlySpan<i64> xs) { }
+void s(i64 a, bool b, bool c) { }
+void t(i64 a = 1) { }
+void t() { }
+void u(i64 a, for i64 b) { }
+void u(i64 a, bool b) { }
+void v(i64 a, for i64 b) { }
+void v(i64 c) { }
+void w(i64 c) { }
+void w(i64 a, for i64 b) { }
+void x(by i64 k = 1) { }
+void x(i64 a) { }

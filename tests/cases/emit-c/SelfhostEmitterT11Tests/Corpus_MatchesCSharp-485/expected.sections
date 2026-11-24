@@ -1,0 +1,7 @@
+== cases
+0 l0_names.len
+1 bynh_str_bytes(l0_text)
+2 bynh_str_bytes(l0_text)
+3 bynh_str_bytes(l0_text)
+4 l4_names.len
+count 5

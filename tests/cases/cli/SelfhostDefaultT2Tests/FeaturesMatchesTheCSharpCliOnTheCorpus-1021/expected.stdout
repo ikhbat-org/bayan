@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ConditionalExpr",
+    "ContextStmt",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt",
+    "StackallocExpr",
+    "StructDecl"
+  ],
+  "builtins": [
+    "ArenaNew",
+    "ArenaReset",
+    "ArrayAsSpan",
+    "ArrayMutableSpan",
+    "ListAdd",
+    "ListAsSpan",
+    "ListLength",
+    "Print",
+    "SpanCopy",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufNew",
+    "StringLength"
+  ],
+  "diagnostics": []
+}

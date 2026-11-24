@@ -1,0 +1,81 @@
+1:1 CloseBrace `}`
+1:2 CharLiteral `'`
+2:1 CharLiteral `'\u{110000}'`
+3:1 CharLiteral `' 1e`
+5:1 Identifier `F`
+6:1 IntegerLiteral `0b1`
+6:4 NumericSuffix `ms`
+7:1 IntegerLiteral `0x_`
+7:4 IntegerLiteral `0b__`
+8:1 IntegerLiteral `1__`
+9:1 IntegerLiteral `0xF__`
+10:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  3 │ ' 1e
+    │ ^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ��
+    │  ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  7 │ 0x_�0b__
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  7 │ 0x_�0b__
+    │    ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0x_�0b__
+    │     ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 1__
+    │  ^^
+    │
+    │ 8 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --

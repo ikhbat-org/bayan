@@ -171,10 +171,10 @@ template: docs
 <li>Every position is a byte offset.</li>
 </ul>
 <example name="book-07-strings"/>
-<p>The output has two lessons. <code>"héllo"</code> is 6 bytes but 5 runes, because <code>é</code> takes two bytes. And <code>word[0..3]</code> cut after the two bytes of <code>é</code> and gave <code>hé</code>. A cut in the middle of a rune would split it, so the program stops with a panic instead:</p>
+<p>The output has two lessons. <code>"salām"</code> is 6 bytes but 5 runes, because <code>ā</code> takes two bytes. And <code>word[0..5]</code> cut after the two bytes of <code>ā</code> and gave <code>salā</code>. A cut in the middle of a rune would split it, so the program stops with a panic instead:</p>
 <pre><code class="byn">void main() {
-    let s = "héllo"
-    print(s[0..2])
+    let s = "salām"
+    print(s[0..4])
 }</code></pre>
 <figure class="diag">
 <pre>panic: string slice splits a code point
@@ -245,7 +245,7 @@ template: docs
 <h3 id="parse">Turning text into numbers</h3>
 <p><code>i64.tryParse(text)</code> returns an <code>i64?</code>: the number, or <code>null</code> when the text is not a number. The strings example uses it with <code>??</code>. Format options go inside the hole as named arguments: <code>{7, width: 4, fill: '0'}</code> pads to <code>0007</code>, <code>{"ali", width: 7}</code> pads on the right, <code>{x, digits: 2}</code> rounds a float and <code>{n, as: .hex}</code> prints hexadecimal.</p>
 
-<h2 id="building">Building text with StrBuf</h2>
+<h2 id="building">Building text with <code>StrBuf</code></h2>
 <p>Because a string never changes, building a long text piece by piece uses a <code>StrBuf</code>. <code>StrBuf(capacity: n)</code> makes one. <code>append(text)</code> adds to the end, and <code>append($"…")</code> formats straight into the buffer. <code>finish()</code> returns the result as a string. <code>length</code>, <code>clear()</code> and <code>insert(text, at: i)</code> also exist. Like a list, a buffer is owned by one name.</p>
 
 <h2 id="gradebook">Putting it together: the gradebook</h2>
@@ -281,9 +281,13 @@ template: docs
 <p>The list was sorted before <code>removeLast()</code>, so the last element is the largest. Before the sort the last element was 64, so "removed 64" would be wrong. Without the <code>sort()</code> call the answer would change.</p></details>
 <details class="quiz"><summary>You write <code>let names: List&lt;string&gt; = []</code> and then <code>names.append("aisha")</code>. What happens?</summary>
 <p>It does not compile (BYN2104): <code>append</code> changes the list and the list is declared with <code>let</code>. Use <code>var</code>. It is not a panic, and it is not allowed to "work anyway" because the type says nothing about mutability.</p></details>
-<details class="quiz"><summary>The strings example prints <code>6 bytes, 5 runes</code> for <code>"héllo"</code>. Which member gives the 5?</summary>
+<details class="quiz"><summary>The strings example prints <code>6 bytes, 5 runes</code> for <code>"salām"</code>. Which member gives the 5?</summary>
 <p><code>runeCount</code>. <code>length</code> is the byte count, 6. There is no <code>charCount</code>, and <code>length</code> never counts characters.</p></details>
 <details class="quiz"><summary>A map has the keys <code>"aisha"</code> and <code>"hafsa"</code>. Which line reads <code>"yusuf"</code> without stopping the program?</summary>
 <p><code>m.tryGet(at: "yusuf") ?? 0</code>. <code>m["yusuf"]</code> panics with <code>key not found in map</code>. <code>m.get("yusuf", 0)</code> does not exist. <code>m.contains("yusuf")</code> only tests; it does not read.</p></details>
 <details class="quiz"><summary>What does <code>book-07-map</code> print for <code>totals.remove("hafsa")</code> and <code>totals.length</code>?</summary>
 <p><code>true 1</code>. <code>remove</code> returns <code>true</code> because the key was there, and one entry (<code>aisha</code>) is left. If the key had been missing it would return <code>false</code> and change nothing.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-08-errors.html">8. Errors</a> covers how functions declare failures in their signatures and return error values without exceptions.</p>
+</div>

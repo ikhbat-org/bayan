@@ -1,0 +1,5 @@
+import util
+struct A {
+    i64 x
+}
+struct A { }

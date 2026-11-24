@@ -1,0 +1,51 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `open `
+1:8 InterpolationStart `{`
+1:9 Identifier `x`
+1:10 StringLiteral `";`
+3:6 Identifier `comment`
+3:14 Star `*`
+3:15 Slash `/`
+3:17 Identifier `a`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 FlagsKeyword `flags`
+5:32 OpenKeyword `open`
+5:37 ExtensibleKeyword `extensible`
+5:48 InterfaceKeyword `interface`
+5:58 DelegateKeyword `delegate`
+5:67 ExtensionKeyword `extension`
+5:78 Identifier `erivation`
+5:88 AttributeKeyword `attribute`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ �    comment */ a
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �    comment */ a
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC8)
+
+  5 │ struct unique union enum flags open extensible interface delegate extension �erivation attribute
+    │                                                                             ^

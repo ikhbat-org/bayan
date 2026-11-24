@@ -1,0 +1,53 @@
+1:1 IntegerLiteral `0b102`
+2:2 IntegerLiteral `0x_`
+3:2 IntegerLiteral `0x`
+3:5 IntegerLiteral `0b_`
+3:8 Identifier `_`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 Identifier `defaultfor`
+5:39 InKeyword `in`
+5:42 WhileKeyword `while`
+5:48 DoKeyword `do`
+5:51 BreakKeyword `break`
+5:57 ContinueKeyword `continue`
+5:66 ReturnKeyword `return`
+5:73 YieldKeyword `yield`
+5:79 DeferKeyword `defer`
+5:85 ErrdeferKeyword `errdefer`
+5:94 UsingKeyword `using`
+5:100 Identifier `cntext`
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x_
+    │  ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x 0b_�_
+    │  ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │  0x 0b_�_
+    │     ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │  0x 0b_�_
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ � 
+    │ ^

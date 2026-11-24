@@ -1,0 +1,31 @@
+2:1 Identifier `cape`
+2:5 StringLiteral `"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""neve� closd\n\ny } here"\n$"open {x"�\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ cape"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """neve� closd
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  3 │ let c = """neve� closd
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  6 │ $"open {x"�
+    │           ^

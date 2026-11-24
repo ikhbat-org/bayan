@@ -1,0 +1,5 @@
+== s40
+switchExpr|i64|3567:39
+value local:Ledger=lg
+arm 3579:25 propertyPattern[3579:20]:Ledger(Ledger;total:i64=bindPattern[3592:3]:i64(t:i64:b:-:let)|-) guard - value local:i64=t
+BYN2411 111:27 `Box` cannot match `Ledger` ||remove the type; type patterns apply only to unions and `dyn` values, which arrive in a later version|

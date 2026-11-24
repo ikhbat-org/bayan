@@ -1,0 +1,169 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+3:1 Identifier `en`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+    doc `/// Doc line two.\n/// Doc line one.`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:9 Identifier `f`
+8:10 OpenBrace `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 InterpolatedStringStart `$"`
+8:46 InterpolationStart `{`
+8:47 InterpolatedStringStart `$"`
+8:49 InterpolationStart `{`
+8:50 InterpolatedStringStart `$"`
+8:52 InterpolationStart `{`
+8:53 StringLiteral `$"{$"`
+8:58 OpenBrace `{`
+8:59 Identifier `x`
+8:60 CloseBrace `}`
+8:61 StringLiteral `"}"`
+8:64 InterpolationEnd `}`
+8:65 InterpolatedStringEnd `"`
+8:66 InterpolationEnd `}`
+8:67 InterpolatedStringEnd `"`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringEnd `"`
+8:70 InterpolationEnd `}`
+8:71 InterpolatedStringEnd `"`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringEnd `"`
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+9:1 LetKeyword `let`
+9:5 Identifier `s`
+9:7 Equals `=`
+9:9 InterpolatedStringStart `$"`
+9:11 InterpolationStart `{`
+9:12 InterpolatedStringStart `$"`
+9:14 InterpolationStart `{`
+9:15 InterpolatedStringStart `$"`
+9:17 InterpolationStart `{`
+9:18 InterpolatedStringStart `$"`
+9:20 InterpolationStart `{`
+9:21 InterpolatedStringStart `$"`
+9:23 InterpolationStart `{`
+9:24 InterpolatedStringStart `$"`
+9:26 InterpolationStart `{`
+9:27 StringLiteral `$"{$"`
+9:32 OpenBrace `{`
+9:33 StringLiteral `$"{$"`
+9:38 OpenBrace `{`
+9:39 StringLiteral `$"{$"`
+9:44 OpenBrace `{`
+9:45 StringLiteral `$"{$"`
+9:50 OpenBrace `{`
+9:51 StringLiteral `$"{$"`
+9:56 OpenBrace `{`
+9:57 StringLiteral `$"{$\u{2}{$"`
+9:65 OpenBrace `{`
+9:66 StringLiteral `$"{x}"`
+9:72 CloseBrace `}`
+9:73 StringLiteral `"}"`
+9:76 CloseBrace `}`
+9:77 Identifier `u`
+9:78 StringLiteral `"}"`
+9:81 CloseBrace `}`
+9:82 StringLiteral `"}"`
+9:85 CloseBrace `}`
+9:86 StringLiteral `"}"`
+9:89 CloseBrace `}`
+9:90 StringLiteral `"}"`
+9:93 CloseBrace `}`
+9:94 StringLiteral `"}"`
+9:97 InterpolationEnd `}`
+9:98 InterpolatedStringEnd `"`
+9:99 InterpolationEnd `}`
+9:100 InterpolatedStringEnd `"`
+9:101 InterpolationEnd `}`
+9:102 InterpolatedStringEnd `"`
+9:103 InterpolationEnd `}`
+9:104 InterpolatedStringEnd `"`
+9:105 InterpolationEnd `}`
+9:106 InterpolatedStringEnd `"`
+9:107 InterpolationEnd `}`
+9:108 InterpolatedStringEnd `"`
+9:109 InterpolationEnd `}`
+9:110 InterpolatedStringEnd `"`
+10:1 CharLiteral `'\u{202E}'`
+11:1 LetKeyword `let`
+11:5 Identifier `café`
+11:11 Equals `=`
+11:13 IntegerLiteral `1`
+11:14 Semicolon `;`
+11:16 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0002: unexpected character `$`
+
+  8 │  $"{$"{$f{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{$"{$f{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │  $"{$"{$f{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                                                     ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  10 │ '�'
+     │  ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 10 │ '�'
+     │    │  -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  11 │ let café = 1; 
+     │     ^^^^^ same letters, different encoding
+     │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+     │ 11 │ let café = 1; 
+     │    │        +

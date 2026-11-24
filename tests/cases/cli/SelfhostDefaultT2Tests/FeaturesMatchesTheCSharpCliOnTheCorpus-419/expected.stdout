@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "BreakStmt",
+    "CallExpr",
+    "CatchExpr",
+    "ErrorEnumDecl",
+    "FailStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "GuardedStmt",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "RangeExpr",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TargetMemberExpr",
+    "UnaryExpr",
+    "WithExpr"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

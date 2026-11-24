@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/borrow-own-field-mutated.byn
+--package
+<repo>/tests/cases/diag

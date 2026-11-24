@@ -1,0 +1,71 @@
+== tests/cases/diag/lambda-nested-it.byn
+43..139 blockStmt
+49..120 forStmt
+58..60 nameExpr
+61..120 blockStmt
+71..114 ifStmt
+74..78 callExpr
+74..75 nameExpr
+76..77 nameExpr
+79..114 blockStmt
+93..104 returnStmt value 100..104
+100..104 literalExpr trueKeyword
+125..137 returnStmt value 132..137
+132..137 literalExpr falseKeyword
+202..211 callExpr
+202..211 callExpr
+202..211 callExpr
+202..203 nameExpr
+204..210 indexExpr
+204..207 nameExpr
+208..209 literalExpr integer
+290..412 blockStmt
+296..336 localDecl
+323..336 collectionExpr
+324..330 collectionExpr
+325..326 literalExpr integer
+328..329 literalExpr integer
+332..335 collectionExpr
+333..334 literalExpr integer
+341..410 ifStmt
+344..379 callExpr
+350..353 nameExpr
+359..378 callExpr
+380..410 blockStmt
+390..404 exprStmt
+390..404 callExpr
+396..403 literalExpr string
+390..404 callExpr
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+246..274 requiresRule
+246..274 requiresRule
+255..274 callExpr
+259..261 nameExpr
+259..261 nameExpr
+267..273 binaryExpr gt right 272..273
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+246..274 requiresRule
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+213..276 structDecl
+359..378 callExpr
+359..378 callExpr
+359..378 callExpr
+363..365 nameExpr
+371..377 binaryExpr gt right 376..377

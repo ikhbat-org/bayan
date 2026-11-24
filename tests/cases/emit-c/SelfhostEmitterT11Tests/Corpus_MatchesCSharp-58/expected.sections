@@ -1,0 +1,46 @@
+== helpers
+bynh_add_list_i64 static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) | static void bynh_add_list_i64(bynt_list_i64* l, int64_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(int64_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_copy_list_i64 static bynt_list_i64 bynh_copy_list_i64(bynt_list_i64 l, byn_alloc* a) | static bynt_list_i64 bynh_copy_list_i64(bynt_list_i64 l, byn_alloc* a) {
+    bynt_list_i64 r = {NULL, 0, 0, a};
+    if (l.len > 0) {
+        r.ptr = (int64_t*)byn_copy_bytes(l.ptr, l.len * (int64_t)sizeof(int64_t), a);
+        r.len = r.cap = l.len;
+    }
+    return r;
+}
+bynh_pop_list_i64 static int64_t bynh_pop_list_i64(bynt_list_i64* l, const char* file, int line) | static int64_t bynh_pop_list_i64(bynt_list_i64* l, const char* file, int line) {
+    if (l->len == 0) byn_panic("removeLast on an empty list", file, line);
+    return l->ptr[--l->len];
+}
+bynh_at_list_i64 static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_list_i64(bynt_list_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k) | static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_i64 static bool bynh_keq_i64(const void* a, const void* b) | static bool bynh_keq_i64(const void* a, const void* b) {
+    return (*(const int64_t*)a == *(const int64_t*)b);
+}
+bynh_slot_map_i64_i64 static int64_t* bynh_slot_map_i64_i64(bynt_map_i64_i64* m, int64_t k, int64_t d) | static int64_t* bynh_slot_map_i64_i64(bynt_map_i64_i64* m, int64_t k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(int64_t), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_remove_map_i64_i64 static bool bynh_remove_map_i64_i64(bynt_map_i64_i64* m, int64_t k) | static bool bynh_remove_map_i64_i64(bynt_map_i64_i64* m, int64_t k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+}
+bynh_copy_map_i64_i64 static bynt_map_i64_i64 bynh_copy_map_i64_i64(bynt_map_i64_i64 m, byn_alloc* a) | static bynt_map_i64_i64 bynh_copy_map_i64_i64(bynt_map_i64_i64 m, byn_alloc* a) {
+    bynt_map_i64_i64 r;
+    byn_map_copy(&m.h, m.keys, (int64_t)sizeof(int64_t), (void**)&r.keys, m.vals, (int64_t)sizeof(int64_t), (void**)&r.vals, &r.h, a);
+    return r;
+}

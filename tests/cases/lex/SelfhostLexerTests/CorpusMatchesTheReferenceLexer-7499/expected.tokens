@@ -1,0 +1,32 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:2 Identifier `P`
+2:3 Equals `=`
+2:5 Identifier `ạ̇0xFFs`
+3:1 CharLiteral `'`
+4:1 Minus `-`
+4:2 IntegerLiteral `3`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1 
+    │         ^
+
+error BYN0005: identifier `ạ̇0xFFs` is not in Unicode normalization form C
+
+  2 │  P= ạ̇0xFFs
+    │     ^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  P= ạ̇0xFFs
+    │   │     +
+
+error BYN0008: unterminated char literal
+
+  3 │ '
+    │ ^
+    │
+  help: close it with `'`

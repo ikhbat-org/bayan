@@ -1,0 +1,57 @@
+1:1 Identifier `ạ̇`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+4:1 LetKeyword `let`
+4:6 Identifier `x`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+5:1 FailsKeyword `fails`
+5:7 TryKeyword `try`
+5:11 CatchKeyword `catch`
+5:17 NeverKeyword `never`
+5:23 NoallocKeyword `noalloc`
+5:31 NosuspendKeyword `nosuspend`
+5:41 SuspendsKeyword `suspends`
+5:50 AsyncKeyword `async`
+5:56 AwaitKeyword `await`
+6:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ let café =// comment � hidden
+    │                      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ let café =// comment � hidden
+    │   │                      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  4 │ let� x� = 1
+    │    ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let� x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let� x� = 1
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ �fails try catch never noalloc nosuspend suspends async await
+    │ ^

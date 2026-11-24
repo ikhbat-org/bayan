@@ -1,0 +1,24 @@
+error BYN2202: expected `Order is .paid or .shipped`, found `Order`
+  --> input.byn:14:41
+
+  14 │     let x: Order is .paid or .shipped = o
+     │                                         ^
+
+warning BYN2311: `y` is never reassigned; declare it with `let`
+  --> input.byn:15:9
+
+  15 │     var y: Order is .placed or .paid or .shipped = o
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 15 │     let y: Order is .placed or .paid or .shipped = o
+     │    │     +++
+
+error BYN2202: expected `string`, found `i64`
+  --> input.byn:16:11
+
+  16 │     print(x.id)
+     │           ^^^^
+
+✗ build failed: 2 errors, 1 warning
+  explain: bayan explain BYN2202

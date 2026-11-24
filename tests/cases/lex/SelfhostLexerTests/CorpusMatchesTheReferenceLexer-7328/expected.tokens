@@ -1,0 +1,42 @@
+1:1 CharLiteral `'x`
+3:1 Star `*`
+3:2 Slash `/`
+4:1 CharLiteral `'\u{202E}'`
+4:5 Star `*`
+4:6 Slash `/`
+4:7 Identifier `a`
+7:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '�' */a /* never closed
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '�' */a /* never closed
+    │   │  -
+
+error BYN0004: unterminated block comment
+
+  4 │ '�' */a /* never closed
+    │         ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  6 │ 'a' '�n' '\u{1F60�}' '\'' 'é' '\\' '\0'
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  6 │ 'a' '�n' '\u{1F60�}' '\'' 'é' '\\' '\0'
+    │                  ^

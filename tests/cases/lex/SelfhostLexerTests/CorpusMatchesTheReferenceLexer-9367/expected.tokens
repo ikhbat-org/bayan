@@ -1,0 +1,17 @@
+1:1 StringLiteral `"never closed`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolationEnd `}`
+3:5 InterpolatedStringEnd `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolationEnd `}`
+5:5 InterpolatedStringEnd `"`
+5:7 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "never closed
+    │ ^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

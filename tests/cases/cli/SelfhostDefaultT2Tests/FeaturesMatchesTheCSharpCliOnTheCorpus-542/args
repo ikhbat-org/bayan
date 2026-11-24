@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/error-equality-list-payload.byn
+--package
+<repo>/tests/cases/diag

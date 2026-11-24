@@ -1,0 +1,63 @@
+1:1 CloseBrace `}`
+3:2 Identifier `q`
+3:3 CharLiteral `'`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `b `
+5:5 InterpolationStart `{`
+5:6 Identifier `c`
+5:7 InterpolationEnd `}`
+5:8 InterpolatedStringEnd `"`
+5:9 CloseParen `)`
+5:10 CloseBrace `}`
+5:12 Identifier `d`
+5:13 StringLiteral `" `
+5:15 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  3 │ �\q'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ �\q'
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  3 │ �\q'
+    │    ^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  5 │ $"b {c}")} d" 
+    │             ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

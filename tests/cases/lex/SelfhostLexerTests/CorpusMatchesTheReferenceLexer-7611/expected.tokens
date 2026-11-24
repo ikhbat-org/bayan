@@ -1,0 +1,31 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 StringLiteral `""`
+1:11 Identifier `X`
+1:12 NeverKeyword `never`
+1:19 Identifier `losed`
+3:1 CharLiteral `'\u{110000}'`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  1 │ let c = ""X�never �losed
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF9)
+
+  1 │ let c = ""X�never �losed
+    │                   ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  �
+    │  ^

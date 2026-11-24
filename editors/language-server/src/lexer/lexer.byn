@@ -1,0 +1,334 @@
+// Error-tolerant lexer for editor features, over the UTF-16 code units of a document so offsets match the C# server's. It never
+// fails: an unclosed string or comment ends at the line or file end and is reported in `problems`.
+
+import keywords
+
+public enum TokenKind {
+    ident
+    keyword
+    number
+    text
+    rune
+    comment
+    docComment
+    blockComment
+    punct
+    newline
+    at
+    eof
+}
+
+/// A token as a slice of the document text, in UTF-16 code units.
+public struct Token {
+    public TokenKind kind
+    public i32       start
+    public i32       length
+
+    public i32 end => start + length
+}
+
+/// A problem found while lexing, in UTF-16 code units.
+public struct Problem {
+    public i32     start
+    public i32     length
+    public string  message
+    public string? code
+}
+
+/// Problems kept per file; the rest are only counted in `hidden`.
+const maxProblems: i64 = 1000
+
+/// Interpolation holes nested deeper than this lex as plain string content.
+const maxInterpolationDepth: i64 = 256
+
+/// Brackets and blocks nested deeper than this are reported once; the indexer opens no scope past it.
+const maxNesting: i64 = 256
+
+public struct Lexer {
+    public List<Token>   tokens
+    public List<Problem> problems
+    public i64           hidden          = 0
+    i64                  depth           = 0
+    bool                 tooDeep         = false
+    i64                  open            = 0
+    bool                 nestingReported = false
+
+    /// The tokens of `text`, ending with `eof`.
+    public static Lexer run(ReadOnlySpan<u16> text) uses alloc {
+        var lx = Lexer { tokens: List<Token>(), problems: List<Problem>() }
+        lx.scan(text, from: 0, until: text.length)
+        lx.add(.eof, at: text.length, by: 0)
+        return lx
+    }
+
+    void report(ref this, i64 start, by i64 length, as string message, for string? code = null) uses alloc {
+        if problems.length < maxProblems {
+            problems.append(Problem { start: i32(start), length: i32(length), message: message, code: code })
+        } else {
+            hidden += 1
+        }
+    }
+
+    void add(ref this, TokenKind kind, at i64 start, by i64 length) uses alloc {
+        tokens.append(Token { kind: kind, start: i32(start), length: i32(length) })
+    }
+
+    void scan(ref this, ReadOnlySpan<u16> s, from i64 from, until i64 n) uses alloc {
+        var i = from
+        while i < n {
+            let c = s[i]
+            if c == 0x0A {
+                add(.newline, at: i, by: 1)
+                i += 1
+                continue
+            }
+            if c == 0x20 || c == 0x09 || c == 0x0D {
+                i += 1
+                continue
+            }
+            if c == 0x2F && i + 1 < n && s[i + 1] == 0x2F {
+                let start = i
+                let doc = i + 2 < n && s[i + 2] == 0x2F && !(i + 3 < n && s[i + 3] == 0x2F)
+                while i < n && s[i] != 0x0A {
+                    i += 1
+                }
+                add(doc ? .docComment : .comment, at: start, by: i - start)
+                continue
+            }
+            if c == 0x2F && i + 1 < n && s[i + 1] == 0x2A {
+                let start = i
+                let close = indexOfCommentEnd(s, from: i + 2)
+                i = close < 0 ? n : close + 2
+                add(.blockComment, at: start, by: i - start)
+                report(start, by: 2, as: close < 0 ? "unclosed `/*` comment" : "`/* */` is an input form; write `//`", for: "BYN1047")
+                continue
+            }
+            if c == 0x22 && i + 2 < n && s[i + 1] == 0x22 && s[i + 2] == 0x22 {
+                let start = i
+                let close = indexOfTripleQuote(s, from: i + 3)
+                i = close < 0 ? n : close + 3
+                if close < 0 {
+                    report(start, by: 3, as: "unclosed raw string literal")
+                }
+                add(.text, at: start, by: i - start)
+                continue
+            }
+            if c == 0x24 && i + 1 < n && s[i + 1] == 0x22 {
+                i = scanInterpolated(s, from: i, until: n)
+                continue
+            }
+            // Plain `"…"` and byte `b"…"` strings (`$"…"` is handled above).
+            if c == 0x22 || (c == 0x62 && i + 1 < n && s[i + 1] == 0x22 && !isIdentPart(i > 0 ? s[i - 1] : 0x20)) {
+                let start = i
+                i += c == 0x22 ? 1 : 2
+                var closed = false
+                while i < n && s[i] != 0x0A {
+                    let d = s[i]
+                    if d == 0x5C {
+                        i += i + 1 < n && s[i + 1] != 0x0A ? 2 : 1
+                        continue
+                    }
+                    if d == 0x22 {
+                        i += 1
+                        closed = true
+                        break
+                    }
+                    i += 1
+                }
+                if !closed {
+                    report(start, by: i - start > 1 ? i - start : 1, as: "unclosed string literal")
+                }
+                let end = i < n ? i : n
+                add(.text, at: start, by: end - start)
+                i = end
+                continue
+            }
+            if c == 0x27 {
+                let start = i
+                i += 1
+                if i < n && s[i] == 0x5C {
+                    i += i + 1 < n && s[i + 1] != 0x0A ? 2 : 1
+                } else if i < n && s[i] != 0x0A {
+                    i += 1
+                }
+                // `'\u{1F600}'` is the longest form (10 chars + quotes).
+                while i < n && s[i] != 0x27 && s[i] != 0x0A && i - start < 14 {
+                    i += 1
+                }
+                i = i < n ? i : n
+                if i < n && s[i] == 0x27 {
+                    i += 1
+                } else {
+                    report(start, by: 1, as: "unclosed rune literal")
+                }
+                add(.rune, at: start, by: (i < n ? i : n) - start)
+                continue
+            }
+            if isAsciiDigit(c) {
+                let start = i
+                while i < n && (isAsciiLetterOrDigit(s[i]) || s[i] == 0x5F || (s[i] == 0x2E && i + 1 < n && isAsciiDigit(s[i + 1]))) {
+                    i += 1
+                }
+                add(.number, at: start, by: i - start)
+                continue
+            }
+            if isIdentStart(c) {
+                let start = i
+                while i < n && isIdentPart(s[i]) {
+                    i += 1
+                }
+                add(keywords.isKeyword(s[start..i]) ? .keyword : .ident, at: start, by: i - start)
+                continue
+            }
+            if c == 0x40 {
+                add(.at, at: i, by: 1)
+                i += 1
+                continue
+            }
+            if c == 0x3B {
+                report(i, by: 1, as: "`;` is not needed; a newline ends the statement", for: "BYN1040")
+            }
+            if c == 0x28 || c == 0x5B || c == 0x7B {
+                open += 1
+                if open > maxNesting && !nestingReported {
+                    nestingReported = true
+                    report(i, by: 1, as: $"brackets and blocks nested deeper than {maxNesting} levels")
+                }
+            } else if (c == 0x29 || c == 0x5D || c == 0x7D) && open > 0 {
+                open -= 1
+            }
+            // Multi-char punctuation the analyzer cares about.
+            var len: i64 = 1
+            if i + 1 < n && isTwoCharPunct(s[i], to: s[i + 1]) {
+                len = 2
+            }
+            add(.punct, at: i, by: len)
+            i += len
+        }
+    }
+
+    /// `$"a {x, as: .hex} b"`: string fragments as `text` tokens, holes lexed as code.
+    i64 scanInterpolated(ref this, ReadOnlySpan<u16> s, from i64 from, until i64 n) uses alloc {
+        var frag = from
+        var i = from + 2
+        while i < n && s[i] != 0x0A {
+            let d = s[i]
+            if d == 0x5C {
+                i += i + 1 < n && s[i + 1] != 0x0A ? 2 : 1
+                continue
+            }
+            if d == 0x7B && i + 1 < n && s[i + 1] == 0x7B {
+                i += 2
+                continue
+            }
+            if d == 0x22 {
+                i += 1
+                add(.text, at: frag, by: i - frag)
+                return i
+            }
+            if d == 0x7B && depth >= maxInterpolationDepth {
+                // Too deep to lex the holes without risking the stack: the rest of the line is string content.
+                var end = i
+                while end < n && s[end] != 0x0A {
+                    end += 1
+                }
+                if !tooDeep {
+                    report(frag, by: end - frag, as: $"string interpolation nested deeper than {maxInterpolationDepth} levels")
+                }
+                tooDeep = true
+                add(.text, at: frag, by: end - frag)
+                return end
+            }
+            if d == 0x7B {
+                add(.text, at: frag, by: i + 1 - frag)
+                let hole = i + 1
+                var level: i64 = 1
+                var j = hole
+                while j < n && s[j] != 0x0A && level > 0 {
+                    if s[j] == 0x22 {
+                        j += 1
+                        while j < n && s[j] != 0x22 && s[j] != 0x0A {
+                            j += s[j] == 0x5C && j + 1 < n && s[j + 1] != 0x0A ? 2 : 1
+                        }
+                    } else if s[j] == 0x7B {
+                        level += 1
+                    } else if s[j] == 0x7D {
+                        level -= 1
+                    }
+                    if level > 0 {
+                        j += 1
+                    }
+                }
+                depth += 1
+                scan(s, from: hole, until: j < n ? j : n)
+                depth -= 1
+                i = j < n ? j : n
+                frag = i
+                continue
+            }
+            i += 1
+        }
+        report(frag, by: i - frag > 1 ? i - frag : 1, as: "unclosed string literal")
+        let end = i < n ? i : n
+        add(.text, at: frag, by: end - frag)
+        return end
+    }
+}
+
+/// The position of the next `*/` from `from`, or -1.
+i64 indexOfCommentEnd(ReadOnlySpan<u16> s, from i64 from) {
+    var i = from
+    while i + 1 < s.length {
+        return i if s[i] == 0x2A && s[i + 1] == 0x2F
+        i += 1
+    }
+    return -1
+}
+
+/// The position of the next `"""` from `from`, or -1.
+i64 indexOfTripleQuote(ReadOnlySpan<u16> s, from i64 from) {
+    var i = from
+    while i + 2 < s.length {
+        return i if s[i] == 0x22 && s[i + 1] == 0x22 && s[i + 2] == 0x22
+        i += 1
+    }
+    return -1
+}
+
+/// `->` `=>` `?.` `??` `==` `!=` `<=` `>=` `&&` `||` `..`
+bool isTwoCharPunct(u16 a, to u16 b) {
+    return (a == 0x2D && b == 0x3E) || (a == 0x3D && b == 0x3E) || (a == 0x3F && (b == 0x2E || b == 0x3F)) ||
+        (b == 0x3D && (a == 0x3D || a == 0x21 || a == 0x3C || a == 0x3E)) || (a == 0x26 && b == 0x26) || (a == 0x7C && b == 0x7C) ||
+        (a == 0x2E && b == 0x2E)
+}
+
+bool isAsciiDigit(u16 c) => c >= 0x30 && c <= 0x39
+
+bool isAsciiLetter(u16 c) => (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A)
+
+bool isAsciiLetterOrDigit(u16 c) => isAsciiLetter(c) || isAsciiDigit(c)
+
+/// Whether `cp` lies in one of the inclusive `lo, hi` pairs of `ranges`.
+public bool inRanges(ReadOnlySpan<u32> ranges, for u32 cp) {
+    var lo: i64 = 0
+    var hi = ranges.length / 2
+    while lo < hi {
+        let mid = lo + (hi - lo) / 2
+        if ranges[mid * 2 + 1] < cp {
+            lo = mid + 1
+        } else {
+            hi = mid
+        }
+    }
+    return lo < ranges.length / 2 && ranges[lo * 2] <= cp
+}
+
+/// `char.IsLetter` above U+007F.
+bool isLetter(u16 c) => inRanges(letterRanges, for: u32(c))
+
+/// `char.IsDigit` above U+007F.
+bool isDigit(u16 c) => inRanges(digitRanges, for: u32(c))
+
+public bool isIdentStart(u16 c) => isAsciiLetter(c) || c == 0x5F || (c > 127 && isLetter(c))
+
+public bool isIdentPart(u16 c) => isAsciiLetterOrDigit(c) || c == 0x5F || (c > 127 && (isLetter(c) || isDigit(c)))

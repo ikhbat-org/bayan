@@ -1,0 +1,1 @@
+{"code":"BYN2614","severity":"error","file":"input.byn","span":{"start":94,"end":117,"line":7,"column":5,"endLine":7,"endColumn":28},"message":"`Panic.handler` may be set only as the first statement of `main`","label":"set again here","help":"set it once, as the first statement of `main`","fixes":[]}

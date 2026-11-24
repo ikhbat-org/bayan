@@ -1,0 +1,12 @@
+error BYN1028: `delegate` is not Bayan; write a function type `type F = Order -> bool`
+  --> tmp/t26-tests/cli/diag_input-delegate-semicolon.byn/input-delegate-semicolon.byn:3:1
+
+  3 │ delegate bool F(Order o);
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^ a C# delegate
+    │
+  help: declare it as `type F = Order -> bool`
+    │ 3 │ type F = Order -> bool
+    │   │ ++++++++++++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1028

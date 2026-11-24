@@ -1,0 +1,62 @@
+1:1 CloseBrace `}`
+1:2 StringLiteral `"}"`
+1:5 CloseBrace `}`
+1:6 StringLiteral `"}"`
+1:9 CloseBrace `}`
+1:10 StringLiteral `"}"`
+1:13 CloseBrace `}`
+1:14 StringLiteral `"}"`
+1:17 CloseBrace `}`
+1:18 StringLiteral `"}"`
+1:21 CloseBrace `}`
+1:22 StringLiteral `"}"`
+1:25 CloseBrace `}`
+1:26 StringLiteral `"} \t �`
+2:1 Identifier `b`
+4:2 Identifier `ok`
+4:7 InKeyword `in`
+4:10 Identifier `comment`
+    doc `/// Doc line one.`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ }"}"}"}"}"}"}"}"}"}"}"}"}"} 	 �
+    │                          ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ }"}"}"}"}"}"}"}"}"}"}"}"}"} 	 �
+    │                             	 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ }"}"}"}"}"}"}"}"}"}"}"}"}"} 	 �
+    │                             	  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ }"}"}"}"}"}"}"}"}"}"}"}"}"} 	 �
+    │                             	  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │  // ok � in �omment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  3 │  // ok � in �omment
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │  ok � in� comment
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x96)
+
+  4 │  ok � in� comment
+    │         ^

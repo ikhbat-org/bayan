@@ -1,0 +1,55 @@
+1:1 CharLiteral `'\u{202E}'`
+1:5 IntegerLiteral `1__`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+2:14 Semicolon `;`
+2:15 ModelKeyword `model`
+2:21 ForeachKeyword `foreach`
+2:29 NewKeyword `new`
+2:33 GotoKeyword `goto`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 Identifier `me`
+6:1 LetKeyword `let`
+6:5 LawKeyword `law`
+6:9 Equals `=`
+6:11 IntegerLiteral `3`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�' 1__
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�' 1__
+    │   │  -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ '�' 1__
+    │      ^^
+    │
+    │ 1 │ '�' 1__
+    │   │      --
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ let café = 1;model foreach new goto
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ let café = 1;model foreach new goto
+    │   │        +
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^

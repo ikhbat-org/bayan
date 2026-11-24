@@ -1,0 +1,104 @@
+1:1 CharLiteral `'\u{D800}'`
+    doc `/// Doc line two.`
+5:1 LetKeyword `let`
+5:5 Identifier `actor`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolationStart `{`
+7:28 InterpolatedStringStart `$"`
+7:30 InterpolationStart `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolatedStringText `x`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 InterpolatedStringStart `$"`
+7:49 InterpolationStart `{`
+7:50 StringLiteral `$"{$"`
+7:55 OpenBrace `{`
+7:56 Identifier `x`
+7:57 CloseBrace `}`
+7:58 StringLiteral `"}"`
+7:61 InterpolationEnd `}`
+7:62 InterpolatedStringEnd `"`
+7:63 Star `*`
+7:64 InterpolationEnd `}`
+7:65 InterpolatedStringEnd `"`
+7:66 InterpolationEnd `}`
+7:67 InterpolatedStringEnd `"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:74 InterpolationEnd `}`
+7:75 InterpolatedStringEnd `"`
+7:76 InterpolationEnd `}`
+7:77 InterpolatedStringEnd `"`
+7:79 OpenBrace `{`
+8:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿/// Doc line two.
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // �x
+    │   │    -
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  5 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"x{$"{$"{$"{$"{$"{x}"}"}"*}"}"}"}"}"}"}" {
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"x{$"{$"{$"{$"{$"{x}"}"}"*}"}"}"}"}"}"}" {
+    │                                                  ^^

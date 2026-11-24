@@ -1,0 +1,133 @@
+string fn0() {
+    return $"{3}-{3}"
+}
+
+string call0(by (() -> string) f) => f()
+
+string relay0(by (() -> string) f) => call0(by: f)
+
+void host0Direct() {
+    let r: string = fn0()
+    print($"c0 {r}")
+}
+
+void host0Local() {
+    let f: () -> string uses alloc = fn0
+    let r: string = f()
+    print($"c0 {r}")
+}
+
+void host0Via1() {
+    let r: string = call0(by: fn0)
+    print($"c0 {r}")
+}
+
+void host0Via2() {
+    let r: string = relay0(by: fn0)
+    print($"c0 {r}")
+}
+
+bool call1(string a0, to string a1, by ((string, string) -> bool) f) => f(a0, a1)
+
+bool relay1(string a0, to string a1, by ((string, string) -> bool) f) => call1(a0, to: a1, by: f)
+
+void host1Direct() {
+    let p0: string = ""
+    let r: bool = p0 == ""
+    print($"c1 {r}")
+}
+
+void host1Local() {
+    let f: (string, string) -> bool = (p0, p1) => p0 == ""
+    let r: bool = f("", "")
+    print($"c1 {r}")
+}
+
+void host1Via1() {
+    let r: bool = call1("", to: "", by: (p0, p1) => p0 == "")
+    print($"c1 {r}")
+}
+
+void host1Via2() {
+    let f: (string, string) -> bool = (p0, p1) => p0 == ""
+    let r: bool = relay1("", to: "", by: f)
+    print($"c1 {r}")
+}
+
+string call2(string a0, to i64 a1, by ((string, i64) -> string) f) => f(a0, a1)
+
+string relay2(string a0, to i64 a1, by ((string, i64) -> string) f) => call2(a0, to: a1, by: f)
+
+void host2Direct() {
+    let k0: string = "bayan"
+    let p1: i64 = 20
+    let r: string = $"{p1}-{k0}"
+    print($"c2 {r}")
+}
+
+void host2Local() {
+    let k0: string = "bayan"
+    let f: (string, i64) -> string uses alloc = (p0, p1) => $"{p1}-{k0}"
+    let r: string = f("bayan", 20)
+    print($"c2 {r}")
+}
+
+void host2Via1() {
+    let k0: string = "bayan"
+    let r: string = call2("bayan", to: 20, by: (p0, p1) => $"{p1}-{k0}")
+    print($"c2 {r}")
+}
+
+void host2Via2() {
+    let k0: string = "bayan"
+    let r: string = relay2("bayan", to: 20, by: (p0, p1) => $"{p1}-{k0}")
+    print($"c2 {r}")
+}
+
+i64 call3(bool a0, to bool a1, by ((bool, bool) -> i64) f) => f(a0, a1)
+
+i64 relay3(bool a0, to bool a1, by ((bool, bool) -> i64) f) => call3(a0, to: a1, by: f)
+
+void host3Direct(string q0, to i64 q1) {
+    let r: i64 = q1 + q1
+    print($"c3 {r}")
+}
+
+void host3Local(string q0, to i64 q1) {
+    let f: (bool, bool) -> i64 = (p0, p1) => q1 + q1
+    let r: i64 = f(true, false)
+    print($"c3 {r}")
+}
+
+void host3Via1(string q0, to i64 q1) {
+    let r: i64 = call3(a0: true, to: false, by: (p0, p1) => q1 + q1)
+    print($"c3 {r}")
+}
+
+void host3Via2(string q0, to i64 q1) {
+    let r: i64 = relay3(a0: true, to: false, by: (p0, p1) => q1 + q1)
+    print($"c3 {r}")
+}
+
+void main() {
+    print("== direct")
+    host0Direct()
+    host1Direct()
+    host2Direct()
+    host3Direct("ab", to: 18)
+    print("== local")
+    host0Local()
+    host1Local()
+    host2Local()
+    host3Local("ab", to: 18)
+    print("== via1")
+    host0Via1()
+    host1Via1()
+    host2Via1()
+    host3Via1("ab", to: 18)
+    print("== via2")
+    host0Via2()
+    host1Via2()
+    host2Via2()
+    host3Via2("ab", to: 18)
+}

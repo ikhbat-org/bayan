@@ -1,0 +1,53 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:3 CharLiteral `'\q'`
+5:1 IntegerLiteral `1`
+5:2 NumericSuffix `eclosed`
+6:1 Identifier `b`
+8:1 Identifier `ay`
+8:4 CloseBrace `}`
+8:6 Identifier `here`
+8:10 StringLiteral `"`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolatedStringText `op\r`
+9:6 InterpolatedStringEnd
+10:1 Identifier `b`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ �� '\q'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �� '\q'
+    │  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ �� '\q'
+    │     ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  8 │ ay } here"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  9 │ $"op
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

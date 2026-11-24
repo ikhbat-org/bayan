@@ -1,0 +1,3 @@
+== expr.probes.i36
+interpolated:string[4489:14]=-(v:call:void[4492:9]=-())
+BYN2225 178:18 `void` cannot be formatted |||

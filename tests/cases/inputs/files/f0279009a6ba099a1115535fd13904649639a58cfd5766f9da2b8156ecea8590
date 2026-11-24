@@ -1,0 +1,21 @@
+public struct Order {
+    public i64 grams
+}
+
+public struct Rule {
+    public i64 weight
+}
+
+public struct Shipment {
+    // A verb's `-ed` form is not a plural.
+    public Order shipped
+    public Order lastShipped
+    // A noun's form is its plural.
+    public Rule criteria
+    public List<Rule> criterion
+    // `stamp` is a verb and a noun with no form: its plural is regular.
+    public Order stamped
+    public List<Order> stamp
+}
+
+print("ok")

@@ -1,0 +1,205 @@
+kind	f1	f2	f3
+desc	BYN1010	gotoKeyword	Goto
+severity	BYN1072	Note
+severity	BYN1073	Note
+severity	BYN1074	Note
+severity	BYN1075	Note
+severity	BYN1076	Note
+severity	BYN1077	Note
+severity	BYN1078	Note
+severity	BYN1079	Note
+severity	BYN1080	Note
+retired	BYN1030	(design round 3 §28): the C# primitive names are accepted in type positions and `bayan format` respells them per `style.primitives`. Never reuse it.
+retired	BYN1032	(design round 3 §5): `if !x {}` and `if not x {}` are both accepted and nothing rewrites them. Never reuse it.
+retired	BYN1049	before it was raised: a round-3 draft gave `unless not` this code, which BYN1007 covers (and an earlier draft used it for a return-type order check, now covered by BYN1043 `TypeNameOrder`). Never reuse it.
+retired	BYN2026	a braceless body of `if`, `unless`, `while` or `for` is reported (BYN1018); a `defer` body may be a single statement, and only a declaration there is rejected (BYN1018), in design round 2. Never reuse it.
+retired	BYN2307	(design round 3 §15): particles replace the same-type naming rule, so a swapped pair is a particle mismatch (BYN5005). Never reuse it.
+retired	BYN2322	`requires` on fields and distinct types is checked at construction (round 3 step 5.3b, revision 0006). Never reuse it.
+retired	BYN2762	(a `Map` or `StrBuf` cannot be copied): replaced by BYN2780 in spec 002. Never reuse it.
+reserved	BYN3213	v0.1 overloads differ by particle set only. Its help, once reported: "change a parameter type or particle so the overloads cannot overlap".
+reserved	BYN3215	v0.1 has no references to overloaded names. Its help, once reported: "annotate it: `let f: A -> B = {0}`".
+reserved	BYN3217	v0.1 has no fibers. Its help, once reported: "copy the data first, or spawn the fiber in a scope that ends before `{1}`".
+round4	BYN1070	NegatedIsInput	`!(x is .s)`; round 4's draft says BYN1069, which spec 013 gives StatementAttribute. // target: 19xx input form
+round4	BYN1071	SwitchExpressionNeedsElse	subjectless `switch`. // target: 41xx switch
+round4	BYN2825	BorrowedClosureStored	closure escape rule. // target: 3xxx borrows
+round4	BYN7013	FinalStateNotReached	`final` states; round 4's draft says BYN7010, which is BecomesNeedsRef. // target: 7xxx typestate
+kw	actor	37
+kw	and	30
+kw	as	16
+kw	assert	34
+kw	async	29
+kw	attribute	13
+kw	await	29
+kw	because	40
+kw	become	39
+kw	break	23
+kw	case	21
+kw	catch	27
+kw	checked	34
+kw	comptime	33
+kw	const	18
+kw	context	26
+kw	continue	24
+kw	default	22
+kw	defer	25
+kw	delegate	12
+kw	derivation	13
+kw	distinct	15
+kw	do	23
+kw	effect	38
+kw	else	20
+kw	embed	19
+kw	enum	10
+kw	errdefer	25
+kw	error	14
+kw	except	41
+kw	extensible	11
+kw	extension	12
+kw	extern	19
+kw	fail	39
+kw	fails	26
+kw	false	33
+kw	flags	10
+kw	for	22
+kw	foreach	36
+kw	fuzz	36
+kw	goto	37
+kw	if	20
+kw	import	15
+kw	in	22
+kw	interface	11
+kw	is	29
+kw	law	39
+kw	let	18
+kw	macro	38
+kw	model	36
+kw	move	31
+kw	never	27
+kw	new	37
+kw	noalloc	27
+kw	nosuspend	28
+kw	not	30
+kw	null	32
+kw	open	10
+kw	or	30
+kw	out	32
+kw	private	16
+kw	property	35
+kw	provide	41
+kw	public	16
+kw	readonly	17
+kw	ref	31
+kw	required	18
+kw	requires	40
+kw	return	24
+kw	select	38
+kw	set	14
+kw	static	17
+kw	struct	9
+kw	suspends	28
+kw	switch	21
+kw	test	34
+kw	this	32
+kw	true	33
+kw	try	26
+kw	type	15
+kw	union	9
+kw	unique	9
+kw	unit	14
+kw	unless	21
+kw	unsafe	20
+kw	uses	40
+kw	using	25
+kw	var	19
+kw	while	23
+kw	with	31
+kw	yield	24
+mem	Arena	reset	115
+mem	Array	length	30
+mem	Array	mutableSpan	90
+mem	Array	span	31
+mem	Enum	name	52
+mem	Enum	ordinal	53
+mem	FormatSpec	align	45
+mem	FormatSpec	debug	42
+mem	FormatSpec	digits	46
+mem	FormatSpec	fill	44
+mem	FormatSpec	radix	41
+mem	FormatSpec	width	43
+mem	IoInput	readAll	131
+mem	IoInput	readAllBytes	137
+mem	IoStream	write	129
+mem	List	append	94
+mem	List	clear	95
+mem	List	copy	93
+mem	List	isEmpty	26
+mem	List	length	25
+mem	List	mutableSpan	89
+mem	List	remove	98
+mem	List	removeLast	96
+mem	List	replace	101
+mem	List	sort	105
+mem	List	span	28
+mem	List	take	107
+mem	List	tryGet	103
+mem	List<string>	joined	87
+mem	Map	clear	113
+mem	Map	contains	110
+mem	Map	copy	112
+mem	Map	length	29
+mem	Map	remove	111
+mem	Map	slot	109
+mem	Map	take	114
+mem	Map	tryGet	108
+mem	Optional	take	128
+mem	Owned	value	51
+mem	Panic	message	38
+mem	ProcessResult	exitCode	35
+mem	ProcessResult	stderr	37
+mem	ProcessResult	stdout	36
+mem	Result	err	50
+mem	Result	isOk	48
+mem	Result	value	49
+mem	Runes	skip	84
+mem	Runes	take	83
+mem	Runes	takeLast	85
+mem	Span	copy	92
+mem	Span	isEmpty	24
+mem	Span	length	23
+mem	Span<string>	joined	87
+mem	StrBuf	append	116
+mem	StrBuf	appendRepeated	119
+mem	StrBuf	clear	126
+mem	StrBuf	copy	123
+mem	StrBuf	finish	125
+mem	StrBuf	insert	121
+mem	StrBuf	length	32
+mem	StrBuf	take	127
+mem	StrBuf	view	33
+mem	Symbol	text	34
+mem	Time	nanos	39
+mem	Utf16	copy	86
+mem	rune	value	47
+mem	string	bytes	16
+mem	string	contains	63
+mem	string	copy	60
+mem	string	count	68
+mem	string	endsWith	62
+mem	string	equals	71
+mem	string	isAscii	19
+mem	string	isEmpty	17
+mem	string	lastPosition	66
+mem	string	length	15
+mem	string	lines	22
+mem	string	lowercased	73
+mem	string	padded	78
+mem	string	parts	81
+mem	string	position	64
+mem	string	repeated	77
+mem	string	replaced	75
+mem	string	runeCount	18
+mem	string	runes	20
+mem	string	startsWith	61
+mem	string	trimmed	70
+mem	string	uppercased	74
+mem	string	utf16	21

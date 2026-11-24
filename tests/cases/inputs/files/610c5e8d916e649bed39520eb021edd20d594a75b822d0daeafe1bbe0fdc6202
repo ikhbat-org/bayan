@@ -1,0 +1,120 @@
+union error A {
+    bad
+}
+
+union error B {
+    bad
+}
+
+struct Order {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+    }
+    void pay(ref this is .draft, i64 amount) becomes .paid {
+        become .paid(amount)
+    }
+}
+
+struct Box {
+    i64 v
+}
+
+enum Planet(f64 mass) {
+    small(1.0)
+    big
+}
+
+struct Ship {
+    i64 id
+    states {
+        a(i64 p)
+        b(i64 q, i64 p)
+    }
+    i64 get(this is .b) => this.p
+}
+
+struct Hold {
+    i64 id
+    states {
+        a(i64 p)
+        c
+    }
+}
+
+void payloads(Ship s, by Hold h) {
+    let pp = Order.paid { id: 1, payment: 2 }
+    assert pp.payment == 2
+    let sp = s.p
+    let hp = h.p
+    let sn = s.nope
+}
+
+struct Early {
+    Late l = Late()
+}
+
+struct Late {
+    i64 x = 1
+}
+
+struct Pair<T> {
+    T a
+}
+
+interface IShower {
+    string show<T>(T x)
+}
+
+void viaParam<S>(S s) where S : IShower {
+    let r = s.show(1)
+}
+
+void trusted(Untrusted<i64> v) {
+    let n = 5
+    let a = trust(move v, reason: "checked")
+    let b = trust(move n, reason: "checked")
+    let la = List()
+    let pa = Pair()
+    let e = Early()
+    let op = Order.paid { id: 1 }
+}
+
+void r() => 0..3
+
+void l() => [1]
+
+void s() => stackalloc i64[4]
+
+i64 both(i64 n) fails A, B {
+    return .bad
+}
+
+void inferred(i64 n) fails {
+    return .nope
+}
+
+void body() {
+    for i in 0..3 {
+        print($"{i}")
+    }
+    let m: Map<string, i64> = ["a": 1, "b": 2]
+    let e: Map<string, i64> = []
+    let xs = [1, 2]
+    let t = i64.tryFrom(nope)
+    let p = i64.parse()
+    let q = f64.tryParse()
+    let w = Owned()
+    let u = Untrusted()
+    let ys: List<string> = [..xs]
+    let bx = Box()
+    let call = nope(1)
+    var o = Order.draft { id: 7 }
+    o.pay(1)
+    o = Order.draft { id: 8 }
+    let bm: Map<string, i64> = [1]
+    let g = List<Nope>()
+    let ls: List<List<i64>> = [[1]]
+    let ms: List<List<i64>> = [..ls]
+}

@@ -1,0 +1,4 @@
+// ok � in comment
+ // Doc line onefoo Bar _x camelCase2 بيان μετρητής x_1 é
+ �
+fails try catch never noalloc nosuspend suspends async await

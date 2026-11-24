@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/this-ref-call-modifies-borrowed-field.byn
+--package
+<repo>/tests/cases/diag

@@ -1,0 +1,18 @@
+1:1 CharLiteral `''`
+1:3 Identifier `Y`
+3:1 OpenParen `(`
+3:3 Dot `.`
+3:4 CloseParen `)`
+3:6 OpenBracket `[`
+3:8 CloseBracket `]`
+3:10 OpenBrace `{`
+3:12 CloseBrace `}`
+5:1 Identifier `_`
+6:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''Y
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

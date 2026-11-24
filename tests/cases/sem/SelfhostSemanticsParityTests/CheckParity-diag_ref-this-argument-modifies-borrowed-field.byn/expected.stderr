@@ -1,0 +1,18 @@
+error BYN3004: `items` is modified while `s` still borrows it
+  --> tmp/t26-tests/cli/diag_ref-this-argument-modifies-borrowed-field.byn/ref-this-argument-modifies-borrowed-field.byn:7:18
+
+  7 │         wipe(ref this)
+    │                  ^^^^ `s` is used again on line 8
+    │
+  help: finish using `s` first, or copy what it needs before changing `items`
+
+error BYN3004: `items` is modified while `s` still borrows it
+  --> tmp/t26-tests/cli/diag_ref-this-argument-modifies-borrowed-field.byn/ref-this-argument-modifies-borrowed-field.byn:18:9
+
+  18 │         reset()
+     │         ^^^^^^^ `s` is used again on line 19
+     │
+  help: finish using `s` first, or copy what it needs before changing `items`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3004

@@ -1,0 +1,1 @@
+$ d=$(mktemp -d /tmp/bayan-scaffold.XXXXXX); $BAYAN new $d/tally | sed "s|$d|<tmp>|g"; test -d $d/tally/.git && echo "tally/.git exists"; ls $d/tally/.git/refs/heads | wc -l | tr -d " "; rm -rf $d

@@ -1,0 +1,4 @@
+1:1 NeverKeyword `never`
+1:7 Identifier `closed`
+2:1 Identifier `b`
+3:2 EndOfFile

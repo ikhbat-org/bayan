@@ -1,0 +1,1 @@
+{"code":"BYN3216","severity":"error","file":"input.byn","span":{"start":119,"end":138,"line":7,"column":5,"endLine":7,"endColumn":24},"message":"`SignupForm.password` can be written only by `SignupForm`'s own methods or with `with`: `SignupForm` has `requires`","label":null,"help":"add a `ref this` method to `SignupForm`, or build a new value with `with`","fixes":[]}

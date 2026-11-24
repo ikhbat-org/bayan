@@ -1,0 +1,57 @@
+# Nightly and on-demand re-check of every dev task of the LLM eval set (spec 025 R29, T31): each reference must score all
+# four results on the commit under test. The ci job's step took 5 min 39 s at 40 tasks (run 44477075278, 2026-11-19), over the
+# spec's 3 minutes, so ci.yml re-checks the 12 tasks of evals/llm/smoke.txt plus the tasks the push touched, and the whole
+# set runs here, which also catches a compiler change that breaks a task outside those.
+# GitHub starts scheduled runs only from the default branch, `main`, at main's commit (GITHUB_SHA is main's), so a scheduled
+# run checks out the tip of `dev`; workflow_dispatch takes a `ref` input, default `dev`. Both need this file on `main`: the
+# schedule starts, and `gh workflow run llm-eval-nightly.yml` works, only once it is there.
+# Linux only, like the ci step. It only measures: it never commits or pushes.
+name: llm-eval-nightly
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or commit to re-check (e95baa653 or newer; no .NET on runner)
+        type: string
+        default: dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llm-eval-nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  recheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # A CI checkout has no local `dev`, so pin the commit under test, as ci.yml does.
+    env:
+      PINNED_BAYAN_REF: HEAD
+    steps:
+      # Replaces actions/checkout (spec 015 handoff, T4): the tip of `dev` (schedule) or of the `ref` input (dispatch) at
+      # depth 1, not GITHUB_SHA. The repo is public, so no token.
+      - name: Checkout
+        shell: bash
+        env:
+          INPUT_REF: ${{ inputs.ref }}
+        run: |
+          ref="${INPUT_REF:-dev}"
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$ref"
+          git checkout -q --detach FETCH_HEAD
+          if ! grep -q 'bootstrap/bayan\.c' scripts/pinned-bayan.sh 2>/dev/null; then
+            echo "llm-eval-nightly: ref '$ref' ($(git rev-parse --short HEAD)) predates e95baa653 (pinned-bayan without .NET); pass e95baa653 or newer" >&2
+            exit 1
+          fi
+          echo "llm-eval-nightly: $ref at $(git rev-parse HEAD)"
+      # The scorer copies zig into its tools directory and compiles every reference with it; no runner image has it.
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: LLM eval re-check (whole set)
+        run: bash scripts/bayan-tool.sh llm-eval recheck evals/llm/tasks

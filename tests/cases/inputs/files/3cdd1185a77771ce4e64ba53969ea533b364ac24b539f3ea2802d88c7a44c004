@@ -1,0 +1,1 @@
+let w = rows[i].first().second(alphaValue).third(betaValue).fourth()

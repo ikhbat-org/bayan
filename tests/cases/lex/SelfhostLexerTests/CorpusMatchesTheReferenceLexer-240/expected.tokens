@@ -1,0 +1,14 @@
+2:3 RawStringLiteral `""" c"text"\u{F}u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n0x_\n let effect = 2 macro select become\nlet a = 1\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text"�u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,13 @@
+== tests/cases/run/symbol-debug-field.byn
+150..247 blockStmt
+156..178 localDecl
+172..178 literalExpr string
+183..215 localDecl
+191..215 structLiteralExpr
+201..202 nameExpr
+207..213 literalExpr string
+220..245 exprStmt
+220..245 callExpr
+226..244 interpolatedExpr
+229..230 nameExpr
+220..245 callExpr

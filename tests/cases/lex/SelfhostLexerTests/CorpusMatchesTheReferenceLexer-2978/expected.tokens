@@ -1,0 +1,32 @@
+1:2 Identifier `et`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+1:12 NumericSuffix `x`
+3:2 Identifier `stray`
+3:8 CloseBrace `}`
+3:10 Identifier `here`
+3:14 StringLiteral `"`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `\u{E}`
+
+  1 │ �et a = $ 1x
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ �et a = $ 1x
+    │         ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ $stray } here"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $stray } here"
+    │              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,22 @@
+2:1 Identifier `tern`
+2:6 Identifier `un`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `{{`
+3:5 InterpolatedStringEnd
+4:1 PlusEquals `+=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 CaretEquals `^=`
+4:25 LessLessEquals `<<=`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{{
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

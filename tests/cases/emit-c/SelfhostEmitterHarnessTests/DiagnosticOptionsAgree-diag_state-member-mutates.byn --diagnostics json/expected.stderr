@@ -1,0 +1,1 @@
+{"code":"BYN5002","severity":"error","file":"input.byn","span":{"start":39,"end":46,"line":4,"column":10,"endLine":4,"endColumn":17},"message":"`isEmpty` reads as state but modifies `this`","label":"declared `ref this`","help":"remove `ref this` so it only reads, or name the action with a verb","fixes":[]}

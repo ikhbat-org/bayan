@@ -1,0 +1,39 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:56 StaticKeyword `static`
+1:63 ReadonlyKeyword `readonly`
+1:72 RequiredKeyword `required`
+1:81 ConstKeyword `const`
+1:87 LetKeyword `let`
+1:91 VarKeyword `var`
+1:95 EmbedKeyword `embed`
+1:101 ExternKeyword `extern`
+1:108 UnsafeKeyword `unsafe`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ error set unit distinct type import as public private �static readonly required const let var embed extern unsafe
+    │                                                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���
+    │    ^

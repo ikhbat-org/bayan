@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Identifier","start":0,"end":4,"text":"afé","doc":null},{"kind":"Equals","start":5,"end":6,"text":"=","doc":null},{"kind":"IntegerLiteral","start":7,"end":8,"text":"2","doc":null},{"kind":"EndOfFile","start":11,"end":11,"text":"","doc":null}],"diagnostics":[]}

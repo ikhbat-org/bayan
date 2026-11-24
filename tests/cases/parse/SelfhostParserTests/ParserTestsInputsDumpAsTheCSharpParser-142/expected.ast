@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (.. 0 (- n 1))

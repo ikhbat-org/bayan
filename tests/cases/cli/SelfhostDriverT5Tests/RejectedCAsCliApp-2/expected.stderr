@@ -1,0 +1,1 @@
+{"code":"BYN4001","severity":"error","file":null,"span":null,"message":"internal compiler error: the C compiler rejected the generated C; this is a bug in the Bayan compiler","label":null,"help":"C compiler failed (exit 1):\nmain.c:2:5: error: injected\n","fixes":[]}

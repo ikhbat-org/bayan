@@ -1,0 +1,4 @@
+== member.probes.-.v32
+errorExpr|?|-|-|-|-|-|3204:17|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 160:20 `replaceRange` is now `replace(at:by:)` |the old name|write `replace(at:by:)`|

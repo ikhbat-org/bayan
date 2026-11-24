@@ -1,0 +1,57 @@
+2:1 CharLiteral `'x`
+5:3 LetKeyword `let`
+5:7 Identifier `c`
+5:9 Equals `=`
+5:13 IntegerLiteral `3`
+7:1 Plus `+`
+7:3 Minus `-`
+7:5 Star `*`
+7:7 Slash `/`
+7:9 Percent `%`
+7:11 PlusPercent `+%`
+7:14 MinusPercent `-%`
+7:17 StarPercent `*%`
+7:20 PlusBar `+|`
+7:23 MinusBar `-|`
+7:26 StarBar `*|`
+7:29 PlusPlus `++`
+7:32 MinusMinus `--`
+9:1 LetKeyword `let`
+9:5 Identifier `b`
+9:7 Equals `=`
+9:9 StringLiteral `"bad \q escape"`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �
+    │   │ -
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `﻿`
+
+  5 │ ﻿ let c = � 3
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ ﻿ let c = � 3
+    │           ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  9 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

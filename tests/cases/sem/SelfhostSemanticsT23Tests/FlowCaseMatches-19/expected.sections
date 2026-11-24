@@ -1,0 +1,2 @@
+== flow.neverReturns
+BYN2404 62:1 `neverReturns` returns `never` but can reach its end ||end every path with `panic(…)` or a call that never returns|

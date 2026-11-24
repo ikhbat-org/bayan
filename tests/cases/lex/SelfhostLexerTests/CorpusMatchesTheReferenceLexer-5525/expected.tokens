@@ -1,0 +1,95 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 Identifier `dM`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 StringLiteral `"{$"`
+2:39 OpenBrace `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 InterpolatedStringStart `$"`
+2:54 InterpolationStart `{`
+2:55 StringLiteral `$"{$"`
+2:60 OpenBrace `{`
+2:61 Identifier `x`
+2:62 CloseBrace `}`
+2:63 StringLiteral `"}"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ���$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ ���$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                                         ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  3 │ 	//�ok � in comment
+    │ 	  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ 	//�ok � in comment
+    │ 	      ^

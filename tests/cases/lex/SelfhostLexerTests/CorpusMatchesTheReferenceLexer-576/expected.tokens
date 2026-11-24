@@ -1,0 +1,34 @@
+1:1 IntegerLiteral `0x`
+1:4 Identifier `__`
+2:2 CharLiteral `'macro select become`
+3:1 IntegerLiteral `0x`
+4:2 Identifier `t`
+4:4 Identifier `x́́`
+4:8 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x�__
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ 0x�__
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  2 │  'macro select become
+    │  ^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{4}`
+
+  4 │  t�x́́ 
+    │   ^

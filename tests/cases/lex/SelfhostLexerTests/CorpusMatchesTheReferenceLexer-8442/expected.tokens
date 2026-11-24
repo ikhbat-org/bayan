@@ -1,0 +1,70 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 Identifier `foreac`
+1:40 NewKeyword `new`
+1:44 GotoKeyword `goto`
+2:2 Identifier `Å`
+2:3 Amp `&`
+2:5 AmpAmp `&&`
+2:8 Bar `|`
+2:10 BarBar `||`
+2:13 Caret `^`
+2:15 Tilde `~`
+2:17 Bang `!`
+2:19 Equals `=`
+2:21 EqualsEquals `==`
+2:24 BangEquals `!=`
+2:27 Less `<`
+2:29 LessEquals `<=`
+2:32 Greater `>`
+2:34 GreaterEquals `>=`
+2:37 LessLess `<<`
+2:39 Greater `>`
+2:40 Greater `>`
+2:42 Greater `>`
+2:43 GreaterEquals `>=`
+4:1 IntegerLiteral `0b102`
+6:1 Equals `=`
+6:3 IntegerLiteral `2`
+7:1 Identifier `macro`
+7:7 Identifier `sel`
+8:1 VarKeyword `var`
+8:5 Identifier `xs`
+8:7 Colon `:`
+8:9 Identifier `List`
+8:13 Less `<`
+8:14 Identifier `List`
+8:18 Less `<`
+8:19 Identifier `i64`
+8:22 Greater `>`
+8:23 Greater `>`
+11:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  2 │  Å& && | || ^ ~ ! = == != < <= > >= <<�>> >>=
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  Å& && | || ^ ~ ! = == != < <= > >= <<�>> >>=
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  2 │  Å& && | || ^ ~ ! = == != < <= > >= <<�>> >>=
+    │                                       ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  4 │ 0b102
+    │     ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro sel
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

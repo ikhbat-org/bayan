@@ -1,0 +1,16 @@
+== 1 exit 0
+build 0
+  parse      #s
+  check      #s
+  emit       #s
+  compile    #s
+  $WORK/build-verbose/out
+◆ built build-verbose (safe, <host>) in #s
+== 2 exit 0
+build 0
+  parse      #s
+  check      #s
+  emit       #s
+  compile    from cache
+  $WORK/build-verbose/out
+◆ built build-verbose (safe, <host>) in #s · from cache

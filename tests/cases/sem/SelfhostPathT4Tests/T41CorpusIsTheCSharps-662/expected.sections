@@ -1,0 +1,4 @@
+== diags.diag/interface-default-abstract-conflict
+BYN2802 9:16 `S.area` is `IA.area` but `IB` requires `i64 area()`
+  label `area` has a default in `IA`
+  help add `i64 area()` to `S` to choose one

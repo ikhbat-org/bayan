@@ -1,0 +1,1 @@
+{"code":"BYN2407","severity":"error","file":"input.byn","span":{"start":56,"end":60,"line":4,"column":18,"endLine":4,"endColumn":22},"message":"`continue pick` refers to a `switch`, not a loop","label":null,"help":null,"fixes":[]}

@@ -1,0 +1,112 @@
+1:1 IntegerLiteral `3`
+    doc `/// Doc line one.`
+3:1 IntegerLiteral `0`
+3:3 IntegerLiteral `42`
+3:6 IntegerLiteral `1_000_000`
+3:16 IntegerLiteral `0xFF`
+3:21 IntegerLiteral `0x_ff`
+3:27 IntegerLiteral `0b1010`
+3:34 IntegerLiteral `0B11`
+3:39 IntegerLiteral `5`
+3:40 NumericSuffix `s`
+3:42 IntegerLiteral `250`
+3:45 NumericSuffix `ms`
+3:48 IntegerLiteral `4`
+3:49 NumericSuffix `KiB`
+3:53 IntegerLiteral `1`
+3:54 NumericSuffix `u`
+3:56 IntegerLiteral `0xFF`
+3:60 NumericSuffix `u`
+3:62 IntegerLiteral `0b1`
+3:65 NumericSuffix `ul`
+3:68 IntegerLiteral `7`
+3:69 NumericSuffix `l`
+4:1 Star `*`
+4:2 Slash `/`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 Identifier `v`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 StringLiteral `$"{$"`
+4:58 OpenBrace `{`
+4:59 StringLiteral `$"{$"`
+4:64 OpenBrace `{`
+4:65 StringLiteral `$"{x}"`
+4:71 CloseBrace `}`
+4:72 StringLiteral `"}"`
+4:75 CloseBrace `}`
+4:76 StringLiteral `"}"`
+4:79 InterpolationEnd `}`
+4:80 InterpolatedStringEnd `"`
+4:81 InterpolationEnd `}`
+4:82 InterpolatedStringEnd `"`
+4:83 InterpolationEnd `}`
+4:84 InterpolatedStringEnd `"`
+4:85 InterpolationEnd `}`
+4:86 InterpolatedStringEnd `"`
+4:87 InterpolationEnd `}`
+4:88 InterpolatedStringEnd `"`
+4:90 IsKeyword `is`
+4:93 AndKeyword `and`
+4:97 OrKeyword `or`
+4:100 NotKeyword `not`
+4:104 WithKeyword `with`
+4:109 MoveKeyword `move`
+4:114 RefKeyword `ref`
+4:118 OutKeyword `out`
+4:122 ThisKeyword `this`
+4:127 NullKeyword `null`
+4:132 TrueKeyword `true`
+4:137 FalseKeyword `false`
+4:143 ComptimeKeyword `comptime`
+4:152 CheckedKeyword `checked`
+6:1 Identifier `ρητής`
+6:7 Identifier `x_1`
+6:11 Identifier `é`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{v$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" is and or not with move ref out this null true false comptime checked
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{v$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" is and or not with move ref out this null true false comptime checked
+    │                                                     ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  6 │ �ρητής x_1 é
+    │ ^

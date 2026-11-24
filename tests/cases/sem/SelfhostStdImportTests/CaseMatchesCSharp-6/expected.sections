@@ -1,0 +1,7 @@
+== path hidden
+module std.probe <std>/probe std_probe
+file <std>/probe/probe.byn
+module main tmp/std-cases/hidden main
+file tmp/std-cases/hidden/main.byn
+import probe std.probe
+diag BYN2005 tmp/std-cases/hidden/main.byn 2:13 `hidden` is not visible here | not `public` | mark `hidden` `public` to use it from another module

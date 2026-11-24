@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ConditionalExpr",
+    "EnumDecl",
+    "ExprStmt",
+    "FieldDecl",
+    "ForStmt",
+    "FunctionDecl",
+    "GetterDecl",
+    "IndexExpr",
+    "InterfaceDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "PropertyDecl",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "TargetMemberExpr",
+    "TypeAliasDecl",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": [
+    "BYN5014"
+  ]
+}

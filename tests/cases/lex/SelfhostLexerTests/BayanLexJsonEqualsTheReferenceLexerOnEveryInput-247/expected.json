@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"CatchKeyword","start":0,"end":5,"text":"catch","doc":null},{"kind":"NeverKeyword","start":6,"end":11,"text":"never","doc":null},{"kind":"Identifier","start":12,"end":19,"text":"noelloc","doc":null},{"kind":"Identifier","start":20,"end":23,"text":"nos","doc":null},{"kind":"EndOfFile","start":24,"end":24,"text":"","doc":null}],"diagnostics":[]}

@@ -1,0 +1,25 @@
+1:4 Identifier `c`
+1:6 Greater `>`
+1:7 GreaterEquals `>=`
+1:10 IntegerLiteral `1`
+2:2 Identifier `afé`
+2:6 Equals `=`
+2:8 IntegerLiteral `2`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � � c >>= 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � � c >>= 1
+    │   ^

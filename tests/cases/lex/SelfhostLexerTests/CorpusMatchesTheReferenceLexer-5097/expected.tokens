@@ -1,0 +1,114 @@
+3:1 Dot `.`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+6:1 Identifier `b`
+9:1 LetKeyword `let`
+9:5 Identifier `a`
+9:7 Equals `=`
+9:9 IntegerLiteral `1`
+10:1 OpenParen `(`
+10:3 CloseParen `)`
+10:5 OpenBracket `[`
+10:7 CloseBracket `]`
+10:9 OpenBrace `{`
+10:11 CloseBrace `}`
+11:2 InterpolatedStringStart `$"`
+11:4 InterpolationStart `{`
+11:5 InterpolatedStringStart `$"`
+11:7 InterpolationStart `{`
+11:8 InterpolatedStringStart `$"`
+11:10 InterpolationStart `{`
+11:11 InterpolatedStringStart `$"`
+11:13 InterpolationStart `{`
+11:14 InterpolatedStringStart `$"`
+11:16 InterpolationStart `{`
+11:17 InterpolatedStringStart `$"`
+11:19 InterpolationStart `{`
+11:20 InterpolatedStringStart `$"`
+11:22 InterpolationStart `{`
+11:23 InterpolatedStringStart `$"`
+11:25 InterpolationStart `{`
+11:26 InterpolatedStringStart `$"`
+11:28 InterpolationStart `{`
+11:29 InterpolatedStringStart `$"`
+11:31 InterpolationStart `{`
+11:32 InterpolatedStringStart `$"`
+11:34 InterpolationStart `{`
+11:35 InterpolatedStringStart `$"`
+11:37 InterpolationStart `{`
+11:38 InterpolatedStringStart `$"`
+11:40 InterpolationStart `{`
+11:41 InterpolatedStringStart `$"`
+11:43 InterpolationStart `{`
+11:44 InterpolatedStringStart `$"`
+11:46 InterpolationStart `{`
+11:47 InterpolatedStringStart `$"`
+11:49 InterpolationStart `{`
+11:51 Slash `/`
+11:52 StringLiteral `"{$"`
+11:56 OpenBrace `{`
+11:57 Identifier `x`
+11:58 CloseBrace `}`
+11:59 StringLiteral `"}"`
+11:62 InterpolationEnd `}`
+11:63 InterpolatedStringEnd `"`
+11:64 InterpolationEnd `}`
+11:65 InterpolatedStringEnd `"`
+11:66 InterpolationEnd `}`
+11:67 InterpolatedStringEnd `"`
+11:68 InterpolationEnd `}`
+11:69 InterpolatedStringEnd `"`
+11:70 InterpolationEnd `}`
+11:71 InterpolatedStringEnd `"`
+11:72 InterpolationEnd `}`
+11:73 InterpolatedStringEnd `"`
+11:74 InterpolationEnd `}`
+11:75 InterpolatedStringEnd `"`
+11:76 InterpolationEnd `}`
+11:77 InterpolatedStringEnd `"`
+11:78 InterpolationEnd `}`
+11:79 InterpolatedStringEnd `"`
+11:80 InterpolationEnd `}`
+11:81 InterpolatedStringEnd `"`
+11:82 InterpolationEnd `}`
+11:83 InterpolatedStringEnd `"`
+11:84 InterpolationEnd `}`
+11:85 InterpolatedStringEnd `"`
+11:86 InterpolationEnd `}`
+11:87 InterpolatedStringEnd `"`
+11:88 InterpolationEnd `}`
+11:89 InterpolatedStringEnd `"`
+11:90 InterpolationEnd `}`
+11:91 InterpolatedStringEnd `"`
+12:1 IntegerLiteral `0xF__`
+14:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  1 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$/"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+     │  ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$/"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+     │                                                  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │ 0xF__
+     │    ^^
+     │
+     │ 12 │ 0xF__
+     │    │    --

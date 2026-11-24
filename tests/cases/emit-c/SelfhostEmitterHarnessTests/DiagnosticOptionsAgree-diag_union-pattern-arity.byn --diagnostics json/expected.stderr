@@ -1,0 +1,1 @@
+{"code":"BYN2703","severity":"error","file":"input.byn","span":{"start":120,"end":132,"line":8,"column":5,"endLine":8,"endColumn":17},"message":"variant `rect` has 2 payload field(s), but the pattern lists 1","label":null,"help":"list every field: `.rect(let w, let h)`, or `_` to skip one","fixes":[]}

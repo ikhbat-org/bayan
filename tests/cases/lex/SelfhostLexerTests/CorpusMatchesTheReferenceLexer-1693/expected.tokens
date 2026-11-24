@@ -1,0 +1,33 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+4:1 FailsKeyword `fails`
+4:7 Identifier `t`
+4:9 Identifier `ry`
+4:12 CatchKeyword `catch`
+4:18 NeverKeyword `never`
+4:24 NoallocKeyword `noalloc`
+4:32 NosuspendKeyword `nosuspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
+5:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xD3)
+
+  4 │ fails t�ry catch never noalloc nosuspend suspends async await
+    │        ^

@@ -1,0 +1,10 @@
+error BYN2604: `total` cannot fail, so it cannot pass on `ParseError`
+  --> tmp/t26-tests/cli/diag_propagate-from-infallible.byn/propagate-from-infallible.byn:11:12
+
+  11 │     return try parse(s)
+     │            ^^^^^^^^^^^^
+     │
+  help: handle the error with `catch`, or declare `fails ParseError`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2604

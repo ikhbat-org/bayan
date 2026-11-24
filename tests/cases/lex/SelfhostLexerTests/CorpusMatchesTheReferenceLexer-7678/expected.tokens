@@ -1,0 +1,81 @@
+1:1 Dot `.`
+1:2 IntegerLiteral `2`
+1:4 IntegerLiteral `1`
+1:5 DotDotEquals `..=`
+1:8 IntegerLiteral `3`
+1:10 IntegerLiteral `5`
+1:11 NumericSuffix `e`
+1:13 Identifier `x`
+1:14 Dot `.`
+1:15 Identifier `y`
+1:17 IntegerLiteral `2`
+1:18 NumericSuffix `d`
+1:19 Dot `.`
+1:20 IntegerLiteral `5`
+1:21 NumericSuffix `f`
+3:1 Identifier `l`
+3:4 Identifier `t`
+3:6 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `2`
+5:1 Star `*`
+5:3 NeverKeyword `never`
+5:9 Identifier `closed`
+6:1 Identifier `b`
+7:2 Identifier `camelCase2`
+7:13 Identifier `ب`
+7:16 IntegerLiteral `0xFF`
+7:20 NumericSuffix `s`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ���
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  3 │ l��t café = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ l��t café = 2
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  7 │  camelCase2 ب� 0xFFs
+    │              ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │  camelCase2 ب� 0xFFs
+    │                    ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

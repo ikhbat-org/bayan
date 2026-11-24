@@ -1,0 +1,15 @@
+== diags.diag/state-line-input
+BYN1059 3:5 `state draft` is an input form; declare the states in one `states { … }` block
+  label the input form
+  help move each state into the struct's `states` block
+  fix 3:1-5:1     states {
+        draft
+        paid(i64 payment)
+    }
+BYN1059 4:5 `state paid(i64 payment)` is an input form; declare the states in one `states { … }` block
+  label the input form
+  help move each state into the struct's `states` block
+  fix 3:1-5:1     states {
+        draft
+        paid(i64 payment)
+    }

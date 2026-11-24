@@ -1,0 +1,5 @@
+== args.a3
+literal|i64|-|-|-|2492:1|1
+literal|bool|-|-|-|2504:4|true
+literal|i64|-|-|-|2514:1|2
+literal|string|-|-|-|2524:3|"y"

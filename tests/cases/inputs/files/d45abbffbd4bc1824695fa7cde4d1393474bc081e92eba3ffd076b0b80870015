@@ -1,0 +1,6 @@
+$"{ 
+let ‰c =  3
+ let cafeÃÅ = 1
+ //// not a doc comment
+ } { x = 1 }}!" $""
+00 0xFF 0x_ff 0b101

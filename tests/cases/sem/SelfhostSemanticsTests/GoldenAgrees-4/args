@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tests/cases/diag
+--tests
+<repo>/tests/cases/diag/cases-type-mismatch.test.byn

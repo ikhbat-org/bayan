@@ -1,0 +1,6 @@
+== tests/cases/diag/array-length-mismatch.byn
+0..23 globalStatement
+0..23 localDecl
+17..23 collectionExpr
+18..19 literalExpr integer
+21..22 literalExpr integer

@@ -1,0 +1,59 @@
+2:2 LetKeyword `let`
+2:6 Identifier `caf`
+2:11 Equals `=`
+2:13 IntegerLiteral `2`
+4:1 StringLiteral `"{$"`
+4:5 OpenBrace `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolationStart `{`
+4:12 Identifier `x́́`
+4:16 Slash `/`
+4:17 Identifier `m`
+4:18 Star `*`
+4:22 Star `*`
+4:23 Slash `/`
+5:1 Identifier `x`
+5:2 InterpolationEnd `}`
+5:3 InterpolatedStringEnd `"`
+5:4 InterpolationEnd `}`
+5:5 InterpolatedStringEnd `"`
+5:6 CloseBrace `}`
+5:7 StringLiteral `"} �� $"`
+5:14 OpenBrace `{`
+5:15 OpenBrace `{`
+5:16 StringLiteral `"`
+5:17 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │  let caf� = 2
+    │         ^
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  4 │ "{$"{$"{$"{x́́ /m* � */
+    │                    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ "{$"{$"{$"{x́́ /m* � */
+    │   │                    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ x}"}"}"} �� $"{{"
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ x}"}"}"} �� $"{{"
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  5 │ x}"}"}"} �� $"{{"
+    │                 ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,8 @@
+$"a{b}clet café = 1; 0xFFs
+
+"{ '‮'
+ext" u16"wide" "‮ allowed in strings" ""
+$"stray } here"
+
+let x⁧ = 1
+ 

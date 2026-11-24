@@ -1,0 +1,14 @@
+== tests/cases/diag/in-range-unassigned.byn
+0..11 globalStatement
+0..11 localDecl
+12..21 localDecl
+20..21 literalExpr integer
+22..45 exprStmt
+22..45 callExpr
+28..44 interpolatedExpr
+31..42 inExpr
+31..32 nameExpr
+36..42 rangeExpr
+36..37 literalExpr integer
+40..42 nameExpr
+22..45 callExpr

@@ -1,0 +1,105 @@
+// 019 T29 (coverage ratchet): cc.byn paths no golden case reaches: the Windows search of `PATH`, a host spelled with an empty
+// os or arch, every refusal of `ccRefusal`, the compiler arguments for the host, a cross target and Windows, and `ZigOrCc` refusing,
+// failing to write, rejecting a source and building one. The expected values are the output of the self-hosted driver at the
+// commit that added the test.
+
+import semantics
+
+/// tmp/cc-t29/<name> under the working directory, emptied.
+string t29CcDir(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "cc-t29"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+/// A target that is not the host's.
+string t29CcOther() uses alloc => targetHost() == "linux-x64" ? "linux-arm64" : "linux-x64"
+
+test "driver t29: ccFindOnPath on Windows, and targetHostFrom with no os, no arch or wasm" {
+    assert ccFindOnPath("t29-no-such-tool", for: "windows") is null
+    assert targetHostFrom("", for: "x64") is null
+    assert targetHostFrom("linux", for: "") is null
+    t29Same(targetHostFrom("wasi", for: "wasm32") ?? "", as: "wasm32")
+    t29Same(ccWithoutExtension("zig.exe"), as: "zig")
+}
+
+test "driver t29: ccRefusal names an unknown target and a cross build without zig" {
+    t29Same(
+        ccRefusal(boundList(["cc"]), for: "t29"),
+        as: "unknown target `t29`; targets are linux-x64, linux-arm64, macos-x64, macos-arm64, windows-x64, windows-arm64, wasm32",
+    )
+    t29Same(
+        ccRefusal(boundList(["cc"]), for: null),
+        as: "unknown target ``; targets are linux-x64, linux-arm64, macos-x64, macos-arm64, windows-x64, windows-arm64, wasm32",
+    )
+    let other = t29CcOther()
+    t29Same(
+        ccRefusal(boundList(["/bin/zig", "ar"]), for: other),
+        as: $"building for {other} on this machine needs zig (https://ziglang.org); the C compiler is `/bin/zig ar`",
+    )
+    t29Same(
+        ccRefusal(boundList(["/bin/gcc", "cc"]), for: other),
+        as: $"building for {other} on this machine needs zig (https://ziglang.org); the C compiler is `/bin/gcc cc`",
+    )
+    t29Same(ccRefusal(boundList(["/bin/zig", "cc"]), for: other), as: "")
+}
+
+test "driver t29: ccRuntimeArguments and ccArguments for the host, a cross target and Windows" {
+    let compiler = boundList(["zig", "cc"])
+    // the files under `/w` are joined with the host's separator, `\` on Windows
+    let rtc = Path.combine("/w", "bayan-rt.c")
+    let rto = Path.combine("/w", "bayan-rt.o")
+    let mainc = Path.combine("/w", "main.c")
+    // on a windows-x64 host that target is the host, so no `-target`; the host's own link library is shell32 on Windows
+    let triple = targetHost() == "windows-x64" ? "" : "-target x86_64-windows-gnu "
+    let lib = Target.os == "windows" ? "-lshell32" : "-lm"
+    t29Same(
+        ccRuntimeArguments(in compiler, for: "/w", by: "debug", through: null).joined(by: " "),
+        as: $"cc -std=c11 -fwrapv -ffp-contract=off -w -O0 -g -DBYN_DEBUG -c -ffile-prefix-map=/w=. -I /w {rtc} -o {rto}",
+    )
+    t29Same(
+        ccRuntimeArguments(in compiler, for: "/w", by: "safe", through: targetHost()).joined(by: " "),
+        as: $"cc -std=c11 -fwrapv -ffp-contract=off -w -O2 -DBYN_NDEBUG -c -ffile-prefix-map=/w=. -I /w {rtc} -o {rto}",
+    )
+    t29Same(
+        ccArguments(in compiler, for: "/w", to: "/w/a.exe", by: "fast", through: "windows-x64").joined(by: " "),
+        as: $"cc {triple}-std=c11 -fwrapv -ffp-contract=off -w -O2 -DBYN_NDEBUG -ffile-prefix-map=/w=. -I /w {mainc} {rto} -o /w/a.exe -lshell32",
+    )
+    t29Same(
+        ccArguments(in compiler, for: "/w", to: "/w/a", by: "safe", through: null).joined(by: " "),
+        as: $"cc -std=c11 -fwrapv -ffp-contract=off -w -O2 -DBYN_NDEBUG -ffile-prefix-map=/w=. -I /w {mainc} {rto} -o /w/a {lib}",
+    )
+}
+
+test "driver t29: ZigOrCc refuses, fails to write, rejects a source and builds one" {
+    var z = ZigOrCc {}
+    let dir = t29CcDir("compile")
+    let refused = z.compile(dir, from: "", to: Path.combine(dir, "a"), by: "safe", for: "t29")
+    assert !refused.succeeded && refused.errors.startsWith("unknown target `t29`")
+    let gone = Path.combine(dir, "missing")
+    let unwritten = z.compile(gone, from: "", to: Path.combine(gone, "a"), by: "safe", for: null)
+    t29Same(unwritten.errors, as: $"cannot write the build output ({gone})")
+    let rejected = z.compile(dir, from: "t29 is not C\n", to: Path.combine(dir, "a"), by: "safe", for: null)
+    assert rejected.rejected && rejected.errors.startsWith("C compiler failed (exit 1):\n")
+    goldenWrite(dir, for: "main.byn", as: "print(\"t29\")\n")
+    var c = semantics.fromPath(Path.combine(dir, "main.byn"), by: T5CompilationOptions {}, wholeDirectory: false)
+    let exe = Path.combine(dir, "built")
+    let built = z.compile(dir, from: t5EmitC(ref c, by: "safe"), to: exe, by: "safe", for: null)
+    t29Same(built.errors, as: "")
+    assert built.succeeded
+    let r = Io.run(exe, List<string>().span) catch { panic("run") }
+    t29Same(r.stdout, as: "t29\n")
+    ccReportToolchain(rejected)
+    deleteWorkDir(dir)
+}
+
+test "driver t29: ZigOrCc reports a runtime object it cannot write" {
+    var z = ZigOrCc {}
+    let dir = t29CcDir("runtime")
+    // a directory where the runtime object goes: the compiler of the runtime exits 1 (zig: `failed to open output binary: IsDir`)
+    Io.createDirectory(Path.combine(dir, "bayan-rt.o")) catch { panic("mkdir") }
+    let failed = z.compile(dir, from: "", to: Path.combine(dir, "a"), by: "safe", for: null)
+    assert failed.rejected && !failed.succeeded && failed.errors.startsWith("C compiler failed (exit 1):\n")
+    deleteWorkDir(dir)
+}

@@ -1,0 +1,10 @@
+/// The zakat al-fitr a list of households owes: one `rate` for each person, with a log message of the total.
+public i64 fitraOwed(List<i64> households, at i64 rate) {
+    var people: i64 = 0
+    for size in households {
+        people += size
+    }
+    let owed = people * rate
+    log($"fitra for {people} people at {rate} is {owed}")
+    return owed
+}

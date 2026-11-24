@@ -1,0 +1,17 @@
+// os: unix
+// A child killed by a signal fails `Io.run` with `.signaled`, whose payload is the signal number (no 128 + n exit code)
+// and what the child wrote to each stream before it died (Q1157).
+void main() {
+    let killed: string[2] = ["-c", "printf o; printf e >&2; kill -9 $$"]
+    let r = Io.run("sh", killed.span) catch switch {
+        .signaled(let s, let output, let errors) => {
+            print($"signaled {s} stdout '{output}' stderr '{errors}'")
+            return
+        },
+        IoError e => {
+            print($"io {e}")
+            return
+        },
+    }
+    print($"exit {r.exitCode}")
+}

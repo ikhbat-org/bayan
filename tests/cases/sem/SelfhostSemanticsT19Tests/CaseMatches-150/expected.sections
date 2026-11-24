@@ -1,0 +1,5 @@
+== bind.probes.b39
+flags 0
+binary:bool[2504:20]=-(logicalOr binary:bool[2504:10]=-(eq local:i32?[2504:2]=-(oi) defaultValue:i32?[2510:4]=-()) errorExpr:?[2518:6]=-())
+BYN2027 146:15 compare with `is null` / `is not null`, not `==` ||write `oi is null`|fix 2504..2514 oi is null
+BYN2208 146:29 `>` cannot be applied to `i32?` and `i32` |||

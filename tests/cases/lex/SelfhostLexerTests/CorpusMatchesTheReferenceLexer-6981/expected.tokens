@@ -1,0 +1,70 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+4:1 Identifier `n`
+4:3 Identifier `attributetest`
+4:17 AssertKeyword `assert`
+4:24 PropertyKeyword `property`
+4:33 FuzzKeyword `fuzz`
+4:38 ModelKeyword `model`
+4:44 ForeachKeyword `foreach`
+4:52 NewKeyword `new`
+4:56 GotoKeyword `goto`
+5:2 IntegerLiteral `1`
+5:3 NumericSuffix `e`
+6:2 IntegerLiteral `2`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:11 IntegerLiteral `3`
+9:3 IsKeyword `is`
+9:6 AndKeyword `and`
+9:10 OrKeyword `or`
+9:13 NotKeyword `not`
+9:17 WithKeyword `with`
+9:22 MoveKeyword `move`
+9:27 RefKeyword `ref`
+9:32 OutKeyword `out`
+9:36 ThisKeyword `this`
+9:41 NullKeyword `null`
+9:46 TrueKeyword `true`
+9:51 Identifier `falsa`
+9:57 ComptimeKeyword `comptime`
+9:66 CheckedKeyword `checked`
+11:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │ ��� is and or not with move ref� out this null true falsa comptime checked
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  9 │ ��� is and or not with move ref� out this null true falsa comptime checked
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ ��� is and or not with move ref� out this null true falsa comptime checked
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │ ��� is and or not with move ref� out this null true falsa comptime checked
+    │                                ^

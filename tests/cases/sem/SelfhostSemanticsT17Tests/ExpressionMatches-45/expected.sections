@@ -1,0 +1,3 @@
+== case conv-mismatch
+errorExpr 1298..1302 : ?
+BYN2202 67:17 expected `i32`, found `bool` |||

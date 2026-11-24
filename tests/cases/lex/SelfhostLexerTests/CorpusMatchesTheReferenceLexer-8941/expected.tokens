@@ -1,0 +1,29 @@
+1:1 Identifier `Å`
+1:2 CharLiteral `'�!'`
+1:6 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å'�!'
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å'�!'
+    │   │ +
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ Å'�!'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ Å'�!'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ Å'�!'
+    │    ^

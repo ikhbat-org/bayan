@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/format-debug-rune-escapes.byn
+--package
+<repo>/tests/cases/run

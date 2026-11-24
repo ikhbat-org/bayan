@@ -1,0 +1,2 @@
+== locals
+main: zero small big t t i8Max i8Neg i8Min t t i16Max i16Neg t i32Max i32Neg i32Min t t i64Max i64Neg i64Min t t isizeNeg u8Small u8Max t u16Max u32Max u64Max usizeVal arena hex

@@ -1,0 +1,26 @@
+error BYN2743: `+` cannot be applied to a value of type parameter `T`
+  --> <repo>/tests/cases/diag/type-parameter-arithmetic.byn:1:26
+
+  1 │ T add<T>(T a, to T b) => a + b
+    │                          ^^^^^
+    │
+  help: use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type
+        parameters have no constraints
+
+error BYN2743: `-` cannot be applied to a value of type parameter `T`
+  --> <repo>/tests/cases/diag/type-parameter-arithmetic.byn:2:21
+
+  2 │ T negate<T>(T a) => -a
+    │                     ^^
+    │
+  help: use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type
+        parameters have no constraints
+
+error BYN2743: `*` cannot be applied to a value of type parameter `T`
+  --> <repo>/tests/cases/diag/type-parameter-arithmetic.byn:7:18
+
+  7 │     T twice() => value * 2
+    │                  ^^^^^^^^^
+    │
+  help: use a `T` only to copy, compare with `==` and `!=`, pass, store, return and format; type
+        parameters have no constraints

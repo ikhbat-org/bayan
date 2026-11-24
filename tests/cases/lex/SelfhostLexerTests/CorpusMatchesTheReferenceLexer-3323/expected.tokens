@@ -1,0 +1,33 @@
+1:1 Identifier `mment`
+1:9 Identifier `hidden`
+2:1 Identifier `ن`
+2:3 Identifier `μετρητής`
+2:13 Comma `,`
+2:15 Dot `.`
+2:17 DotDot `..`
+2:20 DotDotEquals `..=`
+2:24 Colon `:`
+2:26 Question `?`
+2:28 QuestionQuestion `??`
+2:31 QuestionQuestionEquals `??=`
+2:35 QuestionDot `?.`
+2:38 FatArrow `=>`
+2:41 Arrow `->`
+2:44 At `@`
+2:46 Hash `#`
+3:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ mment � hidden
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ mment � hidden
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  2 │ �ن μετρητής  , . .. ..= : ? ?? ??= ?. => -> @ #
+    │ ^

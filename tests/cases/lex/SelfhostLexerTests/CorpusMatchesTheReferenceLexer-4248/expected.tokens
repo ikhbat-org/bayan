@@ -1,0 +1,45 @@
+1:1 Identifier `Å`
+1:3 CharLiteral `'u{110�00}'`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:2 Identifier `foo`
+4:6 Identifier `Bar`
+4:10 Identifier `_x`
+4:13 Identifier `camelCase2`
+4:24 Identifier `بيان`
+4:29 Identifier `μετρητής`
+4:38 Identifier `x_1`
+4:42 Identifier `é`
+5:1 Identifier `ings`
+5:5 StringLiteral `" "`
+5:8 StringLiteral `" "`
+5:11 Semicolon `;`
+6:1 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å 'u{110�00}'
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å 'u{110�00}'
+    │   │ +
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ Å 'u{110�00}'
+    │   ^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xA2)
+
+  1 │ Å 'u{110�00}'
+    │         ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

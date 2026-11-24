@@ -1,0 +1,38 @@
+error BYN1066: `*const u8` is an input form; write `readonly u8*`
+  --> tmp/t26-tests/cli/diag_prefix-pointer-input.byn/prefix-pointer-input.byn:1:11
+
+  1 │ void copy(*const u8 from, *mut u8 to) {
+    │           ^ the input form
+    │
+  help: write the pointer after the type: `readonly u8*`
+    │ 1 │ void copy(readonly u8* from, *mut u8 to) {
+    │   │           ++++++++++++
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> tmp/t26-tests/cli/diag_prefix-pointer-input.byn/prefix-pointer-input.byn:1:11
+
+  1 │ void copy(*const u8 from, *mut u8 to) {
+    │           ^^^^^^^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1066: `*mut u8` is an input form; write `u8*`
+  --> tmp/t26-tests/cli/diag_prefix-pointer-input.byn/prefix-pointer-input.byn:1:27
+
+  1 │ void copy(*const u8 from, *mut u8 to) {
+    │                           ^ the input form
+    │
+  help: write the pointer after the type: `u8*`
+    │ 1 │ void copy(*const u8 from, u8* to) {
+    │   │                           +++
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+  --> tmp/t26-tests/cli/diag_prefix-pointer-input.byn/prefix-pointer-input.byn:1:27
+
+  1 │ void copy(*const u8 from, *mut u8 to) {
+    │                           ^^^^^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN1066

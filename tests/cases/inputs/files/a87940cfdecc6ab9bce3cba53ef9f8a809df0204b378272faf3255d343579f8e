@@ -1,0 +1,2 @@
+b = "bad \q esc¬pe"
+let c 

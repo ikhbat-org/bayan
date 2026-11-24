@@ -1,0 +1,7 @@
+aÌ‡Ì£" "bad \q escape"
+let c = """never closed
+0x
+ // ok þ in comment
+ a >> ¥
+ $"{a
+macro select become

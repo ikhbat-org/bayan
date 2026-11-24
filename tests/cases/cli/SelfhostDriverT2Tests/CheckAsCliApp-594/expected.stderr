@@ -1,0 +1,8 @@
+error BYN2014: the program has no entry point
+  --> <repo>/tmp/t2/diag/cases-type-mismatch.test/cases-type-mismatch.test.byn:1:1
+
+  1 │ @cases((1, "yes"), (2, true))
+    │ ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2014

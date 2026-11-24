@@ -1,0 +1,11 @@
+let a = 1
+
+$"{}"closed
+b
+et b = "bad \q escape"
+let c =Þ"""never closed
+
+  raw "quoted"
+þ in comment
+ $"open {x";
+

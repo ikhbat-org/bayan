@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "IoCreateDirectory",
+    "IoRemove",
+    "IoRemoveDirectory",
+    "IoWriteFile",
+    "Print"
+  ],
+  "diagnostics": []
+}

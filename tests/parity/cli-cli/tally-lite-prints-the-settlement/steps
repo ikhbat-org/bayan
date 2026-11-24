@@ -1,0 +1,1 @@
+$ $BAYAN build -o tally $ROOT/examples/tally-lite/main.byn > /dev/null; echo "build $?"; ./tally; echo "tally $?"

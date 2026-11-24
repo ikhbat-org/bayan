@@ -1,0 +1,38 @@
+1:2 TestKeyword `test`
+1:7 Identifier `ass`
+1:11 Identifier `rt`
+1:14 PropertyKeyword `property`
+1:23 FuzzKeyword `fuzz`
+1:28 ModelKeyword `model`
+1:34 ForeachKeyword `foreach`
+1:42 Identifier `ne`
+1:45 GotoKeyword `goto`
+4:1 CharLiteral `'?\u{202E}'`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �test ass�rt property fuzz model foreach ne goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEE)
+
+  1 │ �test ass�rt property fuzz model foreach ne goto
+    │          ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ '?�'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ '?�'
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ '?�'
+    │   │   -

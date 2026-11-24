@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `"""let café = 2\n 1\u{1B}e1__\n `
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """let café = 2
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,16 @@
+== tests/cases/diag/renamed-member.byn
+12..121 blockStmt
+18..38 localDecl
+27..38 callExpr
+43..52 exprStmt
+43..52 callExpr
+57..74 localDecl
+66..74 callExpr
+79..94 exprStmt
+79..94 callExpr
+79..81 nameExpr
+89..93 literalExpr string
+99..119 exprStmt
+99..119 callExpr
+105..118 callExpr
+99..119 callExpr

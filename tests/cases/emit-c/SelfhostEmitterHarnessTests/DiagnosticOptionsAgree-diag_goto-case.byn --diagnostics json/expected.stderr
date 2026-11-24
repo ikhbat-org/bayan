@@ -1,0 +1,1 @@
+{"code":"BYN1010","severity":"error","file":"input.byn","span":{"start":59,"end":63,"line":4,"column":13,"endLine":4,"endColumn":17},"message":"`goto` does not exist in Bayan","label":"`goto case` does not exist","help":"combine patterns with `or`, or move shared code into a function; switch sections never fall through","fixes":[]}

@@ -1,0 +1,52 @@
+1:1 CharLiteral `'`
+2:1 CharLiteral `'x`
+3:1 OpenBrace `{`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 Identifier `x`
+3:12 InterpolationEnd `}`
+3:13 InterpolatedStringEnd `"`
+3:14 InterpolationEnd `}`
+3:15 InterpolatedStringEnd `"`
+3:16 InterpolationEnd `}`
+3:17 InterpolatedStringEnd `"`
+3:18 CloseBrace `}`
+3:19 StringLiteral `"}"`
+3:22 CloseBrace `}`
+3:23 StringLiteral `"}"`
+3:26 CloseBrace `}`
+3:27 StringLiteral `"}"`
+3:30 CloseBrace `}`
+3:31 StringLiteral `"}"`
+3:34 CloseBrace `}`
+3:35 CloseBrace `}`
+3:36 StringLiteral `"}"`
+3:39 CloseBrace `}`
+3:40 StringLiteral `"}"`
+3:43 CloseBrace `}`
+3:44 StringLiteral `"}"`
+3:47 CloseBrace `}`
+3:48 StringLiteral `"}"`
+4:1 IntegerLiteral `1`
+4:2 NumericSuffix `e`
+4:5 Equals `=`
+4:6 IntegerLiteral `1`
+5:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

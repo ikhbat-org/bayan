@@ -1,0 +1,6 @@
+== project project
+module std.probe <std>/probe std_probe
+file <std>/probe/probe.byn
+module main tmp/std-cases/proj/src main
+file src/app/main.byn
+import probe std.probe

@@ -35,8 +35,9 @@ bayan_release_docs="$bayan_header_docs docs/RELEASING.md docs/bayan-contributing
 # (tab-separated). bootstrap/bayan.c is not one: scripts/selfhost/land.sh regenerates it from src/.
 bayan_mirrors() {
   printf '%s\t%s\t%s\n' \
-    csharp/Bayan.Backend.C/Toolchain.cs '(const string CompilerVersion = ")' '(";)' \
     src/driver/main.byn '^(const version: string = ")' '(")' \
     tests/cases/out/dist.tree '("compiler": "bayan )' '(")' \
-    README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)'
+    README.md '(scripts/dist\.sh .*dist/[a-z0-9-]+/)' '(/bayan)' \
+    tests/parity/cli-cli/version-prints-version/expected/stdout '^(bayan )' '( \(<build>\))' \
+    tests/parity/cli-environment/doctor-reports-a-healthy-toolchain/expected/stdout '^(◆ bayan +)' '( \(commit)'
 }

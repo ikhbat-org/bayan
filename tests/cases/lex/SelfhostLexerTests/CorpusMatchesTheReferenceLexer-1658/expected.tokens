@@ -1,0 +1,35 @@
+1:1 Identifier `가`
+1:4 Identifier `O`
+1:5 StringLiteral `"{`
+1:7 EndOfFile
+
+error BYN0005: identifier `가` is not in Unicode normalization form C
+
+  1 │ 가�O��"{
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 가�O��"{
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  1 │ 가�O��"{
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ 가�O��"{
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  1 │ 가�O��"{
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  1 │ 가�O��"{
+    │       ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

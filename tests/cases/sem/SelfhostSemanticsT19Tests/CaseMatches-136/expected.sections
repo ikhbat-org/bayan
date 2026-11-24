@@ -1,0 +1,4 @@
+== bind.probes.w5
+flags 0
+errorExpr:?[4691:18]=-()
+BYN2001 230:14 `nope` is not defined ||did you mean `Node`?|fix 4691..4695 Node

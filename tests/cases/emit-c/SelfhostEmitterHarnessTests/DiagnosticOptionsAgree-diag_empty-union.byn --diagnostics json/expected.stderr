@@ -1,0 +1,1 @@
+{"code":"BYN2702","severity":"error","file":"input.byn","span":{"start":6,"end":13,"line":1,"column":7,"endLine":1,"endColumn":14},"message":"union `Nothing` has no variants","label":null,"help":"add the variants, or remove the union","fixes":[]}

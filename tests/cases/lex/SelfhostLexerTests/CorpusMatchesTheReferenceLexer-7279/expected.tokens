@@ -1,0 +1,26 @@
+1:1 TestKeyword `test`
+1:6 Identifier `asser`
+1:12 PropertyKeyword `property`
+1:21 FuzzKeyword `fuzz`
+1:26 ModelKeyword `model`
+1:32 ForeachKeyword `foreach`
+1:40 Identifier `ew`
+1:43 IntegerLiteral `2`
+1:44 NumericSuffix `oto`
+3:1 CharLiteral `'\u{202E}'`
+3:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  1 │ test asser� property fuzz model foreach ew 2oto
+    │           ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ '�' 
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ '�' 
+    │   │  -

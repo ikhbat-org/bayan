@@ -1,0 +1,51 @@
+1:3 Identifier `τρητής`
+1:10 Identifier `x_1`
+1:14 Identifier `é`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:15 Identifier `D`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:22 CaretEquals `^=`
+3:25 LessLessEquals `<<=`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dec`
+5:30 IntegerLiteral `1`
+5:31 DotDot `..`
+5:33 IntegerLiteral `2`
+5:35 IntegerLiteral `1`
+5:36 DotDotEquals `..=`
+5:39 IntegerLiteral `3`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `e`
+5:44 Identifier `x`
+5:45 Dot `.`
+5:46 Identifier `y`
+5:48 FloatLiteral `2.5`
+5:51 NumericSuffix `f`
+6:1 GreaterEquals `>=`
+6:3 IntegerLiteral `1`
+9:1 Identifier `x́́`
+9:4 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ � τρητής x_1 é
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � τρητής x_1 é
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  3 │ += -= *=�/= %=D&= |= ^= <<=
+    │         ^

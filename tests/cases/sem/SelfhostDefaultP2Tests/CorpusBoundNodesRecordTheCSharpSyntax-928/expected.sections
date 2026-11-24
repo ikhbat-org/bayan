@@ -1,0 +1,41 @@
+== tests/cases/diag/unique-move-in-failed-guard.byn
+159..172 binaryExpr gt right 171..172
+159..172 binaryExpr gt right 171..172
+159..172 binaryExpr gt right 171..172
+159..168 memberExpr
+159..161 nameExpr
+171..172 literalExpr integer
+194..354 blockStmt
+200..219 localDecl
+208..219 callExpr
+224..352 switchStmt
+231..232 nameExpr
+248..250 constantPattern
+256..268 callExpr
+261..267 argument
+266..267 nameExpr
+282..296 exprStmt
+282..296 callExpr
+288..295 literalExpr string
+282..296 callExpr
+326..346 exprStmt
+326..346 callExpr
+332..345 interpolatedExpr
+335..343 memberExpr
+335..336 nameExpr
+326..346 callExpr
+376..489 blockStmt
+382..401 localDecl
+390..401 callExpr
+406..487 returnStmt value 413..487
+413..487 switchExpr
+413..414 nameExpr
+432..434 constantPattern
+440..452 callExpr
+445..451 argument
+450..451 nameExpr
+456..457 literalExpr integer
+467..468 discardPattern
+472..480 memberExpr
+472..473 nameExpr
+503..506 blockStmt

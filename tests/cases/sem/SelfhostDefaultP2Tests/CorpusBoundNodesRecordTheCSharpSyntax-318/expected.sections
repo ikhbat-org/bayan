@@ -1,0 +1,25 @@
+== tests/cases/run/symbol-text-outlives.byn
+128..283 blockStmt
+134..164 localDecl
+144..164 callExpr
+161..163 literalExpr integer
+169..187 exprStmt
+169..187 callExpr
+169..172 nameExpr
+180..186 literalExpr string
+192..223 localDecl
+200..223 callExpr
+214..222 memberExpr
+214..217 nameExpr
+228..239 exprStmt
+228..239 callExpr
+228..231 nameExpr
+244..263 exprStmt
+244..263 callExpr
+244..247 nameExpr
+255..262 literalExpr string
+268..281 exprStmt
+268..281 callExpr
+274..280 memberExpr
+274..275 nameExpr
+268..281 callExpr

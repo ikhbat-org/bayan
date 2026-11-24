@@ -1,0 +1,27 @@
+import lexer
+import parser
+
+i32 main(ReadOnlySpan<string> args) {
+    var options = CompilationOptions { includeTests: args[2] == "t" }
+    let c = args[0] != "path" ? fromProject(args[1], for: "app", by: in options) : fromPath(args[1], by: in options, wholeDirectory: true)
+    print("== load")
+    dumpLoad(in c)
+    return 0
+}
+
+string diagLine(in Ctx c, for in Diag d) {
+    let pos = linePosition(c.files[d.file].text.span, at: d.span.start)
+    return $"diag {d.code} {c.files[d.file].displayPath} {pos.line}:{pos.column} {d.message} | {d.label} | {d.help}"
+}
+
+void dumpLoad(in Ctx c) {
+    for m in c.moduleOrder {
+        print($"module {c.modules[m].name} {c.modules[m].directory} {c.modules[m].cName}")
+        for f in c.modules[m].files {
+            let kind = c.files[f].isTestFile ? "test" : "source"
+            print($"file {c.files[f].displayPath} {kind}")
+            for (alias, imported) in c.files[f].imports { print($"import {alias} {c.modules[imported].name}") }
+        }
+    }
+    for d in c.diagnostics { print(diagLine(in c, for: in d)) }
+}

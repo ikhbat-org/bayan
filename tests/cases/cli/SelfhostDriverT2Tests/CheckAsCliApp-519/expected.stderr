@@ -1,0 +1,32 @@
+error BYN2027: compare with `is null` / `is not null`, not `==`
+  --> <repo>/tmp/t2/diag/null-equality/null-equality.byn:3:8
+
+  3 │     if name == null {
+    │        ^^^^^^^^^^^^
+    │
+  help: write `name is null`
+    │ 3 │     if name is null {
+    │   │             ++
+
+error BYN2027: compare with `is null` / `is not null`, not `==`
+  --> <repo>/tmp/t2/diag/null-equality/null-equality.byn:6:8
+
+  6 │     if name != null {
+    │        ^^^^^^^^^^^^
+    │
+  help: write `name is not null`
+    │ 6 │     if name is not null {
+    │   │             ++++++
+
+error BYN2027: compare with `is null` / `is not null`, not `==`
+  --> <repo>/tmp/t2/diag/null-equality/null-equality.byn:9:8
+
+  9 │     if null == name {
+    │        ^^^^^^^^^^^^
+    │
+  help: write `name is null`
+    │ 9 │     if name is null {
+    │   │         +++++++++++
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2027

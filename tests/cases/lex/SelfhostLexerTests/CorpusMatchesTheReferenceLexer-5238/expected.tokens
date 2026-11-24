@@ -1,0 +1,142 @@
+1:1 CharLiteral `'\q'`
+2:2 CharLiteral `''`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `1`
+3:14 Semicolon `;`
+3:18 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+6:1 IntegerLiteral `02`
+7:1 IntegerLiteral `0xFF`
+7:5 NumericSuffix `s`
+8:1 IntegerLiteral `0b1`
+8:4 NumericSuffix `ms`
+9:1 IntegerLiteral `0x_`
+10:1 IntegerLiteral `0b__`
+11:1 IntegerLiteral `1__`
+12:1 IntegerLiteral `0xF__`
+14:1 Identifier `ist`
+14:4 Less `<`
+14:5 Identifier `ist`
+14:8 Less `<`
+14:9 Identifier `i64`
+14:12 Greater `>`
+14:13 Greater `>`
+16:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0007: empty char literal
+
+  2 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ let café = 1; ` 2
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let café = 1; ` 2
+    │   │        +
+
+error BYN0002: unexpected character ```
+
+  3 │ let café = 1; ` 2
+    │                ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  8 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  10 │ 0b__
+     │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  11 │ 1__
+     │  ^^
+     │
+     │ 11 │ 1__
+     │    │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  12 │ 0xF__
+     │    ^^
+     │
+     │ 12 │ 0xF__
+     │    │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  13 │ �����
+     │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  13 │ �����
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  13 │ �����
+     │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  13 │ �����
+     │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  13 │ �����
+     │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x87)
+
+  14 │ ist<�ist<i64>>
+     │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  15 │ ��
+     │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  15 │ ��
+     │  ^

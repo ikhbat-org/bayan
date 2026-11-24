@@ -1,0 +1,56 @@
+== tests/cases/diag/io-run-named.byn
+148..427 blockStmt
+154..178 localDecl
+173..178 collectionExpr
+174..177 literalExpr string
+183..223 localDecl
+191..223 tryExpr
+195..223 callExpr
+202..206 literalExpr string
+208..214 memberExpr
+208..209 nameExpr
+216..222 literalExpr string
+216..222 literalExpr string
+195..223 callExpr
+195..223 callExpr
+195..223 callExpr
+228..273 localDecl
+236..273 tryExpr
+240..273 callExpr
+247..251 literalExpr string
+253..259 memberExpr
+253..254 nameExpr
+240..273 callExpr
+240..273 callExpr
+240..273 callExpr
+240..273 callExpr
+278..324 localDecl
+286..324 tryExpr
+290..324 callExpr
+297..301 literalExpr string
+303..309 memberExpr
+303..304 nameExpr
+322..323 literalExpr integer
+290..324 callExpr
+290..324 callExpr
+290..324 callExpr
+329..373 localDecl
+337..373 tryExpr
+341..373 callExpr
+348..352 literalExpr string
+354..360 memberExpr
+354..355 nameExpr
+341..373 callExpr
+369..372 literalExpr string
+341..373 callExpr
+341..373 callExpr
+378..425 localDecl
+386..425 tryExpr
+390..425 callExpr
+397..401 literalExpr string
+403..409 memberExpr
+403..404 nameExpr
+390..425 callExpr
+390..425 callExpr
+416..424 collectionExpr
+390..425 callExpr

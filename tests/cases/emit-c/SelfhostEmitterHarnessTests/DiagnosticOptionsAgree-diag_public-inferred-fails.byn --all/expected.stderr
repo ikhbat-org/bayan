@@ -1,0 +1,8 @@
+error BYN2607: public function `parse` must list its errors
+  --> input.byn:1:28
+
+  1 │ public i64 parse(string s) fails {
+    │                            ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2607

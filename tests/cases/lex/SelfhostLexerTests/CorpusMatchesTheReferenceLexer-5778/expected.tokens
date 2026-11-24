@@ -1,0 +1,81 @@
+1:1 Plus `+`
+1:3 Minus `-`
+1:5 Star `*`
+1:7 Slash `/`
+1:9 Percent `%`
+1:11 PlusPercent `+%`
+1:14 MinusPercent `-%`
+1:17 StarPercent `*%`
+1:20 PlusBar `+|`
+1:23 MinusBar `-|`
+1:26 StarBar `*|`
+1:29 PlusPlus `++`
+1:32 MinusMinus `--`
+3:1 CharLiteral `'\u{D800}'`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 StringLiteral `"open`
+5:1 IsKeyword `is`
+5:4 AndKeyword `and`
+5:8 OrKeyword `or`
+5:11 NotKeyword `not`
+5:15 WithKeyword `with`
+5:20 MoveKeyword `move`
+5:25 RefKeyword `ref`
+5:29 OutKeyword `out`
+5:33 ThisKeyword `this`
+5:38 NullKeyword `null`
+5:43 TrueKeyword `true`
+5:48 FalseKeyword `false`
+5:54 ComptimeKeyword `comptime`
+5:63 CheckedKeyword `checked`
+7:2 Identifier `μετρητής`
+7:11 Identifier `x_1`
+7:15 Identifier `é`
+9:1 LetKeyword `let`
+9:5 Identifier `a`
+9:7 Equals `=`
+9:9 StringLiteral `"open`
+11:1 IntegerLiteral `0b__`
+12:2 InterpolatedStringStart `$"`
+12:4 InterpolatedStringText `a`
+12:5 InterpolationStart `{`
+12:6 Identifier `b`
+12:7 InterpolationEnd `}`
+12:8 InterpolatedStringText `c `
+12:10 InterpolatedStringEnd
+12:10 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0003: unterminated string literal
+
+  4 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  9 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  11 │ 0b__
+     │ ^^^^
+
+error BYN0003: unterminated string literal
+
+  12 │  $"a{b}c 
+     │  ^^ this string never ends
+     │
+  help: close it with `"`

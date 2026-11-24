@@ -1,0 +1,143 @@
+1:1 IntegerLiteral `0b102`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0`
+3:2 NumericSuffix `b`
+3:4 Identifier `ere`
+3:7 StringLiteral `"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+6:1 TestKeyword `test`
+6:6 AssertKeyword `assert`
+6:13 PropertyKeyword `property`
+6:22 FuzzKeyword `fuzz`
+6:27 ModelKeyword `model`
+6:33 ForeachKeyword `foreach`
+6:41 NewKeyword `new`
+6:45 GotoKeyword `goto`
+7:2 Plus `+`
+7:4 Minus `-`
+7:6 Star `*`
+7:8 Slash `/`
+7:10 Percent `%`
+7:12 PlusPercent `+%`
+7:15 MinusPercent `-%`
+7:18 StarPercent `*%`
+7:21 PlusBar `+|`
+7:24 MinusBar `-|`
+7:27 StarBar `*|`
+7:30 PlusPlus `++`
+7:33 MinusMinus `--`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `total `
+8:9 InterpolationStart `{`
+8:10 Identifier `x`
+8:11 InterpolationEnd `}`
+8:12 InterpolatedStringEnd `"`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolatedStringText `a `
+8:18 InterpolationStart `{`
+8:19 Identifier `f`
+8:20 OpenParen `(`
+8:21 InterpolatedStringStart `$"`
+8:23 InterpolatedStringText `b `
+8:25 InterpolationStart `{`
+8:26 Identifier `c`
+8:27 InterpolationEnd `}`
+8:28 InterpolatedStringEnd `"`
+8:29 CloseParen `)`
+8:30 InterpolationEnd `}`
+8:31 InterpolatedStringText ` d`
+8:33 InterpolatedStringEnd `"`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolatedStringText `{{literal}}`
+8:48 InterpolatedStringEnd `"`
+8:50 InterpolatedStringStart `$"`
+8:52 InterpolationStart `{`
+8:53 Identifier `Point`
+8:59 OpenBrace `{`
+8:61 Identifier `x`
+8:63 Equals `=`
+8:65 IntegerLiteral `1`
+8:67 CloseBrace `}`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringText `!`
+8:70 InterpolatedStringEnd `"`
+8:72 InterpolatedStringStart `$"`
+8:74 InterpolatedStringEnd `"`
+9:1 VarKeyword `var`
+9:5 Identifier `xs`
+9:7 Colon `:`
+9:9 Identifier `List`
+9:13 Less `<`
+9:14 Identifier `List`
+9:18 Less `<`
+9:19 Identifier `i64`
+9:22 Greater `>`
+9:23 Greater `>`
+11:1 Identifier `acro`
+11:6 Identifier `select`
+11:13 BecomeKeyword `become`
+12:1 LetKeyword `let`
+12:5 LawKeyword `law`
+12:9 Equals `=`
+12:11 IntegerLiteral `3`
+13:1 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ 0b���ere"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ 0b���ere"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ 0b���ere"
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ 0b���ere"
+    │         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  11 │ acro select become
+     │      ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name

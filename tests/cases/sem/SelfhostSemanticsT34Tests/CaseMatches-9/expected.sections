@@ -1,0 +1,5 @@
+== s25
+switchExpr|i32|2788:56
+value moveExpr:Ledger
+arm 2807:35 propertyPattern[2807:30]:Ledger(Ledger;items:List<i64>=bindPattern[2816:3]:List<i64>(a:List<i64>:o:-:let);items:List<i64>=bindPattern[2830:3]:List<i64>(b:List<i64>:o:-:let)|-) guard - value literal:i32=1
+BYN2790 96:34 pattern `{ items: let a, items: let b }` binds the same storage more than once in `switch move …` ||bind each field once|

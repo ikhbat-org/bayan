@@ -1,0 +1,114 @@
+1:1 Identifier `b`
+3:1 Identifier `ن`
+3:3 Identifier `μετρητής`
+3:12 Identifier `x_1`
+3:16 Identifier `é`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"{$"`
+5:60 OpenBrace `{`
+5:61 StringLiteral `$"{x}"`
+5:67 CloseBrace `}`
+5:69 CloseBrace `}`
+5:70 StringLiteral `"}"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+    doc `/// Doc line two.`
+8:1 Identifier `macro`
+8:7 Identifier `select`
+8:14 BecomeKeyword `become`
+9:1 LetKeyword `let`
+9:5 LawKeyword `law`
+9:9 Equals `=`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  3 │ �ن μετρητής x_1 é
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{x}"}�}"}"}"}"}"}"}"}"}"}"}"}"/// Doc line two.
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{x}"}�}"}"}"}"}"}"}"}"}"}"}"}"/// Doc line two.
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{x}"}�}"}"}"}"}"}"}"}"}"}"}"}"/// Doc line two.
+    │                                                             ^
+
+error BYN0002: unexpected character `\u{B}`
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{x}"}�}"}"}"}"}"}"}"}"}"}"}"}"/// Doc line two.
+    │                                                                     ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

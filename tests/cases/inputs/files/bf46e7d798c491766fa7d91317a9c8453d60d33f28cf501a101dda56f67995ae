@@ -1,0 +1,65 @@
+enum Tint {
+    red
+    green
+    blue
+}
+
+Tint tint(i64 c) {
+    if c < 1 {
+        return .red
+    }
+    if c < 2 {
+        return .green
+    }
+    return .blue
+}
+
+(Tint, string, string) make(i64 code) uses alloc {
+    return (tint(code / 1 % 3), $"s{code / 3 % 8}", $"s{code / 24 % 8}")
+}
+
+void main() {
+    var m = Map<(Tint, string, string), i64>()
+    var n = Map<(Tint, string, string), i64>()
+    m[(Tint.blue, "s1", "s6")] = 1
+    m[make(149)] = 149
+    n[make(149)] = 1
+    n[(Tint.blue, "s1", "s6")] = 149
+    m[(Tint.red, "s1", "s6")] = 1
+    m[make(147)] = 147
+    n[make(147)] = 1
+    n[(Tint.red, "s1", "s6")] = 147
+    m[(Tint.blue, "s2", "s6")] = 1
+    m[make(152)] = 152
+    n[make(152)] = 1
+    n[(Tint.blue, "s2", "s6")] = 152
+    m[(Tint.blue, "s1", "s7")] = 1
+    m[make(173)] = 173
+    n[make(173)] = 1
+    n[(Tint.blue, "s1", "s7")] = 173
+    m[(Tint.red, "s0", "s2")] = 1
+    m[make(48)] = 48
+    n[make(48)] = 1
+    n[(Tint.red, "s0", "s2")] = 48
+    m[(Tint.blue, "s5", "s3")] = 1
+    m[make(89)] = 89
+    n[make(89)] = 1
+    n[(Tint.blue, "s5", "s3")] = 89
+    m[(Tint.green, "s4", "s1")] = 1
+    m[make(37)] = 37
+    n[make(37)] = 1
+    n[(Tint.green, "s4", "s1")] = 37
+    m[(Tint.red, "s1", "s4")] = 1
+    m[make(99)] = 99
+    n[make(99)] = 1
+    n[(Tint.red, "s1", "s4")] = 99
+    print($"{m.length} {n.length}")
+    print($"{m[make(149)]} {n[(Tint.blue, "s1", "s6")]} {m.contains((Tint.blue, "s1", "s6"))}")
+    print($"{m[make(147)]} {n[(Tint.red, "s1", "s6")]} {m.contains((Tint.red, "s1", "s6"))}")
+    print($"{m[make(152)]} {n[(Tint.blue, "s2", "s6")]} {m.contains((Tint.blue, "s2", "s6"))}")
+    print($"{m[make(173)]} {n[(Tint.blue, "s1", "s7")]} {m.contains((Tint.blue, "s1", "s7"))}")
+    print($"{m[make(48)]} {n[(Tint.red, "s0", "s2")]} {m.contains((Tint.red, "s0", "s2"))}")
+    print($"{m[make(89)]} {n[(Tint.blue, "s5", "s3")]} {m.contains((Tint.blue, "s5", "s3"))}")
+    print($"{m[make(37)]} {n[(Tint.green, "s4", "s1")]} {m.contains((Tint.green, "s4", "s1"))}")
+    print($"{m[make(99)]} {n[(Tint.red, "s1", "s4")]} {m.contains((Tint.red, "s1", "s4"))}")
+}

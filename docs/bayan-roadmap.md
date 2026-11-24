@@ -1,10 +1,10 @@
 # Bayān roadmap
 
-Version: 0.3.2 (matches `bayan --version`)
+Version: 0.4.0 (matches `bayan --version`)
 
-State of `dev` at da562b8b, 2026-11-16. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
+State of `dev` at 72885a5e, 2026-11-24. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
-Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). The next goals are to drop .NET and the C# compiler's role (`docs/bayan-milestones.md`, Target: zero dependencies) and to land the tooling ports.
+Bayān compiles itself. Release 0.3.0 made the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). Release 0.4.0 completes the .NET exit (spec 019): the compiler, its tests and the language server are Bayān, built from `bootstrap/bayan.c` with a C compiler, and the C# compiler is archived as the tag `csharp-final`. The next goals are spec 023 (catch-up), sabk and the tooling ports.
 
 ## Where we are
 
@@ -14,6 +14,8 @@ Bayān compiles itself. Release 0.3.0 makes the self-hosted compiler the `bayan`
 | 0.2.0 | 2026-11-06 | `v0.2.0` | shipped | `CHANGELOG.md` `[0.2.0]` |
 | 0.3.0 | 2026-11-14 | `v0.3.0` | shipped | `CHANGELOG.md` `[0.3.0]` |
 | 0.3.1 | 2026-11-15 | `v0.3.1` | shipped | `CHANGELOG.md` `[0.3.1]` |
+| 0.3.2 | 2026-11-16 | `v0.3.2` | shipped | `CHANGELOG.md` `[0.3.2]` |
+| 0.4.0 | 2026-11-24 | `v0.4.0` | being cut | `CHANGELOG.md` `[0.4.0]` |
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
@@ -65,19 +67,27 @@ Source: `CHANGELOG.md` `[0.3.0]`, `docs/specs/017-selfhost-default/017-tasks.md`
 
 Known limits of 0.3.0: Windows expects no failing test; archives do not include `bayan-lsp` (`CHANGELOG.md` `[0.3.0]` Known limits). The stage-2 build peak of 2.94 GB is named in the release notes (`docs/bayan-progress-log.md`, 2026-11-12 decisions).
 
+### 0.3.2: the style guide
+
+Source: `CHANGELOG.md` `[0.3.2]`. `bayan format` is a layout engine, `bayan fix` applies the style lints BYN1072–BYN1080 (spec 022), and bayan.run publishes the release docs, the roadmap and the manifesto.
+
+### 0.4.0: the .NET exit (spec 019)
+
+Source: `CHANGELOG.md` `[0.4.0]`, `docs/specs/019-dotnet-exit/019-tasks.md`. 019a moved the C# test outputs into goldens, the language server into Bayān and CI onto `bootstrap/bayan.c`; 019b archived the C# compiler as `csharp-final` (`docs/decisions/2026-11-23-011-csharp-archive.md`) and removed it (493d3fd78). Archives hold `bayan-lsp` beside `bayan`. Sabk phase 1 (spec 024) is in the tree, not yet reachable from the command line.
+
 ## Next releases
 
-The order below follows the sources where they give one and the dependencies where they do not. Nothing here has a calendar date. The syntax freeze (revision 0023) means no syntax change before 0.3.0 ships, except revision 0024 (`docs/bayan-spec.md` line 8, `docs/revisions/0023-syntax-freeze-provisional-sections.md`).
+The order below follows the sources where they give one and the dependencies where they do not. Nothing here has a calendar date. The syntax freeze of revision 0023 is over: it ended when 019a landed on `dev` at e57839016, 2026-11-23 (spec 019 R29; `docs/revisions/0023-syntax-freeze-provisional-sections.md`).
 
 | Order | Item | State today | Source |
 |---|---|---|---|
-| 1 | Revision 0024, numeric conversions | The last syntax change admitted after the freeze. The text is not in `docs/revisions/` yet; Q1 and Q1274 are decided (a float literal `dec(0.1)` is an error with a fix-it to `0.1dec`, and a runtime `f64` in `dec(x)` is an error with a fix-it to `dec.fromF64(x, digits)`) | `docs/bayan-spec.md` line 8, `docs/decisions/2026-11-14-004-answered-questions.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
+| 1 | Revision 0024, numeric conversions | text written and applied (rev 0024); implementation not started | `docs/revisions/0024-numeric-conversions-and-dec.md`, `docs/bayan-spec.md` line 8, `docs/decisions/2026-11-14-004-answered-questions.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
 | 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 776–800 |
-| 3 | Spec 019, the .NET exit, in two parts | Approved 2026-11-13, not written. **019a**: C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`. **019b**: the C# compiler is archived (an annotated tag `csharp-final` and a decision doc with the restore command, removal in its own commit) and stays frozen for diverse double-compiling. Estimate 4–7 weeks for both | `docs/bayan-milestones.md` (Target: zero dependencies), `docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md` (proposed) |
+| 3 | Spec 019, the .NET exit, in two parts | **Done with the removal commit 493d3fd78 (`chore(019b): remove the C# compiler`, 2026-11-24).** 019a landed on `dev` at e57839016, 2026-11-23 (`dotnet test` no longer runs on `dev`; the syntax freeze of revision 0023 is over); 019b archived the C# compiler as the tag `csharp-final` and removed it. **019a**: C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`. **019b**: the C# compiler is archived (an annotated tag `csharp-final` and a decision doc with the restore command, removal in its own commit) and stays frozen for diverse double-compiling. Estimate 4–7 weeks for both | `docs/specs/019-dotnet-exit/019-spec.md`, `019-plan.md`, `019-tasks.md`; `docs/bayan-milestones.md` (Target: zero dependencies), `docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md` (proposed) |
 | 3b | Spec 023, catch-up | Draft. Brings the self-hosted compiler, std and tooling up to the spec; phases 1–4 are needed for 0.4. Runs alongside sabk after 019a | `docs/specs/023-spec-catch-up/023-spec.md` |
 | 4 | Spec 020, test-result cache | Approved; 0 of 27 tasks ticked. Build now with a thin adaptor if cheap, otherwise after 019 | `docs/specs/020-test-result-cache/020-spec.md` (Open questions, item 4), `020-tasks.md` |
-| 5 | Sabk, native debug backend (`bayan build --backend native`) | Scheduled by the user 2026-11-16: starts after 019a and runs in parallel with spec 023 (catch-up). `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-milestones.md` (Target: zero dependencies) |
-| 6 | Spec 015, tooling ports | 8 of 17 tasks ticked; T9–T17 open (`gen-lowercase`, `stryker-to-quality`, `quality-baseline`, `mutate-plan`, `std.regex`, `guard-checks`, `Base64`, `replay`). 012 is done, so the original wait is over | `docs/specs/015-tooling/015-tasks.md`, `docs/decisions/2026-11-02-002-tooling-port-rules.md` |
+| 5 | Sabk, native debug backend (`bayan build --backend native`) | Sabk phase 1 started (spec 024), 2026-11-17: arm64 encoder, Mach-O writer, SIR, linear-scan allocator and soundness checker under `src/sabk/`, tested end to end on arm64 macOS; nothing in the driver or emitter calls it yet. Scheduled by the user 2026-11-16 to run in parallel with spec 023 (catch-up). `c` stays the default path; LLVM stays for release builds | `docs/plans/2026-11-05-005-parking-lot.md` (B04), `docs/bayan-milestones.md` (Target: zero dependencies) |
+| 6 | Spec 015, tooling ports | 15 of 17 tasks ticked; T15 (the Q1140 lock around `q-ranges.tsv` and `IoError.alreadyExists`; `guard-checks`, `coverage-gate` and `wave-brief` are ported) and T17 (`replay`) open. 012 is done, so the original wait is over | `docs/specs/015-tooling/015-tasks.md`, `docs/decisions/2026-11-02-002-tooling-port-rules.md` |
 | 7 | Round-4 design work, A1 and A2 addenda | 42 inventory rows open and 2 open as conflicts. Batches 1–8 landed as revisions 0019–0023; the rest wait for evidence or a user decision | `docs/bayan-design-round-4-inventory.md`, `docs/revisions/0019-round-4-batches-1-8-consistency.md`, `docs/revisions/a2-lessons-mid-flight.md`, `docs/revisions/0016-addendum-a1-midflight.md`, `docs/revisions/0017-addendum-a2-diagnostic-codes.md` |
 | 8 | Concurrency, `scope` and `spawn` | Design confirmed, spec removed from §13 by revision 0023 (placeholder). Spec and runtime not written; `async` and `await` stay reserved in the lexer | `docs/bayan-concurrency.md`, `docs/misc/2026-11-04-design-inputs-review.md`, `work/todo.md` (A12) |
 | 9 | Std items the spec tags as after v0.1 | `std.regex` (task T14 of spec 015), `std.text` members (`words`, `graphemes`, `normalized`, `Base64`), `matches(re)` and `replaced(re, by:)` | `docs/bayan-spec.md` §15.4 and the lines "After v0.1", `docs/revisions/0011-regex-after-v0-1-and-validation-error-instantiations.md` |
@@ -102,8 +112,8 @@ Slots: "(proposed)" marks a dependency-order proposal. A slot without it comes f
 
 | Id | Title | Status in the source | What is left | Depends on | Proposed slot |
 |---|---|---|---|---|---|
-| 015 | Tooling | decided (2026-11-02); ports wait for 012 (S1) | T9–T17 of 17 | 012 (done); `std.regex` (T14) before T15; `Io.run` streaming (Q1141) before T17 | After spec 019 (proposed) |
-| 019 | .NET exit | not written (`docs/specs/019-*` does not exist) | Write the spec, then do it | 0.3.0 tag | After 0.3.0 (`docs/decisions/2026-11-14-004-answered-questions.md`) |
+| 015 | Tooling | decided (2026-11-02); ports wait for 012 (S1) | T12–T15, T17 of 17 | 012 (done); `std.regex` (T14) before T15; `Io.run` streaming (Q1141) before T17 | After spec 019 (proposed) |
+| 019 | .NET exit | approved (text drafted 2026-11-17, owner to review) | 78 of 78 tasks | 0.3.0 tag | After 0.3.0 (`docs/decisions/2026-11-14-004-answered-questions.md`) |
 | 020 | Test-result cache | approved | 27 of 27 tasks | Task 1 measures the per-unit process cost; 019 | After spec 019 (proposed; `docs/specs/020-test-result-cache/020-spec.md` line 97 leaves the timing to task 1) |
 | 011 | Self-hosted emitter | draft (rev 3) | T16, the batch mutation run for `tests/quality-baseline.json` | mutation CI (disabled) | No slot |
 | 012 | Self-hosted bootstrap | approved | T22, the driver batch mutation; parked by the user 2026-11-06 | mutation CI (disabled) | No slot |

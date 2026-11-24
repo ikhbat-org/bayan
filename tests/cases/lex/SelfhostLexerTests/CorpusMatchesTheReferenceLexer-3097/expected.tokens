@@ -1,0 +1,29 @@
+1:2 CharLiteral `'\u{110000}'`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �'\u{110000}'
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �'\u{110000}'
+    │   │ -
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  1 │ �'\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ 	 �
+    │ 	 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ 	 �
+    │   │ 	 -

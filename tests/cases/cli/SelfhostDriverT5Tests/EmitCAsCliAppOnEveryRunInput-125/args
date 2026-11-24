@@ -1,0 +1,3 @@
+build
+--emit-c
+io-random-u64.byn

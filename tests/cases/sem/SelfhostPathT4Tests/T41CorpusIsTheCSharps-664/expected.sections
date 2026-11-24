@@ -1,0 +1,5 @@
+== diags.diag/interface-name
+BYN2800 1:11 `Shape` must start with `I` and an uppercase letter
+  label an interface name
+  help rename it to `IShape`
+  fix 1:11-1:16 IShape

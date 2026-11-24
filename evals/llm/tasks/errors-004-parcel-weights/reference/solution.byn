@@ -1,0 +1,24 @@
+union error ParcelError {
+    /// The text is not a weight.
+    badWeight
+    /// The weight is over 50 kilos.
+    tooMuch
+}
+
+/// The weight of one parcel, 1 through 50 kilos.
+i64 kilos(string text) fails ParcelError {
+    let n = i64.tryParse(text) ?? fail .badWeight
+    fail .badWeight if n < 1
+    fail .tooMuch if n > 50
+    return n
+}
+
+/// The weight of two parcels together.
+i64 totalKilos(string first, to string second) fails ParcelError {
+    return (try kilos(first)) + try kilos(second)
+}
+
+/// `kilos`, or 0 for a text that is not a usable weight.
+i64 kilosOrZero(string text) {
+    return kilos(text) catch 0
+}

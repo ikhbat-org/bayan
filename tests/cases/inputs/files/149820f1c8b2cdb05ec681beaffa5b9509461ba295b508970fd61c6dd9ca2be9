@@ -1,0 +1,6 @@
+'ab'
+test assert property fuzz model foreach new goto
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ 0x
+let a = $ 1
+

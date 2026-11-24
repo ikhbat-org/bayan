@@ -1,0 +1,15 @@
+struct Box { i64 weight }
+
+union Event { timeout(i64 after) }
+
+i64 add(i64 a, i64 b) {
+    return a + b
+}
+
+void main() {
+    let t: i64 = add(1, 2)
+    var u: i64 = 0
+    u = t
+    const k: i64 = 3
+    print($"{u}{k}")
+}

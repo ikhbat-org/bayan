@@ -1,0 +1,19 @@
+CompilationUnit
+  Function f() -> void
+    Block
+      Assign (call f) = 1
+      Assign (+ a b) = 2
+
+error BYN1011: cannot assign to this expression
+
+  2 │     f() = 1
+    │     ^^^
+    │
+  help: assign to a variable, a field or an indexed element
+
+error BYN1011: cannot assign to this expression
+
+  3 │     a + b = 2
+    │     ^^^^^
+    │
+  help: assign to a variable, a field or an indexed element

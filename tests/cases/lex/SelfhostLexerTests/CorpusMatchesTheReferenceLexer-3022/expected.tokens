@@ -1,0 +1,16 @@
+1:2 Identifier `c`
+1:4 Equals `=`
+1:6 RawStringLiteral `"""never closed\n�\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""\n_error set unit distinct type import asL public private static readonly required const let var embed extern unsafe\n `
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │  c = """never closed
+    │      ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �
+    │ ^

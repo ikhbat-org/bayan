@@ -1,0 +1,14 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@/root","capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/root/src/a.byn","languageId":"bayan","version":1,"text":"let a;\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/root/src/a.byn"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/root/tmp/t.byn","languageId":"bayan","version":1,"text":"x;\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/root/tmp/t.byn"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/root/src/b.byn","languageId":"bayan","version":1,"text":{"@repeat":"a","@times":4194305}}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/root/src/b.byn"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/root/src/c.byn","languageId":"bayan","version":1,"text":"c;\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/root/src/c.byn"}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/root/src/d.byn"}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"untitled:x"}}}
+{"jsonrpc":"2.0","method":"workspace/didChangeWatchedFiles","params":{"changes":[{"uri":"file://@WS@/root/src/a.byn","type":3},{"uri":"file://@WS@/root/src/b.byn","type":3},{"uri":"file://@WS@/root/src/c.byn","type":3},{"uri":"file://@WS@/root/tmp/t.byn","type":3}]}}
+{"jsonrpc":"2.0","id":2,"method":"shutdown","params":null}
+{"jsonrpc":"2.0","method":"exit","params":null}

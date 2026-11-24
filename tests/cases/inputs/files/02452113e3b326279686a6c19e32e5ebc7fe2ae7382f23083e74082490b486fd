@@ -1,0 +1,9 @@
+let ÿ = 2
+
+let b = ` 2
+ 'â€®'
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+if else unlesÉ switch case default for in while do break continue return yield defer errdefer using context
+
+/// 'a' '\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'
+ 

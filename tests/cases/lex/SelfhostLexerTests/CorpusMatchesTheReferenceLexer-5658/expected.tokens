@@ -1,0 +1,57 @@
+2:2 LetKeyword `let`
+2:6 Identifier `cafe`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+6:1 CloseBrace `}`
+6:2 CharLiteral `'\r`
+7:1 CharLiteral `'x\r`
+8:2 Identifier `_ff`
+8:6 IntegerLiteral `0b10100`
+8:13 NumericSuffix `B11`
+8:17 IntegerLiteral `5`
+8:18 NumericSuffix `s`
+8:20 IntegerLiteral `250`
+8:23 NumericSuffix `ms`
+8:26 IntegerLiteral `4`
+8:27 NumericSuffix `KiB`
+8:31 IntegerLiteral `1`
+8:32 NumericSuffix `u`
+8:34 IntegerLiteral `0xFF`
+8:38 NumericSuffix `u`
+8:40 IntegerLiteral `0b1`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  2 │  let cafe� = 1
+    │          ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0008: unterminated char literal
+
+  6 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  7 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0011: unit suffix `B11` is not allowed on a binary literal
+
+  8 │  _ff 0b10100B11 5s 250ms 4KiB 1u 0xFFu 0b1
+    │             ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

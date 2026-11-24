@@ -1,0 +1,55 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:2 TestKeyword `test`
+2:7 AssertKeyword `assert`
+2:14 PropertyKeyword `property`
+2:23 FuzzKeyword `fuzz`
+2:28 ModelKeyword `model`
+2:34 ForeachKeyword `foreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
+3:1 StringLiteral `"{if else unless switch case default for in while do break continue return yield defer errdefe using context`
+4:2 StructKeyword `struct`
+4:9 Identifier `S`
+7:2 CharLiteral `'\u{110000}'`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ "{if else unless switch case default for in while do break continue return yield defer errdefe using context
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string
+    │                                                                                                              ends
+    │                                                                                                              at
+    │                                                                                                              the
+    │                                                                                                              end
+    │                                                                                                              of
+    │                                                                                                              the
+    │                                                                                                              line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  6 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ �
+    │   │ -
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

@@ -1,0 +1,66 @@
+== stmts
+fn users locals=8 ctx=0 panic=0
+  local t:i64
+  local x:i64
+  local t:i64
+  local t:i64
+  local x:i64
+  local t:i64
+  local t:i64
+  local x:i64
+  block
+    assign - t lit:i64 0:0
+    assign - t call count(d; ):i64
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_1
+        assign - x call get(d; t):i64
+        assign - t x
+        label continue_2
+        assign - t (5 t lit:i64 0:1):i64
+    label break_1
+    assign - t fld(s).count
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_3
+        assign - x call get(s; t):i64
+        if (17 x lit:i64 0:1):bool
+          block
+            goto break_3
+        assign - t x
+        label continue_4
+        assign - t (5 t lit:i64 0:1):i64
+    label break_3
+    loop
+      block
+        if un(2 call moveNext(cd; ):bool)
+          block
+            goto break_5
+        assign - x call current(cd; ):i64
+        assign - t x
+        label continue_6
+    label break_5
+fn main locals=0 ctx=0 panic=0
+  block
+fn count locals=0 ctx=0 panic=0
+  block
+    lreturn lit:i64 0:3
+fn get locals=0 ctx=0 panic=0
+  block
+    lreturn (2 index lit:i64 0:10):i64
+fn get locals=0 ctx=0 panic=0
+  block
+    lreturn index
+fn moveNext locals=0 ctx=0 panic=0
+  block
+    assign - fld(?).left (1 fld(?).left lit:i64 0:1):i64
+    lreturn (16 fld(?).left lit:i64 0:0):bool
+fn current locals=0 ctx=0 panic=0
+  block
+    lreturn fld(?).left

@@ -1,0 +1,15 @@
+struct Order{i64 total
+  str  name}
+public Money quote(Cart cart)
+ expects cart.total>0
+ uses db {
+
+let x=[1,2 ,3]   // three
+  if x.length>0
+  and ok {
+ print(x[0])
+}
+
+
+    // done
+}

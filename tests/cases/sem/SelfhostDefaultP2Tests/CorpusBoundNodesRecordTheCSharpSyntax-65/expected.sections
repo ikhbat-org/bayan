@@ -1,0 +1,65 @@
+== tests/cases/run/for-dyn-ref-list.byn
+243..325 blockStmt
+249..260 localDecl
+259..260 literalExpr integer
+265..308 forStmt
+274..276 nameExpr
+277..308 blockStmt
+287..302 assignStmt add target 287..290 value 294..302
+287..290 nameExpr
+294..302 callExpr
+294..295 nameExpr
+313..323 returnStmt value 320..323
+320..323 nameExpr
+353..460 blockStmt
+359..370 localDecl
+369..370 literalExpr integer
+375..443 forStmt
+409..411 nameExpr
+412..443 blockStmt
+422..437 assignStmt add target 422..425 value 429..437
+422..425 nameExpr
+429..437 callExpr
+429..430 nameExpr
+448..458 returnStmt value 455..458
+455..458 nameExpr
+462..481 globalStatement
+462..481 localDecl
+471..481 callExpr
+482..504 exprStmt
+482..504 callExpr
+482..484 nameExpr
+492..503 structLiteralExpr
+500..501 literalExpr integer
+505..527 exprStmt
+505..527 callExpr
+505..507 nameExpr
+515..526 structLiteralExpr
+523..524 literalExpr integer
+528..564 exprStmt
+528..564 callExpr
+534..563 interpolatedExpr
+537..546 callExpr
+543..545 nameExpr
+549..561 callExpr
+558..560 nameExpr
+528..564 callExpr
+192..197 binaryExpr mul right 196..197
+192..197 binaryExpr mul right 196..197
+192..197 binaryExpr mul right 196..197
+192..193 nameExpr
+192..193 nameExpr
+196..197 nameExpr
+196..197 nameExpr
+243..325 blockStmt
+249..260 localDecl
+259..260 literalExpr integer
+265..308 forStmt
+274..276 nameExpr
+277..308 blockStmt
+287..302 assignStmt add target 287..290 value 294..302
+287..290 nameExpr
+294..302 callExpr
+294..295 nameExpr
+313..323 returnStmt value 320..323
+320..323 nameExpr

@@ -1,0 +1,5 @@
+error BYN2216: branches have different types: `i32` and `string`
+  --> <repo>/tests/cases/diag/branch-type-mismatch.byn:2:9
+
+  2 │ let x = ok ? 1 : "no"
+    │         ^^^^^^^^^^^^^

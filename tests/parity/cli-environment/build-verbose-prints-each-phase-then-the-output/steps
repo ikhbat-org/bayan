@@ -1,0 +1,2 @@
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN build -v -o $PWD/build-verbose/out build-verbose/main.byn > o.txt; echo "build $?"; sed 's/(safe, [^)]*)/(safe, <host>)/' o.txt
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN build --verbose -o $PWD/build-verbose/out build-verbose/main.byn > o.txt; echo "build $?"; sed 's/(safe, [^)]*)/(safe, <host>)/' o.txt

@@ -1,0 +1,6 @@
+0b__
+
+let c = """never closed
+ $"{
+$"stray } here"
+ â‚

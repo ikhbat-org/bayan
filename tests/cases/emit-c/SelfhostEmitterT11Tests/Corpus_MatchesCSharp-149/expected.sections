@@ -1,0 +1,5 @@
+== cases
+0 ((byn_dyn_main__IThing){&(*p_b).inner, &bynh_vtab_main__S_main__IThing})
+1 ((byn_dyn_main__IThing){&(*self).inner, &bynh_vtab_main__S_main__IThing})
+2 ((byn_dyn_main__IThing){&l0_other, &bynh_vtab_main__S_main__IThing})
+count 3

@@ -1,0 +1,105 @@
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolatedStringText `total `
+3:16 InterpolationStart `{`
+3:17 Identifier `x`
+3:18 InterpolationEnd `}`
+3:19 InterpolatedStringEnd `"`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolatedStringText `a `
+3:25 InterpolationStart `{`
+3:26 Identifier `f`
+3:27 OpenParen `(`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolatedStringText `b `
+3:32 InterpolationStart `{`
+3:33 Identifier `c`
+3:34 InterpolationEnd `}`
+3:35 InterpolatedStringEnd `"`
+3:36 CloseParen `)`
+3:37 InterpolationEnd `}`
+3:38 InterpolatedStringText ` d`
+3:40 InterpolatedStringEnd `"`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolatedStringText `{{literal}}`
+3:55 InterpolatedStringEnd `"`
+3:57 InterpolatedStringStart `$"`
+3:59 InterpolationStart `{`
+3:60 Identifier `Point`
+3:66 OpenBrace `{`
+3:68 Identifier `x`
+3:70 Equals `=`
+3:72 IntegerLiteral `1`
+3:74 CloseBrace `}`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringText `!`
+3:77 InterpolatedStringEnd `"`
+3:79 InterpolatedStringStart `$"`
+3:81 InterpolatedStringEnd `"`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 WithKeyword `with`
+4:20 MoveKeyword `move`
+4:25 RefKeyword `ref`
+4:29 OutKeyword `out`
+4:33 ThisKeyword `this`
+4:38 NullKeyword `null`
+4:43 TrueKeyword `true`
+4:48 FalseKeyword `false`
+4:54 ComptimeKeyword `comptime`
+4:63 CheckedKeyword `checked`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /*����
+    │ ^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // ����
+    │   │  ++++++
+    │ 2 │ // error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+    │   │ +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    │ 3 │ // /* �
+    │   │ +++++++
+    │ 4 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ /*����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ /*����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ /*����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ /*����
+    │      ^
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ /* � */$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ /* � */$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   │    -
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^

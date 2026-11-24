@@ -1,0 +1,1 @@
+{"code":"BYN2721","severity":"error","file":"input.byn","span":{"start":35,"end":38,"line":4,"column":5,"endLine":4,"endColumn":8},"message":"enum `Color` already has a member `red`","label":"already declared on line 2","help":null,"fixes":[]}

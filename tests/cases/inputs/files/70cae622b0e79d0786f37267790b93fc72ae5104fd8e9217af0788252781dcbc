@@ -1,0 +1,5 @@
+bool f(bool a, bool b) => a	&&	b
+bool g(bool a, bool b) => a ||
+    b
+bool h(bool a, bool b) => a &&
+    b

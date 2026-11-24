@@ -1,0 +1,65 @@
+1:1 CharLiteral `'x`
+4:2 Dot `.`
+4:3 IntegerLiteral `14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 Dot `.`
+5:1 CharLiteral `'\u{202E}'`
+5:5 Identifier `Å`
+5:6 StringLiteral `"a {f($"`
+5:14 Identifier `b`
+5:16 OpenBrace `{`
+5:17 Identifier `c`
+5:18 CloseBrace `}`
+5:19 StringLiteral `")} d`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  2 │ �
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�' Å"a {f($"b {c}")} d
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�' Å"a {f($"b {c}")} d
+    │   │  -
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  5 │ '�' Å"a {f($"b {c}")} d
+    │     ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ '�' Å"a {f($"b {c}")} d
+    │   │     +
+
+error BYN0003: unterminated string literal
+
+  5 │ '�' Å"a {f($"b {c}")} d
+    │                   ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

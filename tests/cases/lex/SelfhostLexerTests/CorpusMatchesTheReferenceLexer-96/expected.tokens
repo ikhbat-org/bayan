@@ -1,0 +1,91 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:26 Identifier `c`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringEnd `"`
+1:29 CloseParen `)`
+1:30 InterpolationEnd `}`
+1:31 InterpolatedStringText ` d`
+1:33 InterpolatedStringEnd `"`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolatedStringText `{{literal}�`
+1:47 InterpolatedStringEnd `"`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 Identifier `Point`
+1:58 OpenBrace `{`
+1:60 Identifier `x`
+1:62 Equals `=`
+1:64 IntegerLiteral `1`
+1:66 CloseBrace `}`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringText `!`
+1:69 InterpolatedStringEnd `"`
+1:71 InterpolatedStringStart `$"`
+1:73 InterpolatedStringEnd `"`
+2:1 StringLiteral `"total {x}"`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolatedStringText `a `
+2:17 InterpolationStart `{`
+2:18 Identifier `f`
+2:19 OpenParen `(`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolatedStringText `b `
+2:24 InterpolationStart `{`
+2:25 Identifier `c`
+2:26 InterpolationEnd `}`
+2:27 InterpolatedStringEnd `"`
+2:28 CloseParen `)`
+2:29 InterpolationEnd `}`
+2:30 InterpolatedStringText ` d`
+2:32 InterpolatedStringEnd `"`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolatedStringText `{{literal}}`
+2:47 InterpolatedStringEnd `"`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 Identifier `Point`
+2:58 OpenBrace `{`
+2:60 Identifier `x`
+2:62 Equals `=`
+2:64 IntegerLiteral `1`
+2:66 CloseBrace `}`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringText `!`
+2:69 InterpolatedStringEnd `"`
+2:71 InterpolatedStringStart `$"`
+2:73 InterpolatedStringEnd `"`
+3:1 StringLiteral `"`
+5:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}�" $"{Point { x = 1 }}!" $""
+    │                                              ^
+    │
+    │ 1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}�" $"{Point { x = 1 }}!" $""
+    │   │                                               +
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  1 │ $"total {x}" $"a {f($"b {c}")} d" $"{{literal}�" $"{Point { x = 1 }}!" $""
+    │                                               ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

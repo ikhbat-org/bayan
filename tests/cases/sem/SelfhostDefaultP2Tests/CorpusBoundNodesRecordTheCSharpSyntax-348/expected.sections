@@ -1,0 +1,25 @@
+== tests/cases/diag/argument-implied-name.byn
+71..90 conditionalExpr
+71..90 conditionalExpr
+71..90 conditionalExpr
+71..78 nameExpr
+81..86 binaryExpr mul right 85..86
+81..82 nameExpr
+85..86 literalExpr integer
+89..90 nameExpr
+128..153 callExpr
+128..153 callExpr
+128..153 callExpr
+134..135 literalExpr integer
+137..152 memberExpr
+137..144 nameExpr
+155..173 globalStatement
+155..173 localDecl
+169..173 literalExpr trueKeyword
+174..203 exprStmt
+174..203 callExpr
+180..202 interpolatedExpr
+183..200 callExpr
+189..190 literalExpr integer
+192..199 nameExpr
+174..203 callExpr

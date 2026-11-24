@@ -1,0 +1,8 @@
+== cases
+0 byn_io_write(INT32_C(1), BYN_STR("one ", 4))
+1 byn_io_write(INT32_C(1), BYN_STR("two", 3))
+2 byn_io_write(INT32_C(2), BYN_STR("to stderr, ", 11))
+3 byn_io_write(INT32_C(2), BYN_STR("no newline", 10))
+4 byn_io_write(INT32_C(1), BYN_STR("last, no newline", 16))
+5 (l1_end < l0_start)
+count 6

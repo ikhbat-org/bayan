@@ -1,0 +1,9 @@
+warning BYN2311: `s` is never reassigned; declare it with `let`
+  --> <repo>/tmp/t5/emit/run_collection-literals/collection-literals.byn:36:5
+
+  36 │ var s: Span<i32> = [1, 2, 3]
+     │     ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 36 │ let s: Span<i32> = [1, 2, 3]
+     │    │ +++

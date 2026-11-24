@@ -1,0 +1,3 @@
+build
+--emit-c
+path-relative.byn

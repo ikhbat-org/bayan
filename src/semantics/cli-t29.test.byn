@@ -1,0 +1,237 @@
+// 019 T29 (coverage ratchet): cli.byn paths no golden case reaches, run on files the tests write under `tmp/t29s1-cli`:
+// option parsing, a file and a directory compiled outside a project, a project whose manifest has errors, style lints in
+// JSON, past the cap and read from a lint root, scripts, `types`, `check`, the failure footer and the span check. The
+// expected values are the output of the self-hosted checker at the commit that added the test.
+
+/// Writes `text` to `path`, replacing it.
+void t29s1Write(string path, from string text) uses fs {
+    Io.writeFile(path, text.bytes) catch {}
+}
+
+/// A `main.byn` with `n` functions that each trip `guards.postfix`.
+string t29s1Postfix(i64 n) uses alloc {
+    var sb = StrBuf()
+    sb.append("union error E {\n    empty\n}\n")
+    for i in 0..n {
+        sb.append($"\nvoid check{i}(i64 n) fails E {{\n    if n < 0 {{\n        fail .empty\n    }}\n}}\n")
+    }
+    sb.append("\nvoid main() {}\n")
+    return sb.finish()
+}
+
+/// A project at `dir` whose `guards.postfix` lint is at `level` and whose `main.byn` trips it `n` times.
+void t29s1Project(string dir, at string level, by i64 n) uses alloc, fs {
+    Io.createDirectory(dir) catch {}
+    Io.createDirectory($"{dir}/src") catch {}
+    Io.createDirectory($"{dir}/src/app") catch {}
+    let manifest = $"Package {{\n    name: \"local/style\",\n    version: \"0.1.0\",\n\n    style: Style {{\n        lints: [\"guards.postfix\": .{level}],\n    }},\n}}\n"
+    t29s1Write($"{dir}/package.byn", from: manifest)
+    t29s1Write($"{dir}/src/app/main.byn", from: t29s1Postfix(n))
+}
+
+/// The fixtures: a clean file, a file with errors, a script, a directory, projects and a broken manifest.
+void t29s1Fixtures() uses alloc, fs {
+    let root = "tmp/t29s1-cli"
+    Io.createDirectory(root) catch {}
+    Io.createDirectory($"{root}/dir") catch {}
+    t29s1Write($"{root}/dir/a.byn", from: "void main() {}\n")
+    Io.createDirectory($"{root}/bad") catch {}
+    t29s1Write($"{root}/bad/a.byn", from: "void main() {\n    let a: i64 = \"s\"\n}\n")
+    Io.createDirectory($"{root}/script") catch {}
+    t29s1Write($"{root}/script/a.byn", from: "#!/usr/bin/env bayan\nprint(\"hi\")\n")
+    t29s1Write($"{root}/one.txt", from: "#")
+    t29s1Write($"{root}/hash.txt", from: "#x")
+    t29s1Project($"{root}/warn", at: "warning", by: 21)
+    t29s1Project($"{root}/note", at: "suggestion", by: 1)
+    t29s1Project($"{root}/fail", at: "error", by: 1)
+    Io.createDirectory($"{root}/broken") catch {}
+    t29s1Write($"{root}/broken/package.byn", from: "Package {\n    name: 1,\n}\n")
+    Io.createDirectory($"{root}/lib") catch {}
+    t29s1Write(
+        $"{root}/lib/package.byn",
+        from: "Package {\n    name: \"local/tool\",\n    version: \"0.1.0\",\n    kind: .lib,\n}\n",
+    )
+    Io.createDirectory($"{root}/wrong") catch {}
+    Io.createDirectory($"{root}/wrong/src") catch {}
+    Io.createDirectory($"{root}/wrong/src/app") catch {}
+    t29s1Write($"{root}/wrong/package.byn", from: "Package {\n    name: \"local/wrong\",\n    version: \"0.1.0\",\n}\n")
+    t29s1Write($"{root}/wrong/src/app/main.byn", from: "void main() {\n    let a: i64 = \"s\"\n}\n")
+}
+
+/// `t26ParseBuildOptions` of `args` as one line: `null`, or the path and the json, all and spans flags.
+string t29s1Options(List<string> args, bool allowSpans) uses alloc, console, fs {
+    let o = t26ParseBuildOptions(in args, allowSpans: allowSpans) ?? return "null"
+    return $"{o.path} {o.json} {o.all} {o.spans}"
+}
+
+test "cli t29: option parsing" {
+    t29s1Fixtures()
+    let ok = "tmp/t29s1-cli/dir/a.byn"
+    let all = t29s1Options(
+        ["--mode", "debug", "--diagnostics", "json", "--all", "--spans", ok, "--", "x"],
+        allowSpans: true,
+    )
+    assert all == "tmp/t29s1-cli/dir/a.byn true true true"
+    assert t29s1Options(
+        ["--mode", "safe", "--diagnostics", "text", ok],
+        allowSpans: false,
+    ) == "tmp/t29s1-cli/dir/a.byn false false false"
+    assert t29s1Options(
+        ["--mode", "fast", "tmp/t29s1-cli/dir"],
+        allowSpans: false,
+    ) == "tmp/t29s1-cli/dir false false false"
+    assert t29s1Options(["--mode", "slow"], allowSpans: false) == "null"
+    assert t29s1Options(["--diagnostics", "xml"], allowSpans: false) == "null"
+    assert t29s1Options(["--spans", ok], allowSpans: false) == "null"
+    assert t29s1Options([ok, ok], allowSpans: false) == "null"
+    assert t29s1Options(["--mode"], allowSpans: false) == "null"
+    assert t29s1Options(["--diagnostics"], allowSpans: false) == "null"
+    assert t29s1Options([], allowSpans: false) == "null"
+    assert t29s1Options(["tmp/t29s1-cli/missing.byn"], allowSpans: false) == "null"
+    assert !t26FileExists("tmp/t29s1-cli/dir")
+    assert !t26IsScript("tmp/t29s1-cli/missing.byn")
+    assert t26IsScript("tmp/t29s1-cli/script/a.byn")
+    assert !t26IsScript("tmp/t29s1-cli/dir/a.byn")
+    assert !t26IsScript("tmp/t29s1-cli/one.txt")
+    assert !t26IsScript("tmp/t29s1-cli/hash.txt")
+}
+
+test "cli t29: compiles outside and inside projects" {
+    t29s1Fixtures()
+    let symbols = t26Symbols(ascii: true)
+    var reported = List<T26Reported>()
+    var ok = false
+    let file = t26Compile(
+        in T26Options { path: "tmp/t29s1-cli/dir/a.byn" },
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+        styleLints: true,
+    )
+    assert ok && file.diagnostics.length == 0
+    let dir = t26Compile(in T26Options { path: "tmp/t29s1-cli/dir" }, by: in symbols, to: ref reported, through: ref ok)
+    assert ok && dir.files.length > 0
+    let bad = t26Compile(
+        in T26Options { path: "tmp/t29s1-cli/bad/a.byn" },
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+        styleLints: true,
+    )
+    assert !ok && bad.diagnostics[0].code == "BYN2202"
+    let broken = t26Compile(
+        in T26Options { path: "tmp/t29s1-cli/broken", json: true },
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+    )
+    assert !ok && broken.files.length == 0
+    let lib = t26Compile(in T26Options { path: "tmp/t29s1-cli/lib" }, by: in symbols, to: ref reported, through: ref ok)
+    assert !ok && lib.files.length == 0
+    let wrong = t26Compile(
+        in T26Options { path: "tmp/t29s1-cli/wrong" },
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+        styleLints: true,
+    )
+    assert !ok && wrong.diagnostics.length == 1
+    var codes = StrBuf()
+    for r in reported {
+        codes.append($"{r.code} ")
+    }
+    assert codes.finish() == "BYN2202 BYN3102 BYN3103 BYN2202 "
+}
+
+test "cli t29: style lints in JSON, past the cap and from a lint root" {
+    t29s1Fixtures()
+    let symbols = t26Symbols(ascii: true)
+    var reported = List<T26Reported>()
+    var ok = false
+    let warn = T26Options { path: "tmp/t29s1-cli/warn" }
+    let c = t26Compile(in warn, by: in symbols, to: ref reported, through: ref ok)
+    assert ok
+    var lints = List<T26Reported>()
+    assert t26StyleLints(warn, by: symbols, for: c, to: ref lints)
+    assert lints.length == 21 && lints[0].isWarning
+    assert t26StyleLints(T26Options { path: "tmp/t29s1-cli/warn", all: true }, by: symbols, for: c, to: ref lints)
+    assert t26StyleLints(T26Options { path: "tmp/t29s1-cli/warn", json: true }, by: symbols, for: c, to: ref lints)
+    var rooted = List<T26Reported>()
+    assert !t26StyleLints(warn, by: symbols, for: c, to: ref rooted, lintRoot: "tmp/t29s1-cli/fail")
+    assert rooted.length == 21 && !rooted[0].isWarning
+    var unread = List<T26Reported>()
+    assert t26StyleLints(warn, by: symbols, for: c, to: ref unread, lintRoot: "tmp/t29s1-cli/broken")
+    assert unread.length == 21 && unread[0].isWarning
+    var none = List<T26Reported>()
+    assert t26StyleLints(warn, by: symbols, for: c, to: ref none, lintRoot: "tmp/t29s1-cli/dir")
+    assert none.length == 21
+}
+
+test "cli t29: types, check and the failure footer" {
+    t29s1Fixtures()
+    let symbols = t26Symbols(ascii: true)
+    assert types([], by: symbols) == exitUsage
+    assert types(["tmp/t29s1-cli/bad/a.byn"], by: symbols) == exitFailure
+    assert types(["tmp/t29s1-cli/dir/a.byn"], by: symbols) == exitOk
+    assert check([], by: symbols) == exitUsage
+    assert check(["--spans", "tmp/t29s1-cli/dir/a.byn"], by: symbols) == exitOk
+    assert check(["--diagnostics", "json", "tmp/t29s1-cli/dir/a.byn"], by: symbols) == exitOk
+    assert check(["tmp/t29s1-cli/bad/a.byn"], by: symbols) == exitFailure
+    assert check(["tmp/t29s1-cli/note"], by: symbols) == exitOk
+    var reported = List<T26Reported>()
+    reported.append(T26Reported { path: "b.byn", start: 4, code: "BYN0002", isWarning: false })
+    reported.append(T26Reported { path: "a.byn", start: 9, code: "BYN0003", isWarning: false })
+    reported.append(T26Reported { path: "a.byn", start: 1, code: "BYN0004", isWarning: false })
+    reported.append(T26Reported { path: "a.byn", start: 0, code: "BYN0005", isWarning: true })
+    reported.append(T26Reported { path: "a.byn", start: 0, code: "BYN0006", isWarning: false, isNote: true })
+    assert t26Failed(in T26Options { path: "a.byn" }, from: in reported, by: in symbols) == exitFailure
+    var quiet = List<T26Reported>()
+    quiet.append(T26Reported { path: "a.byn", start: 0, code: "BYN0006", isWarning: false, isNote: true })
+    assert t26Failed(in T26Options { path: "a.byn" }, from: in quiet, by: in symbols) == exitFailure
+    assert t26Seconds(1234000000) == "1.23s"
+}
+
+test "cli t29: the span check skips fileless diagnostics" {
+    t29s1Fixtures()
+    let symbols = t26Symbols(ascii: true)
+    var reported = List<T26Reported>()
+    var ok = false
+    var c = t26Compile(
+        in T26Options { path: "tmp/t29s1-cli/bad/a.byn" },
+        by: in symbols,
+        to: ref reported,
+        through: ref ok,
+    )
+    var related = List<Related>()
+    related.append(Related { span: TextSpan { start: 0, length: 1 }, label: "here" })
+    c.diagnostics.append(Diag {
+        code: "BYN0001",
+        file: 0,
+        span: TextSpan { start: 1000, length: 1 },
+        message: "out",
+        hasFix: true,
+        fixSpan: TextSpan { start: -1, length: 0 },
+        related: move related,
+    })
+    c.diagnostics.append(
+        Diag {
+            code: "BYN0000",
+            span: TextSpan { start: 0, length: 0 },
+            message: "m",
+            fixSpan: TextSpan { start: 0, length: 0 },
+            related: List<Related>(),
+        },
+    )
+    c.diagnostics.append(
+        Diag {
+            code: "BYN0007",
+            file: 0,
+            span: TextSpan { start: 0, length: -1 },
+            message: "m",
+            fixSpan: TextSpan { start: 0, length: 0 },
+            related: List<Related>(),
+        },
+    )
+    t26CheckSpans(ref c)
+    assert c.diagnostics.length == 4
+}

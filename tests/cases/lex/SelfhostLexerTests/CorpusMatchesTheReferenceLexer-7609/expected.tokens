@@ -1,0 +1,13 @@
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 ExtensibleKeyword `extensible`
+2:48 InterfaceKeyword `interface`
+2:58 DelegateKeyword `delegate`
+2:67 ExtensionKeyword `extension`
+2:77 DerivationKeyword `derivation`
+2:88 AttributeKeyword `attribute`
+4:1 EndOfFile

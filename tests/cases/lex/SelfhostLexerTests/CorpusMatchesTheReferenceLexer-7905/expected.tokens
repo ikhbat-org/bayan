@@ -1,0 +1,30 @@
+1:1 Equals `=`
+1:3 PercentEquals `%=`
+1:6 AmpEquals `&=`
+1:9 BarEquals `|=`
+1:12 CaretEquals `^=`
+1:15 LessLessEquals `<<=`
+3:1 IntegerLiteral `0b__`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0004: unterminated block comment
+
+  4 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  7 │ error set unit distinct ty�e import as public private static readonly required con�st let var embed extern unsafe
+    │                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE5)
+
+  7 │ error set unit distinct ty�e import as public private static readonly required con�st let var embed extern unsafe
+    │                                                                                   ^

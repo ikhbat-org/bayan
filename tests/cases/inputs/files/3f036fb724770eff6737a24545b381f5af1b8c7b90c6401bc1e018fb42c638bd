@@ -1,0 +1,6 @@
+fails tryX catch never noalloc nosuspend suspends async await
+ Å'x
+ let b = ` 2
+is and or not with move ref out this null true false comptime checked
+ let c = """never closed
+

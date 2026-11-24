@@ -1,0 +1,9 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; mkdir -p tally/src/money && cp money.byn tally/src/money/money.byn && cp main.byn tally/src/app/main.byn && cd tally && g() { git -c core.hooksPath=.no-hooks -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false "$@"; } && g init --quiet -b work && g add -A && g commit --quiet -m start && echo "repo $?"
+$ r() { grep -E '^  (\*|◆) [^:]+: ' | grep -v ' (pending)$' | sed -E 's/^  (\*|◆) [^:]+: //' | LC_ALL=C sort; }; $BAYAN test -v tally > o.txt; echo "test $?"; r < o.txt
+$ $BAYAN test tally --changed > o.txt; echo "test $?"; head -1 o.txt
+$ r() { grep -E '^  (\*|◆) [^:]+: ' | grep -v ' (pending)$' | sed -E 's/^  (\*|◆) [^:]+: //' | LC_ALL=C sort; }; printf '\n' >> tally/src/money/money.byn; $BAYAN test -v tally --changed | r
+$ r() { grep -E '^  (\*|◆) [^:]+: ' | grep -v ' (pending)$' | sed -E 's/^  (\*|◆) [^:]+: //' | LC_ALL=C sort; }; printf 'test "extra" {\n    assert(true)\n}\n' > tally/tests/extra.test.byn; $BAYAN test -v tally --changed | r
+$ cd tally && g() { git -c core.hooksPath=.no-hooks -c user.name=test -c user.email=test@example.com -c commit.gpgsign=false "$@"; } && g add -A && g commit --quiet -m more && cd .. && $BAYAN test tally --changed | head -1 | cut -c1-15
+$ r() { grep -E '^  (\*|◆) [^:]+: ' | grep -v ' (pending)$' | sed -E 's/^  (\*|◆) [^:]+: //' | LC_ALL=C sort; }; $BAYAN test -v tally --base HEAD~1 | r
+$ r() { grep -E '^  (\*|◆) [^:]+: ' | grep -v ' (pending)$' | sed -E 's/^  (\*|◆) [^:]+: //' | LC_ALL=C sort; }; printf '\n' >> tally/package.byn; $BAYAN test -v tally --changed | r | wc -l | tr -d ' '
+$ $BAYAN test tally --changed --json | grep -c '"skipped": 0'

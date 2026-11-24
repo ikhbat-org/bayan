@@ -1,0 +1,16 @@
+3:1 Identifier `ạ̇`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  1 │ //// not a d�oc comment
+    │             ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ +

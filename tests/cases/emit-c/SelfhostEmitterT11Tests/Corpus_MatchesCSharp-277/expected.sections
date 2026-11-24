@@ -1,0 +1,3 @@
+== cases
+0 ((*self).at < INT64_C(3))
+count 1

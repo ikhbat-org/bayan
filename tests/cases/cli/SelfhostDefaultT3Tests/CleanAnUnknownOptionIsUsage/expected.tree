@@ -1,0 +1,10 @@
+dist/
+dist/demo.tar 30
+other/
+other/keep 1
+out/
+out/safe/
+out/safe/x/
+out/safe/x/demo 20
+out/safe/x/main.c 10
+package.byn 13

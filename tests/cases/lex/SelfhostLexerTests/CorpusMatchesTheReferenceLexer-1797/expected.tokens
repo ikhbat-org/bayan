@@ -1,0 +1,34 @@
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 ForeachKeyword `foreach`
+2:41 Identifier `ne`
+2:44 GotoKeyword `goto`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │     ^

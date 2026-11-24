@@ -1,0 +1,69 @@
+1:1 IntegerLiteral `0xF__`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:14 InterpolationEnd `}`
+2:15 InterpolatedStringEnd `"`
+2:16 InterpolationEnd `}`
+2:17 InterpolatedStringEnd `"`
+2:18 CloseBrace `}`
+2:19 StringLiteral `"}"`
+2:22 CloseBrace `}`
+2:23 StringLiteral `"}"`
+2:26 CloseBrace `}`
+2:27 StringLiteral `"}"`
+2:30 CloseBrace `}`
+2:31 StringLiteral `"}"`
+2:34 CloseBrace `}`
+2:35 StringLiteral `"}"`
+2:38 CloseBrace `}`
+2:39 StringLiteral `"}"`
+2:42 CloseBrace `}`
+2:43 StringLiteral `"}"`
+2:46 CloseBrace `}`
+2:47 StringLiteral `"}"`
+2:50 CloseBrace `}`
+2:51 StringLiteral `"`
+3:3 IntegerLiteral `1`
+5:1 CharLiteral `'`
+7:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  5 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0004: unterminated block comment
+
+  6 │ /*
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ � 
+    │ ^

@@ -1,0 +1,20 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `Lit`
+1:17 Less `<`
+1:18 Identifier `i64`
+1:21 Greater `>`
+1:22 Greater `>`
+3:1 IntegerLiteral `1_`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1_
+    │  ^
+    │
+    │ 3 │ 1_
+    │   │  -

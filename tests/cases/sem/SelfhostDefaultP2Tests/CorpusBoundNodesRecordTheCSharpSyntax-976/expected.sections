@@ -1,0 +1,81 @@
+== tests/cases/diag/var-never-reassigned.byn
+105..119 blockStmt
+111..117 assignStmt add target 111..112 value 116..117
+111..112 nameExpr
+116..117 literalExpr integer
+144..275 blockStmt
+150..190 ifStmt
+153..172 isExpr
+153..154 nameExpr
+158..172 variantPattern
+166..169 varPattern
+173..190 blockStmt
+175..188 exprStmt
+175..188 callExpr
+181..187 interpolatedExpr
+184..185 nameExpr
+175..188 callExpr
+195..273 ifStmt
+198..220 isExpr
+198..199 nameExpr
+203..220 variantPattern
+211..214 varPattern
+221..273 blockStmt
+231..242 assignStmt mul target 231..235 value 239..242
+231..235 nameExpr
+239..242 literalExpr floatKeyword
+251..267 exprStmt
+251..267 callExpr
+257..266 interpolatedExpr
+260..264 nameExpr
+251..267 callExpr
+289..532 blockStmt
+295..308 localDecl
+307..308 literalExpr integer
+313..326 localDecl
+325..326 literalExpr integer
+331..341 assignStmt add target 331..336 value 340..341
+331..336 nameExpr
+340..341 literalExpr integer
+346..368 localDecl
+354..368 structLiteralExpr
+365..366 literalExpr integer
+373..380 assignStmt assign target 373..376 value 379..380
+373..376 memberExpr
+373..374 nameExpr
+379..380 literalExpr integer
+385..394 localDecl
+393..394 literalExpr integer
+399..410 exprStmt
+399..410 callExpr
+408..409 nameExpr
+415..428 localDecl
+427..428 literalExpr integer
+433..498 forStmt
+442..446 rangeExpr
+442..443 literalExpr integer
+445..446 literalExpr integer
+447..498 blockStmt
+449..496 exprStmt
+449..496 callExpr
+455..495 interpolatedExpr
+458..493 binaryExpr add right 488..493
+458..485 binaryExpr add right 484..485
+458..481 binaryExpr add right 478..481
+458..475 binaryExpr add right 470..475
+458..475 binaryExpr add right 470..475
+458..467 binaryExpr add right 462..467
+458..459 nameExpr
+462..467 nameExpr
+470..475 nameExpr
+478..481 memberExpr
+478..479 nameExpr
+484..485 nameExpr
+484..485 nameExpr
+488..493 nameExpr
+488..493 nameExpr
+449..496 callExpr
+503..530 exprStmt
+503..530 callExpr
+512..529 callExpr
+525..528 literalExpr floatKeyword

@@ -1,0 +1,10 @@
+let effect = 2
+
+//// not a doc comment
+a /* never closed
+ 0x
+ """never closed
+
+let b = "bad \q escape"
+
++= -= *= /= %= &= |= ^= <<=

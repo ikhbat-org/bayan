@@ -1,0 +1,22 @@
+1:1 StringLiteral `""`
+2:3 Identifier `raw`
+2:7 StringLiteral `"\u{1A}u�oted"`
+3:3 RawStringLiteral `""" c"text" u1�"wide" "\u{202E} allowed in s1__\n\r\n0b__\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  2 │   raw "�u�oted"
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u1�"wide" "� allowed in s1__
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x91)
+
+  3 │   """ c"text" u1�"wide" "� allowed in s1__
+    │                 ^

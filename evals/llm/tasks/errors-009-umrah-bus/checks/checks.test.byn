@@ -1,0 +1,99 @@
+Bus busOf(string riders, for i64 seats) {
+    var bus = Bus { riders: List<string>(), seats: seats }
+    for name in riders.parts(by: ",") {
+        bus.riders.append(name) unless name.isEmpty
+    }
+    return bus
+}
+
+string ridersOf(Bus bus) {
+    var text = ""
+    for rider in bus.riders {
+        text = text.isEmpty ? rider : $"{text},{rider}"
+    }
+    return text
+}
+
+string twiceName(ref Bus bus, from string group) {
+    board(ref bus, from: group) catch switch {
+        .twice(let name) => return name,
+        _ => return "other",
+    }
+    return "none"
+}
+
+i64 fullSeats(ref Bus bus, from string group) {
+    board(ref bus, from: group) catch switch {
+        .full(let seats) => return seats,
+        _ => return -1,
+    }
+    return 0
+}
+
+test "board adds a group in order" {
+    var bus = busOf("", for: 4)
+    try board(ref bus, from: "Aisha,Bilal")
+    assert ridersOf(bus) == "Aisha,Bilal"
+    try board(ref bus, from: "Zaynab")
+    assert ridersOf(bus) == "Aisha,Bilal,Zaynab"
+}
+
+test "board fills the last seat" {
+    var bus = busOf("Aisha", for: 3)
+    try board(ref bus, from: "Bilal,Zaynab")
+    assert ridersOf(bus) == "Aisha,Bilal,Zaynab"
+}
+
+test "board refuses an empty name and boards nobody" {
+    var bus = busOf("Aisha", for: 6)
+    assert board(ref bus, from: "") fails BoardError.noName
+    assert board(ref bus, from: "Bilal,,Zaynab") fails BoardError.noName
+    assert board(ref bus, from: "Bilal,Zaynab,") fails BoardError.noName
+    assert ridersOf(bus) == "Aisha"
+}
+
+test "board refuses someone already aboard and boards nobody" {
+    var bus = busOf("Aisha,Bilal", for: 6)
+    assert twiceName(ref bus, from: "Zaynab,Bilal") == "Bilal"
+    assert ridersOf(bus) == "Aisha,Bilal"
+    assert twiceName(ref bus, from: "Hamza,Maryam,Hamza") == "Hamza"
+    assert ridersOf(bus) == "Aisha,Bilal"
+    assert twiceName(ref bus, from: "bilal") == "none"
+    assert ridersOf(bus) == "Aisha,Bilal,bilal"
+}
+
+test "board refuses a group that does not fit and boards nobody" {
+    var bus = busOf("Aisha", for: 3)
+    assert fullSeats(ref bus, from: "Bilal,Zaynab,Hamza") == 3
+    assert ridersOf(bus) == "Aisha"
+    var empty = busOf("", for: 0)
+    assert fullSeats(ref empty, from: "Bilal") == 0
+    assert ridersOf(empty) == ""
+}
+
+test "the first check that applies decides" {
+    var bus = busOf("Aisha", for: 2)
+    assert board(ref bus, from: "Bilal,Aisha") fails BoardError.twice
+    assert board(ref bus, from: "Bilal,Zaynab") fails BoardError.full
+    assert board(ref bus, from: "Aisha,") fails BoardError.twice
+    assert board(ref bus, from: ",Aisha") fails BoardError.noName
+    assert ridersOf(bus) == "Aisha"
+}
+
+test "boardAll boards the groups that fit" {
+    var bus = busOf("", for: 4)
+    var groups = List<string>()
+    groups.append("Aisha,Bilal")
+    groups.append("Zaynab,Aisha")
+    groups.append("Hamza,Maryam,Yusuf")
+    groups.append("Hamza,")
+    groups.append("Maryam,Yusuf")
+    assert boardAll(ref bus, from: groups) == 2
+    assert ridersOf(bus) == "Aisha,Bilal,Maryam,Yusuf"
+}
+
+test "boardAll of no groups boards nobody" {
+    var bus = busOf("Aisha", for: 4)
+    assert boardAll(ref bus, from: List<string>()) == 0
+    assert ridersOf(bus) == "Aisha"
+}

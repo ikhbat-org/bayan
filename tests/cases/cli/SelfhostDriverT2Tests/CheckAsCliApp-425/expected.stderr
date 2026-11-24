@@ -1,0 +1,10 @@
+error BYN2004: no module `mony`
+  --> <repo>/tmp/t2/diag/unknown-module/unknown-module.byn:1:8
+
+  1 │ import mony
+    │        ^^^^
+    │
+  help: put the module's `.byn` files in `mony/` next to the entry file; a module is a directory
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2004

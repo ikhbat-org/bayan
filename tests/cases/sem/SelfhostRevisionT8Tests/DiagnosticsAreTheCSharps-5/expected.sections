@@ -1,0 +1,8 @@
+== diags.m-overlap
+BYN3102 8:22 `grammar.collectives` must be a list of words, e.g. `["upsert"]`
+BYN3102 7:22 `grammar.adjectives` must be free of `Record`, which `grammar.verbs` lists; only a verb that is also a noun may be in two lists
+BYN3102 7:32 `grammar.adjectives` must be free of `x`, which `grammar.nouns` lists; only a verb that is also a noun may be in two lists
+verbs record
+nouns record x
+adjectives Record x
+collectives

@@ -1,0 +1,2 @@
+== flow.catchFalls
+BYN2611 139:5 this `catch` block can complete normally; end it with `return`, `break`, `continue` or a panic ||leave the block instead of falling through; `failing` returns a value|

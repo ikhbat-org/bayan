@@ -1,0 +1,7 @@
+== diags.diag/state-literal-violated
+BYN2321 9:31 `-1` violates `requires it > 0` of `Order`
+  label fails the contract
+  help pass a value that meets `requires it > 0`
+BYN2321 10:29 `0` violates `requires it > 0` of `Order`
+  label fails the contract
+  help pass a value that meets `requires it > 0`

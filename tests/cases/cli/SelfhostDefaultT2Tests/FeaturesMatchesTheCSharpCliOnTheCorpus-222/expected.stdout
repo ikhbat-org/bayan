@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "NameExpr",
+    "PropertyPattern",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "PathDirectoryName",
+    "Print"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,33 @@
+1:2 CharLiteral `''`
+3:2 Minus `-`
+3:4 Star `*`
+3:6 Slash `/`
+3:8 Percent `%`
+3:10 PlusPercent `+%`
+3:13 Identifier `w`
+3:14 Percent `%`
+3:16 StarPercent `*%`
+3:19 PlusBar `+|`
+3:22 MinusBar `-|`
+3:25 StarBar `*|`
+3:28 PlusPlus `++`
+3:31 MinusMinus `--`
+4:2 Identifier `T`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �''
+    │ ^
+
+error BYN0007: empty char literal
+
+  1 │ �''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  T� 
+    │   ^

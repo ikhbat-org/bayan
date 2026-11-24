@@ -1,0 +1,3 @@
+parse
+--ast
+<repo>/tests/cases/parse/head-first-keywords.byn

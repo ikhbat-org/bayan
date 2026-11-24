@@ -1,0 +1,10 @@
+*/	 1e
+let b = "bad \q escape"
+ ruct S
+//// not a doc comment
+b
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+let ÿ = 2
+ "text" "esc \"q\" \\ \n" """

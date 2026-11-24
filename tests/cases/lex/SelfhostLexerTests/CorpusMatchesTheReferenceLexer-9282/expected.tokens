@@ -1,0 +1,38 @@
+1:1 OpenBrace `{`
+1:5 IntegerLiteral `0x`
+2:2 CloseBrace `}`
+3:1 Identifier `et`
+3:4 Identifier `café`
+3:9 Equals `=`
+3:11 IntegerLiteral `2`
+5:1 Identifier `leOt`
+5:6 Identifier `caf́`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+5:14 Semicolon `;`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ { � 0x
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ { � 0x
+    │   │   -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ { � 0x
+    │     ^^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  �
+    │   │  -

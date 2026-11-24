@@ -1,0 +1,1 @@
+main: 0:minI64@119 0:belowI64@160 0:maxI64@203 0:aboveI64@243 6:t 6:t 6:t 6:t 6:t 6:t 6:t 0:minF32@407 0:belowF32@439 0:maxF32@473 0:aboveF32@504 6:t 6:t 6:t 6:t 6:t 6:t 6:t 0:minF64@659 0:belowF64@691 0:maxF64@725 0:aboveF64@756 6:t 6:t 6:t 6:t 6:t 6:t 6:t 0:truncMin@911 0:truncMax@945 6:t 6:t 6:t

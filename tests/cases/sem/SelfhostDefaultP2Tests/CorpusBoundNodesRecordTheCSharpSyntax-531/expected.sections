@@ -1,0 +1,9 @@
+== tests/cases/diag/generic-method.byn
+95..99 moveExpr
+95..99 moveExpr
+95..99 moveExpr
+100..101 nameExpr
+57..61 moveExpr
+57..61 moveExpr
+57..61 moveExpr
+62..67 nameExpr

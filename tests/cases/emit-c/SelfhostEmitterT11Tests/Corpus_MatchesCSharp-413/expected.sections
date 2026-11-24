@@ -1,0 +1,4 @@
+== cases
+0 ((int64_t)l0_n)
+1 ((void)l7_items, INT64_C(3))
+count 2

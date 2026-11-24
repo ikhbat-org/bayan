@@ -1,0 +1,47 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:29 Arrow `->`
+1:32 At `@`
+1:34 Hash `#`
+2:1 Identifier `et`
+2:4 Identifier `a`
+2:6 Equals `=`
+2:8 StringLiteral `"open`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never closed\n 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l\n `
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ et a = "open
+    │        ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  4 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

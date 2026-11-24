@@ -1,0 +1,7 @@
+a ¥> b
+
+  """ c"text" á16"wide" "â€® allowed in strings" "" "\u{48}i"
+ '\u{110000}'
+" "\u{Ý48}i"
+
+| || ^ ~ ! 

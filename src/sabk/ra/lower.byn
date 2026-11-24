@@ -1,0 +1,290 @@
+// sabk phase 1 (spec 024, R6): lowers allocated SIR to `enc` instructions. `lower` emits straight into an Assembler, so
+// each block is a label and a call is a `bl` to a label bound to its symbol (a BRANCH26 relocation); the caller binds the
+// function's own symbol before calling. Symbols are used as the SIR names them: a leading underscore, string constants
+// (`str<N>`) and globals are the object writer's concern.
+//
+// Frame (see linear.byn): the prologue is `stp x29, x30, [sp, #-frame]!` (or `sub sp` then `stp` when the frame is beyond
+// the pre-index range), `mov x29, sp`, then the used callee-saved registers in pairs (`stp`, an odd last one with `str`).
+// The epilogue mirrors it before each `ret`. x16/x17 are scratch: a stack operand is loaded into x16 (first) or x17
+// (second) before use and a stack result is computed in x16 and stored back. Call arguments are moved into x0-x7 as a
+// parallel move (x16 breaks a cycle), the result is read from x0, a return value goes to x0. Parameters 9 and up are read
+// from the caller's frame above the saved area. Nothing recurses over the input.
+
+import sabk.enc
+import sabk.sir
+
+type SCond = sir.SCond
+type Reg = enc.Reg
+type Assembler = enc.Assembler
+type Inst = enc.Inst
+type Cond = enc.Cond
+type Label = enc.Label
+type LabelError = enc.LabelError
+
+/// The largest frame whose `ldp ... ], #frame` post-index fits (imm7 * 8 reaches 504; the prologue's -512 would fit but the pair must match).
+i64 preIndexLimit() => 504
+
+Reg rx(i64 n) => Reg { kind: .general, number: u8(n) }
+
+Reg spReg() => Reg { kind: .sp, number: 31 }
+
+void put(ref Assembler asm, as Inst inst) uses alloc fails LabelError {
+    try asm.emit(inst)
+}
+
+/// The byte offset from sp of spill slot `slot`.
+i64 slotOffset(Allocation a, at i64 slot) => 16 + 8 * a.usedCalleeSaved.length + 8 * slot
+
+Cond condOf(SCond c) {
+    switch c {
+        case .eq: return .eq
+        case .ne: return .ne
+        case .lt: return .lt
+        case .le: return .le
+        case .gt: return .gt
+        case .ge: return .ge
+    }
+}
+
+/// `xs` without element `k`.
+List<i64> without(List<i64> xs, at i64 k) uses alloc {
+    var rest = List<i64>()
+    for i in 0..xs.length {
+        rest.append(xs[i]) if i != k
+    }
+    return rest
+}
+
+/// The register holding `v` for reading: its own, or `scratch` after loading it from its slot.
+Reg use(ref Assembler asm, by Allocation a, from VReg v, as i64 scratch) uses alloc fails LabelError {
+    switch a.locations[v] {
+        case .reg(let n): return rx(n)
+        case .stack(let s):
+            try put(ref asm, as: .ldrImm(.x, rx(scratch), spReg(), u16(slotOffset(a, at: s))))
+            return rx(scratch)
+        case .none: return rx(scratch)
+    }
+}
+
+/// The register `v` is computed in: its own, or `scratch` (then `spill` stores it).
+Reg def(Allocation a, to VReg v, as i64 scratch) {
+    switch a.locations[v] {
+        case .reg(let n): return rx(n)
+        case .stack(let s): return rx(scratch)
+        case .none: return rx(scratch)
+    }
+}
+
+/// Stores `v` from `scratch` when it lives in a slot.
+void spill(ref Assembler asm, by Allocation a, to VReg v, from i64 scratch) uses alloc fails LabelError {
+    switch a.locations[v] {
+        case .stack(let s): try put(ref asm, as: .strImm(.x, rx(scratch), spReg(), u16(slotOffset(a, at: s))))
+        default: return
+    }
+}
+
+/// Moves register `src` into `v`'s location.
+void place(ref Assembler asm, by Allocation a, to VReg v, from i64 src) uses alloc fails LabelError {
+    switch a.locations[v] {
+        case .reg(let n): try put(ref asm, as: .movReg(.x, rx(n), rx(src))) if n != src
+        case .stack(let s): try put(ref asm, as: .strImm(.x, rx(src), spReg(), u16(slotOffset(a, at: s))))
+        case .none: return
+    }
+}
+
+void imm(ref Assembler asm, to Reg rd, as i64 value) uses alloc fails LabelError {
+    var first = true
+    for k in 0..4 {
+        let chunk = u16((value >> (16 * k)) & 0xFFFF)
+        continue if chunk == 0
+        if first {
+            try put(ref asm, as: .movz(.x, rd, chunk, u8(16 * k)))
+            first = false
+        } else {
+            try put(ref asm, as: .movk(.x, rd, chunk, u8(16 * k)))
+        }
+    }
+    try put(ref asm, as: .movz(.x, rd, 0, 0)) if first
+}
+
+/// `op`: 0 add, 1 sub, 2 mul, 3 div.
+void binary(ref Assembler asm, by Allocation a, to VReg dst, from VReg x, through VReg y, as i64 op) uses alloc fails LabelError {
+    let rn = try use(ref asm, by: a, from: x, as: 16)
+    let rm = try use(ref asm, by: a, from: y, as: 17)
+    let rd = def(a, to: dst, as: 16)
+    switch op {
+        case 0: try put(ref asm, as: .addReg(.x, rd, rn, rm, .lsl, 0))
+        case 1: try put(ref asm, as: .subReg(.x, rd, rn, rm, .lsl, 0))
+        case 2: try put(ref asm, as: .mul(.x, rd, rn, rm))
+        default: try put(ref asm, as: .sdiv(.x, rd, rn, rm))
+    }
+    try spill(ref asm, by: a, to: dst, from: 16)
+}
+
+/// `adrp` + `add` of `symbol` into `rd`.
+void address(ref Assembler asm, to Reg rd, for string symbol) uses alloc fails LabelError {
+    try put(ref asm, as: .adrp(rd, symbol))
+    try put(ref asm, as: .addPageOff(rd, rd, symbol))
+}
+
+/// Arguments into x0-x7: register sources as a parallel move (a destination is written only once no pending move still
+/// reads it; a cycle parks one destination in x16), then the stack-resident arguments, which read only sp.
+void marshal(ref Assembler asm, by Allocation a, from List<VReg> args) uses alloc fails LabelError {
+    var dsts = List<i64>()
+    var srcs = List<i64>()
+    for i in 0..args.length {
+        switch a.locations[args[i]] {
+            case .reg(let n):
+                if n != i {
+                    dsts.append(i)
+                    srcs.append(n)
+                }
+            default: continue
+        }
+    }
+    while dsts.length > 0 {
+        var picked = -1
+        for i in 0..dsts.length {
+            var blocked = false
+            for j in 0..srcs.length {
+                blocked = true if j != i && srcs[j] == dsts[i]
+            }
+            picked = i if picked < 0 && !blocked
+        }
+        if picked < 0 {
+            let parked = dsts[0]
+            try put(ref asm, as: .movReg(.x, rx(16), rx(parked)))
+            for j in 0..srcs.length {
+                srcs[j] = 16 if srcs[j] == parked
+            }
+            continue
+        }
+        try put(ref asm, as: .movReg(.x, rx(dsts[picked]), rx(srcs[picked])))
+        dsts = without(dsts, at: picked)
+        srcs = without(srcs, at: picked)
+    }
+    for i in 0..args.length {
+        switch a.locations[args[i]] {
+            case .stack(let s): try put(ref asm, as: .ldrImm(.x, rx(i), spReg(), u16(slotOffset(a, at: s))))
+            default: continue
+        }
+    }
+}
+
+void prologue(ref Assembler asm, by Allocation a) uses alloc fails LabelError {
+    if a.frameSize <= preIndexLimit() {
+        try put(ref asm, as: .stp(.pre, rx(29), rx(30), spReg(), i16(0 - a.frameSize)))
+    } else {
+        try put(ref asm, as: .subImm(.x, spReg(), spReg(), u16(a.frameSize), false))
+        try put(ref asm, as: .stp(.offset, rx(29), rx(30), spReg(), 0))
+    }
+    try put(ref asm, as: .movSp(rx(29), spReg()))
+    var i = 0
+    while i < a.usedCalleeSaved.length {
+        let off = 16 + 8 * i
+        if i + 1 < a.usedCalleeSaved.length {
+            try put(ref asm, as: .stp(.offset, rx(a.usedCalleeSaved[i]), rx(a.usedCalleeSaved[i + 1]), spReg(), i16(off)))
+        } else {
+            try put(ref asm, as: .strImm(.x, rx(a.usedCalleeSaved[i]), spReg(), u16(off)))
+        }
+        i = i + 2
+    }
+}
+
+void epilogue(ref Assembler asm, by Allocation a) uses alloc fails LabelError {
+    var i = 0
+    while i < a.usedCalleeSaved.length {
+        let off = 16 + 8 * i
+        if i + 1 < a.usedCalleeSaved.length {
+            try put(ref asm, as: .ldp(.offset, rx(a.usedCalleeSaved[i]), rx(a.usedCalleeSaved[i + 1]), spReg(), i16(off)))
+        } else {
+            try put(ref asm, as: .ldrImm(.x, rx(a.usedCalleeSaved[i]), spReg(), u16(off)))
+        }
+        i = i + 2
+    }
+    if a.frameSize <= preIndexLimit() {
+        try put(ref asm, as: .ldp(.post, rx(29), rx(30), spReg(), i16(a.frameSize)))
+    } else {
+        try put(ref asm, as: .ldp(.offset, rx(29), rx(30), spReg(), 0))
+        try put(ref asm, as: .addImm(.x, spReg(), spReg(), u16(a.frameSize), false))
+    }
+    try put(ref asm, as: .ret(rx(30)))
+}
+
+/// Emits `f` into `asm` under the allocation `a` (from `allocate(f)`).
+public void lower(ref Assembler asm, from Function f, by Allocation a) uses alloc fails LabelError {
+    var labels = List<Label>()
+    for b in f.blocks {
+        labels.append(asm.newLabel())
+    }
+    try prologue(ref asm, by: a)
+    // Registers x0-x7 hold parameters 0-7 and never collide with a pool register, so each moves independently.
+    for i in 0..f.params.length {
+        if i < 8 {
+            try place(ref asm, by: a, to: f.params[i], from: i)
+        } else {
+            let r = def(a, to: f.params[i], as: 16)
+            try put(ref asm, as: .ldrImm(.x, r, spReg(), u16(a.frameSize + 8 * (i - 8))))
+            try spill(ref asm, by: a, to: f.params[i], from: 16)
+        }
+    }
+    for b in f.blocks {
+        try asm.bind(labels[b.id])
+        for inst in b.insts {
+            switch inst {
+                case .imm(let dst, let value):
+                    let rd = def(a, to: dst, as: 16)
+                    try imm(ref asm, to: rd, as: value)
+                    try spill(ref asm, by: a, to: dst, from: 16)
+                case .add(let dst, let x, let y): try binary(ref asm, by: a, to: dst, from: x, through: y, as: 0)
+                case .sub(let dst, let x, let y): try binary(ref asm, by: a, to: dst, from: x, through: y, as: 1)
+                case .mul(let dst, let x, let y): try binary(ref asm, by: a, to: dst, from: x, through: y, as: 2)
+                case .div(let dst, let x, let y): try binary(ref asm, by: a, to: dst, from: x, through: y, as: 3)
+                case .addrStr(let dst, let index):
+                    let rd = def(a, to: dst, as: 16)
+                    try address(ref asm, to: rd, for: $"str{index}")
+                    try spill(ref asm, by: a, to: dst, from: 16)
+                case .addrGlobal(let dst, let name):
+                    let rd = def(a, to: dst, as: 16)
+                    try address(ref asm, to: rd, for: name)
+                    try spill(ref asm, by: a, to: dst, from: 16)
+                case .load(let dst, let name):
+                    try address(ref asm, to: rx(16), for: name)
+                    let rd = def(a, to: dst, as: 17)
+                    try put(ref asm, as: .ldrImm(.x, rd, rx(16), 0))
+                    try spill(ref asm, by: a, to: dst, from: 17)
+                case .store(let name, let src):
+                    try address(ref asm, to: rx(16), for: name)
+                    let rs = try use(ref asm, by: a, from: src, as: 17)
+                    try put(ref asm, as: .strImm(.x, rs, rx(16), 0))
+                case .call(let dst, let symbol, let args):
+                    try marshal(ref asm, by: a, from: args)
+                    let target = asm.newLabel()
+                    try asm.bindSymbol(target, to: symbol)
+                    try put(ref asm, as: .bl(target))
+                    try place(ref asm, by: a, to: dst, from: 0) if dst != sir.noReg()
+            }
+        }
+        let next = b.id + 1
+        switch b.terminator {
+            case .open: continue
+            case .jump(let target):
+                try put(ref asm, as: .b(labels[target])) if target != next
+            case .br(let cond, let x, let y, let yes, let no):
+                let rn = try use(ref asm, by: a, from: x, as: 16)
+                let rm = try use(ref asm, by: a, from: y, as: 17)
+                try put(ref asm, as: .cmpReg(.x, rn, rm, .lsl, 0))
+                try put(ref asm, as: .bCond(condOf(cond), labels[yes]))
+                try put(ref asm, as: .b(labels[no])) if no != next
+            case .ret(let value):
+                if value != sir.noReg() {
+                    switch a.locations[value] {
+                        case .reg(let n): try put(ref asm, as: .movReg(.x, rx(0), rx(n))) if n != 0
+                        case .stack(let s): try put(ref asm, as: .ldrImm(.x, rx(0), spReg(), u16(slotOffset(a, at: s))))
+                        case .none: try imm(ref asm, to: rx(0), as: 0)
+                    }
+                }
+                try epilogue(ref asm, by: a)
+        }
+    }
+}

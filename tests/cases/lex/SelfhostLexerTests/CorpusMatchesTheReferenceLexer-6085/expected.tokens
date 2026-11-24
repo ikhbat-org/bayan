@@ -1,0 +1,56 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:1 IntegerLiteral `0xF__`
+3:1 FloatLiteral `5e-3`
+3:6 FloatLiteral `6E+2`
+3:11 FloatLiteral `1.50`
+3:15 NumericSuffix `dec`
+3:19 IntegerLiteral `1`
+3:20 DotDot `..`
+3:22 IntegerLiteral `2`
+3:24 IntegerLiteral `1`
+3:25 DotDotEquals `..=`
+3:28 IntegerLiteral `3`
+3:30 IntegerLiteral `5`
+3:31 NumericSuffix `e`
+3:33 Identifier `x`
+3:34 Dot `.`
+3:35 Identifier `y`
+3:37 FloatLiteral `2.5`
+3:40 NumericSuffix `f`
+5:1 Identifier `_let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:12 IntegerLiteral `1`
+6:2 LetKeyword `let`
+6:6 Identifier `actor`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `$`
+
+  5 │ _let a = $ 1
+    │          ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

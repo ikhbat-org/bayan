@@ -1,0 +1,48 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:29 Arrow `->`
+1:32 At `@`
+1:34 Hash `#`
+2:1 AsKeyword `as`
+2:4 PublicKeyword `public`
+2:11 PrivateKeyword `private`
+2:19 StaticKeyword `static`
+2:26 ReadonlyKeyword `readonly`
+2:35 RequiredKeyword `required`
+2:44 ConstKeyword `const`
+2:50 LetKeyword `let`
+2:54 VarKeyword `var`
+2:58 EmbedKeyword `embed`
+2:64 Identifier `e`
+3:3 Bar `|`
+3:5 PlusPlus `++`
+3:8 MinusMinus `--`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � | ++ --
+    │ ^

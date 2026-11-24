@@ -1,0 +1,5 @@
+== detail
+IoError.signaled 10 signal: i32
+IoError.timeout 11 after: Millis
+Utf8Error.invalidSequence 12 at: i64
+ParseError.badDigit 13 at: i64

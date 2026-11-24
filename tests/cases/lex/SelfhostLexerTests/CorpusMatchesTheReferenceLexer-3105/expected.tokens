@@ -1,0 +1,38 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+3:3 Identifier `comment`
+4:1 Identifier `b`
+5:2 Identifier `b`
+7:1 Plus `+`
+7:3 Minus `-`
+7:5 Star `*`
+7:7 Slash `/`
+7:9 Percent `%`
+7:11 PlusPercent `+%`
+7:14 MinusPercent `-%`
+7:17 StarPercent `*%`
+7:20 PlusBar `+|`
+7:23 MinusBar `-|`
+7:26 StarBar `*|`
+7:29 PlusPlus `++`
+7:32 MinusMinus `--`
+9:1 LetKeyword `let`
+9:5 Identifier `a`
+9:7 Equals `=`
+9:9 StringLiteral `"open`
+10:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  9 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

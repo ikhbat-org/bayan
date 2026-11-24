@@ -1,0 +1,6 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; $BAYAN build tally > /dev/null 2>&1; echo "build $?"; $BAYAN dist tally > /dev/null; echo "dist $?"
+clean	tally
+$ test -d tally/out || echo "no out/"; test -d tally/dist && echo "dist/ kept"
+clean	tally	--dist
+$ test -d tally/dist || echo "no dist/"; test -f tally/package.byn && echo "package.byn kept"
+clean	tally/src

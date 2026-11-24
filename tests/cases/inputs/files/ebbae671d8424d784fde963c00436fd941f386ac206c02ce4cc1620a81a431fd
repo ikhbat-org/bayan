@@ -1,0 +1,6 @@
+test assert roperty fuzz model foreach new goto
+
+let b = "bad \q escape"
+or = 1
+let effect = 2
+macro select bec' 

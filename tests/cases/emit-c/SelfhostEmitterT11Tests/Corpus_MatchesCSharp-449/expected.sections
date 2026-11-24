@@ -1,0 +1,5 @@
+== cases
+0 byn_mul_i64((*self).side, (*self).side, byn_file_0, 10)
+1 byn_mul_i64(byn_mul_i64(INT64_C(3), (*self).r, byn_file_0, 16), (*self).r, byn_file_0, 16)
+2 byn_mul_i64(INT64_C(3), (*self).r, byn_file_0, 16)
+count 3

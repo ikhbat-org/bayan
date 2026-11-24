@@ -1,0 +1,46 @@
+1:1 IntegerLiteral `1_`
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:8 IntegerLiteral `1`
+7:1 StringLiteral `"� let a = "`
+7:13 OpenKeyword `open`
+10:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  5 │ let a =�1
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  7 │ "� let a = "open
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  7 │ "� let a = "open
+    │   ^
+
+error BYN0004: unterminated block comment
+
+  9 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,25 @@
+== instantiating
+depth 1 site 30
+depth 2 site 30
+depth 1 site 30
+depth 0 site -1
+BYN2822 1:1 a function type is not supported as a yet |  | 
+BYN2780 1:6 implicit copy of a unique value: a |  | 
+BYN2760 5:6 `a` cannot be a `Map` key | the generic code needs this of its type arguments | 
+BYN2831 5:6 `a` cannot be a `Map` key: b `c` is a `d` | the generic code needs this of its type arguments | 
+BYN2208 5:6 `a` cannot be applied to `b` and `c` | the generic code needs this of its type arguments | 
+BYN2225 5:6 `a` cannot be formatted | the generic code needs this of its type arguments | 
+BYN2807 5:6 `a` does not conform to `b`: missing `c` | the generic code needs this of its type arguments | 
+BYN2822 5:6 a function type is not supported as a yet | the generic code needs this of its type arguments | 
+BYN2022 5:6 a is not supported in v0.1 | the generic code needs this of its type arguments | 
+BYN2780 5:6 implicit copy of a unique value: a | the generic code needs this of its type arguments | 
+BYN2807 5:6 `a` does not conform to `b`: missing `c` | the generic code needs this of its type arguments | 
+BYN7012 7:6 `a` would change state here; a state changes only through `become` | the generic code needs this of its type arguments | call `f` with a type without states; it replaces a value of its type argument whole | rel 4:8 in `f`
+BYN7012 7:8 `a` would change state here; a state changes only through `become` | the generic code needs this of its type arguments | call `f` with a type without states; it replaces a value of its type argument whole | rel 4:8 in `f`
+held BYN2006 5:9 `a` is declared twice |  | 
+held BYN2822 1:1 a function type is not supported as a yet |  | 
+held BYN2780 1:6 implicit copy of a unique value: a |  | 
+held BYN7012 5:5 `a` would change state here; a state changes only through `become` |  | 
+held BYN2006 5:9 `a` is declared twice |  | 
+held BYN2761 5:9 `a` contains itself by value: b |  | 
+held BYN2201 5:9 a `string` cannot be indexed |  | 

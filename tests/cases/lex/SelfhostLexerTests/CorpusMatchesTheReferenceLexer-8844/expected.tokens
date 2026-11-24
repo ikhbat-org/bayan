@@ -1,0 +1,17 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:11 SlashEquals `/=`
+1:14 PercentEquals `%=`
+1:17 AmpEquals `&=`
+1:20 BarEquals `|=`
+1:22 Semicolon `;`
+1:23 Caret `^`
+1:24 Identifier `C`
+1:26 LessLessEquals `<<=`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  1 │ += -= *= �/= %= &= |=;^C <<=
+    │          ^

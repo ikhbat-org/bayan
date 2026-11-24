@@ -1,0 +1,9 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n \r0b1ms\n\n$"open {x";\n1_\n$"{}" """`
+7:3 EndOfFile
+
+error BYN0002: unexpected character `﻿`
+
+  7 │ ﻿ 
+    │ ^

@@ -1,0 +1,18 @@
+1:2 AsyncKeyword `async`
+1:8 AwaitKeyword `await`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 Identifier `wi`
+2:20 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  2 │ is and or not wi�̈́ 
+    │                 ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ is and or not wi�̈́ 
+    │                  ^

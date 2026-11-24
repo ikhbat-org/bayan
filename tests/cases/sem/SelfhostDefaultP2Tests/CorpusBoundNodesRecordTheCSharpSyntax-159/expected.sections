@@ -1,0 +1,42 @@
+== tests/cases/run/lambda-nested-function-types.byn
+28..33 binaryExpr add right 32..33
+28..33 binaryExpr add right 32..33
+28..33 binaryExpr add right 32..33
+28..29 nameExpr
+32..33 nameExpr
+52..57 binaryExpr add right 56..57
+52..57 binaryExpr add right 56..57
+52..57 binaryExpr add right 56..57
+52..53 nameExpr
+56..57 literalExpr integer
+96..100 callExpr
+96..100 callExpr
+96..100 callExpr
+96..97 nameExpr
+98..99 nameExpr
+136..143 callExpr
+136..143 callExpr
+136..143 callExpr
+136..137 nameExpr
+138..139 literalExpr integer
+141..142 literalExpr integer
+189..198 callExpr
+189..198 callExpr
+189..198 callExpr
+189..190 nameExpr
+191..194 nameExpr
+196..197 literalExpr integer
+244..250 callExpr
+244..250 callExpr
+244..250 callExpr
+244..245 nameExpr
+246..249 nameExpr
+263..308 blockStmt
+269..306 exprStmt
+269..306 callExpr
+275..305 interpolatedExpr
+278..289 callExpr
+284..288 nameExpr
+292..303 callExpr
+298..302 nameExpr
+269..306 callExpr

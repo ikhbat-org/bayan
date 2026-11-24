@@ -1,0 +1,9 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in stri\u{6}gs" "" "\u{48}i"\n// line comment\nạ̇0b102\n $"stray } here"\nlet café = 2\n1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3?5e x.y 2\n_ `
+7:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │   """ c"text" u16"wide" "� allowed in stri�gs" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

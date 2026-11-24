@@ -1,0 +1,3 @@
+== case name-hex
+errorExpr 1651..1654 : ?
+BYN2019 84:17 `Hex` is a type, not a value |||

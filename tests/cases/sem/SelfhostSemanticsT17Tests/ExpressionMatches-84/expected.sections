@@ -1,0 +1,2 @@
+== case suffix-u
+literal 784..786 : u32 = 7

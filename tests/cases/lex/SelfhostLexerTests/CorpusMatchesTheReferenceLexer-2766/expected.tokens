@@ -1,0 +1,31 @@
+1:2 Amp `&`
+1:4 AmpAmp `&&`
+1:7 Bar `|`
+1:9 BarBar `||`
+1:12 Caret `^`
+1:14 Tilde `~`
+1:16 Bang `!`
+1:18 Equals `=`
+1:20 EqualsEquals `==`
+1:23 Bang `!`
+1:24 Dot `.`
+1:26 Less `<`
+1:28 LessEquals `<=`
+1:31 Greater `>`
+1:33 GreaterEquals `>=`
+1:36 LessLess `<<`
+1:39 Greater `>`
+1:40 Greater `>`
+1:42 Greater `>`
+1:43 GreaterEquals `>=`
+3:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ �& && | || ^ ~ ! = == !. < <= > >= << >> >>=
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �& && | || ^ ~ ! = == !. < <= > >= << >> >>=
+    │   │ -

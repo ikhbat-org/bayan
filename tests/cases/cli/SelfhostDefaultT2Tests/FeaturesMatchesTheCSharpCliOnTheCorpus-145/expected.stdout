@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "IoStdinReadAllBytes",
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

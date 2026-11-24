@@ -1,0 +1,56 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:1 Identifier `ạ̇`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 StringLiteral `"a >> b`
+4:2 StringLiteral `"a\u{2067}b"`
+4:8 CharLiteral `'a'`
+4:12 CharLiteral `'\n'`
+4:17 CharLiteral `'\u{1F600}'`
+4:29 CharLiteral `'\''`
+4:34 CharLiteral `'é'`
+4:38 CharLiteral `'\\'`
+4:43 CharLiteral `'\0'`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `stray } here`
+5:16 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇ $"{"a >> b
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇ $"{"a >> b
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  3 │ ạ̇ $"{"a >> b
+    │     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ ạ̇ $"{"a >> b
+    │        ^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │  $"stray } here"
+    │          ^
+    │
+    │ 5 │  $"stray }} here"
+    │   │           +

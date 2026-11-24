@@ -1,0 +1,5 @@
+import std.probe
+
+void main() {
+    probe.save("x")
+}

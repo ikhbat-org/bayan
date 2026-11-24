@@ -1,0 +1,7 @@
+error BYN2603: `ParseError` is not in the `fails` clause of `total`
+  --> <repo>/tests/cases/diag/undeclared-error.byn:15:12
+
+  15 │     return try parse(s)
+     │            ^^^^^^^^^^^^
+     │
+  help: add it to the signature: `fails MoneyError, ParseError`

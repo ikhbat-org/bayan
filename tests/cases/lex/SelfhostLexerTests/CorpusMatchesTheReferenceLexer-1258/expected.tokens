@@ -1,0 +1,99 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:3 Identifier `ab`
+3:5 CharLiteral `'`
+4:1 CharLiteral `'\q'`
+5:1 CharLiteral `'\u{D800}'`
+6:1 CharLiteral `'\u{110000}'`
+7:1 CharLiteral `'x`
+8:2 LetKeyword `let`
+8:6 Identifier `c`
+8:8 Equals `=`
+8:9 Identifier `M`
+8:12 IntegerLiteral `3`
+9:5 Identifier `comment`
+9:13 Star `*`
+9:14 Slash `/`
+9:16 Identifier `a`
+10:1 CharLiteral `''`
+11:2 Identifier `b`
+13:3 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ��� ab'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ��� ab'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��� ab'
+    │   ^
+
+error BYN0008: unterminated char literal
+
+  3 │ ��� ab'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  6 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  7 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │  let c =M� 3
+    │          ^
+
+error BYN0007: empty char literal
+
+  10 │ ''
+     │ ^^
+     │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  13 │ � 
+     │ ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 13 │ � 
+     │    │ -

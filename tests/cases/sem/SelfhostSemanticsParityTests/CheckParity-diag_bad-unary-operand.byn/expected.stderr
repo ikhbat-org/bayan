@@ -1,0 +1,16 @@
+error BYN2207: `-` cannot be applied to `u32`
+  --> tmp/t26-tests/cli/diag_bad-unary-operand.byn/bad-unary-operand.byn:2:9
+
+  2 │ let x = -n
+    │         ^^
+    │
+  help: convert to a signed type first; unsigned values cannot be negative
+
+error BYN2207: `!` cannot be applied to `u32`
+  --> tmp/t26-tests/cli/diag_bad-unary-operand.byn/bad-unary-operand.byn:3:9
+
+  3 │ let y = !n
+    │         ^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2207

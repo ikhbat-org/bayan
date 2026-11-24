@@ -1,0 +1,23 @@
+error BYN2720: `middle` is not a member of `Edge`
+  --> <repo>/tests/cases/diag/string-member-arguments.byn:4:30
+
+  4 │     let _ = s.trimmed(from: .middle)
+    │                              ^^^^^^
+
+error BYN2720: `loose` is not a member of `Comparison`
+  --> <repo>/tests/cases/diag/string-member-arguments.byn:5:32
+
+  5 │     let _ = s.equals("A", as: .loose)
+    │                                ^^^^^
+
+error BYN2202: expected `string`, found `i32`
+  --> <repo>/tests/cases/diag/string-member-arguments.byn:6:24
+
+  6 │     let _ = s.position(1)
+    │                        ^
+
+error BYN2202: expected `i64`, found `string`
+  --> <repo>/tests/cases/diag/string-member-arguments.byn:8:22
+
+  8 │         let _: i64 = x
+    │                      ^

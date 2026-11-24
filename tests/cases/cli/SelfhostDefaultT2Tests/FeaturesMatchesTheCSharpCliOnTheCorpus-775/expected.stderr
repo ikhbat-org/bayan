@@ -1,0 +1,8 @@
+error BYN2605: `try` needs a call that can fail
+  --> <repo>/tests/cases/diag/nothing-to-handle.byn:2:13
+
+  2 │ let n = try twice(2)
+    │             ^^^^^^^^
+    │
+    │ 2 │ let n = try twice(2)
+    │   │         ----

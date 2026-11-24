@@ -1,0 +1,58 @@
+1:1 IntegerLiteral `0x`
+1:4 Identifier `a`
+1:6 Slash `/`
+1:7 Greater `>`
+1:8 Star `*`
+1:10 NeverKeyword `never`
+1:16 Identifier `closed`
+2:2 IntegerLiteral `1_000_000`
+2:12 IntegerLiteral `0xFF`
+2:18 IntegerLiteral `0xe`
+2:24 Identifier `b`
+4:1 Identifier `pen`
+4:5 OpenBrace `{`
+4:6 Identifier `x`
+4:7 StringLiteral `";`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x a />* never closed
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  2 │  1_000_000 0xFF �0xé�̈́b
+    │                 ^
+
+error BYN0002: unexpected character `́`
+
+  2 │  1_000_000 0xFF �0xé�̈́b
+    │                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  1_000_000 0xFF �0xé�̈́b
+    │                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │  1_000_000 0xFF �0xé�̈́b
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │  1_000_000 0xFF �0xé�̈́b
+    │                       ^
+
+error BYN0002: unexpected character `̈́`
+
+  2 │  1_000_000 0xFF �0xé�̈́b
+    │                       ^
+
+error BYN0003: unterminated string literal
+
+  4 │ pen {x";
+    │       ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

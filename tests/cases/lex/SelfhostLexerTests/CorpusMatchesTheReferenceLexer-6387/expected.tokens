@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0x`
+2:2 LetKeyword `let`
+2:6 Identifier `a`
+2:8 Equals `=`
+3:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `$`
+
+  2 │  let a = $ 
+    │          ^

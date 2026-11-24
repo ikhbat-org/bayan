@@ -1,0 +1,7 @@
+== locals
+built: t t
+grown: t t t
+doubled: q t t t t
+main: fallback b t t bad t t g t t h t t renamed t q t t z t t
+requires: t
+requires: broken_w violations t

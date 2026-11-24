@@ -1,0 +1,8 @@
+error BYN2001: `side` is not defined
+  --> <repo>/tmp/t2/diag/default-reads-field/default-reads-field.byn:3:20
+
+  3 │     i64 twice() => side * 2
+    │                    ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

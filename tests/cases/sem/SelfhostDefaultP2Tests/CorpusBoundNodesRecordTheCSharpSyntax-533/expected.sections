@@ -1,0 +1,15 @@
+== tests/cases/diag/generic-unsupported-once.byn
+50..59 binaryExpr coalesce right 58..59
+50..59 binaryExpr coalesce right 58..59
+50..59 binaryExpr coalesce right 58..59
+72..111 blockStmt
+78..109 exprStmt
+78..109 callExpr
+84..108 interpolatedExpr
+87..106 callExpr
+92..93 literalExpr integer
+101..105 literalExpr nullKeyword
+78..109 callExpr
+50..59 binaryExpr coalesce right 58..59
+50..59 binaryExpr coalesce right 58..59
+50..59 binaryExpr coalesce right 58..59

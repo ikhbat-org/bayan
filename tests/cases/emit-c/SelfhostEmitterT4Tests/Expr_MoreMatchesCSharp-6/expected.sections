@@ -1,0 +1,2 @@
+== expr
+a: assign(local t#0:R structLiteral:R(local k#-:i64)) failingCall t#1 -(call requires:R(local t#0:R)) ifStmt(binary op18:bool(errorCode:u32(local t#1:ValidationError<R>) literal 0:0:u32) block(returnError(local t#1:ValidationError<R>))) => local t#0:R locals=2

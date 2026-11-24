@@ -1,0 +1,38 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:2 LetKeyword `let`
+2:6 Identifier `café`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+2:15 Semicolon `;`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │  let café = 1;
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  let café = 1;
+    │   │         +
+
+error BYN0002: unexpected character `$`
+
+  3 │ let a = $ 1
+    │         ^

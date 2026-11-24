@@ -1,0 +1,23 @@
+1:1 CharLiteral `''`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `{{`
+2:5 InterpolatedStringEnd `"`
+2:6 LetKeyword `let`
+2:10 Identifier `c`
+2:12 Equals `=`
+2:14 RawStringLiteral `"""never closed\n`
+3:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{{"let c = """never closed
+    │              ^^^ raw string starts here
+    │
+  help: close it with `"""`

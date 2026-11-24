@@ -1,0 +1,10 @@
+error BYN2410: `switch` does not handle every `ValidationError<Signup> | ValidationError<Address>`
+  --> tmp/t26-tests/cli/diag_validation-error-missing-arm.byn/validation-error-missing-arm.byn:18:25
+
+  18 │ register("amira") catch switch {
+     │                         ^^^^^^ not covered: ValidationError<Address>
+     │
+  help: add the missing arms, or `_ => …` for the rest
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2410

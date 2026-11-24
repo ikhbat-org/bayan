@@ -1,0 +1,3 @@
+== lib.state
+BYN7012 10:5 `o` would change state here; a state changes only through `become` ||assign a value in the same state, or move the transition into a `becomes` method|
+BYN7012 18:5 `o` would change state here; a state changes only through `become` ||assign a value in the same state, or move the transition into a `becomes` method|

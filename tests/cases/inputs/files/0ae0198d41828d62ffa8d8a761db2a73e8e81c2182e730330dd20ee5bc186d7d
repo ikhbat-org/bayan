@@ -1,0 +1,194 @@
+i64 call0(by (() -> i64) f) => f()
+
+i64 relay0(by (() -> i64) f) => call0(by: f)
+
+void host0Direct(string q0) {
+    let k0: i64 = 17
+    let r: i64 = k0 + k0
+    print($"c0 {r}")
+}
+
+void host0Local(string q0) {
+    let k0: i64 = 17
+    let f: () -> i64 = () => k0 + k0
+    let r: i64 = f()
+    print($"c0 {r}")
+}
+
+void host0Via1(string q0) {
+    let k0: i64 = 17
+    let r: i64 = call0(by: () => k0 + k0)
+    print($"c0 {r}")
+}
+
+void host0Via2(string q0) {
+    let k0: i64 = 17
+    let f: () -> i64 = () => k0 + k0
+    let r: i64 = relay0(by: f)
+    print($"c0 {r}")
+}
+
+string call1(i64 a0, by (i64 -> string) f) => f(a0)
+
+string relay1(i64 a0, by (i64 -> string) f) => call1(a0, by: f)
+
+void host1Direct() {
+    let k0: string = ""
+    let p0: i64 = -2
+    let r: string = $"{k0}-{p0}"
+    print($"c1 {r}")
+}
+
+void host1Local() {
+    let k0: string = ""
+    let f: i64 -> string uses alloc = p0 => $"{k0}-{p0}"
+    let r: string = f(-2)
+    print($"c1 {r}")
+}
+
+void host1Via1() {
+    let k0: string = ""
+    let r: string = call1(-2, by: $"{k0}-{it}")
+    print($"c1 {r}")
+}
+
+void host1Via2() {
+    let k0: string = ""
+    let r: string = relay1(-2, by: $"{k0}-{it}")
+    print($"c1 {r}")
+}
+
+bool call2(i64 a0, by (i64 -> bool) f) => f(a0)
+
+bool relay2(i64 a0, by (i64 -> bool) f) => call2(a0, by: f)
+
+void host2Direct() {
+    let p0: i64 = 13
+    let r: bool = p0 == 5
+    print($"c2 {r}")
+}
+
+void host2Local() {
+    let f: i64 -> bool = p0 => p0 == 5
+    let r: bool = f(13)
+    print($"c2 {r}")
+}
+
+void host2Via1() {
+    let r: bool = call2(13, by: p0 => p0 == 5)
+    print($"c2 {r}")
+}
+
+void host2Via2() {
+    let f: i64 -> bool = p0 => p0 == 5
+    let r: bool = relay2(13, by: f)
+    print($"c2 {r}")
+}
+
+bool call3(string a0, by (string -> bool) f) => f(a0)
+
+bool relay3(string a0, by (string -> bool) f) => call3(a0, by: f)
+
+void host3Direct(i64 q0) {
+    let r: bool = q0 == 7
+    print($"c3 {r}")
+}
+
+void host3Local(i64 q0) {
+    let f: string -> bool = p0 => q0 == 7
+    let r: bool = f("")
+    print($"c3 {r}")
+}
+
+void host3Via1(i64 q0) {
+    let r: bool = call3("", by: p0 => q0 == 7)
+    print($"c3 {r}")
+}
+
+void host3Via2(i64 q0) {
+    let r: bool = relay3("", by: p0 => q0 == 7)
+    print($"c3 {r}")
+}
+
+string call4(bool a0, by (bool -> string) f) => f(a0)
+
+string relay4(bool a0, by (bool -> string) f) => call4(a0, by: f)
+
+void host4Direct(i64 q0) {
+    let p0: bool = false
+    let r: string = $"{p0}-{q0}"
+    print($"c4 {r}")
+}
+
+void host4Local(i64 q0) {
+    let f: bool -> string uses alloc = p0 => $"{p0}-{q0}"
+    let r: string = f(false)
+    print($"c4 {r}")
+}
+
+void host4Via1(i64 q0) {
+    let r: string = call4(a0: false, by: $"{it}-{q0}")
+    print($"c4 {r}")
+}
+
+void host4Via2(i64 q0) {
+    let r: string = relay4(a0: false, by: p0 => $"{p0}-{q0}")
+    print($"c4 {r}")
+}
+
+i64 call5(bool a0, to bool a1, by ((bool, bool) -> i64) f) => f(a0, a1)
+
+i64 relay5(bool a0, to bool a1, by ((bool, bool) -> i64) f) => call5(a0, to: a1, by: f)
+
+void host5Direct() {
+    let r: i64 = 6 + 7
+    print($"c5 {r}")
+}
+
+void host5Local() {
+    let f: (bool, bool) -> i64 = (p0, p1) => 6 + 7
+    let r: i64 = f(false, true)
+    print($"c5 {r}")
+}
+
+void host5Via1() {
+    let r: i64 = call5(a0: false, to: true, by: (p0, p1) => 6 + 7)
+    print($"c5 {r}")
+}
+
+void host5Via2() {
+    let f: (bool, bool) -> i64 = (p0, p1) => 6 + 7
+    let r: i64 = relay5(a0: false, to: true, by: f)
+    print($"c5 {r}")
+}
+
+void main() {
+    print("== direct")
+    host0Direct("x")
+    host1Direct()
+    host2Direct()
+    host3Direct(9)
+    host4Direct(16)
+    host5Direct()
+    print("== local")
+    host0Local("x")
+    host1Local()
+    host2Local()
+    host3Local(9)
+    host4Local(16)
+    host5Local()
+    print("== via1")
+    host0Via1("x")
+    host1Via1()
+    host2Via1()
+    host3Via1(9)
+    host4Via1(16)
+    host5Via1()
+    print("== via2")
+    host0Via2("x")
+    host1Via2()
+    host2Via2()
+    host3Via2(9)
+    host4Via2(16)
+    host5Via2()
+}

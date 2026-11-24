@@ -1,0 +1,25 @@
+1:1 Identifier `foz`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بي`
+1:26 Identifier `O`
+1:29 Identifier `μετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ foz Bar _x camelCase2 بي�O� μετρητής x_1 é
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  1 │ foz Bar _x camelCase2 بي�O� μετρητής x_1 é
+    │                           ^
+
+error BYN0002: unexpected character `‏`
+
+  2 │ ‏ 
+    │ ^

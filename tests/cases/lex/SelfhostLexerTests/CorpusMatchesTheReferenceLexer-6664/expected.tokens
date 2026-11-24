@@ -1,0 +1,56 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:2 IntegerLiteral `0x`
+2:4 NumericSuffix `le`
+2:7 LawKeyword `law`
+2:11 Equals `=`
+2:13 IntegerLiteral `3`
+3:4 Identifier `_`
+4:1 CharLiteral `'\u{110000}'`
+5:1 IntegerLiteral `1`
+5:2 Dot `.`
+5:4 IntegerLiteral `0b__`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0xle law = 3
+    │  ^^
+
+error BYN0011: unit suffix `le` is not allowed on a hexadecimal literal
+
+  2 │  0xle law = 3
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │  � _
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │  � _
+    │   ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 1. 0b__
+    │    ^^^^

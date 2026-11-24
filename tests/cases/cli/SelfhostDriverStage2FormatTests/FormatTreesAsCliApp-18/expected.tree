@@ -1,0 +1,16 @@
+== a.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if a {
+    print("x")
+}
+== b.byn OtherRead, GroupRead, UserWrite, UserRead
+let b = true
+if b {
+    print("y")
+}
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style {  },
+}

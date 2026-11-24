@@ -1,0 +1,34 @@
+1:1 Identifier `각`
+1:5 StructKeyword `struct`
+1:12 UniqueKeyword `unique`
+1:19 UnionKeyword `union`
+1:25 EnumKeyword `enum`
+1:30 FlagsKeyword `flags`
+1:36 OpenKeyword `open`
+1:41 ExtensibleKeyword `extensible`
+1:52 Identifier `interfac`
+1:61 DelegateKeyword `delegate`
+1:70 ExtensionKeyword `extension`
+1:80 DerivationKeyword `derivation`
+1:91 AttributeKeyword `attribute`
+2:2 IntegerLiteral `0x_`
+3:2 EndOfFile
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  1 │ 각 struct unique union enum flags open extensible interfac� delegate extension derivation attribute
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ 각 struct unique union enum flags open extensible interfac� delegate extension derivation attribute
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0x95)
+
+  1 │ 각 struct unique union enum flags open extensible interfac� delegate extension derivation attribute
+    │                                                            ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x_
+    │  ^^^

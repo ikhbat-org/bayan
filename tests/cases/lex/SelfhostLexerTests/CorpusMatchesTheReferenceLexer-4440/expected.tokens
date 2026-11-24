@@ -1,0 +1,87 @@
+3:1 CloseBrace `}`
+3:3 Identifier `ver`
+3:7 Identifier `oalloc`
+3:14 NosuspendKeyword `nosuspend`
+3:24 SuspendsKeyword `suspends`
+3:33 Identifier `at`
+3:36 Identifier `ca`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 Identifier `a1`
+3:43 Dot `.`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 Dot `.`
+4:9 Equals `=`
+4:11 Colon `:`
+4:13 Question `?`
+4:15 QuestionQuestion `??`
+4:18 QuestionQuestionEquals `??=`
+4:22 QuestionDot `?.`
+4:25 FatArrow `=>`
+4:28 Arrow `->`
+4:31 Greater `>`
+4:33 Hash `#`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 StringLiteral `$"{$"`
+6:51 OpenBrace `{`
+6:52 Identifier `x`
+6:53 CloseBrace `}`
+6:54 StringLiteral `"}"`
+6:57 InterpolationEnd `}`
+6:58 InterpolatedStringEnd `"`
+6:59 InterpolationEnd `}`
+6:60 InterpolatedStringEnd `"`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                                              ^^

@@ -1,0 +1,31 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετ`
+1:33 Identifier `ητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""never closed\n`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  1 │ foo Bar _x camelCase2 بيان μετ��ητής x_1 é
+    │                               ^
+
+error BYN0002: unexpected character `\u{1A}`
+
+  1 │ foo Bar _x camelCase2 بيان μετ��ητής x_1 é
+    │                                ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

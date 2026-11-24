@@ -1,0 +1,1 @@
+{"code":"BYN1001","severity":"error","file":"input.byn","span":{"start":38,"end":42,"line":5,"column":1,"endLine":5,"endColumn":5},"message":"expected `}`, found `void`","label":null,"help":"close the block opened on line 2","fixes":[]}

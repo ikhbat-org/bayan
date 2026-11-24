@@ -1,0 +1,119 @@
+1:1 Identifier `n`
+1:3 OpenBrace `{`
+1:4 Identifier `x`
+1:5 StringLiteral `";`
+4:4 StringLiteral `"xext"`
+4:11 StringLiteral `"esc \"q\" \\ \n"`
+4:29 StringLiteral `""`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 Identifier `a`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:49 StringLiteral `"{$"`
+5:53 OpenBrace `{`
+5:54 InterpolatedStringStart `$"`
+5:56 InterpolationStart `{`
+5:57 StringLiteral `$"{$"`
+5:62 OpenBrace `{`
+5:63 StringLiteral `$"{x}"`
+5:69 CloseBrace `}`
+5:70 StringLiteral `"}"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 CloseBrace `}`
+5:76 StringLiteral `"}"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+5:93 InterpolationEnd `}`
+5:94 InterpolatedStringEnd `"`
+5:95 InterpolationEnd `}`
+5:96 InterpolatedStringEnd `"`
+5:97 InterpolationEnd `}`
+5:98 InterpolatedStringEnd `"`
+5:99 InterpolationEnd `}`
+5:100 InterpolatedStringEnd `"`
+5:101 InterpolationEnd `}`
+5:102 InterpolatedStringEnd `"`
+5:103 InterpolationEnd `}`
+5:104 InterpolatedStringEnd `"`
+5:105 InterpolationEnd `}`
+5:106 InterpolatedStringEnd `"`
+5:107 InterpolationEnd `}`
+5:108 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ n {x";
+    │     ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // comment � hidden
+    │   │            -
+
+error BYN0002: unexpected character `‏`
+
+  4 │  ‏ "xext" "esc \"q\" \\ \n" ""
+    │  ^
+
+error BYN0002: unexpected character `$`
+
+  5 │  $"{a$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  5 │  $"{a$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{a$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                          ^^

@@ -1,0 +1,8 @@
+== c13
+catchExpr|i64|5208:53
+operand call:i64 binding t:NetError:o:-:catch variant - handler switchExpr:i64
+switchExpr|i64|5223:38
+value local:NetError=t
+arm 5232:19 constantPattern[5232:14]:NetError(errorExpr:?) guard - value literal:i64=1
+arm 5253:6 bindPattern[5253:1]:NetError_(-) guard - value literal:i64=0
+BYN2202 140:39 expected `NetError`, found `DiskError` |||

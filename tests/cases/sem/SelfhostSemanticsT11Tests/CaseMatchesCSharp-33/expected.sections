@@ -1,0 +1,4 @@
+== unit keysite
+module main tmp/t11-cases/keysite main
+file tmp/t11-cases/keysite/main.byn source
+diag BYN2831 tmp/t11-cases/keysite/main.byn 1:1 `(f64, i64)` cannot be a `Map` key: element `1` is a `f64` | the generic code needs this of its type arguments | use a field that identifies the value as the key, such as an id or a `Symbol`

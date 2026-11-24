@@ -1,0 +1,9 @@
+== ambiguous-variant
+BYN2227 10:10 `.invalid` is ambiguous; it exists in `MoneyError`, `ParseError` |||
+fn check
+block 127..157
+  ifStmt 133..155
+    binary 150..155 : bool
+      local 150..151 : i64
+      literal 154..155 : i64
+    errorStmt 133..137

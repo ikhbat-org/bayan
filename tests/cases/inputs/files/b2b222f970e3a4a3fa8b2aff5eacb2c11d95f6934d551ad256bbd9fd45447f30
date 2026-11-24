@@ -1,0 +1,5 @@
+/// Doc line two.
+̈́
+let c = """never closed
+a >> b
+'ab'

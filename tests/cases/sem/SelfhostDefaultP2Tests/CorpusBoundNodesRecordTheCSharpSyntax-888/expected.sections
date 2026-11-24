@@ -1,0 +1,10 @@
+== tests/cases/diag/this-outside-method.byn
+14..25 memberExpr
+14..25 memberExpr
+14..18 thisExpr
+26..44 globalStatement
+26..44 exprStmt
+26..44 callExpr
+32..43 interpolatedExpr
+35..41 callExpr
+26..44 callExpr

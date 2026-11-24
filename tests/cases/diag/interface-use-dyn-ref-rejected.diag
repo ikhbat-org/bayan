@@ -1,0 +1,41 @@
+warning BYN2311: `s` is never reassigned; declare it with `let`
+
+  21 │     var s = Square { side: 2 }
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 21 │     let s = Square { side: 2 }
+     │    │     +++
+
+error BYN2202: expected `dyn ref IShape`, found `Square`
+
+  22 │     show(s)
+     │          ^
+
+warning BYN2311: `n` is never reassigned; declare it with `let`
+
+  23 │     var n: i64 = 3
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 23 │     let n: i64 = 3
+     │    │     +++
+
+error BYN2202: expected `dyn ref IShape`, found `i64`
+
+  24 │     let m: dyn ref IShape = n
+     │                             ^
+
+warning BYN2311: `c` is never reassigned; declare it with `let`
+
+  25 │     var c = Circle { r: 2 }
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 25 │     let c = Circle { r: 2 }
+     │    │     +++
+
+error BYN2202: expected `dyn ref IShape`, found `dyn ref readonly IShape`
+
+  27 │     let w: dyn ref IShape = r
+     │                             ^

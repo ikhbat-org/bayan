@@ -1,0 +1,50 @@
+1:1 Identifier `b`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `ab}c $`
+3:9 InterpolatedStringEnd `"`
+3:10 OpenBrace `{`
+3:11 OpenBrace `{`
+3:12 StringLiteral `" "`
+3:15 Identifier `text`
+3:19 StringLiteral `" "`
+3:22 Identifier `esc`
+3:27 StringLiteral `"q\" \\ \�n"`
+3:40 RawStringLiteral `"""\r\n $"open {x";\r\nlet a� = 1\r\n `
+6:2 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"ab}c $"{{" "text" "esc \"q\" \\ \�n" """
+    │     ^
+    │
+    │ 3 │ $"ab}}c $"{{" "text" "esc \"q\" \\ \�n" """
+    │   │      +
+
+error BYN0002: unexpected character `\`
+
+  3 │ $"ab}c $"{{" "text" "esc \"q\" \\ \�n" """
+    │                          ^
+
+error BYN0006: invalid escape sequence `\�`
+
+  3 │ $"ab}c $"{{" "text" "esc \"q\" \\ \�n" """
+    │                                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  3 │ $"ab}c $"{{" "text" "esc \"q\" \\ \�n" """
+    │                                    ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"ab}c $"{{" "text" "esc \"q\" \\ \�n" """
+    │                                        ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  5 │ let a� = 1
+    │      ^

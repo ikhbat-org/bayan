@@ -1,0 +1,2 @@
+$ $BAYAN mutate --binary $WORK/prog --sites $WORK/prog.sites.json -- /bin/sh -c 'case $BAYAN_MUTANT in 2) exit 1;; 5) sleep 30;; esac' > out.txt; echo "mutate $?"; grep -v "^timing: " out.txt
+$ grep -F -e '"kind": "mutation"' -e '"tool": "bayan mutate"' -e '"survived": 1' bayan-quality.json | sed 's/^ *//; s/,$//' | sort -u

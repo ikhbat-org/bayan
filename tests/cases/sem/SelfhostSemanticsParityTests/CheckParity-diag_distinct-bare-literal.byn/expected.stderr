@@ -1,0 +1,12 @@
+error BYN3204: `7` is not a `Id`
+  --> tmp/t26-tests/cli/diag_distinct-bare-literal.byn/distinct-bare-literal.byn:4:17
+
+  4 │     let i: Id = 7
+    │                 ^
+    │
+  help: wrap it: `Id(7)`
+    │ 4 │     let i: Id = Id(7)
+    │   │                 +++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3204

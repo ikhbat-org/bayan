@@ -1,0 +1,5 @@
+error BYN2021: `area` has no parameter `widht`
+  --> <repo>/tests/cases/diag/unknown-parameter.byn:2:15
+
+  2 │ print($"{area(widht: 3, by: 4)}")
+    │               ^^^^^

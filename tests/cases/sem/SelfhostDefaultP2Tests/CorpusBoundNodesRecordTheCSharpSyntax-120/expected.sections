@@ -1,0 +1,93 @@
+== tests/cases/run/io-copy-file.byn
+139..269 blockStmt
+145..181 guardedStmt
+161..181 binaryExpr ne right 173..181
+161..169 memberExpr
+161..162 nameExpr
+173..181 memberExpr
+173..174 nameExpr
+145..157 returnStmt value 152..157
+152..157 literalExpr falseKeyword
+186..251 forStmt
+195..206 rangeExpr
+195..196 literalExpr integer
+198..206 memberExpr
+198..199 nameExpr
+207..251 blockStmt
+217..245 guardedStmt
+233..245 binaryExpr ne right 241..245
+233..237 indexExpr
+233..234 nameExpr
+235..236 nameExpr
+241..245 indexExpr
+241..242 nameExpr
+243..244 nameExpr
+217..229 returnStmt value 224..229
+224..229 literalExpr falseKeyword
+256..267 returnStmt value 263..267
+263..267 literalExpr trueKeyword
+297..839 blockStmt
+303..361 localDecl
+325..361 collectionExpr
+326..330 literalExpr integer
+332..336 literalExpr integer
+338..342 literalExpr integer
+344..348 literalExpr integer
+350..354 literalExpr integer
+356..360 literalExpr integer
+366..410 exprStmt
+366..410 tryExpr
+370..410 callExpr
+383..394 literalExpr string
+396..409 memberExpr
+396..404 nameExpr
+415..464 localDecl
+436..464 tryExpr
+440..464 callExpr
+452..463 literalExpr string
+469..508 exprStmt
+469..508 tryExpr
+473..508 callExpr
+486..496 literalExpr string
+498..507 memberExpr
+498..502 nameExpr
+513..561 localDecl
+534..561 tryExpr
+538..561 callExpr
+550..560 literalExpr string
+566..622 exprStmt
+566..622 callExpr
+572..621 interpolatedExpr
+580..591 memberExpr
+580..584 nameExpr
+608..619 memberExpr
+608..612 nameExpr
+566..622 callExpr
+627..684 exprStmt
+627..684 callExpr
+633..683 interpolatedExpr
+647..681 callExpr
+652..665 memberExpr
+652..660 nameExpr
+671..680 memberExpr
+671..675 nameExpr
+627..684 callExpr
+689..735 exprStmt
+689..735 tryExpr
+693..735 callExpr
+706..717 literalExpr string
+719..734 indexExpr
+719..728 memberExpr
+719..723 nameExpr
+729..730 literalExpr integer
+732..733 literalExpr integer
+740..790 localDecl
+762..790 tryExpr
+766..790 callExpr
+778..789 literalExpr string
+795..837 exprStmt
+795..837 callExpr
+801..836 interpolatedExpr
+816..828 memberExpr
+816..821 nameExpr
+795..837 callExpr

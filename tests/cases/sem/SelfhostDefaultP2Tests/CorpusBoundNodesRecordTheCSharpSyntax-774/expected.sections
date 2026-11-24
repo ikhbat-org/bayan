@@ -1,0 +1,26 @@
+== tests/cases/diag/ref-out-escape-map-slot.byn
+47..69 blockStmt
+53..67 assignStmt add target 53..62 value 66..67
+53..62 callExpr
+53..54 nameExpr
+60..61 nameExpr
+66..67 literalExpr integer
+83..261 blockStmt
+89..118 localDecl
+100..118 callExpr
+123..238 blockStmt
+133..158 localDecl
+151..158 callExpr
+167..199 localDecl
+178..199 callExpr
+178..183 literalExpr string
+193..198 nameExpr
+208..232 exprStmt
+208..232 callExpr
+213..217 nameExpr
+227..231 nameExpr
+243..259 exprStmt
+243..259 callExpr
+249..258 interpolatedExpr
+252..256 nameExpr
+243..259 callExpr

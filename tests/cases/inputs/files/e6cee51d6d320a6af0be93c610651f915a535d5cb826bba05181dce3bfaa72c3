@@ -1,0 +1,11 @@
+$"open {x";
+
+/* block
+ error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+ 1
+let b = ` 2
+let c =  3'\q'
+
+""" let law = 3
+ b
+ 

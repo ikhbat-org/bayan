@@ -1,0 +1,11 @@
+== diags.diag/state-switch-not-exhaustive
+BYN7004 11:5 the switch does not handle state `.shipped`
+  help add a `case .shipped` arm
+  fix 15:34-15:34 
+        case .shipped:
+BYN7004 19:32 the switch does not handle state `.shipped`
+  help add a `case .shipped` arm
+BYN7004 22:5 the switch does not handle state `.shipped`
+  help add a `case .shipped` arm
+  fix 24:26-24:26 
+        case .shipped:

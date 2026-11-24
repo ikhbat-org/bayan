@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/spread-not-sequence.byn
+--package
+<repo>/tests/cases/diag

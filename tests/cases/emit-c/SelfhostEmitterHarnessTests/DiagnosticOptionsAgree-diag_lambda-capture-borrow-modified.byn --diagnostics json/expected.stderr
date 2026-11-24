@@ -1,0 +1,1 @@
+{"code":"BYN3004","severity":"error","file":"input.byn","span":{"start":164,"end":175,"line":8,"column":5,"endLine":8,"endColumn":16},"message":"`buf` is modified while `f` still borrows it","label":"`f` is used again on line 9","help":"finish using `f` first, or copy what it needs before changing `buf`","fixes":[]}

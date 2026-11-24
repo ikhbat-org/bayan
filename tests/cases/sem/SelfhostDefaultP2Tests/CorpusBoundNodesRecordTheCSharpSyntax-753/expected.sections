@@ -1,0 +1,2 @@
+== tests/cases/diag/positional-off-struct.byn
+23..26 blockStmt

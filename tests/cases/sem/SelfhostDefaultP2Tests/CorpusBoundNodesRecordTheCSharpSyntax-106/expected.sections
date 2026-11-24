@@ -1,0 +1,119 @@
+== tests/cases/run/in-range.byn
+229..264 blockStmt
+235..245 assignStmt add target 235..240 value 244..245
+235..240 nameExpr
+244..245 literalExpr integer
+250..262 returnStmt value 257..262
+257..262 nameExpr
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..20 localDecl
+19..20 literalExpr integer
+21..31 localDecl
+30..31 literalExpr integer
+32..94 exprStmt
+32..94 callExpr
+38..93 interpolatedExpr
+41..53 inExpr
+41..42 nameExpr
+46..53 rangeExpr
+46..48 nameExpr
+51..53 nameExpr
+56..65 inExpr
+56..57 nameExpr
+61..65 rangeExpr
+61..62 literalExpr integer
+64..65 literalExpr integer
+68..78 inExpr
+68..69 nameExpr
+73..78 rangeExpr
+73..74 literalExpr integer
+77..78 literalExpr integer
+81..91 inExpr
+81..82 nameExpr
+86..91 rangeExpr
+86..87 literalExpr integer
+90..91 literalExpr integer
+32..94 callExpr
+95..142 exprStmt
+95..142 callExpr
+101..141 interpolatedExpr
+104..120 inExpr
+104..107 literalExpr char
+111..120 rangeExpr
+111..114 literalExpr char
+117..120 literalExpr char
+123..139 inExpr
+123..126 literalExpr char
+130..139 rangeExpr
+130..133 literalExpr char
+136..139 literalExpr char
+95..142 callExpr
+143..162 localDecl
+159..162 literalExpr integer
+163..190 exprStmt
+163..190 callExpr
+169..189 interpolatedExpr
+172..187 inExpr
+172..176 nameExpr
+180..187 rangeExpr
+180..181 literalExpr integer
+184..187 literalExpr integer
+163..190 callExpr
+191..204 localDecl
+203..204 literalExpr integer
+265..309 exprStmt
+265..309 callExpr
+271..308 interpolatedExpr
+274..298 inExpr
+274..289 callExpr
+283..288 nameExpr
+293..298 rangeExpr
+293..294 literalExpr integer
+297..298 literalExpr integer
+301..306 nameExpr
+265..309 callExpr
+310..331 localDecl
+322..331 collectionExpr
+323..324 literalExpr integer
+326..327 literalExpr integer
+329..330 literalExpr integer
+332..403 exprStmt
+332..403 callExpr
+338..402 interpolatedExpr
+341..361 inExpr
+341..342 nameExpr
+341..342 nameExpr
+346..361 rangeExpr
+346..347 literalExpr integer
+349..361 memberExpr
+349..354 nameExpr
+364..392 inExpr
+364..369 nameExpr
+373..392 rangeExpr
+373..374 literalExpr integer
+377..392 callExpr
+386..391 nameExpr
+395..400 nameExpr
+332..403 callExpr
+404..426 localDecl
+422..426 literalExpr nullKeyword
+427..484 exprStmt
+427..484 callExpr
+433..483 interpolatedExpr
+436..458 inExpr
+436..437 nameExpr
+441..458 rangeExpr
+441..442 literalExpr integer
+446..457 binaryExpr coalesce right 455..457
+446..451 nameExpr
+455..457 literalExpr integer
+461..481 inExpr
+461..462 nameExpr
+466..481 rangeExpr
+466..467 literalExpr integer
+470..480 binaryExpr coalesce right 479..480
+470..475 nameExpr
+479..480 literalExpr integer
+427..484 callExpr

@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/type-name-order-locals.byn
+--package
+<repo>/tests/cases/diag

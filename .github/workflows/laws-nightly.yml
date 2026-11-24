@@ -13,36 +13,160 @@ on:
 permissions:
   contents: read
 
+# One run at a time per branch for a scheduled or dispatched run. A run called by release.yml gets a group of its own
+# (github.workflow is then the caller's name): in one shared group a second waiting run cancels the first, which on
+# 2026-11-20 cancelled a dispatched run (44689818294) and the laws job of a release dry run (44695267947) before either started.
 concurrency:
-  group: laws-nightly-${{ github.ref }}
+  group: laws-nightly-${{ github.workflow == 'laws-nightly' && github.ref || github.run_id }}
   cancel-in-progress: false
 
 jobs:
   laws:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+    # L048-L050 run tools through bayan-tool.sh on the pinned bayan; a depth-1 checkout has no local `dev` (as ci.yml).
+    env:
+      PINNED_BAYAN_REF: HEAD
     steps:
-      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit at depth 1. The repo is public, so no token.
+      # Replaces actions/checkout (spec 015 handoff, T4): the exact commit and its parent (depth 2, as ci.yml): the `check:` of
+      # several laws runs scripts/ci/bootstrap-check.sh, which builds from HEAD^1. The repo is public, so no token.
       - name: Checkout
         shell: bash
         run: |
           git init -q .
-          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked.
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
-      # The proofs cross-compile (OutputTests) and `bayan doctor` expects zig; no runner image has it.
+      # The law checks build from the bootstrap and cross-compile with zig (`bayan doctor` expects it); no runner image has it.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
-      - name: Build
-        run: dotnet build Bayan.slnx
+      # As ci.yml: stage 0 from bootstrap/bayan.c, stage 1 from src/ (spec 019 R24); the later steps run stage 1 as $BAYAN_EXE.
+      # No .NET (spec 019 T44a): every enacted law's `check:` runs scripts/ci/bootstrap-check.sh or a script, not `dotnet`.
+      - name: Build from the bootstrap
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
       - name: Laws (full tier)
+        shell: bash
         env:
           BAYAN_TEST_TIME_SCALE: 3
-        run: bash scripts/selfhost/pre-push-laws.sh
+          # The .byn test runner reads this, not the scale. L025's test runs bayan-emit --many in three modes with a 120 s bound
+          # each (l025RunBoundMs); the 60 s default killed it first (release dry runs 44740598481, 44759382772).
+          BAYAN_TEST_TIMEOUT_MS: 600000
+          # L043 re-exports with the frozen C# compiler; ddc.yml, the one job with .NET, runs it (spec 019 R27).
+          # L001, L004, L011, L014 and L017 check a folder of tests/cases (lex/, diag/non-exhaustive, style/, diag|run/lambda-capture,
+          # parse/), all inside L028's check, which the l028 shards run whole. L001's lex/ alone took 104 min here (release dry
+          # run 45274688368) of the job's 167, against its 180.
+          BAYAN_LAWS_LEFT: L043 L028 L001 L004 L011 L014 L017
+        run: |
+          mkdir -p tmp
+          bash scripts/selfhost/pre-push-laws.sh 2>&1 | tee tmp/ci-laws.log
+      # Spec 019 T30h item 2 and T30d: the corpus-wide coverage, mutate and ownership theories and the emitted-C libc inventory
+      # (libc mode) over tests/cases/run, through the stage-1 driver of the build step (scripts/ci/nightly-modes.sh;
+      # scripts/test.sh does not run it).
+      - name: Run cases under coverage, mutate, ownership and libc
+        shell: bash
+        run: |
+          mkdir -p tmp
+          bash scripts/ci/nightly-modes.sh --jobs 4 2>&1 | tee tmp/ci-nightly-modes.log
+      # Traces: the two long steps' full output and the test runner's logs, kept whether the job passed, failed or was
+      # cancelled, so a failure is readable without waiting for the whole calling run to end.
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: laws-nightly-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/ci-*.log
+            tmp/test.*/
+            tmp/bootstrap-build/stage*.log
+          if-no-files-found: ignore
+
+  # L028 (golden tree) runs the whole tests/cases tree: about 3 hours on one hosted runner (889 s per twelfth at --jobs 3), past the
+  # laws job's 180 min after the other laws' 97 (run 44695875114 was cancelled inside L028). Decision 2026-11-20 (Fable for the
+  # owner): the laws job leaves it here (BAYAN_LAWS_LEFT), six shards through BAYAN_TEST_SHARD, the law's own `check:` line.
+  l028:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6]
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: L028 shard ${{ matrix.shard }}/6
+        shell: bash
+        env:
+          BAYAN_TEST_TIME_SCALE: 3
+          BAYAN_TEST_SHARD: ${{ matrix.shard }}/6
+          # as ci.yml's Test step: 3 SelfhostDefaultT12Tests dist cases (cold zig cache) timed out at the 60 s case default
+          # (laws-nightly run 44740572844, shard 5); 300 s then timed out cli/SelfhostDefaultT12Tests/AllTargetsAreBuilt (`dist tally
+          # --target all`, every target, cold zig cache) in runs 44793811721 and 44835983809, so it is the 300 s times this job's time scale
+          BAYAN_TEST_TIMEOUT_MS: 900000
+          BAYAN_CC_TIMEOUT_S: 1800
+        run: |
+          mkdir -p tmp
+          check="$(sed -n 's/^check: //p' docs/laws/028-*.md)"
+          [ -n "$check" ] || { echo "L028: no check: line"; exit 1; }
+          bash -c "$check" 2>&1 | tee tmp/ci-l028.log; exit "${PIPESTATUS[0]}"
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: laws-nightly-l028-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/ci-*.log
+            tmp/test.*/
+          if-no-files-found: ignore
+
+  # The golden runner bound (docs/memory-leaks.md rule 8) over the full tests/cases tree, which the release memory gate samples
+  # one shard of (Decision 2026-11-20, Fable for the owner): a hosted runner took 889 s for one twelfth of the tree at --jobs 3,
+  # so about 3 hours; scripts/ci/nightly-modes.sh --mode bound gives the block 5 hours, the job 330 min. Not in a run release.yml
+  # calls (github.workflow is then the caller's name): the release gate's shard is the release sample.
+  golden-bound:
+    if: github.workflow == 'laws-nightly'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=2 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
+          git checkout -q --detach FETCH_HEAD
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: Build from the bootstrap
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
+      - name: Golden runner bound over the full tree
+        shell: bash
+        run: |
+          mkdir -p tmp
+          bash scripts/ci/nightly-modes.sh --mode bound 2>&1 | tee tmp/ci-golden-bound.log
+      - name: Upload the logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: golden-bound-logs-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/ci-*.log
+            tmp/nightly-modes/bound.log
+            tmp/bootstrap-build/stage*.log
+          if-no-files-found: ignore

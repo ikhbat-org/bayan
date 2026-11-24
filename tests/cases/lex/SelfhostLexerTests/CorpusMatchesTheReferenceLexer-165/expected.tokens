@@ -1,0 +1,72 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:11 IntegerLiteral `2`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0b_`
+4:1 StringLiteral `"{a /* never closed`
+5:5 Identifier `hidden`
+6:1 LetKeyword `let`
+6:5 Identifier `x`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+7:2 TestKeyword `test`
+7:7 AssertKeyword `assert`
+7:14 PropertyKeyword `property`
+7:23 FuzzKeyword `fuzz`
+7:28 Identifier `mo`
+7:31 Identifier `del`
+7:35 ForeachKeyword `foreach`
+7:43 NewKeyword `new`
+7:47 GotoKeyword `goto`
+9:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ let b = ` 2
+    │         ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b_
+    │ ^^^
+
+error BYN0003: unterminated string literal
+
+  4 │ "{a /* never closed
+    │ ^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │   � hidden
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │   � hidden
+    │   │   -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x� = 1
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │  test assert property fuzz mo�del foreach new goto
+    │                              ^

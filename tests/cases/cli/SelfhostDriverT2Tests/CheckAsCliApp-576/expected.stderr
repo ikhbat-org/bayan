@@ -1,0 +1,18 @@
+error BYN0012: `int` is reserved and cannot be used as an identifier
+  --> <repo>/tmp/t2/diag/csharp-name-declared/csharp-name-declared.byn:1:15
+
+  1 │ void show(i32 int) {
+    │               ^^^ a C# primitive type name
+    │
+  help: choose another name
+
+error BYN0012: `long` is reserved and cannot be used as an identifier
+  --> <repo>/tmp/t2/diag/csharp-name-declared/csharp-name-declared.byn:2:9
+
+  2 │     let long = 4
+    │         ^^^^ a C# primitive type name
+    │
+  help: choose another name
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN0012

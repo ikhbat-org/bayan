@@ -1,0 +1,13 @@
+nt ‮ hidden
+let x⁧ = 1
+ '\u{D800}'
+'\u{110000}'
+'x
+ foo Bar _x camelCase2 بيان μετρητής x_1 é
+ //// not a doc comment
+omment ‮ hidden
+let x⁧ = 1
+ "text" "esc \"q\" \\ \n" """
+let � = 2
+/// Doc line two.
+

@@ -1,0 +1,11 @@
+1:1 Identifier `ÅS`
+1:4 EndOfFile
+
+error BYN0005: identifier `ÅS` is not in Unicode normalization form C
+
+  1 │ ÅS
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ÅS
+    │   │ +

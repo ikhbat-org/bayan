@@ -1,0 +1,6 @@
+== body one
+first none
+block 348..349
+  returnStmt 348..349
+    literal 348..349 : i32 = 1
+requires 0 infers false

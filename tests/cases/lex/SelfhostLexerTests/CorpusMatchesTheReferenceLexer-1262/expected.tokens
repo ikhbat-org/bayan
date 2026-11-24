@@ -1,0 +1,38 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 BangEquals `!=`
+1:18 EqualsEquals `==`
+1:21 BangEquals `!=`
+1:23 Identifier `r`
+1:25 Less `<`
+1:27 LessEquals `<=`
+1:30 Greater `>`
+1:32 GreaterEquals `>=`
+1:35 LessLess `<<`
+1:39 Greater `>`
+1:40 Greater `>`
+1:42 Greater `>`
+1:43 GreaterEquals `>=`
+    doc `/// Doc line one.`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ & && | || ^ ~ != == !=r < <= > >= <<� >> >>=
+    │                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �/// Doc line one.
+    │ ^
+
+error BYN0004: unterminated block comment
+
+  3 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

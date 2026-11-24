@@ -1,0 +1,36 @@
+interface IPoke {
+    void grow(ref this)
+
+    void twice(ref this) {
+        poke(ref this)
+    }
+}
+
+struct G : IPoke {
+    string s
+
+    void grow(ref this) {}
+}
+
+struct H {
+    Arena arena
+}
+
+void poke<T>(ref T x) where T : IPoke {}
+
+string make(Arena a) => "x".copy(to: a)
+
+void use2(Arena a) {
+    let s = make(a)
+    print(s)
+}
+
+string viaField(in H h) => make(h.arena)
+
+void main() {
+    var g = G { s: "" }
+    g.twice()
+    using let arena = Arena()
+    use2(arena)
+    print(make(Arena()))
+}

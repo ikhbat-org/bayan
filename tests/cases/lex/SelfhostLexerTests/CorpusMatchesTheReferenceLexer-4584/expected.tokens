@@ -1,0 +1,80 @@
+1:1 Star `*`
+1:2 Slash `/`
+2:1 CharLiteral `'a'`
+2:5 CharLiteral `'\n'`
+2:10 CharLiteral `'\u{1F600}'`
+2:22 CharLiteral `'\''`
+2:27 CharLiteral `'é'`
+2:31 CharLiteral `'\\'`
+2:36 CharLiteral `'\0'`
+4:2 LetKeyword `let`
+4:6 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+5:2 IntegerLiteral `0b1`
+5:5 NumericSuffix `ms`
+6:2 CharLiteral `'\u1F600}'`
+6:13 CharLiteral `'\''`
+6:18 CharLiteral `'é'`
+6:22 CharLiteral `'\' '`
+6:28 IntegerLiteral `0`
+6:29 CharLiteral `'`
+8:1 Identifier `foo`
+8:5 Identifier `Bar`
+8:9 Identifier `_x`
+8:12 Identifier `camelCase2`
+8:23 Identifier `بيان`
+8:28 Identifier `μετρητής`
+8:37 Identifier `x_1`
+8:41 Identifier `é`
+9:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  4 │ �let café = 2
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �let café = 2
+    │   │ -
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  5 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │  '\u1F600}' '\'' 'é' '\' '\0'
+    │  ^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u`
+
+  6 │  '\u1F600}' '\'' 'é' '\' '\0'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │  '\u1F600}' '\'' 'é' '\' '\0'
+    │                      ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  6 │  '\u1F600}' '\'' 'é' '\' '\0'
+    │                           ^
+
+error BYN0008: unterminated char literal
+
+  6 │  '\u1F600}' '\'' 'é' '\' '\0'
+    │                             ^
+    │
+  help: close it with `'`

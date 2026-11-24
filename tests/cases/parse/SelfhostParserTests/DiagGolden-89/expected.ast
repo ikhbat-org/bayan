@@ -1,0 +1,15 @@
+CompilationUnit
+  Function f(Day d) -> void
+    Block
+      Switch d
+        Case (or .sat .sun)
+          Expr (call rest)
+        Default
+          Expr (call work)
+
+error BYN1014: stacked `case` labels
+
+  4 │         case .sun:
+    │         ^^^^ a second label for the same statements
+    │
+  help: combine the patterns into one label, e.g. `case .sat or .sun:`

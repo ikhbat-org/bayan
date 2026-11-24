@@ -1,0 +1,102 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+2:1 IntegerLiteral `01`
+2:3 NumericSuffix `ms`
+3:2 PlusEquals `+=`
+3:5 MinusEquals `-=`
+3:8 StarEquals `*=`
+3:11 SlashEquals `/=`
+3:14 PercentEquals `%=`
+3:17 AmpEquals `&=`
+3:20 BarEquals `|=`
+3:23 CaretEquals `^=`
+3:26 LessLessEquals `<<=`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 Identifier `x`
+4:56 CloseBrace `}`
+4:57 StringLiteral `"}"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:65 Star `*`
+4:66 Slash `/`
+4:68 Identifier `a`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+6:2 LetKeyword `let`
+6:6 Identifier `b`
+6:8 Equals `=`
+6:12 IntegerLiteral `2`
+8:1 CharLiteral `'a'`
+8:5 CharLiteral `'\n'`
+8:10 CharLiteral `'\u{1F600}'`
+8:22 CharLiteral `'\''`
+8:27 CharLiteral `'é'`
+8:31 CharLiteral `'\\'`
+8:36 CharLiteral `'\0'`
+9:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1;
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" */ a
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" */ a
+    │                                                 ^^
+
+error BYN0002: unexpected character ```
+
+  6 │  let b = ` 2
+    │          ^

@@ -1,0 +1,3 @@
+== cov.q2
+call|Qty|structLiteral|requires|2318:10|
+covered 2318:10 Qty false

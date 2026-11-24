@@ -1,0 +1,143 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolationEnd `}`
+1:6 InterpolatedStringEnd `"`
+1:8 StringLiteral `"{$"`
+1:12 OpenBrace `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 StringLiteral `$"{$"`
+2:29 OpenBrace `{`
+2:30 StringLiteral `$"{$"`
+2:35 OpenBrace `{`
+2:36 StringLiteral `$"{$"`
+2:41 OpenBrace `{`
+2:42 StringLiteral `$"{$"`
+2:47 OpenBrace `{`
+2:48 StringLiteral `$"{$"`
+2:53 OpenBrace `{`
+2:54 StringLiteral `$"{$"`
+2:59 OpenBrace `{`
+2:60 StringLiteral `$"{$"`
+2:65 OpenBrace `{`
+2:66 Identifier `x`
+2:67 CloseBrace `}`
+2:68 StringLiteral `"}"`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 CloseBrace `}`
+2:76 StringLiteral `"}"`
+2:79 CloseBrace `}`
+2:80 StringLiteral `"}"`
+2:83 CloseBrace `}`
+2:84 StringLiteral `"}"`
+2:87 CloseBrace `}`
+2:88 StringLiteral `"}"`
+2:91 CloseBrace `}`
+2:92 StringLiteral `" `
+3:1 Identifier `l`
+3:2 Bar `|`
+3:3 Identifier `et`
+3:6 Identifier `x`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+5:1 Identifier `l`
+5:3 IntegerLiteral `7`
+5:4 NumericSuffix `l`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��$"{}" "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��$"{}" "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{
+    │  ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* � */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // �
+    │   │  +++
+    │ 3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  2 │ /* � */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* � */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  2 │ /* � */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                     ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ /* � */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                        ^^
+
+error BYN0003: unterminated string literal
+
+  2 │ /* � */ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}" 
+    │                                                                                            ^^ string
+    │                                                                                               ends
+    │                                                                                               at
+    │                                                                                               the
+    │                                                                                               end
+    │                                                                                               of
+    │                                                                                               the
+    │                                                                                               line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  3 │ l|et x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ l|et x� = 1
+    │   │       -

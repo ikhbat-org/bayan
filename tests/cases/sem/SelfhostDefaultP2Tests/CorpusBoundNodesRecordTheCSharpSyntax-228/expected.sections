@@ -1,0 +1,33 @@
+== tests/cases/run/path-outlives-source.byn
+131..361 blockStmt
+137..167 localDecl
+147..167 callExpr
+164..166 literalExpr integer
+172..194 exprStmt
+172..194 callExpr
+172..175 nameExpr
+183..193 literalExpr string
+199..233 localDecl
+210..233 callExpr
+224..232 memberExpr
+224..227 nameExpr
+238..287 localDecl
+248..287 callExpr
+268..272 literalExpr string
+278..286 memberExpr
+278..281 nameExpr
+292..303 exprStmt
+292..303 callExpr
+292..295 nameExpr
+308..328 exprStmt
+308..328 callExpr
+308..311 nameExpr
+319..327 literalExpr string
+333..344 exprStmt
+333..344 callExpr
+339..343 nameExpr
+333..344 callExpr
+349..359 exprStmt
+349..359 callExpr
+355..358 nameExpr
+349..359 callExpr

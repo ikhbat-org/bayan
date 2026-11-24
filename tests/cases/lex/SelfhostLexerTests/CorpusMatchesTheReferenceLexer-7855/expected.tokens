@@ -1,0 +1,82 @@
+1:1 Identifier `b`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+4:1 Identifier `_`
+4:3 PlusEquals `+=`
+4:6 MinusEquals `-=`
+4:9 StarEquals `*=`
+4:11 Equals `=`
+4:12 SlashEquals `/=`
+4:15 Percent `%`
+4:17 AmpEquals `&=`
+4:20 BarEquals `|=`
+4:23 CaretEquals `^=`
+4:26 LessLessEquals `<<=`
+5:1 IntegerLiteral `0x_`
+7:1 IntegerLiteral `0`
+7:2 CloseBrace `}`
+7:3 CharLiteral `'`
+8:1 CharLiteral `'\u{110000}'`
+9:1 CharLiteral `'x`
+10:4 LetKeyword `let`
+10:8 Identifier `b`
+10:10 Equals `=`
+10:12 StringLiteral `"bad \q escape"`
+11:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x_
+    │ ^^^
+
+error BYN0008: unterminated char literal
+
+  7 │ 0}'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  8 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  9 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  10 │  ��� let b = "bad \q escape"
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  10 │  ��� let b = "bad \q escape"
+     │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │  ��� let b = "bad \q escape"
+     │    ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  10 │  ��� let b = "bad \q escape"
+     │                   ^^
+     │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

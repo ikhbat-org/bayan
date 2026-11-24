@@ -1,0 +1,82 @@
+== tests/cases/run/io-run-env-unset.byn
+186..981 blockStmt
+192..318 localDecl
+214..318 collectionExpr
+215..219 literalExpr string
+221..317 literalExpr string
+323..355 localDecl
+333..355 callExpr
+360..378 assignStmt assign target 360..371 value 374..378
+360..371 indexExpr
+360..363 nameExpr
+364..370 literalExpr string
+374..378 literalExpr nullKeyword
+383..414 assignStmt assign target 383..404 value 407..414
+383..404 indexExpr
+383..386 nameExpr
+387..403 literalExpr string
+407..414 literalExpr string
+407..414 literalExpr string
+419..472 exprStmt
+419..472 callExpr
+425..471 memberExpr
+426..463 tryExpr
+430..463 callExpr
+437..441 literalExpr string
+443..452 memberExpr
+443..447 nameExpr
+430..463 callExpr
+430..463 callExpr
+459..462 nameExpr
+459..462 nameExpr
+430..463 callExpr
+419..472 callExpr
+560..587 assignStmt assign target 560..571 value 574..587
+560..571 indexExpr
+560..563 nameExpr
+564..570 literalExpr string
+574..587 literalExpr string
+574..587 literalExpr string
+592..628 localDecl
+600..628 callExpr
+600..603 nameExpr
+611..627 literalExpr string
+633..686 exprStmt
+633..686 callExpr
+639..685 memberExpr
+640..677 tryExpr
+644..677 callExpr
+651..655 literalExpr string
+657..666 memberExpr
+657..661 nameExpr
+644..677 callExpr
+644..677 callExpr
+673..676 nameExpr
+673..676 nameExpr
+644..677 callExpr
+633..686 callExpr
+762..797 localDecl
+775..797 callExpr
+802..834 assignStmt assign target 802..827 value 830..834
+802..827 indexExpr
+802..808 nameExpr
+809..826 literalExpr string
+830..834 literalExpr nullKeyword
+839..917 localDecl
+862..917 collectionExpr
+863..867 literalExpr string
+869..916 literalExpr string
+922..979 exprStmt
+922..979 callExpr
+928..978 memberExpr
+929..970 tryExpr
+933..970 callExpr
+940..944 literalExpr string
+946..956 memberExpr
+946..951 nameExpr
+933..970 callExpr
+933..970 callExpr
+963..969 nameExpr
+963..969 nameExpr
+933..970 callExpr
+922..979 callExpr

@@ -1,0 +1,91 @@
+1:1 CloseBracket `]`
+1:3 IntegerLiteral `1`
+1:4 Dot `.`
+1:5 IfKeyword `if`
+1:8 ElseKeyword `else`
+1:14 UnlessKeyword `unless`
+1:21 SwitchKeyword `switch`
+1:28 CaseKeyword `case`
+1:33 DefaultKeyword `default`
+1:41 ForKeyword `for`
+1:45 InKeyword `in`
+1:48 WhileKeyword `while`
+1:54 DoKeyword `do`
+1:57 BreakKeyword `break`
+1:63 ContinueKeyword `continue`
+1:72 ReturnKeyword `return`
+1:79 YieldKeyword `yield`
+1:85 DeferKeyword `defer`
+1:91 ErrdeferKeyword `errdefer`
+1:100 UsingKeyword `using`
+1:106 ContextKeyword `context`
+3:2 Identifier `ητής`
+3:7 Identifier `x_1`
+3:11 Identifier `é`
+4:5 CloseParen `)`
+4:7 OpenBracket `[`
+4:9 CloseBracket `]`
+4:11 OpenBrace `{`
+4:13 CloseBrace `}`
+5:1 Comma `,`
+5:3 Dot `.`
+5:5 DotDot `..`
+5:8 DotDotEquals `..=`
+5:12 Colon `:`
+5:14 Question `?`
+5:16 QuestionQuestion `??`
+5:19 QuestionQuestionEquals `??=`
+5:23 QuestionDot `?.`
+5:26 FatArrow `=>`
+5:29 Arrow `->`
+5:32 At `@`
+5:34 Hash `#`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:14 MinusPercent `-%`
+6:17 IntegerLiteral `0x_`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ]�1.if else� unless switch case default for in while do break continue return yield defer errdefer using context
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ]�1.if else� unless switch case default for in while do break continue return yield defer errdefer using context
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ]�1.if else� unless switch case default for in while do break continue return yield defer errdefer using context
+    │   ^
+
+error BYN0002: unexpected character `\u{F}`
+
+  1 │ ]�1.if else� unless switch case default for in while do break continue return yield defer errdefer using context
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │  ���  ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │  ���  ) [ ] { }
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ���  ) [ ] { }
+    │    ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ + - * / % +% -% 0x_
+    │                 ^^^

@@ -1,0 +1,22 @@
+/// Dates left after every guest takes `each`.
+i64 remaining(i64 dates, for i64 guests, by i64 each) => dates - guests * each
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        var fields = List<string>()
+        for part in line.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length != 4
+        let dates = i64.tryParse(fields[1]) ?? 0
+        let guests = i64.tryParse(fields[2]) ?? 0
+        let each = i64.tryParse(fields[3]) ?? 0
+        let left = remaining(dates, for: guests, by: each)
+        print($"{fields[0]}: {left} dates left, enough: {left >= 0}")
+    }
+}

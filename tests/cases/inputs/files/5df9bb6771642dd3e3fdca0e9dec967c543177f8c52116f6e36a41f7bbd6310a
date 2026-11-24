@@ -1,0 +1,45 @@
+struct P {
+    i64 x = 0
+}
+
+struct Order {
+    i64 id
+    states {
+        draft
+        paid(i64 payment)
+    }
+}
+
+union error E {
+    bad
+}
+
+i64 sw(i64 n, (i64, i64) t, Order o, P q) {
+    switch n {
+        case 1..5: return 1
+        case [1, 2]: return 2
+        case P x: return 3
+        case (1, 2): return 4
+        case P(1): return 5
+        case P.x(1): return 6
+        default: {}
+    }
+    switch t {
+        case (1, 2): return 7
+        default: {}
+    }
+    switch o {
+        case .paid: return 8
+        case .nope: return 9
+        default: {}
+    }
+    return 0
+}
+
+i64 parse(i64 n) fails E => n
+
+i64 handle(i64 n) => parse(n) catch switch {
+    E e => 0,
+}
+
+void main() {}

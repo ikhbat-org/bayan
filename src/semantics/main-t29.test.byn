@@ -1,0 +1,56 @@
+// 019 T29 (coverage ratchet): main.byn's argument handling, which no golden case reaches. Each run is asserted by its exit
+// code (the text goes to stdout and stderr); the inputs are files of the repository, named from the root `bayan test` runs in.
+
+test "main t29: global options and the mode flags" {
+    assert usage() == exitUsage
+    assert main(["--ascii", "--color", "never", "--color=always", "--color", "auto", "--codes"]) == exitOk
+    assert main(["--color=bad"]) == exitUsage
+    assert main(["--color"]) == exitUsage
+    assert main(["--codes", "x"]) == exitUsage
+    assert main(["--many"]) == exitUsage
+    assert main(["--time"]) == exitUsage
+    assert main(["--types"]) == exitUsage
+    assert main([]) == exitUsage
+}
+
+test "main t29: everything after `--` is the command's" {
+    assert main(["--", "x"]) == exitUsage
+}
+
+test "main t29: golden reads its options and the package manifest" {
+    assert golden(["-x"]) == exitUsage
+    assert golden(["examples/tally-lite/money/money.byn"]) == exitUsage
+    assert golden(["--package", "examples/tally-lite/money"]) == exitUsage
+    assert golden(["a.byn", "b.byn"]) == exitUsage
+    assert golden(["a.byn", "--package"]) == exitUsage
+    assert main(
+        [
+            "--golden",
+            "--tests",
+            "--include-path",
+            "--spans",
+            "--package",
+            "tests/cases/diag/capability-exceeded",
+            "tests/cases/diag/capability-exceeded/main.byn",
+        ],
+    ) == exitOk
+    let empty = "tests/cases/diag/naming-package-empty"
+    assert golden(["--package", empty, $"{empty}/main.byn"]) == exitOk
+}
+
+test "main t29: many skips files that are not sources" {
+    assert main(["--many", "examples/tally-lite/money"]) == exitOk
+    assert main(["--many", "tests/cases/diag/capability-exceeded"]) == exitOk
+}
+
+test "main t29: many of a missing directory" {
+    assert main(["--many", "examples/tally-lite/no-such-dir"]) == exitUsage
+}
+
+test "main t29: time" {
+    assert main(["--time", "examples/tally-lite/money/money.byn"]) == exitOk
+}
+
+test "main t29: time with an option for a path" {
+    assert main(["--time", "--x"]) == exitUsage
+}

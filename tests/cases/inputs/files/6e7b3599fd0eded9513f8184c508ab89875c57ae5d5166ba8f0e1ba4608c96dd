@@ -1,0 +1,7 @@
+"text" "esc \"q\" \\ \n" """
+// line comment
+   comment */ a
+ Ã
+ >> b
+c >>= 1
+

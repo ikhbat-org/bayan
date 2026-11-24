@@ -1,0 +1,10 @@
+== path cycle
+module std.b <std>/b std_b
+file <std>/b/b.byn
+module std.a <std>/a std_a
+file <std>/a/a.byn
+import b std.b
+module main tmp/std-cases/cycle main
+file tmp/std-cases/cycle/main.byn
+import a std.a
+diag BYN2010 <std>/b/b.byn 1:8 import cycle: std.a → std.b → std.a |  | move the shared declarations into a module both can import

@@ -6,14 +6,18 @@ release: 0.1.0
 sources: Q658
 kind: property
 scope: src/semantics/main.byn
-proof: src/tests/SelfhostSemanticsEquivalenceLawTests.cs
-check: dotnet test -v q --filter "Law=L022"
+proof: src/driver/golden.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'typed/' && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'diag/'
 timeout: 1800
 enacted: 2026-11-01
+amended: 2026-11-20
 ---
 
 ## Statement
-For every program that parses without errors, `bayan-check --types` and `bayan types` print the same typed dump, and `bayan-check` and `bayan check` report the same diagnostics and exit with the same code.
+
+For every typed and diag case in the freeze manifest, `bayan-check` (with `--types` for a typed case) prints the frozen expected output byte for byte; for a diag case that output is the rendered diagnostics. The frozen files are the C# compiler's output at the freeze (L043).
+
+The pre-2026-11-20 statement's exit-code clause is dropped: the frozen typed and diag cases hold only the typed dump (`*.types`) and the rendered diagnostics (`*.diag`), and no expected exit code.
 
 ## Counterexample looks like
 A program that parses without errors on which `bayan-check` and `bayan check` differ in one stderr line (a missing, extra or reordered diagnostic, or one whose code, location, message, label or help differs), on which `bayan-check --types` and `bayan types` differ in one line of the typed dump (a binding's kind, name, span or type, or a function's order), or on which either pair exits with different codes.
@@ -36,3 +40,5 @@ Mutation 2 (dropped diagnostic): `src/semantics/ownership.byn:423`, the `t24Repo
 Each file was copied to `tmp/l022-bt/<file>.orig` first and restored with `cp`. `cmp` was clean after each restore, and the rerun passed.
 
 Enacted by the agent under the standing self-host authorization (2026-10-21; spec 010 T30), with T29's proof passing: `dotnet test -v q --filter "Law=L022"` 1 passed on 2026-11-01, 25 s test time (34 s wall, `bayan-check` rebuilt first).
+
+Proof 2026-11-20 (spec 019 T31): the proof is the frozen typed and diag cases, each produced by `goldenTyped` or `goldenDiag` in src/driver/golden.byn (tagged L022) and compared with its frozen `.types` or `.diag`; one `bayan test` run per kind, so a selector that matches nothing exits 2 (`--only 'nomatch-xyz/'`: `bayan: no case name contains`). The check printed `18 passed · 0 test blocks, 18 golden cases` (typed) and `676 passed · 0 test blocks, 676 golden cases` (diag), the FREEZE.tsv counts. Broke it with mutation 1 above (src/semantics/conversions.byn:112, `ab < tb` to `ab <= tb`), driver rebuilt by stage 1: typed passed, diag failed `diag/bad-binary-operands`, ``expected line 1: error BYN2208: `+` cannot be applied to `i64` and `u64` ``, ``actual line 1: error BYN2208: `+` cannot be applied to `bool` and `i32` ``; the file was restored from HEAD.

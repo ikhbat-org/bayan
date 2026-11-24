@@ -1,7 +1,7 @@
 # On-demand (nightly when the schedule is back on) batch mutation run (spec 013 T28): scripts/selfhost/mutate-batch.sh over the selfhost .byn files,
 # split into SHARDS parallel jobs (--shard k/4); each shard records once per test family, not per filter (handoff Q910). It only measures: it never commits or pushes. Each shard uploads its reports
-# (tmp/mutate-batch/, paths relative to the repo root); the `merge` job runs one quality-baseline.py update over all of them and
-# uploads tests/quality-baseline.json and the accepted reports. Apply the run by `python3 -I scripts/selfhost/quality-baseline.py update tests/quality-baseline.json . <reports...>`
+# (tmp/mutate-batch/, paths relative to the repo root); the `merge` job runs one `quality-baseline update` over all of them and
+# uploads tests/quality-baseline.json and the accepted reports. Apply the run by `bash scripts/bayan-tool.sh quality-baseline update tests/quality-baseline.json . <reports...>`
 # on a chore/ branch off current dev, never by copying the baseline file.
 name: mutation
 
@@ -44,19 +44,16 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
-      # Replaces actions/setup-dotnet: the SDK pinned in install-dotnet.sh, sha512-checked.
-      - name: Install .NET SDK
-        shell: bash
-        run: |
-          dotnet_root="$(bash scripts/ci/install-dotnet.sh "$RUNNER_TEMP/dotnet")"
-          echo "DOTNET_ROOT=$dotnet_root" >> "$GITHUB_ENV"
-          echo "$dotnet_root" >> "$GITHUB_PATH"
-      # The tests cross-compile (OutputTests) and `bayan doctor` expects zig; no runner image has it.
+      # The stage-1 driver, the schemata builds and the golden cases all compile with zig; no runner image has it.
       - name: Install zig
         shell: bash
         run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
-      - name: Build
-        run: dotnet build Bayan.slnx
+      # The driver that records (golden cases under BAYAN_SNAPSHOT, spec 019 T48c): stage 1 from bootstrap/bayan.c, as in ci.yml.
+      - name: Build the driver
+        shell: bash
+        run: |
+          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }
+          echo "BAYAN_EXE=$s1" >> "$GITHUB_ENV"
       - name: Mutate
         env:
           PINNED_BAYAN_REF: HEAD  # the dev commit this run checked out (no dev branch in a depth-1 checkout)
@@ -67,7 +64,7 @@ jobs:
           BAYAN_TEST_TIME_SCALE: 3
         shell: bash
         run: |
-          args=(--shard "$SHARD/4" --tasks "$MUTATE_TASKS")
+          args=(--shard "$SHARD/4" --jobs 4 --tasks "$MUTATE_TASKS")
           if [ -n "$MUTATE_FILES" ]; then args+=(--files "$MUTATE_FILES"); fi
           bash scripts/selfhost/mutate-batch.sh "${args[@]}"
       - uses: actions/upload-artifact@v7
@@ -87,15 +84,22 @@ jobs:
           git init -q .
           git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"
           git checkout -q --detach FETCH_HEAD
+      # The baseline tool runs on the pinned bayan (scripts/bayan-tool.sh), built from bootstrap/bayan.c of the checked-out
+      # commit by scripts/pinned-bayan.sh (spec 019 R24); `bayan run` compiles the tool with zig.
+      - name: Install zig
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
       - uses: actions/download-artifact@v8
         with:
           pattern: mutation-reports-*
           path: reports
       - name: Merge
+        env:
+          PINNED_BAYAN_REF: HEAD
         run: |
           mapfile -t reports < <(find reports -name 'quality-[0-9]*.json' | sort)
-          python3 -I scripts/selfhost/quality-baseline.py check tests/quality-baseline.json . "${reports[@]}"
-          python3 -I scripts/selfhost/quality-baseline.py update tests/quality-baseline.json . "${reports[@]}"
+          bash scripts/bayan-tool.sh quality-baseline check tests/quality-baseline.json . "${reports[@]}"
+          bash scripts/bayan-tool.sh quality-baseline update tests/quality-baseline.json . "${reports[@]}"
       - uses: actions/upload-artifact@v7
         with:
           name: quality-baseline

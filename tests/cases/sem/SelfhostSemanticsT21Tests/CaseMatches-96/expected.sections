@@ -1,0 +1,2 @@
+== call.b5
+builtinCall|void|local:List<i64>=ns|listRemoveAt|1922:16|literal:i64=0

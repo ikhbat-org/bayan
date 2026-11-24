@@ -1,0 +1,4 @@
+== into.map
+counts 0 1 1
+loan q m 2006 0
+BYN3002 116:5 `u` does not live as long as `m`, which borrows it |`u` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

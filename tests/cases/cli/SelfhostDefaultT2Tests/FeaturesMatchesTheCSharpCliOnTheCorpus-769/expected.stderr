@@ -1,0 +1,7 @@
+error BYN2226: `using` needs a value that owns memory, not `i32`
+  --> <repo>/tests/cases/diag/not-disposable.byn:1:11
+
+  1 │ using let n = 5
+    │           ^
+    │
+  help: use `using` only for values that own memory: `Arena` and `List<T>`

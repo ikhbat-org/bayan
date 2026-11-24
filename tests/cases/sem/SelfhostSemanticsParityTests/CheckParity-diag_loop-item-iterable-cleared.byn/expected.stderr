@@ -1,0 +1,10 @@
+error BYN3004: `expenses` is modified while `shares` still borrows it
+  --> tmp/t26-tests/cli/diag_loop-item-iterable-cleared.byn/loop-item-iterable-cleared.byn:17:5
+
+  17 │     expenses.clear()
+     │     ^^^^^^^^^^^^^^^^ `shares` is used again on line 18
+     │
+  help: finish using `shares` first, or copy what it needs before changing `expenses`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3004

@@ -90,7 +90,9 @@ BExpr lowerExprNode(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
         l.probing[e] = true
         return branchProbe(ref c, through: ref l, for: e)
     }
+    // coverage-exempt: Q1286 leads only to the panic
     if ltree.isLowered(e) {
+        // coverage-exempt: Q1286 `panic`
         panic($"cannot lower {t4TypeName(e)}")
     }
     let i = i64(e & 0xFFFFFFFF)
@@ -217,6 +219,7 @@ BExpr lowerExprNode(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
                 for: c.bConversions[i].operand,
             ) : lowerExpr(ref c, through: ref l, for: c.bConversions[i].operand)
             return t4Never(ref c, through: ref l, for: e) if isNeverExpr(operand)
+            // coverage-exempt: Q1286 needs a never-typed operand that does not lower to never
             return operand if kind == .fromNever
             return ltree.addLOptionalValue(
                 ref l.tree,
@@ -477,6 +480,7 @@ BExpr lowerExprNode(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
             var values = List<BExpr>()
             // coverage-exempt: Q774
             unless operands(ref c, through: ref l, for: in ops, as: in List<bool>(), to: ref values) {
+                // coverage-exempt: Q1286 the arm of the Q774 marker above, whose condition only a never operand fails
                 return t4Never(ref c, through: ref l, for: e)
             }
             emitAssign(
@@ -539,6 +543,7 @@ BExpr lowerExprNode(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
                 },
             )
         default:
+            // coverage-exempt: Q1286 `default: panic`
             panic($"cannot lower {t4TypeName(e)}")
     }
 }
@@ -810,6 +815,7 @@ BExpr lowerShortCircuit(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
             from: BBinary { span: span, op: c.bBinaries[i].op, left: left, right: right, type: c.bBinaries[i].type },
         ),
     ) if pre.length == 0
+        // coverage-exempt: Q1286 a never `right` writes its statement into `pre`, so `pre` is not empty
         && !isNeverExpr(right)
     // `t = left; if (t) { pre; t = right; }` for &&, `if (!t)` for ||.
     let t = newTemp(ref c, through: ref l, for: semantics.prim(.bool))
@@ -854,7 +860,7 @@ BExpr lowerConditional(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
         lvalue: false,
         to: ref preFalse,
     )
-    // coverage-exempt: Q774 through `return t4Keep(ref c, from: e, to: semantics.addConditional(`
+    // coverage-exempt: Q774 through `to: semantics.addConditional(`
     if preTrue.length == 0 && preFalse.length == 0 && !isNeverExpr(whenTrue) && !isNeverExpr(whenFalse)
             && !semantics.isNever(t2Type(in c, through: in l, for: whenTrue))
             && !semantics.isNever(t2Type(in c, through: in l, for: whenFalse)) {
@@ -1353,6 +1359,7 @@ BExpr lowerCall(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
             }
         default: break
     }
+    // coverage-exempt: Q1286 through `outside try/catch` leads only to the panic
     if c.functions[fn].hasFails {
         panic($"call of failing `{c.functions[fn].name}` outside try/catch")
     }

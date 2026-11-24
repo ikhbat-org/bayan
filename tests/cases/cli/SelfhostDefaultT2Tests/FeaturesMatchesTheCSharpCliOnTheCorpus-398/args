@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/parse/input-forms-one-line.byn
+--package
+<repo>/tests/cases/parse

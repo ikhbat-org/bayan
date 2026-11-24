@@ -1,0 +1,29 @@
+3:1 Identifier `le`
+3:3 Less `<`
+3:4 Identifier `t`
+3:6 Identifier `b`
+3:8 Equals `=`
+3:10 StringLiteral `"bad \q escape"`
+5:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidd�n
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidd�n
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  1 │ // comment � hidd�n
+    │                  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ le<t b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

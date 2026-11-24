@@ -1,0 +1,13 @@
+== pure
+empty-left [0:y,1:x] [l1,l2] -
+empty-right [1:x] [l0] l1=4
+both-empty [] [] -
+overlap [0:y,1:x,2:z] [l0,l1,l3] -
+merge-min [0:y,1:x] [l1,l2] l1=3,l2=9
+merge-left-null [0:y,1:x] [l1,l2] l2=9
+merge-right-null [0:y,1:x] [l1,l2] l1=5,l3=2
+merge-keep-smaller [0:y,1:x] [l1] l1=2
+lent-fresh [1:x] [l0,l2] l2=7
+lent-again [1:x] [l2] l2=3
+lent-later [] [l2] l2=4
+lent-empty [] [l0] l0=0

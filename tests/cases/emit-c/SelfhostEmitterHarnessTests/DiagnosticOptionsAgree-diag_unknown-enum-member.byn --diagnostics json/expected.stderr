@@ -1,0 +1,2 @@
+{"code":"BYN2720","severity":"error","file":"input.byn","span":{"start":57,"end":61,"line":7,"column":15,"endLine":7,"endColumn":19},"message":"`gren` is not a member of `Color`","label":null,"help":"did you mean `green`?","fixes":[]}
+{"code":"BYN2720","severity":"error","file":"input.byn","span":{"start":78,"end":84,"line":8,"column":17,"endLine":8,"endColumn":23},"message":"`purple` is not a member of `Color`","label":null,"help":null,"fixes":[]}

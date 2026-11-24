@@ -1,0 +1,20 @@
+1:1 Identifier `nit`
+1:5 Identifier `di`
+1:7 Identifier `stinct`
+1:14 TypeKeyword `type`
+1:19 ImportKeyword `import`
+1:26 AsKeyword `as`
+1:29 PublicKeyword `public`
+1:36 Identifier `rivate`
+1:43 StaticKeyword `static`
+1:51 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  1 │ nit di�stinct type import as public rivate�static  
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDF)
+
+  1 │ nit di�stinct type import as public rivate�static  
+    │                                           ^

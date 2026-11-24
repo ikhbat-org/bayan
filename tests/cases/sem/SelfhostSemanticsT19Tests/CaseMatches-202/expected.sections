@@ -1,0 +1,4 @@
+== bind.probes.b7
+flags 0
+errorExpr:?[1746:9]=-()
+BYN2208 114:14 `==` cannot be applied to `i32` and `null` |||

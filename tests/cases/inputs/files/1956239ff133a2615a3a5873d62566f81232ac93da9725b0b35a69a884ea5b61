@@ -1,0 +1,3 @@
+let a = true
+let b = false
+if a and not b or b { print("x") }

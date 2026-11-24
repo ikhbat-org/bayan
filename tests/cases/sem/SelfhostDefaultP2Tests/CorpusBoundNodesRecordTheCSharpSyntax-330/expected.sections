@@ -1,0 +1,70 @@
+== tests/cases/run/union-values.byn
+165..267 switchExpr
+165..267 switchExpr
+165..267 switchExpr
+165..166 nameExpr
+180..185 constantPattern
+189..195 literalExpr string
+201..207 constantPattern
+211..218 literalExpr string
+224..231 constantPattern
+235..243 literalExpr string
+249..254 constantPattern
+258..264 literalExpr string
+288..474 blockStmt
+294..472 switchStmt
+301..302 nameExpr
+318..321 constantPattern
+335..346 exprStmt
+335..346 callExpr
+341..345 literalExpr string
+335..346 callExpr
+360..369 constantPattern
+383..401 exprStmt
+383..401 callExpr
+389..400 literalExpr string
+383..401 callExpr
+415..429 variantPattern
+422..425 varPattern
+443..466 exprStmt
+443..466 callExpr
+449..465 interpolatedExpr
+461..463 nameExpr
+443..466 callExpr
+476..531 globalStatement
+476..531 localDecl
+500..531 collectionExpr
+501..506 targetMemberExpr
+508..514 targetMemberExpr
+516..523 targetMemberExpr
+525..530 targetMemberExpr
+532..582 forStmt
+541..546 nameExpr
+547..582 blockStmt
+553..580 exprStmt
+553..580 callExpr
+559..579 interpolatedExpr
+562..573 callExpr
+571..572 nameExpr
+576..577 nameExpr
+553..580 callExpr
+583..639 exprStmt
+583..639 callExpr
+589..638 interpolatedExpr
+592..614 binaryExpr eq right 607..614
+592..603 memberExpr
+607..614 targetMemberExpr
+617..636 binaryExpr eq right 630..636
+617..626 memberExpr
+630..636 targetMemberExpr
+583..639 callExpr
+640..649 exprStmt
+640..649 callExpr
+645..648 targetMemberExpr
+650..670 exprStmt
+650..670 callExpr
+655..669 memberExpr
+671..692 exprStmt
+671..692 callExpr
+676..691 callExpr
+683..690 literalExpr string

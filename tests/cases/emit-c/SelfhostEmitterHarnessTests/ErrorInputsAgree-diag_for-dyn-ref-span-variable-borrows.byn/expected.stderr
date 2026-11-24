@@ -1,0 +1,10 @@
+error BYN3004: `xs` is modified while `d` still borrows it
+  --> input.byn:22:5
+
+  22 │     xs.append(S { n: 2 })
+     │     ^^^^^^^^^^^^^^^^^^^^^ `d` is used again on line 23
+     │
+  help: finish using `d` first, or copy what it needs before changing `xs`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3004

@@ -1,0 +1,15 @@
+error BYN3214: `xs` is borrowed for the call and cannot be stored
+  --> <repo>/tests/cases/diag/rest-escapes.byn:2:12
+
+  2 │     return xs
+    │            ^^
+    │
+  help: copy it first: `xs.copy()`
+
+error BYN3214: `xs` is borrowed for the call and cannot be stored
+  --> <repo>/tests/cases/diag/rest-escapes.byn:7:12
+
+  7 │     into = view
+    │            ^^^^
+    │
+  help: copy it first: `xs.copy()`

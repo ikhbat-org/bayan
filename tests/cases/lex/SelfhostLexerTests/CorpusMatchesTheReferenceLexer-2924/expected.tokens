@@ -1,0 +1,65 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 Identifier `beco`
+1:19 Identifier `me`
+3:1 StringLiteral `"a\u{2067}b"`
+5:1 IntegerLiteral `1__`
+6:1 CloseBrace `}`
+6:3 InterpolatedStringStart `$"`
+6:5 InterpolationStart `{`
+6:6 Identifier `a`
+6:8 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select beco�me
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select beco�me
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  1 │ macro select beco�me
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  6 │ } $"{a 
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string

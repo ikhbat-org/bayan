@@ -1,0 +1,15 @@
+2:2 Identifier `é`
+3:2 Identifier `foo`
+3:6 Identifier `Bar`
+3:10 Identifier `_x`
+3:13 Identifier `camelCase2`
+3:24 Identifier `بيان`
+3:29 Identifier `μετρητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^

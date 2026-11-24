@@ -1,0 +1,69 @@
+1:10 StructKeyword `struct`
+1:17 UniqueKeyword `unique`
+1:24 UnionKeyword `union`
+1:30 EnumKeyword `enum`
+1:35 Identifier `flag`
+1:40 Identifier `s`
+1:42 OpenKeyword `open`
+1:47 ExtensibleKeyword `extensible`
+1:58 InterfaceKeyword `interface`
+1:68 DelegateKeyword `delegate`
+1:77 ExtensionKeyword `extension`
+1:87 DerivationKeyword `derivation`
+1:98 AttributeKeyword `attribute`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `stray } here`
+4:15 InterpolatedStringEnd `"`
+5:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ ��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ /* � */��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ /* � */��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+    │          ^
+
+error BYN0002: unexpected character `\u{13}`
+
+  1 │ /* � */��struct unique union enum flag�s open extensible interface delegate extension derivation attribute
+    │                                       ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  4 │ $"stray } here"
+    │         ^
+    │
+    │ 4 │ $"stray }} here"
+    │   │          +

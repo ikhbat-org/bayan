@@ -1,0 +1,40 @@
+1:1 Identifier `Å`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolatedStringText `open `
+1:12 InterpolationStart `{`
+1:13 Identifier `x`
+1:14 Semicolon `;`
+2:2 IntegerLiteral `1`
+3:1 IntegerLiteral `0x_`
+4:3 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å ��$"open {x;
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å ��$"open {x;
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ Å ��$"open {x;
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ Å ��$"open {x;
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  1 │ Å ��$"open {x;
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x_
+    │ ^^^

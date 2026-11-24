@@ -1,0 +1,18 @@
+1:1 StringLiteral `" \u{202E}ne two.`
+2:1 Identifier `struc`
+2:8 Identifier `S`
+4:1 Identifier `b`
+5:1 Identifier `b`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ " �ne two.
+    │ ^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{B}`
+
+  2 │ struc� S
+    │      ^

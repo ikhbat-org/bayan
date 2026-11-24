@@ -1,0 +1,1 @@
+let n = xs.take(2).count()

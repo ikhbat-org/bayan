@@ -1,0 +1,87 @@
+1:1 CloseBrace `}`
+1:2 CharLiteral `'`
+2:1 CharLiteral `'\u{11000�0}'`
+3:1 CharLiteral `'x`
+5:1 Identifier `Å`
+7:3 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ '\u{11000�0}'
+    │ ^^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\u{11000`
+
+  2 │ '\u{11000�0}'
+    │  ^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  2 │ '\u{11000�0}'
+    │          ^
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  5 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ Å
+    │   │ +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  6 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │ ���� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  7 │ ���� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ���� 
+    │    ^

@@ -1,0 +1,7 @@
+error BYN2202: expected `void f(Panic p)`, found `void report(string)`
+  --> <repo>/tests/cases/diag/on-panic-signature.byn:6:21
+
+  6 │     Panic.handler = report
+    │                     ^^^^^^
+    │
+  help: name a function declared `void f(Panic p)`

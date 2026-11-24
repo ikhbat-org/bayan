@@ -1,0 +1,23 @@
+== 1 exit 0
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "IfStmt",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StringLength"
+  ],
+  "diagnostics": [
+    "BYN2311"
+  ]
+}

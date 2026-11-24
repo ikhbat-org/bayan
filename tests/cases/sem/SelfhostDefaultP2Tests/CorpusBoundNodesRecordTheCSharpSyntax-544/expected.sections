@@ -1,0 +1,11 @@
+== tests/cases/diag/index-out-of-range.byn
+0..26 globalStatement
+0..26 localDecl
+17..26 collectionExpr
+18..19 literalExpr integer
+21..22 literalExpr integer
+24..25 literalExpr integer
+27..40 localDecl
+35..40 indexExpr
+35..37 nameExpr
+38..39 literalExpr integer

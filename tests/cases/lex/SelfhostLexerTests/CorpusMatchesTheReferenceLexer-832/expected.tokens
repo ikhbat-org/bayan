@@ -1,0 +1,24 @@
+1:1 Identifier `ạ̇`
+2:1 Identifier `ef`
+2:4 OutKeyword `out`
+2:8 ThisKeyword `this`
+2:13 NullKeyword `null`
+2:18 TrueKeyword `true`
+2:23 FalseKeyword `false`
+2:29 ComptimeKeyword `comptime`
+2:38 CheckedKeyword `checked`
+3:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇�
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇�
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ ạ̇�
+    │    ^

@@ -1,0 +1,32 @@
+1:1 NeverKeyword `never`
+1:7 Identifier `closed`
+2:1 Identifier `b`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 Identifier `nt`
+4:14 WithKeyword `with`
+4:19 MoveKeyword `move`
+4:24 RefKeyword `ref`
+4:28 OutKeyword `out`
+4:32 ThisKeyword `this`
+4:37 NullKeyword `null`
+4:42 TrueKeyword `true`
+4:48 Identifier `alse`
+4:53 ComptimeKeyword `comptime`
+4:62 CheckedKeyword `checked`
+5:1 IntegerLiteral `1_`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `\u{16}`
+
+  4 │ is and or nt with move ref out this null true �alse comptime checked
+    │                                               ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -

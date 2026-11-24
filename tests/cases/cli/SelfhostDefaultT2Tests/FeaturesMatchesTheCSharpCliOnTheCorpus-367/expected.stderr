@@ -1,0 +1,27 @@
+error BYN2770: unknown attribute `allow`
+  --> <repo>/tests/cases/parse/because.byn:1:2
+
+  1 │ @allow(unusedValue) because "the cache is warmed for its effect"
+    │  ^^^^^
+    │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+error BYN1016: `@cases` is not allowed here
+  --> <repo>/tests/cases/parse/because.byn:2:1
+
+  2 │ @cases(1) because "x"
+    │ ^^^^^^^^^
+    │
+  help: put `@cases(...)` on a test that takes parameters
+
+error BYN2001: `countUnchecked` is not defined
+  --> <repo>/tests/cases/parse/because.byn:4:13
+
+  4 │     let n = countUnchecked(xs) because "xs is never empty here"
+    │             ^^^^^^^^^^^^^^
+
+error BYN2001: `xs` is not defined
+  --> <repo>/tests/cases/parse/because.byn:4:28
+
+  4 │     let n = countUnchecked(xs) because "xs is never empty here"
+    │                            ^^

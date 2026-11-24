@@ -1,0 +1,48 @@
+== tests/cases/run/for-dyn-ref-mutate.byn
+255..493 blockStmt
+261..299 localDecl
+275..299 collectionExpr
+276..286 structLiteralExpr
+283..284 literalExpr integer
+288..298 structLiteralExpr
+295..296 literalExpr integer
+304..351 forStmt
+325..326 nameExpr
+327..351 blockStmt
+337..345 exprStmt
+337..345 callExpr
+337..338 nameExpr
+356..373 localDecl
+364..373 callExpr
+378..398 exprStmt
+378..398 callExpr
+378..379 nameExpr
+387..397 structLiteralExpr
+394..395 literalExpr integer
+403..450 forStmt
+424..425 nameExpr
+426..450 blockStmt
+436..444 exprStmt
+436..444 callExpr
+436..437 nameExpr
+455..491 exprStmt
+455..491 callExpr
+461..490 interpolatedExpr
+464..470 memberExpr
+464..468 indexExpr
+464..465 nameExpr
+466..467 literalExpr integer
+473..479 memberExpr
+473..477 indexExpr
+473..474 nameExpr
+475..476 literalExpr integer
+482..488 memberExpr
+482..486 indexExpr
+482..483 nameExpr
+484..485 literalExpr integer
+455..491 callExpr
+217..239 blockStmt
+227..233 assignStmt add target 227..228 value 232..233
+227..228 nameExpr
+227..228 nameExpr
+232..233 literalExpr integer

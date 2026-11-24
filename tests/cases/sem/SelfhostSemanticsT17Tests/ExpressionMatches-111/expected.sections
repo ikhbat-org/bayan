@@ -1,0 +1,3 @@
+== case name-function
+errorExpr 1444..1451 : ?
+BYN2019 74:16 `modFunc` is a function, not a value ||call it: `modFunc()`|

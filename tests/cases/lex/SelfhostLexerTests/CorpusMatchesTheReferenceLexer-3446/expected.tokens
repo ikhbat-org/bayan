@@ -1,0 +1,71 @@
+1:2 Identifier `x́́`
+3:2 Identifier `foo`
+3:6 Identifier `Bar`
+3:10 Identifier `_x`
+3:13 Identifier `camelCase2`
+3:24 Identifier `بيان`
+3:29 Identifier `μετρητής`
+3:38 Identifier `x_1`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+6:2 Identifier `allowed`
+6:10 InKeyword `in`
+6:13 Identifier `sGtrings`
+6:21 StringLiteral `" "`
+6:24 StringLiteral `" "`
+6:28 Identifier `u`
+6:29 OpenBrace `{`
+6:30 IntegerLiteral `48`
+6:32 CloseBrace `}`
+6:33 Identifier `i`
+6:34 StringLiteral `"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �x́́
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ �// comment � hidden
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �// comment � hidden
+    │   │ -
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ �// comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �// comment � hidden
+    │   │             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  foo Bar _x camelCase2 بيان μετρητής x_1 �
+    │                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  6 │ � allowed in sGtrings" "" "\u{48}i"
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  6 │ � allowed in sGtrings" "" "\u{48}i"
+    │                            ^
+
+error BYN0003: unterminated string literal
+
+  6 │ � allowed in sGtrings" "" "\u{48}i"
+    │                                   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

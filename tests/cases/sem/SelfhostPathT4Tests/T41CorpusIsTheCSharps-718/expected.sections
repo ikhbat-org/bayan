@@ -1,0 +1,2 @@
+== diags.diag/not-constant
+BYN2219 3:16 a `const` must be a compile-time constant

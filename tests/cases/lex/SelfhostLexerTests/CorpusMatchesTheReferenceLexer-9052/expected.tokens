@@ -1,0 +1,35 @@
+1:1 StringLiteral `"{ `
+2:2 StringLiteral `"stray } here"`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ 
+    │ ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  2 │  �"stray } here"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  � �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │  � �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │  � �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │  � �
+    │     ^

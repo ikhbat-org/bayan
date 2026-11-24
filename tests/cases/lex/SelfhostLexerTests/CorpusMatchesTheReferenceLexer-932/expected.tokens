@@ -1,0 +1,39 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+2:2 Amp `&`
+2:4 AmpAmp `&&`
+2:7 Bar `|`
+2:9 BarBar `||`
+2:12 Caret `^`
+2:14 Tilde `~`
+2:16 Bang `!`
+2:18 Equals `=`
+2:20 EqualsEquals `==`
+2:23 BangEquals `!=`
+2:26 Less `<`
+2:28 Less `<`
+2:30 Greater `>`
+2:32 GreaterEquals `>=`
+2:35 LessLess `<<`
+2:38 Greater `>`
+2:39 Greater `>`
+2:41 Greater `>`
+2:42 GreaterEquals `>=`
+4:1 CharLiteral `'\u{D800}'`
+5:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

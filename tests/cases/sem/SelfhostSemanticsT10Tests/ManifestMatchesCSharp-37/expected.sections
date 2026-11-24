@@ -1,0 +1,12 @@
+== case inline/style-lint-unknown
+errors 2
+error BYN3102: `style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`,
+`nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`,
+`literals.empty`, `optionals.bind`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { lints: ["guards.prefix": .warning, 1: .none] } }
+    │                                                                     ^^^^^^^^^^^^^^^
+error BYN3102: `style.lints` must be a known lint name: `guards.postfix`, `lambdas.it`,
+`nesting.depth`, `functions.length`, `conditions.named`, `sections.banner`, `conditions.patterns`,
+`literals.empty`, `optionals.bind`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { lints: ["guards.prefix": .warning, 1: .none] } }
+    │                                                                                                ^

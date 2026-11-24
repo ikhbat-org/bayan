@@ -1,0 +1,8 @@
+// sabk: the native debug backend, phase 1 (spec 024). Imports every submodule so that
+// `bayan test --package src src/sabk` reaches them all; nothing outside `src/sabk` imports it.
+
+import sabk.enc
+import sabk.sir
+import sabk.macho
+import sabk.ra
+import sabk.check

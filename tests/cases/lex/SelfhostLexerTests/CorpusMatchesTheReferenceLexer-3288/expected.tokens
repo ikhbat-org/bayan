@@ -1,0 +1,36 @@
+1:1 Identifier `oc4line`
+1:9 Identifier `one`
+1:12 Dot `.`
+    doc `/// Doc `
+3:2 CharLiteral `'x`
+4:1 RawStringLiteral `"""`
+4:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �'x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �'x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �'x
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  3 │ �'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

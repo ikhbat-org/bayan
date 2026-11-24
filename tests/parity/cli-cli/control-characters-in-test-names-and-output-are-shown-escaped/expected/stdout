@@ -1,0 +1,11 @@
+== 1 exit 3
+running 3 tests in 1 module
+  * cli-test-control: ok\u{1b}]0;PWNED\u{7}
+  * cli-test-control: later\u{1b}[2J (pending)
+
+  x cli-test-control: y\u{1b}]0;PWNED\u{7}\u{1b}[2J
+      boom\u{1b}[2J\u{9b}31m
+      main.test.byn:10
+
+* 1 passed - x 1 failed - 1 pending - #s
+  a failing test's name contains control characters and cannot be selected from a shell

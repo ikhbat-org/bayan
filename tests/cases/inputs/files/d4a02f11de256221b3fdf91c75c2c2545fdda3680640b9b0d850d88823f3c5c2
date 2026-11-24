@@ -1,0 +1,6 @@
+( ) [ ] { }
+ _ Ã0 42 1_000_000 0xFF Ðx_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+  } here"
+$"open {x";
+  """ c"tet" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+ 

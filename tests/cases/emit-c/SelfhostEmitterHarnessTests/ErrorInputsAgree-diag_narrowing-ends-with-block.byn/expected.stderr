@@ -1,0 +1,8 @@
+error BYN2208: `+` cannot be applied to `i64?` and `i64`
+  --> input.byn:5:12
+
+  5 │     return p + 1
+    │            ^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2208

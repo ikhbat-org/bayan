@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "arithmetic.byn",
+      "name": "main",
+      "span": {
+        "start": 0,
+        "end": 15
+      },
+      "bindings": [
+        {
+          "name": "a",
+          "kind": "let",
+          "span": {
+            "start": 4,
+            "end": 5
+          },
+          "type": "i64"
+        },
+        {
+          "name": "b",
+          "kind": "let",
+          "span": {
+            "start": 20,
+            "end": 21
+          },
+          "type": "i64"
+        },
+        {
+          "name": "x",
+          "kind": "let",
+          "span": {
+            "start": 122,
+            "end": 123
+          },
+          "type": "u8"
+        },
+        {
+          "name": "big",
+          "kind": "let",
+          "span": {
+            "start": 202,
+            "end": 205
+          },
+          "type": "i32"
+        },
+        {
+          "name": "h",
+          "kind": "let",
+          "span": {
+            "start": 343,
+            "end": 344
+          },
+          "type": "f64"
+        },
+        {
+          "name": "single",
+          "kind": "let",
+          "span": {
+            "start": 416,
+            "end": 422
+          },
+          "type": "f32"
+        },
+        {
+          "name": "wide",
+          "kind": "let",
+          "span": {
+            "start": 535,
+            "end": 539
+          },
+          "type": "i64"
+        },
+        {
+          "name": "c",
+          "kind": "let",
+          "span": {
+            "start": 590,
+            "end": 591
+          },
+          "type": "rune"
+        },
+        {
+          "name": "abc",
+          "kind": "let",
+          "span": {
+            "start": 649,
+            "end": 652
+          },
+          "type": "string"
+        },
+        {
+          "name": "low",
+          "kind": "let",
+          "span": {
+            "start": 736,
+            "end": 739
+          },
+          "type": "i64"
+        },
+        {
+          "name": "high",
+          "kind": "let",
+          "span": {
+            "start": 772,
+            "end": 776
+          },
+          "type": "u64"
+        },
+        {
+          "name": "tiny",
+          "kind": "let",
+          "span": {
+            "start": 842,
+            "end": 846
+          },
+          "type": "f64"
+        },
+        {
+          "name": "small",
+          "kind": "let",
+          "span": {
+            "start": 866,
+            "end": 871
+          },
+          "type": "f64"
+        },
+        {
+          "name": "huge",
+          "kind": "let",
+          "span": {
+            "start": 890,
+            "end": 894
+          },
+          "type": "f64"
+        },
+        {
+          "name": "large",
+          "kind": "let",
+          "span": {
+            "start": 925,
+            "end": 930
+          },
+          "type": "f64"
+        }
+      ]
+    }
+  ]
+}

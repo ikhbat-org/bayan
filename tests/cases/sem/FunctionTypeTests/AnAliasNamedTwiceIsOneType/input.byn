@@ -1,0 +1,10 @@
+type Pred = i32 -> bool
+
+bool a(Pred p) => true
+
+bool b(Pred p) => true
+
+bool d((i32 -> bool) p) => true
+
+void main() {
+}

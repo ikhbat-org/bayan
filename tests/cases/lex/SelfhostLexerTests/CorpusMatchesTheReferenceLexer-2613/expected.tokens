@@ -1,0 +1,36 @@
+1:1 StringLiteral `"a\u{2067}b"`
+1:6 IntegerLiteral `1_`
+2:4 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ "a�b"1_
+    │       ^
+    │
+    │ 1 │ "a�b"1_
+    │   │       -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  ����� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  ����� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����� 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����� 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����� 
+    │      ^

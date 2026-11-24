@@ -1,0 +1,54 @@
+1:1 Identifier `ȧ`
+1:4 StringLiteral `"}"`
+1:7 CloseBrace `}`
+1:8 StringLiteral `"}"`
+1:11 CloseBrace `}`
+1:12 StringLiteral `"}"`
+1:15 CloseBrace `}`
+1:16 StringLiteral `"}"`
+1:19 CloseBrace `}`
+1:20 StringLiteral `"}"`
+1:23 CloseBrace `}`
+1:24 StringLiteral `"}"`
+1:27 CloseBrace `}`
+1:28 StringLiteral `"}"`
+1:31 CloseBrace `}`
+1:32 StringLiteral `"}"`
+2:3 Identifier `b`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+6:1 EndOfFile
+
+error BYN0005: identifier `ȧ` is not in Unicode normalization form C
+
+  1 │ ȧ�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ȧ�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ ȧ�"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  2 │ � b
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

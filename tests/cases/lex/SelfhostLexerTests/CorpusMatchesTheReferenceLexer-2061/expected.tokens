@@ -1,0 +1,61 @@
+1:1 OpenBrace `{`
+1:4 IntegerLiteral `5`
+1:6 IntegerLiteral `250`
+1:9 NumericSuffix `ms`
+1:12 IntegerLiteral `4`
+1:13 NumericSuffix `KB`
+1:16 IntegerLiteral `1`
+1:17 NumericSuffix `u`
+1:19 IntegerLiteral `0xFF`
+1:23 NumericSuffix `u`
+1:25 IntegerLiteral `0b1`
+1:28 NumericSuffix `ul`
+2:1 CharLiteral `'\u{D800}'`
+5:1 Plus `+`
+5:3 Minus `-`
+5:5 Star `*`
+5:7 Slash `/`
+5:9 Percent `%`
+5:11 PlusPercent `+%`
+5:14 MinusPercent `-%`
+5:17 StarPercent `*%`
+5:20 Bar `|`
+5:22 MinusBar `-|`
+5:25 StarBar `*|`
+5:28 PlusPlus `++`
+5:31 MinusMinus `--`
+6:2 LetKeyword `let`
+6:6 Identifier `x`
+6:9 Equals `=`
+6:11 IntegerLiteral `1`
+8:1 Identifier `c`
+8:3 Greater `>`
+8:4 GreaterEquals `>=`
+8:7 IntegerLiteral `1`
+9:1 LetKeyword `let`
+9:5 EffectKeyword `effect`
+9:12 Equals `=`
+9:14 IntegerLiteral `2`
+10:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │  let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  let x� = 1
+    │   │       -

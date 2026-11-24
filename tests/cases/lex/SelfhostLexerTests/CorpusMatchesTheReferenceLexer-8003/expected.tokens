@@ -1,0 +1,113 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+4:1 Identifier `Å`
+5:1 Equals `=`
+5:3 BarEquals `|=`
+5:6 CaretEquals `^=`
+5:9 LessLessEquals `<<=`
+6:2 LetKeyword `let`
+6:6 Identifier `actor`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `total `
+7:9 InterpolationStart `{`
+7:11 Identifier `x`
+7:12 InterpolationEnd `}`
+7:13 InterpolatedStringEnd `"`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolatedStringText `a `
+7:19 InterpolationStart `{`
+7:20 Identifier `f`
+7:21 OpenParen `(`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolatedStringText `b `
+7:26 InterpolationStart `{`
+7:27 Identifier `c`
+7:28 InterpolationEnd `}`
+7:29 InterpolatedStringEnd `"`
+7:30 CloseParen `)`
+7:31 InterpolationEnd `}`
+7:32 InterpolatedStringText ` d`
+7:34 InterpolatedStringEnd `"`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolatedStringText `{{literal}}`
+7:49 InterpolatedStringEnd `"`
+7:51 InterpolatedStringStart `$"`
+7:53 InterpolationStart `{`
+7:54 Identifier `Point`
+7:60 OpenBrace `{`
+7:62 Identifier `x`
+7:64 Equals `=`
+7:66 IntegerLiteral `1`
+7:68 CloseBrace `}`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringText `!`
+7:71 InterpolatedStringEnd `"`
+7:73 InterpolatedStringStart `$"`
+7:75 InterpolatedStringEnd `"`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolatedStringText `open `
+8:9 InterpolationStart `{`
+8:10 Identifier `x`
+8:11 StringLiteral `";`
+10:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  �
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │ Å
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ Å
+    │   │ +
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  7 │ $"total {�x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  8 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,5 @@
+ô€€ """ c"text"ç u16'\q'
+ c >>= 1
+ macro selectybecome
+ '\u{110000}'
+'\u{D800}'

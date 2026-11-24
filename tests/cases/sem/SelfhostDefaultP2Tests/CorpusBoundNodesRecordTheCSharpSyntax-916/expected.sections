@@ -1,0 +1,10 @@
+== tests/cases/diag/union-pattern-arity.byn
+80..140 switchExpr
+80..140 switchExpr
+80..140 switchExpr
+80..81 nameExpr
+95..109 variantPattern
+103..106 varPattern
+113..114 nameExpr
+120..132 variantPattern
+136..137 nameExpr

@@ -1,0 +1,87 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 Identifier `b`
+4:1 Slash `/`
+4:3 Slash `/`
+4:5 Identifier `Doc`
+4:9 Identifier `line`
+4:14 Identifier `one`
+4:17 Dot `.`
+7:1 CharLiteral `'ab'`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolatedStringText `M`
+8:14 InterpolationStart `{`
+8:15 InterpolatedStringStart `$"`
+8:17 InterpolationStart `{`
+8:18 InterpolatedStringStart `$"`
+8:20 InterpolationStart `{`
+8:21 InterpolatedStringStart `$"`
+8:23 InterpolationStart `{`
+8:26 OpenBrace `{`
+8:27 InterpolatedStringStart `$"`
+8:29 InterpolationStart `{`
+8:30 InterpolatedStringStart `$"`
+8:32 InterpolationStart `{`
+8:33 InterpolatedStringStart `$"`
+8:35 InterpolationStart `{`
+8:36 InterpolatedStringStart `$"`
+8:38 InterpolationStart `{`
+8:39 InterpolatedStringStart `$"`
+8:41 InterpolationStart `{`
+8:42 InterpolatedStringStart `$"`
+8:44 InterpolationStart `{`
+8:45 Identifier `x`
+8:46 InterpolationEnd `}`
+8:47 InterpolatedStringEnd `"`
+8:48 InterpolationEnd `}`
+8:49 InterpolatedStringEnd `"`
+8:50 InterpolationEnd `}`
+8:51 InterpolatedStringEnd `"`
+8:53 EndOfFile
+
+error BYN0002: unexpected character `\u{3}`
+
+  4 │ /�/ Doc line one.
+    │  ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  6 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ �
+    │   │ -
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  7 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `$`
+
+  8 │  $"{$"{$"{$"M{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{x}"}"}" 
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  8 │  $"{$"{$"{$"M{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{x}"}"}" 
+    │                         ^
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{$"{$"{$"M{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{x}"}"}" 
+    │                                 ^^ this string never ends
+    │
+  help: close the `{` and the string

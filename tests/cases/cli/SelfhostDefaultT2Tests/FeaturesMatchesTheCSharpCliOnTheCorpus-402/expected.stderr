@@ -1,0 +1,8 @@
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tests/cases/parse/lambdas.byn:23:5
+
+  23 │     (a, b) => a
+     │     ^^^^^^^^^^^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone

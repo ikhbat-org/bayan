@@ -1,0 +1,34 @@
+1:1 Identifier `ails`
+1:6 TryKeyword `try`
+1:10 CatchKeyword `catch`
+1:16 NeverKeyword `never`
+1:22 NoallocKeyword `noalloc`
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.5`
+2:25 NumericSuffix `dec`
+2:29 IntegerLiteral `1`
+2:30 DotDot `..`
+2:32 IntegerLiteral `2`
+2:34 IntegerLiteral `1`
+2:35 DotDotEquals `..=`
+2:38 IntegerLiteral `3`
+2:40 IntegerLiteral `5`
+2:41 NumericSuffix `e`
+2:43 Identifier `x`
+2:44 Dot `.`
+2:45 Identifier `y`
+2:47 FloatLiteral `2.5`
+2:50 NumericSuffix `f`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{ 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

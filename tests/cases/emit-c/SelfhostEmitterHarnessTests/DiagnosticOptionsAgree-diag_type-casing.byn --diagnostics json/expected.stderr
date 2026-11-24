@@ -1,0 +1,1 @@
+{"code":"BYN2008","severity":"error","file":"input.byn","span":{"start":7,"end":12,"line":1,"column":8,"endLine":1,"endColumn":13},"message":"type name `point` must be PascalCase","label":null,"help":"rename it `Point`","fixes":[{"span":{"start":7,"end":12,"line":1,"column":8,"endLine":1,"endColumn":13},"replacement":"Point"}]}

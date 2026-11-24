@@ -1,0 +1,11 @@
+// `Fs.copy` copies a file's bytes, keeps the source, and fails on a directory source.
+void main() uses fs, console, alloc fails IoError {
+    let data: u8[3] = [0x61, 0x62, 0x63]
+    try Io.writeFile("fs-copy-a.tmp", data.span)
+    try Fs.copy("fs-copy-a.tmp", to: "fs-copy-b.tmp")
+    print(try Io.readText("fs-copy-b.tmp"))
+    print($"source kept: {Fs.fileExists("fs-copy-a.tmp")}")
+    Fs.copy(".", to: "fs-copy-c.tmp") catch { print("directory: failed") }
+    try Io.remove("fs-copy-a.tmp")
+    try Io.remove("fs-copy-b.tmp")
+}

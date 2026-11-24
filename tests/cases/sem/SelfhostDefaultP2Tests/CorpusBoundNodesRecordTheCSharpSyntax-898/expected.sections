@@ -1,0 +1,10 @@
+== tests/cases/diag/try-wrong-return.byn
+100..124 blockStmt
+110..118 returnStmt value 117..118
+117..118 literalExpr integer
+148..149 literalExpr integer
+148..149 literalExpr integer
+148..149 literalExpr integer
+237..241 literalExpr nullKeyword
+237..241 literalExpr nullKeyword
+237..241 literalExpr nullKeyword

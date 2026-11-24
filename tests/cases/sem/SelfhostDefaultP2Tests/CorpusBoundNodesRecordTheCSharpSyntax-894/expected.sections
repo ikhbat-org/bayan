@@ -1,0 +1,13 @@
+== tests/cases/diag/trust-reason.byn
+0..41 globalStatement
+0..41 localDecl
+27..41 callExpr
+37..40 literalExpr string
+42..57 exprStmt
+42..57 callExpr
+48..56 callExpr
+42..57 callExpr
+58..84 exprStmt
+58..84 callExpr
+64..83 callExpr
+58..84 callExpr

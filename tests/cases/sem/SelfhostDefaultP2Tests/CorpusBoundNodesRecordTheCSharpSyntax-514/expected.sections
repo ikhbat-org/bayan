@@ -1,0 +1,4 @@
+== tests/cases/diag/fs-unknown-member.byn
+76..109 globalStatement
+76..109 localDecl
+88..109 callExpr

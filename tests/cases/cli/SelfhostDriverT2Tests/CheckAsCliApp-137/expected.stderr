@@ -1,0 +1,18 @@
+error BYN2321: `-1` violates `requires it > 0` of `Order`
+  --> <repo>/tmp/t2/diag/state-literal-violated/state-literal-violated.byn:9:31
+
+  9 │ let order = Order.draft { id: -1 }
+    │                               ^^ fails the contract
+    │
+  help: pass a value that meets `requires it > 0`
+
+error BYN2321: `0` violates `requires it > 0` of `Order`
+  --> <repo>/tmp/t2/diag/state-literal-violated/state-literal-violated.byn:10:29
+
+  10 │ let paid = Order.paid { id: 0, payment: 5 }
+     │                             ^ fails the contract
+     │
+  help: pass a value that meets `requires it > 0`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2321

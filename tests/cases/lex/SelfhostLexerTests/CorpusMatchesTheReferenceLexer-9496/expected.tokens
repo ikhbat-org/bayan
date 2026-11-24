@@ -1,0 +1,12 @@
+1:2 NeverKeyword `never`
+1:8 Identifier `cosed`
+2:1 Identifier `b`
+3:1 CharLiteral `'ab'`
+5:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

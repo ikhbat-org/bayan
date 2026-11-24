@@ -1,0 +1,72 @@
+== tests/cases/run/unique-return.byn
+153..238 blockStmt
+159..179 localDecl
+168..179 callExpr
+184..222 forStmt
+193..201 rangeExpr
+193..194 literalExpr integer
+196..201 nameExpr
+202..222 blockStmt
+204..220 exprStmt
+204..220 callExpr
+204..206 nameExpr
+214..219 binaryExpr mul right 218..219
+214..215 nameExpr
+218..219 nameExpr
+227..236 returnStmt value 234..236
+234..236 nameExpr
+267..364 blockStmt
+273..323 localDecl
+281..323 structLiteralExpr
+296..300 nameExpr
+311..321 callExpr
+319..320 literalExpr integer
+328..349 exprStmt
+328..349 callExpr
+328..337 memberExpr
+328..329 nameExpr
+345..348 literalExpr integer
+354..362 returnStmt value 361..362
+361..362 nameExpr
+407..409 nameExpr
+407..409 nameExpr
+407..409 nameExpr
+423..628 blockStmt
+429..448 localDecl
+438..448 callExpr
+446..447 literalExpr integer
+453..482 exprStmt
+453..482 callExpr
+459..481 interpolatedExpr
+462..471 memberExpr
+462..464 nameExpr
+474..479 indexExpr
+474..476 nameExpr
+477..478 literalExpr integer
+453..482 callExpr
+487..509 localDecl
+495..509 callExpr
+502..508 literalExpr string
+514..566 exprStmt
+514..566 callExpr
+520..565 interpolatedExpr
+523..529 memberExpr
+523..524 nameExpr
+532..548 memberExpr
+532..541 memberExpr
+532..533 nameExpr
+551..563 indexExpr
+551..560 memberExpr
+551..552 nameExpr
+561..562 literalExpr integer
+514..566 callExpr
+571..600 localDecl
+580..600 callExpr
+589..599 callExpr
+597..598 literalExpr integer
+605..626 exprStmt
+605..626 callExpr
+611..625 interpolatedExpr
+614..623 memberExpr
+614..616 nameExpr
+605..626 callExpr

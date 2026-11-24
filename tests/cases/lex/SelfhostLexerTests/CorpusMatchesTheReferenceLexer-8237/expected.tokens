@@ -1,0 +1,12 @@
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never closed\r\nif else unless switch case default for in while do break continue return yield defer errdefer using context\r\n  raw "quoted"\r\n `
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

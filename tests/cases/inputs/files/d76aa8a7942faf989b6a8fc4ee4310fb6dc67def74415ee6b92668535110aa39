@@ -1,0 +1,65 @@
+enum Tint {
+    red
+    green
+    blue
+}
+
+Tint tint(i64 c) {
+    if c < 1 {
+        return .red
+    }
+    if c < 2 {
+        return .green
+    }
+    return .blue
+}
+
+(Tint, string) make(i64 code) uses alloc {
+    return (tint(code / 1 % 3), $"s{code / 3 % 8}")
+}
+
+void main() {
+    var m = Map<(Tint, string), i64>()
+    var n = Map<(Tint, string), i64>()
+    m[(Tint.red, "s4")] = 1
+    m[make(12)] = 12
+    n[make(12)] = 1
+    n[(Tint.red, "s4")] = 12
+    m[(Tint.green, "s4")] = 1
+    m[make(13)] = 13
+    n[make(13)] = 1
+    n[(Tint.green, "s4")] = 13
+    m[(Tint.red, "s5")] = 1
+    m[make(15)] = 15
+    n[make(15)] = 1
+    n[(Tint.red, "s5")] = 15
+    m[(Tint.green, "s0")] = 1
+    m[make(1)] = 1
+    n[make(1)] = 1
+    n[(Tint.green, "s0")] = 1
+    m[(Tint.red, "s1")] = 1
+    m[make(3)] = 3
+    n[make(3)] = 1
+    n[(Tint.red, "s1")] = 3
+    m[(Tint.blue, "s2")] = 1
+    m[make(8)] = 8
+    n[make(8)] = 1
+    n[(Tint.blue, "s2")] = 8
+    m[(Tint.red, "s7")] = 1
+    m[make(21)] = 21
+    n[make(21)] = 1
+    n[(Tint.red, "s7")] = 21
+    m[(Tint.red, "s2")] = 1
+    m[make(6)] = 6
+    n[make(6)] = 1
+    n[(Tint.red, "s2")] = 6
+    print($"{m.length} {n.length}")
+    print($"{m[make(12)]} {n[(Tint.red, "s4")]} {m.contains((Tint.red, "s4"))}")
+    print($"{m[make(13)]} {n[(Tint.green, "s4")]} {m.contains((Tint.green, "s4"))}")
+    print($"{m[make(15)]} {n[(Tint.red, "s5")]} {m.contains((Tint.red, "s5"))}")
+    print($"{m[make(1)]} {n[(Tint.green, "s0")]} {m.contains((Tint.green, "s0"))}")
+    print($"{m[make(3)]} {n[(Tint.red, "s1")]} {m.contains((Tint.red, "s1"))}")
+    print($"{m[make(8)]} {n[(Tint.blue, "s2")]} {m.contains((Tint.blue, "s2"))}")
+    print($"{m[make(21)]} {n[(Tint.red, "s7")]} {m.contains((Tint.red, "s7"))}")
+    print($"{m[make(6)]} {n[(Tint.red, "s2")]} {m.contains((Tint.red, "s2"))}")
+}

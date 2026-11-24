@@ -1,0 +1,5 @@
+== case inline/grammar-other-type
+errors 1
+error BYN3102: `grammar` must be a `Grammar { … }`
+  1 │ Package { name: "local/a", version: "0.1.0", grammar: Style { } }
+    │                                                       ^^^^^^^^^

@@ -1,0 +1,86 @@
+1:2 Identifier `_`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:10 Identifier `r`
+5:12 IntegerLiteral `1`
+6:2 IfKeyword `if`
+6:5 ElseKeyword `else`
+6:10 UnlessKeyword `unless`
+6:17 SwitchKeyword `switch`
+6:24 CaseKeyword `case`
+6:29 DefaultKeyword `default`
+6:37 ForKeyword `for`
+6:41 InKeyword `in`
+6:44 WhileKeyword `while`
+6:50 DoKeyword `do`
+6:53 BreakKeyword `break`
+6:59 Identifier `cont`
+6:64 Identifier `nue`
+6:68 ReturnKeyword `return`
+6:75 YieldKeyword `yield`
+6:81 DeferKeyword `defer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
+8:1 CharLiteral `' '`
+8:6 CharLiteral `' '`
+8:10 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����_
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����_
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����_
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����_
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  6 │  if else unless switch case default for in while do break cont�nue return yield defer errdefer �using context
+    │                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  6 │  if else unless switch case default for in while do break cont�nue return yield defer errdefer �using context
+    │                                                                                                ^
+
+error BYN0002: unexpected character `\`
+
+  8 │ ' '\\' '\
+    │    ^
+
+error BYN0002: unexpected character `\`
+
+  8 │ ' '\\' '\
+    │     ^
+
+error BYN0002: unexpected character `\`
+
+  8 │ ' '\\' '\
+    │         ^

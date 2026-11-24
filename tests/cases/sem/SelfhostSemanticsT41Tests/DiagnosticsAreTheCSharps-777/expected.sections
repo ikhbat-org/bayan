@@ -1,0 +1,4 @@
+== diags.diag/duplicate-error-case
+BYN3202 11:1 `CarrierError` and `StockError` both have a case `rejected`
+  label two cases `rejected`
+  help rename one case, or compose fewer sets

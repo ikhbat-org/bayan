@@ -1,0 +1,70 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nlet c = \u{7} 3\n  """`
+6:7 CStringLiteral `c"text"`
+6:15 U16StringLiteral `u16"wide"`
+6:25 StringLiteral `"\u{202E} allowed in strings"`
+6:48 StringLiteral `""`
+6:51 StringLiteral `"\u{48}i ray } here"`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `ope `
+7:7 InterpolationStart `{`
+7:8 Identifier `x`
+7:9 StringLiteral `";`
+8:2 LetKeyword `let`
+8:6 Identifier `b`
+8:8 Equals `=`
+8:10 StringLiteral `"bad \q escape"`
+9:2 OpenParen `(`
+9:3 CloseParen `)`
+9:5 OpenBracket `[`
+9:6 OpenBrace `{`
+9:7 CloseBracket `]`
+9:9 OpenBrace `{`
+9:11 CloseBrace `}`
+11:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"ope {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"ope {x";
+    │         ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  8 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  9 │  (�) [{] { }
+    │   ^

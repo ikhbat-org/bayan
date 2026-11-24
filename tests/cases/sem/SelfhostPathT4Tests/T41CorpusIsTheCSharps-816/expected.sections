@@ -1,0 +1,6 @@
+== diags.diag/untrusted-no-implicit
+BYN2202 6:17 expected `string`, found `Untrusted<string>`
+BYN2202 7:28 expected `Untrusted<string>`, found `string`
+BYN2202 8:6 expected `string`, found `Untrusted<string>`
+BYN2225 9:10 `Untrusted<string>` cannot be formatted
+BYN2202 10:7 expected `Untrusted<string>`, found `string`

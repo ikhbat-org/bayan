@@ -1,0 +1,17 @@
+1:1 IntegerLiteral `0b102`
+3:1 DotDot `..`
+3:4 IntegerLiteral `0b1`
+3:7 NumericSuffix `s`
+4:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a binary literal
+
+  3 │ .. 0b1s
+    │       ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

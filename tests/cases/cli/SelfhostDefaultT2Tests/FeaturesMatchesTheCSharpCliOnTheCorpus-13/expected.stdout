@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssertStmt",
+    "BinaryExpr",
+    "GlobalStatement",
+    "LocalDecl",
+    "NameExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [],
+  "diagnostics": []
+}

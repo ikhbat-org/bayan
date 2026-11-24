@@ -1,0 +1,13 @@
+1:1 Identifier `ext`
+1:4 StringLiteral `"� u16"`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �ext"� u16" //// not a doc comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  1 │ �ext"� u16" //// not a doc comment
+    │      ^

@@ -1,0 +1,42 @@
+1:3 IntegerLiteral `0`
+1:5 IntegerLiteral `42`
+1:8 Identifier `_000_000`
+1:17 IntegerLiteral `0xFF`
+1:22 IntegerLiteral `0x_ff`
+1:28 IntegerLiteral `0b1010`
+1:35 IntegerLiteral `0B11`
+1:40 IntegerLiteral `5`
+1:42 IntegerLiteral `250`
+1:45 NumericSuffix `ms`
+1:48 IntegerLiteral `4`
+1:49 NumericSuffix `KiB`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
+2:2 IntegerLiteral `0x`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ��� 0 42 _000_000 0xFF 0x_ff 0b1010 0B11 5 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ��� 0 42 _000_000 0xFF 0x_ff 0b1010 0B11 5 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��� 0 42 _000_000 0xFF 0x_ff 0b1010 0B11 5 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │   ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^

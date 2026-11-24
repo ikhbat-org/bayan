@@ -1,0 +1,94 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+2:2 StructKeyword `struct`
+2:9 UniqueKeyword `unique`
+2:16 UnionKeyword `union`
+2:22 EnumKeyword `enum`
+2:27 FlagsKeyword `flags`
+2:33 OpenKeyword `open`
+2:38 ExtensibleKeyword `extensible`
+2:49 InterfaceKeyword `interface`
+2:59 DelegateKeyword `delegate`
+2:68 ExtensionKeyword `extension`
+2:78 DerivationKeyword `derivation`
+2:89 AttributeKeyword `attribute`
+4:1 CloseBrace `}`
+4:2 OpenParen `(`
+4:4 CloseParen `)`
+4:6 OpenBracket `[`
+4:8 CloseBracket `]`
+4:10 OpenBrace `{`
+4:12 CloseBrace `}`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 Identifier `x`
+5:6 StringLiteral `"}"`
+5:9 InterpolationEnd `}`
+5:10 InterpolatedStringEnd `"`
+5:11 CloseBrace `}`
+5:12 StringLiteral `"}"`
+5:15 CloseBrace `}`
+5:16 StringLiteral `"}"`
+5:19 CloseBrace `}`
+5:20 StringLiteral `"}"`
+5:23 CloseBrace `}`
+5:24 StringLiteral `"}"`
+5:27 CloseBrace `}`
+5:28 StringLiteral `"}"`
+5:31 CloseBrace `}`
+5:32 StringLiteral `"}"`
+5:35 CloseBrace `}`
+5:36 StringLiteral `"}"`
+5:39 CloseBrace `}`
+5:40 StringLiteral `"}"`
+5:43 CloseBrace `}`
+5:44 StringLiteral `"`
+7:1 Amp `&`
+7:3 AmpAmp `&&`
+7:6 Bar `|`
+7:8 BarBar `||`
+7:11 Caret `^`
+7:13 Tilde `~`
+7:15 Bang `!`
+7:17 Equals `=`
+7:19 EqualsEquals `==`
+7:22 BangEquals `!=`
+7:25 Less `<`
+7:27 LessEquals `<=`
+7:30 Greater `>`
+7:32 GreaterEquals `>=`
+7:35 LessLess `<<`
+7:38 Greater `>`
+7:39 Greater `>`
+7:41 Greater `>`
+7:42 GreaterEquals `>=`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{x"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ��
+    │   ^

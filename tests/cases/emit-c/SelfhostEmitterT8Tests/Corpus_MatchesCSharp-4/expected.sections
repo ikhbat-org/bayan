@@ -1,0 +1,39 @@
+== corpus
+eq0 bynh_eq_err(a, b)
+eq1 bynh_eq_opt_err(a, b)
+eq2 bynh_eq_main__Flag(a, b)
+eq3 bynh_eq_main__Shape(a, b)
+eq4 bynh_eq_main__Pt(a, b)
+eq5 bynh_eq_arr2_main__Pt(a, b)
+eq6 bynh_eq_tup2_main__Pt_i64(a, b)
+eq7 bynh_eq_main__Order(a, b)
+eq8 bynh_eq_opt_main__Order(a, b)
+eq9 bynh_eq_main__Pt((*a), (*b))
+eq10 bynh_eq_main__Order(a, b)
+eq11 bynh_eq_err(a, b)
+fmt12 bynh_fmt_main__Flag(w, v);
+fmt13 bynh_fmt_main__Shape(w, v);
+fmt14 bynh_fmt_tup2_i64_bool(w, v);
+fmt15 bynh_fmt_map_i64_str(w, v);
+fmt16 bynh_fmt_main__One(w, v);
+fmt17 bynh_fmt_main__Two(w, v);
+fmt18 bynh_fmt_main__Both(w, v);
+map19 (*bynh_slot_map_main__Pt_i64(&m, k, ((int64_t){0})))
+map19 (*bynh_slot_map_main__Pt_i64(&m, k, d))
+map19 bynh_index_map_main__Pt_i64(m, k, L)
+map19 bynh_try_get_map_main__Pt_i64(m, k)
+map19 bynh_has_map_main__Pt_i64(m, k)
+map19 bynh_remove_map_main__Pt_i64(&m, k)
+map20 (*bynh_slot_map_main__Order_i64(&m, k, ((int64_t){0})))
+map20 (*bynh_slot_map_main__Order_i64(&m, k, d))
+map20 bynh_index_map_main__Order_i64(m, k, L)
+map20 bynh_try_get_map_main__Order_i64(m, k)
+map20 bynh_has_map_main__Order_i64(m, k)
+map20 bynh_remove_map_main__Order_i64(&m, k)
+map21 (*bynh_slot_map_i64_main__Shape(&m, k, ((byn_main_Shape){0})))
+map21 (*bynh_slot_map_i64_main__Shape(&m, k, d))
+map21 bynh_index_map_i64_main__Shape(m, k, L)
+map21 bynh_try_get_map_i64_main__Shape(m, k)
+map21 bynh_has_map_i64_main__Shape(m, k)
+map21 bynh_remove_map_i64_main__Shape(&m, k)
+hashes true

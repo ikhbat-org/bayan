@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/target-host.byn
+--package
+<repo>/tests/cases/run

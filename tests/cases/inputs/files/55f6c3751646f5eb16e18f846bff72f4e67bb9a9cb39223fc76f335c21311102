@@ -1,0 +1,39 @@
+struct Digits : IIndexable {
+    type Item = i64
+    i64 count => 3
+    i64 get(i64 index) => index * 10
+}
+
+struct Countdown : IEnumerator {
+    type Item = i64
+    i64 left
+    bool moveNext(ref this) {
+        left -= 1
+        return left >= 0
+    }
+    i64 current => left
+}
+
+struct Holder {
+    ((i64 a, i64 b) p, i64 c) t
+}
+
+Digits mkDigits() { return Digits {} }
+Countdown mkCount() { return Countdown { left: 3 } }
+List<i64> mkList() {
+    var l = List<i64>()
+    return l
+}
+i64[2] mkArr() => [1, 2]
+void nothing() { }
+
+void rvalues(i64 n, through ref Holder h) {
+    var t = 0
+    for x in mkDigits() { t = x }
+    for x in mkCount() { t = x }
+    for x in mkList() { t = x }
+    for x in mkArr() { t = x }
+    h.t.p.a += n
+}
+
+void main() { }

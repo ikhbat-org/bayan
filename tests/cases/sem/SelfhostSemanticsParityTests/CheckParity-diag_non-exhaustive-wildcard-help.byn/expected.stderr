@@ -1,0 +1,10 @@
+error BYN2410: `switch` does not handle every `Color`
+  --> tmp/t26-tests/cli/diag_non-exhaustive-wildcard-help.byn/non-exhaustive-wildcard-help.byn:7:22
+
+  7 │ i64 code(Color c) => c switch {
+    │                      ^ not covered: .green, .blue
+    │
+  help: add the missing arms, or `_ => …` for the rest
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2410

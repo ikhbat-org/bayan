@@ -1,0 +1,77 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:4 Identifier `c`
+2:6 Greater `>`
+2:7 GreaterEquals `>=`
+2:10 IntegerLiteral `1`
+4:1 IntegerLiteral `1`
+4:2 Dot `.`
+6:2 CloseBrace `}`
+6:3 StringLiteral `"}"`
+6:6 CloseBrace `}`
+6:7 StringLiteral `"}"`
+6:10 CloseBrace `}`
+6:11 StringLiteral `"}"`
+6:14 CloseBrace `}`
+6:15 StringLiteral `"}"`
+6:18 CloseBrace `}`
+6:19 StringLiteral `"b"`
+6:22 CloseBrace `}`
+6:23 StringLiteral `"}"`
+6:26 CloseBrace `}`
+7:1 LetKeyword `let`
+7:7 Equals `=`
+7:9 IntegerLiteral `2`
+8:2 Identifier `ạ̇`
+8:5 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │  ��� c >>= 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  ��� c >>= 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ��� c >>= 1
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ // comment � hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ let � = 2
+    │     ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  8 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │  ạ̇
+    │   │  ++

@@ -1,0 +1,9 @@
+‮
+'x
+// line comment
+
+﻿ let c =  3
+
++ - * / % +% -% *% +| -| *| ++ --
+
+let b = "bad \q escape"

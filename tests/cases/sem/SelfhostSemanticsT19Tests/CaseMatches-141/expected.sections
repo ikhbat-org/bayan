@@ -1,0 +1,4 @@
+== bind.probes.s8
+flags 0
+errorExpr:?[4365:13]=-()
+BYN2002 219:14 unknown type `Nope` |||

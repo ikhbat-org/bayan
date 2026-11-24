@@ -1,0 +1,119 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 Identifier `t`
+1:6 Identifier `a`
+1:8 Equals `=`
+1:9 Colon `:`
+1:10 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
+4:2 OpenParen `(`
+4:4 CloseParen `)`
+4:6 OpenBracket `[`
+4:8 CloseBracket `]`
+4:10 OpenBrace `{`
+4:12 CloseBrace `}`
+6:2 Equals `=`
+6:4 IntegerLiteral `1`
+7:2 CharLiteral `'\q'`
+8:2 Identifier `t`
+8:4 Identifier `a`
+8:6 Equals `=`
+8:7 TestKeyword `test`
+8:12 AssertKeyword `assert`
+8:19 PropertyKeyword `property`
+8:28 FuzzKeyword `fuzz`
+8:33 ModelKeyword `model`
+8:39 ForeachKeyword `foreach`
+8:47 NewKeyword `new`
+8:51 GotoKeyword `goto`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 InterpolatedStringStart `$"`
+10:6 InterpolationStart `{`
+10:7 InterpolatedStringStart `$"`
+10:9 InterpolationStart `{`
+10:11 InterpolatedStringStart `$"`
+10:13 InterpolationStart `{`
+10:14 InterpolatedStringStart `$"`
+10:16 InterpolationStart `{`
+10:17 InterpolatedStringStart `$"`
+10:19 InterpolationStart `{`
+10:20 InterpolatedStringStart `$"`
+10:22 InterpolationStart `{`
+10:23 InterpolatedStringStart `$"`
+10:25 InterpolationStart `{`
+10:26 InterpolatedStringStart `$"`
+10:28 InterpolationStart `{`
+10:29 InterpolatedStringStart `$"`
+10:31 InterpolationStart `{`
+10:32 InterpolatedStringStart `$"`
+10:34 InterpolationStart `{`
+10:35 InterpolatedStringStart `$"`
+10:37 InterpolationStart `{`
+10:38 InterpolatedStringStart `$"`
+10:40 InterpolationStart `{`
+10:41 InterpolatedStringStart `$"`
+10:43 InterpolationStart `{`
+10:44 InterpolatedStringStart `$"`
+10:46 InterpolationStart `{`
+10:47 InterpolatedStringStart `$"`
+10:49 InterpolationStart `{`
+10:50 StringLiteral `$"{$"`
+10:55 OpenBrace `{`
+10:56 StringLiteral `$"{$"`
+10:61 OpenBrace `{`
+10:62 Identifier `x`
+10:63 CloseBrace `}`
+10:64 StringLiteral `"}"`
+10:67 CloseBrace `}`
+10:68 StringLiteral `" `
+10:70 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `\u{1C}`
+
+  8 │  t a =test assert�property fuzz model foreach new goto
+    │                  ^
+
+error BYN0002: unexpected character `\u{18}`
+
+  10 │ $"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" 
+     │          ^
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" 
+     │                                               ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ $"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" 
+     │                                                  ^^
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" 
+     │                                                                    ^^ string ends at the end
+     │                                                                       of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

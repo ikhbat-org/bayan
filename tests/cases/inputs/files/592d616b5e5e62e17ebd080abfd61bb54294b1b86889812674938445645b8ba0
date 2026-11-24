@@ -1,0 +1,13 @@
+union error Z {}
+
+struct N {
+    requires 1 == 1
+}
+
+i64 pz() fails Z => 1
+
+i64 hz() => pz() catch switch {
+    Z z => 0,
+}
+
+void main() {}

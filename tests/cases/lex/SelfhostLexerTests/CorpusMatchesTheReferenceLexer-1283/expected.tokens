@@ -1,0 +1,35 @@
+1:1 Identifier `b`
+2:2 CharLiteral `'é'`
+2:6 CharLiteral `'\\'`
+2:11 CharLiteral `'\�'`
+4:1 Identifier `a`
+10:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\�`
+
+  2 │  'é' '\\' '\�'
+    │            ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  2 │  'é' '\\' '\�'
+    │             ^
+
+error BYN0004: unterminated block comment
+
+  4 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  5 │ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"�"}"}"}"}"$"stray } here"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB0)
+
+  5 │ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"�"}"}"}"}"$"stray } here"
+    │                                                                       ^

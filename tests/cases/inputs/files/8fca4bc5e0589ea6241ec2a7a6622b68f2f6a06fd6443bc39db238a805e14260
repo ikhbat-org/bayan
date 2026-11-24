@@ -1,0 +1,6 @@
+let a = """
+    one
+      two
+
+    three
+    """

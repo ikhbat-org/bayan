@@ -1,0 +1,7 @@
+l…t c = """never closed
+€/// Doc line two.
+
+'ab'
+ let b = ` 2
+let c =  3
+

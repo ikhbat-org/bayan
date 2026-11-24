@@ -1,0 +1,11 @@
+let effect = 2
+
+{ let b ="bad \q escape"
+3.14 1e5 2.5e-3 6E+2 û.50dec 1..2 1..=3 5e x.y 2.5f
+
+1ms
+0x_
+0 ( ) [ ] { }
+
+let a = "open
+ 

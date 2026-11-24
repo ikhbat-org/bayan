@@ -1,0 +1,5 @@
+/* block
+
+á„€á…¡á†¨   """ c"text" u16"wide" "â€ø allowed in strings" "" "\u{48}i"
+a /* never closed
+1. 

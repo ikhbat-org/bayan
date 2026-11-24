@@ -1,0 +1,85 @@
+1:1 Identifier `ms`
+2:1 IntegerLiteral `0x_`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:2 Identifier `et`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:11 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `b`
+7:7 Equals `=`
+7:11 IntegerLiteral `2`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:11 IntegerLiteral `3`
+11:1 IntegerLiteral `0b102`
+13:1 Identifier `escape`
+13:7 StringLiteral `"`
+14:1 LetKeyword `let`
+14:5 Identifier `c`
+14:7 Equals `=`
+14:9 RawStringLiteral `"""never cloif elseunless switch case default for in while do break continue return yield defer errdefer using context\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"}"}"}"}"}"}"}"}" _ `
+15:79 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `$`
+
+  6 │  et a = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  7 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  8 │ let c = � 3
+    │         ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  11 │ 0b102
+     │     ^
+
+error BYN0003: unterminated string literal
+
+  13 │ escape"
+     │       ^ string ends at the end of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  14 │ let c = """never cloif elseunless switch case default for in while do break continue return yield defer errdefer using context
+     │         ^^^ raw string starts here
+     │
+  help: close it with `"""`

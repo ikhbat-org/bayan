@@ -1,0 +1,5 @@
+== check.inloop
+counts 1 1 1
+mut xs 2105..2108 false -
+loan xs x 0 0
+BYN3004 123:5 `xs` is modified while `x` still borrows it |`x` is used again on line 124|finish using `x` first, or copy what it needs before changing `xs`|

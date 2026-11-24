@@ -1,0 +1,1 @@
+{"code":"BYN2710","severity":"error","file":"input.byn","span":{"start":34,"end":35,"line":2,"column":21,"endLine":2,"endColumn":22},"message":"`circle` carries data and cannot have a value","label":"only a case without data can have a value","help":"remove the value","fixes":[]}

@@ -1,0 +1,30 @@
+    doc `/// Doc line one.`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 NeverKeyword `never`
+3:23 NoallocKeyword `noalloc`
+3:31 Identifier `nosusped`
+3:40 Identifier `suspe`
+3:46 Identifier `nds`
+3:50 AsyncKeyword `async`
+3:56 Identifier `wait`
+4:1 CharLiteral `'\u{D800}'`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �/// Doc line one.
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �/// Doc line one.
+    │   │ -
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

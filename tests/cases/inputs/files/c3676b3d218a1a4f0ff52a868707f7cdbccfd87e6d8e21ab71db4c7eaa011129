@@ -1,0 +1,305 @@
+import lexer
+import parser
+
+const world: string = "struct Plain {\n    i64 v\n}\n\nstruct Deft {\n    i64 a = 1\n    string s = \"x\"\n}\n\nstruct Need {\n    i64 a\n    i64 b\n    i64 c = 3\n}\n\nstruct Made {\n    i64 v = 0\n\n    Made() {\n    }\n}\n\n@positional\nstruct Pt {\n    i64 x\n    i64 y\n}\n\ntype distinct Tag = i64\n\ntype distinct Qty = i32 requires it > 0\n\nstruct Pos {\n    i64 v requires it > 0\n}\n\nstruct Holder {\n    List<i64> items\n    i64 n\n}\n\nvoid probes(i64 n, i32 small, string s, ReadOnlySpan<u8> bytes, List<i64> ns, Map<string, i64> mp, ref StrBuf buf, Untrusted<string> un, move List<i64> mv, Holder h, ref i64 rn, rune ch, List<List<i64>> nested, Map<string, List<i64>> mnest, Map<string, Plain> mplain, List<i64> bw, i64 bn) {\n    let k1 = Plain()\n    let k2 = Plain(1)\n    let k3 = Deft()\n    let k4 = Need()\n    let k5 = Made()\n    let k6 = Pt(1, 2)\n    let k7 = Tag(5)\n    let k8 = List<i64>()\n    let k9 = List<i64>(1)\n    let k10 = Map<string, i64>()\n    let k11 = Arena()\n    let k12 = StrBuf()\n    let k13 = StrBuf(capacity: 8)\n    let k14 = StrBuf(bytes)\n    let k15 = i32(n)\n    let k16 = string(n)\n    let k17 = string(n, as: .hex)\n    let k18 = string(bytes)\n    let k19 = string(s)\n    let k20 = bool(1)\n    let k21 = i32(1, 2)\n    let k22 = Owned(n)\n    let k23 = Owned<i64>(n)\n    let k24 = Untrusted(s)\n    let k25 = Untrusted<string>(s)\n    let k26 = Owned(nope)\n    let k27 = string(nope)\n    let k28 = Pt(1)\n    let t1 = trust(un)\n    let t2 = trust()\n    let t3 = trust(un, why: \"x\")\n    let t4 = trust(un, \"ok\")\n    let t5 = trust(why: un)\n    let u1 = Untrusted(nope)\n    let u2 = Untrusted()\n    let u3 = Untrusted(s, n)\n    let u4 = Untrusted(value: s)\n    let u5 = Untrusted<string>(n)\n    let t6 = un.trustUnchecked() because \"ok\"\n    let t7 = n.trustUnchecked() because \"x\"\n    let t8 = nope.trustUnchecked() because \"x\"\n    let b1 = s.parts(by: \",\")\n    let b2 = s.parts(by: ch)\n    let b3 = buf.append(n)\n    let b4 = buf.append(s)\n    let b5 = ns.remove(at: 0)\n    let b6 = ns.remove(at: 0..2)\n    let b8 = ns.remove(at: 0, through: 2)\n    let b9 = s.trimmed()\n    let b10 = s.trimmed(by: \"ab\")\n    let b11 = s.equals(s, as: .ignoreCase)\n    let b12 = mp.slot(at: \"k\")\n    let b13 = nested.copy()\n    let b14 = mnest.copy()\n    let b15 = ns.copy()\n    let b16 = ns.take()\n    let b17 = mplain.slot(at: \"k\")\n    let q1 = Qty(5)\n    let q2 = Qty(small)\n    let p1 = Pos { v: 1 }\n    let p2 = Pos { v: 0 }\n    let p3 = Pos { v: n }\n    let w1 = n\n    let w2 = move n\n    let w3 = (move mv)\n    let w4 = move nope\n    let w5 = move h.items\n    let w6 = move ns[0]\n    let w7 = move 1\n    let w8 = move rn\n    let w9 = move Plain { v: 1 }\n    let m1 = move ns\n    let m2 = move s\n    let m3 = move (n, s)\n    let m4 = move this\n    let x1 = h with { n: 1 }\n    let m5 = move bw\n    let m6 = move bn\n}\n"
+
+string tcRecv(ref Ctx c, for BExpr r) {
+    if r == -1 { return "-1" }
+    let k = boundKind(r)
+    if k == .thisRef { return "this" }
+    if k == .local { return $"local:{c.locals[c.bLocals[boundIndex(r)].local].name}" }
+    return $"{k}"
+}
+
+string tcSub(ref Ctx c, for BExpr e) {
+    if e == -1 { return "-" }
+    let k = boundKind(e)
+    let typeName = typeDisplay(ref c, by: exprType(in c, for: e))
+    if k == .literal { return $"literal:{typeName}={constantText(in c.bLiterals[boundIndex(e)].value)}" }
+    if k == .conversion { return $"conversion:{typeName}({c.bConversions[boundIndex(e)].kind} {tcSub(ref c, for: c.bConversions[boundIndex(e)].operand)})" }
+    if k == .enumMember { return $"enumMember:{typeName}={c.enumMembers[c.bEnumMembers[boundIndex(e)].member].name}" }
+    if k == .local { return $"local:{typeName}={c.locals[c.bLocals[boundIndex(e)].local].name}" }
+    return $"{k}:{typeName}"
+}
+
+string tcSubs(ref Ctx c, for in List<BExpr> es) {
+    var joined = ""
+    var first = true
+    for a in copyIds(in es) {
+        joined = first ? tcSub(ref c, for: a) : $"{joined},{tcSub(ref c, for: a)}"
+        first = false
+    }
+    return joined
+}
+
+void tcDump(ref Ctx c, for BExpr e) {
+    if e == -1 {
+        print("null")
+        return
+    }
+    let k = boundKind(e)
+    let t = exprType(in c, for: e)
+    let typeName = typeDisplay(ref c, by: t)
+    let i = boundIndex(e)
+    var recv = "-"
+    var callee = "-"
+    var sub = "-"
+    switch k {
+        case .call:
+            callee = c.functions[c.bCalls[i].function].name
+            recv = tcRecv(ref c, for: c.bCalls[i].receiver)
+            let args = copyIds(in c.bCalls[i].arguments)
+            sub = tcSubs(ref c, for: in args)
+        case .builtinCall:
+            callee = $"{c.bBuiltinCalls[i].member}"
+            recv = tcSub(ref c, for: c.bBuiltinCalls[i].receiver)
+            let args = copyIds(in c.bBuiltinCalls[i].arguments)
+            sub = tcSubs(ref c, for: in args)
+        case .local:
+            callee = c.locals[c.bLocals[i].local].name
+        case .collection:
+            let args = copyIds(in c.bCollections[i].elements)
+            sub = tcSubs(ref c, for: in args)
+        case .structLiteral:
+            let args = copyIds(in c.bStructLiterals[i].fields)
+            sub = tcSubs(ref c, for: in args)
+        case .conversion:
+            sub = tcSub(ref c, for: e)
+        case .moveExpr:
+            sub = tcSub(ref c, for: c.bMoves[i].operand)
+        case .literal:
+            sub = constantText(in c.bLiterals[i].value)
+        default: {}
+    }
+    let sp = nodeSpan(in c, for: e)
+    print($"{k}|{typeName}|{recv}|{callee}|{sp.start}:{sp.length}|{sub}")
+}
+
+void tcDiags(ref Ctx c, from i64 start) {
+    for i in start..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+FieldId tcField(in Ctx c, for StructId s, by string name) {
+    for f in c.structs[s].fields {
+        if c.fields[f].name == name { return f }
+    }
+    return -1
+}
+
+BExpr tcInt(ref Ctx c, by i64 v, as Type t) {
+    let k = Constant { kind: .integer, integer: bigFromI64(v) }
+    let e = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 0, length: 0 }, type: t, value: k })
+    setConstant(ref c, for: e, to: k)
+    return e
+}
+
+void tcChecks(ref Ctx c) {
+    {
+    let s = typeIndex(c.modules[c.entryModule].types["Qty"])
+    var rules = List<StructRule>()
+    let sp = TextSpan { start: 285, length: 6 }
+    var reads = List<FieldId>()
+    reads.append(tcField(in c, for: s, by: "value"))
+    rules.append(StructRule { span: sp, field: tcField(in c, for: s, by: "value"), condition: addBinary(ref c, from: BBinary { span: sp, op: .gt, left: addField(ref c, from: BField { span: sp, receiver: addThis(ref c, from: BThis { span: sp, type: structTypeOf(s) }), field: tcField(in c, for: s, by: "value"), type: prim(.i32) }), right: tcInt(ref c, by: 0, as: prim(.i32)), type: prim(.bool) }), reads: move reads })
+    c.checks[c.checksOf[s]].rules = move rules
+    }
+    {
+    let s = typeIndex(c.modules[c.entryModule].types["Pos"])
+    var rules = List<StructRule>()
+    let sp = TextSpan { start: 325, length: 6 }
+    var reads = List<FieldId>()
+    reads.append(tcField(in c, for: s, by: "v"))
+    rules.append(StructRule { span: sp, field: tcField(in c, for: s, by: "v"), condition: addBinary(ref c, from: BBinary { span: sp, op: .gt, left: addField(ref c, from: BField { span: sp, receiver: addThis(ref c, from: BThis { span: sp, type: structTypeOf(s) }), field: tcField(in c, for: s, by: "v"), type: prim(.i64) }), right: tcInt(ref c, by: 0, as: prim(.i64)), type: prim(.bool) }), reads: move reads })
+    c.checks[c.checksOf[s]].rules = move rules
+    }
+
+}
+
+/// Every field default bound, as the C# `BindAll` does (generics.byn:151-160).
+void tcDefaults(ref Ctx c) {
+    for m in 0..c.modules.length {
+        let structs = copyIds(in c.modules[m].structs)
+        for s in structs {
+            let fields = copyIds(in c.structs[s].fields)
+            for f in fields {
+                if c.fields[f].hasDefault {
+                    var b = t13NewBinder(c.structs[s].file, owner: s)
+                    c.fields[f].defaultValue = bindFieldDefault(ref b, through: ref c, for: f)
+                }
+            }
+        }
+    }
+}
+
+/// `tcDiags` from 0, only the codes T21 reports.
+void tcT21Diags(ref Ctx c) {
+    var keep = Map<string, bool>()
+    keep["BYN2112"] = true
+    keep["BYN2602"] = true
+    keep["BYN2787"] = true
+    keep["BYN2789"] = true
+    keep["BYN2782"] = true
+    keep["BYN2783"] = true
+    keep["BYN2784"] = true
+    keep["BYN2785"] = true
+    keep["BYN3207"] = true
+
+    for i in 0..c.diagnostics.length {
+        if !keep.contains(c.diagnostics[i].code) { continue }
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+string tcDiagSource(string name) {
+    if name == "no-constructor" { return "struct Point {\n    i64 x\n    i64 y\n}\n\nlet p = Point(1, 2)\n" }
+    if name == "literal-needs-try" { return "struct Order {\n    i64 quantity requires it > 0\n}\n\nOrder order(i64 n) fails ValidationError<Order> => Order { quantity: n }\n" }
+    if name == "trust-reason" { return "let u: Untrusted<string> = Untrusted(\"x\")\nprint(trust(u))\nprint(trust(u, \"checked\"))\n" }
+    if name == "collection-copy-unique-element" { return "struct Holder {\n    List<i64> items\n}\n\nvoid use(Arena a) {\n    let lists = List<List<i64>>()\n    let l = lists.copy(to: a)\n    let maps = Map<string, StrBuf>()\n    let m = maps.copy(to: a)\n    let keyed = Map<i64, Holder>()\n    let k = keyed.copy(to: a)\n    let owned = List<Owned<i64>?>()\n    let o = owned.copy(to: a)\n    let fine = Map<string, i64[2]>()\n    let f = fine.copy(to: a)\n}\n" }
+    if name == "unique-move-from-field" { return "// Only a local or a `move` parameter can be moved (BYN2782).\nstruct Bag {\n    List<i64> items\n}\n\nList<i64> make() => List<i64>()\n\nvoid take(List<i64> plain) {\n    let bag = Bag { items: List<i64>() }\n    let lists = List<List<i64>>()\n    let a = move bag.items\n    let b = move lists[0]\n    let c = move plain\n    let e = move make()\n    let n: i64 = 1\n    let g = move n\n}\n\nvoid takeShared(ref List<i64> shared) {\n    let d = move shared\n}\n\nvoid takeOwned(move List<i64> owned) {\n    let f = move owned\n}\n" }
+    if name == "move-with-parenthesized" { return "// `move (tx with { … })` moves a fresh value, not a local (BYN2782).\nstruct Ledger {\n    string label\n    List<i64> items\n}\n\nvoid main() {\n    let tx = Ledger { label: \"daily\", items: List<i64>() }\n    let copy = move (tx with { label: \"copy\" })\n    print($\"{copy.label}\")\n}\n" }
+    return ""
+}
+void tcDiagSetup(ref Ctx c, by string name) {
+    if name == "no-constructor" { tcSetup0(ref c) }
+    if name == "literal-needs-try" { tcSetup1(ref c) }
+    if name == "trust-reason" { tcSetup2(ref c) }
+    if name == "collection-copy-unique-element" { tcSetup3(ref c) }
+    if name == "unique-move-from-field" { tcSetup4(ref c) }
+    if name == "move-with-parenthesized" { tcSetup5(ref c) }
+}
+void tcSetup0(ref Ctx c) {
+}
+void tcSetup1(ref Ctx c) {
+    {
+    let s = typeIndex(c.modules[c.entryModule].types["Order"])
+    var rules = List<StructRule>()
+    let sp = TextSpan { start: 41, length: 6 }
+    var reads = List<FieldId>()
+    reads.append(tcField(in c, for: s, by: "quantity"))
+    rules.append(StructRule { span: sp, field: tcField(in c, for: s, by: "quantity"), condition: addBinary(ref c, from: BBinary { span: sp, op: .gt, left: addField(ref c, from: BField { span: sp, receiver: addThis(ref c, from: BThis { span: sp, type: structTypeOf(s) }), field: tcField(in c, for: s, by: "quantity"), type: prim(.i64) }), right: tcInt(ref c, by: 0, as: prim(.i64)), type: prim(.bool) }), reads: move reads })
+    c.checks[c.checksOf[s]].rules = move rules
+    }
+}
+void tcSetup2(ref Ctx c) {
+}
+void tcSetup3(ref Ctx c) {
+}
+void tcSetup4(ref Ctx c) {
+}
+void tcSetup5(ref Ctx c) {
+}
+
+
+void runInit(ref Binder b, through ref Ctx c, for in parser.Expr init, by string op) {
+    if op == "call" {
+        switch init {
+            case .callExpr(let call): tcDump(ref c, for: bindCall(ref b, through: ref c, for: in call.value, from: init, to: -1))
+            default: print("unexpected initializer")
+        }
+    }
+    if op == "expr" { tcDump(ref c, for: bindExpr(ref b, through: ref c, for: in init)) }
+    if op == "cov" || op == "hand" {
+        b.covered = List<CoveredCall>()
+        if op == "hand" { b.handled = parser.exprSpan(in init) }
+        tcDump(ref c, for: bindExpr(ref b, through: ref c, for: in init))
+        let cv = b.covered.take() ?? List<CoveredCall>()
+        for e in cv { print($"covered {e.span.start}:{e.span.length} {e.name} {e.structLiteral}") }
+    }
+    if op == "subj" {
+        let r = bindSwitchSubject(ref b, through: ref c, for: in init)
+        tcDump(ref c, for: r.value)
+        print($"owns {r.owns}")
+    }
+    if op == "handles" { print($"{handles(in init)}") }
+}
+
+void runCase(ref Ctx c, for string op, by string name) {
+    let file = c.modules[c.entryModule].files[0]
+    var b = Binder {
+        file: file,
+        fn: -1,
+        owner: -1,
+        scopes: [],
+        targets: [],
+        lambdas: [],
+        lambdaCount: [],
+        seeds: [],
+        pending: [],
+        constraints: [],
+        peers: [],
+        nonNullLocals: [],
+        stateFacts: [],
+        errorNarrowed: [],
+    }
+    pushScope(ref b)
+    let start = c.diagnostics.length
+    for i in 0..c.files[file].unit.members.length {
+        switch c.files[file].unit.members[i] {
+            case .functionDecl(let fd):
+                if t15Text(in c, from: file, at: fd.value.name) == "probes" {
+                    for p in fd.value.params {
+                        let t = resolveType(ref b, through: ref c, for: in p.type)
+                        let pn = t15Text(in c, from: file, at: p.name)
+                        let kind: LocalKind = pn == "mv" ? .letKeyword : pn == "buf" || pn == "ns" || pn == "mp" || pn == "mplain" ? .varKeyword : .parameter
+                        let l = declareLocal(ref b, through: ref c, at: p.name, as: t, for: kind)
+                        if pn == "bw" || pn == "bn" { c.locals[l].borrowsSubject = true }
+                    }
+                    switch fd.value.body {
+                        case .blockStmt(let blk):
+                            for s in blk.value.statements {
+                                switch s {
+                                    case .localDecl(let ld):
+                                        if t15Text(in c, from: file, at: ld.value.name) == name { runInit(ref b, through: ref c, for: in ld.value.init, by: op) }
+                                    default: {}
+                                }
+                            }
+                        default: {}
+                    }
+                }
+            default: {}
+        }
+    }
+    tcDiags(ref c, from: start)
+}
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 1 < args.length {
+        let isDiag = args[i] == "diag"
+        let text = isDiag ? tcDiagSource(args[i + 1]) : world
+        var bytes = List<u8>()
+        for x in text.bytes { bytes.append(x) }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("tmp/t21-cases/main.byn", from: move bytes))
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+            library: !isDiag,
+            packageRoot: "tmp/t21-cases",
+            displayRoot: "tmp/t21-cases",
+        }
+        c.entryModule = loadModule(ref c, for: "main", at: "tmp/t21-cases", from: move sources, by: -1)
+        buildLexicon(ref c)
+        declare(ref c)
+        print($"== {args[i]}.{args[i + 1]}")
+        if isDiag {
+            tcDiagSetup(ref c, by: args[i + 1])
+            bindAll(ref c)
+            tcT21Diags(ref c)
+        } else {
+            tcChecks(ref c)
+            tcDefaults(ref c)
+            runCase(ref c, for: args[i], by: args[i + 1])
+        }
+        i += 2
+    }
+    return 0
+}

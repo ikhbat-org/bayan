@@ -1,0 +1,46 @@
+1:1 StringLiteral `" "`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+7:1 Identifier `c`
+7:3 Greater `>`
+7:4 GreaterEquals `>=`
+7:7 IntegerLiteral `1`
+9:1 OpenParen `(`
+9:3 CloseParen `)`
+9:5 OpenBracket `[`
+9:7 CloseBracket `]`
+9:9 OpenBrace `{`
+9:11 CloseBrace `}`
+11:1 LetKeyword `let`
+11:7 Identifier `r`
+11:9 IntegerLiteral `2`
+13:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  10 │  �
+     │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  10 │  �
+     │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  10 │  �
+     │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  11 │ let � r 2
+     │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  12 │ // ok � in comment
+     │       ^

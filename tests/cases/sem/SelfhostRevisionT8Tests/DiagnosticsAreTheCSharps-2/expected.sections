@@ -1,0 +1,17 @@
+== diags.doer-project-verb
+BYN5106 5:15 `RowUpserter` is named for the act `upsert` but has no `upsert` member
+  help add a member named `upsert`, or rename the type for what it is
+BYN5106 17:15 `RowStager` is named for the act `stage` but has no `stage` member
+  help add a member named `stage`, or rename the type for what it is
+BYN5106 21:15 `RowTallier` is named for the act `tally` but has no `tally` member
+  help add a member named `tally`, or rename the type for what it is
+BYN5106 31:15 `RowPlower` is named for the act `plow` but has no `plow` member
+  help add a member named `plow`, or rename the type for what it is
+BYN5106 39:15 `RowRelayer` is named for the act `relay` but has no `relay` member
+  help add a member named `relay`, or rename the type for what it is
+BYN5106 43:15 `RowFixer` is named for the act `fix` but has no `fix` member
+  help add a member named `fix`, or rename the type for what it is
+BYN5106 55:15 `RowGoer` is named for the act `go` but has no `go` member
+  help add a member named `go`, or rename the type for what it is
+BYN5106 59:15 `RowTaxer` is named for the act `tax` but has no `tax` member
+  help add a member named `tax`, or rename the type for what it is

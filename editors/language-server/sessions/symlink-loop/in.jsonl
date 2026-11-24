@@ -1,0 +1,3 @@
+{"fs":"symlink","path":"src/loop","target":"."}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@","capabilities":{}}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}

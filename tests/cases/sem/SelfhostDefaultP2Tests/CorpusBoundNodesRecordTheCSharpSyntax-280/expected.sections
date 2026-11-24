@@ -1,0 +1,28 @@
+== tests/cases/run/string-lowercase-unicode.byn
+236..423 blockStmt
+242..421 forStmt
+251..333 collectionExpr
+252..259 literalExpr string
+261..265 literalExpr string
+267..271 literalExpr string
+273..281 literalExpr string
+283..290 literalExpr string
+292..300 literalExpr string
+302..306 literalExpr string
+308..312 literalExpr string
+314..320 literalExpr string
+322..326 literalExpr string
+328..332 literalExpr string
+334..421 blockStmt
+344..415 exprStmt
+344..415 callExpr
+350..414 interpolatedExpr
+353..354 nameExpr
+357..371 callExpr
+357..358 nameExpr
+374..388 callExpr
+374..375 nameExpr
+391..412 memberExpr
+391..405 callExpr
+391..392 nameExpr
+344..415 callExpr

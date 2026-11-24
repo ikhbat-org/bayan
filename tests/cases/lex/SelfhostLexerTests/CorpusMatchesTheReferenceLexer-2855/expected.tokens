@@ -1,0 +1,43 @@
+1:1 StringLiteral `"a��b"`
+1:6 StringLiteral `"{`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c`
+2:8 InterpolatedStringEnd
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ "a��b" "{
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ "a��b" "{
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ "a��b" "{
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `\u{12}`
+
+  4 │ �
+    │ ^

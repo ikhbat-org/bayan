@@ -1,0 +1,112 @@
+union error E {
+    bad(i64 code)
+    gone
+}
+
+i64 risky(i64 n) fails E {
+    fail .gone if n < 0
+    return n
+}
+
+void strings2() uses console, alloc {
+    var s = "a,b"
+    var t = ","
+    var n = 0
+    var k = 2
+    var ch = 'x'
+    var eq = s.equals(t)
+    let po = s.position(t)
+    let po2 = s.position(t, from: n)
+    let lp = s.lastPosition(t)
+    let cn = s.count(t)
+    let tr = s.trimmed()
+    var rl = List<rune>()
+    var rsp = rl.span
+    let tb = s.trimmed(by: rsp)
+    let rp = s.replaced(t, by: s)
+    let rr = s.repeated(k)
+    let pd = s.padded(to: k, by: ch)
+    var ps = s.parts(by: t)
+    var ps2 = s.parts(by: t, limit: k)
+    var pr = s.parts(by: ch)
+    var pr2 = s.parts(by: ch, limit: k)
+    var rs = s.runes
+    let rt = rs.take(k)
+    let rk = rs.skip(k)
+    let rl = rs.takeLast(k)
+    var us = s.utf16
+    let uc = us.copy()
+    var ls = s.lines
+    let sc = s.copy()
+    var so = Io.stdout
+    so.write(s)
+}
+
+void lists2() {
+    var xs = List<i64>()
+    var ys = List<i64>()
+    var i = 0
+    var j: i64 = 1
+    var r = i..j
+    var sp = ys.span
+    xs.replace(at: r, by: sp)
+    var ms = xs.mutableSpan()
+    xs.remove(at: r)
+    var w = StrBuf()
+    w.clear()
+    var ch = 'x'
+    var k = 2
+    var s = "ab"
+    w.appendRepeated(ch, by: k)
+    w.insert(s, at: i)
+    var m = Map<i64, i64>()
+    let ml = m.length
+    m.clear()
+    var arr = [1, 2, 3]
+    let al = arr.length
+    let asp = arr.span
+    var amp = arr.mutableSpan()
+    let av = arr[i]
+    let asl = arr[i..i]
+    var u = 3
+    let xu = sp[u]
+}
+
+void numbers2() {
+    var a = 1
+    var b = 2
+    var u = u8(1)
+    var v = u8(2)
+    var x = 1.5
+    let s1 = a + b
+    let s2 = x - x
+    let s3 = x * x
+    let s4 = x / x
+    let s5 = x > x
+    let s6 = x <= x
+    let s7 = x >= x
+    let s8 = x == x
+    let s9 = u & v
+    let s10 = i64(u)
+    let s11 = u8(a)
+    let s12 = i64(x)
+    let st = string(u)
+}
+
+void errors2() {
+    var e = E.gone
+    let same = e == .gone
+    let bare = e == .bad
+    var n = 1
+    let full = e == .bad(n)
+    let left = E.bad == e
+    let ne = e != .bad
+    var p = true
+    var q = false
+    let ba = p & q
+    let bo = p | q
+    let bx = p ^ q
+    let none: i64? = null
+}
+
+void main() { }

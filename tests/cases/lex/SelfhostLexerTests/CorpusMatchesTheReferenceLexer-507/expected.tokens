@@ -1,0 +1,52 @@
+1:1 CharLiteral `'\ume�Case2 ب�ان �`
+2:1 IntegerLiteral `0`
+2:3 IntegerLiteral `42`
+2:6 IntegerLiteral `1_000_000`
+2:16 IntegerLiteral `0xFF`
+2:21 IntegerLiteral `0x_ff`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0xFF`
+2:60 NumericSuffix `u`
+2:62 IntegerLiteral `0b1`
+2:65 NumericSuffix `ul`
+2:68 IntegerLiteral `7`
+2:69 NumericSuffix `l`
+3:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '\ume�Case2 ب�ان �
+    │ ^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u`
+
+  1 │ '\ume�Case2 ب�ان �
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x93)
+
+  1 │ '\ume�Case2 ب�ان �
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  1 │ '\ume�Case2 ب�ان �
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ '\ume�Case2 ب�ان �
+    │                  ^

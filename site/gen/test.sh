@@ -5,7 +5,8 @@
 set -u
 gen=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$gen/../.." && pwd)
-bayan=${BAYAN:-$root/dist/macos-arm64/latest/bayan}
+# BAYAN names the compiler; the default is the CLI built from HEAD (scripts/pinned-bayan.sh), as in build.sh.
+if [ -z "${BAYAN:-}" ]; then bayan=$(cd "$root" && PINNED_BAYAN_REF=HEAD bash scripts/pinned-bayan.sh) || exit 1; else bayan=$BAYAN; fi
 mkdir -p "$root/tmp"
 fix=$(mktemp -d "$root/tmp/gen-fixture.XXXXXX") || { echo "gen/test.sh: mktemp failed" >&2; exit 1; }
 site="$fix/site"
@@ -130,16 +131,19 @@ chmod +x "$latest/bayan" "$repo/site/fakebayan" "$meta/fakebin/mktemp"
 cp "$gen/../build.sh" "$gen/../check-examples.sh" "$repo/site/"
 mkdir -p "$repo/scripts/release"
 cp "$root/scripts/release/version.sh" "$repo/scripts/release/"
+cp "$root/scripts/pinned-bayan.sh" "$repo/scripts/"
+# pinned-bayan.sh prints PINNED_BAYAN instead of building, so the throwaway repo needs no git or dotnet.
+export PINNED_BAYAN="$latest/bayan"
 printf '1.2.0\n' > "$repo/VERSION"
 cp "$gen/test.sh" "$repo/site/gen/"
 : > "$repo/site/examples/x.byn"
 : > "$repo/site/examples/x.out"
 
-# default compiler: each script finds <repo>/dist/macos-arm64/latest/bayan when BAYAN is unset
+# default compiler: with BAYAN unset, each script runs the one scripts/pinned-bayan.sh names
 for script in check-examples.sh build.sh gen/test.sh; do
   rm -f "$latest/calls"
   (cd "$repo" && env -u BAYAN sh "site/$script" > /dev/null 2>&1)
-  if [ -f "$latest/calls" ]; then ok; else bad "$script: default compiler under the repo root not used"; fi
+  if [ -f "$latest/calls" ]; then ok; else bad "$script: default compiler from pinned-bayan.sh not used"; fi
 done
 
 # test.sh: a fixture directory per run, removed at exit

@@ -1,0 +1,9 @@
+== path chain
+module std.b <std>/b std_b
+file <std>/b/b.byn
+module std.a <std>/a std_a
+file <std>/a/a.byn
+import b std.b
+module main tmp/std-cases/chain main
+file tmp/std-cases/chain/main.byn
+import a std.a

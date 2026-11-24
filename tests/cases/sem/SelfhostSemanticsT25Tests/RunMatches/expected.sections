@@ -1,0 +1,49 @@
+== r-a
+area depth r 2 727
+area depth rr 2 758
+area depth s 1 -1
+area depth side 2 816
+loopy depth g 2 1536
+loopy depth n 1 -1
+loopy depth step 2 1515
+loopy depth total 1 1471
+loopy env 2
+main depth arena 1 1221
+main depth err 1 1347
+main depth f 3 1408
+main depth got 1 1305
+main depth i 2 1384
+main depth inside 2 1280
+main depth k 1 1370
+main depth t 1 1315
+main env 2
+pick depth m 1 1037
+pick depth maybe 1 -1
+pick depth q 1 1001
+pick depth r 1 972
+pick depth rad 1 1093
+pick depth s 1 -1
+pick depth v 1 937
+risky depth n 1 -1
+walk depth sum 1 1647
+walk depth x 2 1663
+walk depth xs 1 -1
+walk depth y 3 1685
+work depth a 1 181
+work depth arena 0 -1
+work depth c 2 245
+work depth d 2 290
+work depth df 2 510
+work depth dw 2 395
+work depth e 1 531
+work depth ef 2 559
+work depth i 2 446
+work depth inner 3 470
+work depth more 1 -1
+work depth n 1 -1
+work depth p 1 580
+work depth pf 2 610
+work depth total 0 -1
+work depth w 2 347
+work local more [1:`more`] [] -
+work rest 1:`more` more

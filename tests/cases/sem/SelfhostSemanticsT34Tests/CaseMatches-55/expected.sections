@@ -1,0 +1,6 @@
+== s47
+switchExpr|i32|3990:40
+value local:i64=n
+arm 4001:19 bindPattern[4001:14]:i64(-) guard - value literal:i32=1
+arm 4022:6 bindPattern[4022:1]:i64_(-) guard - value literal:i32=0
+BYN2411 118:26 `.circle(…)` cannot match `i64` |||

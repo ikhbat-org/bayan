@@ -1,0 +1,38 @@
+1:1 Identifier `fai`
+1:4 OpenBrace `{`
+1:5 Identifier `s`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 Identifier `nosuspnd`
+1:40 SuspendsKeyword `suspends`
+1:49 AsyncKeyword `async`
+1:55 AwaitKeyword `await`
+2:1 Identifier `foo`
+2:5 Identifier `Bar`
+2:9 Identifier `_x`
+2:12 Identifier `camelCase2`
+2:23 Identifier `بيان`
+2:28 Identifier `μετρητής`
+2:37 Identifier `x_j1`
+2:42 Identifier `é`
+7:1 StringLiteral `"`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolationStart `{`
+8:4 Identifier `a`
+8:5 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  7 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

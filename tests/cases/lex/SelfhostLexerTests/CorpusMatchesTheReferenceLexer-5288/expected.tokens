@@ -1,0 +1,26 @@
+2:1 Identifier `fect`
+2:6 Equals `=`
+2:8 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 Identifier `becom`
+3:19 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select becom
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select becom
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

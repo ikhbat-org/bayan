@@ -1,7 +1,7 @@
-let word = "héllo"
+let word = "salām"
 print($"{word.length} bytes, {word.runeCount} runes")
 print(word.uppercased())
-print($"{word.contains("ll")} {word.startsWith("h")} {word == "héllo"}")
+print($"{word.contains("lā")} {word.startsWith("s")} {word == "salām"}")
 print(word[0..1])
 for r in word.runes {
     print($"{r}")

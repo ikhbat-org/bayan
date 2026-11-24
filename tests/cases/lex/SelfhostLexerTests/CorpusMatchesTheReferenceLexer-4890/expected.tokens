@@ -1,0 +1,58 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+3:1 IntegerLiteral `1`
+3:2 Dot `.`
+5:1 StringLiteral `"te�xt"`
+5:9 StringLiteral `"esc \"q\" �\ \n"`
+5:26 RawStringLiteral `"""\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �let law = 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDB)
+
+  5 │ "te�xt" "esc \"q\" �\ \n" """
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  5 │ "te�xt" "esc \"q\" �\ \n" """
+    │                    ^
+
+error BYN0006: invalid escape sequence `\ `
+
+  5 │ "te�xt" "esc \"q\" �\ \n" """
+    │                     ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  5 │ "te�xt" "esc \"q\" �\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

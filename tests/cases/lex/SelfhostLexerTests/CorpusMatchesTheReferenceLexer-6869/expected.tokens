@@ -1,0 +1,76 @@
+1:1 Identifier `b`
+2:1 Identifier `_`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:7 Identifier `comment`
+6:15 Star `*`
+6:16 Slash `/`
+6:18 Identifier `a`
+7:1 LetKeyword `let`
+7:5 Identifier `café`
+7:11 Equals `=`
+7:13 IntegerLiteral `1`
+8:1 LetKeyword `let`
+8:5 Identifier `café`
+8:10 Equals `=`
+8:11 Amp `&`
+8:13 AmpAmp `&&`
+8:16 Bar `|`
+8:18 BarBar `||`
+8:21 Caret `^`
+8:23 Tilde `~`
+8:25 Bang `!`
+8:27 Equals `=`
+8:29 EqualsEquals `==`
+8:32 BangEquals `!=`
+8:35 Less `<`
+8:37 LessEquals `<=`
+8:40 Greater `>`
+8:42 GreaterEquals `>=`
+8:45 LessLess `<<`
+8:48 Greater `>`
+8:49 Greater `>`
+8:51 Greater `>`
+8:52 GreaterEquals `>=`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │  �    comment */ a
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  �    comment */ a
+    │   │  -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  7 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ let café = 1
+    │   │        +

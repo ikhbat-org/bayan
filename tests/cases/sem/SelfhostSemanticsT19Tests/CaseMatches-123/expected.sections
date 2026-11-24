@@ -1,0 +1,3 @@
+== bind.probes.c9
+flags 0
+conditional:i64?[3790:12]=-(local:bool[3790:4]=-(flag) conversion:i64?[3797:1]=-(toOptional local:i32[3797:1]=-(a)) conversion:i64?[3801:1]=-(toOptional literal:i64[3801:1]=2(2)))

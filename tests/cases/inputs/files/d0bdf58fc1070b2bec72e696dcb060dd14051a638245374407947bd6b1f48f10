@@ -1,0 +1,9 @@
+À€
+ À€
+0x_
+
+  """ c"text" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+
+"""
+'ab'
+

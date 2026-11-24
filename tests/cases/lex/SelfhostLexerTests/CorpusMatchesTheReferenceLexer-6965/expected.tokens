@@ -1,0 +1,59 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:16 IntegerLiteral `0xFF`
+1:21 IntegerLiteral `0x_ff`
+1:27 IntegerLiteral `0b1010`
+1:34 IntegerLiteral `0B11`
+1:39 IntegerLiteral `5`
+1:40 NumericSuffix `s`
+1:42 IntegerLiteral `250`
+1:45 NumericSuffix `ms`
+1:48 IntegerLiteral `4`
+1:49 NumericSuffix `KiB`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
+2:1 Identifier `macr`
+2:6 Identifier `o`
+2:8 Identifier `select`
+2:15 BecomeKeyword `become`
+3:1 CharLiteral `' macro select become`
+4:2 StringLiteral `"a\u{2067}b"`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolatedStringText `x`
+4:11 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC5)
+
+  2 │ macr�o select become
+    │     ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macr�o select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  3 │ ' macro select become
+    │ ^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │  "a�b" $"x{ $"{
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string

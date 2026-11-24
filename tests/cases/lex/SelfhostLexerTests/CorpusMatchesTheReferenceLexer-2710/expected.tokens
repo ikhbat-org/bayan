@@ -1,0 +1,60 @@
+1:1 IntegerLiteral `0`
+1:2 CharLiteral `'`
+2:2 FloatLiteral `3.14`
+2:7 FloatLiteral `1e5`
+2:11 FloatLiteral `2.5e-3`
+2:18 FloatLiteral `6E+2`
+2:23 FloatLiteral `1.50`
+2:27 NumericSuffix `dec`
+2:31 IntegerLiteral `1`
+2:32 DotDot `..`
+2:34 IntegerLiteral `2`
+2:36 IntegerLiteral `1`
+2:37 DotDotEquals `..=`
+2:40 IntegerLiteral `3`
+2:42 IntegerLiteral `5`
+2:43 NumericSuffix `e`
+2:45 Identifier `x`
+2:46 Dot `.`
+2:47 Identifier `y`
+2:49 FloatLiteral `2.5`
+2:52 NumericSuffix `f`
+3:2 OpenParen `(`
+3:4 CloseParen `)`
+3:6 OpenBracket `[`
+3:8 CloseBracket `]`
+3:11 OpenBrace `{`
+3:13 CloseBrace `}`
+4:2 Identifier `closedb`
+6:1 IntegerLiteral `1_`
+7:2 Identifier `ạ̇`
+7:6 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 0'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  3 │  ( ) [ ]� { }
+    │         ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1_
+    │  ^
+    │
+    │ 6 │ 1_
+    │   │  -
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  7 │  ạ̇ 
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  ạ̇ 
+    │   │  ++

@@ -1,0 +1,3 @@
+== fact.probes.f3
+errorExpr:?[4785:4]=-()
+BYN2001 234:14 `nope` is not defined ||did you mean `Node`?|fix 4785..4789 Node

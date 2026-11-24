@@ -1,0 +1,10 @@
+error BYN3002: `lists` does not live as long as `outer`, which borrows it
+  --> <repo>/tmp/l006/borrowed-loop-binding-s-span-stored-past-its-owner/main.byn:17:35
+
+  17 │         for xs in lists { outer = xs.span }
+     │                                   ^^^^^^^ `lists` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3002

@@ -1,0 +1,10 @@
+error BYN2761: `Expr` contains itself by value: Expr → Expr
+  --> tmp/t26-tests/cli/diag_recursive-union.byn/recursive-union.byn:1:7
+
+  1 │ union Expr {
+    │       ^^^^
+    │
+  help: store the inner one as `Owned<Expr>` (or in a `List<Expr>`); a value cannot contain itself
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2761

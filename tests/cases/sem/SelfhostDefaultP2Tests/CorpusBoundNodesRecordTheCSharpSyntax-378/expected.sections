@@ -1,0 +1,6 @@
+== tests/cases/diag/branch-type-mismatch.byn
+0..13 globalStatement
+0..13 localDecl
+9..13 literalExpr trueKeyword
+14..35 localDecl
+22..35 conditionalExpr

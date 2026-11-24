@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayān mockup b: cool neutral sans</title>
+<style>
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap; src: url("../../assets/fonts/inter-latin-400-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap; src: url("../../assets/fonts/inter-latin-ext-400-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap; src: url("../../assets/fonts/inter-latin-600-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap; src: url("../../assets/fonts/inter-latin-ext-600-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Alegreya"; font-style: normal; font-weight: 700; font-display: swap; src: url("../../assets/fonts/alegreya-latin-700-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Alegreya"; font-style: normal; font-weight: 700; font-display: swap; src: url("../../assets/fonts/alegreya-latin-ext-700-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Amiri"; font-style: normal; font-weight: 700; font-display: swap; src: url("../../assets/fonts/amiri-arabic-700-normal.woff2") format("woff2"); unicode-range: U+0600-06FF, U+0750-077F, U+0870-08FF, U+200C-200E, U+2010-2011, U+204F, U+2E41, U+FB50-FDFF, U+FE70-FEFC; }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("../../assets/fonts/jetbrains-mono-latin-400-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 700; font-display: swap; src: url("../../assets/fonts/jetbrains-mono-latin-700-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+/* Direction b: cool-neutral grey surfaces, neutral charcoal text, Inter body,
+   Alegreya headings, minor third (1.2), compact documentation spacing. Navy and
+   gold appear as accents only.
+
+   Measured contrast ratios (WCAG 2.x, sRGB):
+   foreground #202428 on background #F2F4F6: 14.2:1
+   foreground #202428 on surface #E7EAED: 12.9:1
+   muted #525960 on background #F2F4F6: 6.4:1
+   muted #525960 on surface #E7EAED: 5.9:1
+   gold text #7A5410 on background #F2F4F6: 6.1:1
+   gold text #7A5410 on surface #E7EAED: 5.6:1
+   navy #1F3A5F on background #F2F4F6: 10.4:1
+   button text #F2F4F6 on navy #1F3A5F: 10.4:1
+   code tokens on code background #E9EDF0: keyword 6.9:1, type 6.6:1,
+   function 11.4:1, string 6.2:1, number 6.2:1, comment 5.0:1, attribute 6.6:1,
+   particle 6.2:1, operator 9.0:1, plain code 13.3:1.
+   All body text meets AA at 4.5:1; all large text meets 3:1. */
+:root {
+  --bg: #F2F4F6;
+  --surface: #E7EAED;
+  --fg: #202428;
+  --muted: #525960;
+  --rule: #D3D8DD;
+  --navy: #1F3A5F;
+  --gold: #C08A2E;
+  --gold-text: #7A5410;
+  --code-bg: #E9EDF0;
+
+  --ratio: 1.2;
+  --base: 1rem;
+  --lh: 1.55;
+  --measure: 70ch;
+  --step--1: 0.8333rem;
+  --step-0: 1rem;
+  --step-1: 1.2rem;
+  --step-2: 1.44rem;
+  --step-3: 1.728rem;
+  --step-4: 2.0736rem;
+  --step-5: 2.4883rem;
+
+  --serif: "Alegreya", Georgia, "Times New Roman", serif;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --arabic: "Amiri", "Noto Naskh Arabic", serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 1.5rem; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: var(--base); line-height: var(--lh);
+  overflow-wrap: break-word;
+}
+[lang="ar"] { font-family: var(--arabic); font-weight: 700; line-height: 1.4; }
+a { color: var(--gold-text); text-underline-offset: .16em; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 3px; border-radius: 2px; }
+.skip { position: absolute; left: -999px; top: .5rem; background: var(--navy); color: var(--bg); padding: .5rem 1rem; z-index: 10; }
+.skip:focus { left: .5rem; }
+.wrap { max-width: 74rem; margin: 0 auto; padding: 0 clamp(1.1rem, 3.5vw, 2.5rem); }
+h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.2; letter-spacing: -.005em; margin: 0; }
+h1 { font-size: var(--step-4); }
+h2 { font-size: var(--step-2); }
+h3 { font-size: var(--step-1); }
+
+.site-head { border-bottom: 1px solid var(--rule); background: var(--bg); }
+.head-row { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem 1.25rem; padding-top: .7rem; padding-bottom: .7rem; }
+.brand { display: flex; align-items: baseline; gap: .55rem; color: var(--navy); text-decoration: none; font-family: var(--serif); font-size: var(--step-1); font-weight: 700; }
+.brand .ar { font-size: var(--step-0); color: var(--navy); }
+.version { margin: 0; font-size: .75rem; color: var(--muted); border: 1px solid var(--rule); border-radius: 3px; padding: .1rem .45rem; }
+.site-head nav { display: flex; flex-wrap: wrap; gap: .15rem 1.2rem; margin-left: auto; font-size: .88rem; font-weight: 600; }
+.site-head nav a { color: var(--fg); text-decoration: none; padding: .25rem 0; border-bottom: 2px solid transparent; }
+.site-head nav a:hover { border-bottom-color: var(--gold); }
+
+.spec-label { background: var(--surface); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); font-size: .8rem; color: var(--muted); }
+.spec-label p { display: flex; align-items: center; gap: .5rem; margin: 0; padding: .38rem clamp(1.1rem, 3.5vw, 2.5rem); }
+.diamond { display: inline-block; flex: none; width: .42rem; height: .42rem; background: var(--gold); }
+
+.hero { padding: clamp(1.75rem, 5vw, 3.5rem) 0 clamp(1.25rem, 3vw, 2rem); }
+.hero h1 { max-width: 22ch; font-size: var(--step-4); }
+.lead { max-width: 48ch; margin: .9rem 0 0; font-size: var(--step-1); line-height: 1.45; color: var(--muted); }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1.25rem; margin-top: 1.35rem; font-size: .92rem; }
+.btn { display: inline-block; background: var(--navy); color: var(--bg); padding: .5rem .95rem; border-radius: 3px; text-decoration: none; font-weight: 600; }
+.btn:hover { text-decoration: underline; text-underline-offset: .2em; }
+.feature { padding: 0 0 clamp(1.5rem, 4vw, 2.5rem); }
+.feature-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(1.25rem, 4vw, 2.5rem); align-items: start; border-top: 1px solid var(--rule); padding-top: 1.5rem; }
+.feature h2 { max-width: 22ch; font-size: var(--step-2); }
+.feature p { max-width: var(--measure); margin: .7rem 0; }
+.checks { list-style: none; margin: .9rem 0 0; padding: 0; font-size: .9rem; }
+.checks li { position: relative; padding-left: 1.2rem; margin: .3rem 0; }
+.checks li::before { content: ""; position: absolute; left: .05rem; top: .55em; width: .38rem; height: .38rem; background: var(--gold); }
+/* code */
+pre, code { font-family: var(--mono); font-variant-ligatures: none; }
+code { font-size: .86em; background: var(--code-bg); padding: .06em .28em; border-radius: 2px; }
+pre { margin: 0 0 .85rem; background: var(--code-bg); border-left: 3px solid var(--gold); padding: .85rem 1rem; overflow-x: auto; font-size: .8rem; line-height: 1.6; tab-size: 4; }
+pre code { background: none; padding: 0; font-size: inherit; }
+pre.byn { color: var(--fg); }
+.kw { color: #6A4A0A; font-weight: 700; }
+.ty { color: #26557F; }
+.fn { color: #14304F; text-decoration: underline; text-decoration-color: var(--gold); text-underline-offset: .18em; }
+.str { color: #4F5B2E; }
+.num { color: #7F4A00; }
+.com { color: #5D666E; font-style: italic; }
+.at { color: #5A5320; }
+.pa { color: #7C4C00; font-weight: 700; }
+.op { color: #33404F; font-weight: 700; }
+pre.out { border-left-color: var(--navy); background: var(--surface); color: var(--muted); }
+.code-figure { margin: 0; background: var(--surface); border-left: 3px solid var(--gold); padding: .85rem clamp(.85rem, 2vw, 1.1rem) 1rem; }
+.code-figure figcaption { font-size: .75rem; color: var(--muted); margin-bottom: .4rem; }
+.code-figure .out-label { margin: .1rem 0 .3rem; font-size: .72rem; color: var(--muted); }
+
+/* docs: compact, with an on-page list beside the prose */
+.docs { padding: 1.5rem 0 clamp(2.5rem, 5vw, 3.5rem); }
+.crumbs { margin: 0 0 .5rem; font-size: .78rem; color: var(--muted); }
+.docs-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+.docs-side { font-size: .8rem; border-top: 2px solid var(--navy); padding-top: .5rem; }
+.docs-side .side-title { margin: 0 0 .35rem; font-size: .75rem; font-weight: 600; color: var(--muted); }
+.docs-side ul { list-style: none; margin: 0; padding: 0; }
+.docs-side li + li { margin-top: .1rem; }
+.docs-side a { display: block; padding: .22rem 0; color: var(--fg); text-decoration: none; border-bottom: 1px solid transparent; }
+.docs-side a:hover { border-bottom-color: var(--gold); }
+.docs-prose h1 { font-size: var(--step-3); max-width: 24ch; margin-bottom: .5rem; }
+.lede { max-width: var(--measure); margin: 0 0 1rem; font-size: .95rem; line-height: 1.55; color: var(--muted); }
+.docs-prose h2 { font-size: var(--step-2); margin: 1.6rem 0 .4rem; padding-top: .7rem; border-top: 1px solid var(--rule); }
+.docs-prose h3 { font-size: var(--step-1); margin: 1.15rem 0 .3rem; }
+.docs-prose p { max-width: var(--measure); margin: .55rem 0 .8rem; font-size: .95rem; line-height: 1.6; }
+.example { margin: .9rem 0 1.1rem; }
+.example figcaption { font-size: .75rem; color: var(--muted); margin-bottom: .4rem; }
+.tablewrap { overflow-x: auto; margin: 1.1rem 0; }
+table { border-collapse: collapse; width: 100%; max-width: 44rem; font-size: .82rem; }
+caption { text-align: left; font-size: .75rem; color: var(--muted); padding-bottom: .35rem; }
+th, td { text-align: left; vertical-align: top; padding: .38rem .8rem .38rem 0; border-bottom: 1px solid var(--rule); }
+thead th { border-bottom: 2px solid var(--fg); font-weight: 600; }
+tbody th { font-weight: 600; }
+.note { max-width: var(--measure); margin: 1.2rem 0; padding: .6rem .85rem; background: var(--surface); border-left: 3px solid var(--gold); font-size: .88rem; line-height: 1.55; }
+.note p { margin: 0; max-width: none; font-size: inherit; }
+.note strong { font-size: .8rem; font-weight: 600; }
+.site-foot { margin-top: 2rem; border-top: 1px solid var(--rule); padding: 1rem 0 2rem; font-size: .78rem; color: var(--muted); }
+.site-foot p { margin: 0; }
+
+@media (min-width: 56rem) {
+  .docs-grid { grid-template-columns: 10.5rem minmax(0, 1fr); gap: 2.25rem; }
+  .docs-side { position: sticky; top: 1rem; align-self: start; }
+}
+@media (max-width: 680px) {
+  .feature-grid { grid-template-columns: minmax(0, 1fr); }
+  .site-head nav { margin-left: 0; width: 100%; }
+  .hero h1 { font-size: var(--step-3); }
+}
+@media (max-width: 480px) {
+  .brand, .brand .ar { font-size: var(--step-0); }
+  pre { padding: .7rem; font-size: .75rem; }
+  .spec-label p { padding-left: .8rem; padding-right: .8rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-head">
+  <div class="wrap head-row">
+    <a class="brand" href="#top" aria-label="Bayān home">Bayān <span class="ar" lang="ar" dir="rtl" aria-hidden="true">بيان</span></a>
+    <p class="version">Bayān 0.3.2</p>
+    <nav aria-label="Main">
+      <a href="#learn">Learn</a>
+      <a href="#docs">Reference</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#download">Download</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="spec-label">
+    <p><span class="diamond" aria-hidden="true"></span>Part one: landing page</p>
+  </div>
+
+  <section class="hero" id="learn" aria-labelledby="hero-title">
+    <div class="wrap">
+      <h1 id="hero-title">A small language with the whole program in view.</h1>
+      <p class="lead">Bayān is a value-oriented language that compiles to native code. No runtime, no garbage collector, no exceptions.</p>
+      <p class="actions"><a class="btn" href="#docs">Read the documentation</a> <a href="#download">Download Bayān 0.3.2</a></p>
+    </div>
+  </section>
+
+  <section class="feature" aria-labelledby="feature-title">
+    <div class="wrap feature-grid">
+      <div>
+        <h2 id="feature-title">The shape of a binding is visible</h2>
+        <p>A <code>let</code> binding holds one value. A <code>var</code> binding may change. Both are written where they are declared, so a reader does not have to look for a later assignment.</p>
+        <ul class="checks">
+          <li>A declaration names its type.</li>
+          <li>Mutation is named at the declaration.</li>
+          <li>No runtime sits between the source and the binary.</li>
+        </ul>
+      </div>
+      <figure class="code-figure">
+        <figcaption>book-01-hello.byn</figcaption>
+        <pre class="byn"><code><span class="fn">print</span>(<span class="str">&quot;Salam, world!&quot;</span>)</code></pre>
+        <p class="out-label">Output</p>
+        <pre class="out"><code>Salam, world!</code></pre>
+      </figure>
+    </div>
+  </section>
+
+  <div class="spec-label">
+    <p><span class="diamond" aria-hidden="true"></span>Part two: documentation page</p>
+  </div>
+
+  <section class="docs" id="docs" aria-labelledby="docs-title">
+    <div class="wrap">
+      <p class="crumbs">Learn / Collections</p>
+      <div class="docs-grid">
+        <nav class="docs-side" aria-label="On this page">
+          <p class="side-title">On this page</p>
+          <ul>
+            <li><a href="#b-adding">Adding and reading values</a></li>
+            <li><a href="#b-visiting">Visiting every item</a></li>
+            <li><a href="#b-types">Types in the example</a></li>
+          </ul>
+        </nav>
+        <article class="docs-prose">
+          <h1 id="docs-title">Lists</h1>
+          <p class="lede">A list holds values in order. It grows when you add an item and shrinks when you remove one.</p>
+
+          <h2 id="b-adding">Adding and reading values</h2>
+          <p>The type is written in angle brackets, as in <code>List&lt;i64&gt;</code>. Call <code>append</code> to add an item; <a href="#b-example">the full example</a> shows the list as it grows and shrinks.</p>
+
+          <h3 id="b-visiting">Visiting every item</h3>
+          <p>A <code>for</code> loop visits each item in order. The loop body reads the item directly, without an index.</p>
+
+          <figure class="example" id="b-example">
+            <figcaption>book-07-list.byn</figcaption>
+            <pre class="byn"><code><span class="ty">void</span> <span class="fn">main</span>() {
+    <span class="kw">var</span> scores: <span class="ty">List</span>&lt;<span class="ty">i64</span>&gt; = [<span class="num">72</span>, <span class="num">91</span>, <span class="num">85</span>]
+    scores.<span class="fn">append</span>(<span class="num">64</span>)
+    <span class="fn">print</span>(<span class="str">$&quot;{scores.length} scores&quot;</span>)
+    <span class="fn">print</span>(<span class="str">$&quot;first {scores[0]}, last {scores[scores.length - 1]}&quot;</span>)
+    <span class="fn">print</span>(<span class="str">$&quot;the 9th is {scores.tryGet(at: 9) ?? -1}&quot;</span>)
+    scores.<span class="fn">sort</span>()
+    <span class="kw">for</span> s <span class="kw">in</span> scores {
+        <span class="fn">print</span>(<span class="str">$&quot;{s}&quot;</span>)
+    }
+    <span class="kw">let</span> last = scores.<span class="fn">removeLast</span>()
+    <span class="fn">print</span>(<span class="str">$&quot;removed {last}, {scores.length} left&quot;</span>)
+}</code></pre>
+          </figure>
+          <div class="tablewrap" id="b-types">
+            <table>
+              <caption>Types in the example</caption>
+              <thead>
+                <tr><th scope="col">Type</th><th scope="col">What it holds</th><th scope="col">Seen as</th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row"><code>i64</code></th><td>A whole number</td><td><code>72</code>, <code>91</code>, <code>85</code></td></tr>
+                <tr><th scope="row"><code>List&lt;i64&gt;</code></th><td>An ordered list that grows</td><td><code>scores</code></td></tr>
+                <tr><th scope="row"><code>string</code></th><td>Text</td><td>the printed lines</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="note" aria-label="Note">
+            <p><strong>Note.</strong> <code>tryGet</code> returns an optional value. The fallback after <code>??</code> runs only when the index is out of range.</p>
+          </aside>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    <p>Bayān 0.3.2. Made by the Ikhbat Foundation.</p>
+  </div>
+</footer>
+</body>
+</html>

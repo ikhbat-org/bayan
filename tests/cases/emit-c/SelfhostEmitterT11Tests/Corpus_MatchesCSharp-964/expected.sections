@@ -1,0 +1,3 @@
+== locals
+evens: xs i t t
+main: arena xs

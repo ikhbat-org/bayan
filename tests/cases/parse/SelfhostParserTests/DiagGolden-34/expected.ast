@@ -1,0 +1,62 @@
+CompilationUnit
+  Struct P
+    Field i32 x
+  Function f(bool a, P? p) -> void
+    Block
+      Unless (paren (&& a a))
+        Block
+          Expr (call print "a")
+      Unless (paren (! a))
+        Block
+          Expr (call print "b")
+      Guarded unless (paren (! a))
+        Return
+      Guarded unless (paren (paren (|| a a)))
+        Return
+      Guarded unless (paren (is p null))
+        Return
+
+error BYN1022: `unless` with `&&`/`||` reads as a double negative
+
+  4 │     unless ((a && a)) {
+    │     ^^^^^^^^^^^^^^^^^ a compound condition
+    │
+  help: use `if` with the negated condition
+    │ 4 │     if !(a && a) {
+    │   │     +++++++++++
+
+error BYN1007: `unless` with a negated condition is a double negative
+
+  7 │     unless ((!a)) {
+    │     ^^^^^^^^^^^^^ `unless` already negates
+    │
+  help: use `if` with the condition as written
+    │ 7 │     if a {
+    │   │     ++++
+
+error BYN1007: `unless` with a negated condition is a double negative
+
+  10 │     return unless (!a)
+     │            ^^^^^^^^^^^ `unless` already negates
+     │
+  help: use `if` with the condition as written
+     │ 10 │     return if a
+     │    │            ++++
+
+error BYN1022: `unless` with `&&`/`||` reads as a double negative
+
+  11 │     return unless ((a || a))
+     │            ^^^^^^^^^^^^^^^^^ a compound condition
+     │
+  help: use `if` with the negated condition
+     │ 11 │     return if !(a || a)
+     │    │            +++++++++++
+
+error BYN1023: `unless x is null` is not allowed; write `if x is not null`
+
+  12 │     return unless (p is null)
+     │            ^^^^^^^^^^^^^^^^^^ a negated null test
+     │
+  help: use `if` with `is not null`
+     │ 12 │     return if p is not null
+     │    │            ++++++++++++++++

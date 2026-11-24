@@ -1,0 +1,70 @@
+1:1 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:1 Identifier `d`
+4:3 OrKeyword `or`
+4:6 NotKeyword `not`
+5:1 IsKeyword `is`
+5:4 AndKeyword `and`
+5:8 OrKeyword `or`
+5:11 NotKeyword `not`
+5:15 WithKeyword `with`
+5:20 MoveKeyword `move`
+5:25 RefKeyword `ref`
+5:29 OutKeyword `out`
+5:33 ThisKeyword `this`
+5:38 NullKeyword `null`
+5:43 TrueKeyword `true`
+5:48 FalseKeyword `false`
+5:54 ComptimeKeyword `comptime`
+5:63 CheckedKeyword `checked`
+7:2 Identifier `é`
+8:1 Identifier `a`
+8:3 Greater `>`
+8:4 Greater `>`
+8:6 Identifier `b`
+9:1 Identifier `c`
+9:3 Greater `>`
+9:4 GreaterEquals `>=`
+9:7 IntegerLiteral `1`
+11:2 Identifier `hidden`
+12:1 LetKeyword `let`
+12:5 Identifier `x`
+12:8 Equals `=`
+12:10 IntegerLiteral `1`
+13:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  6 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ // �x
+    │   │    -
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  7 │  é
+    │  ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  é
+    │   │  +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  12 │ let x� = 1
+     │      ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 12 │ let x� = 1
+     │    │      -

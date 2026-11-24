@@ -1,0 +1,14 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:3 LetKeyword `let`
+1:7 Identifier `c`
+1:9 Equals `=`
+1:11 RawStringLiteral `"""never closed\n let c = \u{7} 3\n 각\ntest asser property fuzz model foreach new goto\n & && | || ^~ ! = == != < <= > >= << >> >>=\n\n$"{$%{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"`
+7:71 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1.let c = """never closed
+    │           ^^^ raw string starts here
+    │
+  help: close it with `"""`

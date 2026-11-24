@@ -1,0 +1,4 @@
+== 1 exit 0
+doctor 4
+✗ cache: $WORK/file isn't writable
+  help: set BAYAN_CACHE to a writable directory

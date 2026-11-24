@@ -1,0 +1,5 @@
+== cases
+0 l2_names.len
+1 (*bynh_at_list_str(l2_names, (int64_t)INT64_C(0), false, byn_file_0, 6))
+2 ((bynt_span_u8){l5_data.v, 1})
+count 3

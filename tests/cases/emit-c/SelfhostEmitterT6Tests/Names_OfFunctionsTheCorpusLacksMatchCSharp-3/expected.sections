@@ -1,0 +1,17 @@
+== names
+byn_main__twice byn_file_0 a.byn
+byn_main__twice__o1 byn_file_0 a.byn
+byn_main__apply byn_file_1 
+byn_main__main byn_file_0 a.byn
+byn_main__Counter__init0 byn_file_0 a.byn
+byn_main__Counter__plus byn_file_0 a.byn
+byn_main__Counter__plus__o1 byn_file_0 a.byn
+byn_main__Counter__get_value byn_file_0 a.byn
+byn_main__apply__lambda1 byn_file_0 a.byn
+byn_main__id__i32 byn_file_0 a.byn
+byn_main__id__str byn_file_0 a.byn
+byn_test_0 byn_file_0 a.byn
+byn_test_1 byn_file_0 a.byn
+byn_main__main byn_file_0 a.byn
+file byn_file_0 a.byn
+file byn_file_1 

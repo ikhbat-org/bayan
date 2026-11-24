@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `"""r xs: List<List<i64>>\na >\n"a\u{2067}b"\n}let fa = 1\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"b{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"\t"}"}"}"}"}"}"}"}" `
+6:90 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """r xs: List<List<i64>>
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/log-builtin.byn
+--package
+<repo>/tests/cases/run

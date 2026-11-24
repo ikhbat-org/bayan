@@ -1,0 +1,52 @@
+2:2 CharLiteral `''`
+4:1 CloseBrace `}`
+4:3 Identifier `x_ff`
+4:8 IntegerLiteral `0b1010`
+4:15 IntegerLiteral `0B11`
+4:20 IntegerLiteral `5`
+4:21 NumericSuffix `s`
+4:23 IntegerLiteral `250`
+4:26 NumericSuffix `ms`
+4:29 IntegerLiteral `4`
+4:30 NumericSuffix `KiB`
+4:34 IntegerLiteral `1`
+5:1 Identifier `ted`
+5:4 StringLiteral `"`
+6:3 RawStringLiteral `""" c"text" u16"wie" "\u{202E} allowed in strings" "" "\ `
+6:53 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidzden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidzden
+    │   │            -
+
+error BYN0007: empty char literal
+
+  2 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  5 │ ted"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wie" "� allowed in strings" "" "\ 
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

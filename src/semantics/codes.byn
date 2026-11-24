@@ -154,6 +154,8 @@ enum SemaCode {
     genericArgumentCount
     typeParameterOperator
     typeParameterMember
+    /// Bayan only (L023, Decision 2026-11-19): no `DiagnosticCodes.cs` descriptor.
+    endlessInstantiation
     invalidMapKey
     recursiveByValue
     sharedStorageCopy
@@ -430,6 +432,7 @@ string codeText(SemaCode code) => code switch {
     .genericArgumentCount        => "BYN2742",
     .typeParameterOperator       => "BYN2743",
     .typeParameterMember         => "BYN2744",
+    .endlessInstantiation        => "BYN2745",
     .invalidMapKey               => "BYN2760",
     .recursiveByValue            => "BYN2761",
     .sharedStorageCopy           => "BYN2762",
@@ -706,6 +709,7 @@ string messageFormat(SemaCode code) => code switch {
     .genericArgumentCount => "`{0}` takes {1} type argument(s), not {2}",
     .typeParameterOperator => "`{0}` cannot be applied to a value of type parameter `{1}`",
     .typeParameterMember => "`{0}` is not a member of type parameter `{1}`",
+    .endlessInstantiation => "`{0}` needs `{1}`, itself with a larger type argument, without end",
     .invalidMapKey => "`{0}` cannot be a `Map` key",
     .recursiveByValue => "`{0}` contains itself by value: {1}",
     .sharedStorageCopy => "a `{0}` cannot be copied",

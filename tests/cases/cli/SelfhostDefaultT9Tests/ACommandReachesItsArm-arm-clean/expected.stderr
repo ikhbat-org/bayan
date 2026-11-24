@@ -1,0 +1,2 @@
+bayan: unexpected argument `--bogus`
+usage: bayan clean [<dir>] [--dist] [--cache]

@@ -1,0 +1,59 @@
+error BYN2230: `offset` is now `position`
+  --> <repo>/tests/cases/diag/string-member-renames.byn:4:15
+
+  4 │     let _ = s.offset("b")
+    │               ^^^^^^ the old name
+    │
+  help: rename it `position`
+    │ 4 │     let _ = s.position("b")
+    │   │               ++++++++
+
+error BYN2230: `toUtf16()` is now `utf16`
+  --> <repo>/tests/cases/diag/string-member-renames.byn:5:15
+
+  5 │     let _ = s.toUtf16()
+    │               ^^^^^^^ the old name
+    │
+  help: write `utf16`
+    │ 5 │     let _ = s.utf16
+    │   │               +++++
+
+warning BYN2311: `xs` is never reassigned; declare it with `let`
+  --> <repo>/tests/cases/diag/string-member-renames.byn:6:9
+
+  6 │     var xs = List<i64>()
+    │         ^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 6 │     let xs = List<i64>()
+    │   │     +++
+
+error BYN2230: `toList()` is now `copy()`
+  --> <repo>/tests/cases/diag/string-member-renames.byn:7:16
+
+  7 │     let _ = xs.toList()
+    │                ^^^^^^ the old name
+    │
+  help: rename it `copy`
+    │ 7 │     let _ = xs.copy()
+    │   │                ++++
+
+error BYN2230: `toList()` is now `copy()`
+  --> <repo>/tests/cases/diag/string-member-renames.byn:8:21
+
+  8 │     let _ = xs.span.toList()
+    │                     ^^^^^^ the old name
+    │
+  help: rename it `copy`
+    │ 8 │     let _ = xs.span.copy()
+    │   │                     ++++
+
+error BYN2230: `toList()` is now `span.copy()`
+  --> <repo>/tests/cases/diag/string-member-renames.byn:10:19
+
+  10 │     let _ = fixed.toList()
+     │                   ^^^^^^ the old name
+     │
+  help: rename it `span.copy`
+     │ 10 │     let _ = fixed.span.copy()
+     │    │                   +++++++++

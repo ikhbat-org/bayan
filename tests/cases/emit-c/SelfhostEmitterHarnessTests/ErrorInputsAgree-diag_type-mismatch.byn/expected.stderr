@@ -1,0 +1,18 @@
+error BYN2202: expected `i32`, found `i64`
+  --> input.byn:2:18
+
+  2 │ let small: i32 = big
+    │                  ^^^
+    │
+  help: convert it if the value always fits; `i64` does not convert to `i32` without loss
+    │ 2 │ let small: i32 = i32(big)
+    │   │                  ++++++++
+
+error BYN2202: expected `bool`, found `i32`
+  --> input.byn:3:18
+
+  3 │ let flag: bool = 1
+    │                  ^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2202

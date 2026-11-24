@@ -1,0 +1,15 @@
+i64 branches(i64 a, by i64 b) {
+    var r = 0
+    if a < b { return a }
+    if a == b { r = 1 } else { r = 2 }
+    r = a + b
+    r *= b
+    if never r == 9 { r = 1 }
+    switch a {
+        default:
+            r = 2
+    }
+    if r == 3 { return b } else { return r }
+}
+
+void main() { }

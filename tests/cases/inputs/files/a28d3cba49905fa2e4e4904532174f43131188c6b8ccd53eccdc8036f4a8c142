@@ -1,0 +1,24 @@
+struct T1 { }
+union error T2 {
+    a
+}
+enum T3 {
+    a
+}
+union T4 {
+    a
+}
+interface T5 { }
+type T6 = i64
+type distinct T7 = i64
+const k = 1
+void fn1() { }
+struct T1 { }
+void T2() { }
+const T3 = 2
+struct fn1 { }
+struct k { }
+void T4() { }
+void T5() { }
+void T6() { }
+void T7() { }

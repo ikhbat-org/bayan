@@ -1,0 +1,68 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `x`
+3:6 InterpolationStart `{`
+3:8 StringLiteral `"{`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+6:1 CharLiteral `'a'`
+6:5 CharLiteral `'n'`
+6:9 CharLiteral `'\u{1F600}'`
+6:21 CharLiteral `'\''`
+6:26 CharLiteral `'é'`
+6:30 CharLiteral `'\\'`
+6:35 CharLiteral `'\0'`
+7:3 EqualsEquals `==`
+7:6 BangEquals `!=`
+7:9 Less `<`
+7:11 LessEquals `<=`
+7:14 Greater `>`
+7:16 Greater `>`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ � $"x{ "{
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ � $"x{ "{
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ � $"x{ "{
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ � $"x{ "{
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ � $"x{ "{
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

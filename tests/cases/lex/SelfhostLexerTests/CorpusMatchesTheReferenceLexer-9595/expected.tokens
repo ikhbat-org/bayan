@@ -1,0 +1,109 @@
+1:2 FailsKeyword `fails`
+1:8 TryKeyword `try`
+1:12 CatchKeyword `catch`
+1:18 NeverKeyword `never`
+1:24 NoallocKeyword `noalloc`
+1:32 NosuspendKeyword `nosuspend`
+1:42 SuspendsKeyword `suspends`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
+2:2 IsKeyword `is`
+2:5 AndKeyword `and`
+2:9 OrKeyword `or`
+2:12 NotKeyword `not`
+2:16 WithKeyword `with`
+2:21 MoveKeyword `move`
+2:26 RefKeyword `ref`
+2:30 OutKeyword `out`
+2:34 ThisKeyword `this`
+2:39 NullKeyword `null`
+2:44 TrueKeyword `true`
+2:49 FalseKeyword `false`
+2:55 ComptimeKeyword `comptime`
+2:64 CheckedKeyword `checked`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `total `
+4:9 InterpolationStart `{`
+4:10 Identifier `x`
+4:11 InterpolationEnd `}`
+4:12 InterpolatedStringEnd `"`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolatedStringText `a `
+4:18 InterpolationStart `{`
+4:19 Identifier `f`
+4:20 OpenParen `(`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolatedStringText `b `
+4:25 InterpolationStart `{`
+4:26 Identifier `c`
+4:27 InterpolationEnd `}`
+4:28 InterpolatedStringEnd `"`
+4:29 CloseParen `)`
+4:30 InterpolationEnd `}`
+4:31 InterpolatedStringText ` d`
+4:33 InterpolatedStringEnd `"`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolatedStringText `{{literal}}`
+4:48 InterpolatedStringEnd `"`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 Identifier `Point`
+4:59 OpenBrace `{`
+4:61 Identifier `x`
+4:63 Equals `=`
+4:65 IntegerLiteral `1`
+4:67 CloseBrace `}`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringText `!`
+4:70 InterpolatedStringEnd `"`
+4:72 InterpolatedStringStart `$"`
+4:74 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `00`
+6:3 CloseBrace `}`
+6:4 CharLiteral `'`
+7:2 IsKeyword `is`
+7:5 AndKeyword `and`
+7:9 OrKeyword `or`
+7:12 NotKeyword `not`
+7:16 WithKeyword `with`
+7:21 MoveKeyword `move`
+7:26 RefKeyword `ref`
+7:30 OutKeyword `out`
+7:34 ThisKeyword `this`
+7:39 NullKeyword `null`
+7:44 TrueKeyword `true`
+7:49 FalseKeyword `false`
+7:55 ComptimeKeyword `comptime`
+7:64 CheckedKeyword `checked`
+8:1 LetKeyword `let`
+8:5 Identifier `café`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
+8:14 Semicolon `;`
+8:16 StringLiteral `"text"`
+8:23 StringLiteral `"esc \"q\" \\ \n"`
+8:41 RawStringLiteral `"""\n`
+9:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  6 │ 00}'
+    │    ^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  8 │ let café = 1; "text" "esc \"q\" \\ \n" """
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 8 │ let café = 1; "text" "esc \"q\" \\ \n" """
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  8 │ let café = 1; "text" "esc \"q\" \\ \n" """
+    │                                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

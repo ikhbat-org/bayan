@@ -1,0 +1,85 @@
+== tests/cases/run/map-model.byn
+195..308 blockStmt
+201..214 localDecl
+209..214 nameExpr
+219..236 assignStmt assign target 219..220 value 223..236
+219..220 nameExpr
+223..236 binaryExpr bitXor right 227..236
+223..224 nameExpr
+228..235 binaryExpr shl right 233..235
+228..229 nameExpr
+233..235 literalExpr integer
+241..257 assignStmt assign target 241..242 value 245..257
+241..242 nameExpr
+245..257 binaryExpr bitXor right 249..257
+245..246 nameExpr
+250..256 binaryExpr shr right 255..256
+250..251 nameExpr
+255..256 literalExpr integer
+262..279 assignStmt assign target 262..263 value 266..279
+262..263 nameExpr
+266..279 binaryExpr bitXor right 270..279
+266..267 nameExpr
+271..278 binaryExpr shl right 276..278
+271..272 nameExpr
+276..278 literalExpr integer
+284..293 assignStmt assign target 284..289 value 292..293
+284..289 nameExpr
+292..293 nameExpr
+298..306 returnStmt value 305..306
+305..306 nameExpr
+310..345 globalStatement
+310..345 localDecl
+327..345 literalExpr integer
+346..369 localDecl
+354..369 callExpr
+370..521 forStmt
+382..389 rangeExpr
+382..383 literalExpr integer
+385..389 literalExpr integer
+390..521 blockStmt
+396..419 localDecl
+404..419 callExpr
+413..418 nameExpr
+424..445 localDecl
+434..445 callExpr
+438..444 binaryExpr rem right 442..444
+438..439 nameExpr
+442..444 literalExpr integer
+450..519 ifStmt
+453..470 binaryExpr eq right 469..470
+453..465 binaryExpr rem right 464..465
+454..460 binaryExpr shr right 459..460
+454..455 nameExpr
+459..460 literalExpr integer
+464..465 literalExpr integer
+469..470 literalExpr integer
+471..496 blockStmt
+473..494 localDecl
+481..494 callExpr
+481..482 nameExpr
+490..493 nameExpr
+502..519 blockStmt
+504..517 assignStmt assign target 504..510 value 513..517
+504..510 indexExpr
+504..505 nameExpr
+506..509 nameExpr
+513..517 nameExpr
+513..517 nameExpr
+522..548 exprStmt
+522..548 callExpr
+528..547 interpolatedExpr
+537..545 memberExpr
+537..538 nameExpr
+522..548 callExpr
+549..591 forStmt
+558..559 nameExpr
+560..591 blockStmt
+562..589 exprStmt
+562..589 callExpr
+568..588 interpolatedExpr
+571..576 memberExpr
+571..572 nameExpr
+579..586 memberExpr
+579..580 nameExpr
+562..589 callExpr

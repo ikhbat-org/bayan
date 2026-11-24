@@ -1,0 +1,22 @@
+struct Plain {
+    i64 id requires it > 0
+}
+
+struct Order {
+    i64 id requires it > 0
+    states {
+        draft
+        paid(i64 payment)
+    }
+}
+
+Plain plain(i64 n) fails ValidationError<Plain> => try Plain { id: n }
+
+Order.draft draft(i64 n) fails ValidationError<Order> => try Order.draft { id: n }
+
+let p = plain(0) catch Plain { id: 7 }
+print($"{p.id}")
+let d = draft(0) catch Order.draft { id: 7 }
+print($"{d.id}")
+let e = draft(3) catch Order.draft { id: 7 }
+print($"{e.id}")

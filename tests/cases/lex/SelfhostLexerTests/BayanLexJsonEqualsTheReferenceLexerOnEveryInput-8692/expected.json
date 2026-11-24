@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"LetKeyword","start":20,"end":23,"text":"let","doc":null},{"kind":"Equals","start":25,"end":26,"text":"=","doc":null},{"kind":"IntegerLiteral","start":28,"end":29,"text":"1","doc":null},{"kind":"Identifier","start":31,"end":34,"text":"blo","doc":null},{"kind":"EndOfFile","start":35,"end":35,"text":"","doc":null}],"diagnostics":[]}

@@ -1,0 +1,163 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 Identifier `x`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:58 InterpolationEnd `}`
+1:59 InterpolatedStringEnd `"`
+1:60 InterpolationEnd `}`
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 InterpolationEnd `}`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
+1:76 InterpolationEnd `}`
+1:77 InterpolatedStringEnd `"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 CloseBrace `}`
+1:83 StringLiteral `"`
+2:1 CharLiteral `'\u{D800}'`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `42`
+4:6 IntegerLiteral `1_000_000`
+4:16 IntegerLiteral `0xFF`
+4:21 IntegerLiteral `0x_ff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0B11`
+4:39 IntegerLiteral `5`
+4:40 NumericSuffix `s`
+4:42 IntegerLiteral `250`
+4:45 NumericSuffix `m`
+4:47 IntegerLiteral `4`
+4:48 NumericSuffix `KiB`
+4:52 IntegerLiteral `1`
+4:53 NumericSuffix `u`
+4:55 IntegerLiteral `0xFF`
+4:59 Percent `%`
+4:60 Identifier `u`
+4:62 IntegerLiteral `0b1`
+4:65 NumericSuffix `ul`
+4:68 IntegerLiteral `7`
+4:69 NumericSuffix `l`
+5:2 LetKeyword `let`
+5:6 Identifier `a`
+5:8 Equals `=`
+5:9 CloseBracket `]`
+5:13 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:11 IntegerLiteral `3`
+8:1 Comma `,`
+8:3 Dot `.`
+8:5 DotDot `..`
+8:8 DotDotEquals `..=`
+8:12 Colon `:`
+8:14 Question `?`
+8:16 QuestionQuestion `??`
+8:19 QuestionQuestionEquals `??=`
+8:23 QuestionDot `?.`
+8:26 FatArrow `=>`
+8:29 Arrow `->`
+8:32 At `@`
+8:34 Hash `#`
+9:1 LetKeyword `let`
+9:5 Identifier `x`
+9:8 Equals `=`
+9:10 IntegerLiteral `1`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                                   ^ string
+    │                                                                                     ends at
+    │                                                                                     the end of
+    │                                                                                     the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `$`
+
+  5 │  let a =] $ 1
+    │           ^
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  9 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ let x� = 1
+    │   │      -

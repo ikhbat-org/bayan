@@ -1,0 +1,10 @@
+== 1
+warning BYN2311: `v` is never reassigned; declare it with `let`
+  --> $WORK/lint.byn:28:21
+
+  28 │         case .b(var v):
+     │                     ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 28 │         case .b(let v):
+     │    │                 +++

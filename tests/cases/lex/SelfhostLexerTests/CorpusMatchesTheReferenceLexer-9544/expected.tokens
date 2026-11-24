@@ -1,0 +1,70 @@
+2:1 CharLiteral `'\�q'`
+3:1 CharLiteral `'\u{D800}'`
+4:1 CharLiteral `'\u{110000}'`
+5:1 CharLiteral `'x`
+7:1 IntegerLiteral `0xFF`
+7:5 NumericSuffix `s`
+9:1 VarKeyword `var`
+9:5 Identifier `xBs`
+9:8 Colon `:`
+9:10 Slash `/`
+9:11 Identifier `List`
+9:15 Less `<`
+9:16 Identifier `List`
+9:20 Less `<`
+9:21 Identifier `i64`
+9:24 Greater `>`
+9:25 Greater `>`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �
+    │ ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  2 │ '\�q'
+    │ ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\�`
+
+  2 │ '\�q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  2 │ '\�q'
+    │   ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

@@ -1,0 +1,1 @@
+{"code":"BYN2003","severity":"error","file":"input.byn","span":{"start":154,"end":161,"line":4,"column":16,"endLine":4,"endColumn":23},"message":"`matches` is not a member of `string`","label":"`matches` arrives with `std.regex` after v0.1","help":null,"fixes":[]}

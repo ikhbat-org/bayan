@@ -1,0 +1,1 @@
+{"code":"BYN2011","severity":"error","file":"input.byn","span":{"start":5,"end":10,"line":1,"column":6,"endLine":1,"endColumn":11},"message":"type alias `Alpha` refers to itself","label":null,"help":null,"fixes":[]}

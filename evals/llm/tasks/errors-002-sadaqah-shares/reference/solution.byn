@@ -1,0 +1,26 @@
+union error ShareError {
+    /// Nobody to give to.
+    noPeople
+    /// The amount is below zero.
+    negative(i64 amount)
+    /// The amount does not divide evenly.
+    uneven(i64 left)
+}
+
+/// What each of `people` receives from `total`.
+i64 share(i64 total, for i64 people) fails ShareError {
+    fail .noPeople if people <= 0
+    fail .negative(amount: total) if total < 0
+    fail .uneven(left: total % people) if total % people != 0
+    return total / people
+}
+
+/// One line describing the split, or why it cannot be made.
+string describe(i64 total, for i64 people) {
+    let each = share(total, for: people) catch switch {
+        .noPeople             => return "no people",
+        .negative(let amount) => return $"negative amount: {amount}",
+        .uneven(let left)     => return $"left over: {left}",
+    }
+    return $"each gets {each}"
+}

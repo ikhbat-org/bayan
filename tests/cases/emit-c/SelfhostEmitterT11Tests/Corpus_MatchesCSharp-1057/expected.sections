@@ -1,0 +1,6 @@
+== cases
+0 bynh_strbuf_repeat(&l0_buf, UINT32_C(45), INT64_C(2), byn_file_0, 2)
+1 byn_strbuf_str(l0_buf)
+2 bynh_strbuf_repeat(&l0_buf, UINT32_C(45), ((int64_t)l1_n), byn_file_0, 5)
+3 ((int64_t)l1_n)
+count 4

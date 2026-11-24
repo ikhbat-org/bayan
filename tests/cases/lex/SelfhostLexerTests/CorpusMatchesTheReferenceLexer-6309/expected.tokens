@@ -1,0 +1,49 @@
+1:2 StringLiteral `"{{literal}}"`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 Identifier `Point`
+1:25 OpenBrace `{`
+1:27 Identifier `x`
+1:29 Equals `=`
+1:31 IntegerLiteral `1`
+1:33 CloseBrace `}`
+1:34 InterpolationEnd `}`
+1:35 InterpolatedStringText `!`
+1:36 InterpolatedStringEnd `"`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolatedStringEnd `"`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:9 StringLiteral `"bad \q escape"`
+5:2 LetKeyword `let`
+5:6 Identifier `c`
+5:8 Equals `=`
+5:10 RawStringLiteral `"""never closed\n"""`
+6:5 Identifier `c`
+6:7 Greater `>`
+6:8 GreaterEquals `>=`
+6:11 IntegerLiteral `1`
+7:2 VarKeyword `var`
+7:6 Identifier `xs`
+7:8 Colon `:`
+7:10 Identifier `List`
+7:14 Less `<`
+7:15 Identifier `List`
+7:19 Less `<`
+7:20 Identifier `i64`
+7:23 Greater `>`
+7:24 Greater `>`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � "{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,11 @@
+== case inline/dot-keyword
+errors 2
+error BYN3102: `kind` must be `.app` or `.lib`
+  1 │ Package { name: "local/a", version: "0.1.0", kind: .struct, if: 1 }
+    │                                                    ^^^^^^^
+error BYN3101: `if` is not a field of `Package`
+  1 │ Package { name: "local/a", version: "0.1.0", kind: .struct, if: 1 }
+    │                                                             ^^
+    │
+  help: use one of the fields `name`, `version`, `edition`, `kind`, `codes`, `capabilities`, `deps`,
+        `test`, `dist`, `style`, `grammar`

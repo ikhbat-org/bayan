@@ -1,0 +1,8 @@
+error BYN2225: `List<i64>` cannot be formatted
+  --> tmp/t26-tests/cli/diag_not-formattable.byn/not-formattable.byn:2:10
+
+  2 │ print($"{xs}")
+    │          ^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2225

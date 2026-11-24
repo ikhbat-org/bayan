@@ -1,0 +1,72 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 Identifier `privatestatic`
+1:61 Identifier `readonlyJrequired`
+1:79 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+2:1 CharLiteral `'\q'`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+4:1 CharLiteral `'\u{D800}'`
+5:2 StringLiteral `"\u{2067}b"`
+5:7 Identifier `ạ̇`
+5:11 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  4 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │  "�b" ạ̇�
+    │       ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  "�b" ạ̇�
+    │   │       +
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │  "�b" ạ̇�
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │  "�b" ạ̇�
+    │           ^

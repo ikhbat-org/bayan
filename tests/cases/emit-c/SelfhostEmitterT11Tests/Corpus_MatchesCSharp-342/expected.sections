@@ -1,0 +1,12 @@
+== helpers
+bynh_strbuf_repeat static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) | static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) {
+    if (n < 0) byn_panic("repeated a negative number of times", file, line);
+    for (int64_t i = 0; i < n; i++) byn_w_char(w, c);
+}
+bynh_str_bytes static bynt_span_u8 bynh_str_bytes(byn_str s) | static bynt_span_u8 bynh_str_bytes(byn_str s) {
+    return (bynt_span_u8){(uint8_t*)s.ptr, s.len};
+}
+bynh_at_span_u8 static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) | static uint8_t* bynh_at_span_u8(bynt_span_u8 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

@@ -1,0 +1,3 @@
+public void keep(string s, to ref string t) {
+    t = s
+}

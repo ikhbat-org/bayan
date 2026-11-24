@@ -1,0 +1,9 @@
+== diags.diag/try-covers-more
+BYN1054 13:16 `try` covers `parse(s) + 1`, which cannot fail
+  label cannot fail
+  help wrap the part that fails in parentheses: `(try parse(s))`
+  fix 13:12-13:28 (try parse(s)) + 1
+BYN1054 17:16 `try` covers `one() + parse(s)`, which cannot fail
+  label cannot fail
+  help wrap the part that fails in parentheses: `(try parse(s))`
+  fix 17:12-17:32 one() + (try parse(s))

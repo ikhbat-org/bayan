@@ -1,0 +1,2 @@
+== case float-subnormal
+literal 2385..2393 : f64 = 5E-324

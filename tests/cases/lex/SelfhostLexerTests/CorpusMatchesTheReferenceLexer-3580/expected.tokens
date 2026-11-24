@@ -1,0 +1,52 @@
+1:1 Identifier `ndt`
+1:7 Identifier `hid`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 StringLiteral `"let c = "`
+1:23 StringLiteral `""`
+1:25 NeverKeyword `never`
+1:31 Identifier `closed`
+2:4 Identifier `_`
+3:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ndt � hid$"{"let c = """never closed
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ndt � hid$"{"let c = """never closed
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  1 │ ndt � hid$"{"let c = """never closed
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  �����_
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  �����_
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����_
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����_
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │  �����_
+    │      ^

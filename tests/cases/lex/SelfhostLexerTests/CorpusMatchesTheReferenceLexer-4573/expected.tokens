@@ -1,0 +1,63 @@
+1:3 TestKeyword `test`
+1:8 AssertKeyword `assert`
+1:15 PropertyKeyword `property`
+1:24 FuzzKeyword `fuzz`
+1:29 ModelKeyword `model`
+1:35 ForeachKeyword `foreach`
+1:43 NewKeyword `new`
+1:47 GotoKeyword `goto`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `x`
+2:5 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 LetKeyword `let`
+2:16 Equals `=`
+2:18 IntegerLiteral `2`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 IntegerLiteral `1`
+4:2 Identifier `b`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dec`
+5:30 IntegerLiteral `1`
+5:31 DotDot `..`
+5:33 IntegerLiteral `2`
+5:35 IntegerLiteral `1`
+5:36 DotDotEquals `..=`
+5:39 IntegerLiteral `3`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `e`
+5:44 Identifier `x`
+5:45 Dot `.`
+5:46 Identifier `y`
+5:48 FloatLiteral `2.5`
+5:51 NumericSuffix `f`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ � test assert property fuzz model foreach new goto
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � test assert property fuzz model foreach new goto
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  2 │  $"x{ $"{let � = 2
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  $"x{ $"{let � = 2
+    │              ^

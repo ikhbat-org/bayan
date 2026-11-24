@@ -1,0 +1,72 @@
+1:3 PlusEquals `+=`
+1:6 MinusEquals `-=`
+1:9 StarEquals `*=`
+1:12 SlashEquals `/=`
+1:15 PercentEquals `%=`
+1:18 AmpEquals `&=`
+1:21 BarEquals `|=`
+1:24 CaretEquals `^=`
+1:27 LessLessEquals `<<=`
+2:2 Identifier `amelCase2`
+2:12 Identifier `بيان`
+2:17 Identifier `μετρητής`
+2:26 Identifier `x_1`
+2:30 Identifier `é`
+3:2 CharLiteral `'\u{202E}'`
+3:5 IntegerLiteral `0x`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+6:1 Identifier `é`
+6:5 Identifier `raw`
+6:9 Identifier `quoted`
+6:15 StringLiteral `"`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ � += -= *= /= %= &= |= ^= <<=
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ � += -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ � += -= *= /= %= &= |= ^= <<=
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  '�'0x
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  '�'0x
+    │   │   -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  '�'0x
+    │     ^^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  6 │ é   raw quoted"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

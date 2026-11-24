@@ -1,0 +1,28 @@
+== tests/cases/run/map-coalesce-assign-missing.byn
+62..89 globalStatement
+62..89 localDecl
+70..89 callExpr
+90..103 assignStmt assign target 90..96 value 99..103
+90..96 indexExpr
+90..91 nameExpr
+92..95 literalExpr string
+99..103 literalExpr nullKeyword
+104..116 assignStmt coalesce target 104..110 value 115..116
+104..110 indexExpr
+104..105 nameExpr
+106..109 literalExpr string
+115..116 literalExpr integer
+117..130 exprStmt
+117..130 callExpr
+123..129 interpolatedExpr
+126..127 nameExpr
+117..130 callExpr
+131..143 assignStmt coalesce target 131..137 value 142..143
+131..137 indexExpr
+131..132 nameExpr
+133..136 literalExpr string
+142..143 literalExpr integer
+144..164 exprStmt
+144..164 callExpr
+150..163 literalExpr string
+144..164 callExpr

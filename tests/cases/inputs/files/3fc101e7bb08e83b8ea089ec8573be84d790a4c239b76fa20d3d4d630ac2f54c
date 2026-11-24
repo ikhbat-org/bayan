@@ -1,0 +1,5 @@
+struct Range {
+    i64 lo requires lo >= 0
+    delegate int F(int x);
+    i64 hi
+}

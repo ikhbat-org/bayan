@@ -1,0 +1,13 @@
+== x-unique
+BYN2022 11:16 a `for` over the unique `Item` `List<i64>` of `Rows` is not supported in v0.1 ||make `Rows.Item` a value that is not unique, such as an index, and look the item up in the loop|
+fn main
+block 133..208
+  localDecl 139..157
+    structLiteral 150..157 : Rows
+  forStmt 162..206
+    local 173..177 : Rows
+    block 178..206
+      exprStmt 188..200
+        call 188..200 : void
+          literal 194..199 : string
+          enumMember 188..200 : Stream

@@ -1,0 +1,43 @@
+1:1 IntegerLiteral `0b__`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+3:1 CharLiteral `'a'`
+3:5 CharLiteral `'\n'`
+3:10 CharLiteral `'\u{1F600}'`
+3:22 CharLiteral `'\''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
+4:1 Identifier `t`
+4:3 LetKeyword `let`
+4:7 VarKeyword `var`
+4:11 EmbedKeyword `embed`
+4:17 ExternKeyword `extern`
+4:24 UnsafeKeyword `unsafe`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 Identifier `def`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  1 │ 0b__
+    │ ^^^^
+
+error BYN0004: unterminated block comment
+
+  6 │ /* // line comment
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

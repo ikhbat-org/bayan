@@ -1,0 +1,38 @@
+== tests/cases/diag/dyn-ref-list-element-ref-and-value.byn
+136..221 blockStmt
+142..195 forStmt
+151..157 rangeExpr
+151..152 literalExpr integer
+154..157 literalExpr integer
+158..195 blockStmt
+168..189 exprStmt
+168..189 callExpr
+168..170 nameExpr
+178..188 structLiteralExpr
+185..186 nameExpr
+185..186 nameExpr
+200..219 exprStmt
+200..219 callExpr
+206..218 interpolatedExpr
+209..216 callExpr
+209..210 nameExpr
+200..219 callExpr
+235..315 blockStmt
+241..259 localDecl
+250..259 callExpr
+264..285 exprStmt
+264..285 callExpr
+264..266 nameExpr
+274..284 structLiteralExpr
+281..282 literalExpr integer
+290..313 exprStmt
+290..313 callExpr
+295..300 indexExpr
+295..300 indexExpr
+295..297 nameExpr
+298..299 literalExpr integer
+310..312 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr

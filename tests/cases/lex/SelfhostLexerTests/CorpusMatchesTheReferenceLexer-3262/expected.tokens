@@ -1,0 +1,26 @@
+1:3 CloseBrace `}`
+1:5 VarKeyword `var`
+1:9 Identifier `xs`
+1:13 Identifier `ist`
+1:16 Less `<`
+1:18 Identifier `ist`
+1:21 Less `<`
+1:22 Identifier `i64`
+1:25 Greater `>`
+1:26 Greater `>`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ �� } var xs� ist< ist<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� } var xs� ist< ist<i64>>
+    │  ^
+
+error BYN0002: unexpected character `\u{11}`
+
+  1 │ �� } var xs� ist< ist<i64>>
+    │            ^

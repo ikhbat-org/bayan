@@ -1,0 +1,58 @@
+2:1 Identifier `et`
+2:4 Identifier `b`
+2:6 Equals `=`
+2:8 StringLiteral `"bad \q escape"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:9 RawStringLiteral `"""ne\n$"{"\n let x�r� = 1\nfoo Bar _x c\u{1B}melCase2 بيان μετρητής x_1 é\n1_\n\n`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ et b = "bad \q escape"
+    │             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  3 │ let c = """ne
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │  let x�r� = 1
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  5 │  let x�r� = 1
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  5 │  let x�r� = 1
+    │         ^

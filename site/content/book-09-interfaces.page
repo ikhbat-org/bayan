@@ -45,7 +45,7 @@ struct Square : IShape {
 
 <h3 id="constraint-errors">Two mistakes with constraints</h3>
 <p>Asking for a member the constraint does not list is refused inside the generic function.</p>
-<pre><code class="byn">i64 measure&lt;T&gt;(T shape) where T : IShape => shape.grow()</code></pre>
+<pre><code class="byn">i64 measure&lt;T&gt;(T shape) where T : IShape =&gt; shape.grow()</code></pre>
 <figure class="diag">
 <pre><span class="err">error BYN2806:</span> `T` has no member `grow` in its constraints (`IShape`)
 <span class="gut">  --&gt;</span> n3.byn:12:51
@@ -145,7 +145,7 @@ struct Square : IShape {
 <p><code>Digits.parse</code> fails with <code>empty</code> for <code>""</code> and <code>notDigit</code> for <code>"x"</code>. <code>attempt</code> knows only <code>IParser</code>, yet its <code>catch switch</code> must name both cases. The three lines are <code>7 gives 17</code> (base 10 plus 7), then the two fallbacks. The first part of the middle line is empty because the input string is empty.</p>
 <p>An implementation that allocates must say so on the interface method with <code>uses alloc</code>. Chapter 14 covers effects.</p>
 
-<h2 id="iterate">Making your own type work with for</h2>
+<h2 id="iterate">Making your own type work with <code>for</code></h2>
 <p>Two built-in interfaces let <code>for</code> walk your types. <code>IIndexable</code> needs a <code>count</code> and a <code>get</code>. <code>IEnumerator</code> needs <code>moveNext(ref this)</code> and a <code>current</code>. Each names its element type with <code>type Item = …</code>.</p>
 <example name="book-09-iterate"/>
 <p><code>Tens</code> has no storage at all. <code>get</code> computes each element, so the loop prints 0, 10, 20 and 30. <code>Down</code> is an enumerator: <code>moveNext</code> steps and says whether there is a next value, and the loop reads <code>current</code> each time. It prints 2, 1, 0. An enumerator owns its data. It cannot borrow from another collection. If you want to walk a collection of your own, make it an <code>IIndexable</code>.</p>
@@ -171,3 +171,7 @@ type Predicate&lt;T&gt; = T -&gt; bool</code></pre>
 <p>No. Conformance is explicit, so the call is refused with BYN2807 and a help line to add <code>: IShape</code>. Having the right methods is not enough. The same method with an interface after the colon is what counts.</p></details>
 <details class="quiz"><summary>In <code>book-09-types</code>, why does <code>let b: Option&lt;i64&gt; = .nothing</code> need the type written out?</summary>
 <p><code>.nothing</code> has no payload, so nothing in it says what <code>T</code> is. The leading dot also needs an expected type to look <code>nothing</code> up in. The annotation gives both. <code>wrap("hi")</code> does not need one because the argument is a string.</p></details>
+
+<div class="next-box">
+  <p>Next: <a href="book-10-lambdas.html">10. Lambdas, <code>it</code> and function types</a> covers small functions written where you use them, the shorthand <code>it</code>, and function types.</p>
+</div>

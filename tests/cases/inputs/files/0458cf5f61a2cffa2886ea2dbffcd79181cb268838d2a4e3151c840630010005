@@ -1,0 +1,8 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $ž""
+ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"U}"}"}"}"a >> b
+c >>= 1
+test assert property fuzz model foreach new goto
+
+let b = ` 2
+ðŸ˜var xs: List<List<i64>>
+

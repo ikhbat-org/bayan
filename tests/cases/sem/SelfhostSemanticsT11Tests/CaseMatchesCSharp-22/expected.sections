@@ -1,0 +1,3 @@
+== mainsig main-span
+main checked
+diag BYN2771 tmp/t11-cases/main-span/main.byn 1:6 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args` |  | write `void main()`, `i32 main()`, `void main(ReadOnlySpan<string> args)` or `i32 main(ReadOnlySpan<string> args)`, each optionally with `fails`

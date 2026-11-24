@@ -1,0 +1,2 @@
+== diags.diag/validation-error-ambiguous-arm
+BYN2227 19:5 `.invalid` is ambiguous; it exists in `ValidationError<Signup>`, `ValidationError<Address>`

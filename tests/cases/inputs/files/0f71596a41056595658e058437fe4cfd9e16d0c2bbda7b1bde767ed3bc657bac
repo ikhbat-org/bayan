@@ -1,0 +1,5 @@
+let b = "bad \q escape"
+ pe"
+let c = """never closed
+x
+ `macro select become

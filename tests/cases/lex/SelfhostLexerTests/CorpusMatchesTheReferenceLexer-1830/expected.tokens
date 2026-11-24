@@ -1,0 +1,126 @@
+1:1 OpenBrace `{`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 Identifier `x`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringEnd `"`
+1:29 InterpolationEnd `}`
+1:30 InterpolatedStringEnd `"`
+1:31 InterpolationEnd `}`
+1:32 InterpolatedStringEnd `"`
+1:33 InterpolationEnd `}`
+1:34 InterpolatedStringEnd `"`
+1:35 InterpolationEnd `}`
+1:36 InterpolatedStringEnd `"`
+1:37 InterpolationEnd `}`
+1:38 InterpolatedStringText `}`
+1:39 InterpolatedStringEnd `"`
+1:40 InterpolationEnd `}`
+1:41 InterpolatedStringEnd `"`
+1:42 InterpolationEnd `}`
+1:43 InterpolatedStringEnd `"`
+1:44 CloseBrace `}`
+1:45 StringLiteral `"} �`
+2:1 StructKeyword `struct`
+2:8 UniqueKeyword `unique`
+2:15 UnionKeyword `union`
+2:21 EnumKeyword `enum`
+2:26 FlagsKeyword `flags`
+2:32 OpenKeyword `open`
+2:37 ExtensibleKeyword `extensible`
+2:48 InterfaceKeyword `interface`
+2:58 DelegateKeyword `delegate`
+2:67 ExtensionKeyword `extension`
+2:77 DerivationKeyword `derivation`
+2:88 AttributeKeyword `attribute`
+3:2 IsKeyword `is`
+3:5 AndKeyword `and`
+3:9 OrKeyword `or`
+3:12 NotKeyword `not`
+3:16 WithKeyword `with`
+3:21 MoveKeyword `move`
+3:26 RefKeyword `ref`
+3:30 OutKeyword `out`
+3:34 ThisKeyword `this`
+3:39 NullKeyword `null`
+3:44 TrueKeyword `true`
+3:49 FalseKeyword `false`
+3:55 ComptimeKeyword `comptime`
+3:64 CheckedKeyword `checked`
+5:1 CharLiteral `'\u{110000}'`
+7:1 IntegerLiteral `2`
+9:2 Minus `-`
+9:3 Identifier `stray`
+9:9 CloseBrace `}`
+9:11 Identifier `here`
+9:15 StringLiteral `"`
+10:2 LetKeyword `let`
+10:6 Identifier `actor`
+10:12 Equals `=`
+10:14 IntegerLiteral `1`
+11:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ {$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}}"}"}"}"} �
+    │                                      ^
+    │
+    │ 1 │ {$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}}}"}"}"}"} �
+    │   │                                       +
+
+error BYN0003: unterminated string literal
+
+  1 │ {$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}}"}"}"}"} �
+    │                                             ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ {$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}}"}"}"}"} �
+    │                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ {$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}}"}"}"}"} �
+    │                                                 ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  5 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character `$`
+
+  9 │ $-stray } here"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $-stray } here"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  10 │  let actor = 1
+     │      ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name

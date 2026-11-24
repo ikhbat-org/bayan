@@ -1,0 +1,3 @@
+== case fn-generic
+errorExpr 1507..1510 : ?
+BYN2824 77:16 `gen` cannot be used as a value: it is generic ||wrap it in a lambda: `() => gen()`|

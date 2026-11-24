@@ -1,0 +1,78 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:1 CharLiteral `'\u{202E}'`
+5:2 StringLiteral `"open {x"`
+5:11 Semicolon `;`
+6:2 IntegerLiteral `0x_`
+7:2 Identifier `ạ̇`
+7:8 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '�' // ok � in comment
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '�' // ok � in comment
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ '�' // ok � in comment
+    │           ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ $�"open {x";
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  5 │ $�"open {x";
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │  0x_
+    │  ^^^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  7 │  ạ̇ ��� 
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │  ạ̇ ��� 
+    │   │  ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  7 │  ạ̇ ��� 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  7 │  ạ̇ ��� 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  ạ̇ ��� 
+    │        ^

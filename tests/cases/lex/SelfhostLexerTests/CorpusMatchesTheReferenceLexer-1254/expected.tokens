@@ -1,0 +1,74 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolationEnd `}`
+1:5 InterpolatedStringEnd `"`
+1:6 IntegerLiteral `1__`
+3:3 LetKeyword `let`
+3:7 Identifier `b`
+3:9 Equals `=`
+3:11 StringLiteral `"bSd \q escape"`
+4:4 DotDot `..`
+4:7 DotDotEquals `..=`
+4:11 Colon `:`
+4:12 Question `?`
+4:14 QuestionQuestion `??`
+4:17 QuestionQuestionEquals `??=`
+4:21 QuestionDot `?.`
+4:24 FatArrow `=>`
+4:27 Arrow `->`
+4:30 At `@`
+4:32 Hash `#`
+5:1 Plus `+`
+5:3 Minus `-`
+5:5 Star `*`
+5:7 Slash `/`
+5:9 Percent `%`
+5:11 PlusPercent `+%`
+5:14 MinusPercent `-%`
+5:17 StarPercent `*%`
+5:20 PlusBar `+|`
+5:23 MinusBar `-|`
+5:26 StarBar `*|`
+5:29 PlusPlus `++`
+5:32 Minus `-`
+5:33 VarKeyword `var`
+5:37 Identifier `xs`
+5:39 Colon `:`
+5:41 Identifier `List`
+5:45 Less `<`
+5:46 Identifier `List`
+5:50 Less `<`
+5:51 Identifier `i64`
+5:54 Greater `>`
+5:55 Greater `>`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ $"{}"1__
+    │       ^^
+    │
+    │ 1 │ $"{}"1__
+    │   │       --
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ � let b = "bSd \q escape"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ � let b = "bSd \q escape"
+    │  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ � let b = "bSd \q escape"
+    │                ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �  .. ..= :? ?? ??= ?. => -> @ #
+    │  ^

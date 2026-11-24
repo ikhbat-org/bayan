@@ -1,0 +1,112 @@
+1:1 CharLiteral `'\q'`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:48 StringLiteral `"�{$"`
+4:53 OpenBrace `{`
+4:54 InterpolatedStringStart `$"`
+4:56 InterpolationStart `{`
+4:57 StringLiteral `$"{$"`
+4:62 OpenBrace `{`
+4:63 Identifier `x`
+4:64 CloseBrace `}`
+4:65 StringLiteral `"`
+6:1 CharLiteral `'é'`
+6:5 CharLiteral `'\\'`
+6:10 CharLiteral `'\0'`
+8:1 StructKeyword `struct`
+8:8 Identifier `S`
+9:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `$`
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"�{$"{$"{$"{$"{x}"
+    │                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"�{$"{$"{$"{$"{x}"
+    │                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"�{$"{$"{$"{$"{x}"
+    │                                                 ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"�{$"{$"{$"{$"{x}"
+    │                                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"�{$"{$"{$"{$"{x}"
+    │                                                         ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"�{$"{$"{$"{$"{x}"
+    │                                                                 ^ string ends at the end of
+    │                                                                   the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ /* � */
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ // �
+    │   │  +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ /* � */
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ /* � */
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ �struct S
+    │ ^

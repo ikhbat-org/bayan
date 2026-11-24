@@ -1,0 +1,8 @@
+== cases
+0 ((int64_t)INT64_C(250))
+1 ((int64_t)INT64_C(250))
+2 ((int64_t)l0_t)
+3 (l0_t == l1_u)
+4 (l0_t == ((int64_t)INT64_C(0)))
+5 ((int64_t)INT64_C(0))
+count 6

@@ -1,0 +1,75 @@
+== tests/cases/run/struct-literal-colon.byn
+332..402 globalStatement
+332..402 localDecl
+343..402 structLiteralExpr
+360..365 literalExpr string
+378..392 structLiteralExpr
+387..390 literalExpr integer
+399..400 literalExpr integer
+403..458 exprStmt
+403..458 callExpr
+409..457 interpolatedExpr
+412..421 memberExpr
+412..416 nameExpr
+424..444 memberExpr
+424..438 memberExpr
+424..428 nameExpr
+447..455 memberExpr
+447..451 nameExpr
+403..458 callExpr
+459..531 localDecl
+470..531 withExpr
+470..474 nameExpr
+488..496 literalExpr string
+509..529 structLiteralExpr
+524..527 literalExpr integer
+532..587 exprStmt
+532..587 callExpr
+538..586 interpolatedExpr
+541..550 memberExpr
+541..545 nameExpr
+553..573 memberExpr
+553..567 memberExpr
+553..557 nameExpr
+576..584 memberExpr
+576..580 nameExpr
+532..587 callExpr
+588..607 localDecl
+599..607 structLiteralExpr
+31..32 literalExpr integer
+608..671 exprStmt
+608..671 callExpr
+614..670 interpolatedExpr
+617..627 memberExpr
+617..621 nameExpr
+630..668 binaryExpr eq right 648..668
+630..644 memberExpr
+630..634 nameExpr
+648..668 structLiteralExpr
+663..666 literalExpr integer
+608..671 callExpr
+672..688 exprStmt
+672..688 callExpr
+678..687 interpolatedExpr
+681..685 nameExpr
+672..688 callExpr
+69..125 blockStmt
+79..119 exprStmt
+79..119 callExpr
+79..81 nameExpr
+89..118 interpolatedExpr
+108..113 nameExpr
+108..113 nameExpr
+235..328 blockStmt
+245..322 exprStmt
+245..322 callExpr
+245..247 nameExpr
+255..321 interpolatedExpr
+276..280 nameExpr
+276..280 nameExpr
+295..304 nameExpr
+295..304 nameExpr
+313..316 nameExpr
+313..316 nameExpr
+31..32 literalExpr integer
+197..198 literalExpr integer

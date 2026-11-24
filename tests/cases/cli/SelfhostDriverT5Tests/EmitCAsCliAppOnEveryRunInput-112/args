@@ -1,0 +1,3 @@
+build
+--emit-c
+interface-default-bare-name.byn

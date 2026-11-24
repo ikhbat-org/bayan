@@ -1,0 +1,6 @@
+bool literal(TokenKind kind) => kind switch {
+    .integerLiteral => true,
+    .floatLiteral   => true,
+    .stringLiteral or .rawStringLiteral or .cStringLiteral => true,
+    _               => false,
+}

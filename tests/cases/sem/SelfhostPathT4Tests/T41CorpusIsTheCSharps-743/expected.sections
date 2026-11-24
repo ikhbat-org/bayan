@@ -1,0 +1,4 @@
+== diags.diag/clause-order-inserts
+BYN7003 12:9 `become` needs `becomes .paid` on `charge`
+  help add `becomes .paid` to the signature of `charge`
+  fix 10:17-10:62 ref this is .draft, i64 amount) uses console becomes .paid

@@ -1,0 +1,15 @@
+error BYN3003: cannot return a borrow of `s`, which is freed when `fresh` returns
+  --> <repo>/tests/cases/diag/dyn-ref-returned-local.byn:16:16
+
+  16 │         return s
+     │                ^
+     │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+error BYN3003: cannot return a borrow of `s`, which is freed when `make` returns
+  --> <repo>/tests/cases/diag/dyn-ref-returned-local.byn:22:12
+
+  22 │     return s
+     │            ^
+     │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that

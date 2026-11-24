@@ -1,0 +1,3 @@
+== case fn-type-not-constructible
+errorExpr 1592..1595 : ?
+BYN2019 81:17 `i32` is a type, not a value |||

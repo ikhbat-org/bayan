@@ -1,0 +1,41 @@
+2:1 StringLiteral `"text"`
+2:8 StringLiteral `"esY \"q\" \\ \n"`
+2:26 RawStringLiteral `"""\n\n//// not a doc comment\n�ạ̇\n0x\nmacro select become\n{$"{$"{$"{$"{$"Y{$"{$"{x}"}"}"}"}"}"}"}"}"}" = %= &= |= `
+8:57 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  2 │ "text" "esY \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  5 │ �ạ̇
+    │ ^

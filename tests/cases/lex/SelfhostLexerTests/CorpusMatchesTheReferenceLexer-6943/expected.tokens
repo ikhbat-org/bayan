@@ -1,0 +1,62 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `open `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 StringLiteral `";`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+    doc `/// Doc line one.`
+5:1 CharLiteral `'\u{202E}'`
+5:12 EndOfFile
+
+error BYN0002: unexpected character `﻿`
+
+  2 │ ﻿$"open {x";
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ﻿$"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ ﻿$"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │ '�' /* � */
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�' /* � */
+    │   │  -
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ '�' /* � */
+    │     ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ '�' // �
+    │   │      +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ '�' /* � */
+    │        ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ '�' /* � */
+    │   │        -

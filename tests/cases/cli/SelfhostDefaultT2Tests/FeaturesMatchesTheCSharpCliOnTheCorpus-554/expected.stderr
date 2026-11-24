@@ -1,0 +1,7 @@
+error BYN2811: `extension Money : IShape` is not supported yet
+  --> <repo>/tests/cases/diag/extension-conformance.byn:9:1
+
+  9 │ extension Money : IShape {
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^ retroactive conformance
+    │
+  help: list `IShape` on `Money`'s declaration

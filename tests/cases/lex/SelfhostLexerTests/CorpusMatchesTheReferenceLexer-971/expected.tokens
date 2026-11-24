@@ -1,0 +1,182 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+3:1 Identifier `ạ̇`
+4:2 Identifier `y`
+4:4 CloseBrace `}`
+4:6 Identifier `here`
+4:10 StringLiteral `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+7:1 CharLiteral `'\q'`
+8:1 CharLiteral `'\u{D800}'`
+9:1 CharLiteral `'\u{11b`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 InterpolatedStringStart `$"`
+10:6 InterpolationStart `{`
+10:7 InterpolatedStringStart `$"`
+10:9 InterpolationStart `{`
+10:10 InterpolatedStringStart `$"`
+10:12 InterpolationStart `{`
+10:13 InterpolatedStringStart `$"`
+10:15 InterpolatedStringText `�$`
+10:16 InterpolatedStringEnd `"`
+10:17 OpenBrace `{`
+10:18 InterpolatedStringStart `$"`
+10:20 InterpolationStart `{`
+10:21 InterpolatedStringStart `$"`
+10:23 InterpolationStart `{`
+10:24 InterpolatedStringStart `$"`
+10:26 InterpolationStart `{`
+10:27 InterpolatedStringStart `$"`
+10:29 InterpolationStart `{`
+10:30 InterpolatedStringStart `$"`
+10:32 InterpolationStart `{`
+10:33 InterpolatedStringStart `$"`
+10:35 InterpolationStart `{`
+10:36 InterpolatedStringStart `$"`
+10:38 InterpolationStart `{`
+10:39 InterpolatedStringStart `$"`
+10:41 InterpolationStart `{`
+10:42 InterpolatedStringStart `$"`
+10:44 InterpolationStart `{`
+10:45 InterpolatedStringStart `$"`
+10:47 InterpolationStart `{`
+10:48 InterpolatedStringStart `$"`
+10:50 InterpolationStart `{`
+10:51 StringLiteral `$"{$"`
+10:56 OpenBrace `{`
+10:57 StringLiteral `$"{x}"`
+10:63 CloseBrace `}`
+10:64 StringLiteral `"}"`
+10:67 InterpolationEnd `}`
+10:68 InterpolatedStringEnd `"`
+10:69 InterpolationEnd `}`
+10:70 InterpolatedStringEnd `"`
+10:71 InterpolationEnd `}`
+10:72 InterpolatedStringEnd `"`
+10:73 InterpolationEnd `}`
+10:74 InterpolatedStringEnd `"`
+10:75 InterpolationEnd `}`
+10:76 InterpolatedStringEnd `"`
+10:77 InterpolationEnd `}`
+10:78 InterpolatedStringEnd `"`
+10:79 InterpolatedStringStart `$"`
+10:81 InterpolationStart `{`
+10:82 InterpolatedStringStart `$"`
+10:84 InterpolationStart `{`
+10:85 InterpolatedStringStart `$"`
+10:87 InterpolationStart `{`
+10:88 InterpolatedStringStart `$"`
+10:90 InterpolationStart `{`
+10:91 InterpolatedStringStart `$"`
+10:93 InterpolationStart `{`
+10:94 InterpolatedStringStart `$"`
+10:96 InterpolationStart `{`
+10:97 StringLiteral `$"{$"`
+10:102 OpenBrace `{`
+10:103 StringLiteral `$"{$"`
+10:108 OpenBrace `{`
+10:109 StringLiteral `$"{$"`
+10:114 OpenBrace `{`
+10:115 StringLiteral `$"{$"`
+10:120 OpenBrace `{`
+10:121 Identifier `x`
+10:122 CloseBrace `}`
+10:123 StringLiteral `"}"`
+10:127 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇
+    │   │ +
+
+error BYN0002: unexpected character `‏`
+
+  4 │ ‏y } here"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ‏y } here"
+    │          ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  7 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  8 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  9 │ '\u{11b
+    │ ^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{11b`
+
+  9 │ '\u{11b
+    │  ^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  10 │ $"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" 
+     │               ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ $"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" 
+     │                                                    ^^
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" 
+     │                                                                                               ^^ this
+     │                                                                                                  string
+     │                                                                                                  never
+     │                                                                                                  ends
+     │
+  help: close the `{` and the string

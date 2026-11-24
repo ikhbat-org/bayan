@@ -1,0 +1,27 @@
+== tests/cases/run/interface-associated-type-early.byn
+337..364 blockStmt
+343..362 exprStmt
+343..362 callExpr
+349..361 interpolatedExpr
+352..359 memberExpr
+352..353 nameExpr
+343..362 callExpr
+366..397 globalStatement
+366..397 exprStmt
+366..397 callExpr
+371..396 structLiteralExpr
+393..394 literalExpr integer
+398..444 localDecl
+406..444 structLiteralExpr
+417..442 structLiteralExpr
+439..440 literalExpr integer
+445..466 exprStmt
+445..466 callExpr
+451..465 interpolatedExpr
+454..463 memberExpr
+454..457 memberExpr
+454..455 nameExpr
+445..466 callExpr
+306..307 literalExpr integer
+306..307 literalExpr integer
+306..307 literalExpr integer

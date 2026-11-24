@@ -1,0 +1,18 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    for line in read.value.lines {
+        continue if line.isEmpty
+        let at = line.position(":") ?? -1
+        if at < 0 {
+            print($"no colon in {line.runeCount} letters")
+            continue
+        }
+        let name = line[0..at]
+        let rest = line[(at + 1)..line.length]
+        print($"{name} | colon at {name.runeCount} | {rest.runeCount} after")
+    }
+}

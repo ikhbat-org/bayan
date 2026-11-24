@@ -1,0 +1,165 @@
+{
+  "version": 1,
+  "kind": "mutation",
+  "tool": "bayan test --mutate --run",
+  "timing": {
+    "build_s": <t>,
+    "mean_mutant_s": <t>,
+    "max_mutant_s": <t>,
+    "total_s": <t>,
+    "mutant_share_of_build": <t>
+  },
+  "files": [
+    {
+      "path": "<repo>/tmp/t13-mutate/run/a.test.byn",
+      "mutants": [
+        {
+          "site": {
+            "id": 1,
+            "file": "<repo>/tmp/t13-mutate/run/a.test.byn",
+            "line": 2,
+            "column": 12,
+            "operator": "emptyReturn",
+            "original": "n + 1",
+            "mutated": "0"
+          },
+          "status": "killed"
+        },
+        {
+          "site": {
+            "id": 2,
+            "file": "<repo>/tmp/t13-mutate/run/a.test.byn",
+            "line": 2,
+            "column": 12,
+            "operator": "arithmetic",
+            "original": "n + 1",
+            "mutated": "n - 1"
+          },
+          "status": "killed"
+        },
+        {
+          "site": {
+            "id": 3,
+            "file": "<repo>/tmp/t13-mutate/run/a.test.byn",
+            "line": 2,
+            "column": 16,
+            "operator": "literal",
+            "original": "1",
+            "mutated": "2"
+          },
+          "status": "killed"
+        },
+        {
+          "site": {
+            "id": 4,
+            "file": "<repo>/tmp/t13-mutate/run/a.test.byn",
+            "line": 2,
+            "column": 16,
+            "operator": "literal",
+            "original": "1",
+            "mutated": "0"
+          },
+          "status": "killed"
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "killed": 4,
+    "survived": 0,
+    "timeout": 0,
+    "marked": 0,
+    "not_reached": 0,
+    "not_emitted": 0
+  },
+  "operators": {
+    "boundary": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "relational": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "logical": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "condition": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "bool": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "arithmetic": {
+      "killed": 1,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "literal": {
+      "killed": 2,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "negation": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "statement": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "emptyReturn": {
+      "killed": 1,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    },
+    "variant": {
+      "killed": 0,
+      "survived": 0,
+      "timeout": 0,
+      "marked": 0,
+      "not_reached": 0,
+      "not_emitted": 0
+    }
+  }
+}

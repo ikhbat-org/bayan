@@ -1,0 +1,7 @@
+let law = 3
+
+'\u{110000}'
+ // comment ‮ hidden
+foo Bar _x camelCase2 بيان μετρητή� x_1 é
+// line comment
+ạ̇

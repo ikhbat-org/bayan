@@ -1,0 +1,19 @@
+# Commits scripts/ci/golden-commit-check.sh does not check (spec 019 R14): mixed golden-update commits that landed on
+# feat/019-dotnet-exit, where the pre-push hook does not run the check (it runs on pushes to dev and main), before the first
+# push of 019 to dev. One full sha per line; # starts a comment. A new mixed commit is split, not listed.
+5fb35f47a56d4955e792a09a075d20f3eb28fe82  # 019-t27p2a
+ab4f72f77452899a5e952c9c6904b9115b78dea1  # 019-t33
+2e635d6d6f40f3f926c8e6730072503f6dc2640e  # 019-t17c2
+fda301012eac00f7130d288edc4c0e27e8e66807  # 019-t17e
+797cfa7170325383b44717325644689f1353b5cf  # 019-l023fix
+d3739e2e2bd549bb191db2da0b3333fb2081a745  # 019-l023fix
+f907289b29ab0ca783b024c5909224ccf69323d7  # 019-l023fix
+618067697a325fc45997b0e5095da8c5e30ca0d5  # 019-t31bc
+9fbf0c8eff345ddbf284a1702e92a9183172ea29  # 019-t30fb
+dad3339e3c00426375e2d9ae2296aaa65b33dee9  # 019-t30bb
+3f31680943e7d70b71a3363e6f7a84c2834c1a8c  # 019-t30bd
+223fe59a8f82f2493f18ab742d06a2f3816f1f65  # 019-t30fc
+28b56b271139536db9df4601839743e98e684637  # 019 frozen cli case
+3287030240a0e499c17a2f9debe72b23d22bc9d9  # d1-reexport-pairing
+c771916579538b83fbd9b8a1c6d12a291fb4cca0  # fix019-sem
+d11fe2f69d4ab9ba8f7500c7ce3600b43c1bd14c  # fix019-lsp

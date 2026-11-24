@@ -1,0 +1,36 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:1 Star `*`
+2:2 Slash `/`
+3:3 Identifier `t`
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 Identifier `poperty`
+4:21 FuzzKeyword `fuzz`
+4:26 Identifier `model3`
+4:33 ForeachKeyword `foreach`
+4:41 NewKeyword `new`
+4:45 GotoKeyword `goto`
+5:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │ ��� t 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ ��� t 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��� t 
+    │   ^

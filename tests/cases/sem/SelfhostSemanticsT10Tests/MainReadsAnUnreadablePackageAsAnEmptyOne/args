@@ -1,0 +1,5 @@
+--golden
+--package
+<repo>/tmp/t10-cases/main-unreadable
+--include-path
+<repo>/tmp/t10-cases/main-unreadable/main.byn

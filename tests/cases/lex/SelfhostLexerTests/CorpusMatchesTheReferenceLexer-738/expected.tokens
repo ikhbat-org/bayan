@@ -1,0 +1,82 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:26 Identifier `c`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringText `)} d`
+1:32 InterpolatedStringEnd `"`
+1:35 OpenBrace `{`
+1:36 OpenBrace `{`
+1:37 Identifier `literal`
+1:44 CloseBrace `}`
+1:45 CloseBrace `}`
+1:46 StringLiteral `" $"`
+1:50 OpenBrace `{`
+1:51 Identifier `Point`
+1:57 OpenBrace `{`
+1:59 Identifier `x`
+1:61 Equals `=`
+1:63 IntegerLiteral `1`
+1:65 CloseBrace `}`
+1:66 CloseBrace `}`
+1:67 Bang `!`
+1:68 StringLiteral `" $"`
+1:72 StringLiteral `"`
+2:2 CharLiteral `'\u{202E}`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"total {x}" $"a {f($"b {c})} d" ${{literal}}" $"{Point { x = 1 }}!" $""
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"total {x}" $"a {f($"b {c})} d" ${{literal}}" $"{Point { x = 1 }}!" $""
+    │                             ^
+    │
+    │ 1 │ $"total {x}" $"a {f($"b {c})}} d" ${{literal}}" $"{Point { x = 1 }}!" $""
+    │   │                              +
+
+error BYN0002: unexpected character `$`
+
+  1 │ $"total {x}" $"a {f($"b {c})} d" ${{literal}}" $"{Point { x = 1 }}!" $""
+    │                                  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ $"total {x}" $"a {f($"b {c})} d" ${{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                                        ^ string ends at the
+    │                                                                          end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  2 │  '�
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │  '�
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │  '�
+    │   │   -

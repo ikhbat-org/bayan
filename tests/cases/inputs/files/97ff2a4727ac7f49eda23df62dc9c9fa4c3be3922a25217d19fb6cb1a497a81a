@@ -1,0 +1,1 @@
+Package { name: "local/a", version: "0.1.0", grammar: Grammar { adjectives: [1], forms: [1: "x"] } }

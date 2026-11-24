@@ -1,0 +1,7 @@
+== tests/cases/diag/lambda-generic-inference.byn
+49..54 literalExpr falseKeyword
+49..54 literalExpr falseKeyword
+49..54 literalExpr falseKeyword
+68..107 blockStmt
+74..105 localDecl
+85..105 callExpr

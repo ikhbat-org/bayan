@@ -1,0 +1,8 @@
+error BYN2006: `IEnumerator` is declared twice
+  --> <repo>/tmp/t2/diag/interface-builtin-redeclared/interface-builtin-redeclared.byn:1:11
+
+  1 │ interface IEnumerator {
+    │           ^^^^^^^^^^^ already declared as a built-in interface
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2006

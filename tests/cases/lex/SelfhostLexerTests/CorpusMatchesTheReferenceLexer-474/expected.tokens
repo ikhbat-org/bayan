@@ -1,0 +1,102 @@
+1:1 Identifier `f`
+1:2 OpenParen `(`
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolatedStringText `b `
+1:7 InterpolationStart `{`
+1:8 Identifier `c`
+1:9 InterpolationEnd `}`
+1:10 InterpolatedStringEnd `"`
+1:11 CloseParen `)`
+1:12 CloseBrace `}`
+1:14 Identifier `d`
+1:15 StringLiteral `" $"`
+1:19 OpenBrace `{`
+1:20 OpenBrace `{`
+1:21 Identifier `literal`
+1:28 CloseBrace `}`
+1:29 CloseBrace `}`
+1:30 StringLiteral `" $"`
+1:34 OpenBrace `{`
+1:35 Identifier `Point`
+1:41 OpenBrace `{`
+1:43 Identifier `x`
+1:44 Tilde `~`
+1:46 Equals `=`
+1:48 IntegerLiteral `1`
+1:50 CloseBrace `}`
+1:51 CloseBrace `}`
+1:52 Bang `!`
+1:53 StringLiteral `" $"`
+1:57 StringLiteral `"`
+2:2 StructKeyword `struct`
+2:9 Identifier `S`
+3:1 IntegerLiteral `1`
+3:2 Dot `.`
+3:4 StringLiteral `" "`
+3:8 Identifier `u`
+3:9 OpenBrace `{`
+3:10 IntegerLiteral `48`
+3:12 CloseBrace `}`
+3:13 Identifier `i`
+3:14 StringLiteral `"`
+4:1 VarKeyword `var`
+4:5 Identifier `xs`
+4:7 Colon `:`
+4:9 Identifier `L`
+4:11 Identifier `st`
+4:13 Less `<`
+4:14 Identifier `Lis`
+4:17 Less `<`
+4:18 Identifier `i64`
+4:21 Greater `>`
+4:22 Greater `>`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ f($"b {c}")} d" $"{{literal}}" $"{Point { x~ = 1 }}!" $""
+    │                                                         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\`
+
+  3 │ 1. " "\u{48}i"
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  3 │ 1. " "\u{48}i"
+    │              ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ var xs: L�st<Lis<i64>>
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  6 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  6 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �����
+    │     ^

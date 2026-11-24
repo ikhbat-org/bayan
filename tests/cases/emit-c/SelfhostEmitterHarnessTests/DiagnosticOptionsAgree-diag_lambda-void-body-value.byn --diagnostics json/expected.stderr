@@ -1,0 +1,1 @@
+{"code":"BYN3201","severity":"error","file":"input.byn","span":{"start":153,"end":158,"line":9,"column":23,"endLine":9,"endColumn":28},"message":"the value of this `x + 1` is unused","label":"value dropped","help":"assign it with `let _ = …`, or remove the expression","fixes":[]}

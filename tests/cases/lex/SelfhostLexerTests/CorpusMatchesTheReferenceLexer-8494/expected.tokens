@@ -1,0 +1,38 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText ` `
+1:17 InterpolationStart `{`
+1:18 Identifier `f`
+1:19 OpenParen `(`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolatedStringText `b `
+1:24 InterpolationStart `{`
+1:25 Identifier `c`
+1:26 InterpolationEnd `}`
+1:27 InterpolatedStringEnd `"`
+1:28 CloseParen `)`
+1:29 InterpolationEnd `}`
+1:30 InterpolatedStringText ` d`
+1:32 InterpolatedStringEnd `"`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolatedStringText `{{literal}}`
+1:47 InterpolatedStringEnd `"`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 Identifier `Point`
+1:58 OpenBrace `{`
+1:60 Identifier `x`
+1:62 Equals `=`
+1:64 IntegerLiteral `1`
+1:66 CloseBrace `}`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringText `!`
+1:69 InterpolatedStringEnd `"`
+1:71 InterpolatedStringStart `$"`
+1:73 InterpolatedStringEnd `"`
+2:1 EndOfFile

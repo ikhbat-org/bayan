@@ -1,0 +1,64 @@
+== checkConformances
+BYN2802 46:12 `FieldBad.count` is `string count` but `ICount` requires `i64 count { get }` | does not match `ICount` | change the field's type to `i64`
+BYN2780 50:15 implicit copy of a unique value: `List<i64>` is unique: it owns its storage | cannot stand for `IList.items` | rename the field and write the getter `List<i64> items => …` in `Copy`, returning a copy or a fresh value
+BYN2802 58:10 `GetBad.count` is `bool count { get }` but `ICount` requires `i64 count { get }` | does not match `ICount` | change the signature to `i64 count { get }`
+BYN2802 62:9 `Meth.count` is `i64 count(ref this, ref i64 a, string b) fails E` but `ICount` requires `i64 count { get }` | does not match `ICount` | change the signature to `i64 count { get }`
+BYN2801 67:15 `Miss` does not provide `wide` required by `IWide` | needs `wide` | add `i64 wide { get }` to `Miss` | fix 736:0     i64 wide => todo("wide")\n
+BYN2801 67:15 `Miss` does not provide `tall` required by `IWide` | needs `tall` | add `i64 tall { get }` to `Miss` | fix 736:0     i64 tall => todo("tall")\n
+BYN2801 71:18 `MissOne` does not provide `count` required by `ICount` | needs `count` | add `i64 count { get }` to `MissOne` | fix 771:0 i64 count => todo("count") 
+BYN2802 76:21 `Also.size` is `IDef.size` but `IDef2` requires `i64 size { get }` | `size` also has a default in `IDef` | add `i64 size { get }` to `Also` to choose one
+BYN2802 79:20 `Has.size` is `IDef.size` but `IAbs` requires `i64 size { get }` | `size` has a default in `IDef` | add `i64 size { get }` to `Has` to choose one
+BYN2802 82:16 `Later.size` is `IDef.size` but `IAbs` requires `i64 size { get }` | `size` has a default in `IDef` | add `i64 size { get }` to `Later` to choose one
+BYN2803 94:17 `NoItem` does not bind `type Item` of `IBag` | needs `type Item` | add `type Item = …` to `NoItem`
+BYN2807 107:5 `Plain` does not conform to `ICount`: missing `count` | the generic code needs this of its type arguments | add `: ICount` to `Plain` and provide `count`
+FieldOk : ICount f count=count
+FieldOk props  methods 0
+FieldBad : ICount
+FieldBad props  methods 0
+Copy : IList f items=items
+Copy props  methods 0
+GetOk : ICount w count=GetOk.count Getter i64 clone no
+GetOk props count:i64 methods 0
+GetBad : ICount w count=GetBad.count Getter bool clone no
+GetBad props count:bool methods 0
+Meth : ICount w count=Meth.count Method i64 clone no
+Meth props  methods 1
+Miss : IWide
+Miss props  methods 0
+MissOne : ICount
+MissOne props  methods 0
+Cl : IDef w size=Cl.size Getter i64 clone yes
+Cl props size:i64 methods 0
+Also : IDef w size=Also.size Getter i64 clone yes
+Also : IDef2 w size=Also.size Getter i64 clone yes
+Also props size:i64 methods 0
+Has : IDef w size=Has.size Getter i64 clone yes
+Has : IAbs w size=Has.size Getter i64 clone yes
+Has props size:i64 methods 0
+Later : IAbs
+Later : IDef w size=Later.size Getter i64 clone yes
+Later props size:i64 methods 0
+Two : ICount f count=count
+Two : IDef w size=Two.size Getter i64 clone yes
+Two props size:i64 methods 0
+Ints : IBag f first=first a Item=i64
+Ints props  methods 0
+NoItem : IBag f first=first
+NoItem props  methods 0
+Plain props  methods 0
+Box props  methods 0
+Holder props  methods 0
+fn IDef.size
+fn IDef2.size
+fn IMeth.m
+fn Cl.size
+fn Also.size
+fn Has.size
+fn Later.size
+fn Two.size
+work Cl.size at 73:13
+work Also.size at 76:15
+work Has.size at 79:14
+work Later.size at 82:22
+work Two.size at 85:22
+checked yes

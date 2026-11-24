@@ -1,0 +1,14 @@
+== cases
+0 (p_s.len == 0)
+1 (p_s.len > INT64_C(3))
+2 p_s.len
+3 p_s.len
+4 p_s.len
+5 byn_add_i64(byn_mul_i64(l4_at, INT64_C(100), byn_file_0, 17), l5_reason.len, byn_file_0, 17)
+6 byn_mul_i64(l4_at, INT64_C(100), byn_file_0, 17)
+7 l5_reason.len
+11 (p_s.len > ((int64_t)((bynt_tup1_i32*)env)->item1))
+12 p_s.len
+13 ((int64_t)((bynt_tup1_i32*)env)->item1)
+14 ((int64_t)((bynt_tup1_i32*)env)->item1)
+count 15

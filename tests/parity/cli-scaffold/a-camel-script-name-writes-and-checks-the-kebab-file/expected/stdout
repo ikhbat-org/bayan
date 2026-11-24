@@ -1,0 +1,8 @@
+== 1 exit 0
+created script `$WORK/my-tool.byn`; run it with `bayan $WORK/my-tool.byn`
+== 2 exit 0
+my-tool.byn exists
+== 3 exit 2
+== 4 exit 0
+== 5 exit 0
+created script `$WORK/dot/my-tool.byn`; run it with `bayan $WORK/dot/my-tool.byn`

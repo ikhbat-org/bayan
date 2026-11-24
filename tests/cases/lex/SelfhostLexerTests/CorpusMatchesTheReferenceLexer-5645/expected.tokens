@@ -1,0 +1,31 @@
+1:1 Identifier `ch`
+1:4 CaseKeyword `case`
+1:9 DefaultKeyword `default`
+1:17 ForKeyword `for`
+1:21 InKeyword `in`
+1:24 Identifier `whis`
+1:29 AndKeyword `and`
+1:33 OrKeyword `or`
+1:36 NotKeyword `not`
+1:40 WithKeyword `with`
+1:45 MoveKeyword `move`
+1:50 RefKeyword `ref`
+1:54 OutKeyword `out`
+1:58 ThisKeyword `this`
+1:63 NullKeyword `null`
+1:68 TrueKeyword `true`
+1:73 FalseKeyword `false`
+1:79 Identifier `com`
+1:82 Identifier `time`
+1:87 Identifier `caecked`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  1 │ ch case default for in whis and or not with move ref out this null true false �com�time caecked
+    │                                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  1 │ ch case default for in whis and or not with move ref out this null true false �com�time caecked
+    │                                                                                   ^

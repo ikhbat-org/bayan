@@ -1,0 +1,21 @@
+== diags.diag/renamed-call-shape
+BYN2230 4:8 `removeRange` is now `remove(from:until:)`
+  label the old name
+  help write `remove(from: 0, until: 1)`
+  fix 4:8-4:25 remove(from: 0, until: 1)
+BYN2230 5:8 `replaceRange` is now `replace(at:by:)`
+  label the old name
+  help write `replace(at: 0..1, by: xs.span)`
+  fix 5:8-5:35 replace(at: 0..1, by: xs.span)
+BYN2230 8:20 `getOr` is now `tryGet(at:) ??`
+  label the old name
+  help write `(prices.tryGet(at: "tea") ?? 0)`
+  fix 8:13-8:35 (prices.tryGet(at: "tea") ?? 0)
+BYN2230 9:16 `asSpan()` is now `span`
+  label the old name
+  help write `span`
+  fix 9:16-9:24 span
+BYN2230 11:16 `toHex()` is now `string(x, as: .hex)`
+  label the old name
+  help write `string(n, as: .hex)`
+  fix 11:14-11:23 string(n, as: .hex)

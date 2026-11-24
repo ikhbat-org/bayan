@@ -1,0 +1,81 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `{{`
+3:5 InterpolatedStringEnd `"`
+3:6 Identifier `wed`
+3:10 InKeyword `in`
+3:13 Identifier `trings`
+3:19 StringLiteral `" "`
+3:22 StringLiteral `" "`
+3:26 Identifier `u`
+3:27 OpenBrace `{`
+3:28 IntegerLiteral `48`
+3:30 CloseBrace `}`
+3:31 Identifier `i`
+3:32 StringLiteral `"`
+4:1 Identifier `각`
+4:6 LetKeyword `let`
+4:10 EffectKeyword `effect`
+4:17 Equals `=`
+4:19 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  2 │ let café�= 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ let café�= 1
+    │   │        +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  2 │ let café�= 1
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │ $"{{"wed in �trings" "" "\u{48}i"
+    │             ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ $"{{"wed in �trings" "" "\u{48}i"
+    │                          ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{{"wed in �trings" "" "\u{48}i"
+    │                                 ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ 각� let effect = 2
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ 각� let effect = 2
+    │   │ +
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ 각� let effect = 2
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ 각� let effect = 2
+    │   │    -

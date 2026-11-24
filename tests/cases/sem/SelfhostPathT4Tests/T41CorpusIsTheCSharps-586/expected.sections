@@ -1,0 +1,3 @@
+== diags.diag/unique-state-copy
+BYN2780 10:16 implicit copy of a unique value: `Bag` is unique because field `items` is a `List<i64>`
+  help declare the parameter `move bag` to take ownership; pass it by `ref` to share it instead

@@ -1,0 +1,163 @@
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 ForeachKeyword `foreach`
+2:41 NewKeyword `new`
+2:45 GotoKeyword `goto`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 Identifier `publ`
+3:45 Identifier `c`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 Identifier `read`
+3:66 Identifier `only`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+4:1 Dot `.`
+4:2 IntegerLiteral `5`
+4:3 NumericSuffix `f`
+6:2 At `@`
+6:4 Hash `#`
+7:1 Plus `+`
+7:3 Minus `-`
+7:5 Star `*`
+7:7 Slash `/`
+7:9 Percent `%`
+7:11 PlusPercent `+%`
+7:14 MinusPercent `-%`
+7:17 StarPercent `*%`
+7:20 PlusBar `+|`
+7:23 MinusBar `-|`
+7:26 StarBar `*|`
+7:29 PlusPlus `++`
+7:32 MinusMinus `--`
+8:1 Amp `&`
+8:3 AmpAmp `&&`
+8:6 Bar `|`
+8:8 BarBar `||`
+8:11 Caret `^`
+8:13 Plus `+`
+8:15 Minus `-`
+8:17 Star `*`
+8:19 Slash `/`
+8:21 Percent `%`
+8:23 PlusPercent `+%`
+8:26 MinusPercent `-%`
+8:29 StarPercent `*%`
+8:32 PlusBar `+|`
+8:35 MinusBar `-|`
+8:38 StarBar `*|`
+8:41 PlusPlus `++`
+8:44 MinusMinus `--`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 InterpolatedStringStart `$"`
+9:48 InterpolationStart `{`
+9:49 StringLiteral `$"{$"`
+9:54 OpenBrace `{`
+9:55 StringLiteral `$"{$"`
+9:60 OpenBrace `{`
+9:61 Identifier `x`
+9:62 CloseBrace `}`
+9:63 StringLiteral `"}"`
+9:66 CloseBrace `}`
+9:67 StringLiteral `"}"`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 InterpolationEnd `}`
+9:83 InterpolatedStringEnd `"`
+9:84 InterpolationEnd `}`
+9:85 InterpolatedStringText `�`
+9:86 InterpolatedStringEnd `"`
+9:87 InterpolationEnd `}`
+9:88 InterpolatedStringEnd `"`
+9:89 InterpolationEnd `}`
+9:90 InterpolatedStringEnd `"`
+9:91 InterpolationEnd `}`
+9:92 InterpolatedStringEnd `"`
+9:93 InterpolationEnd `}`
+9:94 InterpolatedStringEnd `"`
+9:96 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  3 │ error set unit distinct type import as publ�c private static read�only required const let var embed extern unsafe
+    │                                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ error set unit distinct type import as publ�c private static read�only required const let var embed extern unsafe
+    │                                                                  ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}"}" 
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}"}" 
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}�"}"}"}"}" 
+    │                                                                                     ^

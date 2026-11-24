@@ -1,0 +1,22 @@
+error BYN1020: `errdefer` is now `defer failing`
+  --> input.byn:7:5
+
+  7 │     errdefer print("failed")
+    │     ^^^^^^^^ the input form
+    │
+  help: write `defer failing`
+    │ 7 │     defer failing print("failed")
+    │   │     +++++++++++++
+
+error BYN1020: `errdefer` is now `defer failing`
+  --> input.byn:8:5
+
+  8 │     errdefer (e) print($"failed: {e}")
+    │     ^^^^^^^^ the input form
+    │
+  help: write `defer failing`
+    │ 8 │     defer failing (e) print($"failed: {e}")
+    │   │     +++++++++++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1020

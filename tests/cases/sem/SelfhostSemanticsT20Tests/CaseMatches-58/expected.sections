@@ -1,0 +1,4 @@
+== inst.i17
+null
+BYN2001 164:26 `nope` is not defined |||
+BYN2740 164:15 cannot infer type argument `T` of `pick` ||pass an argument it can be read from, or write it out: `pick<T>(…)`|

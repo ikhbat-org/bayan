@@ -1,0 +1,24 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 Identifier `foyr`
+1:41 InKeyword `in`
+1:44 WhileKeyword `while`
+1:50 DoKeyword `do`
+1:53 BreakKeyword `break`
+1:60 ContinueKeyword `continue`
+1:69 ReturnKeyword `return`
+1:76 YieldKeyword `yield`
+1:82 DeferKeyword `defer`
+1:88 ErrdeferKeyword `errdefer`
+1:97 UsingKeyword `using`
+1:103 ContextKeyword `context`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  1 │ if else unless switch case default foyr in while do break� continue return yield defer errdefer using context
+    │                                                          ^

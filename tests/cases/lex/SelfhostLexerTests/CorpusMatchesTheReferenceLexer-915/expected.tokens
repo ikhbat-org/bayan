@@ -1,0 +1,79 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+    doc `/// Doc line one.`
+4:1 Amp `&`
+4:3 AmpAmp `&&`
+4:6 Bar `|`
+4:8 BarBar `||`
+4:11 Caret `^`
+4:13 Tilde `~`
+4:15 Bang `!`
+4:17 Equals `=`
+4:19 EqualsEquals `==`
+4:22 BangEquals `!=`
+4:25 Less `<`
+4:27 LessEquals `<=`
+4:30 Greater `>`
+4:32 GreaterEquals `>=`
+4:35 LessLess `<<`
+4:38 Greater `>`
+4:39 Greater `>`
+4:41 Greater `>`
+4:42 GreaterEquals `>=`
+6:4 IntegerLiteral `0`
+6:6 IntegerLiteral `42`
+6:9 IntegerLiteral `1_000_000`
+6:19 IntegerLiteral `0xFF`
+6:24 IntegerLiteral `0x_ff`
+6:30 IntegerLiteral `0b1010`
+6:37 IntegerLiteral `0B11`
+6:42 IntegerLiteral `5`
+6:43 NumericSuffix `s`
+6:45 IntegerLiteral `250`
+6:48 NumericSuffix `ms`
+6:51 IntegerLiteral `4`
+6:52 NumericSuffix `KiB`
+6:56 IntegerLiteral `1`
+6:57 NumericSuffix `u`
+6:59 IntegerLiteral `0xFF`
+6:63 NumericSuffix `u`
+6:65 IntegerLiteral `0b1`
+6:68 NumericSuffix `ul`
+6:71 IntegerLiteral `7`
+6:72 NumericSuffix `l`
+7:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │ 	 ����0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ 	 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │ 	 ����0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ 	  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ 	 ����0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ 	   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ 	 ����0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ 	    ^

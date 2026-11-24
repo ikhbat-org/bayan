@@ -1,0 +1,22 @@
+error BYN6002: `undeclaredHome` uses `env` but does not declare it
+  --> tmp/t26-tests/cli/diag_env-get-needs-env.byn/env-get-needs-env.byn:3:12
+
+  3 │     return Env.get("HOME")
+    │            ^^^^^^^^^^^^^^^ uses `env`
+    │
+  help: add `env` to the `uses` clause, or remove the call
+    │ 2 │ public string? undeclaredHome() uses alloc, env {
+    │   │                                ++++++++++++++++
+
+error BYN6002: `undeclaredHome` uses `alloc` but does not declare it
+  --> tmp/t26-tests/cli/diag_env-get-needs-env.byn/env-get-needs-env.byn:3:12
+
+  3 │     return Env.get("HOME")
+    │            ^^^^^^^^^^^^^^^ uses `alloc`
+    │
+  help: add `alloc` to the `uses` clause, or remove the call
+    │ 2 │ public string? undeclaredHome() uses alloc, env {
+    │   │                                ++++++++++++++++
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN6002

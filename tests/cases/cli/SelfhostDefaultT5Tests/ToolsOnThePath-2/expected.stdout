@@ -1,0 +1,9 @@
+◆ bayan       <version>
+◆ host        <host>
+✗ C compiler: `<repo>/tmp/t5-doctor/path-broken/zig cc` can't be run
+  help: reinstall it, or set BAYAN_CC to a working C compiler
+✗ zig: <repo>/tmp/t5-doctor/path-broken/zig can't be run
+  help: reinstall zig (https://ziglang.org)
+◆ git         <host>
+  help: reinstall git
+◆ cache       <host>

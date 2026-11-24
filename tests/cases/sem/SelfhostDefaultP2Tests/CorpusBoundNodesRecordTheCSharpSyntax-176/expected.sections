@@ -1,0 +1,24 @@
+== tests/cases/run/log-level-after-text.byn
+94..127 blockStmt
+100..112 exprStmt
+100..112 callExpr
+106..111 literalExpr string
+100..112 callExpr
+117..125 returnStmt value 124..125
+124..125 literalExpr integer
+141..178 blockStmt
+147..160 exprStmt
+147..160 callExpr
+153..159 literalExpr string
+147..160 callExpr
+165..176 returnStmt value 172..176
+172..176 literalExpr trueKeyword
+192..245 blockStmt
+198..243 exprStmt
+198..243 callExpr
+202..214 interpolatedExpr
+207..212 callExpr
+220..242 conditionalExpr
+220..226 callExpr
+229..234 targetMemberExpr
+237..242 targetMemberExpr

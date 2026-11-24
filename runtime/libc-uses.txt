@@ -15,9 +15,11 @@ FindFirstFileW
 FindNextFileW
 FreeEnvironmentStringsW
 GetCommandLineW
+GetCurrentProcessId
 GetEnvironmentStringsW
 GetEnvironmentVariableW
 GetExitCodeProcess
+GetFileAttributesExW
 GetFileAttributesW
 GetFileInformationByHandle
 GetFileTime
@@ -39,6 +41,7 @@ QueryPerformanceFrequency
 ReadFile
 RemoveDirectoryW
 ResumeThread
+S_ISREG
 SetFileTime
 SetHandleInformation
 SetInformationJobObject
@@ -51,6 +54,7 @@ WriteFile
 _create_locale
 _exit
 _fileno
+_read
 _setmode
 _strtod_l
 _strtof_l
@@ -62,6 +66,7 @@ arc4random_buf
 atoi
 calloc
 chdir
+clearerr
 clock_gettime
 close
 closedir
@@ -73,6 +78,7 @@ fclose
 fcntl
 ferror
 fflush
+fileno
 fopen
 fork
 fprintf
@@ -80,7 +86,9 @@ fputc
 fputs
 fread
 free
+fseek
 fstat
+ftell
 ftruncate
 fwrite
 getcwd

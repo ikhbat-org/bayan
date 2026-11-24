@@ -1,0 +1,21 @@
+2:1 ErrorKeyword `error`
+2:7 Identifier `st`
+2:10 UnitKeyword `unit`
+2:15 DistinctKeyword `distinct`
+2:24 TypeKeyword `type`
+2:29 ImportKeyword `import`
+2:36 AsKeyword `as`
+2:39 PublicKeyword `public`
+2:46 PrivateKeyword `private`
+2:54 StaticKeyword `static`
+2:61 ReadonlyKeyword `readonly`
+2:70 RequiredKeyword `required`
+2:79 ConstKeyword `const`
+2:85 LetKeyword `let`
+2:89 VarKeyword `var`
+2:93 EmbedKeyword `embed`
+2:99 Identifier `exter`
+2:105 Identifier `uns`
+2:108 Question `?`
+2:109 Identifier `fe`
+3:2 EndOfFile

@@ -1,0 +1,8 @@
+error BYN2302: `twice` takes 1 argument(s)
+  --> tmp/t26-tests/cli/diag_too-many-arguments.byn/too-many-arguments.byn:2:19
+
+  2 │ print($"{twice(1, 2)}")
+    │                   ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2302

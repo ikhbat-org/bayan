@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/ternary-in-collection.byn
+--package
+<repo>/tests/cases/diag

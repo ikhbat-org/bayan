@@ -1,0 +1,47 @@
+== tests/cases/diag/move-narrowed-use-after.byn
+124..214 blockStmt
+130..154 ifStmt
+133..138 binaryExpr lt right 137..138
+133..134 nameExpr
+137..138 literalExpr integer
+139..154 blockStmt
+141..152 returnStmt value 148..152
+148..152 literalExpr nullKeyword
+159..178 localDecl
+167..178 callExpr
+183..194 exprStmt
+183..194 callExpr
+183..184 nameExpr
+192..193 nameExpr
+199..212 returnStmt value 206..210
+206..210 moveExpr
+206..210 moveExpr
+211..212 nameExpr
+228..364 blockStmt
+234..252 localDecl
+242..252 callExpr
+250..251 literalExpr integer
+257..362 ifStmt
+260..273 isExpr
+260..261 nameExpr
+265..268 notPattern
+269..273 constantPattern
+269..273 literalExpr nullKeyword
+274..362 blockStmt
+284..298 localDecl
+297..298 nameExpr
+292..296 moveExpr
+297..298 nameExpr
+307..327 exprStmt
+307..327 callExpr
+313..326 interpolatedExpr
+316..324 memberExpr
+316..317 nameExpr
+307..327 callExpr
+336..356 exprStmt
+336..356 callExpr
+342..355 interpolatedExpr
+345..353 memberExpr
+345..346 nameExpr
+345..346 nameExpr
+336..356 callExpr

@@ -1,0 +1,9 @@
+error BYN2104: `steps` is immutable
+  --> <repo>/tests/cases/diag/for-let-enumerator.byn:18:14
+
+  18 │     for n in steps {
+     │              ^^^^^ `moveNext` modifies it; declared with `let` on line 17
+     │
+  help: declare it with `var` if it should change
+     │ 17 │     var steps = Countdown { left: 3 }
+     │    │     +++

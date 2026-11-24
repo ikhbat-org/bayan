@@ -1,0 +1,29 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:3 CharLiteral `'\q'`
+4:1 CharLiteral `'a'`
+4:5 CharLiteral `'\n'`
+4:10 CharLiteral `'\u{1F600}'`
+4:22 CharLiteral `'\''`
+4:27 CharLiteral `'é'`
+4:31 CharLiteral `'\\'`
+4:36 CharLiteral `'\0'`
+5:2 OpenParen `(`
+5:4 CloseParen `)`
+5:6 OpenBracket `[`
+5:8 CloseBracket `]`
+5:10 OpenBrace `{`
+5:11 CloseBrace `}`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ � '\q'
+    │ ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ � '\q'
+    │    ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

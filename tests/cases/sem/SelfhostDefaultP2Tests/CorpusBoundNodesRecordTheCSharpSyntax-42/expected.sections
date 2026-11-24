@@ -1,0 +1,11 @@
+== tests/cases/run/ensures-identifier.byn
+0..15 globalStatement
+0..15 localDecl
+14..15 literalExpr integer
+16..39 exprStmt
+16..39 callExpr
+22..38 interpolatedExpr
+25..36 binaryExpr add right 35..36
+25..32 nameExpr
+35..36 literalExpr integer
+16..39 callExpr

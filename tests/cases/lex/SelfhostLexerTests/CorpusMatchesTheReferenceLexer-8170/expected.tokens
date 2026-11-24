@@ -1,0 +1,54 @@
+1:1 IntegerLiteral `2`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+4:1 Comma `,`
+4:3 Dot `.`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 QuestionDot `?.`
+4:26 FatArrow `=>`
+4:29 Arrow `->`
+4:32 At `@`
+4:34 Hash `#`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+6:1 StringLiteral `"}"`
+6:4 InterpolationEnd `}`
+6:5 InterpolatedStringEnd `"`
+6:6 CloseBrace `}`
+6:7 StringLiteral `"}"`
+6:10 CloseBrace `}`
+6:11 StringLiteral `"}}"`
+6:15 CloseBrace `}`
+6:16 StringLiteral `"}"`
+6:19 CloseBrace `}`
+6:20 StringLiteral `"}"`
+6:23 CloseBrace `}`
+6:24 StringLiteral `"}"`
+6:27 CloseBrace `}`
+6:28 StringLiteral `"}"`
+6:31 CloseBrace `}`
+6:32 StringLiteral `"}"`
+6:35 CloseBrace `}`
+7:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,16 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+1:6 RawStringLiteral `""" c"text" u16"w�ide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nmacro select become\n `
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1.   """ c"text" u16"w�ide" "� allowed in strings" "" "\u{48}i"
+    │      ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ 1.   """ c"text" u16"w�ide" "� allowed in strings" "" "\u{48}i"
+    │                       ^

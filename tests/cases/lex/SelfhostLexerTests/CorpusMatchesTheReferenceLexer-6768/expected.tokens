@@ -1,0 +1,10 @@
+1:1 Identifier `_`
+2:1 Star `*`
+5:8 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ */*/macro select become
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

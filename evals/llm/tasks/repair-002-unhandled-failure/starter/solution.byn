@@ -1,0 +1,41 @@
+union error SeatError {
+    /// Every seat at the table is taken.
+    full
+    /// The guest already has a seat.
+    seated
+}
+
+struct Table {
+    List<string> guests
+    i64 seats
+
+    void add(ref this, string guest) fails SeatError {
+        fail .full if guests.length >= seats
+        for g in guests {
+            fail .seated if g == guest
+        }
+        guests.append(guest)
+    }
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var table = Table { guests: List<string>(), seats: 0 }
+    var first = true
+    for line in read.value.lines {
+        let guest = line.trimmed()
+        if first {
+            table.seats = i64.tryParse(guest) ?? 0
+            first = false
+            continue
+        }
+        continue if guest.isEmpty
+        table.add(guest)
+        print($"{guest}: seated")
+    }
+    print($"{table.guests.length} of {table.seats} seats taken")
+}

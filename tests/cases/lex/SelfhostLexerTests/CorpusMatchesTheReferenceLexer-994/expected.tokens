@@ -1,0 +1,85 @@
+1:2 StructKeyword `struct`
+1:9 UniqueKeyword `unique`
+1:16 UnionKeyword `union`
+1:22 EnumKeyword `enum`
+1:27 FlagsKeyword `flags`
+1:33 OpenKeyword `open`
+1:38 ExtensibleKeyword `extensible`
+1:49 InterfaceKeyword `interface`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 DerivationKeyword `derivation`
+1:89 AttributeKeyword `attribute`
+2:2 LetKeyword `let`
+2:6 EffectKeyword `effect`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+3:2 PlusEquals `+=`
+3:5 MinusEquals `-=`
+3:9 StarEquals `*=`
+3:12 SlashEquals `/=`
+3:15 Percent `%`
+3:17 AmpEquals `&=`
+3:20 BarEquals `|=`
+3:23 CaretEquals `^=`
+3:26 LessLessEquals `<<=`
+5:1 IntegerLiteral `102`
+6:1 IntegerLiteral `0xFF`
+6:5 NumericSuffix `s`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:1 IntegerLiteral `0x_`
+9:1 IntegerLiteral `0b__`
+10:1 IntegerLiteral `1__`
+11:1 IntegerLiteral `0`
+11:4 IntegerLiteral `0b1010`
+11:11 IntegerLiteral `0B11`
+11:16 IntegerLiteral `5`
+11:17 NumericSuffix `s`
+11:19 IntegerLiteral `250`
+11:22 NumericSuffix `ms`
+11:25 IntegerLiteral `4`
+11:26 NumericSuffix `KiB21u`
+11:33 IntegerLiteral `0xFF`
+11:37 NumericSuffix `u`
+11:39 IntegerLiteral `0b1`
+11:42 NumericSuffix `ul`
+11:45 IntegerLiteral `7`
+12:1 EndOfFile
+
+error BYN0002: unexpected character `\u{11}`
+
+  3 │  += -=� *= /= % &= |= ^= <<=
+    │       ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  6 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  9 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  10 │ 1__
+     │  ^^
+     │
+     │ 10 │ 1__
+     │    │  --

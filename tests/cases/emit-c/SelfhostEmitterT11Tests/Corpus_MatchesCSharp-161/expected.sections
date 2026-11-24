@@ -1,0 +1,20 @@
+== cases
+0 ((int32_t)l0_c)
+1 byn_main_Color_names[l0_c]
+2 byn_main_Color_names[((byn_main_Color)1)]
+3 (l8_c == ((byn_main_Color)2))
+4 (!(l8_c == ((byn_main_Color)2)))
+5 (l9_target == ((byn_main_Color)1))
+6 (l8_c == l9_target)
+7 byn_main_Suit_names[l17_parsed]
+8 ((int32_t)l17_parsed)
+9 bynh_eq_main__Card(l20_card, ((bynt_main__Card){((byn_main_Suit)2), INT64_C(12)}))
+10 bynh_eq_main__Card(l20_card, ((bynt_main__Card){((byn_main_Suit)3), INT64_C(12)}))
+11 bynh_add_list_main__Suit(&l21_hand, ((byn_main_Suit)3))
+12 bynh_add_list_main__Suit(&l21_hand, ((byn_main_Suit)1))
+13 bynh_add_list_main__Suit(&l21_hand, l20_card.suit)
+14 ((bynt_opt_main__Suit){true, (*bynh_at_list_main__Suit(l21_hand, (int64_t)INT64_C(1), false, byn_file_0, 75))})
+15 (*bynh_at_list_main__Suit(l21_hand, (int64_t)INT64_C(1), false, byn_file_0, 75))
+16 bynh_eq_opt_main__Suit(l25_maybe, ((bynt_opt_main__Suit){true, ((byn_main_Suit)1)}))
+17 ((bynt_opt_main__Suit){true, ((byn_main_Suit)1)})
+count 19

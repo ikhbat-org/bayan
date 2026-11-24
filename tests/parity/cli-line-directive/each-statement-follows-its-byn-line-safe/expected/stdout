@@ -1,0 +1,34 @@
+== 1 exit 0
+build 0
+#line 2 "main.byn"
+    l0_y = byn_mul_i64(p_x, INT64_C(2), byn_file_0, 2);
+#line 3 "main.byn"
+    return l0_y;
+--
+#line 7 "main.byn"
+    l0_total = INT64_C(0);
+#line 8 "main.byn"
+    t2 = ((int32_t)0);
+#line 8 "main.byn"
+    t3 = ((int32_t)3);
+#line 8 "main.byn"
+    for (;;) {
+#line 8 "main.byn"
+        if ((!(t2 < t3))) {
+#line 8 "main.byn"
+            goto break_1;
+--
+#line 8 "main.byn"
+        l1_i = t2;
+#line 9 "main.byn"
+        t4 = l0_total;
+#line 9 "main.byn"
+        t5 = byn_main__twice(((int64_t)l1_i));
+#line 9 "main.byn"
+        l0_total = byn_add_i64(t4, t5, byn_file_0, 9);
+--
+#line 8 "main.byn"
+        t2 = byn_addw_i32(t2, ((int32_t)1));
+--
+#line 11 "main.byn"
+    {

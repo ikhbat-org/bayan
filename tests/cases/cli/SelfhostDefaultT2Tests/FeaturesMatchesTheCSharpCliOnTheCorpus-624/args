@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/input-csharp-type-name-dyn.byn
+--package
+<repo>/tests/cases/diag

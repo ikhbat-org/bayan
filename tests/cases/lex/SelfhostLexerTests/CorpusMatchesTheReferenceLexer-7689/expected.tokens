@@ -1,0 +1,102 @@
+2:2 IntegerLiteral `1_`
+4:1 CharLiteral `'`
+5:1 CharLiteral `'ab'`
+8:2 Identifier `b`
+8:4 Equals `=`
+8:8 IntegerLiteral `2`
+9:1 LetKeyword `let`
+9:5 Identifier `c`
+9:7 Equals `=`
+9:11 IntegerLiteral `3`
+10:2 InterpolatedStringStart `$"`
+10:4 InterpolationStart `{`
+10:5 InterpolatedStringStart `$"`
+10:7 InterpolationStart `{`
+10:8 InterpolatedStringStart `$"`
+10:10 InterpolationStart `{`
+10:11 InterpolatedStringStart `$"`
+10:13 InterpolationStart `{`
+10:14 InterpolatedStringStart `$"`
+10:16 InterpolationStart `{`
+10:17 InterpolatedStringStart `$"`
+10:19 InterpolationStart `{`
+10:20 InterpolatedStringStart `$"`
+10:22 InterpolationStart `{`
+10:23 InterpolatedStringStart `$"`
+10:25 InterpolationStart `{`
+10:26 InterpolatedStringStart `$"`
+10:28 InterpolationStart `{`
+10:29 InterpolatedStringStart `$"`
+10:31 InterpolationStart `{`
+10:32 InterpolatedStringStart `$"`
+10:34 InterpolationStart `{`
+10:35 InterpolatedStringStart `$"`
+10:37 InterpolationStart `{`
+10:38 InterpolatedStringStart `$"`
+10:40 InterpolationStart `{`
+10:41 InterpolatedStringStart `$"`
+10:43 InterpolationStart `{`
+10:44 InterpolatedStringStart `$"`
+10:46 InterpolationStart `{`
+10:47 InterpolatedStringStart `$"`
+10:49 InterpolationStart `{`
+10:50 Identifier `x`
+10:51 InterpolationEnd `}`
+10:52 InterpolatedStringEnd `"`
+10:53 InterpolationEnd `}`
+10:54 InterpolatedStringEnd `"`
+10:55 InterpolationEnd `}`
+10:56 InterpolatedStringEnd `"`
+10:57 InterpolationEnd `}`
+10:58 InterpolatedStringEnd `"`
+10:59 InterpolationEnd `}`
+10:60 InterpolatedStringEnd `"`
+10:61 InterpolationEnd `}`
+10:62 InterpolatedStringEnd `"`
+10:63 InterpolationEnd `}`
+10:64 InterpolatedStringEnd `"`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1_
+    │   ^
+    │
+    │ 2 │  1_
+    │   │   -
+
+error BYN0008: unterminated char literal
+
+  4 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ �
+    │ ^
+
+error BYN0002: unexpected character ```
+
+  8 │  b = ` 2
+    │      ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  9 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  10 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+     │                          ^^ this string never ends
+     │
+  help: close the `{` and the string

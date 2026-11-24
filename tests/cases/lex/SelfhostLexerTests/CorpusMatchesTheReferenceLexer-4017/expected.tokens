@@ -1,0 +1,30 @@
+1:1 IntegerLiteral `1`
+1:2 Dot `.`
+3:2 IsKeyword `is`
+3:5 AndKeyword `and`
+3:9 OrKeyword `or`
+3:12 NotKeyword `not`
+3:16 WithKeyword `with`
+3:21 MoveKeyword `move`
+3:26 RefKeyword `ref`
+3:30 OutKeyword `out`
+3:34 ThisKeyword `this`
+3:39 NullKeyword `null`
+3:44 TrueKeyword `true`
+3:49 FalseKeyword `false`
+3:55 ComptimeKeyword `comptime`
+3:64 CheckedKeyword `checked`
+5:1 Identifier `lct`
+5:7 Equals `=`
+5:9 IntegerLiteral `2`
+6:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  3 │  is and or not with move ref out this� null true false comptime checked
+    │                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ lct � = 2
+    │     ^

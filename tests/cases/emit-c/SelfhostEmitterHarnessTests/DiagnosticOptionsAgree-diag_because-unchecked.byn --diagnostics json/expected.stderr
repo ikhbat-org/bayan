@@ -1,0 +1,1 @@
+{"code":"BYN8001","severity":"error","file":"input.byn","span":{"start":110,"end":127,"line":9,"column":14,"endLine":9,"endColumn":31},"message":"`readUnchecked()` bypasses a safety rule and needs `because \"…\"`","label":"bypasses a safety rule","help":"explain the bypass in a `because` clause","fixes":[]}

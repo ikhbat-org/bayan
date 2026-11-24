@@ -1,0 +1,32 @@
+== tests/cases/diag/dyn-ref-ref-argument-outlived.byn
+294..301 memberExpr
+294..301 memberExpr
+294..301 memberExpr
+294..301 memberExpr
+294..295 nameExpr
+315..488 blockStmt
+321..342 localDecl
+332..342 structLiteralExpr
+339..340 literalExpr integer
+347..378 localDecl
+374..378 nameExpr
+374..378 nameExpr
+383..459 blockStmt
+393..426 localDecl
+401..426 structLiteralExpr
+414..424 structLiteralExpr
+421..422 literalExpr integer
+435..453 assignStmt assign target 435..439 value 442..453
+435..439 nameExpr
+442..453 callExpr
+451..452 nameExpr
+464..486 exprStmt
+464..486 callExpr
+470..485 interpolatedExpr
+473..483 callExpr
+473..477 nameExpr
+464..486 callExpr
+227..228 nameExpr
+227..228 nameExpr
+227..228 nameExpr
+227..228 nameExpr

@@ -1,0 +1,51 @@
+1:2 TestKeyword `test`
+1:7 AssertKeyword `assert`
+1:14 PropertyKeyword `property`
+1:23 FuzzKeyword `fuzz`
+1:28 ModelKeyword `model`
+1:34 ForeachKeyword `foreach`
+1:42 NewKeyword `new`
+1:46 GotoKeyword `goto`
+6:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �test assert property fuzz model foreach new goto
+    │ ^
+
+error BYN0002: unexpected character `‏`
+
+  2 │ 	‏ /* block
+    │ 	^
+
+error BYN0004: unterminated block comment
+
+  2 │ 	‏ /* block
+    │ 	  ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ��U /// Doc line one.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ��U /// Doc line one.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ � 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ � 
+    │  ^

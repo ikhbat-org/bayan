@@ -1,0 +1,78 @@
+1:1 ErrorKeyword `error`
+1:7 Identifier `se`
+1:10 UnitKeyword `unit`
+1:15 DistinctKeyword `distinct`
+1:24 TypeKeyword `type`
+1:29 ImportKeyword `import`
+1:36 AsKeyword `as`
+1:39 PublicKeyword `public`
+1:46 PrivateKeyword `private`
+1:54 StaticKeyword `static`
+1:61 ReadonlyKeyword `readonly`
+1:70 RequiredKeyword `required`
+1:79 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+3:1 ErrorKeyword `error`
+3:7 SetKeyword `set`
+3:11 UnitKeyword `unit`
+3:16 DistinctKeyword `distinct`
+3:25 TypeKeyword `type`
+3:30 ImportKeyword `import`
+3:37 AsKeyword `as`
+3:40 PublicKeyword `public`
+3:47 PrivateKeyword `private`
+3:55 StaticKeyword `static`
+3:62 ReadonlyKeyword `readonly`
+3:71 RequiredKeyword `required`
+3:80 ConstKeyword `const`
+3:86 LetKeyword `let`
+3:90 VarKeyword `var`
+3:94 EmbedKeyword `embed`
+3:100 ExternKeyword `extern`
+3:107 UnsafeKeyword `unsafe`
+4:2 LetKeyword `let`
+4:6 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+5:2 Identifier `macro`
+5:8 Identifier `select`
+5:15 BecomeKeyword `become`
+6:1 IntegerLiteral `1_`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""never closed\n /// List<i64>>\na >> b\nc >>= 1\n `
+11:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1_
+    │  ^
+    │
+    │ 6 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  7 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

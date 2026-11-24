@@ -1,0 +1,96 @@
+1:1 StringLiteral `"}"`
+1:4 CloseBrace `}`
+1:5 StringLiteral `"}"`
+1:8 CloseBrace `}`
+1:9 StringLiteral `"}"`
+1:12 CloseBrace `}`
+1:13 StringLiteral `"}"`
+1:16 CloseBrace `}`
+1:17 StringLiteral `"}"`
+1:20 CloseBrace `}`
+1:21 StringLiteral `"}"`
+1:24 CloseBrace `}`
+1:25 StringLiteral `"`
+3:2 OpenBrace `{`
+3:3 Identifier `x`
+3:4 CloseBrace `}`
+3:5 StringLiteral `" $`
+4:1 CharLiteral `'\q'`
+5:2 Identifier `tor`
+5:6 Equals `=`
+5:8 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 EffectKeyword `effect`
+6:12 Equals `=`
+6:14 IntegerLiteral `2`
+7:1 Identifier `macro`
+7:7 Identifier `se`
+7:10 Identifier `oc`
+7:13 Identifier `line`
+7:18 Identifier `two`
+7:21 Dot `.`
+8:1 StructKeyword `struct`
+8:8 Identifier `S`
+10:1 Identifier `b`
+11:3 IntegerLiteral `1`
+12:1 CharLiteral `' '`
+12:6 CharLiteral `' '`
+12:10 IntegerLiteral `0`
+12:11 CharLiteral `'`
+13:2 Identifier `_`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "}"}"}"}"}"}"}"}"}"}"}"}"
+    │                         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │  {x}" $
+    │     ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro se oc line two.
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  12 │ �' '\\' '\0'
+     │ ^
+
+error BYN0002: unexpected character `\`
+
+  12 │ �' '\\' '\0'
+     │     ^
+
+error BYN0002: unexpected character `\`
+
+  12 │ �' '\\' '\0'
+     │      ^
+
+error BYN0002: unexpected character `\`
+
+  12 │ �' '\\' '\0'
+     │          ^
+
+error BYN0008: unterminated char literal
+
+  12 │ �' '\\' '\0'
+     │            ^
+     │
+  help: close it with `'`

@@ -1,0 +1,6 @@
+// line comment
+tb = "bad \q\ escape"
+let c = """never closed
+ í €
++= -= *= /= %= &= |= ^= <<=
+

@@ -1,0 +1,3 @@
+i32!E g()
+    fails F
+    uses console

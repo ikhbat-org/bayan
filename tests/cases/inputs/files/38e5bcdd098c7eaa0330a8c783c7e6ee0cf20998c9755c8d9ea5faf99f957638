@@ -1,0 +1,25 @@
+// BYN1072 and BYN1073 with a block comment in the span the fix would replace: the lint stays, with no fix, and `bayan fix` leaves the file.
+struct Customer {
+    bool isActive
+}
+
+bool any(List<Customer> customers, by (Customer -> bool) p) {
+    var found = false
+    for c in customers {
+        found = found or p(c)
+    }
+    return found
+}
+
+void main() {
+    let customers: List<Customer> = [Customer { isActive: true }]
+    if customers.isEmpty /* why */ {
+        return
+    }
+    if /* why */ customers.isEmpty {
+        return
+    }
+    let before = any(customers, by: c => /* why */ c.isActive)
+    let after = any(customers, by: c /* q */ => c.isActive)
+    print($"{before}{after}")
+}

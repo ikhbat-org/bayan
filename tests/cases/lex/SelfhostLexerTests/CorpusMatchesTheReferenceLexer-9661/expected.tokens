@@ -1,0 +1,57 @@
+2:2 Identifier `B11`
+2:6 IntegerLiteral `5`
+2:7 NumericSuffix `s`
+2:9 IntegerLiteral `250`
+2:12 NumericSuffix `ms`
+2:15 IntegerLiteral `4`
+2:16 NumericSuffix `KiB`
+2:20 IntegerLiteral `1`
+2:21 NumericSuffix `u`
+2:23 IntegerLiteral `0xFF`
+2:27 NumericSuffix `u`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \"q\" \\ \n"`
+3:26 Comma `,`
+3:27 StringLiteral `""`
+4:1 StructKeyword `struct`
+4:8 UniqueKeyword `unique`
+4:15 UnionKeyword `union`
+4:21 EnumKeyword `enum`
+4:26 FlagsKeyword `flags`
+4:32 OpenKeyword `open`
+4:37 ExtensibleKeyword `extensible`
+4:48 Identifier `ijterface`
+4:58 DelegateKeyword `delegate`
+4:67 ExtensionKeyword `extension`
+4:77 DerivationKeyword `derivation`
+4:88 AttributeKeyword `attribute`
+5:1 Identifier `en`
+5:4 OpenBrace `{`
+5:5 Identifier `x`
+5:6 StringLiteral `";`
+6:1 Identifier `foo`
+6:5 Identifier `Bar`
+6:9 Identifier `_x`
+6:12 Identifier `camelCase2`
+6:23 Identifier `بيان`
+6:28 Identifier `μετρητής`
+6:37 Identifier `x_1`
+6:41 Identifier `é`
+8:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  5 │ en {x";
+    │      ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

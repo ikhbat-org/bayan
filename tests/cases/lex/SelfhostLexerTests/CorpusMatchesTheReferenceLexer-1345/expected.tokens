@@ -1,0 +1,44 @@
+1:1 Comma `,`
+1:3 Dot `.`
+1:5 DotDot `..`
+1:8 DotDotEquals `..=`
+1:12 Colon `:`
+1:14 Question `?`
+1:16 QuestionQuestion `??`
+1:19 QuestionQuestionEquals `??=`
+1:23 QuestionDot `?.`
+1:26 FatArrow `=>`
+1:29 Arrow `->`
+1:32 At `@`
+1:34 Hash `#`
+3:1 StringLiteral `"text"`
+3:8 StringLiteral `"esc \"q\" \\ \n"`
+3:26 RawStringLiteral `"""\n\n$"{{""a\u{2067}b� "}"}"}"}"}"}"}"}"}"}"}"}\net � = 2\n//// not a doc comment\n\n= 1\nlet � = 2\n// ok � in comment\n\n`
+13:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  5 │ $"{{""a�b� "}"}"}"}"}"}"}"}"}"}"}"}
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ et � = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  10 │ let � = 2
+     │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  11 │ // ok � in comment
+     │       ^

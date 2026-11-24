@@ -1,0 +1,8 @@
+error BYN2206: cannot convert `string` to `i64`
+  --> <repo>/tmp/t2/diag/invalid-cast/invalid-cast.byn:1:9
+
+  1 │ let n = i64("42")
+    │         ^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2206

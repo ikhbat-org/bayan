@@ -1,0 +1,8 @@
+void main() {
+    switch k {
+        case .pair(let first, let second): return f(
+            first,
+            by: grid[rowNumber, columnNumber],
+        )
+    }
+}

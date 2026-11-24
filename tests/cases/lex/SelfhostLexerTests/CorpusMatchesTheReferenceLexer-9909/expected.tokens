@@ -1,0 +1,188 @@
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCse2`
+3:22 Identifier `بيان`
+3:27 Identifier `μετρητής`
+3:36 Identifier `x_1`
+3:40 Identifier `é`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:5 Identifier `s`
+7:7 Equals `=`
+7:9 InterpolatedStringStart `$"`
+7:11 InterpolationStart `{`
+7:12 InterpolatedStringStart `$"`
+7:14 InterpolationStart `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:21 InterpolatedStringStart `$"`
+7:23 InterpolationStart `{`
+7:24 InterpolatedStringStart `$"`
+7:26 InterpolationStart `{`
+7:27 InterpolatedStringStart `$"`
+7:29 InterpolationStart `{`
+7:30 InterpolatedStringStart `$"`
+7:32 InterpolationStart `{`
+7:33 InterpolatedStringStart `$"`
+7:35 InterpolationStart `{`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolationStart `{`
+7:39 InterpolatedStringStart `$"`
+7:41 InterpolationStart `{`
+7:42 InterpolatedStringStart `$"`
+7:44 InterpolationStart `{`
+7:45 InterpolatedStringStart `$"`
+7:47 InterpolationStart `{`
+7:48 InterpolatedStringStart `$"`
+7:50 InterpolationStart `{`
+7:51 InterpolatedStringStart `$"`
+7:53 InterpolationStart `{`
+7:54 InterpolatedStringStart `$"`
+7:56 InterpolationStart `{`
+7:57 StringLiteral `$"{$"`
+7:62 OpenBrace `{`
+7:63 StringLiteral `$"{$"`
+7:68 OpenBrace `{`
+7:69 Identifier `x`
+7:70 CloseBrace `}`
+7:71 StringLiteral `"}"`
+7:74 CloseBrace `}`
+7:75 StringLiteral `"}"`
+7:78 InterpolationEnd `}`
+7:79 InterpolatedStringEnd `"`
+7:80 InterpolationEnd `}`
+7:81 InterpolatedStringEnd `"`
+7:82 InterpolationEnd `}`
+7:83 InterpolatedStringEnd `"`
+7:84 InterpolationEnd `}`
+7:85 InterpolatedStringEnd `"`
+7:86 InterpolationEnd `}`
+7:87 InterpolatedStringEnd `"`
+7:88 InterpolationEnd `}`
+7:89 InterpolatedStringEnd `"`
+7:90 InterpolationEnd `}`
+7:91 InterpolatedStringEnd `"`
+7:92 InterpolationEnd `}`
+7:93 InterpolatedStringEnd `"`
+7:94 InterpolationEnd `}`
+7:95 InterpolatedStringEnd `"`
+7:96 InterpolationEnd `}`
+7:97 InterpolatedStringEnd `"`
+7:98 InterpolationEnd `}`
+7:99 InterpolatedStringEnd `"`
+7:100 InterpolationEnd `}`
+7:101 InterpolatedStringEnd `"`
+7:102 InterpolationEnd `}`
+7:103 InterpolatedStringEnd `"`
+7:104 InterpolationEnd `}`
+7:105 InterpolatedStringEnd `"`
+7:106 InterpolationEnd `}`
+7:107 InterpolatedStringEnd `"`
+7:108 InterpolationEnd `}`
+7:109 InterpolatedStringEnd `"`
+8:1 IfKeyword `if`
+8:4 ElseKeyword `else`
+8:9 UnlessKeyword `unless`
+8:16 SwitchKeyword `switch`
+8:23 CaseKeyword `case`
+8:28 DefaultKeyword `default`
+8:36 ForKeyword `for`
+8:40 InKeyword `in`
+8:43 WhileKeyword `while`
+8:49 DoKeyword `do`
+8:52 BreakKeyword `break`
+8:58 ContinueKeyword `continue`
+8:67 ReturnKeyword `return`
+8:74 YieldKeyword `yield`
+8:80 Identifier `defe1r`
+8:87 ErrdeferKeyword `errdefer`
+8:96 UsingKeyword `using`
+8:102 ContextKeyword `context`
+9:2 InterpolatedStringStart `$"`
+9:4 InterpolationStart `{`
+9:5 InterpolatedStringStart `$"`
+9:7 InterpolationStart `{`
+9:8 InterpolatedStringStart `$"`
+9:10 InterpolationStart `{`
+9:11 InterpolatedStringStart `$"`
+9:13 InterpolationStart `{`
+9:14 InterpolatedStringStart `$"`
+9:16 InterpolationStart `{`
+9:17 InterpolatedStringStart `$"`
+9:19 InterpolationStart `{`
+9:20 InterpolatedStringStart `$"`
+9:22 InterpolationStart `{`
+9:23 InterpolatedStringStart `$"`
+9:25 InterpolationStart `{`
+9:26 InterpolatedStringStart `$"`
+9:28 InterpolationStart `{`
+9:29 InterpolatedStringStart `$"`
+9:31 InterpolationStart `{`
+9:32 InterpolatedStringStart `$"`
+9:34 InterpolationStart `{`
+9:35 InterpolatedStringStart `$"`
+9:37 InterpolationStart `{`
+9:38 InterpolatedStringStart `$"`
+9:40 InterpolationStart `{`
+9:41 InterpolatedStringStart `$"`
+9:43 InterpolationStart `{`
+9:44 InterpolatedStringStart `$"`
+9:46 InterpolationStart `{`
+9:47 InterpolatedStringStart `$"`
+9:49 InterpolationStart `{`
+9:50 Identifier `x`
+9:51 InterpolationEnd `}`
+9:52 InterpolatedStringEnd `"`
+9:53 InterpolationEnd `}`
+9:54 InterpolatedStringEnd `"`
+9:55 InterpolationEnd `}`
+9:56 InterpolatedStringEnd `"`
+9:57 InterpolationEnd `}`
+9:58 InterpolatedStringEnd `"`
+9:59 InterpolationEnd `}`
+9:60 InterpolatedStringEnd `"`
+9:61 InterpolationEnd `}`
+9:62 InterpolatedStringEnd `"`
+9:63 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ let café = 1
+    │   │        +
+
+error BYN0016: interpolated strings are nested too deeply
+
+  7 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  9 │ �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  9 │ �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  9 │ �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  9 │ �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                             ^^ this string never ends
+    │
+  help: close the `{` and the string

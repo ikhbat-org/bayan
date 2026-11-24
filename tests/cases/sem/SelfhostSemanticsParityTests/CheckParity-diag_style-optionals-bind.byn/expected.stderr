@@ -1,0 +1,75 @@
+note BYN1080: `find(xs, at: 3) is { } k` binds an optional with a pattern; the miss leaves, so a
+`let` can bind it
+  --> tmp/t26-tests/cli/diag_style-optionals-bind.byn/style-optionals-bind.byn:10:8
+
+  10 │     if (find(xs, at: 3) is { } k) {
+     │        ^^^^^^^^^^^^^^^^^^^^^^^^^^ binds with a pattern
+     │
+  help: write `let k = find(xs, at: 3) ?? return 0`
+     │ 10 │     let k = find(xs, at: 3) ?? return 0
+     │    │     +++++++++++++++++++++++++++++++++++
+     │ 11 │     let doubled = k * 2
+     │    │ +++++++++++++++++++++++
+     │ 12 │     return doubled
+     │    │ ++++++++++++++++++
+
+note BYN1080: `find(xs, at: 3) is { } k` binds an optional with a pattern; the miss leaves, so a
+`let` can bind it
+  --> tmp/t26-tests/cli/diag_style-optionals-bind.byn/style-optionals-bind.byn:19:8
+
+  19 │     if (find(xs, at: 3) is { } k) {
+     │        ^^^^^^^^^^^^^^^^^^^^^^^^^^ binds with a pattern
+     │
+  help: write `let k = find(xs, at: 3)` and `return viaReturn(xs) + 1 if k is null`
+     │ 19 │     let k = find(xs, at: 3)
+     │    │     +++++++++++++++++++++++
+     │ 20 │     return viaReturn(xs) + 1 if k is null
+     │    │ +++++++++++++++++++++++++++++++++++++++++
+     │ 21 │     return k
+     │    │ ++++++++++++
+
+note BYN1080: `p is { } k` binds an optional with a pattern; `p is not null` narrows `p`
+  --> tmp/t26-tests/cli/diag_style-optionals-bind.byn/style-optionals-bind.byn:27:8
+
+  27 │     if (p is { } k) {
+     │        ^^^^^^^^^^^^ binds a second name
+     │
+  help: write `if p is not null` and read `p`
+     │ 27 │     if p is not null {
+     │    │        +++++++++++++++
+     │ 28 │         return p + 1
+     │    │ ++++++++++++++++
+     │ 29 │     }
+
+note BYN1080: `found is { } k` binds an optional with a pattern; `found is not null` narrows `found`
+  --> tmp/t26-tests/cli/diag_style-optionals-bind.byn/style-optionals-bind.byn:35:8
+
+  35 │     if (found is { } k) { return k }
+     │        ^^^^^^^^^^^^^^^^ binds a second name
+     │
+  help: write `if found is not null` and read `found`
+     │ 35 │     if found is not null { return found }
+     │    │        ++++++++++++++++++++++++++++++++
+
+note BYN1080: `find(xs, at: i) is { } k` binds an optional with a pattern; write `while let`
+  --> tmp/t26-tests/cli/diag_style-optionals-bind.byn/style-optionals-bind.byn:42:5
+
+  42 │     while (find(xs, at: i) is { } k) {
+     │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ binds with a pattern
+     │
+  help: write `while let k = find(xs, at: i)`
+     │ 42 │     while let k = find(xs, at: i) {
+     │    │           ++++++++++++++++++++++
+
+note BYN1080: `find(xs, at: v + 1) is { } k` binds an optional with a pattern; the miss leaves, so a
+`let` can bind it
+  --> tmp/t26-tests/cli/diag_style-optionals-bind.byn/style-optionals-bind.byn:52:12
+
+  52 │         if (find(xs, at: v + 1) is { } k) {
+     │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ binds with a pattern
+     │
+  help: write `let k = find(xs, at: v + 1) ?? continue`
+     │ 52 │         let k = find(xs, at: v + 1) ?? continue
+     │    │         +++++++++++++++++++++++++++++++++++++++
+     │ 53 │         total += k
+     │    │ ++++++++++++++++++

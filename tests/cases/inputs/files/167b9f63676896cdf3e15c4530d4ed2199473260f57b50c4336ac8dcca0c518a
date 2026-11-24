@@ -1,0 +1,31 @@
+struct Lamp {
+    states {
+        on
+        off
+    }
+}
+
+struct Gate {
+    states {
+        closed
+        open(i64 width)
+    }
+}
+
+union Mode {
+    fast
+    slow
+}
+
+union Shape {
+    dot
+    square(i64 side)
+}
+
+i64 f1(Lamp l) => 0
+i64 f2(Gate g) => 0
+i64 f3(Mode m) => 0
+i64 f4(Shape s) => 0
+
+void main() {
+}

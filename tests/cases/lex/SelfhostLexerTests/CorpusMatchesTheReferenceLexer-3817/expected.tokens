@@ -1,0 +1,128 @@
+1:1 LetKeyword `let`
+1:5 Identifier `b`
+1:7 Equals `=`
+1:9 StringLiteral `"bad \q escape"`
+3:1 Identifier `et`
+3:4 Identifier `a`
+3:6 Equals `=`
+3:10 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:7 Equals `=`
+5:11 IntegerLiteral `3`
+6:4 Identifier `comment`
+6:12 Star `*`
+6:13 Slash `/`
+6:15 Identifier `a`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `open `
+8:8 InterpolationStart `{`
+8:9 Identifier `x`
+8:10 StringLiteral `";`
+9:2 IntegerLiteral `0`
+9:4 IntegerLiteral `42`
+9:7 IntegerLiteral `1_000_000`
+9:17 IntegerLiteral `0xFF`
+9:22 IntegerLiteral `0x_ff`
+9:28 IntegerLiteral `0b101`
+9:33 Less `<`
+9:35 IntegerLiteral `0B11`
+9:40 IntegerLiteral `5`
+9:41 NumericSuffix `s`
+9:43 IntegerLiteral `250`
+9:46 NumericSuffix `ms`
+9:49 IntegerLiteral `4`
+9:50 NumericSuffix `KiB`
+9:54 IntegerLiteral `1`
+9:55 NumericSuffix `u`
+9:57 IntegerLiteral `0xFF`
+9:61 NumericSuffix `u`
+9:63 IntegerLiteral `0b1`
+9:66 NumericSuffix `ul`
+9:69 IntegerLiteral `7`
+9:70 NumericSuffix `l`
+10:2 CharLiteral `'ab'`
+11:1 CharLiteral `'\u{202E}'`
+12:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `$`
+
+  3 │ et a = $ 1
+    │        ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  7 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  7 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  �����
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  10 │  'ab'
+     │  ^^^^
+     │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  11 │ '�'
+     │  ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 11 │ '�'
+     │    │  -

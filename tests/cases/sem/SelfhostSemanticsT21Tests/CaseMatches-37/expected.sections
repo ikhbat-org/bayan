@@ -1,0 +1,2 @@
+== diag.no-constructor
+BYN2112 6:9 `Point` has no constructor ||set the fields with a struct literal: `Point { x: …, y: … }`|

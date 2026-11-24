@@ -1,0 +1,53 @@
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolatedStringText `total `
+1:10 InterpolationStart `{`
+1:11 Identifier `x`
+1:12 InterpolationEnd `}`
+1:13 InterpolatedStringEnd `"`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolatedStringText `a `
+1:19 InterpolationStart `{`
+1:20 Identifier `f`
+1:21 OpenParen `(`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolatedStringText `b `
+1:26 InterpolationStart `{`
+1:27 Identifier `c`
+1:28 InterpolationEnd `}`
+1:29 InterpolatedStringEnd `"`
+1:30 CloseParen `)`
+1:31 InterpolationEnd `}`
+1:32 InterpolatedStringText ` d`
+1:34 InterpolatedStringEnd `"`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolatedStringText `{{literal}}`
+1:49 InterpolatedStringEnd `"`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 Identifier `Point`
+1:60 OpenBrace `{`
+1:62 Identifier `x`
+1:64 Equals `=`
+1:66 IntegerLiteral `1`
+1:68 CloseBrace `}`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringText `!`
+1:71 InterpolatedStringEnd `"`
+1:73 InterpolatedStringStart `$"`
+1:75 InterpolatedStringEnd `"`
+2:1 CharLiteral `'\u{11000`
+2:10 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ '\u{11000
+    │ ^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{11000`
+
+  2 │ '\u{11000
+    │  ^^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

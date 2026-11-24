@@ -1,0 +1,62 @@
+3:1 IntegerLiteral `0`
+3:2 CloseBrace `}`
+3:3 CharLiteral `'`
+4:1 CharLiteral `'x`
+5:2 PlusEquals `+=`
+5:5 MinusEquals `-=`
+5:8 StarEquals `*=`
+5:11 SlashEquals `/=`
+5:14 PercentEquals `%=`
+5:17 AmpEquals `&=`
+5:20 BarEquals `|=`
+5:23 CaretEquals `^=`
+5:26 LessLessEquals `<<=`
+6:2 CharLiteral `'`
+7:1 CharLiteral `'\u{110000}'`
+8:1 CharLiteral `'x `
+8:4 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0008: unterminated char literal
+
+  3 │ 0}'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  6 │  '
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x 
+    │ ^^^
+    │
+  help: close it with `'`

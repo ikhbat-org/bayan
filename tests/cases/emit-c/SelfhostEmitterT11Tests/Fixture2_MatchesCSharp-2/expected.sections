@@ -1,0 +1,100 @@
+== helpers
+bynh_position static bynt_opt_i64 bynh_position(int64_t p) | static bynt_opt_i64 bynh_position(int64_t p) {
+    return p < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, p};
+}
+bynh_span_list_rune static bynt_span_rune bynh_span_list_rune(bynt_list_rune l) | static bynt_span_rune bynh_span_list_rune(bynt_list_rune l) {
+    return (bynt_span_rune){l.ptr, l.len};
+}
+bynh_trimmed_by static byn_str bynh_trimmed_by(byn_str s, bynt_span_rune by) | static byn_str bynh_trimmed_by(byn_str s, bynt_span_rune by) {
+    return byn_str_trimmed_by(s, by.ptr, by.len);
+}
+bynh_utf16_copy static bynt_list_u16 bynh_utf16_copy(byn_text_view v) | static bynt_list_u16 bynh_utf16_copy(byn_text_view v) {
+    bynt_list_u16 r = {NULL, 0, 0, byn_context};
+    r.ptr = byn_utf16_copy(v.s, &r.len, byn_context);
+    r.cap = r.len;
+    return r;
+}
+bynh_span_list_i64 static bynt_span_i64 bynh_span_list_i64(bynt_list_i64 l) | static bynt_span_i64 bynh_span_list_i64(bynt_list_i64 l) {
+    return (bynt_span_i64){l.ptr, l.len};
+}
+bynh_replace_list_i64 static void bynh_replace_list_i64(bynt_list_i64* l, bynt_tup3_i64_i64_bool at, bynt_span_i64 items, const char* file, int line) | static void bynh_replace_list_i64(bynt_list_i64* l, bynt_tup3_i64_i64_bool at, bynt_span_i64 items, const char* file, int line) {
+    int64_t start = at.item1, end = at.item3 ? at.item2 + 1 : at.item2;
+    byn_slice_check(start, end, l->len, file, line);
+    int64_t len = l->len - (end - start) + items.len;
+    if (!l->alloc) l->alloc = byn_context;
+    void* copy = NULL;
+    if (items.len > 0 && items.ptr >= l->ptr && items.ptr < l->ptr + l->cap)
+        items.ptr = copy = byn_copy_bytes(items.ptr, items.len * (int64_t)sizeof(*l->ptr), l->alloc);
+    byn_list_reserve((void**)&l->ptr, &l->cap, len, (int64_t)sizeof(*l->ptr), l->alloc);
+    memmove(l->ptr + start + items.len, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    if (items.len > 0) memcpy(l->ptr + start, items.ptr, (size_t)items.len * sizeof(*l->ptr));
+    l->len = len;
+    if (copy) byn_release(l->alloc, copy);
+}
+bynh_mutable_span_list_i64 static bynt_span_i64 bynh_mutable_span_list_i64(bynt_list_i64 l) | static bynt_span_i64 bynh_mutable_span_list_i64(bynt_list_i64 l) {
+    return (bynt_span_i64){l.ptr, l.len};
+}
+bynh_remove_through_list_i64 static void bynh_remove_through_list_i64(bynt_list_i64* l, int64_t start, int64_t end, int mode, const char* file, int line) | static void bynh_remove_through_list_i64(bynt_list_i64* l, int64_t start, int64_t end, int mode, const char* file, int line) {
+    if (mode == 2) {
+        if (start < 0 || start >= l->len) bayan_trap_bounds(file, line);
+        end = start;
+    }
+    if (mode != 0) {
+        byn_slice_check(start, end, l->len - 1, file, line);
+        end++;
+    }
+    byn_slice_check(start, end, l->len, file, line);
+    if (end > start) memmove(l->ptr + start, l->ptr + end, (size_t)(l->len - end) * sizeof(*l->ptr));
+    l->len -= end - start;
+}
+bynh_remove_at_range_list_i64 static void bynh_remove_at_range_list_i64(bynt_list_i64* l, bynt_tup3_i64_i64_bool at, const char* file, int line) | static void bynh_remove_at_range_list_i64(bynt_list_i64* l, bynt_tup3_i64_i64_bool at, const char* file, int line) {
+    bynh_remove_through_list_i64(l, at.item1, at.item2, at.item3 ? 1 : 0, file, line);
+}
+bynh_strbuf_repeat static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) | static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) {
+    if (n < 0) byn_panic("repeated a negative number of times", file, line);
+    for (int64_t i = 0; i < n; i++) byn_w_char(w, c);
+}
+bynh_reverse static void bynh_reverse(uint8_t* p, int64_t n) | static void bynh_reverse(uint8_t* p, int64_t n) {
+    for (int64_t i = 0, j = n - 1; i < j; i++, j--) {
+        uint8_t t = p[i];
+        p[i] = p[j];
+        p[j] = t;
+    }
+}
+bynh_strbuf_insert static void bynh_strbuf_insert(byn_writer* w, byn_str s, int64_t at, const char* file, int line) | static void bynh_strbuf_insert(byn_writer* w, byn_str s, int64_t at, const char* file, int line) {
+    byn_slice_check(at, w->len, w->len, file, line);
+    if (at < w->len && (w->buf[at] & 0xC0) == 0x80) byn_panic("string slice splits a code point", file, line);
+    int64_t end = w->len;
+    byn_w_bytes(w, s.ptr, s.len);
+    bynh_reverse(w->buf + at, end - at);
+    bynh_reverse(w->buf + end, s.len);
+    bynh_reverse(w->buf + at, end - at + s.len);
+}
+bynh_at_arr3_i32 static int32_t* bynh_at_arr3_i32(bynt_arr3_i32* a, int64_t i, bool from_end, const char* file, int line) | static int32_t* bynh_at_arr3_i32(bynt_arr3_i32* a, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = 3 - i;
+    return &a->v[byn_index(i, 3, file, line)];
+}
+bynh_slice_arr3_i32 static bynt_span_i32 bynh_slice_arr3_i32(bynt_arr3_i32* x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) | static bynt_span_i32 bynh_slice_arr3_i32(bynt_arr3_i32* x, int64_t a, int am, int64_t b, int bm, bool incl, const char* file, int line) {
+    int64_t from, to;
+    byn_slice_range(3, a, am, b, bm, incl, file, line, &from, &to);
+    return (bynt_span_i32){x->v + from, to - from};
+}
+bynh_at_span_i64 static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) | static int64_t* bynh_at_span_i64(bynt_span_i64 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}
+bynh_eq_err static bool bynh_eq_err(byn_err a, byn_err b) | static bool bynh_eq_err(byn_err a, byn_err b) {
+    if (a.code != b.code) return false;
+    switch (a.code) {
+    case 10: return (a.p.e10.signal == b.p.e10.signal)
+        && byn_str_eq(a.p.e10.stdout_, b.p.e10.stdout_)
+        && byn_str_eq(a.p.e10.stderr_, b.p.e10.stderr_);
+    case 11: return (a.p.e11.after == b.p.e11.after)
+        && byn_str_eq(a.p.e11.stdout_, b.p.e11.stdout_)
+        && byn_str_eq(a.p.e11.stderr_, b.p.e11.stderr_);
+    case 12: return (a.p.e12.at == b.p.e12.at);
+    case 13: return (a.p.e13.code == b.p.e13.code);
+    case 15: return (a.p.e15.at == b.p.e15.at);
+    }
+    return true;
+}

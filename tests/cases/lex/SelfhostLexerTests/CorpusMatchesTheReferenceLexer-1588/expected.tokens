@@ -1,0 +1,51 @@
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 FloatLiteral `1_3.14`
+6:8 FloatLiteral `1e5`
+6:12 FloatLiteral `2.5e-3`
+6:19 FloatLiteral `6E+2`
+6:24 IntegerLiteral `1`
+6:25 NumericSuffix `S50dec`
+6:32 IntegerLiteral `1`
+6:33 DotDot `..`
+6:35 IntegerLiteral `2`
+6:37 IntegerLiteral `1`
+6:38 DotDotEquals `..=`
+6:41 IntegerLiteral `3`
+6:43 IntegerLiteral `5`
+6:44 NumericSuffix `e`
+6:46 Identifier `x`
+6:47 Dot `.`
+6:48 Identifier `y`
+6:50 FloatLiteral `2.5`
+6:53 NumericSuffix `f`
+8:2 CharLiteral `'\0'`
+9:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^

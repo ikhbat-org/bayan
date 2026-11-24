@@ -1,0 +1,12 @@
+struct Cart {
+    public void add(ref this, Line line) {
+        let n = 1
+        print(n)
+        lines.append(line)
+    }
+}
+
+void main() {
+    let a = 1
+    print(a)
+}

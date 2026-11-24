@@ -1,0 +1,132 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 StringLiteral `"{$"`
+1:29 OpenBrace `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolatedStringText `�`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 StringLiteral `$"{x}"`
+1:67 CloseBrace `}`
+1:68 StringLiteral `"}"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:83 InterpolationEnd `}`
+1:84 InterpolatedStringEnd `"`
+1:85 InterpolationEnd `}`
+1:86 InterpolatedStringEnd `"`
+1:87 CloseBrace `}`
+1:88 StringLiteral `"}"`
+1:91 InterpolationEnd `}`
+1:92 InterpolatedStringEnd `"`
+1:93 InterpolationEnd `}`
+1:94 InterpolatedStringEnd `"`
+1:95 InterpolationEnd `}`
+1:96 InterpolatedStringEnd `"`
+1:97 InterpolationEnd `}`
+1:98 InterpolatedStringEnd `"`
+1:99 InterpolationEnd `}`
+1:100 InterpolatedStringEnd `"`
+1:101 InterpolationEnd `}`
+1:102 InterpolatedStringEnd `"`
+1:103 InterpolationEnd `}`
+1:104 InterpolatedStringEnd `"`
+1:105 InterpolationEnd `}`
+1:106 InterpolatedStringEnd `"`
+2:1 Identifier `s`
+2:2 StringLiteral `" "`
+2:5 StringLiteral `" "`
+2:9 Identifier `u`
+2:10 OpenBrace `{`
+2:11 IntegerLiteral `48`
+2:13 CloseBrace `}`
+2:14 Identifier `i`
+2:15 StringLiteral `"`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:3 IntegerLiteral `1__`
+6:2 CharLiteral `'ab'`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                      ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                       ^^
+
+error BYN0002: unexpected character `\`
+
+  2 │ s" "" "\u{48}i"
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  2 │ s" "" "\u{48}i"
+    │               ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `﻿`
+
+  5 │ ﻿ 1__
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ ﻿ 1__
+    │    ^^
+    │
+    │ 5 │ ﻿ 1__
+    │   │    --
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

@@ -1,0 +1,75 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
+2:2 Plus `+`
+2:4 Minus `-`
+2:6 Star `*`
+2:8 Slash `/`
+2:10 Percent `%`
+2:12 PlusPercent `+%`
+2:15 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:32 MinusMinus `--`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:15 Bang `!`
+3:17 Equals `=`
+3:19 EqualsEquals `==`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:35 LessLess `<<`
+3:38 Greater `>`
+3:39 Greater `>`
+3:41 Greater `>`
+3:42 GreaterEquals `>=`
+    doc `/// Dc line one.`
+6:2 Identifier `c`
+6:4 Greater `>`
+6:5 GreaterEquals `>=`
+6:8 IntegerLiteral `1`
+7:2 CharLiteral `'\u{110000}'`
+8:2 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ let a = $ 1
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │  �/// Dc line one.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │  �/// Dc line one.
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │  �/// Dc line one.
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ � c >>= 1
+    │ ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

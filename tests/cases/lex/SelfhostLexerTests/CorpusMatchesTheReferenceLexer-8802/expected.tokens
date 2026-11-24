@@ -1,0 +1,9 @@
+1:2 CharLiteral `'let effe\u{14}Ect = 2`
+2:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │  'let effe�Ect = 2
+    │  ^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`

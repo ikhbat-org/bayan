@@ -1,0 +1,1 @@
+{"code":"BYN2780","severity":"error","file":"input.byn","span":{"start":124,"end":127,"line":10,"column":16,"endLine":10,"endColumn":19},"message":"implicit copy of a unique value: `Bag` is unique because field `items` is a `List<i64>`","label":null,"help":"declare the parameter `move bag` to take ownership; pass it by `ref` to share it instead","fixes":[]}

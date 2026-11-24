@@ -1,0 +1,158 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+4:1 Identifier `b`
+5:1 LetKeyword `let`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:11 IntegerLiteral `1`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:11 IntegerLiteral `3`
+9:1 StringLiteral `"{`
+10:1 Comma `,`
+10:3 Dot `.`
+10:5 DotDot `..`
+10:8 Dot `.`
+10:9 Equals `=`
+10:11 Colon `:`
+10:13 Question `?`
+10:15 QuestionQuestion `??`
+10:18 Question `?`
+10:20 Question `?`
+10:21 Equals `=`
+10:23 QuestionDot `?.`
+10:26 FatArrow `=>`
+10:29 Arrow `->`
+10:32 At `@`
+10:34 Hash `#`
+11:2 InterpolatedStringStart `$"`
+11:4 InterpolationStart `{`
+11:5 InterpolatedStringStart `$"`
+11:7 InterpolationStart `{`
+11:8 InterpolatedStringStart `$"`
+11:10 InterpolationStart `{`
+11:11 InterpolatedStringStart `$"`
+11:13 InterpolationStart `{`
+11:14 InterpolatedStringStart `$"`
+11:16 InterpolationStart `{`
+11:17 InterpolatedStringStart `$"`
+11:19 InterpolationStart `{`
+11:20 InterpolatedStringStart `$"`
+11:22 InterpolationStart `{`
+11:23 InterpolatedStringStart `$"`
+11:25 InterpolationStart `{`
+11:26 InterpolatedStringStart `$"`
+11:28 InterpolationStart `{`
+11:29 InterpolatedStringStart `$"`
+11:31 InterpolationStart `{`
+11:32 InterpolatedStringStart `$"`
+11:34 InterpolationStart `{`
+11:35 InterpolatedStringStart `$"`
+11:37 InterpolationStart `{`
+11:38 InterpolatedStringStart `$"`
+11:40 InterpolationStart `{`
+11:41 InterpolatedStringStart `$"`
+11:43 InterpolationStart `{`
+11:44 InterpolatedStringStart `$"`
+11:46 InterpolationStart `{`
+11:47 InterpolatedStringStart `$"`
+11:49 InterpolationStart `{`
+11:50 StringLiteral `$"{$"`
+11:55 OpenBrace `{`
+11:56 StringLiteral `$"{$"`
+11:61 OpenBrace `{`
+11:62 StringLiteral `$"{x}"`
+11:68 CloseBrace `}`
+11:69 StringLiteral `"}"`
+11:72 CloseBrace `}`
+11:73 StringLiteral `"}"`
+11:76 InterpolationEnd `}`
+11:77 InterpolatedStringEnd `"`
+11:78 InterpolationEnd `}`
+11:79 InterpolatedStringEnd `"`
+11:80 InterpolationEnd `}`
+11:81 InterpolatedStringEnd `"`
+11:82 InterpolationEnd `}`
+11:83 InterpolatedStringEnd `"`
+11:84 InterpolationEnd `}`
+11:85 InterpolatedStringEnd `"`
+11:86 InterpolationEnd `}`
+11:87 InterpolatedStringEnd `"`
+11:88 InterpolationEnd `}`
+11:89 InterpolatedStringEnd `"`
+11:90 InterpolationEnd `}`
+11:91 InterpolatedStringEnd `"`
+11:92 InterpolationEnd `}`
+11:93 InterpolatedStringEnd `"`
+11:94 InterpolationEnd `}`
+11:95 InterpolatedStringEnd `"`
+11:96 InterpolationEnd `}`
+11:97 InterpolatedStringEnd `"`
+11:98 InterpolationEnd `}`
+11:99 InterpolatedStringEnd `"`
+11:100 InterpolationEnd `}`
+11:101 InterpolatedStringEnd `"`
+11:102 InterpolationEnd `}`
+11:103 InterpolatedStringEnd `"`
+11:104 InterpolationEnd `}`
+11:105 InterpolatedStringEnd `"`
+11:106 InterpolationEnd `}`
+11:107 InterpolatedStringEnd `"`
+11:109 Equals `=`
+11:113 IntegerLiteral `1`
+12:1 LetKeyword `let`
+12:5 Identifier `b`
+12:7 Equals `=`
+12:11 IntegerLiteral `2`
+13:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  5 │ let a = $ 1
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  9 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" = $ 1
+     │                                                  ^^
+
+error BYN0002: unexpected character `$`
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" = $ 1
+     │                                                                                                               ^
+
+error BYN0002: unexpected character ```
+
+  12 │ let b = ` 2
+     │         ^

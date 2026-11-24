@@ -1,0 +1,8 @@
+//// not a doc comment
++= (-= *= /= %= &= |= ^= <<=
+
+let actor = 1let c = """never closed
+
+let a = $ 1
+ ''
+ $"{"

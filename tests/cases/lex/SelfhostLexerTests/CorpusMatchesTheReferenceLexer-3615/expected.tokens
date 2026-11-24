@@ -1,0 +1,83 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `a`
+1:6 Amp `&`
+1:8 AmpAmp `&&`
+1:11 Bar `|`
+1:13 BarBar `||`
+1:16 Caret `^`
+1:18 Tilde `~`
+1:20 Bang `!`
+1:22 Equals `=`
+1:24 EqualsEquals `==`
+1:27 BangEquals `!=`
+1:30 Less `<`
+1:32 LessEquals `<=`
+1:35 Greater `>`
+1:37 GreaterEquals `>=`
+1:40 LessLess `<<`
+1:43 Greater `>`
+1:44 Greater `>`
+1:46 Greater `>`
+1:47 GreaterEquals `>=`
+3:3 CharLiteral `'a'`
+3:7 CharLiteral `'\n'`
+3:11 CharLiteral `'\u{1F600}'`
+3:23 CharLiteral `'\''`
+3:28 CharLiteral `'é'`
+3:31 CharLiteral `' '`
+3:36 CharLiteral `' '`
+3:40 IntegerLiteral `0`
+3:41 CharLiteral `'`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:10 CloseBrace `}`
+6:1 IntegerLiteral `0b__`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{a & && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ � 'a' '\n''\u{1F600}' '\'' 'é'' '\\' '\0'
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � 'a' '\n''\u{1F600}' '\'' 'é'' '\\' '\0'
+    │   │ -
+
+error BYN0002: unexpected character `\`
+
+  3 │ � 'a' '\n''\u{1F600}' '\'' 'é'' '\\' '\0'
+    │                                  ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ � 'a' '\n''\u{1F600}' '\'' 'é'' '\\' '\0'
+    │                                   ^
+
+error BYN0002: unexpected character `\`
+
+  3 │ � 'a' '\n''\u{1F600}' '\'' 'é'' '\\' '\0'
+    │                                       ^
+
+error BYN0008: unterminated char literal
+
+  3 │ � 'a' '\n''\u{1F600}' '\'' 'é'' '\\' '\0'
+    │                                         ^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^

@@ -1,0 +1,65 @@
+1:1 Identifier `ạ̇`
+1:4 CharLiteral `''`
+3:1 Identifier `b`
+5:1 StructKeyword `struct`
+5:8 UniqueKeyword `unique`
+5:15 UnionKeyword `union`
+5:21 EnumKeyword `enum`
+5:26 Identifier `flag`
+5:30 Greater `>`
+5:31 Identifier `s`
+5:33 OpenKeyword `open`
+5:38 ExtensibleKeyword `extensible`
+5:49 InterfaceKeyword `interface`
+5:59 DelegateKeyword `delegate`
+5:68 ExtensionKeyword `extension`
+5:78 DerivationKeyword `derivation`
+5:89 AttributeKeyword `attribute`
+6:2 LetKeyword `let`
+6:6 Identifier `actor`
+6:12 Equals `=`
+6:14 IntegerLiteral `1`
+7:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇''
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇''
+    │   │ +
+
+error BYN0007: empty char literal
+
+  1 │ ạ̇''
+    │    ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ����
+    │     ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  6 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

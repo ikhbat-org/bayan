@@ -1,0 +1,84 @@
+2:1 FailsKeyword `fails`
+2:7 Identifier `tr`
+2:10 CatchKeyword `catch`
+2:16 NeverKeyword `never`
+2:22 Identifier `nolloc`
+2:29 NosuspendKeyword `nosuspend`
+2:39 SuspendsKeyword `suspends`
+2:48 AsyncKeyword `async`
+2:54 AwaitKeyword `await`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:24 StringLiteral `"{$"`
+3:28 OpenBrace `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 Identifier `x`
+3:48 InterpolationEnd `}`
+3:49 InterpolatedStringEnd `"`
+3:50 InterpolationEnd `}`
+3:51 InterpolatedStringEnd `"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 CloseBrace `}`
+3:61 StringLiteral `"}"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+5:3 Equals `=`
+5:5 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"
+    │                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{1E}`
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"
+    │                       ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  4 │ /*
+    │ ^^ block comment
+    │
+  help: write each line with `//`
+    │ 4 │ //
+    │   │  +
+    │ 5 │ = 2

@@ -1,0 +1,1 @@
+{"code":"BYN2708","severity":"error","file":"input.byn","span":{"start":41,"end":45,"line":2,"column":28,"endLine":2,"endColumn":32},"message":"a union payload cannot hold a borrowed `ReadOnlySpan<u8>`","label":null,"help":"store a `List` copied with `.copy(to: alloc)` instead","fixes":[]}

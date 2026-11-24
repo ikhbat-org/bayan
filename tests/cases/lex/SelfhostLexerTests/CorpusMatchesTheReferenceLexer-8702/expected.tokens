@@ -1,0 +1,16 @@
+2:3 Star `*`
+2:4 Slash `/`
+2:5 RawStringLiteral `"""\n`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  2 │ � */"""
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ � */"""
+    │     ^^^ raw string starts here
+    │
+  help: close it with `"""`

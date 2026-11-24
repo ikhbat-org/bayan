@@ -1,0 +1,2 @@
+CompilationUnit
+  Function id<T>(T a) -> T where T : IA => a

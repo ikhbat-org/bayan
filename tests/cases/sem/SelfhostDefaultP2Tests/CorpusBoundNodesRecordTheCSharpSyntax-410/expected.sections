@@ -1,0 +1,10 @@
+== tests/cases/diag/continue-switch.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+16..89 switchStmt
+23..24 nameExpr
+36..37 constantPattern
+36..37 literalExpr integer
+47..47 continueStmt
+82..82 breakStmt

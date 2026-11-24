@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/io-read-escapes-context.byn
+--package
+<repo>/tests/cases/diag

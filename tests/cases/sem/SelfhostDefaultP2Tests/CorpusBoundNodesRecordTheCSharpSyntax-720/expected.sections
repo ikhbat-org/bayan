@@ -1,0 +1,10 @@
+== tests/cases/diag/on-panic-twice.byn
+22..46 blockStmt
+28..44 exprStmt
+28..44 callExpr
+34..43 memberExpr
+34..35 nameExpr
+28..44 callExpr
+60..119 blockStmt
+66..89 assignStmt assign target 66..79 value 82..89
+94..117 assignStmt assign target 94..107 value 110..117

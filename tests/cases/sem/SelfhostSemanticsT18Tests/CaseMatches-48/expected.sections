@@ -1,0 +1,4 @@
+== module.probes.-.u3
+typeRef|?|-|?|-|-|-|2483:10|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2002 129:14 unknown type `main.Point` ||add `import main`; `main` is not an imported module|

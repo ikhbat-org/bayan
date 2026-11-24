@@ -1,0 +1,14 @@
+1:1 Slash `/`
+1:3 Identifier `line`
+1:8 Identifier `commen`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBE)
+
+  1 │ / line commen��
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  1 │ / line commen��
+    │               ^

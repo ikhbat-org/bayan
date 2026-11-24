@@ -1,0 +1,10 @@
+ c =  3
+
+is and or not with move ref out this null true false comptime checked
+
+0x '\u{D800}'
+'\u{110000}'
+
+1__
+ let b = "bad \q escape"
+

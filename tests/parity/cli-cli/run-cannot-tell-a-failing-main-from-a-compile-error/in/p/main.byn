@@ -1,0 +1,8 @@
+union error E {
+    /// It went wrong.
+    wrong,
+}
+
+void main() fails E {
+    fail .wrong
+}

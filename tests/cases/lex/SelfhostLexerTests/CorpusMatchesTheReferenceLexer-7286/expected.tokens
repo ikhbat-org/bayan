@@ -1,0 +1,26 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:12 PercentEquals `%=`
+1:15 AmpEquals `&=`
+1:18 BarEquals `|=`
+1:21 CaretEquals `^=`
+1:24 LessLessEquals `<<=`
+2:2 IntegerLiteral `1_`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1_
+    │   ^
+    │
+    │ 2 │  1_
+    │   │   -
+
+error BYN0004: unterminated block comment
+
+  3 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,12 @@
+    doc `/// Doc line one.`
+3:2 CStringLiteral `c"text"`
+3:10 U16StringLiteral `u16"wide"`
+3:20 StringLiteral `"\u{202E} allowed Uin strings"`
+3:44 StringLiteral `""`
+3:47 StringLiteral `"\u{48}i"`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  3 │ �c"text" u16"wide" "� allowed Uin strings" "" "\u{48}i"
+    │ ^

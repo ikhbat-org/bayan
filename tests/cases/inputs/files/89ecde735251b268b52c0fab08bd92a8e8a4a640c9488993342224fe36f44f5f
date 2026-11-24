@@ -1,0 +1,1 @@
+let a = "tab\tnl\ncr\rnul\0bs\\q\"ap\'x\q"

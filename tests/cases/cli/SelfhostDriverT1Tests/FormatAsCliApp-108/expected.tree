@@ -1,0 +1,2 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+i32!Foo? f() { return 1 }

@@ -1,0 +1,84 @@
+// 019 T29 (coverage ratchet): walk.byn paths no golden case reaches: the macOS and Windows `.byn` match, bounds that end in
+// a separator, a missing walk root, a dangling link, an unlistable directory, a directory that can be listed but not
+// searched, and an unreadable file. The expected values are the output of the self-hosted driver at the commit that added
+// the test.
+
+/// tmp/walk-t29/<name> under the working directory, emptied.
+string t29WalkDir(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "walk-t29"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+/// Runs `/bin/<tool> args` and asserts it exits 0.
+void t29WalkRun(string tool, by List<string> args) uses alloc, process {
+    let r = Io.run($"/bin/{tool}", args.span) catch { panic($"cannot run {tool}") }
+    assert r.exitCode == 0
+}
+
+test "driver t29: t6IsByn and t6Inside on names and bounds" {
+    if Target.os != "linux" {
+        assert t6IsByn("a.BYN")
+        assert !t6IsByn("byn")
+        assert !t6IsByn("a-byn")
+        assert !t6IsByn("a.cyn")
+        assert !t6IsByn("a.bzn")
+        assert !t6IsByn("a.byx")
+    }
+    assert t6Inside("/a/b", by: "/a/")
+    assert t6Inside("/a", by: "/a")
+    assert !t6Inside("/ab", by: "/a")
+}
+
+test "driver t29: bynFiles and packageNames on a missing root" {
+    var exit = exitOk
+    assert bynFiles("tmp/walk-t29-no-such", through: ref exit).length == 0
+    assert exit == 1
+    var quiet = exitOk
+    assert bynFiles("tmp/walk-t29-no-such", through: ref quiet, for: true).length == 0
+    assert quiet == 1
+    assert packageNames("tmp/walk-t29-no-such").length == 0
+}
+
+test "driver t29: bynFiles skips a dangling link, an unlistable directory and what lies outside its bound" {
+    // the link and the locked directories are made by `/bin/ln` and `/bin/chmod`, which Windows lacks
+    if Target.os == "windows" {
+        todo("`ln -s` and `chmod` permission bits are Unix-only")
+    }
+    let dir = t29WalkDir("odd")
+    goldenWrite(dir, for: "a.byn", as: "let a = 1\n")
+    goldenWrite(dir, for: "sub/b.byn", as: "let b = 2\n")
+    t29WalkRun("ln", by: ["-s", "missing", Path.combine(dir, "link")])
+    t29WalkRun("mkdir", by: [Path.combine(dir, "locked")])
+    t29WalkRun("chmod", by: ["000", Path.combine(dir, "locked")])
+    // listable but not searchable: its entry `inner` has no real path
+    t29WalkRun("mkdir", by: ["-p", Path.combine(Path.combine(dir, "unsearchable"), "inner")])
+    t29WalkRun("chmod", by: ["644", Path.combine(dir, "unsearchable")])
+    var exit = exitOk
+    let files = bynFiles(dir, through: ref exit)
+    assert exit == 1 && files.length == 2
+    var quiet = exitOk
+    assert bynFiles(dir, through: ref quiet, for: true).length == 2
+    assert quiet == 1
+    var bounded = exitOk
+    assert bynFiles(dir, through: ref bounded, by: Path.combine(dir, "elsewhere"), for: true).length == 0
+    t29WalkRun("chmod", by: ["755", Path.combine(dir, "locked")])
+    t29WalkRun("chmod", by: ["755", Path.combine(dir, "unsearchable")])
+    deleteWorkDir(dir)
+}
+
+test "driver t29: packageNames skips a file it cannot read" {
+    // the unreadable file is made by `/bin/chmod 000`, and Windows has no permission bits that deny a read
+    if Target.os == "windows" {
+        todo("`chmod` permission bits are Unix-only")
+    }
+    let dir = t29WalkDir("unreadable")
+    goldenWrite(dir, for: "a.byn", as: "let a = 1\nprint($\"{a}\")\n")
+    goldenWrite(dir, for: "b.byn", as: "let b = 2\n")
+    t29WalkRun("chmod", by: ["000", Path.combine(dir, "b.byn")])
+    let names = packageNames(dir)
+    assert names.contains("a") && !names.contains("b")
+    t29WalkRun("chmod", by: ["644", Path.combine(dir, "b.byn")])
+    deleteWorkDir(dir)
+}

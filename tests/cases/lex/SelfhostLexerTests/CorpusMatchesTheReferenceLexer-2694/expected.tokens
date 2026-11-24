@@ -1,0 +1,23 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+2:2 CloseBrace `}`
+2:3 StringLiteral `"}"`
+3:2 IntegerLiteral `1`
+4:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0x9C)
+
+  3 │ � 1�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ � 1�
+    │    ^

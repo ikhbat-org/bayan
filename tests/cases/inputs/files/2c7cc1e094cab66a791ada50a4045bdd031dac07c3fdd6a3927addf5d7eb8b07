@@ -1,0 +1,13 @@
+struct unique union enum flags open extensible interface delegate extension dervation attribute
+ let actor = 1
+ €
+t" "esc \"q\" \\ \n" """
+  raw "quoed"
+  """ c"text" u16"wide & && | || ^ ~ ! = == != < <= > >= << >> >>=
+
+
+'\q'
+'\u{D800}'
+'\u{110000}'
+'x
+ 

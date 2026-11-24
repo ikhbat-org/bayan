@@ -1,0 +1,128 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 Identifier `r`
+3:3 Identifier `xs`
+3:5 Colon `:`
+3:7 Identifier `List`
+3:11 Less `<`
+3:12 Identifier `List`
+3:16 Less `<`
+3:17 Identifier `i64`
+3:20 Greater `>`
+3:21 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+7:1 StringLiteral `" \\ \n"`
+7:10 RawStringLiteral `"""\n  raw "quoted"\n  """`
+9:7 CStringLiteral `c"text"`
+9:15 Identifier `u16`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 InterpolatedStringStart `$"`
+9:27 InterpolationStart `{`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolationStart `{`
+9:31 InterpolatedStringStart `$"`
+9:33 InterpolationStart `{`
+9:34 InterpolatedStringStart `$"`
+9:36 InterpolationStart `{`
+9:37 InterpolatedStringStart `$"`
+9:39 InterpolationStart `{`
+9:40 InterpolatedStringStart `$"`
+9:42 InterpolationStart `{`
+9:43 InterpolatedStringStart `$"`
+9:45 InterpolationStart `{`
+9:46 InterpolatedStringStart `$"`
+9:48 InterpolationStart `{`
+9:49 InterpolatedStringStart `$"`
+9:51 InterpolationStart `{`
+9:52 InterpolatedStringStart `$"`
+9:54 InterpolationStart `{`
+9:55 InterpolatedStringStart `$"`
+9:57 InterpolationStart `{`
+9:58 InterpolatedStringStart `$"`
+9:60 InterpolationStart `{`
+9:61 InterpolatedStringStart `$"`
+9:63 InterpolationStart `{`
+9:64 InterpolatedStringStart `$"`
+9:66 InterpolationStart `{`
+9:67 StringLiteral `$"{$"`
+9:72 OpenBrace `{`
+9:73 StringLiteral `$"{$"`
+9:78 OpenBrace `{`
+9:79 Identifier `x`
+9:80 CloseBrace `}`
+9:81 StringLiteral `" ���er closed`
+10:2 IsKeyword `is`
+10:5 AndKeyword `and`
+10:9 OrKeyword `or`
+10:12 NotKeyword `not`
+10:16 WithKeyword `with`
+10:21 MoveKeyword `move`
+10:26 RefKeyword `ref`
+10:30 OutKeyword `out`
+10:34 ThisKeyword `this`
+10:39 NullKeyword `null`
+10:44 TrueKeyword `true`
+10:49 FalseKeyword `false`
+10:55 ComptimeKeyword `comptime`
+10:64 CheckedKeyword `checked`
+11:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  9 │   """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" ���er closed
+    │                                                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │   """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" ���er closed
+    │                                                                   ^^
+
+error BYN0003: unterminated string literal
+
+  9 │   """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" ���er closed
+    │                                                                                 ^^^^^^^^^^^^^^ string
+    │                                                                                                ends
+    │                                                                                                at
+    │                                                                                                the
+    │                                                                                                end
+    │                                                                                                of
+    │                                                                                                the
+    │                                                                                                line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  9 │   """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" ���er closed
+    │                                                                                   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  9 │   """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" ���er closed
+    │                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │   """ c"text" u16 $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}" ���er closed
+    │                                                                                     ^

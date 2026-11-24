@@ -1,0 +1,8 @@
+== cases
+0 bynh_add_list_i32(&l0_b.items, ((int32_t)7))
+1 l0_b.items.len
+2 l0_b.counts.h.live
+3 l1_xs.len
+4 l2_m.h.live
+5 byn_add_i32(l3_p.x, l3_p.y, byn_file_0, 20)
+count 6

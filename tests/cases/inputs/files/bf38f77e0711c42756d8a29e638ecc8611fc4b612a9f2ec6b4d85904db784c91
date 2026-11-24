@@ -1,0 +1,7 @@
+ạ̇ let b = ` 2
+'ab'
+ b
+ 0x_
+
+ =  "{$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+

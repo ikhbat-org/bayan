@@ -1,0 +1,22 @@
+1:1 Equals `=`
+1:3 IntegerLiteral `1`
+2:1 IntegerLiteral `1_`
+3:1 Identifier `b`
+5:1 FailsKeyword `fails`
+5:7 Identifier `tr`
+5:10 CatchKeyword `catch`
+5:16 NeverKeyword `never`
+5:22 NoallocKeyword `noalloc`
+5:30 NosuspendKeyword `nosuspend`
+5:40 Identifier `uspends`
+5:48 AsyncKeyword `async`
+5:54 AwaitKeyword `await`
+6:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -

@@ -1,0 +1,5 @@
+== helpers
+bynh_at_list_sym static byn_sym* bynh_at_list_sym(bynt_list_sym s, int64_t i, bool from_end, const char* file, int line) | static byn_sym* bynh_at_list_sym(bynt_list_sym s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

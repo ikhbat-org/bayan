@@ -1,0 +1,5 @@
+== diags.golden
+BYN7001 14:16 `ship` needs `order` to be `.paid`, but it is `Order`
+  help `isPaid` doesn't narrow; write `if order is .paid`
+BYN7001 17:16 `ship` needs `order` to be `.paid`, but it is `Order`
+  help check the state with `is` or `switch` first

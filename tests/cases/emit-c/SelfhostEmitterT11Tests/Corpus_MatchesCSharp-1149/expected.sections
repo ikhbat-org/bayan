@@ -1,0 +1,15 @@
+== cases
+0 byn_main_Booking_Field_names[l2_f]
+1 (l0_first == ((byn_main_Booking_Field)0))
+2 (!((*self).nights > INT64_C(0)))
+3 ((*self).nights > INT64_C(0))
+4 bynh_add_list_builtin__Violation__main__Booking(&l1_violations, ((bynt_builtin__Violation__main__Booking){((byn_main_Booking_Field)0), ((byn_builtin_Rule){.tag = 2})}))
+5 ((!l0_broken_nights) && (!((*self).guests <= byn_mul_i64((*self).nights, INT64_C(4), byn_file_0, 4))))
+6 (!l0_broken_nights)
+7 (!((*self).guests <= byn_mul_i64((*self).nights, INT64_C(4), byn_file_0, 4)))
+8 ((*self).guests <= byn_mul_i64((*self).nights, INT64_C(4), byn_file_0, 4))
+9 byn_mul_i64((*self).nights, INT64_C(4), byn_file_0, 4)
+10 bynh_add_list_builtin__Violation__main__Booking(&l1_violations, ((bynt_builtin__Violation__main__Booking){((byn_main_Booking_Field)1), ((byn_builtin_Rule){.tag = 2})}))
+11 (!(l1_violations.len == 0))
+12 (l1_violations.len == 0)
+count 13

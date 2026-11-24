@@ -1,0 +1,7 @@
+let b = ` 2
+xt" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+Å $"{
+let b = ` 2
+ '\q'
+

@@ -1,0 +1,6 @@
+== expr
+l2: => conversion:dyn ref readonly IShape(local ci#-:Circle) locals=0
+l3: => index:i64(index:i64[3](local ws#-:List<i64[3]> local k#-:i64) conditional:i64(optionalHas:bool(local o#-:i64?) optionalValue:i64(local o#-:i64?) call h:i64)) locals=0
+l4: ifStmt(optionalHas:bool(local o#-:i64?) block(assign(local t#0:i64 optionalValue:i64(local o#-:i64?))) block(returnStmt)) => local t#0:i64 locals=1
+l5: failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(returnStmt)) => local t#1:i64 locals=2
+l6: => slice:Span<i64>(index:i64[3](local ws#-:List<i64[3]> local k#-:i64) literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=0

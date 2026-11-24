@@ -1,0 +1,4 @@
+error BYN2012: constant `first` depends on itself
+
+  1 │ const first: i64 = second + 1
+    │       ^^^^^

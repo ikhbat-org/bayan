@@ -1,0 +1,56 @@
+== helpers
+bynh_value_res_i64 static int64_t bynh_value_res_i64(bynt_res_i64 r, const char* file, int line) | static int64_t bynh_value_res_i64(bynt_res_i64 r, const char* file, int line) {
+    if (r.err.code) byn_panic("result holds an error", file, line);
+    return r.value;
+}
+bynh_error_res_i64 static byn_err bynh_error_res_i64(bynt_res_i64 r, const char* file, int line) | static byn_err bynh_error_res_i64(bynt_res_i64 r, const char* file, int line) {
+    if (!r.err.code) byn_panic("result holds a value", file, line);
+    return r.err;
+}
+bynh_copy_map_i64_i64 static bynt_map_i64_i64 bynh_copy_map_i64_i64(bynt_map_i64_i64 m, byn_alloc* a) | static bynt_map_i64_i64 bynh_copy_map_i64_i64(bynt_map_i64_i64 m, byn_alloc* a) {
+    bynt_map_i64_i64 r;
+    byn_map_copy(&m.h, m.keys, (int64_t)sizeof(int64_t), (void**)&r.keys, m.vals, (int64_t)sizeof(int64_t), (void**)&r.vals, &r.h, a);
+    return r;
+}
+bynh_io_read_all static bynt_res_str bynh_io_read_all(int32_t fd) | static bynt_res_str bynh_io_read_all(int32_t fd) {
+    (void)fd;
+    bynt_res_str r = {0};
+    r.err.code = byn_io_read_stdin(&r.value, byn_context);
+    return r;
+}
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k) | static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_i64 static bool bynh_keq_i64(const void* a, const void* b) | static bool bynh_keq_i64(const void* a, const void* b) {
+    return (*(const int64_t*)a == *(const int64_t*)b);
+}
+bynh_slot_map_i64_i64 static int64_t* bynh_slot_map_i64_i64(bynt_map_i64_i64* m, int64_t k, int64_t d) | static int64_t* bynh_slot_map_i64_i64(bynt_map_i64_i64* m, int64_t k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(int64_t), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_index_map_i64_i64 static int64_t bynh_index_map_i64_i64(bynt_map_i64_i64 m, int64_t k, const char* file, int line) | static int64_t bynh_index_map_i64_i64(bynt_map_i64_i64 m, int64_t k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_try_get_map_i64_i64 static bynt_opt_i64 bynh_try_get_map_i64_i64(bynt_map_i64_i64 m, int64_t k) | static bynt_opt_i64 bynh_try_get_map_i64_i64(bynt_map_i64_i64 m, int64_t k) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+    return i < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, m.vals[i]};
+}
+bynh_has_map_i64_i64 static bool bynh_has_map_i64_i64(bynt_map_i64_i64 m, int64_t k) | static bool bynh_has_map_i64_i64(bynt_map_i64_i64 m, int64_t k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64) >= 0;
+}
+bynh_remove_map_i64_i64 static bool bynh_remove_map_i64_i64(bynt_map_i64_i64* m, int64_t k) | static bool bynh_remove_map_i64_i64(bynt_map_i64_i64* m, int64_t k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+}
+bynh_try_parse_opt_i32 static bynt_opt_i32 bynh_try_parse_opt_i32(byn_str s, byn_builtin_Radix radix) | static bynt_opt_i32 bynh_try_parse_opt_i32(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 32, true, radix, &v)) return (bynt_opt_i32){0};
+    return (bynt_opt_i32){true, (int32_t)v};
+}

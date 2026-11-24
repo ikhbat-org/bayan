@@ -1,0 +1,27 @@
+1:1 Identifier `ommen`
+    doc `/// Doc line one.`
+4:1 IntegerLiteral `0x`
+5:1 IntegerLiteral `0x`
+5:3 OpenBrace `{`
+    doc `/// Doc line one.`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  5 │ 0x{
+    │ ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │ �
+    │   │ -

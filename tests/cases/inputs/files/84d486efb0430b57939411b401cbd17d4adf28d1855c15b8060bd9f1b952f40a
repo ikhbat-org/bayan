@@ -1,0 +1,6 @@
+// `Io.randomU64` reads 64 bits from the operating system's random source: two calls differ (a collision has odds 2^-64).
+void main() uses console, random {
+    let a = Io.randomU64()
+    let b = Io.randomU64()
+    print(a != b ? "two calls differ" : "two calls are equal")
+}

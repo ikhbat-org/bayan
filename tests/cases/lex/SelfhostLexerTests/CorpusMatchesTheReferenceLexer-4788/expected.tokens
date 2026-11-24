@@ -1,0 +1,13 @@
+1:1 IntegerLiteral `0x`
+1:4 Identifier `__`
+2:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x�__
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE0)
+
+  1 │ 0x�__
+    │   ^

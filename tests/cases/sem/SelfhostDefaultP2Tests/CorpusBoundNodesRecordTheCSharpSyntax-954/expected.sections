@@ -1,0 +1,17 @@
+== tests/cases/diag/unreachable-code.byn
+9..41 blockStmt
+15..21 returnStmt
+26..39 exprStmt
+26..39 callExpr
+32..38 literalExpr string
+26..39 callExpr
+43..46 globalStatement
+43..46 exprStmt
+43..46 callExpr
+47..60 exprStmt
+47..60 callExpr
+53..59 literalExpr string
+61..75 exprStmt
+61..75 callExpr
+67..74 literalExpr string
+61..75 callExpr

@@ -1,0 +1,3 @@
+== diags.diag/unknown-member
+BYN2003 2:14 `size` is not a member of `string`
+  help use `length` for the size of anything

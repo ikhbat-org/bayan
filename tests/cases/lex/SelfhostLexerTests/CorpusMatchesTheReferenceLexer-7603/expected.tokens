@@ -1,0 +1,30 @@
+1:1 Identifier `Å`
+2:1 Identifier `foo`
+2:5 Identifier `Bar`
+2:9 Identifier `_x`
+2:12 Identifier `camelCase2`
+2:23 Identifier `بي`
+2:26 Identifier `ن`
+2:28 Identifier `μετρητής`
+2:37 Identifier `x_1`
+2:41 Identifier `é`
+2:44 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  2 │ foo Bar _x camelCase2 بي�ن μετρητής x_1 é� 
+    │                         ^
+
+error BYN0002: unexpected character `\u{8}`
+
+  2 │ foo Bar _x camelCase2 بي�ن μετρητής x_1 é� 
+    │                                          ^

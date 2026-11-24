@@ -1,0 +1,3 @@
+build
+--emit-c
+io-stdout-stderr.byn

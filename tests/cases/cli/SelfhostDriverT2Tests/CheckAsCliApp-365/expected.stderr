@@ -1,0 +1,18 @@
+error BYN2235: `..n` spreads a `i32`, which is not a sequence
+  --> <repo>/tmp/t2/diag/spread-not-sequence/spread-not-sequence.byn:2:22
+
+  2 │ let xs: List<i32> = [..n, 1]
+    │                      ^^^ not a `List`, `Span` or fixed array
+    │
+  help: drop the `..` to add `n` as one element
+
+error BYN2235: `..stock` spreads a `Map<string, i32>`, which is not a sequence
+  --> <repo>/tmp/t2/diag/spread-not-sequence/spread-not-sequence.byn:4:25
+
+  4 │ let ys: List<i32> = [1, ..stock]
+    │                         ^^^^^^^ not a `List`, `Span` or fixed array
+    │
+  help: spread a `List`, `Span` or fixed array; a single value goes in without `..`
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2235

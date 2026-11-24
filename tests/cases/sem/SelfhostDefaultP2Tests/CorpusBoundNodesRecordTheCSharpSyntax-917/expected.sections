@@ -1,0 +1,9 @@
+== tests/cases/diag/union-payload-field.byn
+56..102 blockStmt
+62..85 localDecl
+70..85 callExpr
+83..84 literalExpr integer
+90..100 exprStmt
+90..100 callExpr
+96..99 memberExpr
+90..100 callExpr

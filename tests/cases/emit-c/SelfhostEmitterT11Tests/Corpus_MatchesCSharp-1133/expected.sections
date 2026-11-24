@@ -1,0 +1,16 @@
+== cases
+0 byn_parts_rune(BYN_STR("a,b,,c", 6), UINT32_C(44), 0, byn_file_0, 2)
+1 byn_parts_rune(BYN_STR("x\342\206\222y\342\206\222z", 9), UINT32_C(8594), INT64_C(2), byn_file_0, 5)
+2 byn_str_skip_runes(((byn_text_view){l6_s, {NULL, 0}, 0, 0}).s, INT64_C(2), byn_file_0, 9)
+3 ((byn_text_view){l6_s, {NULL, 0}, 0, 0})
+4 byn_str_take_last_runes(((byn_text_view){l6_s, {NULL, 0}, 0, 0}).s, INT64_C(4), byn_file_0, 9)
+5 ((byn_text_view){l6_s, {NULL, 0}, 0, 0})
+6 byn_str_take_last_runes(((byn_text_view){l6_s, {NULL, 0}, 0, 0}).s, INT64_C(9), byn_file_0, 9)
+7 ((byn_text_view){l6_s, {NULL, 0}, 0, 0})
+8 byn_str_skip_runes(((byn_text_view){l6_s, {NULL, 0}, 0, 0}).s, INT64_C(9), byn_file_0, 9)
+9 ((byn_text_view){l6_s, {NULL, 0}, 0, 0})
+10 byn_view_more(t1, t2, 3)
+11 byn_parts_next(&t1, &t2)
+12 byn_view_more(t4, t5, 3)
+13 byn_parts_next(&t4, &t5)
+count 14

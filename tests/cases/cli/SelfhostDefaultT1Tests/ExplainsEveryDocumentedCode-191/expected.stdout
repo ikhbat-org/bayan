@@ -1,0 +1,16 @@
+# BYN2601: `try` is not allowed in `defer`
+
+**Why.** Cleanup runs while the function is already returning, possibly because of another error. A failure there would have to replace or drop the first error, so cleanup must not fail. This covers `defer` and `defer failing`.
+
+**Example.**
+
+```
+void flush(string file) fails IoError { }
+defer try flush("log")
+```
+
+**Fix.** Handle the error inside the cleanup:
+
+```
+defer flush("log") catch log("flush failed")
+```

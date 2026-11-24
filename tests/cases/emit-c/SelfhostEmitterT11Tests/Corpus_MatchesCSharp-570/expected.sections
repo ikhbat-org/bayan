@@ -1,0 +1,10 @@
+== helpers
+bynh_add_list_u8 static void bynh_add_list_u8(bynt_list_u8* l, uint8_t v) | static void bynh_add_list_u8(bynt_list_u8* l, uint8_t v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(uint8_t), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_at_list_u8 static uint8_t* bynh_at_list_u8(bynt_list_u8 s, int64_t i, bool from_end, const char* file, int line) | static uint8_t* bynh_at_list_u8(bynt_list_u8 s, int64_t i, bool from_end, const char* file, int line) {
+    if (from_end) i = s.len - i;
+    return &s.ptr[byn_index(i, s.len, file, line)];
+}

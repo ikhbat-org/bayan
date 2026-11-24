@@ -1,0 +1,167 @@
+// 019 T29 (coverage ratchet): the C# class names `t10LoweredName` and `t10BoundName` give the panics of `emitExpr`.
+// `emitExpr` and `call` on bound nodes of `t29Source` edited by hand: constant locals, out arguments, moves, an empty
+// array and `Io.run` with a lowered option. The expected values are the output of the self-hosted emitter at the commit that added the test.
+
+import semantics
+import emitter.ltree
+
+type T29Tree     = ltree.LTree
+type T29Constant = semantics.Constant
+type T29Count    = ltree.LCount
+
+test "cprint t29: t10LoweredName and t10BoundName" {
+    assert t10LoweredName(.label) == "LLabel"
+    assert t10LoweredName(.count) == "LCount"
+    assert t10LoweredName(.voidValue) == "LVoid"
+    assert t10BoundName(.literal) == "BoundLiteral"
+    assert t10BoundName(.local) == "BoundLocal"
+}
+
+const t29Source: string = """
+    struct S {
+        i64 x = 0
+    }
+
+    void fill(out List<i64> r) {
+        r = List<i64>()
+    }
+
+    void put(out i64 r) {
+        r = 1
+    }
+
+    void take(i64 p) {
+        let q = p
+    }
+
+    void main() fails IoError {
+        var xs = List<i64>()
+        fill(out xs)
+        var s = S {}
+        put(out s.x)
+        let ys = move xs
+        let zs = move s
+        let a: string[1] = ["x"]
+        let _ = try Io.run("sh", a.span)
+    }
+    """
+
+/// The bound `local` node of the first read of the local named `name`.
+semantics.BExpr t29Local(in semantics.Ctx c, for string name) {
+    for k in 0..c.bLocals.length {
+        if c.locals[c.bLocals[k].local].name == name {
+            return (i64(semantics.BoundKind.local.ordinal) << 32) | k
+        }
+    }
+    return -1
+}
+
+/// The bound `call` node of the first call of the function named `name`.
+semantics.BExpr t29Call(in semantics.Ctx c, for string name) {
+    for k in 0..c.bCalls.length {
+        if c.functions[c.bCalls[k].function].name == name {
+            return (i64(semantics.BoundKind.call.ordinal) << 32) | k
+        }
+    }
+    return -1
+}
+
+/// A frame of `main` naming every local after its source name.
+CFunc t29Frame(in semantics.Ctx c) {
+    var f = CFunc { fn: 0 }
+    while c.functions[f.fn].name != "main" {
+        f.fn += 1
+    }
+    f.lineStarts = lineStartsOf(in c, for: c.functions[f.fn].file)
+    for l in 0..c.locals.length {
+        f.names[l] = c.locals[l].name
+    }
+    return f
+}
+
+test "cprint t29: a constant local of a parameter, of void or of never type is emitted as the local" {
+    var c = t29Ctx(t29Source)
+    var cc = CCtx { ownershipChecks: true }
+    var f = t29Frame(in c)
+    var t = T29Tree {}
+    let p = t29Local(in c, for: "p")
+    semantics.setConstant(ref c, for: p, to: T29Constant { kind: .flag, flag: true })
+    assert emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: p) == "p"
+    let a = t29Local(in c, for: "a")
+    semantics.setConstant(ref c, for: a, to: T29Constant { kind: .flag, flag: true })
+    c.bLocals[a & 0xFFFFFFFF].type = semantics.prim(.void)
+    assert emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: a) == "a"
+    c.bLocals[a & 0xFFFFFFFF].type = semantics.prim(.neverKind)
+    assert emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: a) == "a"
+}
+
+test "cprint t29: an out argument resets the slot of an owned local and not of a field" {
+    var c = t29Ctx(t29Source)
+    var cc = CCtx { ownershipChecks: true }
+    var f = t29Frame(in c)
+    let t = T29Tree {}
+    let fill = t29Call(in c, for: "fill")
+    assert call(
+        ref cc,
+        for: ref f,
+        from: ref c,
+        through: t,
+        at: fill,
+        to: null,
+    ) == "byn_main__fill((own_xs.line = 0, &xs))"
+    assert call(
+        ref cc,
+        for: ref f,
+        from: ref c,
+        through: t,
+        at: t29Call(in c, for: "put"),
+        to: null,
+    ) == "byn_main__put(&s.x)"
+}
+
+test "cprint t29: a move of an unsequenced owned local passes no slot and a move of a non-local is its operand" {
+    var c = t29Ctx(t29Source)
+    var cc = CCtx { ownershipChecks: true }
+    var f = t29Frame(in c)
+    let t = T29Tree {}
+    let moveKind = i64(semantics.BoundKind.moveExpr.ordinal) << 32
+    var xsMove: i64 = 0
+    while c.locals[c.bLocals[c.bMoves[xsMove].operand & 0xFFFFFFFF].local].name != "xs" {
+        xsMove += 1
+    }
+    f.unsequenced[c.bLocals[c.bMoves[xsMove].operand & 0xFFFFFFFF].local] = true
+    let moved = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: moveKind | xsMove)
+    assert moved == "(*bynh_chk_move_list_i64(&xs, NULL, , 22))"
+    c.bMoves[xsMove].operand = i64(semantics.BoundKind.literal.ordinal) << 32
+    assert emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: moveKind | xsMove) == "INT64_C(0)"
+}
+
+test "cprint t29: an empty array collection is zero" {
+    var c = t29Ctx(t29Source)
+    var cc = CCtx { ownershipChecks: true }
+    var f = t29Frame(in c)
+    let t = T29Tree {}
+    var k: i64 = 0
+    while semantics.kindOf(c.bCollections[k].type) != .array {
+        k += 1
+    }
+    c.bCollections[k].elements = []
+    let collection = (i64(semantics.BoundKind.collection.ordinal) << 32) | k
+    assert emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: collection) == "((bynt_arr1_str){0})"
+}
+
+test "cprint t29: Io.run with a lowered option argument calls the helper with options" {
+    var c = t29Ctx(t29Source)
+    var cc = CCtx { ownershipChecks: true }
+    var f = t29Frame(in c)
+    var t = T29Tree {}
+    let run = t29Call(in c, for: "run")
+    let count = ltree.addLCount(ref t, from: T29Count { span: c.bCalls[run & 0xFFFFFFFF].span, id: 7 })
+    c.bCalls[run & 0xFFFFFFFF].arguments[3] = count
+    let ran = call(ref cc, for: ref f, from: ref c, through: t, at: run, to: null)
+    assert ran.startsWith("bynh_io_run_with(BYN_STR(\"sh\", 2), ((bynt_span_str){a.v, 1}), ((bynt_opt_str){0}), ")
+    assert ran.contains(", byn_cov[7]++, ")
+    assert ran.endsWith(", NULL, NULL)")
+    assert ran.length == 165
+    assert cc.helpers.contains("bynh_io_run_with")
+}

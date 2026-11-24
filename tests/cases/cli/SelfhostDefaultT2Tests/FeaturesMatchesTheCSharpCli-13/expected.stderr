@@ -1,0 +1,634 @@
+warning BYN2311: `lexed` is never reassigned; declare it with `let`
+  --> <repo>/src/driver/format.byn:476:9
+
+  476 │     var lexed = lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build())
+      │         ^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 476 │     let lexed = lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build())
+      │     │     +++
+
+warning BYN2311: `lexed` is never reassigned; declare it with `let`
+  --> <repo>/src/driver/format.byn:556:9
+
+  556 │     var lexed = lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build())
+      │         ^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 556 │     let lexed = lexer.lex(lexer.SourceText.create(file, from: move copy), by: lexer.Keywords.build())
+      │     │     +++
+
+warning BYN5014: `original` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:778:9
+
+  778 │     i64 originalIndent(i64 i) {
+      │         ^^^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `nouns: ["original"]`, `verbs: ["original"]` or
+        `adjectives: ["original"]`
+
+warning BYN5014: `wasl` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:876:12
+
+  876 │     bool isWasl(i64 i) {
+      │            ^^^^
+      │
+  help: add it to `grammar` in package.byn: `adjectives: ["wasl"]`, `verbs: ["wasl"]` or
+        `nouns: ["wasl"]`
+
+warning BYN5014: `clause` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:893:12
+
+  893 │     bool isClause(i64 i) {
+      │            ^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `adjectives: ["clause"]`, `verbs: ["clause"]` or
+        `nouns: ["clause"]`
+
+warning BYN5014: `multiline` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:941:10
+
+  941 │     bool multiline(i64 i) {
+      │          ^^^^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `adjectives: ["multiline"]`, `verbs: ["multiline"]` or
+        `nouns: ["multiline"]`
+
+warning BYN5014: `editable` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:983:10
+
+  983 │     bool editable(i64 start, through i64 end) {
+      │          ^^^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `adjectives: ["editable"]`, `verbs: ["editable"]` or
+        `nouns: ["editable"]`
+
+warning BYN5014: `trailing` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1006:10
+
+  1006 │     bool trailingComma(i64 c) => kind(c - 1) == .comma && !dropComma[c - 1]
+       │          ^^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["trailing"]`, `verbs: ["trailing"]` or
+        `nouns: ["trailing"]`
+
+warning BYN5014: `comma` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1006:18
+
+  1006 │     bool trailingComma(i64 c) => kind(c - 1) == .comma && !dropComma[c - 1]
+       │                  ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["comma"]`, `verbs: ["comma"]` or
+        `nouns: ["comma"]`
+
+warning BYN5014: `comma` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1017:10
+
+  1017 │     bool commaSafe(i64 o, until i64 c) uses alloc {
+       │          ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["comma"]`, `verbs: ["comma"]` or
+        `nouns: ["comma"]`
+
+warning BYN5014: `arrow` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1173:15
+
+  1173 │     i64 headerArrowAfter(i64 c) {
+       │               ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `nouns: ["arrow"]`, `verbs: ["arrow"]` or
+        `adjectives: ["arrow"]`
+
+warning BYN5014: `unbroken` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1187:12
+
+  1187 │     bool inUnbrokenTernary(i64 i) {
+       │            ^^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["unbroken"]`, `verbs: ["unbroken"]` or
+        `nouns: ["unbroken"]`
+
+warning BYN5014: `ternary` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1187:20
+
+  1187 │     bool inUnbrokenTernary(i64 i) {
+       │                    ^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["ternary"]`, `verbs: ["ternary"]` or
+        `nouns: ["ternary"]`
+
+warning BYN5014: `joinable` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1205:10
+
+  1205 │     bool joinable(i64 o, until i64 c) {
+       │          ^^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["joinable"]`, `verbs: ["joinable"]` or
+        `nouns: ["joinable"]`
+
+warning BYN5014: `arm` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1249:10
+
+  1249 │     bool armLine(i64 j) {
+       │          ^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["arm"]`, `verbs: ["arm"]` or
+        `nouns: ["arm"]`
+
+warning BYN5014: `lambda` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1333:13
+
+  1333 │     bool hasLambda(i64 o, until i64 c) {
+       │             ^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["lambda"]`, `verbs: ["lambda"]` or
+        `nouns: ["lambda"]`
+
+warning BYN5014: `scalars` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1420:10
+
+  1420 │     bool scalars(i64 o, until i64 c, at List<i64> starts, to ref List<i64> widths) uses alloc {
+       │          ^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["scalars"]`, `verbs: ["scalars"]` or
+        `nouns: ["scalars"]`
+
+warning BYN5014: `fits` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1461:13
+
+  1461 │     bool rowFits(i64 n, by List<i64> widths, at i64 indent) {
+       │             ^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["fits"]`, `verbs: ["fits"]` or
+        `nouns: ["fits"]`
+
+warning BYN5014: `operators` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1653:21
+
+  1653 │     List<i64> lowestOperators(i64 s, from i64 start, until i64 e) uses alloc {
+       │                     ^^^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `nouns: ["operators"]`, `verbs: ["operators"]` or
+        `adjectives: ["operators"]`
+
+warning BYN5014: `one` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1736:10
+
+  1736 │     bool oneLine(i64 start, until i64 end) {
+       │          ^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["one"]`, `verbs: ["one"]` or
+        `nouns: ["one"]`
+
+warning BYN5014: `leading` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1744:12
+
+  1744 │     string leadingKeywords(i64 i) uses alloc {
+       │            ^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `nouns: ["leading"]`, `verbs: ["leading"]` or
+        `adjectives: ["leading"]`
+
+warning BYN5014: `guide` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1762:10
+
+  1762 │     void guide(ref this, List<parser.Decl> members) uses alloc {
+       │          ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `verbs: ["guide"]`, `nouns: ["guide"]` or
+        `adjectives: ["guide"]`
+
+warning BYN5014: `guide` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1774:10
+
+  1774 │     void guideDecls(ref this, List<parser.Decl> decls) uses alloc {
+       │          ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `verbs: ["guide"]`, `nouns: ["guide"]` or
+        `adjectives: ["guide"]`
+
+warning BYN5014: `decls` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1774:15
+
+  1774 │     void guideDecls(ref this, List<parser.Decl> decls) uses alloc {
+       │               ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `verbs: ["decls"]`, `nouns: ["decls"]` or
+        `adjectives: ["decls"]`
+
+warning BYN5014: `guide` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1809:10
+
+  1809 │     void guideStmt(ref this, parser.Stmt stmt) uses alloc {
+       │          ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `verbs: ["guide"]`, `nouns: ["guide"]` or
+        `adjectives: ["guide"]`
+
+warning BYN5014: `stmt` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1809:15
+
+  1809 │     void guideStmt(ref this, parser.Stmt stmt) uses alloc {
+       │               ^^^^
+       │
+  help: add it to `grammar` in package.byn: `verbs: ["stmt"]`, `nouns: ["stmt"]` or
+        `adjectives: ["stmt"]`
+
+warning BYN5014: `generic` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:1858:9
+
+  1858 │     i64 genericClose(i64 o) {
+       │         ^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `nouns: ["generic"]`, `verbs: ["generic"]` or
+        `adjectives: ["generic"]`
+
+warning BYN5014: `arms` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2066:10
+
+  2066 │     void arms(ref Map<i64, LayoutShape> shapeMap) uses alloc {
+       │          ^^^^
+       │
+  help: add it to `grammar` in package.byn: `nouns: ["arms"]`, `verbs: ["arms"]` or
+        `adjectives: ["arms"]`
+
+warning BYN5014: `plain` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2105:10
+
+  2105 │     bool plain(i64 s) uses alloc {
+       │          ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["plain"]`, `verbs: ["plain"]` or
+        `nouns: ["plain"]`
+
+warning BYN5014: `separated` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2122:10
+
+  2122 │     bool separated(i64 s) {
+       │          ^^^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["separated"]`, `verbs: ["separated"]` or
+        `nouns: ["separated"]`
+
+warning BYN5014: `hygiene` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2366:10
+
+  2366 │     void hygiene(ref this, i64 start, until i64 end) uses alloc {
+       │          ^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `verbs: ["hygiene"]`, `nouns: ["hygiene"]` or
+        `adjectives: ["hygiene"]`
+
+warning BYN5014: `tight` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2428:10
+
+  2428 │     bool tightProduct(i64 i) {
+       │          ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["tight"]`, `verbs: ["tight"]` or
+        `nouns: ["tight"]`
+
+warning BYN5014: `unary` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2448:12
+
+  2448 │     bool isUnary(i64 i) => lineStart[i] || !layoutOperandEnd(kind(i - 1))
+       │            ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["unary"]`, `verbs: ["unary"]` or
+        `nouns: ["unary"]`
+
+warning BYN5014: `star` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2451:16
+
+  2451 │     LayoutSide star(i64 i, as LayoutSide prefix) {
+       │                ^^^^
+       │
+  help: add it to `grammar` in package.byn: `nouns: ["star"]`, `verbs: ["star"]` or
+        `adjectives: ["star"]`
+
+warning BYN5014: `particle` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2520:10
+
+  2520 │     bool particleTuple(i64 i) {
+       │          ^^^^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["particle"]`, `verbs: ["particle"]` or
+        `nouns: ["particle"]`
+
+warning BYN5014: `tuple` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2520:18
+
+  2520 │     bool particleTuple(i64 i) {
+       │                  ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["tuple"]`, `verbs: ["tuple"]` or
+        `nouns: ["tuple"]`
+
+warning BYN5014: `like` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2534:14
+
+  2534 │     bool callLike(i64 i) {
+       │              ^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["like"]`, `verbs: ["like"]` or
+        `nouns: ["like"]`
+
+warning BYN5014: `colon` is not a known verb, noun or adjective
+  --> <repo>/src/driver/layout.byn:2541:16
+
+  2541 │     bool spacedColon(i64 i) {
+       │                ^^^^^
+       │
+  help: add it to `grammar` in package.byn: `adjectives: ["colon"]`, `verbs: ["colon"]` or
+        `nouns: ["colon"]`
+
+warning BYN2311: `missing` is never reassigned; declare it with `let`
+  --> emitter/lowerexpr.byn:939:9
+
+  939 │     var missing = captureEnd(ref l)
+      │         ^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 939 │     let missing = captureEnd(ref l)
+      │     │     +++
+
+warning BYN2311: `body` is never reassigned; declare it with `let`
+  --> emitter/lowerexpr.byn:1261:9
+
+  1261 │     var body = captureEnd(ref l)
+       │         ^^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1261 │     let body = captureEnd(ref l)
+       │      │     +++
+
+warning BYN5106: `LPushPanicHandler` is named for the act `handle` but has no `handle` member
+  --> emitter/ltree/ltree.byn:151:15
+
+  151 │ public struct LPushPanicHandler {
+      │               ^^^^^^^^^^^^^^^^^
+      │
+  help: add a member named `handle`, or rename the type for what it is
+
+warning BYN5106: `LPopPanicHandler` is named for the act `handle` but has no `handle` member
+  --> emitter/ltree/ltree.byn:159:15
+
+  159 │ public struct LPopPanicHandler {
+      │               ^^^^^^^^^^^^^^^^
+      │
+  help: add a member named `handle`, or rename the type for what it is
+
+warning BYN2311: `rules` is never reassigned; declare it with `let`
+  --> parser/decls2.byn:233:9
+
+  233 │     var rules = parseRequiresLines(ref p)
+      │         ^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 233 │     let rules = parseRequiresLines(ref p)
+      │     │     +++
+
+warning BYN2311: `field` is never reassigned; declare it with `let`
+  --> parser/decls2.byn:236:9
+
+  236 │     var field = FieldDecl {
+      │         ^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 236 │     let field = FieldDecl {
+      │     │     +++
+
+warning BYN2311: `unit` is never reassigned; declare it with `let`
+  --> parser/main.byn:48:9
+
+  48 │     var unit = parseCompilationUnit(ref p)
+     │         ^^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 48 │     let unit = parseCompilationUnit(ref p)
+     │    │     +++
+
+warning BYN2311: `unit` is never reassigned; declare it with `let`
+  --> parser/main.byn:69:17
+
+  69 │             var unit = parseCompilationUnit(ref p)
+     │                 ^^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 69 │             let unit = parseCompilationUnit(ref p)
+     │    │             +++
+
+warning BYN2311: `unit` is never reassigned; declare it with `let`
+  --> parser/main.byn:87:9
+
+  87 │     var unit = parseCompilationUnit(ref p)
+     │         ^^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 87 │     let unit = parseCompilationUnit(ref p)
+     │    │     +++
+
+warning BYN5106: `Parser` is named for the act `parse` but has no `parse` member
+  --> parser/parser.byn:22:15
+
+  22 │ public struct Parser {
+     │               ^^^^^^
+     │
+  help: add a member named `parse`, or rename the type for what it is
+
+warning BYN5014: `lambda` is not a known verb, noun or adjective
+  --> parser/parser.byn:146:15
+
+  146 │     bool setNoLambda(ref this, bool value) {
+      │               ^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `verbs: ["lambda"]`, `nouns: ["lambda"]` or
+        `adjectives: ["lambda"]`
+
+warning BYN5014: `extern` is not a known verb, noun or adjective
+  --> parser/parser.byn:158:15
+
+  158 │     bool setInExtern(ref this, bool value) {
+      │               ^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `verbs: ["extern"]`, `nouns: ["extern"]` or
+        `adjectives: ["extern"]`
+
+warning BYN5014: `condition` is not a known verb, noun or adjective
+  --> parser/parser.byn:164:12
+
+  164 │     i64 setConditionStart(ref this, i64 value) {
+      │            ^^^^^^^^^
+      │
+  help: add it to `grammar` in package.byn: `verbs: ["condition"]`, `nouns: ["condition"]` or
+        `adjectives: ["condition"]`
+
+warning BYN2311: `read` is never reassigned; declare it with `let`
+  --> semantics/cli.byn:241:13
+
+  241 │         var read = manifestRead(
+      │             ^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 241 │         let read = manifestRead(
+      │     │         +++
+
+warning BYN2311: `constraints` is never reassigned; declare it with `let`
+  --> semantics/express2.byn:1170:17
+
+  1170 │             var constraints = copyIds(in c.typeParams[tp].constraints)
+       │                 ^^^^^^^^^^^
+       │
+  help: declare it with `let` to tell the reader the value never changes
+       │ 1170 │             let constraints = copyIds(in c.typeParams[tp].constraints)
+       │      │             +++
+
+warning BYN2311: `lexed` is never reassigned; declare it with `let`
+  --> semantics/manifest.byn:141:9
+
+  141 │     var lexed = lexer.lex(move source, by: lexer.Keywords.build())
+      │         ^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 141 │     let lexed = lexer.lex(move source, by: lexer.Keywords.build())
+      │     │     +++
+
+warning BYN2311: `typeArgs` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:526:9
+
+  526 │     var typeArgs = copyIds(in c.structs[s].typeArgs)
+      │         ^^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 526 │     let typeArgs = copyIds(in c.structs[s].typeArgs)
+      │     │     +++
+
+warning BYN2311: `typeParams` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:539:9
+
+  539 │     var typeParams = copyIds(in c.structs[s].typeParams)
+      │         ^^^^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 539 │     let typeParams = copyIds(in c.structs[s].typeParams)
+      │     │     +++
+
+warning BYN2311: `typeArgs` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:560:9
+
+  560 │     var typeArgs = copyIds(in c.interfaces[i].typeArgs)
+      │         ^^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 560 │     let typeArgs = copyIds(in c.interfaces[i].typeArgs)
+      │     │     +++
+
+warning BYN2311: `typeParams` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:573:9
+
+  573 │     var typeParams = copyIds(in c.interfaces[i].typeParams)
+      │         ^^^^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 573 │     let typeParams = copyIds(in c.interfaces[i].typeParams)
+      │     │     +++
+
+warning BYN2311: `typeArgs` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:607:9
+
+  607 │     var typeArgs = copyIds(in c.unions[u].typeArgs)
+      │         ^^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 607 │     let typeArgs = copyIds(in c.unions[u].typeArgs)
+      │     │     +++
+
+warning BYN2311: `typeParams` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:620:9
+
+  620 │     var typeParams = copyIds(in c.unions[u].typeParams)
+      │         ^^^^^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 620 │     let typeParams = copyIds(in c.unions[u].typeParams)
+      │     │     +++
+
+warning BYN2311: `params` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:667:9
+
+  667 │     var params = copyIds(in c.functions[f].parameters)
+      │         ^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 667 │     let params = copyIds(in c.functions[f].parameters)
+      │     │     +++
+
+warning BYN2311: `args` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:782:9
+
+  782 │     var args = copyIds(in c.structs[s].typeArgs)
+      │         ^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 782 │     let args = copyIds(in c.structs[s].typeArgs)
+      │     │     +++
+
+warning BYN2311: `args` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:792:9
+
+  792 │     var args = copyIds(in c.interfaces[i].typeArgs)
+      │         ^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 792 │     let args = copyIds(in c.interfaces[i].typeArgs)
+      │     │     +++
+
+warning BYN2311: `args` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:802:9
+
+  802 │     var args = copyIds(in c.unions[u].typeArgs)
+      │         ^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 802 │     let args = copyIds(in c.unions[u].typeArgs)
+      │     │     +++
+
+warning BYN2311: `args` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:815:9
+
+  815 │     var args = copyIds(in c.functions[f].typeArgs)
+      │         ^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 815 │     let args = copyIds(in c.functions[f].typeArgs)
+      │     │     +++
+
+warning BYN2311: `fields` is never reassigned; declare it with `let`
+  --> semantics/symbols.byn:848:9
+
+  848 │     var fields = copyIds(in c.structs[s].fields)
+      │         ^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 848 │     let fields = copyIds(in c.structs[s].fields)
+      │     │     +++
+
+warning BYN2311: `params` is never reassigned; declare it with `let`
+  --> semantics/types.byn:561:9
+
+  561 │     var params = copyIds(in parameters)
+      │         ^^^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 561 │     let params = copyIds(in parameters)
+      │     │     +++
+
+warning BYN2311: `sets` is never reassigned; declare it with `let`
+  --> semantics/types.byn:729:9
+
+  729 │     var sets = copyIds(in c.errorUnionTypes[idx].sets)
+      │         ^^^^
+      │
+  help: declare it with `let` to tell the reader the value never changes
+      │ 729 │     let sets = copyIds(in c.errorUnionTypes[idx].sets)
+      │     │     +++

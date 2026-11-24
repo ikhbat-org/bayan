@@ -1,0 +1,94 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 IntegerLiteral `0b__`
+3:2 CharLiteral `'a'`
+3:6 CharLiteral `'\n'`
+3:11 CharLiteral `'\u{1F600}'`
+3:23 CharLiteral `'\''`
+3:28 CharLiteral `'é'`
+3:32 CharLiteral `'\' '`
+3:38 IntegerLiteral `0`
+3:39 CharLiteral `'`
+4:2 LetKeyword `let`
+4:6 Identifier `a`
+4:8 Equals `=`
+4:12 IntegerLiteral `1`
+5:2 Slash `/`
+5:4 Identifier `Doc`
+5:8 Identifier `line`
+5:13 Identifier `two`
+5:16 Dot `.`
+6:1 StructKeyword `struct`
+6:8 Identifier `S`
+8:1 ErrorKeyword `error`
+8:7 SetKeyword `set`
+8:11 UnitKeyword `unit`
+8:16 DistinctKeyword `distinct`
+8:25 TypeKeyword `type`
+8:30 ImportKeyword `import`
+8:37 AsKeyword `as`
+8:40 PublicKeyword `public`
+8:47 Identifier `pr`
+8:49 Identifier `vate`
+8:54 StaticKeyword `static`
+8:61 ReadonlyKeyword `readonly`
+8:70 RequiredKeyword `required`
+8:79 ConstKeyword `const`
+8:85 LetKeyword `let`
+8:89 VarKeyword `var`
+8:93 EmbedKeyword `embed`
+8:99 ExternKeyword `extern`
+8:106 UnsafeKeyword `unsafe`
+10:1 Plus `+`
+10:3 Minus `-`
+10:5 Star `*`
+10:7 Slash `/`
+10:9 Percent `%`
+10:11 PlusPercent `+%`
+10:14 MinusPercent `-%`
+10:17 StarPercent `*%`
+10:20 PlusBar `+|`
+10:23 MinusBar `-|`
+10:26 StarBar `*|`
+10:29 PlusPlus `++`
+10:32 MinusMinus `--`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │  0b__
+    │  ^^^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  3 │  'a' '\n' '\u{1F600}' '\'' 'é' '\' '\0'
+    │                                ^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  3 │  'a' '\n' '\u{1F600}' '\'' 'é' '\' '\0'
+    │                                     ^
+
+error BYN0008: unterminated char literal
+
+  3 │  'a' '\n' '\u{1F600}' '\'' 'é' '\' '\0'
+    │                                       ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `$`
+
+  4 │  let a = $ 1
+    │          ^
+
+error BYN0002: unexpected character `$`
+
+  5 │ $/ Doc line two.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  8 │ error set unit distinct type import as public pr�vate static readonly required const let var embed extern unsafe
+    │                                                 ^

@@ -1,0 +1,2 @@
+== expr.probes.l6
+lambda:i64 -> i64[2755:10]=-(probes$lambda1 Lambda ret i64 fails false encl probes params[x:i64] capsyms[k] caps[local:i64[2764:1]=-(k)] all True)

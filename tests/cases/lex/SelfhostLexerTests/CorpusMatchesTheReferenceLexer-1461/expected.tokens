@@ -1,0 +1,63 @@
+1:2 IntegerLiteral `0b102`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"b/ad \qescap"`
+5:2 Identifier `é`
+5:4 Equals `=`
+5:6 IntegerLiteral `2`
+6:2 CharLiteral `''`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolatedStringText `open `
+7:9 InterpolationStart `{`
+7:10 Identifier `x`
+7:11 StringLiteral `";`
+8:1 VarKeyword `var`
+8:5 Identifier `xs`
+8:7 Colon `:`
+8:9 Identifier `List`
+8:13 Less `<`
+8:14 Identifier `List`
+8:18 Less `<`
+8:19 Identifier `i64`
+8:22 Greater `>`
+8:23 Greater `>`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � 0b102
+    │ ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ � 0b102
+    │       ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "b/ad \qescap"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0007: empty char literal
+
+  6 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0003: unterminated string literal
+
+  7 │  $"open {x";
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

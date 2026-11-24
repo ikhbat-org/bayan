@@ -1,0 +1,49 @@
+1:6 Comma `,`
+1:8 Dot `.`
+1:10 DotDot `..`
+1:13 DotDotEquals `..=`
+1:17 Colon `:`
+1:19 Question `?`
+1:21 QuestionQuestion `??`
+1:24 QuestionQuestionEquals `??=`
+1:28 Question `?`
+1:30 Equals `=`
+1:32 Arrow `->`
+1:35 At `@`
+1:37 Hash `#`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │ ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │   │   -
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │    	 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │    	  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │    	   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAC)
+
+  1 │ � �	 ���, . .. ..= : ? ?? ??= ? =� -> @ #
+    │    	                             ^

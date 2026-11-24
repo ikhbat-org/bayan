@@ -1,0 +1,3 @@
+== member.probes.-.m33
+methodGroup|?|-1|readFile|-|-|-|2265:11|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

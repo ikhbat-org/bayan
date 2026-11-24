@@ -1,0 +1,54 @@
+1:7 Identifier `n`
+1:8 StringLiteral `" "`
+1:11 StringLiteral `""`
+2:3 Identifier `raw`
+2:7 StringLiteral `"quoted"`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} al $"open {x";\r\n $"{ acro select become\r\nlet law = 3\r\n ����\r\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ � \\ \n" """
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ � \\ \n" """
+    │   ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ � \\ \n" """
+    │    ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ � \\ \n" """
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" "� al $"open {x";
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  6 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  6 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ����
+    │     ^

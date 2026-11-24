@@ -1,0 +1,4 @@
+== diag.immutable-assignment
+BYN2104 5:5 `n` is immutable |parameters are immutable|copy it into a local `var`, or take it by `ref` if the caller's value should change|
+BYN2104 2:1 `total` is immutable |declared with `let` on line 1|declare it with `var` if it should change|fix 0..3 var
+BYN2104 9:5 `i` is immutable |loop variables are immutable|copy it into a local `var` to change it|

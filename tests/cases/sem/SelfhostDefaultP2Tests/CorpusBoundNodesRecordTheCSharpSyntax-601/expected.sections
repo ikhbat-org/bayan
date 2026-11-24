@@ -1,0 +1,4 @@
+== tests/cases/diag/invalid-exit-code.byn
+376..394 blockStmt
+382..386 failStmt
+387..392 targetMemberExpr

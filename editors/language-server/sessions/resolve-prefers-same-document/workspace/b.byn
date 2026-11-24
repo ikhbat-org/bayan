@@ -1,0 +1,7 @@
+
+struct Bilal {
+  i64 total
+}
+void showB() {
+  let x = total
+}

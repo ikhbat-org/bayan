@@ -1,0 +1,11 @@
+error BYN1003: expected a type, found `,`
+  --> <repo>/tests/cases/diag/expected-member.byn:1:15
+
+  1 │ void f(i64 a, , i64 b) {}
+    │               ^
+
+error BYN1004: expected a field, property, constructor or method, found `+`
+  --> <repo>/tests/cases/diag/expected-member.byn:4:5
+
+  4 │     +
+    │     ^

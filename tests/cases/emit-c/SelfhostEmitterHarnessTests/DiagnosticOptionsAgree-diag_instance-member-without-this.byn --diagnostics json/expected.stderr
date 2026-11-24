@@ -1,0 +1,1 @@
+{"code":"BYN2017","severity":"error","file":"input.byn","span":{"start":58,"end":63,"line":4,"column":27,"endLine":4,"endColumn":32},"message":"`count` needs an instance","label":null,"help":"call it on an instance; a `static` method has no `this`","fixes":[]}

@@ -1,0 +1,9 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"xstruct unique union enum flags open extensible interface delegate extension derivation attribute
+let s = $"{$"{$"{$"{$"{$"{$"{/"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+ $"{{"
+/// Doc line one.
+ '
+'x
+$"{
+let ÿ = 2
+

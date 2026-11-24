@@ -1,0 +1,2 @@
+struct T1 { }
+const fn1 = 3

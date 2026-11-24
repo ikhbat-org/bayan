@@ -1,0 +1,74 @@
+// BYN1080: an optional bound with `is { } k` where `let`, `while let` or `is not null` says it plainly.
+i32? find(List<i32> xs, at i32 v) {
+    for x in xs {
+        return x if x == v
+    }
+    return null
+}
+
+i32 viaReturn(List<i32> xs) {
+    let k = find(xs, at: 3) ?? return 0
+    let doubled = k * 2
+    return doubled
+}
+
+i32 viaLongReturn(List<i32> xs) {
+    let k = find(xs, at: 3)
+    return viaReturn(xs) + 1 if k is null
+    return k
+}
+
+i32 viaParameter(i32? p) {
+    return p + 1 if p is not null
+    return 0
+}
+
+i32 viaLet(List<i32> xs) {
+    let found = find(xs, at: 1)
+    return found if found is not null
+    return -1
+}
+
+i32 viaWhile(List<i32> xs) {
+    var total = 0
+    var i = 0
+    while let k = find(xs, at: i) {
+        total += k
+        i += 1
+    }
+    return total
+}
+
+i32 viaContinue(List<i32> xs) {
+    var total = 0
+    for v in xs {
+        let k = find(xs, at: v + 1) ?? continue
+        total += k
+    }
+    return total
+}
+
+i32 hitOnly(List<i32> xs) {
+    var total = 0
+    // Nothing leaves on the miss: silent until `if let`.
+    if (find(xs, at: 2) is { } k) { total = k }
+    return total
+}
+
+i32 inAnd(List<i32> xs, at bool ok) {
+    if (ok && find(xs, at: 2) is { } k) { return k }
+    return 0
+}
+
+i32 varOperand(List<i32> xs) {
+    var found = find(xs, at: 1)
+    found = find(xs, at: 2)
+    if (found is { } k) { return k }
+    return 0
+}
+
+void main() {
+    let xs: List<i32> = [1, 2, 3]
+    print($"{viaReturn(xs)}{viaLongReturn(xs)}{viaParameter(4)}{viaLet(xs)}{viaWhile(xs)}{viaContinue(xs)}")
+    print($"{hitOnly(xs)}{inAnd(xs, at: true)}{varOperand(xs)}")
+}

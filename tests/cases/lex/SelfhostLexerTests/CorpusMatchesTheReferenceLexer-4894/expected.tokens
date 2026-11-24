@@ -1,0 +1,101 @@
+1:2 StringLiteral `"a\u{2067}b"`
+1:7 LetKeyword `let`
+1:11 Identifier `c`
+1:13 Equals `=`
+1:17 IntegerLiteral `3`
+4:1 CharLiteral `'\q'`
+5:1 CharLiteral `'\u{D800}'`
+6:3 Identifier `u`
+6:4 OpenBrace `{`
+6:5 IntegerLiteral `110000`
+6:11 CloseBrace `}`
+6:12 CharLiteral `'`
+7:1 CharLiteral `'`
+9:1 VarKeyword `var`
+9:5 Identifier `xs`
+9:7 Colon `:`
+9:9 Identifier `List`
+9:13 Less `<`
+9:14 Identifier `List`
+9:18 Less `<`
+9:19 Identifier `i64`
+9:22 Greater `>`
+9:23 Greater `>`
+10:1 Identifier `losed`
+12:1 CharLiteral `'x`
+13:2 StringLiteral `"}"`
+13:5 CloseBrace `}`
+13:6 StringLiteral `"`
+15:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��"a�b"let c = � 3
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��"a�b"let c = � 3
+    │  ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ ��"a�b"let c = � 3
+    │                ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  5 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  6 │ �\u�{110000}'
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  6 │ �\u�{110000}'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x96)
+
+  6 │ �\u�{110000}'
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  6 │ �\u�{110000}'
+    │             ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  7 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  12 │ 'x
+     │ ^^
+     │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  13 │  "}"}"
+     │      ^ string ends at the end of the line
+     │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

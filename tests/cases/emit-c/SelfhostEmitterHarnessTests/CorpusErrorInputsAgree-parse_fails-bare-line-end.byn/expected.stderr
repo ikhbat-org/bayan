@@ -1,0 +1,18 @@
+error BYN2800: `I` must start with `I` and an uppercase letter
+  --> input.byn:1:11
+
+  1 │ interface I {
+    │           ^ an interface name
+    │
+  help: rename it to `II`
+    │ 1 │ interface II {
+    │   │            +
+
+error BYN2002: unknown type `Token`
+  --> input.byn:3:5
+
+  3 │     Token next()
+    │     ^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2800

@@ -1,0 +1,24 @@
+== tests/cases/diag/catch-switch-foreign-set.byn
+174..219 blockStmt
+180..204 guardedStmt
+195..204 memberExpr
+195..196 nameExpr
+180..184 failStmt
+185..191 targetMemberExpr
+209..217 returnStmt value 216..217
+216..217 literalExpr integer
+221..296 globalStatement
+221..296 localDecl
+229..296 catchExpr
+229..238 callExpr
+235..237 literalExpr string
+245..296 switchExpr
+245..251 caughtErrorExpr
+258..268 constantPattern
+258..268 constantPattern
+272..273 literalExpr integer
+279..288 declarationPattern
+279..288 declarationPattern
+279..288 declarationPattern
+279..288 declarationPattern
+292..293 literalExpr integer

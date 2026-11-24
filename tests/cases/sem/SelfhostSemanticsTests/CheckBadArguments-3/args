@@ -1,0 +1,4 @@
+check
+-o
+x
+<repo>/tmp/t26-tests/args/hello.byn

@@ -1,0 +1,10 @@
+error BYN2603: `ValidationError<b.Point>` is not in the `fails` clause of `ga`
+  --> <repo>/tmp/t2/diag/validation-error-same-name-undeclared/main/main.byn:13:5
+
+  13 │     try hb(x)
+     │     ^^^^^^^^^
+     │
+  help: add it to the signature: `fails ValidationError<a.Point>, Other, ValidationError<b.Point>`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2603

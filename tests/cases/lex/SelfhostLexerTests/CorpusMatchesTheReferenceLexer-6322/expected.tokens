@@ -1,0 +1,40 @@
+1:1 CharLiteral `'`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 Identifier `éfoo`
+4:7 Identifier `Bar`
+4:11 Identifier `_x`
+4:14 Identifier `camelCase2`
+4:25 Identifier `بيان`
+4:30 Identifier `μετρητής`
+4:39 Identifier `x_1`
+4:43 Identifier `é`
+5:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok � in comment
+    │       ^
+
+error BYN0005: identifier `éfoo` is not in Unicode normalization form C
+
+  4 │ éfoo Bar _x camelCase2 بيان μετρητής x_1 é
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ éfoo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   │ +

@@ -1,0 +1,3 @@
+build
+--emit-c
+interface-field-witness.byn

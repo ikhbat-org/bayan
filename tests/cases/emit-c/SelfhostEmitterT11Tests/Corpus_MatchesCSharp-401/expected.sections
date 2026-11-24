@@ -1,0 +1,8 @@
+== cases
+0 bynh_str_bytes(BYN_STR("hi!", 3))
+1 bynh_str_bytes(BYN_STR("", 0))
+2 bynh_add_list_u8(&l0_raw, ((uint8_t)0))
+3 bynh_add_list_u8(&l0_raw, ((uint8_t)15))
+4 bynh_add_list_u8(&l0_raw, ((uint8_t)255))
+5 bynh_span_list_u8(l0_raw)
+count 6

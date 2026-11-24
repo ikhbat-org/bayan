@@ -1,0 +1,40 @@
+== tests/cases/run/list-sort-receiver-once.byn
+11..45 blockStmt
+17..30 exprStmt
+17..30 callExpr
+23..29 literalExpr string
+17..30 callExpr
+35..43 returnStmt value 42..43
+42..43 literalExpr integer
+47..73 globalStatement
+47..73 localDecl
+56..73 callExpr
+74..97 localDecl
+86..97 callExpr
+98..113 exprStmt
+98..113 callExpr
+98..103 nameExpr
+111..112 literalExpr integer
+114..129 exprStmt
+114..129 callExpr
+114..119 nameExpr
+127..128 literalExpr integer
+130..151 exprStmt
+130..151 callExpr
+130..132 nameExpr
+140..150 argument
+145..150 nameExpr
+152..169 exprStmt
+152..169 callExpr
+152..162 indexExpr
+152..154 nameExpr
+155..161 callExpr
+170..196 exprStmt
+170..196 callExpr
+176..195 interpolatedExpr
+185..193 indexExpr
+185..190 indexExpr
+185..187 nameExpr
+188..189 literalExpr integer
+191..192 literalExpr integer
+170..196 callExpr

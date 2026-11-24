@@ -1,0 +1,8 @@
+error BYN2218: `invalid` needs a known type here
+  --> tmp/t26-tests/cli/diag_no-target-type.byn/no-target-type.byn:1:9
+
+  1 │ let e = .invalid
+    │         ^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2218

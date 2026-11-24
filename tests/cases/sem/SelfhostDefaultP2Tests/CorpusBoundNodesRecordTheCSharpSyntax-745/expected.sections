@@ -1,0 +1,15 @@
+== tests/cases/diag/pattern-mismatch.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..27 localDecl
+18..27 isExpr
+18..19 nameExpr
+23..27 constantPattern
+23..27 literalExpr nullKeyword
+28..55 localDecl
+36..55 isExpr
+36..42 tupleExpr
+37..38 literalExpr integer
+40..41 literalExpr integer
+46..55 positionalPattern

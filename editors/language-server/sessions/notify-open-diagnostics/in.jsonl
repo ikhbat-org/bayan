@@ -1,0 +1,7 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":null,"capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/a.byn","languageId":"bayan","version":1,"text":"let x = 1;\r\nlet é😀 = 2;;\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"untitled:Untitled-1","languageId":"bayan","version":7,"text":"struct A {}\n;"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/a.byn","languageId":"bayan","version":2,"text":"struct B {}\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/b.byn","languageId":"bayan","version":3,"text":"/* open\n"}}}
+{"jsonrpc":"2.0","id":2,"method":"shutdown","params":null}
+{"jsonrpc":"2.0","method":"exit","params":null}

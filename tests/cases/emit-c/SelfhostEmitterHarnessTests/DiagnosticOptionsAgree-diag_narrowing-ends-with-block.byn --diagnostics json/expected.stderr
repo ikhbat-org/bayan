@@ -1,0 +1,1 @@
+{"code":"BYN2208","severity":"error","file":"input.byn","span":{"start":76,"end":81,"line":5,"column":12,"endLine":5,"endColumn":17},"message":"`+` cannot be applied to `i64?` and `i64`","label":null,"help":null,"fixes":[]}

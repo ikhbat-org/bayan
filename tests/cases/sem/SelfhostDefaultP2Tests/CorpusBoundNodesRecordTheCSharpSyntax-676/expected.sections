@@ -1,0 +1,4 @@
+== tests/cases/diag/no-constructor.byn
+38..57 globalStatement
+38..57 localDecl
+46..57 callExpr

@@ -1,0 +1,49 @@
+1:1 Less `<`
+1:2 Identifier `List`
+1:6 Less `<`
+1:7 Identifier `i64`
+1:10 Greater `>`
+1:11 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 GreaterEquals `>=`
+3:6 IntegerLiteral `1`
+5:1 IfKeyword `if`
+5:4 ElseKeyword `else`
+5:9 UnlessKeyword `unless`
+5:16 SwitchKeyword `switch`
+5:23 CaseKeyword `case`
+5:28 DefaultKeyword `default`
+5:36 ForKeyword `for`
+5:40 InKeyword `in`
+5:43 WhileKeyword `while`
+5:49 DoKeyword `do`
+5:52 BreakKeyword `break`
+5:58 ContinueKeyword `continue`
+5:67 ReturnKeyword `return`
+5:74 YieldKeyword `yield`
+5:80 Identifier `deer`
+5:85 ErrdeferKeyword `errdefer`
+5:94 UsingKeyword `using`
+5:100 Identifier `contex`
+5:106 Identifier `t`
+6:1 IntegerLiteral `0b__`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  3 │ c �>= 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  5 │ if else unless switch case default for in while do break continue return yield deer errdefer using contex�t
+    │                                                                                                          ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  6 │ 0b__
+    │ ^^^^

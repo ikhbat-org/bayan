@@ -1,0 +1,9 @@
+0xF__
+1010 0B11 5s 250ms 4KiB 1u 0xFFu let effect = 2
+
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"'‮'
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+ 

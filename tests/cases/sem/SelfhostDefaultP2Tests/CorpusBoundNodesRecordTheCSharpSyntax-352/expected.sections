@@ -1,0 +1,17 @@
+== tests/cases/diag/arguments-single-not-swapped.byn
+27..32 binaryExpr add right 31..32
+27..32 binaryExpr add right 31..32
+27..32 binaryExpr add right 31..32
+27..28 nameExpr
+31..32 nameExpr
+31..32 nameExpr
+34..48 globalStatement
+34..48 localDecl
+47..48 literalExpr integer
+49..65 exprStmt
+49..65 callExpr
+55..64 interpolatedExpr
+58..62 callExpr
+60..61 nameExpr
+21..22 literalExpr integer
+49..65 callExpr

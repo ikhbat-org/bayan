@@ -1,0 +1,4 @@
+== s21
+switchExpr|i32|2567:27
+value local:NetError=ne
+arm 2579:13 binaryPattern[2579:8]:NetError(or constantPattern[2579:8]:NetError(errorVariant:NetError=timeout),constantPattern[2579:8]:NetError(errorVariant:NetError=closed)) guard - value literal:i32=1

@@ -1,0 +1,6 @@
+mutate
+--binary
+<repo>/tmp/t13-mutate/args/prog
+--sites
+<repo>/tmp/t13-mutate/args/prog.sites.json
+--bogus

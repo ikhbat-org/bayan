@@ -1,0 +1,11 @@
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+   aạ̇
+x_
+0b__
+__
+0xF 
+/*$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"
+let x⁧ = 1
+

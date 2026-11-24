@@ -1,0 +1,5 @@
+== diags.diag/overload-overlap
+BYN2006 8:9 `plus` is declared twice
+  label already declared on line 7
+BYN2006 2:5 `shift` is declared twice
+  label already declared on line 1

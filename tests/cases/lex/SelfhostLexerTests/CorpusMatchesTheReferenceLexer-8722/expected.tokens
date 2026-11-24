@@ -1,0 +1,32 @@
+1:1 FloatLiteral `3.141e5`
+1:9 FloatLiteral `2.5e-3`
+1:16 FloatLiteral `6E+2`
+1:21 FloatLiteral `1.50`
+1:25 NumericSuffix `dec`
+1:29 IntegerLiteral `1`
+1:30 DotDot `..`
+1:32 IntegerLiteral `2`
+1:34 IntegerLiteral `1`
+1:35 DotDotEquals `..=`
+1:38 IntegerLiteral `3`
+1:40 IntegerLiteral `5`
+1:41 NumericSuffix `e`
+1:43 Identifier `x`
+1:44 Dot `.`
+1:45 Identifier `y`
+1:47 FloatLiteral `2.5`
+1:50 NumericSuffix `f`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+    doc `/// $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $7"`
+7:1 Identifier `a`
+11:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  7 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

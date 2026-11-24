@@ -1,0 +1,34 @@
+1:8 RawStringLiteral `""" "{�\n/// Doc line two.\n c >>= 1\n /// Doc line one.\n `
+5:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */""" "{�
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │ """ "{�
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */""" "{�
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */""" "{�
+    │   │    -
+
+error BYN0003: unterminated string literal
+
+  1 │ /* � */""" "{�
+    │        ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  1 │ /* � */""" "{�
+    │              ^

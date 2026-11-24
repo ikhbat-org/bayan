@@ -1,0 +1,36 @@
+1:2 Equals `=`
+1:4 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `effA`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:1 Identifier `hidden`
+5:1 CloseBrace `}`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  2 │ let effA���
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCC)
+
+  2 │ let effA���
+    │          ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let effA���
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  5 │ }��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ }��
+    │   ^

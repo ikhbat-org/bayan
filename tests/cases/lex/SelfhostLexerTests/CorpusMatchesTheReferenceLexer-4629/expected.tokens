@@ -1,0 +1,59 @@
+1:1 Identifier `D`
+1:5 Identifier `comment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+1:19 StringLiteral `"{$"`
+1:23 OpenBrace `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 InterpolatedStringStart `$"`
+1:29 InterpolationStart `{`
+1:30 InterpolatedStringStart `$"`
+1:32 InterpolationStart `{`
+1:33 InterpolatedStringStart `$"`
+1:35 InterpolationStart `{`
+1:36 InterpolatedStringStart `$"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 InterpolatedStringStart `$"`
+1:47 InterpolationStart `{`
+1:48 InterpolatedStringStart `$"`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 InterpolatedStringStart `$"`
+1:59 InterpolationStart `{`
+1:60 InterpolatedStringStart `$"`
+1:62 InterpolationStart `{`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 Identifier `a`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ D   comment */ a� "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ D   comment */ a� "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                  ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ D   comment */ a� "{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                                               ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{a� 
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

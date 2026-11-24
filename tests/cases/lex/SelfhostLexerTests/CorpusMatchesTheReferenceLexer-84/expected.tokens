@@ -1,0 +1,32 @@
+1:1 Identifier `stray`
+1:7 CloseBrace `}`
+1:9 Identifier `ere`
+1:12 StringLiteral `"`
+2:1 Identifier `u`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `op\u{4}n `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 RawStringLiteral `""" 1e\n`
+3:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ stray } ere"
+    │            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ u$"op�n {x""" 1e
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ u$"op�n {x""" 1e
+    │           ^^^ raw string starts here
+    │
+  help: close it with `"""`

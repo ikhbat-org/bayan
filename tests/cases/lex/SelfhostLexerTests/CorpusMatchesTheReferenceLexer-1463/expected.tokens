@@ -1,0 +1,46 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 LetKeyword `let`
+2:6 Identifier `a`
+2:8 Equals `=`
+2:10 StringLiteral `"open`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:6 Equals `=`
+3:8 IntegerLiteral `1`
+5:1 TestKeyword `test`
+5:6 AssertKeyword `assert`
+5:13 PropertyKeyword `property`
+5:22 FuzzKeyword `fuzz`
+5:27 ModelKeyword `model`
+5:33 Identifier `forech`
+5:40 NewKeyword `new`
+5:44 GotoKeyword `goto`
+6:1 InterpolationEnd `}`
+6:2 InterpolatedStringEnd
+7:1 Identifier `FF`
+7:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{  = 1
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

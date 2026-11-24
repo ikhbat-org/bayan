@@ -1,0 +1,20 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 CatchKeyword `catch`
+1:17 NeverKeyword `never`
+1:23 NoallocKeyword `noalloc`
+1:31 NosuspendKeyword `nosuspend`
+1:41 SuspendsKeyword `suspends`
+1:50 AsyncKeyword `async`
+1:56 AwaitKeyword `await`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+5:2 RawStringLiteral `""" `
+5:6 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │  """ 
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

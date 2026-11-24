@@ -1,0 +1,91 @@
+    doc `/// Doc line one.`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+4:2 Amp `&`
+4:4 AmpAmp `&&`
+4:7 Bar `|`
+4:9 BarBar `||`
+4:12 Caret `^`
+4:14 Tilde `~`
+4:16 Bang `!`
+4:18 Equals `=`
+4:20 EqualsEquals `==`
+4:23 BangEquals `!=`
+4:26 Less `<`
+4:28 LessEquals `<=`
+4:31 Greater `>`
+4:33 GreaterEquals `>=`
+4:36 LessLess `<<`
+4:39 Greater `>`
+4:40 Greater `>`
+4:42 Greater `>`
+4:43 GreaterEquals `>=`
+5:1 Identifier `et`
+5:4 Identifier `a`
+5:6 Equals `=`
+5:8 IntegerLiteral `1`
+6:1 Identifier `lete`
+6:5 Minus `-`
+6:6 IntegerLiteral `3`
+6:8 FloatLiteral `6E+2`
+6:13 FloatLiteral `1.50`
+6:17 NumericSuffix `de`
+6:20 IntegerLiteral `1`
+6:21 DotDot `..`
+6:23 IntegerLiteral `2`
+6:25 IntegerLiteral `1`
+6:26 DotDotEquals `..=`
+6:29 IntegerLiteral `3`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `{{`
+7:5 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ � /// Doc line one.
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ � /// Doc line one.
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ � /// Doc line one.
+    │  ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ �let a =�"open
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ �let a =�"open
+    │   │ -
+
+error BYN0002: unexpected character `\u{15}`
+
+  3 │ �let a =�"open
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │ �let a =�"open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{12}`
+
+  4 │  & && | || ^ ~ ! = == != < <=�> >= << >> >>=
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  6 │ lete-3 6E+2 1.50de� 1..2 1..=3
+    │                   ^

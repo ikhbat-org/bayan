@@ -1,0 +1,12 @@
+error BYN2823: `.name` is a member, not a lambda
+  --> <repo>/tmp/t2/diag/lambda-member-not-lambda/lambda-member-not-lambda.byn:9:32
+
+  9 │     let text = label(user, by: .name)
+    │                                ^^^^^
+    │
+  help: write `it.name`
+    │ 9 │     let text = label(user, by: it.name)
+    │   │                                ++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2823

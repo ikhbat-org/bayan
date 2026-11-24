@@ -1,0 +1,90 @@
+1:4 Equals `=`
+1:6 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+4:1 Identifier `_ff`
+4:5 IntegerLiteral `0b10100`
+4:12 NumericSuffix `B1`
+4:14 Equals `=`
+4:18 IntegerLiteral `1`
+5:1 LetKeyword `let`
+5:5 Identifier `b`
+5:7 Equals `=`
+5:11 IntegerLiteral `2`
+5:14 CloseParen `)`
+5:16 OpenBracket `[`
+5:18 CloseBracket `]`
+5:20 OpenBrace `{`
+5:22 CloseBrace `}`
+6:1 Comma `,`
+6:3 Dot `.`
+6:5 DotDot `..`
+6:8 DotDotEquals `..=`
+6:12 Colon `:`
+6:14 Question `?`
+6:16 QuestionQuestion `??`
+6:19 QuestionQuestionEquals `??=`
+6:23 QuestionDot `?.`
+6:26 FatArrow `=>`
+6:29 Arrow `->`
+6:32 At `@`
+6:34 Hash `#`
+7:1 Plus `+`
+7:3 Minus `-`
+7:4 Star `*`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����  = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����  = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����  = 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����  = 1
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����  = 1
+    │     ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0011: unit suffix `B1` is not allowed on a binary literal
+
+  4 │ _ff 0b10100B1= $ 1
+    │            ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `$`
+
+  4 │ _ff 0b10100B1= $ 1
+    │                ^
+
+error BYN0002: unexpected character ```
+
+  5 │ let b = ` 2  ) [ ] { }
+    │         ^

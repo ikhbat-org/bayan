@@ -1,0 +1,48 @@
+1:1 Dot `.`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+4:14 Semicolon `;`
+6:1 IntegerLiteral `0`
+6:3 IntegerLiteral `42`
+6:6 IntegerLiteral `1_000_000`
+6:16 IntegerLiteral `0xFF`
+6:21 IntegerLiteral `0x_ff`
+6:27 IntegerLiteral `0b1010`
+6:34 IntegerLiteral `0B11`
+6:39 IntegerLiteral `5`
+6:40 NumericSuffix `s`
+6:42 IntegerLiteral `250`
+6:45 NumericSuffix `ms`
+6:48 IntegerLiteral `4`
+6:49 NumericSuffix `KiB`
+6:53 IntegerLiteral `1`
+6:54 NumericSuffix `u`
+6:56 IntegerLiteral `0xFF`
+6:60 NumericSuffix `u`
+6:62 IntegerLiteral `0b1`
+6:65 NumericSuffix `ul`
+6:68 IntegerLiteral `7`
+6:69 NumericSuffix `l`
+    doc `/// Doc �ine two.`
+8:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ let café = 1;
+    │   │        +
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE6)
+
+  7 │  /// Doc �ine two.
+    │          ^

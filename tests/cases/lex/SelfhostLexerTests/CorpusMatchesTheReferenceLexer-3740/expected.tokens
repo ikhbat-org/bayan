@@ -1,0 +1,52 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:3 Equals `=`
+2:8 Identifier `t`
+2:10 Identifier `b`
+2:12 Equals `=`
+2:14 StringLiteral `"bad \q escape"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:6 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character ```
+
+  2 │   = ` �t b = "bad \q escape"
+    │     ^
+
+error BYN0002: unexpected character `\u{1F}`
+
+  2 │   = ` �t b = "bad \q escape"
+    │       ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │   = ` �t b = "bad \q escape"
+    │                   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{ 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

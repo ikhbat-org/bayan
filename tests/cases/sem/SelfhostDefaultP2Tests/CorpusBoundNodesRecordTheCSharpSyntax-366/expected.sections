@@ -1,0 +1,20 @@
+== tests/cases/diag/becomes-needs-ref.byn
+145..181 blockStmt
+155..175 becomeStmt
+240..276 blockStmt
+250..270 becomeStmt
+309..338 blockStmt
+319..332 becomeStmt
+380..462 blockStmt
+390..434 ifStmt
+393..403 binaryExpr gt right 402..403
+393..399 nameExpr
+402..403 literalExpr integer
+404..434 blockStmt
+418..424 returnStmt
+443..456 becomeStmt
+504..533 blockStmt
+514..527 becomeStmt
+596..632 blockStmt
+606..626 becomeStmt
+619..625 nameExpr

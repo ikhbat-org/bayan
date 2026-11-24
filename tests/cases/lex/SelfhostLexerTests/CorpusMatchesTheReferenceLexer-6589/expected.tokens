@@ -1,0 +1,15 @@
+1:2 Identifier `a`
+1:4 Greater `>`
+1:5 Greater `>`
+1:6 Identifier `Ub`
+2:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  1 │ �a >>Ub
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �a >>Ub
+    │   │ -

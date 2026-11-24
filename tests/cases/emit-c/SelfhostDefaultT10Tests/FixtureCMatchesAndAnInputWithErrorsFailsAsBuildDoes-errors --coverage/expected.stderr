@@ -1,0 +1,26 @@
+error BYN2202: expected `i64`, found `string`
+  --> input.byn:1:28
+
+  1 │ void main() { let x: i64 = "no" }
+    │                            ^^^^
+
+error BYN2013: the program has two entry points
+  --> b.byn:46:6
+
+  46 │ void main() {
+     │      ^^^^
+
+warning BYN2405: unreachable code
+  --> w.byn:32:22
+
+  32 │     if panic("no") { print("a") }
+     │                      ^^^^^^^^^^
+
+error BYN2013: the program has two entry points
+  --> w.byn:35:6
+
+  35 │ void main() {
+     │      ^^^^
+
+✗ build failed: 3 errors, 1 warning
+  explain: bayan explain BYN2202

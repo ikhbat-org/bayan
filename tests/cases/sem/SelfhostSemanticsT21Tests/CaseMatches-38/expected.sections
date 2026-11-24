@@ -1,0 +1,2 @@
+== call.k16
+builtinCall|string|local:i64=n|intToString|1047:9|enumMember:Radix=decimal

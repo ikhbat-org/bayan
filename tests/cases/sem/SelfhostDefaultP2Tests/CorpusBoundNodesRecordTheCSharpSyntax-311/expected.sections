@@ -1,0 +1,104 @@
+== tests/cases/run/switch.byn
+26..150 switchExpr
+26..150 switchExpr
+26..150 switchExpr
+26..27 nameExpr
+41..44 relationalPattern
+43..44 literalExpr integer
+48..58 literalExpr string
+64..65 constantPattern
+64..65 literalExpr integer
+69..75 literalExpr string
+81..87 binaryPattern
+81..82 constantPattern
+81..82 literalExpr integer
+86..87 constantPattern
+86..87 literalExpr integer
+91..98 literalExpr string
+104..117 binaryPattern
+104..108 relationalPattern
+107..108 literalExpr integer
+113..117 relationalPattern
+115..117 literalExpr integer
+121..129 literalExpr string
+135..136 discardPattern
+140..147 literalExpr string
+229..430 blockStmt
+235..428 switchStmt
+242..243 nameExpr
+259..269 binaryPattern
+259..262 constantPattern
+259..262 literalExpr string
+266..269 constantPattern
+266..269 literalExpr string
+283..297 exprStmt
+283..297 callExpr
+289..296 literalExpr string
+283..297 callExpr
+311..314 varPattern
+326..342 binaryExpr gt right 341..342
+326..338 memberExpr
+326..331 nameExpr
+341..342 literalExpr integer
+356..378 exprStmt
+356..378 callExpr
+362..377 interpolatedExpr
+370..375 nameExpr
+356..378 callExpr
+408..422 exprStmt
+408..422 callExpr
+414..421 literalExpr string
+408..422 callExpr
+152..203 globalStatement
+152..203 forStmt
+161..167 rangeExpr
+161..163 unaryExpr negate operand 162..163
+165..167 literalExpr integer
+168..203 blockStmt
+174..201 exprStmt
+174..201 callExpr
+180..200 interpolatedExpr
+183..184 nameExpr
+187..198 callExpr
+196..197 nameExpr
+196..197 nameExpr
+174..201 callExpr
+432..445 exprStmt
+432..445 callExpr
+441..444 literalExpr string
+446..459 exprStmt
+446..459 callExpr
+455..458 literalExpr string
+460..477 exprStmt
+460..477 callExpr
+469..476 literalExpr string
+478..491 exprStmt
+478..491 callExpr
+487..490 literalExpr string
+493..512 localDecl
+511..512 literalExpr integer
+511..512 literalExpr integer
+513..537 localDecl
+533..537 literalExpr nullKeyword
+538..593 exprStmt
+538..593 callExpr
+544..592 switchExpr
+544..549 nameExpr
+559..563 constantPattern
+559..563 literalExpr nullKeyword
+567..573 literalExpr string
+575..578 varPattern
+584..590 literalExpr string
+538..593 callExpr
+594..661 localDecl
+606..661 switchExpr
+606..613 nameExpr
+627..631 constantPattern
+627..631 literalExpr nullKeyword
+635..641 literalExpr string
+647..648 discardPattern
+652..658 literalExpr string
+662..674 exprStmt
+662..674 callExpr
+668..673 nameExpr
+662..674 callExpr

@@ -38,9 +38,9 @@ expect "(b) gap" "docs/revisions/0001-*.md is missing"
 cp "$t/repo/docs/revisions/0002-second.md" "$t/repo/docs/revisions/0002-again.md"
 expect "(b) repeat" "docs/revisions has 2 files numbered 0002"
 
-sed -i.bak 's/^}$/    public static readonly DiagnosticDescriptor Eps = Error("BYN4006", "eps");\n}/' \
-  "$t/repo/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs"
-grep -q BYN4006 "$t/repo/csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs" || fail "fixture edit did not apply"
+sed -i.bak -e 's/^    old$/    old\n    eps/' -e 's/^    \.old         => "BYN3005",$/&\n    .eps         => "BYN4006",/' \
+  -e 's/^    \.old         => "old",$/&\n    .eps         => "eps",/' "$t/repo/src/semantics/codes.byn"
+grep -q BYN4006 "$t/repo/src/semantics/codes.byn" || fail "fixture edit did not apply"
 expect "(c) new descriptor" "docs/DIAGNOSTICS.md is stale; run bash scripts/docs/gen-diagnostics.sh --write"
 sed -i.bak 's/| units | SPEC | spec-only | none |/| units | SPEC | built | none |/' "$t/repo/docs/STATUS.md"
 bash "$s" >/dev/null || fail "(c) a hand-kept STATUS row edit fails the check"
@@ -49,8 +49,8 @@ expect "(c) edited generated row" "docs/STATUS.md is stale; run bash scripts/doc
 sed -i.bak 's/^Status: done$/Status: in progress/' "$t/repo/docs/specs/001-first/001-spec.md"
 expect "(c) stale spec index" "docs/specs/README.md is stale; run bash scripts/docs/gen-spec-index.sh --write"
 
-sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/csharp/Bayan.Backend.C/Toolchain.cs"
-expect "(d) Toolchain.cs" "csharp/Bayan.Backend.C/Toolchain.cs says 1.2.4-dev, VERSION says 1.2.3-dev"
+sed -i.bak 's/"1.2.3-dev"/"1.2.4-dev"/' "$t/repo/src/driver/main.byn"
+expect "(d) main.byn" "src/driver/main.byn says 1.2.4-dev, VERSION says 1.2.3-dev"
 sed -i.bak '6s/bayan 1.2.3-dev/bayan 1.2.2/' "$t/repo/tests/cases/out/dist.tree"
 expect "(d) second dist.tree line" "tests/cases/out/dist.tree says 1.2.2, VERSION says 1.2.3-dev"
 printf 'Units (partial in 1.2: no suffixes). Handles (not in 1.2).\n' >> "$t/repo/docs/bayan-spec.md"

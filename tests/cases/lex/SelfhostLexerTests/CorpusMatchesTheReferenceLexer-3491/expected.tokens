@@ -1,0 +1,69 @@
+1:1 Identifier `t`
+1:4 Identifier `a`
+1:6 Equals `=`
+1:8 StringLiteral `"open`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:9 StringLiteral `"bad \q escape"`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolatedStringText `open `
+3:14 InterpolationStart `{`
+3:15 Identifier `x`
+3:16 StringLiteral `";`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+6:1 Identifier `r`
+6:3 Identifier `_x`
+6:6 Identifier `came`
+7:1 CharLiteral `'`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD4)
+
+  1 │ t �a = "open
+    │   ^
+
+error BYN0003: unterminated string literal
+
+  1 │ t �a = "open
+    │        ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  3 │ let c $"open {x";
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  3 │ let c $"open {x";
+    │                ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^
+
+error BYN0008: unterminated char literal
+
+  7 │ '
+    │ ^
+    │
+  help: close it with `'`

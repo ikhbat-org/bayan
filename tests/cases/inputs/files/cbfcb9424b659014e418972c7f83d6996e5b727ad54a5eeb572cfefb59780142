@@ -1,0 +1,12 @@
+'â€®'
+ï»¿ // ok þ in comment
+ 	
+$"{$"{$"{$"{$"{$"{$"{,$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"// ok þ in comment
+
+let c = """never closed
+
+ne.
+/// Doc line two.
+struct S
+//// not a doc comment
+b

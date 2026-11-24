@@ -1,0 +1,10 @@
+== test cased
+block 959..962
+  localDecl 944..949
+    literal 920..921 : i32 = 1
+  localDecl 951..957
+    literal 923..927 : bool = true
+  block 959..962
+local n 0 0
+local f 1 0
+requires 0 infers true

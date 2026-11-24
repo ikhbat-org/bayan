@@ -1,0 +1,3 @@
+== diags.combine-one-argument-wrong-type
+BYN2202 2:24 expected `ReadOnlySpan<string>`, found `string`
+BYN2202 3:24 expected `ReadOnlySpan<string>`, found `i32`

@@ -1,0 +1,10 @@
+let c = """never closed
+& && | || ^ ~ ! = == != < <= > >= << >> >>=
+
+¿Ä
+let x‚Åß = 1
+   raw "quoted"
+ struct S
+
+0xFFs
+ 

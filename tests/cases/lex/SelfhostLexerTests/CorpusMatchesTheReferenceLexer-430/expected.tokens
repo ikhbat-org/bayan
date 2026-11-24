@@ -1,0 +1,116 @@
+1:3 InterpolatedStringStart `$"`
+1:5 InterpolationStart `{`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolationStart `{`
+2:8 OpenBrace `{`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 StringLiteral `"{$"`
+2:52 OpenBrace `{`
+2:53 InterpolatedStringStart `$"`
+2:55 InterpolationStart `{`
+2:56 StringLiteral `$"{$"`
+2:61 OpenBrace `{`
+2:62 StringLiteral `$"{x}"`
+2:68 CloseBrace `}`
+2:69 StringLiteral `"}"`
+2:73 CharLiteral `'\u{110000}'`
+3:3 IntegerLiteral `2`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ � $"{�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ � $"{�
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │    ^
+
+error BYN0002: unexpected character `$`
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │         ^
+
+error BYN0002: unexpected character `\u{1B}`
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │                                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │                                                           ^^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  2 │ ���� $"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{x}"}"}" '\u{110000}'
+    │                                                                             ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character ```
+
+  3 │ ` 2
+    │ ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  4 │ let c = � 3
+    │         ^

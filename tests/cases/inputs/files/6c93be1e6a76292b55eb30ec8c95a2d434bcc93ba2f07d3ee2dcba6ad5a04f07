@@ -1,0 +1,639 @@
+import lexer
+import parser
+
+const exhSource: string = "enum Suit {\n    clubs\n    diamonds\n    hearts\n    spades\n}\n\nunion Shape {\n    circle(f32 r)\n    rect(f32 w, f32 h)\n    none\n}\n\nunion error EmailError {\n    invalid\n}\n\nunion error DbError {\n    timeout\n    lost\n}\n\nstruct P {\n    i64 x\n}\n\nvoid e1(Suit s) {\n    switch s {\n        case .hearts:\n            print(\"h\")\n    }\n}\n\nstring e2(Suit s) => s switch {\n    .hearts or .diamonds => \"r\",\n    .clubs => \"b\",\n}\n\nstring e3(Suit s) => s switch {\n    .hearts => \"r\",\n    _ => \"b\",\n}\n\nf32 e4(Shape s) => s switch {\n    .circle(let r) => r,\n    _ => 0,\n}\n\nf32 e5(Shape s) => s switch {\n    .circle(let r) => r,\n    .rect(let w, _) => w,\n    .none => 0,\n    _ => 0,\n}\n\nf32 e6(Shape s) => s switch {\n    .circle(let r) => r,\n}\n\nstring e7(Shape? s) => s switch {\n    .none => \"n\",\n    _ => \"o\",\n}\n\nstring e8(bool b) => b switch {\n    true => \"t\",\n    false => \"f\",\n}\n\nstring e9(bool b) => b switch {\n    true => \"t\",\n}\n\nstring e10(i64 n) => n switch {\n    1 => \"a\",\n}\n\nvoid e11(i64 n) {\n    switch n {\n        case 1:\n            print(\"a\")\n    }\n}\n\nstring e12(Suit? s) => s switch {\n    null => \"n\",\n    .clubs => \"c\",\n}\n\nstring e13(i64? n) => n switch {\n    null => \"n\",\n}\n\nvoid e14(i64? n) {\n    switch n {\n        case null:\n            print(\"n\")\n    }\n}\n\nstring e15(i64? n) => n switch {\n    null => \"n\",\n    let v => \"v\",\n}\n\nstring e16(P? p) => p switch {\n    { x: let v } => \"x\",\n    null => \"n\",\n}\n\nstring e17(i64? n) => n switch {\n    not null => \"v\",\n}\n\nstring e18(Shape s) => s switch {\n    .circle(let r) when true => \"c\",\n    .rect(_, _) or .none => \"o\",\n}\n\nstring e19(DbError e) => e switch {\n    .timeout => \"t\",\n}\n\nstring e20(DbError e) => e switch {\n    DbError.timeout => \"t\",\n}\n\nvoid e21(Suit s) {\n    switch s {\n        case .hearts:\n            print(\"h\")\n        default:\n            print(\"d\")\n    }\n}\n\nstring e22(P p) => p switch {\n    { x: let v } => \"x\",\n}\n\nstring e23(EmailError e) => e switch {\n    .invalid => \"i\",\n}\n\nstring e24(Suit? s) => s switch {\n    not null => \"v\",\n}\n\nstring e25(bool b) => b switch {\n    true and _ => \"t\",\n    false and true => \"f\",\n}\n\nstring e26(Suit s) => s switch {\n    .hearts => \"h\",\n    _ and _ => \"o\",\n}\n\nstring e27(Suit s) => s switch {\n    .hearts => \"h\",\n    _ and .clubs => \"c\",\n}\n"
+const wrSource: string = "struct H {\n    i64 n\n    List<i64> items\n}\n\nvoid wr(Span<i64> sp, ReadOnlySpan<i64> ro, ref i64 rn, i64 pn, H hp) {\n    var w1 = 0\n    w1 = 1\n    var w2 = hp\n    w2.n = 1\n    var w3 = List<i64>()\n    w3[0] = 1\n    var w4 = 0\n    w4 += 1\n    var w5 = 0\n    w5++\n    var w6 = 0\n    print($\"{w6}\")\n    let w7 = 0\n    w7 = 1\n    var w8 = Map<string, i64>()\n    w8[\"a\"] = 1\n    var w9 = hp\n    w9.items[0] = 1\n    var wa = Map<string, i64>()\n    wa[\"a\"] += 1\n    sp[0] = 1\n    ro[0] = 1\n    rn = 2\n    pn = 3\n    var wb = \"x\"\n    wb += \"y\"\n    var wc: i64? = null\n    wc ??= 1\n    var wd = 1\n    wd <<= 2\n    var we = true\n    we += 1\n    var wf = 1.5\n    wf <<= 1\n    var wg = true\n    wg++\n    var wh = 1\n    wh ??= 2\n}\n"
+
+void tcDiags(ref Ctx c, from i64 start) {
+    for i in start..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+/// `tcDiags` from 0, only the codes T39 reports.
+void tcT39Diags(ref Ctx c) {
+    var keep = Map<string, bool>()
+    keep["BYN2104"] = true
+    keep["BYN2105"] = true
+    keep["BYN2106"] = true
+    keep["BYN2107"] = true
+    keep["BYN2115"] = true
+    keep["BYN2207"] = true
+    keep["BYN2208"] = true
+    keep["BYN2209"] = true
+    keep["BYN2210"] = true
+    keep["BYN2410"] = true
+    keep["BYN2712"] = true
+    keep["BYN2783"] = true
+    keep["BYN3208"] = true
+    keep["BYN3216"] = true
+    keep["BYN7012"] = true
+
+    for i in 0..c.diagnostics.length {
+        if !keep.contains(c.diagnostics[i].code) { continue }
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+BExpr tcInt(ref Ctx c, by i64 v, as Type t) {
+    let k = Constant { kind: .integer, integer: bigFromI64(v) }
+    let e = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 0, length: 0 }, type: t, value: k })
+    setConstant(ref c, for: e, to: k)
+    return e
+}
+
+BExpr tcBool(ref Ctx c, by bool v) {
+    let k = Constant { kind: .flag, flag: v }
+    let e = addLiteral(ref c, from: BLiteral { span: TextSpan { start: 0, length: 0 }, type: prim(.bool), value: k })
+    setConstant(ref c, for: e, to: k)
+    return e
+}
+
+BPattern tcBind(ref Ctx c, at TextSpan sp, as Type t, by bool discard) {
+    let p = addBindPattern(ref c, from: BBindPattern { span: sp, inputType: t })
+    if discard { setSyntaxFlags(ref c, for: p, to: syntaxDiscard) }
+    return p
+}
+
+VariantId tcVariant(in Ctx c, for string set, by string name) {
+    for v in 0..c.errorVariants.length {
+        if c.errorVariants[v].name == name && c.errorSets[c.errorVariants[v].set].name == set { return v }
+    }
+    return -1
+}
+
+VariantId tcUVariant(in Ctx c, for string u, by string name) {
+    for v in 0..c.unionVariants.length {
+        if c.unionVariants[v].name == name && c.unions[c.unionVariants[v].owner].name == u { return v }
+    }
+    return -1
+}
+
+EnumMemberId tcMember(in Ctx c, for string e, by string name) {
+    for m in 0..c.enumMembers.length {
+        if c.enumMembers[m].name == name && c.enums[c.enumMembers[m].owner].name == e { return m }
+    }
+    return -1
+}
+
+Type tcUnion2(ref Ctx c, for string a, by string b) {
+    var sets = List<ErrorSetId>()
+    sets.append(typeIndex(c.modules[c.entryModule].types[a]))
+    sets.append(typeIndex(c.modules[c.entryModule].types[b]))
+    let none = List<VariantId>()
+    return errorUnionOf(ref c, for: in sets, as: in none)
+}
+
+/// Each `w*` local of `wr` and whether it was written.
+void tcWritten(ref Ctx c) {
+    for l in 0..c.locals.length {
+        let n = c.locals[l].name
+        if n.length == 2 && n.startsWith("w") { print($"{n} {c.locals[l].written}") }
+    }
+}
+
+string tcDiagSource(string name) {
+    if name == "readonly-field" { return "struct Id {\n    readonly i64 value\n}\n\nvar id = Id { value: 1 }\nid.value = 2\n" }
+    if name == "bad-unary-operand" { return "let n: u32 = 5\nlet x = -n\nlet y = !n\n" }
+    if name == "coalesce-not-optional" { return "let n: i64 = 5\nlet m = n ?? 0\n" }
+    if name == "checked-field-assignment" { return "struct Range {\n    i64 low\n    i64 high\n    requires low <= high at .high\n\n    void widen(ref this) {\n        this.high = this.high + 1\n    }\n}\n" }
+    if name == "field-write-outside" { return "struct SignupForm {\n    string password\n        requires it.length in 8..=128\n}\n\nvoid reset(ref SignupForm form) {\n    form.password = \"x\"\n}\n" }
+    if name == "field-write-states" { return "struct Order {\n    i64 total\n    states {\n        draft\n        paid\n    }\n}\n\nvoid clear(ref Order order) {\n    order.total = 0\n}\n" }
+    if name == "field-write-sealed" { return "@sealed\npublic struct HttpClientOptions {\n    i64 timeout\n    i32 retries\n}\n\nvoid tune(ref HttpClientOptions options) {\n    options.retries = 5\n}\n" }
+    if name == "bad-binary-operands" { return "let a: i64 = 1\nlet b: u64 = 2\nlet c = a + b\nlet d = true + 1\n" }
+    if name == "immutable-assignment" { return "let total = 0\ntotal += 1\n\nvoid bump(i64 n) {\n    n = n + 1\n}\n\nfor i in 0..3 {\n    i = 0\n}\n" }
+    if name == "unique-borrowed-mutation" { return "// A loop or pattern binding of a unique type borrows from its subject, even with `var` (BYN2783).\nunion Slot {\n    empty\n    full(List<i64> items)\n}\n\nvoid main() {\n    var lists = List<List<i64>>()\n    lists.append(List<i64>())\n    for xs in lists { xs.append(1) }\n    for xs in lists {\n        let stolen = move xs\n    }\n    let slot = Slot.full(List<i64>())\n    if slot is .full(var items) { items.append(2) }\n    for xs in lists { print($\"{xs.length}\") }\n}\n" }
+    if name == "immutable" { return "void bump(i64 n) {\n    n = n + 1\n}\n\nvoid loop(List<i64> xs) {\n    let k = 0\n    k = 1\n    xs = List<i64>()\n}" }
+    if name == "getter" { return "struct G {\n    i64 n\n\n    i64 latest {\n        n = 1\n        return n\n    }\n}" }
+    if name == "mutates" { return "struct Counter {\n    i64 n\n    i64 total\n\n    void bump(ref this) {\n        n += 1\n    }\n\n    void reset() {\n        total = 0\n        this.n = 0\n    }\n\n    void add(i64 by) {\n        total += by\n    }\n\n    i64 peek() => n\n}" }
+    if name == "borrow" { return "union Slot {\n    empty\n    full(List<i64> items)\n}\n\nvoid f(Slot slot) {\n    if slot is .full(var items) { items.append(2) }\n}" }
+    if name == "access" { return "struct S {\n    i64 n\n}\n\n(i64 line, i64 col) pos() => (line: 1, col: 2)\n\nvoid f() {\n    var t = pos()\n    t.line = 5\n    let u = pos()\n    u.line = 6\n    var o = Owned(S { n: 1 })\n    o.n = 2\n}" }
+    if name == "state" { return "struct Order {\n    i64 id\n    states {\n        draft\n        paid\n    }\n}\n\nvoid a(ref Order.paid o, Order.draft d) {\n    o = d\n}\n\nvoid s(ref Order.paid o, Order.paid p) {\n    o = p\n}\n\nvoid w(ref Order o, Order.draft d) {\n    o = d\n}\n\nvoid r(ref Order o, Order.paid p) {\n    var copy = o\n    copy = p\n}" }
+    return ""
+}
+
+
+void tcExh(ref Ctx c, by string name) {
+    if name == "e1" { tcExh0(ref c) }
+    if name == "e2" { tcExh1(ref c) }
+    if name == "e3" { tcExh2(ref c) }
+    if name == "e4" { tcExh3(ref c) }
+    if name == "e5" { tcExh4(ref c) }
+    if name == "e6" { tcExh5(ref c) }
+    if name == "e7" { tcExh6(ref c) }
+    if name == "e8" { tcExh7(ref c) }
+    if name == "e9" { tcExh8(ref c) }
+    if name == "e10" { tcExh9(ref c) }
+    if name == "e11" { tcExh10(ref c) }
+    if name == "e12" { tcExh11(ref c) }
+    if name == "e13" { tcExh12(ref c) }
+    if name == "e14" { tcExh13(ref c) }
+    if name == "e15" { tcExh14(ref c) }
+    if name == "e16" { tcExh15(ref c) }
+    if name == "e17" { tcExh16(ref c) }
+    if name == "e18" { tcExh17(ref c) }
+    if name == "e19" { tcExh18(ref c) }
+    if name == "e20" { tcExh19(ref c) }
+    if name == "e21" { tcExh20(ref c) }
+    if name == "e22" { tcExh21(ref c) }
+    if name == "e23" { tcExh22(ref c) }
+    if name == "e24" { tcExh23(ref c) }
+    if name == "e25" { tcExh24(ref c) }
+    if name == "e26" { tcExh25(ref c) }
+    if name == "e27" { tcExh26(ref c) }
+    if name == "e19u" { tcExh27(ref c) }
+    if name == "e20u" { tcExh28(ref c) }
+    if name == "e23u" { tcExh29(ref c) }
+    if name == "e19r" { tcExh30(ref c) }
+}
+void tcExh0(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Suit"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 283, length: 7 }, member: tcMember(in c, for: "Suit", by: "hearts") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 283, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 266, length: 1 }, as: t, by: in arms, statement: true)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh1(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Suit"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 360, length: 7 }, member: tcMember(in c, for: "Suit", by: "hearts") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 360, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], value: v0 })
+    let v2 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 371, length: 9 }, member: tcMember(in c, for: "Suit", by: "diamonds") })
+    let p3 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 371, length: 9 }, inputType: c.modules[c.entryModule].types["Suit"], value: v2 })
+    let p4 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 360, length: 20 }, inputType: c.modules[c.entryModule].types["Suit"], isAnd: false, left: p1, right: p3 })
+    arms.append((p4, -1))
+    let v5 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 393, length: 6 }, member: tcMember(in c, for: "Suit", by: "clubs") })
+    let p6 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 393, length: 6 }, inputType: c.modules[c.entryModule].types["Suit"], value: v5 })
+    arms.append((p6, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 345, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh2(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Suit"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 447, length: 7 }, member: tcMember(in c, for: "Suit", by: "hearts") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 447, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], value: v0 })
+    arms.append((p1, -1))
+    let p2 = tcBind(ref c, at: TextSpan { start: 467, length: 1 }, as: c.modules[c.entryModule].types["Suit"], by: true)
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 432, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh3(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Shape"]
+    var arms = List<(BPattern, BExpr)>()
+    let p0 = tcBind(ref c, at: TextSpan { start: 522, length: 3 }, as: prim(.f32), by: false)
+    var l1 = List<BPattern>()
+    l1.append(p0)
+    let p2 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 514, length: 14 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "circle"), subpatterns: move l1 })
+    arms.append((p2, -1))
+    let p3 = tcBind(ref c, at: TextSpan { start: 539, length: 1 }, as: c.modules[c.entryModule].types["Shape"], by: true)
+    arms.append((p3, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 499, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh4(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Shape"]
+    var arms = List<(BPattern, BExpr)>()
+    let p0 = tcBind(ref c, at: TextSpan { start: 592, length: 3 }, as: prim(.f32), by: false)
+    var l1 = List<BPattern>()
+    l1.append(p0)
+    let p2 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 584, length: 14 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "circle"), subpatterns: move l1 })
+    arms.append((p2, -1))
+    let p3 = tcBind(ref c, at: TextSpan { start: 615, length: 3 }, as: prim(.f32), by: false)
+    let p4 = tcBind(ref c, at: TextSpan { start: 622, length: 1 }, as: prim(.f32), by: true)
+    var l5 = List<BPattern>()
+    l5.append(p3)
+    l5.append(p4)
+    let p6 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 609, length: 15 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "rect"), subpatterns: move l5 })
+    arms.append((p6, -1))
+    var l7 = List<BPattern>()
+    let p8 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 635, length: 5 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "none"), subpatterns: move l7 })
+    arms.append((p8, -1))
+    let p9 = tcBind(ref c, at: TextSpan { start: 651, length: 1 }, as: c.modules[c.entryModule].types["Shape"], by: true)
+    arms.append((p9, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 569, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh5(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Shape"]
+    var arms = List<(BPattern, BExpr)>()
+    let p0 = tcBind(ref c, at: TextSpan { start: 704, length: 3 }, as: prim(.f32), by: false)
+    var l1 = List<BPattern>()
+    l1.append(p0)
+    let p2 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 696, length: 14 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "circle"), subpatterns: move l1 })
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 681, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh6(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: c.modules[c.entryModule].types["Shape"])
+    var arms = List<(BPattern, BExpr)>()
+    var l0 = List<BPattern>()
+    let p1 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 758, length: 5 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["Shape"]), variant: tcUVariant(in c, for: "Shape", by: "none"), subpatterns: move l0 })
+    arms.append((p1, -1))
+    let p2 = tcBind(ref c, at: TextSpan { start: 776, length: 1 }, as: internOptional(ref c, by: c.modules[c.entryModule].types["Shape"]), by: true)
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 743, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh7(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = prim(.bool)
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = tcBool(ref c, by: true)
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 825, length: 4 }, inputType: prim(.bool), value: v0 })
+    arms.append((p1, -1))
+    let v2 = tcBool(ref c, by: false)
+    let p3 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 842, length: 5 }, inputType: prim(.bool), value: v2 })
+    arms.append((p3, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 810, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh8(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = prim(.bool)
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = tcBool(ref c, by: true)
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 895, length: 4 }, inputType: prim(.bool), value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 880, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh9(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = prim(.i64)
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = tcInt(ref c, by: 1, as: prim(.i64))
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 947, length: 1 }, inputType: prim(.i64), value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 932, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh10(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = prim(.i64)
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = tcInt(ref c, by: 1, as: prim(.i64))
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1006, length: 1 }, inputType: prim(.i64), value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 989, length: 1 }, as: t, by: in arms, statement: true)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh11(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: c.modules[c.entryModule].types["Suit"])
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1079, length: 4 }, type: internOptional(ref c, by: c.modules[c.entryModule].types["Suit"]) })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1079, length: 4 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["Suit"]), value: v0 })
+    arms.append((p1, -1))
+    let v2 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 1096, length: 6 }, member: tcMember(in c, for: "Suit", by: "clubs") })
+    let p3 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1096, length: 6 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["Suit"]), value: v2 })
+    arms.append((p3, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1064, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh12(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: prim(.i64))
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1151, length: 4 }, type: internOptional(ref c, by: prim(.i64)) })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1151, length: 4 }, inputType: internOptional(ref c, by: prim(.i64)), value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1136, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh13(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: prim(.i64))
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1214, length: 4 }, type: internOptional(ref c, by: prim(.i64)) })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1214, length: 4 }, inputType: internOptional(ref c, by: prim(.i64)), value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1197, length: 1 }, as: t, by: in arms, statement: true)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh14(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: prim(.i64))
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1289, length: 4 }, type: internOptional(ref c, by: prim(.i64)) })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1289, length: 4 }, inputType: internOptional(ref c, by: prim(.i64)), value: v0 })
+    arms.append((p1, -1))
+    let p2 = tcBind(ref c, at: TextSpan { start: 1306, length: 3 }, as: internOptional(ref c, by: prim(.i64)), by: false)
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1274, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh15(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: c.modules[c.entryModule].types["P"])
+    var arms = List<(BPattern, BExpr)>()
+    let p0 = tcBind(ref c, at: TextSpan { start: 1363, length: 3 }, as: prim(.i64), by: false)
+    var s1 = List<BSubpattern>()
+    s1.append(BSubpattern { pattern: p0 })
+    let p2 = addPropertyPattern(ref c, from: BPropertyPattern { span: TextSpan { start: 1358, length: 12 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["P"]), valueType: c.modules[c.entryModule].types["P"], subpatterns: move s1 })
+    arms.append((p2, -1))
+    let v3 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1383, length: 4 }, type: internOptional(ref c, by: c.modules[c.entryModule].types["P"]) })
+    let p4 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1383, length: 4 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["P"]), value: v3 })
+    arms.append((p4, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1343, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh16(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: prim(.i64))
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1440, length: 4 }, type: internOptional(ref c, by: prim(.i64)) })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1440, length: 4 }, inputType: internOptional(ref c, by: prim(.i64)), value: v0 })
+    let p2 = addNotPattern(ref c, from: BNotPattern { span: TextSpan { start: 1436, length: 3 }, inputType: internOptional(ref c, by: prim(.i64)), operand: p1 })
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1421, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh17(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Shape"]
+    var arms = List<(BPattern, BExpr)>()
+    let p0 = tcBind(ref c, at: TextSpan { start: 1502, length: 3 }, as: prim(.f32), by: false)
+    var l1 = List<BPattern>()
+    l1.append(p0)
+    let p2 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 1494, length: 14 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "circle"), subpatterns: move l1 })
+    arms.append((p2, tcBool(ref c, by: true)))
+    let p3 = tcBind(ref c, at: TextSpan { start: 1537, length: 1 }, as: prim(.f32), by: true)
+    let p4 = tcBind(ref c, at: TextSpan { start: 1540, length: 1 }, as: prim(.f32), by: true)
+    var l5 = List<BPattern>()
+    l5.append(p3)
+    l5.append(p4)
+    let p6 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 1531, length: 11 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "rect"), subpatterns: move l5 })
+    var l7 = List<BPattern>()
+    let p8 = addUnionPattern(ref c, from: BUnionPattern { span: TextSpan { start: 1546, length: 5 }, inputType: c.modules[c.entryModule].types["Shape"], variant: tcUVariant(in c, for: "Shape", by: "none"), subpatterns: move l7 })
+    let p9 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 1531, length: 20 }, inputType: c.modules[c.entryModule].types["Shape"], isAnd: false, left: p6, right: p8 })
+    arms.append((p9, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1479, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh18(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["DbError"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1603, length: 8 }, variant: tcVariant(in c, for: "DbError", by: "timeout") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1603, length: 8 }, inputType: c.modules[c.entryModule].types["DbError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1588, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh19(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["DbError"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1663, length: 15 }, variant: tcVariant(in c, for: "DbError", by: "timeout") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1663, length: 15 }, inputType: c.modules[c.entryModule].types["DbError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1648, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh20(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Suit"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 1737, length: 7 }, member: tcMember(in c, for: "Suit", by: "hearts") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1737, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], value: v0 })
+    arms.append((p1, -1))
+    arms.append((-1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1720, length: 1 }, as: t, by: in arms, statement: true)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh21(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["P"]
+    var arms = List<(BPattern, BExpr)>()
+    let p0 = tcBind(ref c, at: TextSpan { start: 1857, length: 3 }, as: prim(.i64), by: false)
+    var s1 = List<BSubpattern>()
+    s1.append(BSubpattern { pattern: p0 })
+    let p2 = addPropertyPattern(ref c, from: BPropertyPattern { span: TextSpan { start: 1852, length: 12 }, inputType: c.modules[c.entryModule].types["P"], valueType: c.modules[c.entryModule].types["P"], subpatterns: move s1 })
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1837, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh22(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["EmailError"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1919, length: 8 }, variant: tcVariant(in c, for: "EmailError", by: "invalid") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1919, length: 8 }, inputType: c.modules[c.entryModule].types["EmailError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1904, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh23(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = internOptional(ref c, by: c.modules[c.entryModule].types["Suit"])
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addDefault(ref c, from: BDefault { span: TextSpan { start: 1981, length: 4 }, type: internOptional(ref c, by: c.modules[c.entryModule].types["Suit"]) })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1981, length: 4 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["Suit"]), value: v0 })
+    let p2 = addNotPattern(ref c, from: BNotPattern { span: TextSpan { start: 1977, length: 3 }, inputType: internOptional(ref c, by: c.modules[c.entryModule].types["Suit"]), operand: p1 })
+    arms.append((p2, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1962, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh24(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = prim(.bool)
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = tcBool(ref c, by: true)
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 2034, length: 4 }, inputType: prim(.bool), value: v0 })
+    let p2 = tcBind(ref c, at: TextSpan { start: 2043, length: 1 }, as: prim(.bool), by: true)
+    let p3 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 2034, length: 10 }, inputType: prim(.bool), isAnd: true, left: p1, right: p2 })
+    arms.append((p3, -1))
+    let v4 = tcBool(ref c, by: false)
+    let p5 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 2057, length: 5 }, inputType: prim(.bool), value: v4 })
+    let v6 = tcBool(ref c, by: true)
+    let p7 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 2067, length: 4 }, inputType: prim(.bool), value: v6 })
+    let p8 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 2057, length: 14 }, inputType: prim(.bool), isAnd: true, left: p5, right: p7 })
+    arms.append((p8, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 2019, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh25(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Suit"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 2120, length: 7 }, member: tcMember(in c, for: "Suit", by: "hearts") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 2120, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], value: v0 })
+    arms.append((p1, -1))
+    let p2 = tcBind(ref c, at: TextSpan { start: 2140, length: 1 }, as: c.modules[c.entryModule].types["Suit"], by: true)
+    let p3 = tcBind(ref c, at: TextSpan { start: 2146, length: 1 }, as: c.modules[c.entryModule].types["Suit"], by: true)
+    let p4 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 2140, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], isAnd: true, left: p2, right: p3 })
+    arms.append((p4, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 2105, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh26(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = c.modules[c.entryModule].types["Suit"]
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 2196, length: 7 }, member: tcMember(in c, for: "Suit", by: "hearts") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 2196, length: 7 }, inputType: c.modules[c.entryModule].types["Suit"], value: v0 })
+    arms.append((p1, -1))
+    let p2 = tcBind(ref c, at: TextSpan { start: 2216, length: 1 }, as: c.modules[c.entryModule].types["Suit"], by: true)
+    let v3 = addEnumMember(ref c, from: BEnumMember { span: TextSpan { start: 2222, length: 6 }, member: tcMember(in c, for: "Suit", by: "clubs") })
+    let p4 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 2222, length: 6 }, inputType: c.modules[c.entryModule].types["Suit"], value: v3 })
+    let p5 = addBinaryPattern(ref c, from: BBinaryPattern { span: TextSpan { start: 2216, length: 12 }, inputType: c.modules[c.entryModule].types["Suit"], isAnd: true, left: p2, right: p4 })
+    arms.append((p5, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 2181, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh27(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = tcUnion2(ref c, for: "EmailError", by: "DbError")
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1603, length: 8 }, variant: tcVariant(in c, for: "DbError", by: "timeout") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1603, length: 8 }, inputType: c.modules[c.entryModule].types["DbError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1588, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh28(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = tcUnion2(ref c, for: "EmailError", by: "DbError")
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1663, length: 15 }, variant: tcVariant(in c, for: "DbError", by: "timeout") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1663, length: 15 }, inputType: c.modules[c.entryModule].types["DbError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1648, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh29(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = tcUnion2(ref c, for: "EmailError", by: "DbError")
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1919, length: 8 }, variant: tcVariant(in c, for: "EmailError", by: "invalid") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1919, length: 8 }, inputType: c.modules[c.entryModule].types["EmailError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1904, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+void tcExh30(ref Ctx c) {
+    var b = t13NewBinder(c.modules[c.entryModule].files[0])
+    let t = tcUnion2(ref c, for: "DbError", by: "EmailError")
+    var arms = List<(BPattern, BExpr)>()
+    let v0 = addErrorVariant(ref c, from: BErrorVariant { span: TextSpan { start: 1603, length: 8 }, variant: tcVariant(in c, for: "DbError", by: "timeout") })
+    let p1 = addConstantPattern(ref c, from: BConstantPattern { span: TextSpan { start: 1603, length: 8 }, inputType: c.modules[c.entryModule].types["DbError"], value: v0 })
+    arms.append((p1, -1))
+    let start = c.diagnostics.length
+    let ok = checkExhaustive(ref b, through: ref c, at: TextSpan { start: 1588, length: 1 }, as: t, by: in arms, statement: false)
+    print($"result {ok}")
+    tcDiags(ref c, from: start)
+}
+
+
+i32 main(ReadOnlySpan<string> args) {
+    var i: i64 = 0
+    while i + 1 < args.length {
+        let op = args[i]
+        let text = op == "diag" || op == "lib" ? tcDiagSource(args[i + 1]) : op == "wr" ? wrSource : exhSource
+        var bytes = List<u8>()
+        for x in text.bytes { bytes.append(x) }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("tmp/t39-cases/main.byn", from: move bytes))
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+            library: op != "diag",
+            packageRoot: "tmp/t39-cases",
+            displayRoot: "tmp/t39-cases",
+        }
+        c.entryModule = loadModule(ref c, for: "main", at: "tmp/t39-cases", from: move sources, by: -1)
+        buildLexicon(ref c)
+        declare(ref c)
+        print($"== {op}.{args[i + 1]}")
+        if op == "diag" || op == "lib" {
+            bindAll(ref c)
+            tcT39Diags(ref c)
+        } else if op == "wr" {
+            bindAll(ref c)
+            tcWritten(ref c)
+            tcT39Diags(ref c)
+        } else {
+            tcExh(ref c, by: args[i + 1])
+        }
+        i += 2
+    }
+    return 0
+}

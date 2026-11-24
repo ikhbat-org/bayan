@@ -1,0 +1,5 @@
+error BYN2220: `i32` cannot be called
+  --> <repo>/tests/cases/diag/not-callable.byn:2:9
+
+  2 │ let y = x(1)
+    │         ^

@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/assert-fails-other-set.byn
+--package
+<repo>/tests/cases/diag

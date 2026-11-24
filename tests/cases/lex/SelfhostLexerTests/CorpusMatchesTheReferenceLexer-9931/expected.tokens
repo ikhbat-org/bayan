@@ -1,0 +1,13 @@
+1:1 Identifier `afé`
+1:6 Equals `=`
+1:7 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  1 │ afé� �=
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  1 │ afé� �=
+    │      ^

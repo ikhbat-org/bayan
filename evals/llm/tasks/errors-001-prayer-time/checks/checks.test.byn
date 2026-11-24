@@ -1,0 +1,28 @@
+@cases(("00:00", 0), ("18:42", 1122), ("23:59", 1439), ("5:07", 307))
+test "minutesOfDay reads a time" (string text, i64 expected) {
+    assert (try minutesOfDay(text)) == expected
+}
+
+@cases("", "1842", "18:42:10", "ab:cd", "18:", ":42", "18:-1")
+test "minutesOfDay rejects a malformed time" (string text) {
+    assert minutesOfDay(text) fails TimeError.badFormat
+}
+
+@cases("24:00", "12:60", "99:99")
+test "minutesOfDay rejects a time past the end of the day" (string text) {
+    assert minutesOfDay(text) fails TimeError.outOfRange
+}
+
+test "minutesUntil counts forward" {
+    assert (try minutesUntil("18:42", from: "17:30")) == 72
+    assert (try minutesUntil("18:42", from: "18:42")) == 0
+}
+
+test "minutesUntil wraps to the next day" {
+    assert (try minutesUntil("18:42", from: "19:00")) == 1422
+}
+
+test "minutesUntil passes the error on" {
+    assert minutesUntil("18:42", from: "soon") fails TimeError.badFormat
+    assert minutesUntil("25:00", from: "17:30") fails TimeError.outOfRange
+}

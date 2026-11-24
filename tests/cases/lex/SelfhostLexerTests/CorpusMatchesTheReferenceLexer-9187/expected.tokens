@@ -1,0 +1,24 @@
+1:1 Identifier `ce`
+1:4 DelegateKeyword `delegate`
+1:13 ExtensionKeyword `extension`
+1:23 DerivationKeyword `derivation`
+1:34 AttributeKeyword `attribute`
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+2:4 Identifier `ﻌ`
+2:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ ce delegate extension derivation attribute�
+    │                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  2 │  1.ﻌ�� 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │  1.ﻌ�� 
+    │      ^

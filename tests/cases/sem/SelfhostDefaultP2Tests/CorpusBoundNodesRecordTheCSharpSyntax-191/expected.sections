@@ -1,0 +1,78 @@
+== tests/cases/run/map-key-tuple.byn
+122..454 blockStmt
+128..172 localDecl
+136..172 callExpr
+177..192 assignStmt assign target 177..188 value 191..192
+177..188 indexExpr
+177..178 nameExpr
+179..187 tupleExpr
+180..181 literalExpr integer
+183..186 literalExpr string
+191..192 literalExpr integer
+197..212 assignStmt assign target 197..208 value 211..212
+197..208 indexExpr
+197..198 nameExpr
+199..207 tupleExpr
+200..201 literalExpr integer
+203..206 literalExpr string
+211..212 literalExpr integer
+217..232 assignStmt assign target 217..228 value 231..232
+217..228 indexExpr
+217..218 nameExpr
+219..227 tupleExpr
+220..221 literalExpr integer
+223..226 literalExpr string
+231..232 literalExpr integer
+237..252 assignStmt assign target 237..248 value 251..252
+237..248 indexExpr
+237..238 nameExpr
+239..247 tupleExpr
+240..241 literalExpr integer
+243..246 literalExpr string
+251..252 literalExpr integer
+257..324 exprStmt
+257..324 callExpr
+263..323 interpolatedExpr
+274..292 callExpr
+274..275 nameExpr
+283..291 tupleExpr
+284..285 literalExpr integer
+287..290 literalExpr string
+303..321 callExpr
+303..304 nameExpr
+312..320 tupleExpr
+313..314 literalExpr integer
+316..319 literalExpr string
+257..324 callExpr
+329..344 assignStmt assign target 329..340 value 343..344
+329..340 indexExpr
+329..330 nameExpr
+331..339 tupleExpr
+332..333 literalExpr integer
+335..338 literalExpr string
+343..344 literalExpr integer
+349..427 forStmt
+369..370 nameExpr
+371..427 blockStmt
+354..357 name
+354..357 name
+354..357 name
+359..364 name
+359..364 name
+359..364 name
+371..427 blockStmt
+381..421 exprStmt
+381..421 callExpr
+387..420 interpolatedExpr
+390..399 memberExpr
+390..393 nameExpr
+402..410 memberExpr
+402..405 nameExpr
+413..418 nameExpr
+381..421 callExpr
+432..452 exprStmt
+432..452 callExpr
+438..451 interpolatedExpr
+441..449 memberExpr
+441..442 nameExpr
+432..452 callExpr

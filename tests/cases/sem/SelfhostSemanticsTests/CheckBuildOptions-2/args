@@ -1,0 +1,4 @@
+check
+--mode
+turbo
+<repo>/tmp/t26-tests/options/hello.byn

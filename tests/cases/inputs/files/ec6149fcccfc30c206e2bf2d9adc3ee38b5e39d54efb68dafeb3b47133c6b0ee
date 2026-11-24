@@ -1,0 +1,28 @@
+struct Gate {
+    i64 id
+    states {
+        open
+        shut
+    }
+    bool a => id is 5
+    bool b => this is not .open
+    bool c => this is Gate.open
+    bool d => this is var g
+    i64 go(this is .open) => 1
+}
+
+i64 run(Gate g) {
+    if g.a {
+        return g.go()
+    }
+    if g.b {
+        return g.go()
+    }
+    if g.c {
+        return g.go()
+    }
+    if g.d {
+        return g.go()
+    }
+    return 0
+}

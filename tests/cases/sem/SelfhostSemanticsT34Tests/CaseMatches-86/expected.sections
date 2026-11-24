@@ -1,0 +1,5 @@
+== s20
+switchExpr|i32|2517:35
+value local:NetError=ne
+arm 2529:13 constantPattern[2529:8]:NetError(errorVariant:NetError=timeout) guard - value literal:i32=1
+arm 2544:6 bindPattern[2544:1]:NetError_(-) guard - value literal:i32=0

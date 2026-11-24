@@ -1,0 +1,2 @@
+== dyn-ref-this-argument-changed-fields
+BYN3004 15:9 `items` is modified while `s` still borrows it |`s` is used again on line 16|finish using `s` first, or copy what it needs before changing `items`|

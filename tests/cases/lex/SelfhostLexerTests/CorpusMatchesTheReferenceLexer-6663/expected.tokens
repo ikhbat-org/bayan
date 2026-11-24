@@ -1,0 +1,41 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `a`
+2:1 Identifier `b`
+4:1 Identifier `b`
+5:2 Identifier `e`
+5:3 StringLiteral `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open �`
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+7:1 Identifier `_`
+8:1 Identifier `liter`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │  e"
+    │   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open �{x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  6 │ $"open �{x";
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open �{x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

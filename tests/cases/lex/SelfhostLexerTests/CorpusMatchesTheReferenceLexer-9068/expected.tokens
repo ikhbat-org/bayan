@@ -1,0 +1,25 @@
+1:1 Identifier `pen`
+1:5 OpenBrace `{`
+1:6 StringLiteral `";`
+4:1 CharLiteral `'/* never cl+osed`
+5:1 Identifier `b`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ pen {";
+    │      ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  4 │ '/* never cl+osed
+    │ ^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́
+    │ ^

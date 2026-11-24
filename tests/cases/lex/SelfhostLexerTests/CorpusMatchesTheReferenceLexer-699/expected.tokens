@@ -1,0 +1,22 @@
+1:1 Identifier `xFFs`
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+2:4 Comma `,`
+2:7 Dot `.`
+2:9 DotDot `..`
+2:12 DotDotEquals `..=`
+2:16 Colon `:`
+2:18 Question `?`
+2:20 QuestionQuestion `??`
+2:23 QuestionQuestionEquals `??=`
+2:27 QuestionDot `?.`
+2:30 FatArrow `=>`
+2:33 Arrow `->`
+2:36 At `@`
+2:38 Hash `#`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  2 │  1.,� . .. ..= : ? ?? ??= ?. => -> @ #
+    │     ^

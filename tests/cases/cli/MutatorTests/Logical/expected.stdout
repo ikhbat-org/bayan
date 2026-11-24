@@ -1,0 +1,3 @@
+<repo>/tmp/t27-mutate/Logical/lib.byn:2:12 emptyReturn `a && b` -> `false`: not reached
+<repo>/tmp/t27-mutate/Logical/lib.byn:2:12 logical `a && b` -> `a || b`: not reached
+0 killed, 0 survived, 0 timeout, 2 not reached, 0 marked, 0 not emitted

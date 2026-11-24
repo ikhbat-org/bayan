@@ -1,0 +1,3 @@
+build
+--emit-c
+env-get.byn

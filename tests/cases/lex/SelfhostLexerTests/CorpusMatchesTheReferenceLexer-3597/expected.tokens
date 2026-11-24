@@ -1,0 +1,21 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:3 LetKeyword `let`
+2:7 LawKeyword `law`
+2:11 Equals `=`
+2:13 IntegerLiteral `3`
+3:2 IntegerLiteral `0b__`
+4:2 CharLiteral `'ab'`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │  0b__
+    │  ^^^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

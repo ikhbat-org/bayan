@@ -1,0 +1,79 @@
+1:1 Star `*`
+1:2 Slash `/`
+3:4 CharLiteral `''`
+3:7 CharLiteral `'é'`
+3:11 CharLiteral `'\\'`
+3:16 CharLiteral `'\0'`
+4:1 Identifier `macro`
+4:7 Identifier `select`
+4:14 BecomeKeyword `become`
+6:1 Dot `.`
+6:2 IntegerLiteral `5`
+6:3 NumericSuffix `f`
+7:3 Identifier `le`
+7:5 Identifier `t`
+7:7 Identifier `c`
+7:9 Equals `=`
+7:13 IntegerLiteral `3`
+8:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ // �x
+    │   │    -
+
+error BYN0002: unexpected character `\`
+
+  3 │   \'' 'é' '\\' '\0'
+    │   ^
+
+error BYN0007: empty char literal
+
+  3 │   \'' 'é' '\\' '\0'
+    │    ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  7 │  �le�t c = � 3
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  7 │  �le�t c = � 3
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  7 │  �le�t c = � 3
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  7 │  �le�t c = � 3
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  7 │  �le�t c = � 3
+    │            ^

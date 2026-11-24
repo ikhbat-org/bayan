@@ -1,0 +1,8 @@
+== keys
+void void
+main__Wrapper__i32 bynt_main__Wrapper__i32
+main__Wrapper__str bynt_main__Wrapper__str
+i64 int64_t
+str byn_str
+i64 int64_t
+str byn_str

@@ -1,0 +1,22 @@
+2:1 IntegerLiteral `0x7_`
+2:6 Identifier `_`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0x7_�_
+    │    ^
+    │
+    │ 2 │ 0x7_�_
+    │   │    -
+
+error BYN0002: unexpected character `\u{6}`
+
+  2 │ 0x7_�_
+    │     ^

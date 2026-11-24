@@ -1,0 +1,147 @@
+1:1 StringLiteral `"never closed`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolationEnd `}`
+3:5 InterpolatedStringEnd `"`
+3:7 IntegerLiteral `1`
+3:8 Dot `.`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:24 OpenBrace `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 InterpolatedStringStart `$"`
+5:51 InterpolationStart `{`
+5:52 StringLiteral `$"{$�"`
+5:57 OpenBrace `{`
+5:58 StringLiteral `$"{x}"`
+5:64 CloseBrace `}`
+5:65 StringLiteral `"}"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 CloseBrace `}`
+5:87 StringLiteral `"}"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+5:96 InterpolationEnd `}`
+5:97 InterpolatedStringEnd `"`
+5:98 InterpolationEnd `}`
+5:99 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "never closed
+    │ ^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC7)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                    ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                        ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │                                                                                                      ^ invisible
+    │                                                                                                        character
+    │                                                                                                        that
+    │                                                                                                        reorders
+    │                                                                                                        how
+    │                                                                                                        the
+    │                                                                                                        text
+    │                                                                                                        displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ $"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}" �
+    │   │                                                                                                      -

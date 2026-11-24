@@ -1,0 +1,12 @@
+1:1 StringLiteral `"0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end
+    │                                                                        of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

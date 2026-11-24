@@ -1,0 +1,1 @@
+{"code":"BYN2781","severity":"error","file":"input.byn","span":{"start":293,"end":294,"line":10,"column":22,"endLine":10,"endColumn":23},"message":"`a` is used after it was moved","label":"moved on line 10","help":"assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead","fixes":[]}

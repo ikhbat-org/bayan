@@ -1,0 +1,9 @@
+1:2 Greater `>`
+1:5 Identifier `b`
+    doc `/// Doc lin one.\r`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{2}`
+
+  1 │  >� b
+    │   ^

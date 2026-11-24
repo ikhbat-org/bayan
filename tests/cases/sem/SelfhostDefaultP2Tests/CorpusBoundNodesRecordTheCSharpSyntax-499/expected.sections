@@ -1,0 +1,37 @@
+== tests/cases/diag/for-try-iterable.byn
+202..388 blockStmt
+208..233 localDecl
+219..233 structLiteralExpr
+230..231 literalExpr integer
+238..285 forStmt
+249..253 nameExpr
+254..285 blockStmt
+264..279 exprStmt
+264..279 callExpr
+270..278 interpolatedExpr
+273..276 nameExpr
+264..279 callExpr
+290..335 forStmt
+340..386 forStmt
+354..356 nameExpr
+357..386 blockStmt
+367..380 exprStmt
+367..380 callExpr
+373..379 interpolatedExpr
+376..377 nameExpr
+367..380 callExpr
+100..157 blockStmt
+110..117 assignStmt add target 110..112 value 116..117
+110..112 nameExpr
+110..112 nameExpr
+116..117 literalExpr integer
+126..151 returnStmt value 133..151
+133..151 conditionalExpr
+133..139 binaryExpr lt right 138..139
+133..135 nameExpr
+133..135 nameExpr
+138..139 literalExpr integer
+142..144 nameExpr
+142..144 nameExpr
+142..144 nameExpr
+147..151 literalExpr nullKeyword

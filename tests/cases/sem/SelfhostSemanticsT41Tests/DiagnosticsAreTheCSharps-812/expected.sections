@@ -1,0 +1,2 @@
+== diags.diag/ambiguous-variant
+BYN2227 10:10 `.invalid` is ambiguous; it exists in `MoneyError`, `ParseError`

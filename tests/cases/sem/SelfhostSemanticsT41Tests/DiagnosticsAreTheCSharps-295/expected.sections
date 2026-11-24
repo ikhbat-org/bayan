@@ -1,0 +1,3 @@
+== diags.diag/panic-handler-strbuf-over
+BYN2612 2:13 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover

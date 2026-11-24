@@ -1,0 +1,57 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:53 BreakKeyword `break`
+1:59 ContinueKeyword `continue`
+1:68 ReturnKeyword `return`
+1:75 YieldKeyword `yield`
+1:81 DeferKeyword `defer`
+1:87 ErrdeferKeyword `errdefer`
+1:96 UsingKeyword `using`
+1:102 ContextKeyword `context`
+2:2 LetKeyword `let`
+2:6 Identifier `actor`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+4:3 InterpolatedStringStart `$"`
+4:5 InterpolationStart `{`
+4:6 InterpolationEnd `}`
+4:7 InterpolatedStringEnd `"`
+4:9 StringLiteral `"{ // \u{202E}x`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `\u{15}`
+
+  1 │ if else unless switch case default for in while do� break continue return yield defer errdefer using context
+    │                                                   ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ � $"{}" �"{ // �x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ � $"{}" �"{ // �x
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  4 │ � $"{}" �"{ // �x
+    │          ^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,1 @@
+$ $BAYAN mutate --binary $WORK/prog --sites $WORK/prog.sites.json -- nosuchcmd-xyz > /dev/null 2> err.txt; echo "mutate $?"; grep -o 'does not exit 0 on the unmutated binary' err.txt | sort -u

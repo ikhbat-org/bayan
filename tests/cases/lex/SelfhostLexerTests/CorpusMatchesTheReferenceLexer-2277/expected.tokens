@@ -1,0 +1,40 @@
+1:1 IntegerLiteral `0b102`
+3:1 Identifier `r`
+3:3 Identifier `xs`
+3:5 Colon `:`
+3:7 Identifier `List`
+3:11 Less `<`
+3:12 Identifier `List`
+3:16 Less `<`
+3:17 Identifier `i64`
+3:20 Greater `>`
+3:21 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+5:8 NumericSuffix `property`
+5:17 FuzzKeyword `fuzz`
+5:22 ModelKeyword `model`
+5:28 ForeachKeyword `foreach`
+5:36 NewKeyword `new`
+6:2 EndOfFile
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ 0b102
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │ �
+    │  ^

@@ -1,0 +1,10 @@
+/* â€­ */2
+0xFFs
+0b1ms
+0x_
+0b let a = 1
+
+// ok þ in comment
+ "te=t" "esc \"q\" \\ \n" """
+ let b = "bad \q escape"
+

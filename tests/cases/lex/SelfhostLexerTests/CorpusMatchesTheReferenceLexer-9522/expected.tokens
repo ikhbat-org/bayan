@@ -1,0 +1,27 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:9 CharLiteral `'\ `
+1:12 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ 1e $"{  '\ 
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  1 │ 1e $"{  '\ 
+    │         ^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\ `
+
+  1 │ 1e $"{  '\ 
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

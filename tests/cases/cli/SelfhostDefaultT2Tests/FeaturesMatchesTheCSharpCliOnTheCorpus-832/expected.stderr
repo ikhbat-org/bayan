@@ -1,0 +1,9 @@
+error BYN1061: `this` without a state is the default receiver
+  --> <repo>/tests/cases/diag/receiver-without-state.byn:4:14
+
+  4 │     i64 read(this) => n
+    │              ^^^^ the default receiver
+    │
+  help: remove `this`, or add a state: `this is .s`
+    │ 4 │     i64 read(this) => n
+    │   │              ----

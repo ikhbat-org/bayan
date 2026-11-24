@@ -1,0 +1,8 @@
+== tests/cases/diag/fail-in-defer.byn
+64..115 blockStmt
+70..75 deferStmt
+76..113 blockStmt
+86..90 failStmt
+117..120 globalStatement
+117..120 exprStmt
+117..120 callExpr

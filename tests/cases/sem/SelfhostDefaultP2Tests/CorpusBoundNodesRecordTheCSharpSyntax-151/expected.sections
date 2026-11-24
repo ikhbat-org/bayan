@@ -1,0 +1,50 @@
+== tests/cases/run/lambda-block-body-loop.byn
+50..54 callExpr
+50..54 callExpr
+50..54 callExpr
+50..51 nameExpr
+52..53 nameExpr
+68..426 blockStmt
+74..424 forStmt
+87..91 rangeExpr
+87..88 literalExpr integer
+90..91 literalExpr integer
+92..424 blockStmt
+102..378 localDecl
+114..378 callExpr
+118..122 lambdaExpr
+368..377 binaryExpr add right 376..377
+368..377 binaryExpr add right 376..377
+368..373 nameExpr
+376..377 literalExpr integer
+387..418 exprStmt
+387..418 callExpr
+393..417 interpolatedExpr
+402..407 nameExpr
+410..415 nameExpr
+387..418 callExpr
+123..362 blockStmt
+137..142 deferStmt
+143..165 exprStmt
+143..165 callExpr
+149..164 interpolatedExpr
+161..162 nameExpr
+143..165 callExpr
+178..192 localDecl
+191..192 literalExpr integer
+205..326 whileStmt
+211..215 literalExpr trueKeyword
+216..326 blockStmt
+234..289 ifStmt
+237..243 binaryExpr eq right 242..243
+237..238 nameExpr
+242..243 nameExpr
+244..289 blockStmt
+266..266 breakStmt
+306..312 assignStmt add target 306..307 value 311..312
+306..307 nameExpr
+311..312 literalExpr integer
+339..352 returnStmt value 346..352
+346..352 binaryExpr mul right 350..352
+346..347 nameExpr
+350..352 literalExpr integer

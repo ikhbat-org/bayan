@@ -1,0 +1,102 @@
+== tests/cases/run/string-from.byn
+105..252 blockStmt
+111..133 localDecl
+123..133 callExpr
+138..156 exprStmt
+138..156 callExpr
+138..143 nameExpr
+151..155 literalExpr integer
+161..179 exprStmt
+161..179 callExpr
+161..166 nameExpr
+174..178 literalExpr integer
+184..219 localDecl
+192..219 tryExpr
+196..219 callExpr
+208..218 memberExpr
+208..213 nameExpr
+224..237 exprStmt
+224..237 callExpr
+224..229 nameExpr
+242..250 returnStmt value 249..250
+249..250 nameExpr
+282..798 blockStmt
+288..316 localDecl
+304..316 collectionExpr
+305..309 literalExpr integer
+311..315 literalExpr integer
+321..352 exprStmt
+321..352 callExpr
+327..351 tryExpr
+331..351 callExpr
+343..350 memberExpr
+343..345 nameExpr
+321..352 callExpr
+357..399 localDecl
+369..399 tryExpr
+373..399 callExpr
+385..398 indexExpr
+385..392 memberExpr
+385..387 nameExpr
+393..394 literalExpr integer
+396..397 literalExpr integer
+404..456 exprStmt
+404..456 callExpr
+410..455 interpolatedExpr
+420..432 memberExpr
+420..425 nameExpr
+442..453 binaryExpr eq right 451..453
+442..447 nameExpr
+451..453 literalExpr string
+404..456 callExpr
+461..534 localDecl
+480..534 collectionExpr
+481..485 literalExpr integer
+487..491 literalExpr integer
+493..497 literalExpr integer
+499..503 literalExpr integer
+505..509 literalExpr integer
+511..515 literalExpr integer
+517..521 literalExpr integer
+523..527 literalExpr integer
+529..533 literalExpr integer
+539..574 localDecl
+547..574 tryExpr
+551..574 callExpr
+563..573 memberExpr
+563..568 nameExpr
+579..609 exprStmt
+579..609 callExpr
+585..608 interpolatedExpr
+588..589 nameExpr
+592..600 memberExpr
+592..593 nameExpr
+579..609 callExpr
+614..633 exprStmt
+614..633 callExpr
+620..632 tryExpr
+624..632 callExpr
+614..633 callExpr
+638..679 localDecl
+646..679 binaryExpr coalesce right 673..679
+646..669 callExpr
+661..668 memberExpr
+661..663 nameExpr
+673..679 literalExpr string
+684..708 exprStmt
+684..708 callExpr
+690..707 interpolatedExpr
+704..705 nameExpr
+684..708 callExpr
+713..754 localDecl
+722..754 callExpr
+743..753 memberExpr
+743..748 nameExpr
+759..796 exprStmt
+759..796 callExpr
+765..795 interpolatedExpr
+783..793 isExpr
+783..785 nameExpr
+789..793 constantPattern
+789..793 literalExpr nullKeyword
+759..796 callExpr

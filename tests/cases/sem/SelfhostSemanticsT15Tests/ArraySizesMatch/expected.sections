@@ -1,0 +1,7 @@
+== sizes
+size SA 3
+size SB 0
+size SC -1
+BYN2001 60:15 `zz` is not defined |||
+size SE -1
+BYN2203 61:15 99999999999999999999 does not fit in `i64` ||use a value from -9223372036854775808 to 9223372036854775807, the range of `i64`|

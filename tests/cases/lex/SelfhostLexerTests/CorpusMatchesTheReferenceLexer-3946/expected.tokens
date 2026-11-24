@@ -1,0 +1,128 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolatedStringText `xstruct unique union enum flags open extensible interface delegate extension derivation attribute`
+1:145 InterpolatedStringEnd
+2:1 LetKeyword `let`
+2:5 Identifier `s`
+2:7 Equals `=`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolationStart `{`
+2:12 StringLiteral `$"{$"`
+2:17 OpenBrace `{`
+2:18 StringLiteral `$"{$"`
+2:23 OpenBrace `{`
+2:24 StringLiteral `$"{$"`
+2:29 OpenBrace `{`
+2:30 Slash `/`
+2:31 StringLiteral `"{$"`
+2:35 OpenBrace `{`
+2:36 StringLiteral `$"{$"`
+2:41 OpenBrace `{`
+2:42 StringLiteral `$"{$"`
+2:47 OpenBrace `{`
+2:48 StringLiteral `$"{$"`
+2:53 OpenBrace `{`
+2:54 StringLiteral `$"{$"`
+2:59 OpenBrace `{`
+2:60 StringLiteral `$"{$"`
+2:65 OpenBrace `{`
+2:66 StringLiteral `$"{x}"`
+2:72 CloseBrace `}`
+2:73 StringLiteral `"}"`
+2:76 CloseBrace `}`
+2:77 StringLiteral `"}"`
+2:80 CloseBrace `}`
+2:81 StringLiteral `"}"`
+2:84 CloseBrace `}`
+2:85 StringLiteral `"}"`
+2:88 CloseBrace `}`
+2:89 StringLiteral `"}"`
+2:92 CloseBrace `}`
+2:93 StringLiteral `"}"`
+2:96 CloseBrace `}`
+2:97 StringLiteral `"}"`
+2:100 CloseBrace `}`
+2:101 StringLiteral `"}"`
+2:104 CloseBrace `}`
+2:105 StringLiteral `"}"`
+2:108 InterpolationEnd `}`
+2:109 InterpolatedStringEnd `"`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `{{`
+3:6 InterpolatedStringEnd `"`
+    doc `/// Doc line one.`
+5:2 CharLiteral `'`
+6:1 CharLiteral `'x`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+8:1 LetKeyword `let`
+8:7 Equals `=`
+8:9 IntegerLiteral `2`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"xstruct unique union enum flags open extensible interface delegate extension derivation attribute
+    │                                              ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ let s = $"{$"{$"{$"{$"{$"{$"{/"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │            ^^
+
+error BYN0008: unterminated char literal
+
+  5 │  '
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  8 │ let � = 2
+    │     ^

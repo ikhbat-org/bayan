@@ -1,0 +1,3 @@
+== case conv-mismatch-cast
+errorExpr 962..965 : ?
+BYN2202 53:16 expected `i32`, found `f64` ||convert it if the value always fits; `f64` does not convert to `i32` without loss|fix 962..965 i32(1.5)

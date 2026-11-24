@@ -1,0 +1,6 @@
+struct Box {
+    i64 value
+}
+
+let b: Box? = null
+let v = b?.value

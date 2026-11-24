@@ -1,0 +1,12 @@
+# BYN2034: circular field default
+
+**Why.** A field default is bound once, and a struct literal copies it. A default that builds a struct whose own default builds the first again has no end.
+
+**Example.**
+
+```
+struct A { Owned<B>? b = Owned(B {}) }
+struct B { Owned<A>? a = Owned(A {}) }
+```
+
+**Fix.** Give one of the fields a default that does not build the other struct, such as `null`, or make it `required`.

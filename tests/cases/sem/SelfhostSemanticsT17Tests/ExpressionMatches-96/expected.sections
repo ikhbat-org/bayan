@@ -1,0 +1,2 @@
+== case float-f32-target
+literal 962..965 : f32 = 1.5

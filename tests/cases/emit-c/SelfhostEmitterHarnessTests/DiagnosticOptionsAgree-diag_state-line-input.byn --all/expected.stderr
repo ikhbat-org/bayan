@@ -1,0 +1,37 @@
+error BYN1059: `state draft` is an input form; declare the states in one `states { … }` block
+  --> input.byn:3:5
+
+  3 │     state draft
+    │     ^^^^^^^^^^^ the input form
+    │
+  help: move each state into the struct's `states` block
+    │ 3 │     states {
+    │   │          +++
+    │ 4 │         draft
+    │   │ +++++++++++++
+    │ 5 │         paid(i64 payment)
+    │   │ +++++++++++++++++++++++++
+    │ 6 │     }
+    │   │ +++++
+    │ 7 │ }
+
+error BYN1059: `state paid(i64 payment)` is an input form; declare the states in one `states { … }`
+block
+  --> input.byn:4:5
+
+  4 │     state paid(i64 payment)
+    │     ^^^^^^^^^^^^^^^^^^^^^^^ the input form
+    │
+  help: move each state into the struct's `states` block
+    │ 3 │     states {
+    │   │          +++
+    │ 4 │         draft
+    │   │ +++++++++++++
+    │ 5 │         paid(i64 payment)
+    │   │ +++++++++++++++++++++++++
+    │ 6 │     }
+    │   │ +++++
+    │ 7 │ }
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1059

@@ -1,0 +1,32 @@
+1:1 Identifier `ab`
+1:3 CharLiteral `'\r`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 IntegerLiteral `0x`
+5:2 AndKeyword `and`
+5:6 OrKeyword `or`
+5:9 NotKeyword `not`
+5:13 WithKeyword `with`
+5:18 MoveKeyword `move`
+5:23 RefKeyword `ref`
+5:27 IntegerLiteral `8`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ab'
+    │   ^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x
+    │  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  5 │  and or�not with move ref 8
+    │        ^

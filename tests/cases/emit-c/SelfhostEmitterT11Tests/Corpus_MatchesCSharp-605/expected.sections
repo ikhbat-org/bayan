@@ -1,0 +1,3 @@
+== cases
+0 byn_add_i32(p_x, ((bynt_tup1_i32*)env)->item1, byn_file_0, 5)
+count 1

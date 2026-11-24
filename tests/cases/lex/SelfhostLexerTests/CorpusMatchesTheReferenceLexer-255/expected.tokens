@@ -1,0 +1,21 @@
+1:1 Identifier `é`
+1:3 RawStringLiteral `"""\r\n  """`
+2:7 CStringLiteral `c"text"`
+2:15 U16StringLiteral `u16"wide"`
+2:25 StringLiteral `"\u{202E} allowed in strings"`
+2:48 StringLiteral `""`
+2:51 StringLiteral `"\u{48}i"`
+3:2 IntegerLiteral `5`
+3:4 FloatLiteral `2.5e-3`
+3:11 IntegerLiteral `6`
+3:12 NumericSuffix `E`
+3:13 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é"""
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é"""
+    │   │ +

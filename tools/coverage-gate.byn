@@ -1,0 +1,718 @@
+#!/usr/bin/env bayan
+// The per-task coverage gate of scripts/selfhost/guard.sh (spec 015 T15). Port of scripts/selfhost/coverage-gate.py
+// (spec 013 T26); its messages keep the `coverage-gate.py:` prefix guard.sh and its tests read. Run from the repo root.
+// functions.json, written beside the report by the selfhost harness, gives each counted file's functions: their line
+// span and their own covered/total lines and branches (a counter counts in the innermost function holding its line). A
+// function is touched when its span holds a line the work tree adds or changes against <merge-base> (git diff -U0; a
+// deletion touches the lines on either side of it; a file new since <merge-base> is touched throughout). Every line and
+// branch of a touched function must be covered: each missed or unknown one is printed as a FAIL item ("- …"), except a
+// missed one under a `// coverage-exempt: Qnnn` marker: it exempts the next line (`… through `text``: the next line to
+// the one line holding text in the rest of the marker's function, an anchor, Q1040) when Question Qnnn of
+// docs/bayan-questions.md or docs/decisions/2026-11-14-004-answered-questions.md (a numbered entry or a table row)
+// cites a <file> line, for code that is dead in the C# too. A marker whose Question cites no line of its file, or whose
+// anchor matches no line or several, is a FAIL item and exempts nothing; so is a `through N` line number. An unknown
+// line is never exempt. `// coverage-blocked: Qnnn T<k> <fn>` (`… through `text`` as above) exempts a missed line that
+// only runs once sibling task T<k> ports its stub <fn>. It holds only while T<k> is unticked in <tasks.md> and is not
+// the task under guard (<T<n>>): every marker in <dir>'s .byn files naming the guarded task or a ticked one is a FAIL
+// item. Without the three optional arguments a coverage-blocked marker is a FAIL item. A file under another row's
+// bydir in scripts/selfhost/specs.tsv that exists at <merge-base> is another spec's port: only the lines the work tree
+// adds or changes in it are gated (Q871). The other functions of a file are one info line (covered/total), never a
+// FAIL. A source file absent from the work tree has no markers. An unreadable report, function or source file, or a
+// failing git, exits 1 naming it.
+// Each `re.M` pattern runs on one line at a time; the anchor's `(?<!\w)…(?!\w)` is `Regex.escaped(text)` found with
+// `findAll`, each match checked by hand for a word byte before and after; os.walk is std.fs `glob`, in os.walk's
+// order. Divergences from the Python: `\w \d` and the anchor's word bytes are ASCII (std.regex); specs.tsv is read under
+// $BAYAN_REPO_ROOT (set by scripts/bayan-tool.sh), not beside the script; an anchor match overlapping an earlier,
+// rejected one is not tried; every JSON syntax error reads `Expecting value: line L column C (char N)`, N a byte offset;
+// a malformed report names KeyError or TypeError without Python's exact text; the walk stops 64 directories deep.
+// Usage: bash scripts/bayan-tool.sh coverage-gate <merge-base> <bayan-quality.json> <functions.json> [<tasks.md> <T<n>> <dir>]
+// `--exempt <file>...` (scripts/quality/coverage.sh, spec 019 T29): prints `path:line` for each line of each file a valid
+// coverage-exempt marker exempts, by the rule above (coverage-blocked markers are not checked here); each invalid
+// marker is a FAIL item on stderr and the exit is 1.
+// Usage: bash scripts/bayan-tool.sh coverage-gate --exempt <file>...
+
+import std.fs
+import std.json
+import std.regex
+
+type JsonValue = json.JsonValue
+type JsonMember = json.JsonMember
+type JsonError = json.JsonError
+type Json = json.Json
+type Regex = regex.Regex
+
+union error GateError {
+    /// The message after `coverage-gate.py: `.
+    failed(string message)
+    /// The Python exception's repr, for `<report> or <functions> is malformed: <repr>`.
+    malformed(string repr)
+}
+
+const blocked: string = "// coverage-blocked: Q(\\d{3,4}) (T\\d+) (\\w+)(?: through `([^`]+)`)?"
+
+/// The regex of `pattern`, which this tool knows to be valid.
+Regex compiled(string pattern) uses alloc => Regex.parse(pattern) catch panic($"coverage-gate: bad pattern {pattern}")
+
+/// Python's text-mode read: `\r\n` and a lone `\r` become `\n`.
+string read(string path) uses fs, alloc fails GateError {
+    let text = Io.readText(path) catch {
+        fail .failed(message: $"[Errno 2] No such file or directory: '{path}'")
+    }
+    return text.replaced("\r\n", by: "\n").replaced("\r", by: "\n")
+}
+
+/// `text.split('\n')`.
+List<string> lines(string text) uses alloc {
+    var result = List<string>()
+    for p in text.parts(by: "\n") { result.append(p) }
+    return result
+}
+
+/// `s` as a decimal number, or -1.
+i64 number(string s) {
+    if s.isEmpty || s.length > 15 { return -1 }
+    var n = 0
+    for b in s.bytes {
+        if b < '0' || b > '9' { return -1 }
+        n = n * 10 + i64(b - '0')
+    }
+    return n
+}
+
+bool has(List<string> strings, for string s) {
+    for x in strings {
+        if x == s { return true }
+    }
+    return false
+}
+
+bool hasLine(List<i64> numbers, for i64 n) {
+    for x in numbers {
+        if x == n { return true }
+    }
+    return false
+}
+
+bool isWord(u8 b) {
+    return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9') || b == '_'
+}
+
+/// `os.path.normpath(p)` for a relative or rooted `/` path.
+string normpath(string p) uses alloc {
+    var parts = List<string>()
+    for s in p.parts(by: "/") {
+        if s.isEmpty || s == "." { continue }
+        if s == ".." && parts.length > 0 && parts[parts.length - 1] != ".." {
+            let _ = parts.removeLast()
+            continue
+        }
+        if s == ".." && p.startsWith("/") { continue }
+        parts.append(s)
+    }
+    var sb = StrBuf()
+    if p.startsWith("/") { sb.append("/") }
+    for i in 0..parts.length {
+        if i > 0 { sb.append("/") }
+        sb.append(parts[i])
+    }
+    let r = sb.finish()
+    return r.isEmpty ? "." : $"{r}"
+}
+
+/// git with `args`: its result, or `failed` when git cannot run.
+ProcessResult git(List<string> args) uses process, alloc fails GateError {
+    let r = Io.run("git", args.span) catch {
+        fail .failed(message: "[Errno 2] No such file or directory: 'git'")
+    }
+    return r
+}
+
+/// The lines of path the work tree adds or changes against base; null when path is new since base.
+List<i64>? changed(string base, for string path) uses process, alloc fails GateError {
+    var probe = List<string>()
+    probe.append("cat-file")
+    probe.append("-e")
+    probe.append($"{base}:{path}")
+    if (try git(probe)).exitCode != 0 { return null }
+    var args = List<string>()
+    args.append("diff")
+    args.append("-U0")
+    args.append(base)
+    args.append("--")
+    args.append(path)
+    let r = try git(args)
+    if r.exitCode != 0 {
+        fail .failed(message: $"git diff -U0 {base} -- {path} failed: {r.stderr.trimmed()}")
+    }
+    let hunk = compiled("^@@ -\\S+ \\+(\\d+)(?:,(\\d+))? @@")
+    var result = List<i64>()
+    for l in lines(r.stdout.replaced("\r\n", by: "\n").replaced("\r", by: "\n")) {
+        let m = hunk.find(l) ?? continue
+        let start = number(m.group(1) ?? "")
+        let count = number(m.group(2) ?? "1")
+        if count == 0 {
+            result.append(start)
+            result.append(start + 1)
+        } else {
+            for n in start..start + count { result.append(n) }
+        }
+    }
+    return result
+}
+
+/// The lines after marker line i, to the end of its function (a later line starting with `}`), holding text (Q1040): an
+/// end of text that is a word character must not touch another one.
+List<i64> anchored(List<string> ls, at i64 i, for string text) uses alloc {
+    let re = compiled(Regex.escaped(text))
+    let wordStart = isWord(text.bytes[0])
+    let wordEnd = isWord(text.bytes[text.length - 1])
+    var found = List<i64>()
+    for n in i + 1..ls.length + 1 {
+        let line = ls[n - 1]
+        var hit = false
+        for m in re.findAll(line) {
+            let span = m.span
+            let before = wordStart && span.start > 0 && isWord(line.bytes[span.start - 1])
+            let after = wordEnd && span.end < line.length && isWord(line.bytes[span.end])
+            if !before && !after { hit = true }
+        }
+        if hit { found.append(n) }
+        if line.startsWith("}") { break }
+    }
+    return found
+}
+
+/// The task ids not yet ticked in tasks (a `- [ ] T<n> ` line); null without a tasks file.
+List<string>? openTasks(string tasks) uses fs, alloc fails GateError {
+    if tasks.isEmpty || !Fs.fileExists(tasks) { return null }
+    let re = compiled("^- \\[ \\] (T\\d+) ")
+    var result = List<string>()
+    for l in lines(try read(tasks)) {
+        let m = re.find(l) ?? continue
+        result.append(m.group(1) ?? "")
+    }
+    return result
+}
+
+/// The .byn files under root in os.walk's order: directory by directory, each directory's files by name.
+List<string> walk(string root) uses fs, alloc {
+    let files = fs.glob(root.endsWith("/") ? $"{root}**/*.byn" : $"{root}/**/*.byn")
+    var result = List<string>()
+    for f in files {
+        var j = result.length
+        result.append(f)
+        while j > 0 && walkBefore(result[j], for: result[j - 1]) {
+            let t = result[j]
+            result[j] = result[j - 1]
+            result[j - 1] = t
+            j -= 1
+        }
+    }
+    return result
+}
+
+/// Whether file a comes before file b in os.walk's sorted order: by directory, then by name.
+bool walkBefore(string a, for string b) uses alloc {
+    let da = Path.directoryName(a) ?? ""
+    let db = Path.directoryName(b) ?? ""
+    if da != db { return da < db }
+    return Path.fileName(a) < Path.fileName(b)
+}
+
+/// A FAIL message per coverage-blocked marker under root whose task is the guarded one or no longer open.
+List<string> stale(string root, by List<string> open, for string task) uses fs, alloc fails GateError {
+    let re = compiled(blocked)
+    var bad = List<string>()
+    for p in walk(root) {
+        let ls = lines(try read(p))
+        for i in 1..ls.length + 1 {
+            let m = re.find(ls[i - 1]) ?? continue
+            let t = m.group(2) ?? ""
+            let fn = m.group(3) ?? ""
+            if t == task {
+                bad.append($"coverage: {p}:{i} is coverage-blocked on {t} {fn}, the task under guard; cover the lines and remove the marker")
+            } else if !has(open, for: t) {
+                bad.append($"coverage: {p}:{i} is coverage-blocked on {t} {fn}, but {t} is ticked or not a task; cover the lines and remove the marker")
+            }
+        }
+    }
+    return bad
+}
+
+struct Exempt {
+    List<i64>    skip
+    List<i64>    blocked
+    List<string> bad
+}
+
+/// The lines of path its coverage-exempt and coverage-blocked markers exempt, and a FAIL message per marker that
+/// exempts nothing.
+Exempt exempt(string path, by List<string>? open, for string task) uses fs, alloc fails GateError {
+    var result = Exempt { skip: List<i64>(), blocked: List<i64>(), bad: List<string>() }
+    if !Fs.fileExists(path) { return result }
+    let ls = lines(try read(path))
+    var marked = false
+    for t in ls {
+        if t.contains("// coverage-exempt:") || t.contains("// coverage-blocked:") { marked = true }
+    }
+    if !marked { return result }
+    let docs = "docs/bayan-questions.md or docs/decisions/2026-11-14-004-answered-questions.md"
+    var keys = List<string>()
+    var questions = List<string>()
+    let entry = compiled("^(\\d{3,4})\\. ")
+    let row = compiled("^\\| Q(\\d{3,4}) \\|")
+    for d in docs.parts(by: " or ") {
+        if !Fs.fileExists(d) { continue }
+        for q in lines(try read(d)) {
+            let m = entry.find(q) ?? row.find(q) ?? continue
+            let k = m.group(1) ?? ""
+            var at = -1
+            for j in 0..keys.length {
+                if keys[j] == k { at = j }
+            }
+            if at < 0 {
+                keys.append(k)
+                questions.append(q)
+            } else {
+                questions[at] = q
+            }
+        }
+    }
+    let base = Path.fileName(path)
+    let cites = compiled($"{Regex.escaped(base)}:\\d")
+    let pinned = compiled("// coverage-(exempt|blocked):.* through \\d")
+    let exemptRe = compiled("// coverage-exempt: Q(\\d{3,4})(?: through `([^`]+)`)?")
+    let blockedRe = compiled(blocked)
+    for i in 1..ls.length + 1 {
+        let text = ls[i - 1]
+        if pinned.find(text) is not null {
+            result.bad.append($"coverage: {path}:{i} pins `through` to a line number; write `through `text`` with text from the last exempt line (Q1040)")
+            continue
+        }
+        var q = ""
+        var last = ""
+        var hasLast = false
+        var into = true
+        let m = exemptRe.find(text)
+        if m is not null {
+            q = m.group(1) ?? ""
+            last = m.group(2) ?? ""
+            hasLast = m.group(2) is not null
+        } else {
+            into = false
+            let b = blockedRe.find(text)
+            if b is null {
+                if text.contains("// coverage-blocked:") {
+                    result.bad.append($"coverage: {path}:{i} has a coverage-blocked marker not of the form `// coverage-blocked: Qnnn T<k> <fn>[ through `text`]`")
+                }
+                continue
+            }
+            q = b.group(1) ?? ""
+            let t = b.group(2) ?? ""
+            let fn = b.group(3) ?? ""
+            last = b.group(4) ?? ""
+            hasLast = b.group(4) is not null
+            if open is null {
+                result.bad.append($"coverage: {path}:{i} is coverage-blocked on {t} {fn}, but the gate was given no tasks file")
+                continue
+            }
+            // stale(): reported once per marker
+            if t == task || !has(open, for: t) { continue }
+        }
+        var end = 0
+        if !hasLast {
+            if i >= ls.length {
+                result.bad.append($"coverage: {path}:{i} is a marker on the last line, with no line to exempt")
+                continue
+            }
+            end = i + 1
+        } else {
+            let at = anchored(ls, at: i, for: last)
+            if at.length != 1 {
+                var which = StrBuf()
+                if at.length == 0 {
+                    which.append("no line")
+                } else {
+                    which.append("lines ")
+                    for j in 0..at.length {
+                        if j > 0 { which.append(", ") }
+                        which.append($"{at[j]}")
+                    }
+                }
+                result.bad.append($"coverage: {path}:{i} exempts through anchor `{last}`, which matches {which.finish()} of the rest of its function; it must match exactly one (Q1040)")
+                continue
+            }
+            end = at[0]
+        }
+        var cited = false
+        for j in 0..keys.length {
+            if keys[j] == q && cites.find(questions[j]) is not null { cited = true }
+        }
+        if !cited {
+            result.bad.append($"coverage: {path}:{i} exempts {i + 1}-{end} for Q{q}, but Q{q} in {docs} cites no {base} line")
+            continue
+        }
+        for n in i + 1..end + 1 {
+            if into { result.skip.append(n) } else { result.blocked.append(n) }
+        }
+    }
+    return result
+}
+
+/// The report at `name`, or `failed` naming it.
+JsonValue load(string name) uses fs, alloc fails GateError {
+    let raw = Io.readText(name) catch {
+        fail .failed(message: $"{name} is unreadable: [Errno 2] No such file or directory: '{name}'")
+    }
+    let parsed = Json.parse(raw) catch switch {
+        .syntax e => fail .failed(message: $"{name} is unreadable: Expecting value: line {e.line} column {e.column} (char {e.offset})"),
+        _ => fail .failed(message: $"{name} is unreadable: invalid JSON"),
+    }
+    return (move parsed).trustUnchecked() because "a report written by the local selfhost harness"
+}
+
+/// The index of the last member named `key` in `members` (Python's dict keeps the last), or -1.
+i64 memberIndex(ReadOnlySpan<JsonMember> members, for string key) {
+    var i = members.length - 1
+    while i >= 0 {
+        if members[i].key == key { return i }
+        i -= 1
+    }
+    return -1
+}
+
+/// The member `key` of object `members`, as `obj[key]` reads it: an index, or `KeyError`.
+i64 member(ReadOnlySpan<JsonMember> members, for string key) fails GateError {
+    let i = memberIndex(members, for: key)
+    if i < 0 { fail .malformed(repr: $"KeyError('{key}')") }
+    return i
+}
+
+/// `v` as an integer, or `TypeError`.
+i64 integer(JsonValue v) fails GateError {
+    if v is .number(let value, let text) { return i64(value) }
+    fail .malformed(repr: "TypeError('not a number')")
+}
+
+/// `v[at]` of a list `v` as an integer.
+i64 item(JsonValue v, at i64 at) fails GateError {
+    if v is .list(let items) {
+        if at >= items.length { fail .malformed(repr: "IndexError('list index out of range')") }
+        return try integer(items[at])
+    }
+    fail .malformed(repr: "TypeError('not a list')")
+}
+
+/// `bool(v)`.
+bool truthy(JsonValue v) {
+    switch v {
+        case .nothing: return false
+        case .flag(let value): return value
+        case .number(let value, let text): return value != 0.0
+        case .text(let value): return !value.isEmpty
+        case .list(let items): return items.length > 0
+        case .object(let members): return members.length > 0
+    }
+}
+
+struct Fn {
+    i64 lo
+    i64 hi
+    i64 lineCovered
+    i64 lineTotal
+    i64 branchCovered
+    i64 branchTotal
+}
+
+/// The functions of `functions.files[path]`, empty when it has none.
+List<Fn> functionsOf(JsonValue spans, for string path) uses alloc fails GateError {
+    var result = List<Fn>()
+    if spans is .object(let files) {
+        let k = memberIndex(files.span, for: path)
+        if k < 0 { return result }
+        if files[k].value is .list(let fns) {
+            for f in fns {
+                if f is .object(let ms) {
+                    let span = try member(ms.span, for: "span")
+                    let ln = try member(ms.span, for: "lines")
+                    let br = try member(ms.span, for: "branches")
+                    result.append(Fn {
+                        lo: try item(ms[span].value, at: 0),
+                        hi: try item(ms[span].value, at: 1),
+                        lineCovered: try item(ms[ln].value, at: 0),
+                        lineTotal: try item(ms[ln].value, at: 1),
+                        branchCovered: try item(ms[br].value, at: 0),
+                        branchTotal: try item(ms[br].value, at: 1),
+                    })
+                } else {
+                    fail .malformed(repr: "TypeError('function entry is not an object')")
+                }
+            }
+            return result
+        }
+        fail .malformed(repr: "TypeError('function list is not a list')")
+    }
+    fail .malformed(repr: "TypeError('files is not an object')")
+}
+
+bool holds(Fn f, for i64 n) {
+    return f.lo <= n && n <= f.hi
+}
+
+struct Gate {
+    List<Fn>   fns
+    List<bool> touched
+    List<i64>  lines
+    bool       foreign
+}
+
+/// Whether line n is gated: a changed line of a foreign file, else a line whose innermost function is touched.
+bool gated(Gate g, at i64 n) {
+    if g.foreign { return hasLine(g.lines, for: n) }
+    var best = -1
+    for j in 0..g.fns.length {
+        if !holds(g.fns[j], for: n) { continue }
+        if best < 0 || g.fns[j].hi - g.fns[j].lo < g.fns[best].hi - g.fns[best].lo { best = j }
+    }
+    return best >= 0 && g.touched[best]
+}
+
+/// The bydirs of the specs.tsv rows other than root's.
+List<string> foreignDirs(string root) uses fs, env, alloc fails GateError {
+    let repo = Env.get("BAYAN_REPO_ROOT") ?? "."
+    var rows = List<List<string>>()
+    for l in lines(try read(Path.combine(repo, "scripts/selfhost/specs.tsv"))) {
+        if l.isEmpty { continue }
+        rows.append(lines(l.replaced("\t", by: "\n")))
+    }
+    var col = -1
+    for i in 0..rows[0].length {
+        if rows[0][i] == "bydir" && col < 0 { col = i }
+    }
+    if col < 0 { fail .failed(message: "specs.tsv has no bydir column") }
+    var result = List<string>()
+    for r in 1..rows.length {
+        if col >= rows[r].length { fail .malformed(repr: "IndexError('list index out of range')") }
+        let d = normpath(rows[r][col])
+        if d != normpath(root) { result.append(d) }
+    }
+    return result
+}
+
+void gate(ReadOnlySpan<string> argv) uses fs, env, process, console, alloc fails GateError {
+    let base = argv[0]
+    let report = try load(argv[1])
+    let functions = try load(argv[2])
+    let tasks = argv.length > 3 ? argv[3] : ""
+    let task = argv.length > 4 ? argv[4] : ""
+    let hasRoot = argv.length > 5
+    let root = hasRoot ? argv[5] : ""
+    let open = try openTasks(tasks)
+    if open is not null {
+        for b in try stale(root, by: open, for: task) { print($"- {b}") }
+    }
+    if report is .object(let rm) {
+        let fi = try member(rm.span, for: "files")
+        if functions is .object(let fm) {
+            let si = try member(fm.span, for: "files")
+            let others = hasRoot ? try foreignDirs(root) : List<string>()
+            if rm[fi].value is .list(let files) {
+                for f in files {
+                    if f is .object(let fmem) {
+                        let pi = try member(fmem.span, for: "path")
+                        var raw = ""
+                        if fmem[pi].value is .text(let value) {
+                            raw = $"{value}"
+                        } else {
+                            fail .malformed(repr: "TypeError('path is not a string')")
+                        }
+                        let p = Path.relative(Path.fullPath("."), to: Path.fullPath(raw))
+                        let found = try changed(base, for: p)
+                        let isNew = found is null
+                        var changedLines = List<i64>()
+                        if found is not null {
+                            for n in found { changedLines.append(n) }
+                        }
+                        let fns = try functionsOf(fm[si].value, for: raw)
+                        let ex = try exempt(p, by: open, for: task)
+                        for b in ex.bad { print($"- {b}") }
+                        var touched = List<bool>()
+                        for fn in fns {
+                            var hit = isNew
+                            for n in changedLines {
+                                if holds(fn, for: n) { hit = true }
+                            }
+                            touched.append(hit)
+                        }
+                        var foreign = false
+                        if hasRoot && !isNew {
+                            for d in others {
+                                if $"{p}/".startsWith($"{d}/") { foreign = true }
+                            }
+                        }
+                        if foreign { print($"coverage: {p}: outside {root}, so only its changed lines are gated (Q871)") }
+                        for pass in 0..2 {
+                            var any = false
+                            var lc = 0
+                            var lt = 0
+                            var bc = 0
+                            var bt = 0
+                            for j in 0..fns.length {
+                                if touched[j] != (pass == 0) { continue }
+                                any = true
+                                lc += fns[j].lineCovered
+                                lt += fns[j].lineTotal
+                                bc += fns[j].branchCovered
+                                bt += fns[j].branchTotal
+                            }
+                            if !any { continue }
+                            let text = pass == 0 ? "touched functions" : "other functions, not gated (no line of theirs changed)"
+                            print($"coverage: {p}: {text}: lines {lc}/{lt}, branches {bc}/{bt} (listing: tmp/guard-run/coverage/{p}.cov.txt)")
+                        }
+                        let g = Gate { fns: move fns, touched: move touched, lines: move changedLines, foreign: foreign }
+                        var nEx = 0
+                        var nBl = 0
+                        let li = try member(fmem.span, for: "lines")
+                        let bi = try member(fmem.span, for: "branches")
+                        for s in ["missed", "unknown"] {
+                            let why = s == "missed" ? "no test under --filter runs it; add a C# oracle case that does" : "a counter file was unreadable; run the guard again"
+                            for n in try numbersOf(fmem[li].value, for: s) {
+                                if s == "missed" && hasLine(ex.skip, for: n) {
+                                    nEx += 1
+                                    continue
+                                }
+                                if s == "missed" && hasLine(ex.blocked, for: n) {
+                                    nBl += 1
+                                    continue
+                                }
+                                if gated(g, at: n) { print($"- coverage: {s} line {p}:{n}; {why}") }
+                            }
+                            for x in try branchesOf(fmem[bi].value, for: s) {
+                                if s == "missed" && hasLine(ex.skip, for: x.line) {
+                                    nEx += 1
+                                    continue
+                                }
+                                if s == "missed" && hasLine(ex.blocked, for: x.line) {
+                                    nBl += 1
+                                    continue
+                                }
+                                if gated(g, at: x.line) {
+                                    if !x.problem.isEmpty { fail .malformed(repr: x.problem) }
+                                    print($"- coverage: {s} branch {p}:{x.line}:{x.column} never {x.outcome ? "true" : "false"}; {why}")
+                                }
+                            }
+                        }
+                        if nEx > 0 { print($"coverage: {p}: {nEx} missed lines and branches under coverage-exempt markers") }
+                        if nBl > 0 { print($"coverage: {p}: {nBl} missed lines and branches under coverage-blocked markers") }
+                    } else {
+                        fail .malformed(repr: "TypeError('file entry is not an object')")
+                    }
+                }
+                return
+            }
+            fail .malformed(repr: "TypeError('files is not a list')")
+        }
+        fail .malformed(repr: "TypeError('functions is not an object')")
+    }
+    fail .malformed(repr: "TypeError('report is not an object')")
+}
+
+/// The items of list `v[key]`, an object `v`.
+List<i64> numbersOf(JsonValue v, for string key) uses alloc fails GateError {
+    var result = List<i64>()
+    if v is .object(let ms) {
+        let i = try member(ms.span, for: key)
+        if ms[i].value is .list(let items) {
+            for x in items { result.append(try integer(x)) }
+            return result
+        }
+        fail .malformed(repr: "TypeError('not a list')")
+    }
+    fail .malformed(repr: "TypeError('not an object')")
+}
+
+/// One branch of a report; `problem` is the error its column or outcome gives once it is printed.
+struct Branch {
+    i64    line
+    i64    column
+    bool   outcome
+    string problem
+}
+
+/// The branches of list `v[key]`, an object `v`.
+List<Branch> branchesOf(JsonValue v, for string key) uses alloc fails GateError {
+    var result = List<Branch>()
+    if v is .object(let ms) {
+        let i = try member(ms.span, for: key)
+        if ms[i].value is .list(let items) {
+            for x in items {
+                if x is .object(let xm) {
+                    let line = try integer(xm[try member(xm.span, for: "line")].value)
+                    let ci = memberIndex(xm.span, for: "column")
+                    let oi = memberIndex(xm.span, for: "outcome")
+                    var column = 0
+                    var problem = ""
+                    if ci < 0 {
+                        problem = "KeyError('column')"
+                    } else if xm[ci].value is .number(let value, let text) {
+                        column = i64(value)
+                    } else {
+                        problem = "TypeError('not a number')"
+                    }
+                    if problem.isEmpty && oi < 0 { problem = "KeyError('outcome')" }
+                    let outcome = oi >= 0 && truthy(xm[oi].value)
+                    result.append(Branch { line: line, column: column, outcome: outcome, problem: problem })
+                } else {
+                    fail .malformed(repr: "TypeError('branch is not an object')")
+                }
+            }
+            return result
+        }
+        fail .malformed(repr: "TypeError('not a list')")
+    }
+    fail .malformed(repr: "TypeError('not an object')")
+}
+
+/// `--exempt <file>...`: `path:line` per exempted line, each invalid marker a FAIL item on stderr (exit 1).
+i32 exemptLines(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    var bad = 0
+    for k in 1..argv.length {
+        let ex = exempt(argv[k], by: List<string>(), for: "") catch switch {
+            .failed(let msg) => {
+                print($"coverage-gate.py: {msg}", to: .stderr)
+                return 1
+            },
+            .malformed(let repr) => {
+                print($"coverage-gate.py: {repr}", to: .stderr)
+                return 1
+            },
+        }
+        for b in ex.bad {
+            print($"- {b}", to: .stderr)
+            bad += 1
+        }
+        for n in ex.skip { print($"{argv[k]}:{n}") }
+    }
+    return bad > 0 ? 1 : 0
+}
+
+i32 main(ReadOnlySpan<string> argv) {
+    if argv.length > 0 && argv[0] == "--exempt" {
+        return exemptLines(argv)
+    }
+    if argv.length < 3 {
+        print("coverage-gate.py: IndexError: list index out of range (usage: coverage-gate <merge-base> <bayan-quality.json> <functions.json> [<tasks.md> <T<n>> <dir>])", to: .stderr)
+        return 1
+    }
+    gate(argv) catch switch {
+        .failed(let msg) => {
+            print($"coverage-gate.py: {msg}", to: .stderr)
+            return 1
+        },
+        .malformed(let repr) => {
+            print($"coverage-gate.py: {argv[1]} or {argv[2]} is malformed: {repr}", to: .stderr)
+            return 1
+        },
+    }
+    return 0
+}

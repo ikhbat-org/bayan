@@ -1,0 +1,13 @@
+1:3 Identifier `truc`
+1:8 Identifier `S`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ ��truc S
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ ��truc S
+    │  ^

@@ -1,0 +1,37 @@
+== tests/cases/diag/wrong-state-member-test.byn
+229..363 blockStmt
+235..286 ifStmt
+238..250 memberExpr
+238..243 nameExpr
+251..286 blockStmt
+261..280 returnStmt value 268..280
+268..280 callExpr
+268..273 nameExpr
+291..348 ifStmt
+294..312 memberExpr
+294..299 nameExpr
+313..348 blockStmt
+323..342 returnStmt value 330..342
+330..342 callExpr
+330..335 nameExpr
+353..361 returnStmt value 360..361
+360..361 literalExpr integer
+104..117 isExpr
+104..117 isExpr
+104..117 isExpr
+104..108 thisExpr
+112..117 constantPattern
+143..170 binaryExpr logicalAnd right 163..170
+143..170 binaryExpr logicalAnd right 163..170
+143..170 binaryExpr logicalAnd right 163..170
+144..157 isExpr
+144..148 thisExpr
+152..157 constantPattern
+163..170 binaryExpr gt right 168..170
+163..165 nameExpr
+163..165 nameExpr
+168..170 literalExpr integer
+202..204 nameExpr
+202..204 nameExpr
+202..204 nameExpr
+202..204 nameExpr

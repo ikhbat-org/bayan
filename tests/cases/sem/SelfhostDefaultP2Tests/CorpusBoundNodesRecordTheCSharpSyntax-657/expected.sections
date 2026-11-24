@@ -1,0 +1,14 @@
+== tests/cases/diag/missing-argument.byn
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..52 binaryExpr mul right 46..52
+38..43 nameExpr
+46..52 nameExpr
+53..79 globalStatement
+53..79 exprStmt
+53..79 callExpr
+59..78 interpolatedExpr
+62..76 callExpr
+74..75 literalExpr integer
+62..76 callExpr
+53..79 callExpr

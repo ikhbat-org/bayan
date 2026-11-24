@@ -1,0 +1,8 @@
+== cases
+0 byn_add_i64(p_x, p_d, byn_file_0, 10)
+1 byn_add_i64(byn_sub_i64(p_x, p_a, byn_file_0, 11), p_b, byn_file_0, 11)
+2 byn_sub_i64(p_x, p_a, byn_file_0, 11)
+3 byn_add_i64((*self).x, p_d, byn_file_0, 6)
+4 byn_add_i64(byn_sub_i64((*self).x, p_a, byn_file_0, 7), p_b, byn_file_0, 7)
+5 byn_sub_i64((*self).x, p_a, byn_file_0, 7)
+count 6

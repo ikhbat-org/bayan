@@ -1,0 +1,44 @@
+struct P {
+    i64 n
+}
+
+const table: i64[3] = [1, 2, 3]
+
+void main() {
+    var sb = StrBuf()
+    sb.append(1)
+    sb.append("a")
+    sb.append(P { n: 1 })
+    sb.append($"{2}")
+    let f = sb.finish()
+    let v = sb.view
+    for p in "a,b".parts(by: ',') { print(p) }
+    for p in "a,b".parts(by: ",") { print(p) }
+    for p in "a,b".parts() { print(p) }
+    var xs = List<i64>()
+    xs.append(1)
+    xs.append(2)
+    xs.append(3)
+    xs.remove(at: 0)
+    xs.remove(at: 0..1)
+    let rg = 0..0
+    xs.remove(at: rg)
+    xs.remove(from: 0, until: 0)
+    xs.remove(from: 0, through: 0)
+    let t1 = " a ".trimmed()
+    let t2 = " a ".trimmed(from: .start)
+    let t3 = "-a-".trimmed(by: ['-'])
+    let e1 = "a".equals("A", as: .loose)
+    var m = Map<string, P>()
+    m.slot("a").n = 1
+    var ls = List<List<i64>>()
+    let lc = ls.copy()
+    var mm = Map<string, List<i64>>()
+    let mc = mm.copy()
+    var mk = Map<i64, i64>()
+    let mkc = mk.copy()
+    let ys = xs.take()
+    let ts = table.mutableSpan()
+    let input = Io.stdin.readAll()
+    print($"{f}{v}{t1}{t2}{t3}{e1}{ys.length}{ts.length}")
+}

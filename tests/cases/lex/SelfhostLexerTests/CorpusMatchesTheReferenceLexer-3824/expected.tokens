@@ -1,0 +1,45 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:1 Identifier `leb`
+2:5 Equals `=`
+2:7 StringLiteral `"bad \q escape"`
+4:4 Identifier `c`
+4:5 Star `*`
+4:6 Identifier `mment`
+4:12 Star `*`
+4:13 Slash `/`
+4:15 Identifier `a`
+5:2 Identifier `ς`
+5:4 Identifier `x_1`
+5:8 Identifier `é`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ leb = "bad \q escape"
+    │            ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  �
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

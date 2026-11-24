@@ -1,0 +1,18 @@
+union error E { bad, }
+void step() fails E { }
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+struct Ledger {
+    List<i64> items
+}
+union Slot {
+    empty
+    full(List<i64> items)
+}
+void main() {
+    var groups = Map<string, List<i64>>()
+    groups["x"] = List<i64>()
+    let x = groups["x"].take()
+    print($"{x.length} {groups["x"].length}")
+}

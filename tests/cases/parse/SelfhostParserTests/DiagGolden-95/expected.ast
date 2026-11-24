@@ -1,0 +1,21 @@
+CompilationUnit
+  Struct Customer
+    Field bool isActive
+  Function any(List<Customer> customers, by Customer -> bool p) -> bool
+    Block
+      Var found = false
+      For Let c in customers
+        Block
+          Assign found = (|| found (call p c))
+      Return found
+  Function few(i32 n) -> bool
+    Block
+      Return (|| (== n 0) (== n 1))
+  Function main() -> void
+    Block
+      Let customers: List<Customer> = (list (struct Customer (isActive true)))
+      If (. customers isEmpty)
+        Block
+          Return
+      Let wrapped = (call any customers (by: (lambda (c) (. c isActive))))
+      Expr (call print (interp wrapped (call few 1)))

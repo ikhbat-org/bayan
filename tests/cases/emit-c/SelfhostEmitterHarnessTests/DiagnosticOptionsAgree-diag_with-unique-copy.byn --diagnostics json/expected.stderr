@@ -1,0 +1,1 @@
+{"code":"BYN2780","severity":"error","file":"input.byn","span":{"start":194,"end":223,"line":9,"column":16,"endLine":9,"endColumn":45},"message":"implicit copy of a unique value: `Ledger` is unique because field `items` is a `List<i64>`","label":null,"help":"write `move ledger with { … }` to give up `ledger`","fixes":[]}

@@ -1,0 +1,1 @@
+{"code":"BYN2701","severity":"error","file":"input.byn","span":{"start":45,"end":51,"line":4,"column":5,"endLine":4,"endColumn":11},"message":"union `Shape` already has a variant `circle`","label":"already declared on line 2","help":null,"fixes":[]}

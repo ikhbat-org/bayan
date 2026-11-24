@@ -1,0 +1,7 @@
+== diags.diag/strbuf-finish-non-local
+BYN3004 7:5 `xs` is modified while `s` still borrows it
+  label `s` is used again on line 8
+  help finish using `s` first, or copy what it needs before changing `xs`
+BYN3004 15:5 `t` is modified while `s` still borrows it
+  label `s` is used again on line 16
+  help finish using `s` first, or copy what it needs before changing `t`

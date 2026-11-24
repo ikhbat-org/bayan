@@ -1,0 +1,4 @@
+== member.probes.-.v19
+errorExpr|?|-|-|-|-|-|2907:7|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 148:17 `toHex()` is now `string(x, as: .hex)` |the old name|write `string(x, as: .hex)`|

@@ -1,0 +1,2 @@
+{"code":"BYN2019","severity":"error","file":"input.byn","span":{"start":144,"end":151,"line":3,"column":16,"endLine":3,"endColumn":23},"message":"`get` is a method, not a value","label":null,"help":"call it: `get(…)`","fixes":[]}
+{"code":"BYN2019","severity":"error","file":"input.byn","span":{"start":169,"end":182,"line":4,"column":18,"endLine":4,"endColumn":31},"message":"`fileExists` is a method, not a value","label":null,"help":"call it: `fileExists(…)`","fixes":[]}

@@ -1,0 +1,4 @@
+void main() {
+    let f: i32 => bool = x => x > 0
+    let _ = f(3)
+}

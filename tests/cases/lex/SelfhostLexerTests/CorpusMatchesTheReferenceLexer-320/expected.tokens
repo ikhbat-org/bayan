@@ -1,0 +1,75 @@
+1:1 Identifier `_`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
+3:1 Amp `&`
+3:3 Bar `|`
+3:5 BarBar `||`
+3:8 Caret `^`
+3:10 Tilde `~`
+3:12 Bang `!`
+3:14 Equals `=`
+3:16 EqualsEquals `==`
+3:19 BangEquals `!=`
+3:22 Less `<`
+3:24 LessEquals `<=`
+3:26 Slash `/`
+3:27 Greater `>`
+3:29 GreaterEquals `>=`
+3:32 LessLess `<<`
+3:35 Greater `>`
+3:36 Greater `>`
+3:38 Greater `>`
+3:39 GreaterEquals `>=`
+4:1 PlusEquals `+=`
+4:4 Minus `-`
+5:1 Identifier `ribute`
+6:1 ErrorKeyword `error`
+6:7 SetKeyword `set`
+6:11 UnitKeyword `unit`
+6:16 DistinctKeyword `distinct`
+6:25 TypeKeyword `type`
+6:30 ImportKeyword `import`
+6:37 AsKeyword `as`
+6:40 Identifier `pu`
+6:43 Identifier `x`
+6:45 Equals `=`
+6:47 IntegerLiteral `1`
+6:49 CloseBrace `}`
+6:50 Bang `!`
+6:51 StringLiteral `" $"`
+6:55 StringLiteral `"`
+7:1 StringLiteral `"text"`
+7:8 StringLiteral `"esc \"q\" \\ \n"`
+7:26 RawStringLiteral `"""\n0b__\n�ن μετρητής x_1 é\n`
+10:1 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = `�2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  2 │ let b = `�2
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  6 │ error set unit distinct type import as pu x = 1 }!" $""
+    │                                                       ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  9 │ �ن μετρητής x_1 é
+    │ ^

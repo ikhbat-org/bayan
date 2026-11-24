@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"StructKeyword","start":23,"end":29,"text":"struct","doc":{"start":0,"end":22}},{"kind":"Identifier","start":30,"end":31,"text":"S","doc":null},{"kind":"OpenBrace","start":32,"end":33,"text":"{","doc":null},{"kind":"CloseBrace","start":33,"end":34,"text":"}","doc":null},{"kind":"EndOfFile","start":34,"end":34,"text":"","doc":null}],"diagnostics":[]}

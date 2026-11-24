@@ -1,0 +1,47 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+3:1 Identifier `b102`
+4:1 IntegerLiteral `0xFF`
+4:5 NumericSuffix `s`
+5:1 IntegerLiteral `0b0`
+5:4 NumericSuffix `xF__`
+6:2 IntegerLiteral `0b1`
+6:5 NumericSuffix `ms`
+7:2 IntegerLiteral `1`
+7:3 NumericSuffix `e`
+7:5 LetKeyword `let`
+7:9 LawKeyword `law`
+7:13 Equals `=`
+7:15 IntegerLiteral `3`
+8:2 BarEquals `|=`
+8:5 CaretEquals `^=`
+8:8 LessLessEquals `<<=`
+10:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `xF__` is not allowed on a binary literal
+
+  5 │ 0b0xF__
+    │    ^^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  6 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  1e� let law = 3
+    │    ^

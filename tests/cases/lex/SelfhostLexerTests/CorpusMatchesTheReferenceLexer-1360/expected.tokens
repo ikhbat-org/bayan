@@ -1,0 +1,64 @@
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolationStart `{`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:40 Identifier `o`
+3:41 OpenBrace `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 Identifier `x`
+3:46 InterpolationEnd `}`
+3:47 InterpolatedStringEnd `"`
+3:48 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  3 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$o{$"{x}"
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$o{$"{x}"
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  3 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$o{$"{x}"
+    │                                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  3 │ � $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$o{$"{x}"
+    │                                       ^

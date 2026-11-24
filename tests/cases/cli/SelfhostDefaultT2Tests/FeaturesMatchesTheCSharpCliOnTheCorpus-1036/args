@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/var-not-narrowed.byn
+--package
+<repo>/tests/cases/diag

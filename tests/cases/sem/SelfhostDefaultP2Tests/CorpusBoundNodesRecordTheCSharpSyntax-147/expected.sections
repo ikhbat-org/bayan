@@ -1,0 +1,27 @@
+== tests/cases/run/io-stdin-invalid-utf8.byn
+95..125 globalStatement
+95..125 localDecl
+107..125 callExpr
+107..115 memberExpr
+126..266 ifStmt
+129..139 memberExpr
+129..134 nameExpr
+140..196 blockStmt
+146..194 exprStmt
+146..194 callExpr
+152..193 interpolatedExpr
+167..185 memberExpr
+167..178 memberExpr
+167..172 nameExpr
+146..194 callExpr
+202..266 blockStmt
+208..264 exprStmt
+208..264 callExpr
+214..263 interpolatedExpr
+217..249 binaryExpr eq right 230..249
+217..226 memberExpr
+217..222 nameExpr
+230..249 memberExpr
+252..261 memberExpr
+252..257 nameExpr
+208..264 callExpr

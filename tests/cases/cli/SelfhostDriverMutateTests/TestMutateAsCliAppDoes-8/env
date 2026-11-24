@@ -1,0 +1,4 @@
+CI=1
+BAYAN_CACHE=<repo>/tmp/t13-mutate-cache/csharp
+PATH=<repo>/tmp/t13-mutate/no-cc
+BAYAN_CACHE=<repo>/tmp/t13-mutate/no-cc

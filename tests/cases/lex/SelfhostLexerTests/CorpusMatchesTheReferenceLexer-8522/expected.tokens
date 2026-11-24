@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `"""\nb\n$"{}"//// not a doc comment\n 0b__\n `
+5:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

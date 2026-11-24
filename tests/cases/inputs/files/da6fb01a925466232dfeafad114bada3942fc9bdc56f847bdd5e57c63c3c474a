@@ -1,0 +1,5 @@
+interface IBox {
+    i64 n
+}
+
+void main() { }

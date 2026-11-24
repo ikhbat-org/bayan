@@ -1,0 +1,7 @@
+error BYN2614: `Panic.handler` may be set only as the first statement of `main`
+  --> <repo>/tests/cases/diag/on-panic-not-entry.byn:6:5
+
+  6 │     Panic.handler = onCrash
+    │     ^^^^^^^^^^^^^^^^^^^^^^^ `setUp` is not the program's entry function
+    │
+  help: set it once, as the first statement of `main`

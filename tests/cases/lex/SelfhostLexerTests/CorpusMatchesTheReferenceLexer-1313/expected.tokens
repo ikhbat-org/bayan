@@ -1,0 +1,10 @@
+1:1 CharLiteral `'x\r`
+2:1 Identifier `L`
+3:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`

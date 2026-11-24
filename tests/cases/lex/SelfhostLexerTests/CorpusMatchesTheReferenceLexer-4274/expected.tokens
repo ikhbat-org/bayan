@@ -1,0 +1,16 @@
+1:1 CharLiteral `'x\r`
+2:2 Identifier `b`
+3:2 Identifier `t`
+3:4 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `\u{1A}`
+
+  3 │ �t 
+    │ ^

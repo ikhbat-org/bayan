@@ -1,0 +1,6 @@
+== cases
+0 byn_str_case(l0_s, false, byn_context)
+1 byn_str_case(l0_s, true, byn_context)
+2 byn_str_case(l0_s, false, byn_context).len
+3 byn_str_case(l0_s, false, byn_context)
+count 4

@@ -1,0 +1,1 @@
+{"code":"BYN2406","severity":"error","file":"input.byn","span":{"start":0,"end":0,"line":1,"column":1,"endLine":1,"endColumn":1},"message":"`break` outside a loop","label":null,"help":null,"fixes":[]}

@@ -1,0 +1,5 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/for-dyn-ref-coalesce.byn:15:26
+
+  15 │     for x: dyn ref IC in none() ?? a { x.bump() }
+     │                          ^^^^^^^^^^^ it is borrowed element by element as `dyn ref IC`

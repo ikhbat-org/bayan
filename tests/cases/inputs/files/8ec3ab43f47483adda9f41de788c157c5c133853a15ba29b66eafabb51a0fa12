@@ -1,0 +1,9 @@
+never closed
+b
+var
+// ok � in comment
+b
+let café = 2
+Å b
+ var xs: List<List<i64>>
+

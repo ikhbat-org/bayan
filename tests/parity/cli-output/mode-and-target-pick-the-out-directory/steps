@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"
+$ $BAYAN build tally --mode debug > /dev/null 2>&1; echo "build debug $?"; $BAYAN build tally --target linux-x64 > /dev/null 2>&1; echo "build linux-x64 $?"; $BAYAN build tally --target windows-x64 > /dev/null 2>&1; echo "build windows-x64 $?"
+$ ls tally/out/debug/*/tally > /dev/null && echo "debug host tally"; test -f tally/out/safe/linux-x64/tally && echo "safe linux-x64 tally"; test -f tally/out/safe/windows-x64/tally.exe && echo "safe windows-x64 tally.exe"

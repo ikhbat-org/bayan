@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "nodes": [
+    "Argument",
+    "AssignStmt",
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "MoveExpr",
+    "NameExpr",
+    "RangeExpr",
+    "SwitchExpr",
+    "SwitchStmt",
+    "UnaryExpr",
+    "UnionDecl",
+    "VarPattern",
+    "VariantPattern",
+    "WhileStmt"
+  ],
+  "builtins": [
+    "ListAdd",
+    "ListLength",
+    "Print"
+  ],
+  "diagnostics": []
+}

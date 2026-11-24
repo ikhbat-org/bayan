@@ -1,0 +1,8 @@
+== unique
+unique 0 true
+BYN3209 86:5 a `unique` type cannot be `const` |`U` is `unique`|declare it with `let`|fix 1068..1073 let
+unique 1 false
+unique 2 true
+BYN3209 88:5 a `unique` type cannot be `const` |`U` is `unique`|declare it with `let`|fix 1096..1101 let
+unique 3 false
+unique 4 false

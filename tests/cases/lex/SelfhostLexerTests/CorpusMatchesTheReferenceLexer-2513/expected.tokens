@@ -1,0 +1,4 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n 0b102\nY\nis and or not with move ef out this null true false comptime checked\n 1. let c = """`
+5:16 NeverKeyword `never`
+5:22 Identifier `closed`
+7:1 EndOfFile

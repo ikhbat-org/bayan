@@ -1,0 +1,51 @@
+3:1 CharLiteral `'\u{D800}'`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:5 OpenBracket `[`
+4:7 CloseBracket `]`
+4:9 OpenBrace `{`
+4:11 CloseBrace `}`
+5:1 LetKeyword `let`
+5:7 Equals `=`
+5:9 IntegerLiteral `2`
+6:2 Identifier `b`
+8:1 LetKeyword `let`
+8:5 Identifier `a`
+8:7 Equals `=`
+8:11 IntegerLiteral `1`
+10:1 VarKeyword `var`
+10:5 Identifier `xs`
+10:7 Colon `:`
+10:9 Identifier `List`
+10:13 Less `<`
+10:14 Identifier `List`
+10:18 Less `<`
+10:19 Identifier `i64`
+10:22 Greater `>`
+10:23 Greater `>`
+11:2 NeverKeyword `never`
+11:8 Identifier `closed`
+12:1 Identifier `b`
+13:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ let � = 2
+    │     ^
+
+error BYN0002: unexpected character `$`
+
+  8 │ let a = $ 1
+    │         ^

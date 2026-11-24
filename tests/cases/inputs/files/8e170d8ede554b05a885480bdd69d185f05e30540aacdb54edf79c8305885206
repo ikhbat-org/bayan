@@ -1,0 +1,4 @@
+ạ̇a /* never closed
+" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+'\u{D800}'
+/// Doc line two.

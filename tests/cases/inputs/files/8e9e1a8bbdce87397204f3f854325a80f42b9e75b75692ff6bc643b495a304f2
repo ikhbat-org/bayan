@@ -1,0 +1,3 @@
+let failing = 1
+var panicking = failing + 1
+void f(i64 failing) { panicking = failing }

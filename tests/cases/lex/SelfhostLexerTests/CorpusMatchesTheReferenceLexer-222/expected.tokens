@@ -1,0 +1,84 @@
+2:1 Identifier `l`
+2:2 Identifier `t`
+2:6 Equals `=`
+2:8 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 Identifier `x`
+4:44 InterpolationEnd `}`
+4:45 InterpolatedStringEnd `"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
+4:50 InterpolationEnd `}`
+4:51 InterpolatedStringEnd `"`
+4:52 InterpolationEnd `}`
+4:53 InterpolatedStringEnd `"`
+4:54 InterpolationEnd `}`
+4:55 InterpolatedStringEnd `"`
+5:1 Identifier `b`
+7:1 Identifier `foo`
+7:5 Identifier `Bar`
+7:9 Identifier `_x`
+7:12 Identifier `camelCase2`
+7:23 Identifier `بيان`
+7:28 Identifier `μετρητής`
+7:37 Identifier `x_1`
+7:41 Identifier `é`
+9:1 Dot `.`
+9:3 DotDot `..`
+9:6 DotDotEquals `..=`
+9:10 Colon `:`
+9:12 CharLiteral `'\u{D800}'`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  2 │ l�t � = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ l�t � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  9 │ . .. ..= : '\u{D800}'
+    │             ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

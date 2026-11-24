@@ -1,0 +1,5 @@
+error BYN2001: `Limit` is not defined
+  --> <repo>/tests/cases/parse/requires-bare-condition.byn:1:27
+
+  1 │ void f(i32 n) expects n > Limit {}
+    │                           ^^^^^

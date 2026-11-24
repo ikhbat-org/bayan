@@ -1,0 +1,2 @@
+== expr.probes.i9
+interpolated:string[3633:20]=-(v:local:i64[3636:1]=-(n)/10,false,0,32,-1,-1)

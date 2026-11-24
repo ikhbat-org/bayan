@@ -1,0 +1,60 @@
+1:1 IntegerLiteral `0x`
+2:1 CharLiteral `''`
+4:1 CharLiteral `'ab'`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `x`
+5:5 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolationEnd `}`
+5:11 InterpolatedStringText `\r\r`
+5:13 InterpolatedStringEnd
+7:4 Identifier `comment`
+7:12 Star `*`
+7:13 Slash `/`
+7:15 Identifier `a`
+8:1 LetKeyword `let`
+8:5 Identifier `c`
+8:7 Equals `=`
+8:9 RawStringLiteral `"""never closed\r\n `
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  5 │  $"x{ $"{}�
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │  $"x{ $"{}�
+    │       ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  8 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

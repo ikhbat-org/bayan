@@ -1,0 +1,17 @@
+error BYN2002: unknown type `EmailError`
+  --> <repo>/tests/cases/parse/error-set.byn:1:27
+
+  1 │ union error SignupError = EmailError, DbError
+    │                           ^^^^^^^^^^
+
+error BYN2002: unknown type `DbError`
+  --> <repo>/tests/cases/parse/error-set.byn:1:39
+
+  1 │ union error SignupError = EmailError, DbError
+    │                                       ^^^^^^^
+
+error BYN2002: unknown type `Form`
+  --> <repo>/tests/cases/parse/error-set.byn:4:12
+
+  4 │ i64 signUp(Form f) fails SignupError => 0
+    │            ^^^^

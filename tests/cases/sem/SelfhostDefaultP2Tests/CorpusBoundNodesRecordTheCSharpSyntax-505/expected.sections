@@ -1,0 +1,10 @@
+== tests/cases/diag/format-debug-struct-field.byn
+31..60 globalStatement
+31..60 localDecl
+39..60 structLiteralExpr
+47..58 callExpr
+61..86 exprStmt
+61..86 callExpr
+67..85 interpolatedExpr
+70..71 nameExpr
+61..86 callExpr

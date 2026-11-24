@@ -1,0 +1,69 @@
+1:1 Identifier `ith`
+1:5 MoveKeyword `move`
+1:10 RefKeyword `ref`
+1:14 OutKeyword `out`
+1:18 ThisKeyword `this`
+1:23 NullKeyword `null`
+1:28 TrueKeyword `true`
+1:33 FalseKeyword `false`
+1:39 ComptimeKeyword `comptime`
+1:48 CheckedKeyword `checked`
+2:1 Identifier `te`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:10 Equals `=`
+5:12 IntegerLiteral `2`
+6:2 Identifier `macro`
+6:8 Identifier `select`
+6:15 BecomeKeyword `become`
+7:5 CloseParen `)`
+7:7 OpenBracket `[`
+7:9 CloseBracket `]`
+7:11 OpenBrace `{`
+7:13 CloseBrace `}`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  6 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │  �  ) [ ] { }
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  �  ) [ ] { }
+    │   │  -

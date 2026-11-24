@@ -1,0 +1,6 @@
+created app `local/tally` in `tally`
+note: git isn't installed, so no repository was created
+
+  cd tally
+  bayan run
+  bayan test

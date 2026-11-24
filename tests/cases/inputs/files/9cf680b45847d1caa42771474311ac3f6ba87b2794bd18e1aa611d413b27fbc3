@@ -1,0 +1,10 @@
+0b__
+var xs: List<List<i64>>
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+t let var embed extern unsafe
+if else unless switch case def
+/* // line comment
+ d
+b
+b
+

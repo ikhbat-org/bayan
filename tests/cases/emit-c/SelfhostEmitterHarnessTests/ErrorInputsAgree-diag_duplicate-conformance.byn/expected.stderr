@@ -1,0 +1,10 @@
+error BYN2805: `Square` lists `IShape` twice
+  --> input.byn:5:25
+
+  5 │ struct Square : IShape, IShape {
+    │                         ^^^^^^ already listed
+    │
+  help: remove the second `IShape`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2805

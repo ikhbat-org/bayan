@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockExpr",
+    "BlockStmt",
+    "CallExpr",
+    "CatchExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "FsModified",
+    "FsSetModified",
+    "IoRemove",
+    "IoWriteFile",
+    "Print",
+    "TimeFromNanos",
+    "TimeNanos"
+  ],
+  "diagnostics": []
+}

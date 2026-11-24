@@ -1,0 +1,10 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+d
+ ''
+// ok þ in comment
+"// ok þ in comment
+
+is and or not with move ref out this null true false comptime checked
+ 0x
+ 

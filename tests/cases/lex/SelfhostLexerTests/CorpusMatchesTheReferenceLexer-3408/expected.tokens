@@ -1,0 +1,14 @@
+1:2 Identifier `x`
+1:3 Dot `.`
+1:4 Identifier `y`
+1:6 FloatLiteral `2.5`
+1:9 NumericSuffix `f`
+2:1 Identifier `l`
+2:3 Identifier `et`
+2:6 Identifier `a`
+2:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEB)
+
+  2 │ l�et a 
+    │  ^

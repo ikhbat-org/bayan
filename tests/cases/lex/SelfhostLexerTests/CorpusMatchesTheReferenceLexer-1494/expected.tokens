@@ -1,0 +1,95 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:24 Identifier `يان`
+1:29 IntegerLiteral `7`
+1:30 NumericSuffix `ετρητής`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
+2:1 Identifier `et`
+2:4 Identifier `s`
+2:6 Equals `=`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+3:1 TestKeyword `test`
+3:6 AssertKeyword `assert`
+3:13 PropertyKeyword `property`
+3:22 FuzzKeyword `fuzz`
+3:27 ModelKeyword `model`
+3:33 ForeachKeyword `foreach`
+3:41 NewKeyword `new`
+3:45 GotoKeyword `goto`
+4:3 LetKeyword `let`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:11 StringLiteral `"open`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  1 │ foo Bar _x camelCase2 �يان �7ετρητής x_1 é
+    │                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCE)
+
+  1 │ foo Bar _x camelCase2 �يان �7ετρητής x_1 é
+    │                            ^
+
+error BYN0003: unterminated string literal
+
+  2 │ et s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  2 │ et s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │  ���let a = "open
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │  ���let a = "open
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ���let a = "open
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  4 │  ���let a = "open
+    │             ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

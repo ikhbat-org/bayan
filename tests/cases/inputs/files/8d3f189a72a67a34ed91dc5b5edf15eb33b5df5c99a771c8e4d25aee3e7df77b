@@ -1,0 +1,10 @@
+  raw "quoted"
+et c = """never closed
+ 1_
+ '\q'
+
+lòetb = ` 2
+
+1__
+
+  """ c"text" u16"wide" "â€® allowed in strings" "" "\u{48}i"

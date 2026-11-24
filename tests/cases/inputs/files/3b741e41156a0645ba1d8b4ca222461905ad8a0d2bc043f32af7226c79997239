@@ -1,0 +1,5 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ foo Bar _x camelCase2 بيان μετρητής x_1 é
+
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ """let café = 2

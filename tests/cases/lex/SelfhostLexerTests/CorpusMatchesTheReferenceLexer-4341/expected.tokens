@@ -1,0 +1,130 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 StringLiteral `$"{$"`
+1:54 OpenBrace `{`
+1:55 StringLiteral `$"{$"`
+1:60 OpenBrace `{`
+1:61 StringLiteral `$"{x}"`
+1:67 CloseBrace `}`
+1:68 StringLiteral `"}"`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"}"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 StringLiteral `"}"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
+1:94 InterpolationEnd `}`
+1:95 InterpolatedStringEnd `"`
+1:96 InterpolationEnd `}`
+1:97 InterpolatedStringEnd `"`
+1:98 InterpolationEnd `}`
+1:99 InterpolatedStringEnd `"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:106 IntegerLiteral `0x_ff`
+1:112 IntegerLiteral `0b101`
+1:118 IntegerLiteral `0`
+1:120 IntegerLiteral `0B11`
+1:125 IntegerLiteral `5`
+1:126 NumericSuffix `s`
+1:128 IntegerLiteral `250`
+1:131 NumericSuffix `ms`
+1:134 IntegerLiteral `4`
+1:135 NumericSuffix `KiB`
+1:139 IntegerLiteral `1`
+1:140 NumericSuffix `u`
+1:142 IntegerLiteral `0xFF`
+1:146 NumericSuffix `u`
+1:148 IntegerLiteral `0b1`
+1:151 NumericSuffix `ul`
+1:154 IntegerLiteral `7`
+2:1 Identifier `KiB`
+2:5 IntegerLiteral `1`
+2:6 NumericSuffix `u`
+2:8 IntegerLiteral `0xFF`
+2:12 NumericSuffix `u`
+2:14 IntegerLiteral `0b1`
+2:17 NumericSuffix `ul`
+2:20 IntegerLiteral `7`
+2:21 NumericSuffix `l`
+    doc `/// a /* never closed`
+5:1 CharLiteral `'a'`
+5:5 CharLiteral `'\n'`
+5:10 CharLiteral `'\u{1F600}'`
+5:22 CharLiteral `'\''`
+5:27 CharLiteral `'é'`
+5:31 CharLiteral `'\\'`
+5:36 CharLiteral `'\0'`
+5:40 Identifier `Z`
+7:1 InterpolationEnd `}`
+7:2 InterpolatedStringEnd
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"  0x_ff 0b101�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7
+    │    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"  0x_ff 0b101�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7
+    │       ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"  0x_ff 0b101�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7
+    │                                                 ^^
+
+error BYN0002: unexpected character `\u{1}`
+
+  1 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}""}"}"}"}"}"}"}"}"}"}"}"  0x_ff 0b101�0 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7
+    │                                                                                                                     ^

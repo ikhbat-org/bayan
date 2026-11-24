@@ -1,0 +1,22 @@
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+void main() {
+    var total: i64 = 0
+    total += safe(total)
+    print($"{total}")
+}

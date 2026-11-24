@@ -1,0 +1,4 @@
+== bind.probes.b10
+flags 0
+errorExpr:?[1810:9]=-()
+BYN2209 117:15 strings cannot be joined with `+`; use interpolation ||write one literal: `"ab"`|fix 1810..1819 "ab"

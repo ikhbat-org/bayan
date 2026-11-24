@@ -1,0 +1,190 @@
+// 019 T29 (coverage ratchet): compile.byn paths no golden case reaches: a std library built from loose files, target
+// names, C names of non-ASCII modules, `where` bounds that are not interfaces, case patterns, `main` signatures, std
+// imports with no std or imported twice, a file replaced twice and a project with only tests. The expected values are
+// the output of the self-hosted checker at the commit that added the test.
+
+import lexer
+
+/// `text` as the source file `path`.
+lexer.SourceText t29s1Source(string path, from string text) uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    return lexer.SourceText.create(path, from: move bytes)
+}
+
+/// `text` compiled as `a.byn` with `std` as the std files.
+Ctx t29s1CompileStd(string text, from move List<StdSource> std) uses alloc, clock, fs {
+    var sources = List<lexer.SourceText>()
+    sources.append(t29s1Source("a.byn", from: text))
+    return create(from: move sources, at: ".", by: CompilationOptions { std: move std })
+}
+
+test "compile t29: a std library sorts its files and skips the rest" {
+    var files = List<StdSource>()
+    files.append(StdSource { path: "m/z.byn", text: "" })
+    files.append(StdSource { path: "m/b.byn", text: "" })
+    files.append(StdSource { path: "m/a.byn", text: "" })
+    files.append(StdSource { path: "top.byn", text: "" })
+    files.append(StdSource { path: "m/x.test.byn", text: "" })
+    files.append(StdSource { path: "m/n.txt", text: "" })
+    let library = stdLibraryCreate(from: in files)
+    var names = StrBuf()
+    for f in library.modules[0].files {
+        names.append($"{f.file} ")
+    }
+    assert names.finish() == "a.byn b.byn z.byn "
+    assert library.modules.length == 1 && library.names[0] == "std.m"
+}
+
+test "compile t29: target names and C names" {
+    assert hostTargetSplit("wasm32") == (os: "wasi", arch: "wasm32")
+    assert hostTargetSplit("linux-x64") == (os: "linux", arch: "x64")
+    assert hostTargetSplit("plain") == (os: "", arch: "")
+    assert t11CNameOf("a.é😀") == "a____"
+}
+
+test "compile t29: where bounds, case patterns and the main signature" {
+    let text = """
+        union U {
+            a
+        }
+
+        enum K {
+            x
+        }
+
+        union error R {
+            bad
+        }
+
+        interface IThing {}
+
+        void f1<T>(T x) where T: U {}
+
+        void f2<T>(T x) where T: K {}
+
+        void f3<T>(T x) where T: R {}
+
+        void f4<T, V>(T x) where T: V {}
+
+        void f5(i64 x) where T: IThing {}
+
+        void f6<T, V>(T x) where W: IThing {}
+
+        void sw(i64 n) {
+            switch n {
+                case -1: print("a")
+                case +2: print("b")
+                case (3): print("c")
+                default: {}
+            }
+            switch -n {
+                case -n: print("d")
+                default: {}
+            }
+        }
+
+        void main(Span<string> args) {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2804 `U` is not an interface
+        BYN2804 `K` is not an interface
+        BYN2804 `R` is not an interface
+        BYN2804 `V` is not an interface
+        BYN2812 `where` names `T`, which is not a type parameter
+        BYN2812 `where` names `W`, which is not a type parameter
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        BYN2219 a pattern must be a compile-time constant
+        BYN2310 `args` is never written through; use `ReadOnlySpan<string>`
+
+        """
+    assert t29s1Diags(in c) == expected
+    let r = t29s1Compile("void main(ref ReadOnlySpan<string> args) {}\n")
+    let signature = "BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`\n"
+    assert t29s1Diags(in r) == signature
+    let e = t29s1Compile("void main(Nope args) {}\n")
+    assert t29s1Diags(in e) == "BYN2002 unknown type `Nope`\n"
+}
+
+test "compile t29: std imports with no std and imported twice" {
+    let none = t29s1CompileStd("import std.json\n\nvoid main() {}\n", from: [])
+    assert t29s1Diags(in none) == "BYN2032 no std module `std.json`\n"
+    var files = List<StdSource>()
+    files.append(StdSource { path: "m/a.byn", text: "public i64 one() => 1\n" })
+    let twice = t29s1CompileStd("import std.m\nimport std.m\n\nvoid main() {}\n", from: move files)
+    assert t29s1Diags(in twice) == "BYN2006 `m` is declared twice\n"
+}
+
+test "compile t29: a file replaced twice" {
+    let c = t29s1Compile("void main() {}\n")
+    let once = withFile(in c, from: t29s1Source("b.byn", from: "i64 two() => 2\n"))
+    let twice = withFile(in once, from: t29s1Source("b.byn", from: "i64 three() => 3\n"))
+    assert twice.replacedPaths.length == 1
+    assert t29s1Diags(in twice) == ""
+}
+
+test "compile t29: a project with only tests" {
+    let root = "tmp/t29s1-compile"
+    Io.createDirectory(root) catch {}
+    Io.createDirectory($"{root}/tests") catch {}
+    Io.createDirectory($"{root}/tests/d.test.byn") catch {}
+    Io.writeFile($"{root}/tests/a.test.byn", "test \"t\" {\n    assert true\n}\n".bytes) catch {}
+    Io.writeFile($"{root}/tests/notes.txt", "x".bytes) catch {}
+    let c = fromProject(root, for: "app", by: CompilationOptions { includeTests: true })
+    assert c.entryFiles.length == 1
+    assert t29s1Diags(in c) == ""
+}
+
+test "compile t29: more main signatures, aliases twice and top-level values in a test file" {
+    var sb = StrBuf()
+    let mains: List<string> = [
+        "Nope main() {}\n",
+        "void main(i64 a, by i64 b) {}\n",
+        "void main(ReadOnlySpan<i64> args) {}\n",
+        "i64 main() => 0\n",
+    ]
+    for m in mains {
+        let c = t29s1Compile(m)
+        sb.append($"{t29s1Diags(in c)}|\n")
+    }
+    let text = """
+        type Al = i64
+
+        type Al = i32
+
+        @unobservable because "why"
+        void f() {}
+
+        void sw(i64 n) {
+            switch n {
+                case ~1: print("a")
+                default: {}
+            }
+        }
+
+        void main() {}
+        """
+    var sources = List<lexer.SourceText>()
+    sources.append(t29s1Source("a.byn", from: text))
+    sources.append(t29s1Source("b.test.byn", from: "i64 make() => 1\n\nlet g = make()\n"))
+    let c = create(from: move sources, at: ".", by: CompilationOptions {})
+    sb.append(t29s1Diags(in c))
+    let expected = """
+        BYN2002 unknown type `Nope`
+        |
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        |
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        |
+        BYN2771 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args`
+        |
+        BYN2006 `Al` is declared twice
+        BYN2770 unknown attribute `unobservable`
+        BYN2015 top-level statements are allowed only in the entry module
+
+        """
+    assert sb.finish() == expected
+}

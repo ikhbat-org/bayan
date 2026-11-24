@@ -1,0 +1,6 @@
+let b = "bad \q escape"
+ let c =  3
+1__
+ fails try catch never noalloc nosuspend suspends async await
+ 0x_
+

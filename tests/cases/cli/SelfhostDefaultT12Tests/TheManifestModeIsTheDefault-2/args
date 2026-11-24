@@ -1,0 +1,5 @@
+dist
+tally
+--mode
+debug
+--force

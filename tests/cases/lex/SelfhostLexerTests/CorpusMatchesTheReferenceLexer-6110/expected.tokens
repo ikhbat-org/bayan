@@ -1,0 +1,82 @@
+2:2 StringLiteral `" $"`
+2:6 OpenBrace `{`
+2:7 OpenBrace `{`
+2:8 Identifier `literal`
+2:15 CloseBrace `}`
+2:16 CloseBrace `}`
+2:17 StringLiteral `" $"`
+2:21 OpenBrace `{`
+2:22 Identifier `Point`
+2:28 OpenBrace `{`
+2:30 Identifier `x`
+2:32 Equals `=`
+2:34 IntegerLiteral `1`
+2:36 CloseBrace `}`
+2:37 CloseBrace `}`
+2:38 Bang `!`
+2:39 StringLiteral `" $"`
+2:43 StringLiteral `"`
+5:1 IntegerLiteral `1_`
+7:1 Identifier `quired`
+7:8 Identifier `co`
+7:11 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // comment � hidden
+    │   │            -
+
+error BYN0003: unterminated string literal
+
+  2 │  " $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  3 │  ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  3 │  ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ���
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����
+    │    ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -

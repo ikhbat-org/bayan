@@ -1,0 +1,11 @@
+== cases
+0 (*bynh_slot_map_str_opt_str(&l1_env, BYN_STR("BAYAN_T5_ADDED", 14), ((bynt_opt_str){0})))
+1 ((bynt_opt_str){true, BYN_STR("added", 5)})
+2 (*bynh_slot_map_str_opt_str(&l1_env, BYN_STR("HOME", 4), ((bynt_opt_str){0})))
+3 ((bynt_opt_str){true, BYN_STR("/overridden", 11)})
+5 ((bynt_span_str){l0_show.v, 2})
+6 ((bynt_opt_map_str_opt_str){true, l1_env})
+7 l1_env.h.live
+9 ((bynt_span_str){l7_added.v, 2})
+10 ((bynt_opt_map_str_opt_str){true, l6_empty})
+count 11

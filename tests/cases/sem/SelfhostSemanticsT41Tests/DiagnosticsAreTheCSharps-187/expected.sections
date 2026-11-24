@@ -1,0 +1,7 @@
+== diags.run/self-hosting-shape
+BYN5014 45:9 `eval` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["eval"]`, `verbs: ["eval"]` or `adjectives: ["eval"]`
+BYN5014 54:9 `eval` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["eval"]`, `verbs: ["eval"]` or `adjectives: ["eval"]`
+BYN5014 63:9 `eval` is not a known verb, noun or adjective
+  help add it to `grammar` in package.byn: `nouns: ["eval"]`, `verbs: ["eval"]` or `adjectives: ["eval"]`

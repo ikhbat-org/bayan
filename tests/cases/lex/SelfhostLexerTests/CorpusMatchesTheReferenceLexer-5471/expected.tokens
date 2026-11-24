@@ -1,0 +1,22 @@
+1:1 Identifier `strut`
+1:7 Identifier `S`
+2:2 IntegerLiteral `1`
+3:1 LetKeyword `let`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE7)
+
+  4 │ //� ok � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  4 │ //� ok � in comment
+    │        ^

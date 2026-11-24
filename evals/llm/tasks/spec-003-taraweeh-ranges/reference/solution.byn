@@ -1,0 +1,25 @@
+void main() {
+    let nights = 6
+    var below: i64 = 0
+    for night in 0..=nights - 1 {
+        below += night
+    }
+    print($"taraweeh sum: {below}")
+
+    var through = 0
+    for _ in 0..=nights {
+        through += 1
+    }
+    print($"taraweeh steps: {through}")
+
+    let tonight = 3
+    print($"taraweeh inside: {tonight in 1..=nights - 1}")
+    print($"taraweeh edge: {nights in 1..=nights - 1}")
+
+    var gifts = List<i64>()
+    gifts.append(10)
+    gifts.append(20)
+    gifts.append(35)
+    print($"taraweeh last: {gifts[^ 1]}")
+    print($"taraweeh second last: {gifts[^ 2]}")
+}

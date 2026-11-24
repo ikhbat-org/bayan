@@ -1,0 +1,13 @@
+== tests/cases/diag/panic-on-panic-renamed.byn
+121..158 blockStmt
+127..156 exprStmt
+127..156 callExpr
+133..142 memberExpr
+133..134 nameExpr
+148..155 targetMemberExpr
+172..224 blockStmt
+178..201 assignStmt assign target 178..191 value 194..201
+206..222 exprStmt
+206..222 callExpr
+212..221 literalExpr string
+206..222 callExpr

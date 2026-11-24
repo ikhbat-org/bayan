@@ -1,0 +1,36 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 Identifier `foreachnew`
+1:44 GotoKeyword `goto`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 Identifier `cLtch`
+3:17 NeverKeyword `never`
+3:23 NoallocKeyword `noalloc`
+3:31 NosuspendKeyword `nosuspend`
+3:41 SuspendsKeyword `suspends`
+3:50 AsyncKeyword `async`
+3:56 Identifier `awai`
+3:61 Identifier `t`
+4:1 Plus `+`
+4:3 Minus `-`
+4:5 Star `*`
+4:7 Slash `/`
+4:9 Percent `%`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  3 │ fails try cLtch never noalloc nosuspend suspends async awai�t
+    │                                                            ^

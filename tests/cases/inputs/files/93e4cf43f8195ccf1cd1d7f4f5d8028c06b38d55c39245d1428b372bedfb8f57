@@ -1,0 +1,11 @@
+  """ c"text" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+
+0b1ms
+ '\u{110000}'
+
+
+}'
+'\u{11000}''x
+ok þ in comment
+{
+$"x{ $"{

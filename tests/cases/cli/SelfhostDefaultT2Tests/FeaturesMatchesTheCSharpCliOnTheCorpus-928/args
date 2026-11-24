@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/style-fix-keeps-comments.byn
+--package
+<repo>/tests/cases/diag

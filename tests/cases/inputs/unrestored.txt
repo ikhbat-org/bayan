@@ -1,0 +1,6 @@
+# Spec 019 T17f: tracked input files that do not hash to their names, read by scripts/ci/input-blobs.test.sh (the list may only shrink).
+# Cause: landed at 2e635d6d6 under `text=auto`, before `tests/cases/inputs/files/** -text` (8058d5e8a), so git stripped their CRs; their
+# mixed CRLF/LF endings are not restored by any whole-file rewrite or repository blob. Count: 3.
+tests/cases/inputs/files/0b566c16e28568b6eb5f413c1e4393eeb3eebeedf42070ac78b11937ddf0a6fd
+tests/cases/inputs/files/70cae622b0e79d0786f37267790b93fc72ae5104fd8e9217af0788252781dcbc
+tests/cases/inputs/files/973329bb867d51c30fdb4c02d6de49e0e864099f40b9623427945e2407bdfcb2

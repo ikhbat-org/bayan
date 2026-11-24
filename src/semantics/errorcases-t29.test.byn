@@ -1,0 +1,125 @@
+// 019 T29 (coverage ratchet): errorcases.byn paths no golden case reaches: an error case built for an error union,
+// a null-conditional call, an unknown case called with arguments, a bare case with two fields, unknown and excluded
+// cases in `catch switch` patterns. The expected values are the output of the self-hosted checker at the commit that
+// added the test.
+
+test "errorcases t29: error case calls" {
+    let text = """
+        union error CarrierError {
+            timeout(i64 after)
+            rejected(string reason, i64 code)
+            closed
+        }
+
+        union error QuoteError {
+            stale(i64 age)
+        }
+
+        struct Box {
+            i64 n
+            i64 get(i64 k) => n + k
+        }
+
+        void both(i64 n) fails CarrierError, QuoteError {
+            fail .stale(n) if n == 1
+            fail .timeout(n)
+        }
+
+        void unknown() fails CarrierError {
+            fail CarrierError.lost(1)
+        }
+
+        void bare() fails CarrierError {
+            fail .rejected
+        }
+
+        i64 maybe(Box? b) => b?.get(1) ?? 0
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2228 `lost` is not a variant of `CarrierError`
+        BYN2705 variant `rejected` carries a payload
+        BYN2022 `?.` is not supported in v0.1
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "errorcases t29: error case patterns" {
+    let text = """
+        union error CarrierError {
+            timeout(i64 after)
+            closed
+        }
+
+        union error QuoteError {
+            stale(i64 age)
+        }
+
+        union error StockError {
+            empty
+        }
+
+        union error Retryable = CarrierError, QuoteError except .closed
+
+        i64 send(i64 n) fails CarrierError, QuoteError {
+            fail .closed if n == 0
+            return n
+        }
+
+        i64 retry(i64 n) fails Retryable {
+            fail .timeout(n) if n == 0
+            return n
+        }
+
+        i64 zzz(i64 n) => send(n) catch switch {
+            CarrierError.qqqqqqq(let a) => a,
+            _ => 0,
+        }
+
+        i64 other(i64 n) => send(n) catch switch {
+            StockError.empty => 1,
+            _ => 0,
+        }
+
+        i64 excluded(i64 n) => retry(n) catch switch {
+            CarrierError.closed => 1,
+            _ => 0,
+        }
+
+        i64 otherCase(i64 n) => send(n) catch switch {
+            StockError.empty(let a) => 1,
+            _ => 0,
+        }
+
+        i64 excludedCase(i64 n) => retry(n) catch switch {
+            CarrierError.closed(let a) => 1,
+            _ => 0,
+        }
+
+        i64 optional(i64 n) {
+            let e: Retryable? = .timeout(n)
+            return n
+        }
+
+        i64 kept(i64 n) => retry(n) catch switch {
+            CarrierError.timeout(let a) => a,
+            _ => 0,
+        }
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2228 `qqqqqqq` is not a variant of `CarrierError`
+        BYN2411 `StockError.empty` cannot match `CarrierError | QuoteError`
+        BYN2411 `CarrierError.closed` cannot match `CarrierError | QuoteError except .closed`
+        BYN2411 `StockError.empty` cannot match `CarrierError | QuoteError`
+        BYN2411 `CarrierError.closed` cannot match `CarrierError | QuoteError except .closed`
+        BYN2202 expected `CarrierError | QuoteError except .closed?`, found `CarrierError`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}

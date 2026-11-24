@@ -1,0 +1,4 @@
+== helpers
+bynh_eq_main__Money static bool bynh_eq_main__Money(bynt_main__Money a, bynt_main__Money b) | static bool bynh_eq_main__Money(bynt_main__Money a, bynt_main__Money b) {
+    return (a.cents == b.cents);
+}

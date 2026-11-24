@@ -1,0 +1,74 @@
+== tests/cases/run/postfix-modifiers.byn
+129..178 blockStmt
+135..150 guardedStmt
+145..150 binaryExpr lt right 149..150
+145..146 nameExpr
+149..150 literalExpr integer
+135..141 returnStmt
+155..176 exprStmt
+155..176 callExpr
+161..175 interpolatedExpr
+172..173 nameExpr
+155..176 callExpr
+180..203 globalStatement
+180..203 localDecl
+194..203 callExpr
+33..34 literalExpr integer
+204..248 guardedStmt
+243..248 literalExpr falseKeyword
+204..239 exprStmt
+204..239 callExpr
+210..238 interpolatedExpr
+221..236 callExpr
+221..228 nameExpr
+204..239 callExpr
+249..280 exprStmt
+249..280 callExpr
+255..279 interpolatedExpr
+264..277 memberExpr
+264..271 nameExpr
+249..280 callExpr
+281..320 guardedStmt
+316..320 literalExpr trueKeyword
+281..312 exprStmt
+281..312 callExpr
+287..311 interpolatedExpr
+294..309 callExpr
+294..301 nameExpr
+281..312 callExpr
+321..352 exprStmt
+321..352 callExpr
+327..351 interpolatedExpr
+336..349 memberExpr
+336..343 nameExpr
+321..352 callExpr
+353..362 exprStmt
+353..362 callExpr
+359..361 unaryExpr negate operand 360..361
+363..371 exprStmt
+363..371 callExpr
+369..370 literalExpr integer
+372..430 forStmt
+381..386 rangeExpr
+381..382 literalExpr integer
+384..386 literalExpr integer
+387..430 blockStmt
+393..408 guardedStmt
+402..408 binaryExpr eq right 407..408
+402..403 nameExpr
+407..408 literalExpr integer
+393..393 breakStmt
+413..428 exprStmt
+413..428 callExpr
+419..427 interpolatedExpr
+424..425 nameExpr
+413..428 callExpr
+60..107 blockStmt
+70..80 assignStmt add target 70..75 value 79..80
+70..75 nameExpr
+70..75 nameExpr
+79..80 literalExpr integer
+89..101 returnStmt value 96..101
+96..101 nameExpr
+96..101 nameExpr
+33..34 literalExpr integer

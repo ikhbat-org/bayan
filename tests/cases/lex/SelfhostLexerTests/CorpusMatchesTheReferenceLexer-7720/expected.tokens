@@ -1,0 +1,142 @@
+1:1 CharLiteral `'\q'`
+3:1 Identifier `b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:11 StringLiteral `"{$"`
+5:15 OpenBrace `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:26 StringLiteral `"{$"`
+5:30 OpenBrace `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 InterpolatedStringStart `$"`
+5:51 InterpolationStart `{`
+5:52 InterpolatedStringStart `$"`
+5:54 InterpolatedStringText `$`
+5:55 InterpolatedStringEnd `"`
+5:56 OpenBrace `{`
+5:57 InterpolatedStringStart `$"`
+5:59 InterpolationStart `{`
+5:60 InterpolatedStringStart `$"`
+5:62 InterpolationStart `{`
+5:63 Identifier `T`
+5:64 StringLiteral `"{$"`
+5:68 OpenBrace `{`
+5:69 InterpolatedStringStart `$"`
+5:71 InterpolationStart `{`
+5:72 StringLiteral `$"{$"`
+5:77 OpenBrace `{`
+5:78 StringLiteral `$"{$"`
+5:83 OpenBrace `{`
+5:84 StringLiteral `$"{$"`
+5:89 OpenBrace `{`
+5:90 StringLiteral `$"{$"`
+5:95 OpenBrace `{`
+5:96 Identifier `x`
+5:97 CloseBrace `}`
+5:98 StringLiteral `"}"`
+5:101 CloseBrace `}`
+5:102 StringLiteral `"}"`
+5:105 CloseBrace `}`
+5:106 StringLiteral `"}"`
+5:109 CloseBrace `}`
+5:110 StringLiteral `"}"`
+5:113 InterpolationEnd `}`
+5:114 InterpolatedStringEnd `"`
+5:115 CloseBrace `}`
+5:116 StringLiteral `"}"`
+5:119 InterpolationEnd `}`
+5:120 InterpolatedStringEnd `"`
+5:121 IntegerLiteral `00`
+5:123 InterpolationEnd `}`
+5:124 InterpolatedStringText `'`
+5:125 InterpolatedStringEnd
+6:1 CharLiteral `'x`
+7:2 Amp `&`
+7:4 AmpAmp `&&`
+7:7 Bar `|`
+7:9 BarBar `||`
+7:12 Caret `^`
+7:14 Tilde `~`
+7:16 Bang `!`
+7:18 Equals `=`
+7:20 EqualsEquals `==`
+7:23 BangEquals `!=`
+7:26 Less `<`
+7:28 LessEquals `<=`
+7:31 Greater `>`
+7:33 GreaterEquals `>=`
+7:36 LessLess `<<`
+7:39 Greater `>`
+7:40 Greater `>`
+7:42 Greater `>`
+7:43 GreaterEquals `>=`
+9:1 IntegerLiteral `0x`
+9:4 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  5 │ $"{$"{$"{�"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{T"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"00}'
+    │          ^
+
+error BYN0002: unexpected character `\u{1F}`
+
+  5 │ $"{$"{$"{�"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{T"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"00}'
+    │                         ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{�"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{T"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"00}'
+    │                                                 ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{�"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{T"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"00}'
+    │                                                         ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{�"{$"{$"{$"{$"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{T"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"00}'
+    │                                                                        ^^
+
+error BYN0008: unterminated char literal
+
+  6 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x 
+    │ ^^

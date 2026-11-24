@@ -1,0 +1,62 @@
+1:1 Identifier `b`
+2:1 Identifier `ever`
+2:6 Identifier `closed`
+3:3 Identifier `Å`
+4:1 IntegerLiteral `0xFF`
+4:5 NumericSuffix `s`
+6:1 LetKeyword `let`
+6:5 Identifier `a`
+6:7 Equals `=`
+6:9 IntegerLiteral `1`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ ������Å
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  3 │ ������Å
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ ������Å
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ ������Å
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������Å
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������Å
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������Å
+    │      ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  3 │ ������Å
+    │       ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ������Å
+    │   │       +
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

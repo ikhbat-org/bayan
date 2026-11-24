@@ -1,0 +1,42 @@
+error BYN2230: `string.from` is now `Utf8.decode`
+  --> tmp/t26-tests/cli/diag_codec-renames.byn/codec-renames.byn:4:24
+
+  4 │     let _ = try string.from(hi.span)
+    │                        ^^^^ the old name
+    │
+  help: write `Utf8.decode`
+    │ 4 │     let _ = try Utf8.decode(hi.span)
+    │   │                 +++++++++++
+
+error BYN2230: `string.fromUtf8` is now `Utf8.decode`
+  --> tmp/t26-tests/cli/diag_codec-renames.byn/codec-renames.byn:5:24
+
+  5 │     let _ = try string.fromUtf8(hi.span)
+    │                        ^^^^^^^^ the old name
+    │
+  help: write `Utf8.decode`
+    │ 5 │     let _ = try Utf8.decode(hi.span)
+    │   │                 +++++++++++
+
+error BYN2230: `string.tryFrom` is now `Utf8.tryDecode`
+  --> tmp/t26-tests/cli/diag_codec-renames.byn/codec-renames.byn:6:20
+
+  6 │     let _ = string.tryFrom(hi.span)
+    │                    ^^^^^^^ the old name
+    │
+  help: write `Utf8.tryDecode`
+    │ 6 │     let _ = Utf8.tryDecode(hi.span)
+    │   │             ++++++++++++++
+
+error BYN2230: `try string(bytes)` is now `try Utf8.decode(bytes)`
+  --> tmp/t26-tests/cli/diag_codec-renames.byn/codec-renames.byn:7:17
+
+  7 │     let _ = try string(hi.span)
+    │                 ^^^^^^ the old name
+    │
+  help: write `Utf8.decode`
+    │ 7 │     let _ = try Utf8.decode(hi.span)
+    │   │                 +++++++++++
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2230

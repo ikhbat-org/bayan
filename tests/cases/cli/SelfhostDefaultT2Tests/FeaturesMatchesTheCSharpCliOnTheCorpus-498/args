@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/division-by-zero.byn
+--package
+<repo>/tests/cases/diag

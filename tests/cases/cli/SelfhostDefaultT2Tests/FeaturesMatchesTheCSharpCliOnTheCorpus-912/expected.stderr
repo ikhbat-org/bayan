@@ -1,0 +1,5 @@
+error BYN2003: `get` is not a member of `Json`
+  --> <repo>/tests/cases/diag/std-json-no-lookup.byn:6:38
+
+  6 │     print(json.Json.encode(json.Json.get(v, "a")) catch "")
+    │                                      ^^^

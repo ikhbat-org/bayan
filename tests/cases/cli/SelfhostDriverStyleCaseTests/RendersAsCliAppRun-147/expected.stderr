@@ -1,0 +1,9 @@
+[1m[31merror BYN2104[0m: `x` is immutable
+[2m  -->[0m <repo>/tmp/t7-style/types-fail-always/tally/main.byn:3:5
+
+  [2m3[0m [2m│[0m     x = 2
+    [2m│[0m     [1m[31m^ declared with `let` on line 2[0m
+    [2m│[0m
+  [1m[34mhelp:[0m declare it with `var` if it should change
+    [2m│[0m [2m2[0m [2m│[0m     var x = 1
+    [2m│[0m   [2m│[0m     [34m+++[0m

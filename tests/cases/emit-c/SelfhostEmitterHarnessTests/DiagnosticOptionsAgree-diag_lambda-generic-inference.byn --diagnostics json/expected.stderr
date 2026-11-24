@@ -1,0 +1,2 @@
+{"code":"BYN2218","severity":"error","file":"input.byn","span":{"start":90,"end":92,"line":4,"column":21,"endLine":4,"endColumn":23},"message":"`[ … ]` needs a known type here","label":null,"help":"declare the type: `List<i64> xs = [1, 2]`","fixes":[]}
+{"code":"BYN2740","severity":"error","file":"input.byn","span":{"start":85,"end":89,"line":4,"column":16,"endLine":4,"endColumn":20},"message":"cannot infer type argument `T` of `pick`","label":null,"help":"pass an argument it can be read from, or write it out: `pick<T>(…)`","fixes":[]}

@@ -1,0 +1,25 @@
+== path imports-dir
+module b.c tmp/t11-cases/imports/app/b/c b_c
+file b/c/c.byn source
+module a tmp/t11-cases/imports/app/a a
+file a/a1.byn source
+import c b.c
+file a/a2.byn source
+module d tmp/t11-cases/imports/app/d d
+file d/d.byn source
+module e tmp/t11-cases/imports/app/e e
+file e/e.byn source
+module main tmp/t11-cases/imports/app main
+file tmp/t11-cases/imports/app/main.byn source
+import a a
+import c b.c
+import x a
+import d d
+file tmp/t11-cases/imports/app/zz.byn source
+import a a
+import e e
+diag BYN2010 b/c/c.byn 1:8 import cycle: a → b.c → a |  | move the shared declarations into a module both can import
+diag BYN2006 tmp/t11-cases/imports/app/main.byn 4:8 `a` is declared twice |  | 
+diag BYN2004 tmp/t11-cases/imports/app/main.byn 5:8 no module `nope.deep` |  | put the module's `.byn` files in `nope/deep/` next to the entry file; a module is a directory
+diag BYN1001 d/d.byn 2:8 expected a struct name, found `{` |  | 
+diag BYN1001 d/d.byn 3:1 expected `}`, found end of file |  | close the struct opened on line 2

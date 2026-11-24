@@ -1,0 +1,2 @@
+run	$WORK/p/main.byn	--	a	b c
+$ cat args.txt

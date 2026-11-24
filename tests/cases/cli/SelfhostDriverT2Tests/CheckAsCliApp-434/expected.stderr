@@ -1,0 +1,20 @@
+warning BYN5104: `draft` holds a collection; name it with a plural, `drafts`
+  --> <repo>/tmp/t2/diag/number-agreement-exempt/number-agreement-exempt.byn:12:34
+
+  12 │     public Untrusted<List<Line>> draft
+     │                                  ^^^^^
+     │
+  help: rename it `drafts`
+     │ 12 │     public Untrusted<List<Line>> drafts
+     │    │                                       +
+
+error BYN2770: unknown attribute `json`
+  --> <repo>/tmp/t2/diag/number-agreement-exempt/number-agreement-exempt.byn:22:6
+
+  22 │     @json(name: "line")
+     │      ^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+✗ build failed: 1 error, 1 warning
+  explain: bayan explain BYN2770

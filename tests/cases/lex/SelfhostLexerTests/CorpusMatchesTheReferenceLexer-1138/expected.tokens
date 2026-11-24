@@ -1,0 +1,49 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+2:1 CharLiteral `'x`
+3:2 IntegerLiteral `0x`
+4:1 Identifier `foo`
+4:5 Identifier `Bar`
+4:9 Identifier `_x`
+4:12 Identifier `camelCase2`
+4:23 Identifier `بيان`
+4:28 Identifier `μετρητής`
+4:37 Identifier `x_1`
+4:41 Identifier `é`
+    doc `/// Doc line one.`
+7:2 Plus `+`
+7:4 Minus `-`
+7:6 Star `*`
+7:8 Slash `/`
+7:10 Percent `%`
+7:12 PlusPercent `+%`
+7:15 MinusPercent `-%`
+7:18 StarPercent `*%`
+7:21 PlusBar `+|`
+7:24 MinusBar `-|`
+7:27 StarBar `*|`
+7:30 PlusPlus `++`
+7:33 MinusMinus `--`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 Identifier `a`
+8:7 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │  0x
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  8 │  $"{a 
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string

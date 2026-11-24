@@ -1,0 +1,19 @@
+== tests/cases/diag/non-exhaustive-catch.byn
+135..186 blockStmt
+141..165 guardedStmt
+156..165 memberExpr
+156..157 nameExpr
+141..145 failStmt
+146..152 targetMemberExpr
+170..174 failStmt
+175..184 targetMemberExpr
+188..240 globalStatement
+188..240 localDecl
+196..240 catchExpr
+196..206 callExpr
+202..205 literalExpr string
+213..240 switchExpr
+213..219 caughtErrorExpr
+226..232 constantPattern
+226..232 targetMemberExpr
+236..237 literalExpr integer

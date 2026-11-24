@@ -1,0 +1,10 @@
+error BYN2612: allocation is not allowed in a panic handler
+  --> input.byn:3:13
+
+  3 │     let s = Symbol.intern(p.message)
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: remove it; panic handlers can't recover
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2612

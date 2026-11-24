@@ -1,0 +1,1 @@
+{"code":"BYN2214","severity":"error","file":"input.byn","span":{"start":8,"end":10,"line":1,"column":9,"endLine":1,"endColumn":11},"message":"`^` is only allowed inside an index or slice","label":null,"help":null,"fixes":[]}

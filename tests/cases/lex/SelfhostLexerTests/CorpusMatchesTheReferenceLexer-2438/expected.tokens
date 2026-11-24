@@ -1,0 +1,11 @@
+1:1 Identifier `raw`
+1:5 StringLiteral `"quoted"`
+2:3 RawStringLiteral `""" c"tex, . .. ..= : ? ?? ??= ?. => -> @ #\n ay } here"\n$"open {x osed\nb\n'ab'\n\n( ) [ ] { }\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"tex, . .. ..= : ? ?? ??= ?. => -> @ #
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

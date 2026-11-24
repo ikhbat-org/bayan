@@ -1,0 +1,7 @@
+"text" "esc \"q\" \\ \n" """
+x́́
+let law = 3
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Poin� { x = 1 }}!" $""
+ $"stray } here"
+

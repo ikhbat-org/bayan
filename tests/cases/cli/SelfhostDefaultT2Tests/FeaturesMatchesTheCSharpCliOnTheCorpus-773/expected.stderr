@@ -1,0 +1,5 @@
+error BYN2212: `i32` cannot be indexed
+  --> <repo>/tests/cases/diag/not-indexable.byn:2:9
+
+  2 │ let d = n[0]
+    │         ^

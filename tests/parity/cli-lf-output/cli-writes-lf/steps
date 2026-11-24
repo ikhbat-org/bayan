@@ -1,0 +1,3 @@
+check	bad/bad.byn
+types	good/good.byn
+$ $BAYAN check bad/bad.byn 2>&1 | LC_ALL=C grep -c "$(printf '\r')"; $BAYAN types good/good.byn 2>&1 | LC_ALL=C grep -c "$(printf '\r')"

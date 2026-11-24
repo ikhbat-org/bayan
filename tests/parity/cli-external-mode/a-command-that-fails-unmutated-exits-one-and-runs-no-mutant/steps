@@ -1,0 +1,1 @@
+$ $BAYAN mutate --binary $WORK/prog --sites $WORK/prog.sites.json -- /bin/sh -c 'echo $BAYAN_MUTANT >> $WORK/log.txt; exit 3' > out.txt 2> err.txt; echo "mutate $?"; grep -o unmutated err.txt | sort -u; cat log.txt; grep -c a.byn out.txt; [ -f bayan-quality.json ] || echo "no report"

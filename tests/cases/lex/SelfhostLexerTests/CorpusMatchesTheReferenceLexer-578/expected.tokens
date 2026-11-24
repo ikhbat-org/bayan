@@ -1,0 +1,34 @@
+1:1 Identifier `Å`
+2:5 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\né �v�`
+3:6 EndOfFile
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ Å
+    │ ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å
+    │   │ +
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ ̈́   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ̈́   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │     ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  3 │ é �v�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  3 │ é �v�
+    │      ^

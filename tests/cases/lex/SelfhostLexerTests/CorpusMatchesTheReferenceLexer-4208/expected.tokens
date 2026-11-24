@@ -1,0 +1,50 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"op�n`
+3:1 StringLiteral `"{`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:11 IntegerLiteral `1`
+5:2 Identifier `ine`
+5:6 Identifier `comment`
+7:14 Identifier `a`
+    doc `/// Doc line one.\n/// D`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "op�n
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  1 │ let a = "op�n
+    │            ^
+
+error BYN0003: unterminated string literal
+
+  3 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  4 │ let a = $ 1
+    │         ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  6 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 6 │ // block
+    │   │  +++++++
+    │ 7 │ // commen"
+    │   │ ++++++++++
+    │ 8 │  a

@@ -1,0 +1,8 @@
+== tests/cases/diag/duplicate-conformance.byn
+102..113 binaryExpr mul right 109..113
+102..113 binaryExpr mul right 109..113
+102..113 binaryExpr mul right 109..113
+102..106 nameExpr
+102..106 nameExpr
+109..113 nameExpr
+109..113 nameExpr

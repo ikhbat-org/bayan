@@ -1,0 +1,48 @@
+1:2 LetKeyword `let`
+1:6 EffectKeyword `effect`
+1:13 Equals `=`
+1:15 IntegerLiteral `2`
+2:2 Identifier `rivation`
+2:11 AttributeKeyword `attribute`
+3:1 Identifier `error8`
+3:8 SetKeyword `set`
+3:12 UnitKeyword `unit`
+3:17 Identifier `distin`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `x`
+4:4 InterpolationStart `{`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolationStart `{`
+4:10 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ �����let effect = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ �����let effect = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let effect = 2
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let effect = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �����let effect = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"x{ $"{ 
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,29 @@
+2:1 IntegerLiteral `10000`
+2:6 CloseBrace `}`
+2:7 CharLiteral `'`
+3:1 CharLiteral `'x`
+4:1 StringLiteral `"text"`
+4:8 StringLiteral `"esc\"q\" \\ \n"`
+4:25 RawStringLiteral `"""\n is and or not with move ref out this null true false comptime checked\n\u{2066}\n0x\n`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  2 │ 10000}'
+    │       ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  4 │ "text" "esc\"q\" \\ \n" """
+    │                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

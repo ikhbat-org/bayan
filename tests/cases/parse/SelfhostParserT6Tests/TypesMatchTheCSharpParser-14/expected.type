@@ -1,0 +1,2 @@
+(named 0..10 0..4 < (named 5..9 5..9 < >) >) at 4
+BYN1048 5+4 `char` is now `rune` [the input form] [rename the type to `rune`] fix 5+4 'rune'

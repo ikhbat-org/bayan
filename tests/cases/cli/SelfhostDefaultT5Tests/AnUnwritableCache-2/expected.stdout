@@ -1,0 +1,7 @@
+[32m◆[0m bayan       <version>
+[32m◆[0m host        <host>
+[32m◆[0m C compiler  <host>
+[32m◆[0m zig         <host>
+[32m◆[0m git         <host>
+[31m✗ cache: <repo>/tmp/t5-doctor/cache/file isn't writable: <message>[0m
+[34m  help: set BAYAN_CACHE to a writable directory[0m

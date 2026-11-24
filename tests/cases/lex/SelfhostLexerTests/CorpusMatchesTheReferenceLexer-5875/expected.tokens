@@ -1,0 +1,25 @@
+1:1 IntegerLiteral `1__`
+2:1 StringLiteral `"`
+3:1 Comma `,`
+3:3 Identifier `O`
+3:4 Dot `.`
+3:6 DotDot `..`
+3:9 DotDotEquals `..=`
+3:13 Colon `:`
+3:15 Question `?`
+4:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  2 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

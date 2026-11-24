@@ -1,0 +1,7 @@
+== path effect
+module std.probe <std>/probe std_probe
+file <std>/probe/probe.byn
+module main tmp/std-cases/effect main
+file tmp/std-cases/effect/main.byn
+import probe std.probe
+diag BYN6002 tmp/std-cases/effect/main.byn 4:5 `store` uses `fs` but does not declare it | uses `fs` | add `fs` to the `uses` clause, or remove the call

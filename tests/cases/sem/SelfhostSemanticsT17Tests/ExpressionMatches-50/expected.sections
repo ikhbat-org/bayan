@@ -1,0 +1,2 @@
+== case fn-exact-params
+functionRef 1467..1470 : (i32, i32) -> i32 add(i32, i32)

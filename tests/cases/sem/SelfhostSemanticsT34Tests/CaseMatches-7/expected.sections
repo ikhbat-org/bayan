@@ -1,0 +1,5 @@
+== s34
+switchExpr|i32|3281:35
+value local:rune=ch
+arm 3293:13 rangePattern[3293:8]:rune(literal:rune=a,literal:rune=z,false) guard - value literal:i32=1
+arm 3308:6 bindPattern[3308:1]:rune_(-) guard - value literal:i32=0

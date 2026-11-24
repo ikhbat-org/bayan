@@ -1,0 +1,9 @@
+warning BYN2311: `t` is never reassigned; declare it with `let`
+  --> <repo>/tmp/l006/switch-move-binds-disjoint-parts-and-moves-them-on/main.byn:18:9
+
+  18 │     var t = Two { first: List<i64>(), second: List<i64>() }
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 18 │     let t = Two { first: List<i64>(), second: List<i64>() }
+     │    │     +++

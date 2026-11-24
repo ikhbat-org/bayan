@@ -1,0 +1,74 @@
+== stmts
+fn typed locals=16 ctx=0 panic=0
+  local x:i32
+  local t:List<i32>
+  local t:i64
+  local y:i32
+  local x:u8
+  local t:i64
+  local y:u8
+  local x:i16
+  local t:ReadOnlySpan<i16>
+  local t:i64
+  local y:i16
+  local k:i32
+  local t:i32
+  local t:i32
+  local y:i32
+  local t:i64
+  block
+    assign - t xs
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc40(t; ):i64):bool)
+          block
+            goto break_1
+        assign - x idxu(t, t):i32
+        assign - y x
+        label continue_2
+        assign - t (5 t lit:i64 0:1):i64
+    label break_1
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc66(a; ):i64):bool)
+          block
+            goto break_3
+        assign - x idxu(a, t):u8
+        assign - y x
+        label continue_4
+        assign - t (5 t lit:i64 0:1):i64
+    label break_3
+    assign - t sp
+    assign - t lit:i64 0:0
+    loop
+      block
+        if un(2 (13 t bc34(t; ):i64):bool)
+          block
+            goto break_5
+        assign - x idxu(t, t):i16
+        assign - y x
+        label continue_6
+        assign - t (5 t lit:i64 0:1):i64
+    label break_5
+    assign - t lit:i32 0:0
+    assign - t n
+    loop
+      block
+        if un(2 (13 t t):bool)
+          block
+            goto break_7
+        assign - k t
+        assign - y k
+        label continue_8
+        assign - t (5 t lit:i32 0:1):i32
+    label break_7
+    assign - tup(t).1:i64 (0 tup(t).1:i64 lit:i64 0:1):i64
+    assign - fld(q).b (0 fld(q).b lit:i64 0:2):i64
+    assign - idx(ys, lit:i64 0:1, end=1):i64 lit:i64 0:3
+    assign - t (0 m lit:i64 0:1):i64
+    assign - idx(ys, t, end=1):i64 (0 idx(ys, t, end=1):i64 lit:i64 0:4):i64
+    assign - idx(a, (0 m lit:i64 0:2):i64, end=1):u8 lit:u8 0:5
+fn main locals=0 ctx=0 panic=0
+  block

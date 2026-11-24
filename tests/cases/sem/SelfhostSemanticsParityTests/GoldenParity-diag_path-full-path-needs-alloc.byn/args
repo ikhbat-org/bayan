@@ -1,0 +1,4 @@
+--golden
+--package
+<repo>/tests/cases/diag
+<repo>/tests/cases/diag/path-full-path-needs-alloc.byn

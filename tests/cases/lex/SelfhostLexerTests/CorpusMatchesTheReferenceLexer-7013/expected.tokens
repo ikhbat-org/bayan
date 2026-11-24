@@ -1,0 +1,17 @@
+1:1 Identifier `b`
+    doc `/// Doc li�ne two.`
+5:1 StringLiteral `"{`
+6:1 CloseBrace `}`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  3 │ /// Doc li�ne two.
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  5 │ "{
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

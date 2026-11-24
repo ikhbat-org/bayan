@@ -1,0 +1,3 @@
+== diags.static-ref-this
+BYN2022 4:19 `ref this` on a static method is not supported in v0.1
+  help remove `ref this`; only an instance method has a `this` to change

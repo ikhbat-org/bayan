@@ -1,0 +1,30 @@
+1:1 CharLiteral `'ab�`
+2:2 IntegerLiteral `0b102`
+3:2 Identifier `ạ̇`
+4:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'ab�
+    │ ^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  1 │ 'ab�
+    │    ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │  0b102
+    │      ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  ạ̇
+    │   │  ++

@@ -1,0 +1,221 @@
+import lexer
+import parser
+
+void tcDump(ref Ctx c, for BNode n, at i64 depth) {
+    var sb = StrBuf()
+    for i in 0..depth { sb.append("  ") }
+    if n == -1 {
+        sb.append("none")
+        print($"{sb.finish()}")
+        return
+    }
+    let k = boundKind(n)
+    let span = nodeSpan(in c, for: n)
+    sb.append($"{k} {span.start}..{span.end}")
+    if isExprKind(k) { sb.append($" : {typeDisplay(ref c, by: exprType(in c, for: n))}") }
+    if k == .forStmt {
+        if (c.bFors[boundIndex(n)].userIteration is { } u) {
+            let advance = u.advance != -1 ? c.functions[u.advance].name : c.fields[u.advanceField].name
+            let item = u.item != -1 ? c.functions[u.item].name : c.fields[u.itemField].name
+            sb.append($" user {u.kind == .indexable ? "indexable" : "enumerator"} {advance} {item} {u.spill == -1 ? "-" : c.locals[u.spill].name}")
+        }
+    }
+    print($"{sb.finish()}")
+    var kids = List<BNode>()
+    for ch in children(in c, for: n) { kids.append(ch) }
+    for ch in kids { tcDump(ref c, for: ch, at: depth + 1) }
+}
+
+/// The `k`th function named `name` of the entry module, in declaration order.
+FuncId tcNth(in Ctx c, by string name, at i64 k) {
+    var seen: i64 = 0
+    for f in 0..c.functions.length {
+        if c.functions[f].name == name && c.functions[f].module == c.entryModule {
+            if seen == k { return f }
+            seen += 1
+        }
+    }
+    return -1
+}
+
+/// Every function of the entry module bound, as the C# `BindAll` does (generics.byn:163).
+void tcBindAll(ref Ctx c) {
+    // Compilation.cs BindAll checks conformances first; `userElement` reads their witnesses.
+    checkConformances(ref c)
+    let fns = copyIds(in c.modules[c.entryModule].allFunctions)
+    for fn in fns {
+        if !functionIsInstance(ref c, by: fn) { bindFunction(ref c, for: fn) }
+    }
+}
+
+void tcT36Diags(ref Ctx c, for string name) {
+    var keep = Map<string, bool>()
+    keep["BYN2221"] = true
+    keep["BYN2610"] = true
+    keep["BYN2402"] = true
+    keep["BYN1056"] = true
+    keep["BYN2403"] = true
+    keep["BYN2227"] = true
+    keep["BYN2228"] = true
+    keep["BYN2604"] = true
+    keep["BYN2603"] = true
+    keep["BYN2407"] = true
+    keep["BYN2020"] = true
+    keep["BYN2406"] = true
+    keep["BYN2606"] = true
+    keep["BYN2230"] = true
+    keep["BYN2614"] = true
+    keep["BYN2612"] = true
+    keep["BYN6007"] = true
+    keep["BYN2409"] = true
+
+    tcShared(name, to: ref keep)
+    for i in 0..c.diagnostics.length {
+        if !keep.contains(c.diagnostics[i].code) { continue }
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        let fixText = c.diagnostics[i].hasFix ? $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" : ""
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fixText}")
+    }
+}
+
+void tcBodies(ref Ctx c, for in List<string> names) {
+    for name in names {
+        print($"fn {name}")
+        tcDump(ref c, for: c.functions[tcNth(in c, by: name, at: 0)].body, at: 0)
+    }
+}
+
+string tcSource(string name) {
+    if name == "not-iterable" { return "for x in 5 {\n    print($\"{x}\")\n}\n" }
+    if name == "jump-out-of-defer" { return "void f() {\n    defer {\n        return\n    }\n}\n\nf()\n" }
+    if name == "fail-in-defer" { return "union error ParseError {\n    empty\n}\n\nvoid f() fails ParseError {\n    defer {\n        fail ParseError.empty\n    }\n}\n\nf()\n" }
+    if name == "missing-return-value" { return "i64 f() {\n    return\n}\n\nprint($\"{f()}\")\n" }
+    if name == "return-value-in-void" { return "void log() {\n    return 1\n}\n\nlog()\n" }
+    if name == "continue-switch" { return "let x = 1\npick: switch x {\n    case 1:\n        continue pick\n    default:\n        break\n}\n" }
+    if name == "unknown-label" { return "for i in 0..3 {\n    break outer\n}\n" }
+    if name == "jump-outside-loop" { return "break\n" }
+    if name == "errdefer-without-fails" { return "void f() {\n    defer failing print(\"x\")\n}\n\nf()\n" }
+    if name == "defer-failing-without-fails" { return "void f() {\n    defer failing print(\"x\")\n}\n\nf()\n" }
+    if name == "unknown-handler" { return "void main() {\n    let arena = Arena()\n    provide memory: arena {\n        print(\"x\")\n    }\n    provide suspend: arena {\n        print(\"y\")\n    }\n    provide alloc: arena, log: arena {\n        print(\"z\")\n    }\n}\n" }
+    if name == "duplicate-default" { return "let x = 1\nswitch x {\n    default:\n        break\n    default:\n        break\n}\n" }
+    if name == "unknown-variant" { return "union error MoneyError {\n    invalid\n}\n\nlet e = MoneyError.overflow\n" }
+    if name == "coalesce-break-outside-loop" { return "i64? find(i64 n) => n > 0 ? n : null\n\nlet v = find(1) ?? break\n" }
+    if name == "ambiguous-variant" { return "union error MoneyError {\n    invalid\n}\n\nunion error ParseError {\n    invalid\n}\n\nvoid check(i64 n) fails MoneyError, ParseError {\n    fail .invalid if n < 0\n}\n\ncheck(1) catch return\n" }
+    if name == "x-return" { return "union error ParseError {\n    empty\n    tooLong\n}\n\nenum Outcome {\n    empty\n    full\n}\n\ni64 parse(bool e, bool l) fails ParseError {\n    if e { return .empty }\n    if l { return ParseError.tooLong }\n    return 3\n}\n\nOutcome classify(bool l) fails ParseError {\n    if l { fail .tooLong }\n    return .empty\n}\n\ni64 none() {\n    return\n}\n\nvoid v(bool b) {\n    if b { return panic(\"x\") }\n    return 5\n}\n\nvoid main() {\n    return 1\n}\n" }
+    if name == "x-fail" { return "union error ParseError {\n    empty\n}\n\nunion error Other {\n    empty\n    gone\n}\n\nunion error MoneyError {\n    invalid\n}\n\nunion error Narrow = Other except .gone\n\ni64 f(bool e) {\n    if e { fail ParseError.empty }\n    return 1\n}\n\ni64 g(bool e) {\n    if e { fail .empty }\n    return 1\n}\n\ni64 h(bool e) fails ParseError {\n    if e { fail .missing }\n    return 1\n}\n\ni64 k(bool e) fails ParseError, Other {\n    if e { fail .empty }\n    return 1\n}\n\ni64 m(bool e) fails ParseError {\n    if e { fail MoneyError.invalid }\n    return 1\n}\n\ni64 n(bool e) fails ParseError {\n    if e { fail 5 }\n    return 1\n}\n\ni64 q(bool e) fails {\n    if e { fail .empty }\n    return 1\n}\n\ni64 r(bool e) fails Narrow {\n    if e { fail .gone }\n    return 1\n}\n\ni64 s(bool e) fails ParseError {\n    if e { fail ParseError.empty }\n    return 1\n}\n\nvoid main() {\n    fail .empty\n}\n" }
+    if name == "x-jump" { return "void main() {\n    outer: for i in 0..3 {\n        for j in 0..3 {\n            if j == 1 { continue outer }\n            if j == 2 { break outer }\n            break\n        }\n        defer {\n            break\n        }\n        continue\n    }\n    pick: switch 2 {\n        default:\n            if true { break pick }\n            continue pick\n    }\n    while true {\n        break nowhere\n    }\n    continue\n}\n" }
+    if name == "x-defer" { return "union error E {\n    bad\n}\n\ni64 work(bool b) fails E {\n    defer failing (e) {\n        print(\"failed\")\n    }\n    defer panicking (p) {\n        print(\"panicking\")\n        return 0\n    }\n    for i in 0..3 {\n        defer panicking {\n            break\n        }\n    }\n    if b { fail .bad }\n    return 1\n}\n\nvoid plain() {\n    defer failing {\n        print(\"never\")\n    }\n    defer panicking {\n        fail .bad\n    }\n}\n\nvoid onCrash(Panic p) {\n    print(\"crash\")\n}\n\nvoid twoArgs(Panic p, i64 n) {\n}\n\nvoid setUp() {\n    Panic.handler = onCrash\n}\n\nvoid main() {\n    Panic.onPanic = onCrash\n    Panic.handler = onCrash\n    Panic.handler = twoArgs\n    setUp()\n}\n" }
+    if name == "x-onpanic" { return "void onCrash(Panic p) {\n    print(\"crash\")\n}\n\nvoid main() {\n    print(\"starting\")\n    Panic.handler = 5\n}\n" }
+    if name == "x-context" { return "void main() {\n    let arena = Arena()\n    provide net: arena {\n        print(\"a\")\n    }\n    provide allocator: arena {\n        print(\"b\")\n    }\n    provide alloc: 5 {\n        print(\"c\")\n    }\n}\n" }
+    if name == "x-for" { return "union error ReadError {\n    broken\n}\n\nstruct Rows : IIndexable {\n    type Item = i64\n\n    i64 count => 2\n\n    i64 get(i64 index) => index\n}\n\nstruct Countdown : IEnumerator {\n    type Item = i64\n\n    i64 left\n\n    bool moveNext(ref this) {\n        left -= 1\n        return left >= 0\n    }\n\n    i64 current => left\n}\n\nstruct Lines {\n    i64 at\n\n    i64? next(ref this) fails ReadError {\n        at += 1\n        return null\n    }\n}\n\nCountdown from(i64 n) => Countdown { left: n }\n\nvoid take(i64 x) {\n}\n\nvoid takeMaybe(i64? x) {\n}\n\nvoid main2(List<i64> xs) fails ReadError {\n    let rows = Rows {}\n    for r in rows {\n        take(r)\n    }\n    var steps = Countdown { left: 3 }\n    for n in steps {\n        take(n)\n    }\n    for n: i64? in from(2) {\n        takeMaybe(n)\n    }\n    for n: bool in rows {\n        take(n)\n    }\n    let lines = Lines { at: 0 }\n    for line in lines {\n        print(\"l\")\n    }\n    for try x in xs {\n        print(\"x\")\n    }\n    for (a, b) in xs {\n        take(a)\n    }\n}\n" }
+    if name == "x-tuple" { return "void take(i64 x) {\n}\n\nvoid takeBool(bool x) {\n}\n\nvoid walk(List<(i64, bool)> pairs) {\n    for (a, b) in pairs {\n        take(a)\n        takeBool(b)\n    }\n    for (a, b, d) in pairs {\n        take(a)\n    }\n}\n" }
+    if name == "x-unique" { return "struct Rows : IIndexable {\n    type Item = List<i64>\n\n    i64 count => 1\n\n    List<i64> get(i64 index) => List<i64>()\n}\n\nvoid main() {\n    let rows = Rows {}\n    for row in rows {\n        print(\"row\")\n    }\n}\n" }
+    if name == "x-generic" { return "struct Rows : IIndexable {\n    type Item = i64\n\n    i64 count => 2\n\n    i64 get(i64 index) => index\n}\n\ni64 walk<T>(T items) where T : IIndexable {\n    for x in items {\n        let y = x\n    }\n    return 0\n}\n\ni64 step<T>(T items) where T : IEnumerator {\n    var it = items\n    for x in it {\n        let y = x\n    }\n    return 0\n}\n\nvoid none<T>(T items) {\n    for x in items {\n        print(\"x\")\n    }\n}\n\ni64 run() => walk(Rows {})\n" }
+    if name == "x-payload" { return "union error CarrierError {\n    timeout(i64 after)\n    closed\n}\n\nunion error Other {\n    gone(i64 code)\n}\n\nvoid ok() fails CarrierError {\n    fail .timeout(after: 5)\n}\n\nvoid unknown() fails CarrierError {\n    fail .missing(nope)\n}\n\nvoid infallible() {\n    fail .timeout(after: 1)\n}\n\nvoid qualified() fails CarrierError {\n    fail Other.gone(1)\n}\n" }
+    if name == "x-switch" { return "void main() {\n    let x = 1\n    switch x {\n        default:\n            print(\"a\")\n        default:\n            print(\"b\")\n    }\n}\n" }
+    if name == "x-switch-move" { return "union Box {\n    full(List<i64> items)\n    empty\n}\n\nvoid keep(move List<i64> xs) { }\n\nbool check(move List<i64> xs) => true\n\nvoid owned(move Box b) {\n    switch move b {\n        case .full(let items):\n            keep(move items)\n        default:\n    }\n}\n\nvoid borrowed(Box b) {\n    switch b {\n        case .full(let items):\n            keep(move items)\n        default:\n    }\n}\n\nvoid overlap() {\n    let a = List<i64>()\n    switch move a {\n        case let x and let y:\n            keep(move x)\n        default:\n    }\n}\n\nvoid guarded(move Box b) {\n    switch move b {\n        case .full(let items) when check(move items):\n            print(\"guarded\")\n        default:\n    }\n}\n" }
+    if name == "x-switch-state" { return "struct Order {\n    i64 id\n    states {\n        draft\n        paid(i64 payment)\n    }\n\n    i64 pay() {\n        switch this {\n            case .paid:\n                return payment\n            default:\n        }\n        return 0\n    }\n\n    i64 guarded(bool ok) {\n        switch this {\n            case .paid when ok:\n                return payment\n            default:\n        }\n        return 0\n    }\n\n    i64 all() {\n        switch this {\n            case .draft:\n                return 0\n            case .paid:\n                return payment\n        }\n        return 1\n    }\n}\n" }
+    return ""
+}
+void tcShared(string name, to ref Map<string, bool> keep) {
+    if name == "x-for" { keep["BYN2202"] = true }
+    if name == "x-for" { keep["BYN2411"] = true }
+    if name == "x-tuple" { keep["BYN2411"] = true }
+    if name == "x-unique" { keep["BYN2022"] = true }
+    if name == "x-fail" { keep["BYN2202"] = true }
+    if name == "x-defer" { keep["BYN2202"] = true }
+    if name == "x-onpanic" { keep["BYN2202"] = true }
+    if name == "x-context" { keep["BYN2022"] = true }
+    if name == "x-context" { keep["BYN2301"] = true }
+    if name == "x-payload" { keep["BYN2001"] = true }
+    if name == "x-switch-move" { keep["BYN2783"] = true }
+    if name == "x-switch-move" { keep["BYN2790"] = true }
+    if name == "x-switch-state" { keep["BYN7002"] = true }
+}
+List<string> tcDumped(string name) {
+    var names = List<string>()
+    if name == "jump-out-of-defer" { names.append("f") }
+    if name == "fail-in-defer" { names.append("f") }
+    if name == "missing-return-value" { names.append("f") }
+    if name == "return-value-in-void" { names.append("log") }
+    if name == "errdefer-without-fails" { names.append("f") }
+    if name == "defer-failing-without-fails" { names.append("f") }
+    if name == "unknown-handler" { names.append("main") }
+    if name == "coalesce-break-outside-loop" { names.append("find") }
+    if name == "ambiguous-variant" { names.append("check") }
+    if name == "x-return" { names.append("classify") }
+    if name == "x-return" { names.append("main") }
+    if name == "x-return" { names.append("none") }
+    if name == "x-return" { names.append("parse") }
+    if name == "x-return" { names.append("v") }
+    if name == "x-fail" { names.append("f") }
+    if name == "x-fail" { names.append("g") }
+    if name == "x-fail" { names.append("h") }
+    if name == "x-fail" { names.append("k") }
+    if name == "x-fail" { names.append("m") }
+    if name == "x-fail" { names.append("main") }
+    if name == "x-fail" { names.append("n") }
+    if name == "x-fail" { names.append("q") }
+    if name == "x-fail" { names.append("r") }
+    if name == "x-fail" { names.append("s") }
+    if name == "x-jump" { names.append("main") }
+    if name == "x-defer" { names.append("main") }
+    if name == "x-defer" { names.append("onCrash") }
+    if name == "x-defer" { names.append("plain") }
+    if name == "x-defer" { names.append("setUp") }
+    if name == "x-defer" { names.append("twoArgs") }
+    if name == "x-defer" { names.append("work") }
+    if name == "x-onpanic" { names.append("main") }
+    if name == "x-onpanic" { names.append("onCrash") }
+    if name == "x-context" { names.append("main") }
+    if name == "x-for" { names.append("from") }
+    if name == "x-for" { names.append("main2") }
+    if name == "x-for" { names.append("take") }
+    if name == "x-for" { names.append("takeMaybe") }
+    if name == "x-tuple" { names.append("take") }
+    if name == "x-tuple" { names.append("takeBool") }
+    if name == "x-tuple" { names.append("walk") }
+    if name == "x-unique" { names.append("main") }
+    if name == "x-generic" { names.append("none") }
+    if name == "x-generic" { names.append("run") }
+    if name == "x-generic" { names.append("step") }
+    if name == "x-generic" { names.append("walk") }
+    if name == "x-payload" { names.append("infallible") }
+    if name == "x-payload" { names.append("ok") }
+    if name == "x-payload" { names.append("qualified") }
+    if name == "x-payload" { names.append("unknown") }
+    if name == "x-switch" { names.append("main") }
+    if name == "x-switch-move" { names.append("borrowed") }
+    if name == "x-switch-move" { names.append("check") }
+    if name == "x-switch-move" { names.append("guarded") }
+    if name == "x-switch-move" { names.append("keep") }
+    if name == "x-switch-move" { names.append("overlap") }
+    if name == "x-switch-move" { names.append("owned") }
+    return names
+}
+
+
+i32 main(ReadOnlySpan<string> args) {
+    for name in args {
+        var bytes = List<u8>()
+        for x in tcSource(name).bytes { bytes.append(x) }
+        var sources = List<lexer.SourceText>()
+        sources.append(lexer.SourceText.create("tmp/t36-cases/main.byn", from: move bytes))
+        var c = Ctx {
+            files: List<SourceFile>(),
+            modules: List<Mod>(),
+            diagnostics: List<Diag>(),
+            bags: List<DiagBag>(),
+            packageRoot: "tmp/t36-cases",
+            displayRoot: "tmp/t36-cases",
+        }
+        c.entryModule = loadModule(ref c, for: "main", at: "tmp/t36-cases", from: move sources, by: -1)
+        buildLexicon(ref c)
+        declare(ref c)
+        print($"== {name}")
+        tcBindAll(ref c)
+        tcT36Diags(ref c, for: name)
+        tcBodies(ref c, for: in tcDumped(name))
+    }
+    return 0
+}

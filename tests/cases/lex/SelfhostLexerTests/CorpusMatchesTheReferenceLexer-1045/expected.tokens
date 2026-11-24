@@ -1,0 +1,111 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:2 Identifier `macro`
+2:8 Identifier `select`
+2:15 BecomeKeyword `become`
+3:4 Identifier `c`
+3:6 Greater `>`
+3:7 GreaterEquals `>=`
+3:10 IntegerLiteral `1`
+5:1 IntegerLiteral `1_`
+6:1 IntegerLiteral `0b102`
+7:1 IntegerLiteral `0xFF`
+7:5 NumericSuffix `s`
+8:1 IntegerLiteral `0b1`
+8:4 NumericSuffix `ms`
+9:1 IntegerLiteral `0x_`
+10:1 IntegerLiteral `0b__`
+12:1 IntegerLiteral `0`
+12:3 IntegerLiteral `42`
+12:6 IntegerLiteral `1_000_000`
+12:16 IntegerLiteral `0xFF`
+12:21 IntegerLiteral `0x_ff`
+12:27 IntegerLiteral `0b1010`
+12:34 IntegerLiteral `0B11`
+12:39 IntegerLiteral `5`
+12:40 NumericSuffix `s`
+12:42 IntegerLiteral `250`
+12:45 NumericSuffix `ms`
+12:48 IntegerLiteral `4`
+12:49 NumericSuffix `KiB`
+12:53 IntegerLiteral `1`
+12:54 NumericSuffix `u`
+12:56 IntegerLiteral `0xFF`
+12:60 NumericSuffix `u`
+12:62 IntegerLiteral `0b1`
+12:65 NumericSuffix `ul`
+12:68 IntegerLiteral `7`
+12:69 NumericSuffix `l`
+13:1 LetKeyword `let`
+13:5 Identifier `b`
+13:7 Equals `=`
+13:11 IntegerLiteral `2`
+15:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │  macro select become
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │  macro select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `\u{0}`
+
+  3 │  � c >>= 1
+    │  ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  6 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  8 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  9 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  10 │ 0b__
+     │ ^^^^
+
+error BYN0002: unexpected character ```
+
+  13 │ let b = ` 2
+     │         ^

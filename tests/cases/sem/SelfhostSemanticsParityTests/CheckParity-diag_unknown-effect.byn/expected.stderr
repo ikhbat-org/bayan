@@ -1,0 +1,29 @@
+error BYN6003: `loop` is not an effect
+  --> tmp/t26-tests/cli/diag_unknown-effect.byn/unknown-effect.byn:2:15
+
+  2 │ effect loop = loop, fs
+    │               ^^^^ the alias refers to itself
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN6003: `disk` is not an effect
+  --> tmp/t26-tests/cli/diag_unknown-effect.byn/unknown-effect.byn:3:20
+
+  3 │ effect store = db, disk
+    │                    ^^^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+error BYN6003: `disk` is not an effect
+  --> tmp/t26-tests/cli/diag_unknown-effect.byn/unknown-effect.byn:5:18
+
+  5 │ void save() uses disk, db { }
+    │                  ^^^^ not an effect or an `effect` alias of this module
+    │
+  help: choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`,
+        `console`, or a declared effect alias
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN6003

@@ -1,0 +1,4 @@
+== diags.diag/distinct-bare-literal
+BYN3204 4:17 `7` is not a `Id`
+  help wrap it: `Id(7)`
+  fix 4:17-4:18 Id(7)

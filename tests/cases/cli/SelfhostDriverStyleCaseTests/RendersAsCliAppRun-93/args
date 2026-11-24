@@ -1,0 +1,8 @@
+--ascii
+--color
+always
+build
+-v
+-o
+<repo>/tmp/t7-style/build-ok-verbose-ascii/tally/tally
+<repo>/tmp/t7-style/build-ok-verbose-ascii/tally/main.byn

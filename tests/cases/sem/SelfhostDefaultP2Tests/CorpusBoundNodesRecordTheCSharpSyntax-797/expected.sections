@@ -1,0 +1,54 @@
+== tests/cases/diag/region-combo-all-three.byn
+206..234 blockStmt
+212..232 returnStmt value 219..232
+219..232 callExpr
+219..220 nameExpr
+230..231 nameExpr
+271..300 blockStmt
+277..298 returnStmt value 284..298
+284..298 callExpr
+287..288 nameExpr
+296..297 nameExpr
+437..450 blockStmt
+443..448 assignStmt assign target 443..444 value 447..448
+443..444 nameExpr
+447..448 nameExpr
+464..703 blockStmt
+470..507 localDecl
+478..507 structLiteralExpr
+487..505 callExpr
+512..525 localDecl
+523..525 literalExpr string
+530..667 blockStmt
+540..565 localDecl
+558..565 callExpr
+574..608 localDecl
+585..608 callExpr
+589..594 literalExpr string
+602..607 nameExpr
+617..628 exprStmt
+617..628 callExpr
+617..618 nameExpr
+623..627 nameExpr
+637..661 exprStmt
+637..661 callExpr
+642..646 nameExpr
+656..660 nameExpr
+672..685 exprStmt
+672..685 callExpr
+678..684 indexExpr
+678..681 memberExpr
+678..679 nameExpr
+682..683 literalExpr integer
+672..685 callExpr
+690..701 exprStmt
+690..701 callExpr
+696..700 nameExpr
+690..701 callExpr
+372..396 blockStmt
+382..390 assignStmt assign target 382..386 value 389..390
+382..386 indexExpr
+382..383 nameExpr
+382..383 nameExpr
+384..385 literalExpr integer
+389..390 nameExpr

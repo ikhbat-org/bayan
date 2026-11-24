@@ -1,0 +1,9 @@
+1:1 StringLiteral `"{ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'`
+2:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

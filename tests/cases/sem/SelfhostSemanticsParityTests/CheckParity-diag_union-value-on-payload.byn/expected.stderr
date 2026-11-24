@@ -1,0 +1,10 @@
+error BYN2710: `circle` carries data and cannot have a value
+  --> tmp/t26-tests/cli/diag_union-value-on-payload.byn/union-value-on-payload.byn:2:21
+
+  2 │     circle(f32 r) = 1
+    │                     ^ only a case without data can have a value
+    │
+  help: remove the value
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2710

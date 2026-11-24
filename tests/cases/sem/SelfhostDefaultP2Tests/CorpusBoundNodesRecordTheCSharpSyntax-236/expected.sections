@@ -1,0 +1,21 @@
+== tests/cases/run/pending-peers-q74-mirror.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..19 localDecl
+18..19 literalExpr integer
+20..25 assignStmt assign target 20..21 value 24..25
+20..21 nameExpr
+24..25 nameExpr
+26..40 localDecl
+39..40 nameExpr
+39..40 nameExpr
+41..55 localDecl
+54..55 nameExpr
+54..55 nameExpr
+56..73 exprStmt
+56..73 callExpr
+62..72 interpolatedExpr
+65..66 nameExpr
+69..70 nameExpr
+56..73 callExpr

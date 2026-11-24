@@ -1,0 +1,45 @@
+1:1 Identifier `stra`
+1:6 CloseBrace `}`
+1:8 Identifier `here`
+1:12 StringLiteral `"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+3:2 Slash `/`
+3:4 Identifier `line`
+3:9 Identifier `c`
+3:10 Identifier `mment`
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ stra } here"
+    │            ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  3 │  / line c�mment
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �
+    │  ^

@@ -1,0 +1,24 @@
+1:1 Dot `.`
+2:1 StructKeyword `struct`
+2:8 Identifier `S`
+3:1 Slash `/`
+3:3 LetKeyword `let`
+3:7 Identifier `b`
+3:9 Equals `=`
+3:13 IntegerLiteral `2`
+5:2 FatArrow `=>`
+5:5 Arrow `->`
+5:8 At `@`
+5:10 Hash `#`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:15 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  3 │ / let b = ` 2
+    │           ^

@@ -461,6 +461,10 @@ uint32_t byn_io_read_text(byn_str path, byn_str* out, byn_alloc* alloc);
 uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc);
 /* `Io.stdin.readAll`: the same bytes as text; `BYN_IO_INVALID_UTF8` if they are not UTF-8. */
 uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc);
+/* `Io.stdin.read(to:)`: one read of at most `len` bytes from standard input into `ptr`, bytes as-is, after flushing
+ * stdout; blocks until at least one byte is available. Writes the count to `*got` (may be NULL): 0 at end of input or
+ * when `len` is 0. Returns 0 or an `IoError` code. */
+uint32_t byn_io_read_stdin_some(uint8_t* ptr, int64_t len, int64_t* got);
 uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len);
 /* `Io.listDir`: entry names without `.` and `..`, sorted by byte order, allocated from `alloc`. */
 uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* alloc);
@@ -624,6 +628,9 @@ uint32_t byn_fs_copy(byn_str path, byn_str dest);
 
 /* `Fs.modified`: the last write time. `out` may be NULL. */
 uint32_t byn_fs_modified(byn_str path, byn_time* out);
+
+/* `Fs.fileSize`: the size in bytes, without reading the file (`stat`, `GetFileAttributesExW`). `out` may be NULL. */
+uint32_t byn_fs_size(byn_str path, int64_t* out);
 
 /* `Fs.setModified`: sets the last write time (and leaves the access time). */
 uint32_t byn_fs_set_modified(byn_str path, byn_time t);
@@ -1906,7 +1913,7 @@ bool byn_view_more(byn_text_view v, int64_t pos, int32_t kind) {
 byn_text_view byn_parts(byn_str s, byn_str sep, int64_t limit, const char* file, int line) {
     if (sep.len == 0) byn_panic("parts with an empty separator", file, line);
     if (limit < 0) byn_panic("parts with a negative limit", file, line);
-    return (byn_text_view){s, sep, limit, 0};
+    return (byn_text_view){s, sep, limit, 0, {0}};
 }
 
 byn_text_view byn_parts_rune(byn_str s, uint32_t c, int64_t limit, const char* file, int line) {
@@ -1952,7 +1959,7 @@ byn_str byn_parts_next(byn_text_view* v, int64_t* pos) {
 }
 
 uint16_t* byn_utf16_copy(byn_str s, int64_t* len, byn_alloc* to) {
-    byn_text_view v = {s, {NULL, 0}, 0, 0};
+    byn_text_view v = {s, {NULL, 0}, 0, 0, {0}};
     int64_t n = 0;
     for (int64_t pos = 0; byn_view_more(v, pos, 1); byn_utf16_next(&v, &pos)) n++;
     *len = n;
@@ -3379,12 +3386,27 @@ static FILE* byn_io_open(byn_str path, const char* mode) {
 uint32_t byn_io_read(byn_str path, uint8_t** ptr, int64_t* len, byn_alloc* alloc) {
     FILE* f = byn_io_open(path, "rb");
     if (!f) return byn_io_error(errno);
+    /* One buffer of the file's size plus one byte, so EOF shows without growing: inside an arena every buffer a resize
+     * leaves behind stays live until the arena ends (a 1.5 MiB file kept about 4 MiB). Unseekable inputs start at 4 KiB.
+     * POSIX trusts only a regular file's st_size: ext4 seeks a directory's end to about LONG_MAX (laws-nightly 45095535473).
+     * Windows cannot open a directory here, so its seek is used. */
+    int64_t size = 0;
+#ifndef _WIN32
+    struct stat st;
+    if (fstat(fileno(f), &st) == 0 && S_ISREG(st.st_mode) && st.st_size > 0) size = (int64_t)st.st_size;
+#else
+    if (fseek(f, 0, SEEK_END) == 0) {
+        long end = ftell(f);
+        if (end > 0) size = (int64_t)end;
+    }
+    if (fseek(f, 0, SEEK_SET) != 0) size = 0, clearerr(f);
+#endif
     uint8_t* buf = NULL;
     int64_t cap = 0;
     int64_t n = 0;
     for (;;) {
         if (n == cap) {
-            int64_t grown = cap < 4096 ? 4096 : cap * 2;
+            int64_t grown = cap == 0 && size > 0 ? size + 1 : cap < 4096 ? 4096 : cap * 2;
             buf = (uint8_t*)alloc->resize(alloc, buf, cap, grown);
             cap = grown;
         }
@@ -3458,6 +3480,29 @@ uint32_t byn_io_read_stdin(byn_str* out, byn_alloc* alloc) {
     return 0;
 }
 
+uint32_t byn_io_read_stdin_some(uint8_t* ptr, int64_t len, int64_t* got) {
+    /* A reply written before the read must not wait in the buffer while this read blocks. */
+    byn_stdout_flush();
+    int64_t n = 0;
+    if (len > 0) {
+#ifdef _WIN32
+        static bool binary;
+        if (!binary) {
+            binary = true;
+            _setmode(0, _O_BINARY);
+        }
+        n = _read(0, ptr, len > INT_MAX ? INT_MAX : (unsigned)len);
+#else
+        size_t want = len > SSIZE_MAX ? (size_t)SSIZE_MAX : (size_t)len;
+        do n = read(0, ptr, want);
+        while (n < 0 && errno == EINTR);
+#endif
+        if (n < 0) return byn_io_error(errno);
+    }
+    if (got) *got = n;
+    return 0;
+}
+
 uint32_t byn_io_write_file(byn_str path, const uint8_t* ptr, int64_t len) {
     FILE* f = byn_io_open(path, "wb");
     if (!f) return byn_io_error(errno);
@@ -3514,6 +3559,25 @@ static wchar_t* byn_wide(const uint8_t* p, int64_t n) {
     return w;
 }
 
+/* With BAYAN_IO_TRACE naming a file, appends `<site> <Win32 code> <pid>` to it for an error the runtime reports as
+ * BYN_IO_OTHER (spec 019 T41b); a trace that cannot be written is dropped. The thread's last error is kept. */
+static void byn_io_trace(const char* site, DWORD e) {
+    DWORD keep = GetLastError();
+    wchar_t path[1024];
+    DWORD n = GetEnvironmentVariableW(L"BAYAN_IO_TRACE", path, 1024);
+    if (n > 0 && n < 1024) {
+        HANDLE h = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        if (h != INVALID_HANDLE_VALUE) {
+            char line[96];
+            int len = snprintf(line, sizeof line, "%s %lu %lu\n", site, (unsigned long)e, (unsigned long)GetCurrentProcessId());
+            DWORD wrote;
+            if (len > 0 && len < (int)sizeof line) WriteFile(h, line, (DWORD)len, &wrote, NULL);
+            CloseHandle(h);
+        }
+    }
+    SetLastError(keep);
+}
+
 static uint32_t byn_win_error(DWORD e) {
     switch (e) {
     case ERROR_FILE_NOT_FOUND:
@@ -3522,7 +3586,7 @@ static uint32_t byn_win_error(DWORD e) {
     case ERROR_BAD_PATHNAME: return BYN_IO_NOT_FOUND;
     case ERROR_ACCESS_DENIED: return BYN_IO_PERMISSION_DENIED;
     case ERROR_DIRECTORY: return BYN_IO_NOT_A_DIRECTORY;
-    default: return BYN_IO_OTHER;
+    default: byn_io_trace("win_error", e); return BYN_IO_OTHER;
     }
 }
 #else
@@ -3739,7 +3803,10 @@ uint32_t byn_io_list_dir(byn_str path, byn_str** ptr, int64_t* len, byn_alloc* a
 uint32_t byn_io_remove(byn_str path) {
     if (byn_path_effectively_empty(path) || memchr(path.ptr, 0, (size_t)path.len)) return BYN_IO_NOT_FOUND;
 #ifdef _WIN32
-    wchar_t* wpath = byn_wide(path.ptr, path.len);
+    /* As .NET `File.Delete`: `Path.GetFullPath`, then DeleteFileW; a missing file is not an error, a missing directory is. */
+    byn_path_buf f = byn_path_full(path, "Io.remove", NULL, 0);
+    wchar_t* wpath = byn_wide(f.p, f.n);
+    free(f.p);
     BOOL ok = DeleteFileW(wpath);
     DWORD e = ok ? 0 : GetLastError();
     free(wpath);
@@ -4029,6 +4096,29 @@ uint32_t byn_fs_modified(byn_str path, byn_time* out) {
     int64_t sec = st.st_mtim.tv_sec, nsec = st.st_mtim.tv_nsec;
 #endif
     if (out) out->nanos = sec * 1000000000 + nsec;
+    return 0;
+#endif
+}
+
+uint32_t byn_fs_size(byn_str path, int64_t* out) {
+    if (byn_has_nul(path)) return BYN_IO_INVALID_INPUT;
+#ifdef _WIN32
+    wchar_t* w = byn_wide(path.ptr, path.len);
+    WIN32_FILE_ATTRIBUTE_DATA a;
+    BOOL ok = GetFileAttributesExW(w, GetFileExInfoStandard, &a);
+    DWORD e = ok ? 0 : GetLastError();
+    free(w);
+    if (!ok) return byn_win_error(e);
+    if (out) *out = (int64_t)(((uint64_t)a.nFileSizeHigh << 32) | a.nFileSizeLow);
+    return 0;
+#else
+    char* c = byn_cstr(path);
+    struct stat st;
+    int rc = stat(c, &st);
+    int e = rc == 0 ? 0 : errno;
+    free(c);
+    if (rc != 0) return byn_io_error(e);
+    if (out) *out = (int64_t)st.st_size;
     return 0;
 #endif
 }
@@ -4564,8 +4654,13 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     int64_t start = byn_io_monotonic_nanos();
     DWORD waited = WaitForSingleObject(pi.hProcess, limit);
     bool expired = waited == WAIT_TIMEOUT;
-    if (!expired && waited != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
-    else if (!expired && !GetExitCodeProcess(pi.hProcess, &status)) *outcome = BYN_WAIT_QUERY_FAILED;
+    if (!expired && waited != WAIT_OBJECT_0) {
+        *outcome = BYN_WAIT_FAILED;
+        byn_io_trace("spawn_wait", GetLastError());
+    } else if (!expired && !GetExitCodeProcess(pi.hProcess, &status)) {
+        *outcome = BYN_WAIT_QUERY_FAILED;
+        byn_io_trace("spawn_query", GetLastError());
+    }
     HANDLE joins[3] = {threads[0], threads[1], ft};
     /* A descendant in the job can hold the pipes after the child ended in time, so the joins get what is left of the
      * timeout; once it passes the job is terminated as if the child had run on. */
@@ -4576,21 +4671,31 @@ static uint32_t byn_win_spawn(wchar_t* app, wchar_t* wline, const wchar_t* dir, 
     }
     if (expired) {
         *outcome = BYN_WAIT_TIMED_OUT;
-        if (!TerminateJobObject(job, 1) || WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) *outcome = BYN_WAIT_FAILED;
+        if (!TerminateJobObject(job, 1) || WaitForSingleObject(pi.hProcess, INFINITE) != WAIT_OBJECT_0) {
+            *outcome = BYN_WAIT_FAILED;
+            byn_io_trace("spawn_terminate", GetLastError());
+        }
     }
     CloseHandle(pi.hProcess);
     /* After the deadline the job's kill closed every holder of the pipes, so the joins end; the bound is for one that
      * did not, and for a terminate that failed. */
     DWORD bound = expired ? BYN_RUN_DRAIN_MS : INFINITE;
     bool abandoned = false;
+    DWORD drain_error = 0;
     for (int i = 0; i < 3; i++) {
         if (!joins[i]) continue;
-        if (WaitForSingleObject(joins[i], bound) != WAIT_OBJECT_0) abandoned = true;
+        if (WaitForSingleObject(joins[i], bound) != WAIT_OBJECT_0) {
+            abandoned = true;
+            drain_error = GetLastError();
+        }
         CloseHandle(joins[i]);
     }
     *raw = (uint32_t)status;
     if (abandoned) {
-        if (*outcome != BYN_WAIT_TIMED_OUT) *outcome = BYN_WAIT_FAILED;
+        if (*outcome != BYN_WAIT_TIMED_OUT) {
+            *outcome = BYN_WAIT_FAILED;
+            byn_io_trace("spawn_drain", drain_error);
+        }
     } else {
         CloseHandle(reads[0]);
         CloseHandle(reads[1]);

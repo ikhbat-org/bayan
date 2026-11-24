@@ -1,0 +1,57 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:1 IntegerLiteral `0b__`
+4:2 Identifier `Å`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dc`
+5:29 IntegerLiteral `1`
+5:30 DotDot `..`
+5:32 IntegerLiteral `2`
+5:34 IntegerLiteral `1`
+5:35 DotDotEquals `..=`
+5:38 IntegerLiteral `3`
+5:40 IntegerLiteral `5`
+5:41 NumericSuffix `e`
+5:43 Identifier `x`
+5:44 Dot `.`
+5:45 Identifier `y`
+5:47 FloatLiteral `2.5`
+5:50 NumericSuffix `f`
+7:1 CharLiteral `' \n" """`
+8:3 Identifier `raw`
+8:7 StringLiteral `"quoted"`
+9:2 CharLiteral `'a'`
+9:6 CharLiteral `'\n'`
+9:11 CharLiteral `'\u{1F600}'`
+9:23 CharLiteral `'\''`
+9:28 CharLiteral `'é'`
+9:32 CharLiteral `'\\'`
+9:37 CharLiteral `'\0'`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  4 │  Å
+    │  ^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  Å
+    │   │  +
+
+error BYN0008: unterminated char literal
+
+  7 │ ' \n" """
+    │ ^^^^^^^^^
+    │
+  help: close it with `'`

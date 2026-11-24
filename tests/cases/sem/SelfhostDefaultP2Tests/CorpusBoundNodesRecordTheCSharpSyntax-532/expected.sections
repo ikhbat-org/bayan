@@ -1,0 +1,24 @@
+== tests/cases/diag/generic-ref-changes-state.byn
+228..246 blockStmt
+234..244 assignStmt assign target 234..235 value 238..242
+234..235 nameExpr
+238..242 moveExpr
+243..244 nameExpr
+260..378 blockStmt
+266..313 localDecl
+281..313 structLiteralExpr
+298..299 literalExpr integer
+310..311 literalExpr integer
+318..355 exprStmt
+318..355 callExpr
+322..343 structLiteralExpr
+340..341 literalExpr integer
+353..354 nameExpr
+360..376 exprStmt
+360..376 callExpr
+366..375 interpolatedExpr
+369..373 memberExpr
+369..370 nameExpr
+360..376 callExpr
+228..246 blockStmt
+234..244 assignStmt assign target 234..235 value 238..242

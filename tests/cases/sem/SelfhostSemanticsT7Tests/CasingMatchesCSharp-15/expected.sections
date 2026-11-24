@@ -1,0 +1,3 @@
+== type-lower
+BYN2008 7+5 type name `point` must be PascalCase |  | rename it `Point` | 7+5=Point
+end

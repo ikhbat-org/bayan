@@ -1,0 +1,14 @@
+1:2 RawStringLiteral `""" s: List<List<i64>>\r\na >> b\r\nc >>= 1\r\n `
+4:2 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏""" s: List<List<i64>>
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ‏""" s: List<List<i64>>
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

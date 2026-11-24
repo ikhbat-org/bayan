@@ -1,0 +1,81 @@
+error BYN2831: `Reading` cannot be a `Map` key: field `value` is a `f64`
+  --> <repo>/tests/cases/diag/map-key-part.byn:3:9
+
+  3 │     Map<Reading, i32> readings
+    │         ^^^^^^^
+    │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2770: unknown attribute `noEquality`
+  --> <repo>/tests/cases/diag/map-key-part.byn:16:2
+
+  16 │ @noEquality
+     │  ^^^^^^^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+
+error BYN2831: `Weight` cannot be a `Map` key: field `grams` is a `f64`
+  --> <repo>/tests/cases/diag/map-key-part.byn:42:23
+
+  42 │     let weights = Map<Weight, i32>()
+     │                       ^^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2831: `(i32, List<i32>)` cannot be a `Map` key: element `2` is a `List<i32>`
+  --> <repo>/tests/cases/diag/map-key-part.byn:43:21
+
+  43 │     let lists = Map<(i32, List<i32>), i32>()
+     │                     ^^^^^^^^^^^^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2831: `Named` cannot be a `Map` key: field `name` is a `string?`
+  --> <repo>/tests/cases/diag/map-key-part.byn:44:25
+
+  44 │     let optionals = Map<Named, i32>()
+     │                         ^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2831: `Orbit` cannot be a `Map` key: field `planet` is a `Planet`
+  --> <repo>/tests/cases/diag/map-key-part.byn:45:22
+
+  45 │     let orbits = Map<Orbit, i32>()
+     │                      ^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2831: `Owner` cannot be a `Map` key: field `handle` is a `Handle`
+  --> <repo>/tests/cases/diag/map-key-part.byn:46:22
+
+  46 │     let owners = Map<Owner, i32>()
+     │                      ^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2760: `Handle` cannot be a `Map` key
+  --> <repo>/tests/cases/diag/map-key-part.byn:47:23
+
+  47 │     let handles = Map<Handle, i32>()
+     │                       ^^^^^^
+     │
+  help: use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct
+        of those as the key
+
+error BYN2831: `(i32, f64)` cannot be a `Map` key: element `2` is a `f64`
+  --> <repo>/tests/cases/diag/map-key-part.byn:48:22
+
+  48 │     let byLiteral = [(1, 2.5): 1]
+     │                      ^^^^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`
+
+error BYN2831: `Weight` cannot be a `Map` key: field `grams` is a `f64`
+  --> <repo>/tests/cases/diag/map-key-part.byn:51:14
+
+  51 │     print($"{heaviest(Weight { grams: 1.0 })}")
+     │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the generic code needs this of its type
+     │                                              arguments
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`

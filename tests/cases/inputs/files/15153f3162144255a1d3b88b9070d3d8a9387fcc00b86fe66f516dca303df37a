@@ -1,0 +1,5 @@
+a /* never closed
+
+struct S
+ // line comment
+ let c = """never closed

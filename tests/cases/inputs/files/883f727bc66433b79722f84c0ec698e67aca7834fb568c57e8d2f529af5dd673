@@ -1,0 +1,14 @@
+@positional
+struct P {
+    i64 x
+    i64 y
+}
+
+void f(rest i64 x) {}
+
+void main() {
+    let p = P(1, 2)
+    f(1)
+    var xs = List<i64>()
+    print($"{p.x}{xs.length}")
+}

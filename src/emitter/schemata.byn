@@ -232,7 +232,7 @@ void mutatorVisit(ref Ctx c, through ref MutatorWalker w, for BNode node, at BNo
         case .returnStmt:
             let value = c.bReturns[i].value
             if syntaxKind == .returnStmt && value != -1 {
-                // coverage-exempt: Q1099 through `if (rx.value is { } valueSyntax)`
+                // coverage-exempt: Q1099 through `if (syntax.value is { } valueSyntax)`
                 if syntax is not null {
                     if (syntax.value is { } valueSyntax) {
                         mutatorOnReturn(ref c, through: ref w, for: value, at: valueSyntax)
@@ -430,7 +430,7 @@ void mutatorOnLiteral(ref Ctx c, through ref MutatorWalker w, for BExpr l, at BN
     var literal: semantics.ExprSyntax? = null
     if e.kind == .literalExpr && e.literalKind == .integer {
         literal = e
-        // coverage-exempt: Q1099 through `if operand.kind == .literalExpr && operand.literalKind == .integer { literal = operand }`
+        // coverage-exempt: Q1099 through `literal = operand`
     } else if e.kind == .unaryExpr && e.op == .negate && e.operand != -1 {
         let operand = semantics.exprSyntaxNode(in c, at: e.operand)
         if operand.kind == .literalExpr && operand.literalKind == .integer {
@@ -776,7 +776,7 @@ Big t10BigDiv(Big a, by Big b, as bool remainder) {
     while bit >= 0 {
         let top = bit >= 64 ? (ua.hi >> u64(bit - 64)) & 1 : (ua.lo >> u64(bit)) & 1
         r = Big { lo: (r.lo << 1) | top, hi: (r.hi << 1) | (r.lo >> 63) }
-        // coverage-exempt: Q1099 through `if bit >= 64 { q.hi`
+        // coverage-exempt: Q1099 through `q.hi = q.hi |`
         if r.hi > ub.hi || r.hi == ub.hi && r.lo >= ub.lo {
             r = t10BigSub(r, by: ub)
             if bit >= 64 {

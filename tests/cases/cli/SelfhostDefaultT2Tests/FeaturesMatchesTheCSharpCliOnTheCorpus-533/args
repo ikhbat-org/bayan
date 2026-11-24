@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/empty-union.byn
+--package
+<repo>/tests/cases/diag

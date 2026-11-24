@@ -1,0 +1,41 @@
+public struct Table {
+    public i64 rowCount
+}
+
+public struct CsvParser {
+    public Table parse(ref this) => Table { rowCount: 0 }
+}
+
+// A static member counts as well as an instance one.
+public struct RowBuilder {
+    public static Table build() => Table { rowCount: 0 }
+}
+
+// The derived forms `tryX`, `xInto` and `xOp` count.
+public struct LineReader {
+    public Table? tryRead(ref this) => null
+}
+
+public struct TableWriter {
+    public void writeInto(ref this, Table table) {
+    }
+}
+
+public struct RowFormatter {
+    public string formatOp() => ""
+}
+
+public interface ITableLoader {
+    Table load(ref this)
+}
+
+// For `codec`, either verb counts.
+public struct TableCodec {
+    public string encode(Table table) => ""
+}
+
+public struct RowCodec {
+    public Table decode(string text) => Table { rowCount: 0 }
+}
+
+print("ok")

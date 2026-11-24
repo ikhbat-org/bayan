@@ -1,0 +1,8 @@
+note BYN1073: `c => c.…` reads one member and can use `it`
+
+  16 │     let before = any(customers, by: c => c.isActive)
+     │                                     ^^^^^^^^^^^^^^^ reads one member of its parameter
+     │
+  help: write `it` for the parameter
+     │ 16 │     let before = any(customers, by: it.isActive)
+     │    │                                     ++

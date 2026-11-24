@@ -1,0 +1,57 @@
+struct Point {
+    i64 x
+    i64 y
+    i64 sum() => x + y
+}
+
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+i64 sumAll(List<i64> xs) {
+    var sum: i64 = 0
+    for x in xs { sum += x }
+    var i = 0
+    while i < xs.length { i += 1 }
+    return sum + i
+}
+
+const limit: i64 = 100
+
+void main() {
+    var total: i64 = 0
+    if total >= 0 {
+        total += safe(total)
+        if total >= 0 {
+            total += sumAll([1, 2, 3])
+            if total >= 0 {
+                total += Point { x: total, y: 2 }.sum()
+                if total >= 0 {
+                    total += Point { x: total, y: 2 }.sum()
+                    if total >= 0 {
+                        total += safe(total)
+                        total += 1
+                    }
+                }
+            }
+        }
+    }
+    var owned6 = List<i64>()
+    owned6.append(total)
+    let taken6 = move owned6
+    total = owned6.length + taken6.length
+    print($"{total}")
+}

@@ -1,0 +1,10 @@
+let c = """never closed
+ //// not a doc comment
+
+   comment */ a
+
+let c =  3
+( ) [ ] { }
+
+var xs: List<List<i64>>
+ let c =  3

@@ -1,0 +1,58 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+1:13 CharLiteral `''`
+2:10 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3\''
+    │         ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ let c = � 3\''
+    │            ^
+
+error BYN0007: empty char literal
+
+  1 │ let c = � 3\''
+    │             ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* � */ �
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // �
+    │   │  +++
+    │ 3 │  �
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │ /* � */ �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAD)
+
+  2 │ /* � */ �
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │ /* � */ �
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  2 │ /* � */ �
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  2 │ /* � */ �
+    │          ^

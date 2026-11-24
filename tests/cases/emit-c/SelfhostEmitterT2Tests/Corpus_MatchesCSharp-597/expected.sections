@@ -1,0 +1,15 @@
+== ctype
+bynt_fn1u1_i64_console_i64
+int64_t
+int64_t
+bynt_fn1u1_i64_console_void
+void
+void
+int64_t
+int64_t
+int64_t
+void
+error byn_err
+order bynt_fn1u1_i64_console_i64
+order bynt_fn1u1_i64_console_void
+order byn_err

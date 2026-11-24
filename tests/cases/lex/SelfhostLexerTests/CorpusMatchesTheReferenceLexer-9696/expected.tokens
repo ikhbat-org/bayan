@@ -1,0 +1,43 @@
+2:2 Identifier `foo`
+2:6 Identifier `Bar`
+2:10 Identifier `_x`
+2:13 Identifier `camelCase2`
+2:24 Identifier `بيان`
+2:29 Identifier `μετ`
+2:33 Identifier `ρητής`
+2:39 Identifier `x_1`
+2:43 Identifier `é`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+5:1 Identifier `fals`
+5:6 TryKeyword `try`
+5:10 Identifier `catdh`
+5:16 NeverKeyword `never`
+5:22 NoallocKeyword `noalloc`
+5:30 NosuspendKeyword `nosuspend`
+5:40 SuspendsKeyword `suspends`
+5:49 AsyncKeyword `async`
+5:55 AwaitKeyword `await`
+6:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  2 │  foo Bar _x camelCase2 بيان μετ�ρητής x_1 é
+    │                                ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

@@ -1,0 +1,2 @@
+== lintSpanParameter.total
+BYN2310 151:11 `values` is never written through; use `ReadOnlySpan<i64>` ||take a `ReadOnlySpan`; it also accepts strings and read-only views|fix 2656..2660 ReadOnlySpan

@@ -1,0 +1,3 @@
+== analyzeOwnership.loopMove
+BYN2781 83:19 `xs` is used after it was moved |moved on line 83|assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead|
+BYN2781 93:14 `ys` is used after it was moved |moved on line 88|assign `ys` a new value before using it again, or move a `.copy(to: alloc)` of it instead|

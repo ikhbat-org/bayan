@@ -1,0 +1,19 @@
+== diags.diag/function-type-placement
+BYN2822 19:1 a function type is not supported as a return type yet
+  help take the function as a parameter instead
+BYN2822 21:8 a function type is not supported as the value of an optional yet
+  help take the function as a parameter instead
+BYN2822 24:13 a function type is not supported as a list element yet
+  help take the function as a parameter instead
+BYN2822 27:14 a function type is not supported as a tuple element yet
+  help take the function as a parameter instead
+BYN2822 30:8 a function type is not supported as an array element yet
+  help take the function as a parameter instead
+BYN2822 33:12 a function type is not supported as a type argument yet
+  help take the function as a parameter instead
+BYN2822 36:20 a function type is not supported as a map value yet
+  help take the function as a parameter instead
+BYN2822 39:13 a function type is not supported as a span element yet
+  help take the function as a parameter instead
+BYN2822 10:5 a function type is not supported as a field yet
+  help take the function as a parameter instead

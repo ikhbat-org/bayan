@@ -1,0 +1,5 @@
+== s31
+switchExpr|?|3111:37
+value local:Order.paid=op
+arm 3123:23 propertyPattern[3123:18]:Order.paid(Order.paid;|-) guard - value local:?=p
+BYN2003 102:29 `payment` is not a member of `Order.paid` |||

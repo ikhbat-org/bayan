@@ -1,0 +1,3 @@
+{"raw":"Content-Length: 37\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"a\"}"}
+{"raw":"Content-Length: 26\r\n\r\n{\"id\":5,\"method\":\"\\ud800\"}"}
+{"raw":"Content-Length: 37\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"b\"}"}

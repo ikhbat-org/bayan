@@ -1,0 +1,36 @@
+error BYN1017: parentheses around a condition are an input form
+  --> input.byn:3:8
+
+  3 │     if (x) if (x) print("a")
+    │        ^^^ not needed
+    │
+  help: remove the parentheses
+
+error BYN1018: the body of `if` must be a block
+  --> input.byn:3:12
+
+  3 │     if (x) if (x) print("a")
+    │            ^^^^^^^^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+
+error BYN1017: parentheses around a condition are an input form
+  --> input.byn:3:15
+
+  3 │     if (x) if (x) print("a")
+    │               ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 3 │     if (x) if x { print("a") }
+    │   │               ++++++++++++++++
+
+error BYN1018: the body of `if` must be a block
+  --> input.byn:3:19
+
+  3 │     if (x) if (x) print("a")
+    │                   ^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN1017

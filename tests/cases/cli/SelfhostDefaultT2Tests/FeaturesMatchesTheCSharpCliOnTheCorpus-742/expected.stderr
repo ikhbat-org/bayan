@@ -1,0 +1,5 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tests/cases/diag/mutate-temporary.byn:2:1
+
+  2 │ s.bytes[0] = 65
+    │ ^^^^^^^^^^ a `ReadOnlySpan` cannot be written through

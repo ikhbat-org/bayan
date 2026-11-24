@@ -1,0 +1,7 @@
+}"}"}"}"}"}"}"}"}"}"}"
+   """ c"text" u16"wide" "â€® allowed in strings" "" "\u{48}i"
+0xFFs
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+}'\u{110000}'
+ 'a'Õ'\n' '\u{1F600}' '\'' 'Ã©' '\\' '\0'
+struct unique union enum flags open extensible˜interface delegate extension derivation attribute

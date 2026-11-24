@@ -1,0 +1,39 @@
+2:2 IntegerLiteral `0xFF`
+2:6 NumericSuffix `s`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:11 OpenKeyword `open`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  2 │ ���0xFFs
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  2 │ ���0xFFs
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ ���0xFFs
+    │   ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ ���0xFFs
+    │        ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │  let a = �open
+    │          ^

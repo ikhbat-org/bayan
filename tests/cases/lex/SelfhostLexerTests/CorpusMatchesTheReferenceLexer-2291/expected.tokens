@@ -1,0 +1,83 @@
+1:1 OpenBrace `{`
+1:2 IntegerLiteral `110000`
+1:8 CloseBrace `}`
+1:9 CharLiteral `'`
+2:1 CharLiteral `'x`
+3:3 CloseBrace `}`
+3:4 StringLiteral `"}"`
+3:7 CloseBrace `}`
+3:8 StringLiteral `"}"`
+3:11 CloseBrace `}`
+3:12 StringLiteral `"}"`
+3:15 CloseBrace `}`
+3:16 StringLiteral `"`
+5:1 FloatLiteral `3.14`
+5:6 FloatLiteral `1e5`
+5:10 FloatLiteral `2.5e-3`
+5:17 FloatLiteral `6E+2`
+5:22 FloatLiteral `1.50`
+5:26 NumericSuffix `dec`
+5:30 IntegerLiteral `1`
+5:31 DotDot `..`
+5:33 IntegerLiteral `2`
+5:35 IntegerLiteral `1`
+5:36 DotDotEquals `..=`
+5:39 IntegerLiteral `3`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `e`
+5:44 Identifier `x`
+5:45 Dot `.`
+5:46 Identifier `y`
+5:48 FloatLiteral `2.5`
+5:51 NumericSuffix `f`
+6:2 LetKeyword `let`
+6:6 Identifier `a`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ {110000}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  2 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0002: unexpected character `̈́`
+
+  3 │  ̈́}"}"}"}"}"}"}"
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  3 │  ̈́}"}"}"}"}"}"}"
+    │                ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ����
+    │     ^

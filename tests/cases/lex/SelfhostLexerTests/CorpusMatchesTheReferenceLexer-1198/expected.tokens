@@ -1,0 +1,22 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n\n// �ok � in comment\n`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ // �ok � in comment
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // �ok � in comment
+    │        ^

@@ -1,0 +1,30 @@
+== sigs
+diag BYN2006 8:26 `a` is declared twice | already declared on line 8 |  | none
+diag BYN2607 10:18 public function `f3` must list its errors |  |  | none
+diag BYN2608 17:17 `i64` is not an error enum |  |  | none
+diag BYN2002 18:17 unknown type `Missing` |  |  | none
+diag BYN2022 19:10 `ref this` outside a struct is not supported in v0.1 |  | remove `ref this`; only an instance method has a `this` to change | none
+diag BYN2002 20:10 unknown type `Missing` |  |  | none
+diag BYN2009 21:14 `Bad` must be camelCase |  | rename it `bad`; only types are PascalCase | 21:14+3 "bad"
+diag BYN5004 23:6 `f14` has 3 unlabeled parameters; give each but one a particle | 3 unlabeled parameters | keep one unlabeled parameter, the object | none
+diag BYN5006 23:30 `o` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | none
+diag BYN5006 23:41 `r` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | none
+diag BYN2822 24:1 a function type is not supported as a return type yet |  | take the function as a parameter instead | none
+diag BYN2006 25:35 `a` is declared twice | already declared on line 25 |  | none
+states 0
+all f1 function module static=False abstract=False at=8:6 ret=void (a:i64@8:13#0:none,a:string@8:26#1:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f2 function module static=False abstract=False at=9:5 ret=i64 () fails=True infers=True mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f3 function public static=False abstract=False at=10:13 ret=void () fails=True infers=True mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f4 function module static=False abstract=False at=11:6 ret=void () fails=True infers=False mutating=False sets=[E1{a(),b()}] excluded=[] tparams=[] map=[]
+all f5 function module static=False abstract=False at=14:6 ret=void () fails=True infers=False mutating=False sets=[E1{a(),b()}] excluded=[] tparams=[] map=[]
+all f6 function module static=False abstract=False at=15:6 ret=void () fails=True infers=False mutating=False sets=[E1{a(),b()}] excluded=[] tparams=[] map=[]
+all f7 function module static=False abstract=False at=16:6 ret=void () fails=True infers=False mutating=False sets=[E1{a(),b()}] excluded=[] tparams=[] map=[]
+all f8 function module static=False abstract=False at=17:6 ret=void () fails=True infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f9 function module static=False abstract=False at=18:6 ret=void () fails=True infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f10 function module static=False abstract=False at=19:6 ret=void () fails=False infers=False mutating=True sets=[] excluded=[] tparams=[] map=[]
+all f11 function module static=False abstract=False at=20:6 ret=void (x:?@20:18#0:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f12 function module static=False abstract=False at=21:6 ret=void (Bad:i64@21:14#0:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f13 function module static=False abstract=False at=22:6 ret=void () fails=True infers=False mutating=False sets=[E1{a(),b()},E2{c()}] excluded=[E1.a] tparams=[] map=[]
+all f14 function module static=False abstract=False at=23:6 ret=void (m:i64@23:19#0:move,o:i64@23:30#1:out,r:i64@23:41#2:ref) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f15 function module static=False abstract=False at=24:14 ret=? () fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]
+all f16 function module static=False abstract=False at=25:6 ret=void (a:i64@25:14#0:none,b:i64@25:24#1:none,a:i64@25:35#2:none) fails=False infers=False mutating=False sets=[] excluded=[] tparams=[] map=[]

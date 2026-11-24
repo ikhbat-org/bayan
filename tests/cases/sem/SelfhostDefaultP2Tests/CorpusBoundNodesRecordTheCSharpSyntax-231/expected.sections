@@ -1,0 +1,76 @@
+== tests/cases/run/path-relative.byn
+183..220 callExpr
+183..220 callExpr
+183..220 callExpr
+203..207 nameExpr
+213..219 nameExpr
+222..539 globalStatement
+222..539 localDecl
+234..539 collectionExpr
+235..253 tupleExpr
+236..242 literalExpr string
+244..252 literalExpr string
+255..271 tupleExpr
+256..262 literalExpr string
+264..270 literalExpr string
+273..287 tupleExpr
+274..280 literalExpr string
+282..286 literalExpr string
+289..306 tupleExpr
+290..297 literalExpr string
+299..305 literalExpr string
+308..325 tupleExpr
+309..315 literalExpr string
+317..324 literalExpr string
+327..343 tupleExpr
+328..334 literalExpr string
+336..342 literalExpr string
+349..370 tupleExpr
+350..354 literalExpr string
+356..369 literalExpr string
+372..391 tupleExpr
+373..380 literalExpr string
+382..390 literalExpr string
+393..404 tupleExpr
+394..397 literalExpr string
+399..403 literalExpr string
+406..417 tupleExpr
+407..411 literalExpr string
+413..416 literalExpr string
+419..436 tupleExpr
+420..426 literalExpr string
+428..435 literalExpr string
+438..455 tupleExpr
+439..446 literalExpr string
+448..454 literalExpr string
+457..476 tupleExpr
+458..464 literalExpr string
+466..475 literalExpr string
+482..498 tupleExpr
+483..491 literalExpr string
+493..497 literalExpr string
+500..513 tupleExpr
+501..506 literalExpr string
+508..512 literalExpr string
+515..538 tupleExpr
+516..524 literalExpr string
+526..537 literalExpr string
+540..617 forStmt
+558..563 nameExpr
+564..617 blockStmt
+545..549 name
+545..549 name
+545..549 name
+551..553 name
+551..553 name
+551..553 name
+564..617 blockStmt
+570..615 exprStmt
+570..615 callExpr
+576..614 interpolatedExpr
+579..583 nameExpr
+589..591 nameExpr
+595..612 callExpr
+599..603 nameExpr
+609..611 nameExpr
+570..615 callExpr

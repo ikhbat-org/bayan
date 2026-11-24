@@ -1,0 +1,4 @@
+== bind.probes.r6
+flags 0
+errorExpr:?[3198:3]=-()
+BYN2215 173:14 a range needs both ends here ||use open ranges (`a..`, `..b`) only inside `[ ]`|

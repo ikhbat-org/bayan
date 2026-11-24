@@ -1,0 +1,144 @@
+1:6 StringLiteral `"{$"`
+1:10 OpenBrace `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 Identifier `x`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 Identifier `__`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 TrueKeyword `true`
+2:48 FalseKeyword `false`
+2:53 ComptimeKeyword `comptime`
+2:62 CheckedKeyword `checked`
+3:4 LetKeyword `let`
+3:8 Identifier `b`
+3:10 Equals `=`
+3:14 IntegerLiteral `2`
+4:1 Plus `+`
+4:3 Identifier `V`
+4:4 Minus `-`
+4:6 Star `*`
+4:8 Slash `/`
+4:10 Percent `%`
+4:12 PlusPercent `+%`
+4:15 MinusPercent `-%`
+4:18 StarPercent `*%`
+4:21 PlusBar `+|`
+4:24 MinusBar `-|`
+4:27 StarBar `*|`
+4:30 PlusPlus `++`
+4:33 MinusMinus `--`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │      ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ������ $�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"__
+    │                                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  2 │ is and or not with move ref out this null true false�comptime checked
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │  �� let b = ` 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �� let b = ` 2
+    │   ^
+
+error BYN0002: unexpected character ```
+
+  3 │  �� let b = ` 2
+    │             ^

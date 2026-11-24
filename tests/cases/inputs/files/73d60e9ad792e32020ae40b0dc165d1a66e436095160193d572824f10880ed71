@@ -1,0 +1,22 @@
+// os: unix
+// `Io.run`'s named arguments `directory:`, `input:` and `env:` come after `args`, in any subset and order;
+// one left out keeps today's behavior for that aspect.
+void main() fails IoError {
+    try Io.createDirectory("sub")
+    let mark: u8[1] = [49]
+    try Io.writeFile("sub/in-sub", mark.span)
+    let script: string[2] = ["-c", "if [ -f in-sub ]; then printf sub; else printf here; fi; printf ':%s:' \"$BAYAN_T5_NAMED\"; cat; echo"]
+    let input: u8[2] = [105, 110]
+    var env = Map<string, string?>()
+    env["BAYAN_T5_NAMED"] = "env"
+    let none: List<u8> = List<u8>()
+    print((try Io.run("sh", script.span, input: none.span)).stdout)
+    print((try Io.run("sh", script.span, directory: "sub", input: none.span)).stdout)
+    print((try Io.run("sh", script.span, input: input.span)).stdout)
+    print((try Io.run("sh", script.span, env: env, input: none.span)).stdout)
+    print((try Io.run("sh", script.span, env: env, input: input.span, directory: "sub")).stdout)
+    print((try Io.run("sh", script.span, directory: "sub", env: env, input: input.span)).stdout)
+    let plain: string[2] = ["-c", "printf '[%s]' \"$BAYAN_T5_NAMED\""]
+    print((try Io.run("sh", plain.span, directory: "sub")).stdout)
+    print((try Io.run("sh", plain.span, env: env, directory: "sub")).stdout)
+}

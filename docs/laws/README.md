@@ -1,6 +1,6 @@
 # Laws
 
-Version: 0.3.2 (matches `bayan --version`)
+Version: 0.4.0 (matches `bayan --version`)
 
 Rules this project must never break, each backed by a test that proves it. One law per
 file, `NNN-slug.md`, numbered in the order they were written and revised in place.
@@ -82,6 +82,18 @@ The id appears in the test so the runner can select it and a reader can find it:
 | node with a `test` script | test name starts with `L001:` | `npm test -- -t "L001:"` |
 | pytest | test name starts with `test_l001_` | `pytest -k l001` |
 | run-directly Deno suite | `// L001:` comment above the case(s) | none; set `check` to the suite command with its argv, e.g. `deno run -A hooks/x.test.js hooks/x.exe` |
+
+## Reserved numbers
+
+A spec may reserve numbers before its law files exist. The next free number is past every
+reserved range, not past the highest file.
+
+| Numbers | Spec | Note |
+|---|---|---|
+| L032–L037 | 020 | |
+| L040–L045 | 019 dotnet exit | L045 retired 2026-11-18, folded into L027 |
+| L046–L047 | 024 sabk | owner, 2026-11-18 |
+| L048–L050 | 025 LLM eval set | |
 
 ## Writing a law
 

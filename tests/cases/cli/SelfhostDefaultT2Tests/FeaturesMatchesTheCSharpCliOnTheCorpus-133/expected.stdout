@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "RangeExpr",
+    "TryExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "IoRun",
+    "ListAdd",
+    "ListAsSpan",
+    "Print",
+    "ProcessExitCode",
+    "ProcessStderr",
+    "ProcessStdout",
+    "StringLength"
+  ],
+  "diagnostics": []
+}

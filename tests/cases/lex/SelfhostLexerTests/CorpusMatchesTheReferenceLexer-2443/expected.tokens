@@ -1,0 +1,30 @@
+1:1 CharLiteral `'\q'`
+4:3 Identifier `raw`
+4:8 StringLiteral `"quoted"`
+5:4 Identifier `comment`
+5:12 Star `*`
+5:13 Slash `/`
+5:15 Identifier `a`
+7:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  4 │   raw �"quoted"
+    │       ^

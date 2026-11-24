@@ -1,0 +1,20 @@
+1:2 FailsKeyword `fails`
+1:8 TryKeyword `try`
+1:12 CatchKeyword `catch`
+1:18 NeverKeyword `never`
+1:24 NoallocKeyword `noalloc`
+1:32 NosuspendKeyword `nosuspend`
+1:42 SuspendsKeyword `suspends`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
+2:2 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ �fails try catch never noalloc nosuspend suspends async await
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ �fails try catch never noalloc nosuspend suspends async await
+    │   │ -

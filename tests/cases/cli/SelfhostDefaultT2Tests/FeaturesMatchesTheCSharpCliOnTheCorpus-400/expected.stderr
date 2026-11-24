@@ -1,0 +1,27 @@
+error BYN5004: `show` has 2 unlabeled parameters; give each but one a particle
+  --> <repo>/tests/cases/parse/interpolation-specs.byn:1:6
+
+  1 │ void show(i64 n, f64 x) {
+    │      ^^^^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN5006: `x` is a required parameter besides the object and needs a particle
+  --> <repo>/tests/cases/parse/interpolation-specs.byn:1:22
+
+  1 │ void show(i64 n, f64 x) {
+    │                      ^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2202: expected `rune`, found `string`
+  --> <repo>/tests/cases/parse/interpolation-specs.byn:2:62
+
+  2 │     print($"{n, as: .hex} {x, digits: 2} {n, width: 8, fill: "0", align: .right}")
+    │                                                              ^^^
+
+error BYN2720: `right` is not a member of `align`
+  --> <repo>/tests/cases/parse/interpolation-specs.byn:2:74
+
+  2 │     print($"{n, as: .hex} {x, digits: 2} {n, width: 8, fill: "0", align: .right}")
+    │                                                                          ^^^^^^

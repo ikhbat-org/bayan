@@ -1,0 +1,10 @@
+ÿ = 2
+// ok þ in comment
+
+c >>= 1
+
+â‚ // comment â€® 
+  raw "quoted"
+'\q'
+1__
+

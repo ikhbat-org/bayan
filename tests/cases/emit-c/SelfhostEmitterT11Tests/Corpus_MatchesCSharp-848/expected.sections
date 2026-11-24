@@ -1,0 +1,6 @@
+== locals
+eval: t v l r t l r t
+sum: t
+sample: t t
+depth: a l b r a l b r
+main: arena left t e t shared copy t again

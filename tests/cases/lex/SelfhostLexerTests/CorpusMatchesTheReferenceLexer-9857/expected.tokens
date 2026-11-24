@@ -1,0 +1,32 @@
+1:1 Identifier `le`
+1:5 Identifier `x`
+1:7 IntegerLiteral `6`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
+2:2 IntegerLiteral `0x`
+2:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDD)
+
+  1 │ le� x�6�� = 1
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ le� x�6�� = 1
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFA)
+
+  1 │ le� x�6�� = 1
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ le� x�6�� = 1
+    │         ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^

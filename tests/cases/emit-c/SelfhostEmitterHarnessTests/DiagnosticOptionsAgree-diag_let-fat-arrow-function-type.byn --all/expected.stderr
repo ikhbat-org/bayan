@@ -1,0 +1,12 @@
+error BYN1055: `=>` in a type is an input form; write `->`
+  --> input.byn:2:16
+
+  2 │     let f: i32 => bool = x => x > 0
+    │                ^^ the input form
+    │
+  help: write the function type with `->`
+    │ 2 │     let f: i32 -> bool = x => x > 0
+    │   │                +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1055

@@ -1,0 +1,10 @@
+struct S
+  {x";
+	3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+var xs: List<List<i64>>
+
+/* block
+
+let x⁧ = 1
+
+e unless switch case default fo

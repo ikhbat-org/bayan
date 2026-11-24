@@ -1,0 +1,47 @@
+2:1 Identifier `k`
+2:5 InKeyword `in`
+2:8 Identifier `comment`
+4:1 IsKeyword `is`
+4:4 AndKeyword `and`
+4:8 OrKeyword `or`
+4:11 NotKeyword `not`
+4:15 WithKeyword `with`
+4:20 MoveKeyword `move`
+4:25 RefKeyword `ref`
+4:29 OutKeyword `out`
+4:33 ThisKeyword `this`
+4:38 Identifier `nul`
+4:42 TrueKeyword `true`
+4:47 FalseKeyword `false`
+4:53 ComptimeKeyword `comptime`
+4:62 CheckedKeyword `checked`
+5:2 StringLiteral `"quoted"`
+6:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in st '\u{110000}'\n, . .. ..= : ? ?? ??= ?. => -> @ #\n`
+8:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ k � in comment
+    │   ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wide" "� allowed in st '\u{110000}'
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

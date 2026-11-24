@@ -1,0 +1,5 @@
+error BYN2202: expected `Millis`, found `i32`
+  --> <repo>/tests/cases/diag/millis-bare-literal.byn:3:21
+
+  3 │     let t: Millis = 5
+    │                     ^

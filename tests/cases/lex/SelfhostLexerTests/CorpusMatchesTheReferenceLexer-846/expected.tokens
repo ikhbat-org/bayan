@@ -1,0 +1,57 @@
+1:1 TestKeyword `test`
+1:6 AssertKeyword `assert`
+1:13 Identifier `propert`
+1:21 Identifier `fuzzmodel`
+1:31 ForeachKeyword `foreach`
+1:39 NewKeyword `new`
+1:43 Identifier `go`
+1:46 Identifier `to`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+4:2 Identifier `c`
+4:4 Greater `>`
+4:5 GreaterEquals `>=`
+4:8 IntegerLiteral `1`
+6:1 Comma `,`
+6:3 Dot `.`
+6:5 DotDot `..`
+6:8 DotDotEquals `..=`
+6:12 Colon `:`
+6:14 Question `?`
+6:16 QuestionQuestion `??`
+6:19 QuestionQuestionEquals `??=`
+6:23 QuestionDot `?.`
+6:26 FatArrow `=>`
+6:29 Arrow `->`
+6:32 At `@`
+6:34 Hash `#`
+7:2 Identifier `c`
+7:4 Greater `>`
+7:5 GreaterEquals `>=`
+7:8 IntegerLiteral `1`
+8:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  1 │ test assert propert fuzzmodel foreach new go�to
+    │                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  8 │ ���� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  8 │ ���� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ���� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ���� 
+    │    ^

@@ -1,0 +1,124 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:1 Identifier `ạ̇`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بي`
+3:25 Identifier `ن`
+3:27 Identifier `μετρη`
+3:33 Amp `&`
+3:34 Identifier `ής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 StringLiteral `"open`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolatedStringStart `$"`
+6:6 InterpolationStart `{`
+6:7 InterpolatedStringStart `$"`
+6:9 InterpolationStart `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 StringLiteral `$"{$"`
+6:54 OpenBrace `{`
+6:55 StringLiteral `$"{$"`
+6:60 OpenBrace `{`
+6:61 StringLiteral `$"{x}"`
+6:67 CloseBrace `}`
+6:68 StringLiteral `"}"`
+6:71 CloseBrace `}`
+6:72 StringLiteral `"`
+7:1 Identifier `a`
+9:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  2 │ ạ̇�
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │ ạ̇�
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ ạ̇�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  3 │ foo Bar _x camelCase2 بي�ن μετρη�&�ής x_1 é
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  3 │ foo Bar _x camelCase2 بي�ن μετρη�&�ής x_1 é
+    │                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  3 │ foo Bar _x camelCase2 بي�ن μετρη�&�ής x_1 é
+    │                                   ^
+
+error BYN0003: unterminated string literal
+
+  4 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+    │                                                                        ^ string ends at the
+    │                                                                          end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0004: unterminated block comment
+
+  7 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`

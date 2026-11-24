@@ -1,0 +1,7 @@
+void main() {
+    let a = 1 // one
+    let bcd = 2 // two
+    if a > 0 { // three
+        go() // four
+    }
+}

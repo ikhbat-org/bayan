@@ -1,0 +1,4 @@
+== bind.probes.b11
+flags 0
+errorExpr:?[1834:9]=-()
+BYN2209 118:15 strings cannot be joined with `+`; use interpolation ||write the parts as one interpolation: `$"{a}{b}"`, or `buf.append($"{a}{b}")` in a loop|fix 1834..1843 $"{str}{str}"

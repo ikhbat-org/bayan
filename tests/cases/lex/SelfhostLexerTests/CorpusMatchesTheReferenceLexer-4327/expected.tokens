@@ -1,0 +1,60 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:16 IntegerLiteral `0xFF`
+1:21 IntegerLiteral `0x_ff`
+1:27 IntegerLiteral `0b1010`
+1:34 IntegerLiteral `0B11`
+1:39 IntegerLiteral `5`
+1:40 NumericSuffix `s`
+1:42 IntegerLiteral `250`
+1:45 NumericSuffix `ms`
+1:48 IntegerLiteral `4`
+1:49 NumericSuffix `KiB`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:5 Identifier `comment`
+3:13 Star `*`
+3:14 Slash `/`
+3:16 Identifier `a`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:9 StringLiteral `"bad \q escape"`
+5:4 Identifier `comment`
+5:12 Star `*`
+5:13 Slash `/`
+5:15 Identifier `a`
+6:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  4 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ �
+    │  ^

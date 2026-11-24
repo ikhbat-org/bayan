@@ -1,0 +1,6 @@
+== s44
+switchExpr|i32|3824:41
+value moveExpr:Box
+arm 3843:12 unionPattern[3843:7]:Box(full;|w:Box:o:-:let) guard - value literal:i32=1
+arm 3857:6 bindPattern[3857:1]:Box_(-) guard - value literal:i32=0
+BYN2712 115:48 `_` hides future cases of `Box`, declared in this package |matches every case added later|list the cases instead: .empty|

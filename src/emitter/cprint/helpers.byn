@@ -165,6 +165,7 @@ string t8EqBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
                     ),
                 )
             }
+        // coverage-exempt: Q1286 `default: panic`
         default: panic($"no equality for {semantics.typeDisplay(ref c, by: t)}")
     }
     let joined = tests.length == 0 ? "true" : t8Join(in tests, by: "\n        && ")
@@ -377,7 +378,9 @@ string t8FormatBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
             )
         case .structType:
             let method = formatInto(ref c, for: i)
+            // coverage-exempt: Q1286 leads only to the panic
             if method == -1 {
+                // coverage-exempt: Q1286 `panic`
                 panic($"cannot format {semantics.typeDisplay(ref c, by: t)}")
             }
             let callee = functionName(ref cc, from: ref c, for: method)
@@ -430,6 +433,7 @@ string t8FormatBody(ref CCtx cc, from ref Ctx c, for Type t) uses alloc {
                 $"        {format(ref cc, from: ref c, for: c.mapTypes[i].value, at: "v.vals[i]", to: "w")}\n    }}\n",
             )
             sb.append(t8Text(ref cc, for: "}"))
+        // coverage-exempt: Q1286 `default: panic`
         default: panic($"cannot format {semantics.typeDisplay(ref c, by: t)}")
     }
     sb.append("}\n")

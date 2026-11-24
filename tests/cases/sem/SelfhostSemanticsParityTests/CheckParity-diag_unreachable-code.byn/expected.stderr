@@ -1,0 +1,11 @@
+warning BYN2405: unreachable code
+  --> tmp/t26-tests/cli/diag_unreachable-code.byn/unreachable-code.byn:3:5
+
+  3 │     print("done")
+    │     ^^^^^^^^^^^^^
+
+warning BYN2405: unreachable code
+  --> tmp/t26-tests/cli/diag_unreachable-code.byn/unreachable-code.byn:8:1
+
+  8 │ print("after")
+    │ ^^^^^^^^^^^^^^

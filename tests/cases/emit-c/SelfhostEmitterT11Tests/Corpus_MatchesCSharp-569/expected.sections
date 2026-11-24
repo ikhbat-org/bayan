@@ -1,0 +1,7 @@
+== cases
+0 bynh_add_list_u8(&l0_bytes, ((uint8_t)33))
+1 l0_bytes.len
+2 (*bynh_at_list_u8(l0_bytes, (int64_t)byn_sub_i64(l0_bytes.len, INT64_C(1), byn_file_0, 5), false, byn_file_0, 5))
+3 byn_sub_i64(l0_bytes.len, INT64_C(1), byn_file_0, 5)
+4 l0_bytes.len
+count 5

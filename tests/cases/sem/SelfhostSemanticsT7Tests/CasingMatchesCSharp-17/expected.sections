@@ -1,0 +1,3 @@
+== iface-snake
+BYN2800 10+11 `shape_thing` must start with `I` and an uppercase letter | an interface name | rename it to `IShapeThing` | 10+11=IShapeThing
+end

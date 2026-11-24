@@ -1,0 +1,8 @@
+error BYN2605: `assert … fails` needs a call that can fail
+  --> tmp/t26-tests/cli/diag_assert-fails-infallible.byn/assert-fails-infallible.byn:9:8
+
+  9 │ assert f() fails ParseError.empty
+    │        ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2605

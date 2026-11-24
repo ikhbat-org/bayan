@@ -1,0 +1,5 @@
+== s53
+switchExpr|i32|4301:26
+value local:Shape=sh
+arm 4313:12 bindPattern[4313:7]:Shape(-) guard - value literal:i32=1
+BYN2411 124:27 `Shape` cannot match `Shape` ||match by type only on an error set, in a `catch switch`|

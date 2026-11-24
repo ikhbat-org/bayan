@@ -1,0 +1,9 @@
+note BYN1072: an early exit in a block can be a postfix guard
+  --> <repo>/tmp/t2/diag/valid-control-flow/valid-control-flow.byn:14:5
+
+  14 │     if n < 0 {
+     │     ^^^^^^^^^ an early exit in a block
+     │
+  help: write it as a postfix guard
+     │ 14 │     return -1 if n < 0
+     │    │     ++++++++++++++++++

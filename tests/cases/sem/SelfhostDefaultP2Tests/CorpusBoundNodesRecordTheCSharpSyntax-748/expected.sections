@@ -1,0 +1,73 @@
+== tests/cases/diag/payload-not-in-state.byn
+288..301 memberExpr
+288..301 memberExpr
+288..301 memberExpr
+328..420 blockStmt
+334..392 ifStmt
+337..354 isExpr
+337..342 nameExpr
+346..354 constantPattern
+355..392 blockStmt
+365..386 returnStmt value 372..386
+372..386 memberExpr
+372..377 nameExpr
+397..418 returnStmt value 404..418
+404..418 memberExpr
+451..480 binaryExpr logicalAnd right 471..480
+451..480 binaryExpr logicalAnd right 471..480
+451..480 binaryExpr logicalAnd right 471..480
+451..467 isExpr
+451..456 nameExpr
+460..467 variantPattern
+471..480 memberExpr
+471..472 nameExpr
+510..554 blockStmt
+516..552 assignStmt assign target 516..521 value 524..552
+802..912 blockStmt
+808..824 localDecl
+819..824 nameExpr
+829..910 ifStmt
+832..845 isExpr
+832..836 nameExpr
+840..845 constantPattern
+846..910 blockStmt
+856..871 exprStmt
+856..871 callExpr
+866..870 nameExpr
+880..904 exprStmt
+880..904 callExpr
+886..903 interpolatedExpr
+889..901 memberExpr
+889..893 nameExpr
+880..904 callExpr
+942..1055 blockStmt
+948..962 localDecl
+956..962 nameExpr
+967..1053 ifStmt
+970..980 isExpr
+970..971 nameExpr
+975..980 constantPattern
+981..1053 blockStmt
+991..1011 localDecl
+1003..1011 callExpr
+1003..1004 nameExpr
+1020..1047 exprStmt
+1020..1047 callExpr
+1026..1046 interpolatedExpr
+1029..1034 nameExpr
+1037..1044 memberExpr
+1020..1047 callExpr
+201..208 nameExpr
+201..208 nameExpr
+201..208 nameExpr
+201..208 nameExpr
+251..258 nameExpr
+251..258 nameExpr
+251..258 nameExpr
+700..773 blockStmt
+710..726 localDecl
+721..726 nameExpr
+721..726 nameExpr
+735..747 becomeStmt
+756..767 returnStmt value 763..767
+763..767 nameExpr

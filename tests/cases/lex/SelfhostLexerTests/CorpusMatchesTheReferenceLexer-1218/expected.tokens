@@ -1,0 +1,39 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:1 Identifier `t`
+2:3 Star `*`
+2:4 Slash `/`
+2:6 Identifier `a`
+    doc `/// Doc line one.\n/// Doc line two.`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+7:2 Identifier `_`
+7:4 RawStringLiteral `"""`
+7:7 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character `‏`
+
+  7 │ ‏_ """
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ ‏_ """
+    │    ^^^ raw string starts here
+    │
+  help: close it with `"""`

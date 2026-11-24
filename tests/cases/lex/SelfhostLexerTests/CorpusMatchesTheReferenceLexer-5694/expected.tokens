@@ -1,0 +1,35 @@
+1:1 CharLiteral `'x`
+5:1 OpenParen `(`
+5:3 CloseParen `)`
+5:5 OpenBracket `[`
+5:7 CloseBracket `]`
+5:9 OpenBrace `{`
+5:11 CloseBrace `}`
+6:4 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ // ok �in comment
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  5 │ ( �) [ ] { }
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ � �
+    │ ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  6 │ � �
+    │   ^

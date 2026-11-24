@@ -1,0 +1,25 @@
+    doc `/// Doc line two.`
+3:1 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 Identifier `a`
+10:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  5 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  6 │  struct unique union enum flags open extensible interface delegate extension derivati�on attribute
+    │                                                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCD)
+
+  8 │ struct unique union enum flags open extensible interfa�ce delegate extension derivation attribute
+    │                                                       ^

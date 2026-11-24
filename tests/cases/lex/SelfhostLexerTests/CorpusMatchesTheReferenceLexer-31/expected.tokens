@@ -1,0 +1,9 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings "" "\u{48}i"\n\net café = 1\nlet café = 2\n 0b1ms\n, ; .. ..= : ? ?? ??= ?. => -> @ #\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │   """ c"text" u16"wide" "� allowed in strings "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

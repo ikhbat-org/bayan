@@ -1,0 +1,6 @@
+== cases
+0 ((int64_t)byn_add_i32(l0_round, ((int32_t)2), byn_file_0, 15))
+1 byn_add_i32(l0_round, ((int32_t)2), byn_file_0, 15)
+2 (l0_i == p_n)
+3 byn_mul_i64(l0_i, INT64_C(10), byn_file_0, 14)
+count 4

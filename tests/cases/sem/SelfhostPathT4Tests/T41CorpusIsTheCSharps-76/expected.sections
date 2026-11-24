@@ -1,0 +1,2 @@
+== diags.diag/strbuf-unknown-static-member
+BYN2003 3:20 `nope` is not a member of `StrBuf`

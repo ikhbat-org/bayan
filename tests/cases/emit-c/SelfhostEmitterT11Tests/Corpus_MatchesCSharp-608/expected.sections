@@ -1,0 +1,4 @@
+== locals
+apply:
+main: base t
+main$lambda1:

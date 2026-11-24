@@ -1,0 +1,3 @@
+== module.probes.-.u5
+symbolLiteral|Symbol|-|-|-|-|-|2530:8|b
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|

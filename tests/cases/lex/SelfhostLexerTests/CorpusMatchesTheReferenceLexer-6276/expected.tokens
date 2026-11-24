@@ -1,0 +1,27 @@
+1:1 Identifier `q`
+2:1 CharLiteral `''`
+4:1 Identifier `KiB`
+4:5 IntegerLiteral `1`
+4:6 NumericSuffix `u`
+4:8 IntegerLiteral `0xFF`
+4:12 NumericSuffix `u`
+4:14 IntegerLiteral `0b1`
+4:17 NumericSuffix `ul`
+4:20 IntegerLiteral `7`
+4:21 NumericSuffix `l`
+5:1 Identifier `foo`
+5:5 Identifier `Bar`
+5:9 Identifier `_x`
+5:12 Identifier `camelCase2`
+5:23 Identifier `بيان`
+5:28 Identifier `μετρητής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
+7:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  2 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

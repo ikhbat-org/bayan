@@ -1,0 +1,74 @@
+1:1 Identifier `é`
+1:4 StructKeyword `struct`
+1:11 Identifier `S`
+2:2 IntegerLiteral `0x_`
+5:2 Identifier `xs`
+5:4 Colon `:`
+5:6 Identifier `Li`
+5:8 Identifier `t`
+5:9 Less `<`
+5:10 Identifier `List`
+5:14 Less `<`
+5:15 Identifier `i64`
+5:18 Greater `>`
+5:19 Greater `>`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+7:1 Identifier `c`
+7:3 Greater `>`
+7:4 GreaterEquals `>=`
+7:7 IntegerLiteral `1`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `total `
+8:9 InterpolationStart `{`
+8:10 Identifier `x`
+8:11 InterpolationEnd `}`
+8:12 InterpolatedStringEnd `"`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolatedStringText `a `
+8:18 InterpolationStart `{`
+8:19 Identifier `f`
+8:20 OpenParen `(`
+8:21 InterpolatedStringStart `$"`
+8:23 InterpolatedStringText `b `
+8:25 InterpolationStart `{`
+8:26 Identifier `c`
+8:27 InterpolationEnd `}`
+8:28 InterpolatedStringEnd `"`
+8:29 CloseParen `)`
+8:30 InterpolationEnd `}`
+8:31 InterpolatedStringText ` d`
+8:33 InterpolatedStringEnd `"`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolatedStringText `{{literal}}`
+8:48 InterpolatedStringEnd `"`
+8:50 StringLiteral `"{Point { x = 1 }}!"`
+8:71 InterpolatedStringStart `$"`
+8:73 InterpolatedStringEnd `"`
+10:1 EndOfFile
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  1 │ é struct S
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ é struct S
+    │   │ +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x_
+    │  ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  5 │  xs: Li�t<List<i64>>
+    │        ^

@@ -1,0 +1,1 @@
+{"code":"BYN2019","severity":"error","file":"input.byn","span":{"start":40,"end":45,"line":5,"column":9,"endLine":5,"endColumn":14},"message":"`Money` is a type, not a value","label":null,"help":null,"fixes":[]}

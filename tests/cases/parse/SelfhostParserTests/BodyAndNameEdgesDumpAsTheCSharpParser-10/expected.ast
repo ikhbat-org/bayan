@@ -1,0 +1,34 @@
+CompilationUnit
+  If a
+    If b
+      Expr (call f)
+
+error BYN1017: parentheses around a condition are an input form
+
+  1 │ if (a) if (b) f()
+    │    ^^^ not needed
+    │
+  help: remove the parentheses
+
+error BYN1018: the body of `if` must be a block
+
+  1 │ if (a) if (b) f()
+    │        ^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+
+error BYN1017: parentheses around a condition are an input form
+
+  1 │ if (a) if (b) f()
+    │           ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 1 │ if (a) if b { f() }
+    │   │           +++++++++
+
+error BYN1018: the body of `if` must be a block
+
+  1 │ if (a) if (b) f()
+    │               ^^^ a single statement
+    │
+  help: wrap the statement in `{ }`

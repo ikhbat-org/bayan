@@ -1,0 +1,4 @@
+== cases
+0 ((int64_t)l0_a)
+1 ((double)l1_b)
+count 2

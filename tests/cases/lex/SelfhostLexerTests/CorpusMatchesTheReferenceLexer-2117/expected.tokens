@@ -1,0 +1,36 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 IntegerLiteral `0x`
+4:1 LetKeyword `let`
+4:5 Identifier `act`
+4:9 OrKeyword `or`
+4:12 Equals `=`
+4:14 IntegerLiteral `1`
+6:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �
+    │   │ -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x
+    │ ^^
+
+error BYN0002: unexpected character `\u{3}`
+
+  4 │ let act�or = 1
+    │        ^

@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""''\na /* never closed\nlet effect = 2\n\n1_\n only required cont let v0 42 1_000_000 0xFF �x_ff 0b1010 0B1E1 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l\n `
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """''
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  6 │  only required cont let v0 42 1_000_000 0xFF �x_ff 0b1010 0B1E1 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                                              ^

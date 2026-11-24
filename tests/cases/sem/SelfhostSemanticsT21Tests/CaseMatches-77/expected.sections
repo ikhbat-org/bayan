@@ -1,0 +1,3 @@
+== call.b8
+builtinCall|void|local:List<i64>=ns|listRemoveThrough|1985:28|errorExpr:?,literal:i64=2
+BYN2021 90:24 `remove` has no parameter `at` |||

@@ -1,5 +1,5 @@
 #!/bin/bash
-# land.sh on a fixture repo with a stub wave-brief.py and guard.sh, run by /bin/bash (3.2 on macOS): it refuses a last
+# land.sh on a fixture repo with a stub wave-brief and guard.sh, run by /bin/bash (3.2 on macOS): it refuses a last
 # commit that is not a lone `docs(010): T99 review (PASS` commit, a branch that changes scripts/selfhost/ or edits tests/quality-baseline.json, and a branch that
 # moves while it is checked, one with no merge base, and a prompt with no guard line; the fixture path holds & and ' (the guard must still run); it runs the base checkout's guard by absolute path, without --mutate/--seed,
 # refuses before any merge when the base checkout's preflight.sh fails (and passes it the spec, task, branch and BAYAN_BASE), and lands a two-round reviewed branch; tests/quality-baseline.json changes only when the guard run left its coverage report
@@ -12,7 +12,14 @@ root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/land&test'q"; aux="$root/tmp/land-test-aux"
 rm -rf "$r" "$aux" && mkdir -p "$r/scripts/selfhost" "$r/docs/specs/010-self-hosted-semantics/reviews" "$aux" && cd "$r"
 git init -q -b base && git config user.email t@t && git config user.name t
-printf 'import os, sys\nd = "tmp/010-" + sys.argv[2].lower()\nos.makedirs(d, exist_ok=True)\nopen(d + "/prompt.md", "w").write("" if os.environ.get("NOGUARD") else "bash scripts/selfhost/guard.sh --base x --mutate a.byn --seed 3 --filter F\\n")\n' > scripts/selfhost/wave-brief.py
+# the stub bayan (scripts/bayan-tool.sh runs $PINNED_BAYAN) stands in for wave-brief (`run <root>/tools/wave-brief.byn -- . T99 --spec 010`); any other tool runs on the real pinned bayan
+cat > "$aux/bayan" <<'STUB'
+#!/bin/bash
+case $2 in */wave-brief.byn) d=tmp/010-$(echo "$5" | tr A-Z a-z); mkdir -p "$d"
+  if [ -n "${NOGUARD:-}" ]; then : > "$d/prompt.md"; else echo "bash scripts/selfhost/guard.sh --base x --mutate a.byn --seed 3 --filter F" > "$d/prompt.md"; fi; exit 0;; esac
+exec "$REAL_BAYAN" "$@"
+STUB
+chmod +x "$aux/bayan"; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh) PINNED_BAYAN=$aux/bayan
 # the stub guard logs the path it runs as; with $AUX/move it adds a commit to feat-move, as a writer still pushing would
 cat > scripts/selfhost/guard.sh <<'STUB'
 echo "$0" >> "$AUX/guard-ran.txt"; echo "$*" > "$AUX/guard-args.txt"
@@ -59,7 +66,8 @@ gargs=$(cat $aux/guard-args.txt); pargs=$(cat $aux/preflight-args.txt); cmp -s t
 next() { code "$1"; review; git switch -q base
   perl -i -pe 's/^- \[x\] T99 /- [ ] T99 /' docs/specs/010-self-hosted-semantics/010-tasks.md; git commit -qam "test: untick T99"; }
 covrep() { printf '{"version": 1, "kind": "coverage", "files": [{"path": "y.byn", "lines": {"covered": %s, "total": 4, "missed": []}, "branches": {"covered": %s, "total": 2, "missed": []}}]}\n' "$1" "$2" > $aux/covreport; }
-ycov() { python3 -I -c 'import json; print(json.load(open("tests/quality-baseline.json"))["files"].get("y.byn"))'; }
+# ycov: y.byn's baseline entry as `"mutation": null, "coverage": 1.0, ...` (the indent=2 layout quality-baseline writes), empty for none
+ycov() { awk '$0 == "    \"y.byn\": {" { on = 1; next } on && /^    }/ { exit } on { sub(/^ +/, ""); printf "%s%s", s, $0; s = " " }' tests/quality-baseline.json; }
 next feat-fill; covrep 3 1
 fill=$(land feat-fill); filled=$(ycov); intick=$(git log -1 --format=%s -- tests/quality-baseline.json)
 next feat-rise; covrep 4 2; rise=$(land feat-rise); rose=$(ycov)
@@ -96,10 +104,10 @@ echo "$ok" | grep -q '^LANDED T99$' || fail "a well-reviewed branch did not land
 [ "$gargs" = "--base base --filter F" ] || fail "the guard ran with '$gargs', not without --mutate and --seed" "$ok"
 echo "$stale" | grep -q "LAND REFUSED: base changed src/ or runtime/ after feat-stale branched" && [ "$stalehead" = "$stalehead2" ] || fail "a src/ branch landed after the base changed src/ (bootstrap/ would not match the merged tree)" "$stale"
 [ $noreport = 1 ] || fail "a landing without a coverage report changed tests/quality-baseline.json" "$ok"
-echo "$fill" | grep -q '^LANDED T99$' && [ "$filled" = "{'mutation': None, 'coverage': 0.75, 'branches': 0.5}" ] || fail "a landing with a coverage report did not fill coverage and branches (y.byn: $filled)" "$fill"
+echo "$fill" | grep -q '^LANDED T99$' && [ "$filled" = '"mutation": null, "coverage": 0.75, "branches": 0.5' ] || fail "a landing with a coverage report did not fill coverage and branches (y.byn: $filled)" "$fill"
 [ "$intick" = "chore(010): tick T99" ] || fail "the baseline change is not in the tick commit (last commit touching it: $intick)" "$fill"
-echo "$rise" | grep -q '^LANDED T99$' && [ "$rose" = "{'mutation': None, 'coverage': 1.0, 'branches': 1.0}" ] || fail "a landing with a higher coverage did not raise the baseline (y.byn: $rose)" "$rise"
-echo "$drop" | grep -q '^LANDED T99$' && [ "$dropped" = "{'mutation': None, 'coverage': 1.0, 'branches': 1.0}" ] && [ $dropsame = 1 ] || fail "a lower filtered coverage did not land leaving the recorded value unchanged (y.byn: $dropped)" "$drop"
-echo "$bad" | grep -q '^LAND REFUSED: quality-baseline.py failed on ' && [ "$badhead" = "$badbase" ] && [ -z "$badtree" ] && [ $badsame = 1 ] \
+echo "$rise" | grep -q '^LANDED T99$' && [ "$rose" = '"mutation": null, "coverage": 1.0, "branches": 1.0' ] || fail "a landing with a higher coverage did not raise the baseline (y.byn: $rose)" "$rise"
+echo "$drop" | grep -q '^LANDED T99$' && [ "$dropped" = '"mutation": null, "coverage": 1.0, "branches": 1.0' ] && [ $dropsame = 1 ] || fail "a lower filtered coverage did not land leaving the recorded value unchanged (y.byn: $dropped)" "$drop"
+echo "$bad" | grep -q '^LAND REFUSED: quality-baseline failed on ' && [ "$badhead" = "$badbase" ] && [ -z "$badtree" ] && [ $badsame = 1 ] \
   || fail "a malformed coverage report was not refused before the merge (head moved: $([ "$badhead" = "$badbase" ] && echo no || echo yes); dirty: $badtree)" "$bad"
 echo PASS

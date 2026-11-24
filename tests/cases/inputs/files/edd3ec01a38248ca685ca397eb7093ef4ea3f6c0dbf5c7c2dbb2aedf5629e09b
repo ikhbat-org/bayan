@@ -1,0 +1,26 @@
+union error ReadError { broken }
+
+struct Rows {
+    i64 at
+
+    i64? next(ref this) fails ReadError {
+        at += 1
+        return at > 2 ? null : at
+    }
+}
+
+void copied() fails ReadError {
+    for try row in (Rows { at: 0 }) {
+        let s: string = row
+    }
+}
+
+void inPlace() fails ReadError {
+    var rows = Rows { at: 0 }
+    for try row: string in rows {
+        let n: i64 = "x"
+    }
+}
+
+try copied()
+try inPlace()

@@ -1,0 +1,9 @@
+$"{" ( ) [ ] { }
+ lt c = """never closed
+
+$"total {x}" $"a {f(1$"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+'\u{110000}'
+ allowed in strings" "" "\u{48}i"
+
+�

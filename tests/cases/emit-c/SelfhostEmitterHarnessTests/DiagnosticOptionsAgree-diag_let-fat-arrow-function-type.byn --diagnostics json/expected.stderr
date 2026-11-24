@@ -1,0 +1,1 @@
+{"code":"BYN1055","severity":"error","file":"input.byn","span":{"start":29,"end":31,"line":2,"column":16,"endLine":2,"endColumn":18},"message":"`=>` in a type is an input form; write `->`","label":"the input form","help":"write the function type with `->`","fixes":[{"span":{"start":29,"end":31,"line":2,"column":16,"endLine":2,"endColumn":18},"replacement":"->"}]}

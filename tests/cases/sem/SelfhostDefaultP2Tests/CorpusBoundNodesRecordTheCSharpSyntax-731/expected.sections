@@ -1,0 +1,49 @@
+== tests/cases/diag/panic-handler-restricted.byn
+46..62 blockStmt
+52..60 returnStmt value 59..60
+59..60 literalExpr integer
+83..392 blockStmt
+89..102 localDecl
+101..102 literalExpr integer
+107..122 deferStmt
+123..221 blockStmt
+133..151 localDecl
+141..151 tryExpr
+145..151 callExpr
+160..169 assignStmt assign target 160..165 value 168..169
+160..165 nameExpr
+168..169 nameExpr
+178..198 localDecl
+187..198 callExpr
+207..215 returnStmt value 214..215
+226..358 forStmt
+235..239 rangeExpr
+235..236 literalExpr integer
+238..239 literalExpr integer
+240..358 blockStmt
+250..265 deferStmt
+266..295 blockStmt
+280..280 breakStmt
+304..319 deferStmt
+320..352 blockStmt
+334..334 continueStmt
+363..373 assignStmt add target 363..368 value 372..373
+363..368 nameExpr
+372..373 literalExpr integer
+378..390 returnStmt value 385..390
+385..390 nameExpr
+416..457 blockStmt
+422..444 localDecl
+430..444 interpolatedExpr
+433..442 memberExpr
+433..434 nameExpr
+449..455 returnStmt
+471..534 blockStmt
+477..500 assignStmt assign target 477..490 value 493..500
+505..532 exprStmt
+505..532 callExpr
+511..531 interpolatedExpr
+514..529 catchExpr
+514..520 callExpr
+527..529 unaryExpr negate operand 528..529
+505..532 callExpr

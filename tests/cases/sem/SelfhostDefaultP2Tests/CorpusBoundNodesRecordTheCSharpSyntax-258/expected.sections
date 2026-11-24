@@ -1,0 +1,59 @@
+== tests/cases/run/rest.byn
+180..263 blockStmt
+186..197 localDecl
+196..197 literalExpr integer
+202..238 forStmt
+211..213 nameExpr
+214..238 blockStmt
+224..232 assignStmt add target 224..227 value 231..232
+224..227 nameExpr
+231..232 nameExpr
+243..261 returnStmt value 250..261
+250..261 binaryExpr mul right 256..261
+250..253 nameExpr
+256..261 nameExpr
+265..293 globalStatement
+265..293 localDecl
+287..293 collectionExpr
+288..289 literalExpr integer
+291..292 literalExpr integer
+294..323 localDecl
+314..323 collectionExpr
+315..316 literalExpr integer
+318..319 literalExpr integer
+321..322 literalExpr integer
+324..382 exprStmt
+324..382 callExpr
+330..381 interpolatedExpr
+333..347 callExpr
+333..347 callExpr
+339..340 literalExpr integer
+342..343 literalExpr integer
+345..346 literalExpr integer
+177..178 literalExpr integer
+350..357 callExpr
+350..357 callExpr
+177..178 literalExpr integer
+360..379 callExpr
+360..379 callExpr
+366..367 literalExpr integer
+369..370 literalExpr integer
+376..378 literalExpr integer
+324..382 callExpr
+383..454 exprStmt
+383..454 callExpr
+389..453 interpolatedExpr
+392..405 callExpr
+400..404 nameExpr
+400..404 nameExpr
+177..178 literalExpr integer
+408..429 callExpr
+416..421 nameExpr
+416..421 nameExpr
+427..428 literalExpr integer
+432..451 callExpr
+432..451 callExpr
+438..439 literalExpr integer
+449..450 literalExpr integer
+445..447 literalExpr integer
+383..454 callExpr

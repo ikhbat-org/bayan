@@ -1,0 +1,6 @@
+ \q escape"
+let c = """never closed
+ 0xFFs
+let a = $ 1
+b
+ 	 

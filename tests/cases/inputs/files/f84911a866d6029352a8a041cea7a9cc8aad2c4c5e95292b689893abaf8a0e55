@@ -1,0 +1,4 @@
+#!/bin/sh
+echo "main.c:2:5: error: injected" >&2
+echo "stdout note"
+exit 1

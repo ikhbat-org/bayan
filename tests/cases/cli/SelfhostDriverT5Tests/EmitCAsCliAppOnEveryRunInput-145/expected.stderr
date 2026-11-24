@@ -1,0 +1,9 @@
+warning BYN2310: `xs` is never written through; use `ReadOnlySpan<i32>`
+  --> <repo>/tmp/t5/emit/run_lambda-alias-any/lambda-alias-any.byn:3:10
+
+  3 │ bool any(Span<i32> xs, by Pred p) {
+    │          ^^^^^^^^^
+    │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+    │ 3 │ bool any(ReadOnlySpan<i32> xs, by Pred p) {
+    │   │          ++++++++

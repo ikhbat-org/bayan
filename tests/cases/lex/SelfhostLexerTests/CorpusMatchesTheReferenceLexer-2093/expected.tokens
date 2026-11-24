@@ -1,0 +1,22 @@
+1:1 Identifier `va`
+1:4 Identifier `r`
+1:6 Identifier `xs`
+1:8 Colon `:`
+1:10 Identifier `List`
+1:14 Less `<`
+1:15 Identifier `List`
+1:19 Less `<`
+1:20 Identifier `i64`
+1:23 Greater `>`
+1:24 Greater `>`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  1 │ va�r xs: List<List<i64>>
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �
+    │ ^

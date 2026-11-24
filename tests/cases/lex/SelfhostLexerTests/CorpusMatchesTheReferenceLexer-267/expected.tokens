@@ -1,0 +1,99 @@
+1:1 IntegerLiteral `1__`
+3:1 Identifier `b`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolationStart `{`
+4:31 InterpolatedStringStart `$"`
+4:33 InterpolationStart `{`
+4:34 InterpolatedStringStart `$"`
+4:36 InterpolationStart `{`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolationStart `{`
+4:40 InterpolatedStringStart `$"`
+4:42 InterpolationStart `{`
+4:43 InterpolatedStringStart `$"`
+4:45 InterpolationStart `{`
+4:46 InterpolatedStringStart `$"`
+4:48 InterpolationStart `{`
+4:49 StringLiteral `$"{$"`
+4:54 OpenBrace `{`
+4:55 StringLiteral `$"{x}"`
+4:61 CloseBrace `}`
+4:62 StringLiteral `"}"`
+4:65 InterpolationEnd `}`
+4:66 InterpolatedStringEnd `"`
+4:67 InterpolationEnd `}`
+4:68 InterpolatedStringEnd `"`
+4:70 IfKeyword `if`
+4:73 ElseKeyword `else`
+4:78 UnlessKeyword `unless`
+4:85 SwitchKeyword `switch`
+4:92 CaseKeyword `case`
+4:97 DefaultKeyword `default`
+4:105 ForKeyword `for`
+4:109 InKeyword `in`
+4:112 Identifier `whiledo`
+4:120 BreakKeyword `break`
+4:126 ContinueKeyword `continue`
+4:135 ReturnKeyword `return`
+4:142 YieldKeyword `yield`
+4:148 DeferKeyword `defer`
+4:154 ErrdeferKeyword `errdefer`
+4:163 UsingKeyword `using`
+4:169 Identifier `contexCt`
+6:1 Comma `,`
+6:3 Dot `.`
+6:5 DotDot `..`
+6:8 DotDotEquals `..=`
+6:12 Colon `:`
+6:14 Question `?`
+6:16 QuestionQuestion `??`
+6:19 QuestionQuestionEquals `??=`
+6:23 QuestionDot `?.`
+6:26 FatArrow `=>`
+6:29 Arrow `->`
+6:32 At `@`
+6:34 Hash `#`
+7:4 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" if else unless switch case default for in whiledo break continue return yield defer errdefer using contexCt
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}" if else unless switch case default for in whiledo break continue return yield defer errdefer using contexCt
+    │                                                 ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAD)
+
+  7 │ � 	 
+    │ ^

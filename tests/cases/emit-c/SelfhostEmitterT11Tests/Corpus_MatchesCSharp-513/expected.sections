@@ -1,0 +1,10 @@
+== cases
+0 ((bynt_span_str){l1_setup.v, 2})
+1 (*bynh_slot_map_str_opt_str(&l5_env, BYN_STR("PATH", 4), ((bynt_opt_str){0})))
+2 ((bynt_opt_str){true, BYN_STR("bin", 3)})
+4 ((bynt_span_str){l7_show.v, 2})
+5 ((bynt_opt_map_str_opt_str){true, l5_env})
+7 ((bynt_span_str){l7_show.v, 2})
+8 ((bynt_opt_str){true, BYN_STR(".", 1)})
+9 ((bynt_opt_map_str_opt_str){true, l5_env})
+count 10

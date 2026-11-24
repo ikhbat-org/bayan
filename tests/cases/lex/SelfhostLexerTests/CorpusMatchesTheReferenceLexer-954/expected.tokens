@@ -1,0 +1,24 @@
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 Identifier `be`
+3:16 Identifier `come`
+4:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select be�come
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select be�come
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  3 │ macro select be�come
+    │                ^

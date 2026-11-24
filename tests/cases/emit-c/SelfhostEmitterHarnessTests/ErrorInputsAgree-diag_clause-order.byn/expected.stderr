@@ -1,0 +1,35 @@
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --> input.byn:4:38
+
+  4 │ i64 parse(string s) fails ParseError uses io {
+    │                                      ^^^^ out of order
+    │
+  help: move `uses` before `fails`
+    │ 4 │ i64 parse(string s) uses io fails ParseError {
+    │   │                     ++++++++++++++++++++++++
+
+error BYN1065: `uses` must come before `becomes`; the order is `where`, `expects`, `uses`,
+`becomes`, `fails`
+  --> input.byn:12:49
+
+  12 │     void close(ref this is .open) becomes .shut uses console {
+     │                                                 ^^^^ out of order
+     │
+  help: move `uses` before `becomes`
+     │ 12 │     void close(ref this is .open) uses console becomes .shut {
+     │    │                                   ++++++++++++++++++++++++++
+
+error BYN1065: `uses` must come before `fails`; the order is `where`, `expects`, `uses`, `becomes`,
+`fails`
+  --> input.byn:16:40
+
+  16 │ type Read = () -> i64 fails ParseError uses io
+     │                                        ^^^^ out of order
+     │
+  help: move `uses` before `fails`
+     │ 16 │ type Read = () -> i64 uses io fails ParseError
+     │    │                       ++++++++++++++++++++++++
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN1065

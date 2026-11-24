@@ -1,0 +1,11 @@
+== diags.diag/function-type-inferred-element
+BYN2822 5:15 a function type is not supported as an array element yet
+  help take the function as a parameter instead
+BYN2822 8:15 a function type is not supported as an array element yet
+  help take the function as a parameter instead
+BYN2822 9:17 a function type is not supported as a tuple element yet
+  help take the function as a parameter instead
+BYN2822 10:19 a function type is not supported as a map value yet
+  help take the function as a parameter instead
+BYN2822 11:18 a function type is not supported as a tuple element yet
+  help take the function as a parameter instead

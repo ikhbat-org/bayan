@@ -1,0 +1,7 @@
+CompilationUnit
+  Enum E
+    Member a
+    Member b
+  Union U
+    Variant A(i64 x)
+    Variant B

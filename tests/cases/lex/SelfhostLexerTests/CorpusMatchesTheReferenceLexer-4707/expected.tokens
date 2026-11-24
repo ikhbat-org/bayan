@@ -1,0 +1,66 @@
+1:1 IntegerLiteral `0x_`
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+6:1 Identifier `foo`
+6:5 Identifier `Bar`
+6:9 Identifier `_x`
+6:12 Identifier `camelCase2`
+6:23 Identifier `ب`
+6:24 Identifier `يان`
+6:28 Identifier `μi`
+6:30 Identifier `τρητής`
+6:37 Identifier `x_1`
+6:41 Identifier `é`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolatedStringText `open `
+7:8 InterpolationStart `{`
+7:9 Identifier `x`
+7:10 StringLiteral `"6`
+8:1 StringLiteral `"a\u{2067}b"`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  6 │ foo Bar _x camelCase2 ب�يان μi�τρητής x_1 é
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  6 │ foo Bar _x camelCase2 ب�يان μi�τρητής x_1 é
+    │                               ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x"6
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"open {x"6
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

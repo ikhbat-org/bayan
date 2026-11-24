@@ -1,0 +1,8 @@
+error BYN2208: `==` cannot be applied to `ListError` and `ListError`
+  --> tmp/t26-tests/cli/diag_error-equality-list-payload.byn/error-equality-list-payload.byn:9:14
+
+  9 │     print($"{l == m}")
+    │              ^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2208

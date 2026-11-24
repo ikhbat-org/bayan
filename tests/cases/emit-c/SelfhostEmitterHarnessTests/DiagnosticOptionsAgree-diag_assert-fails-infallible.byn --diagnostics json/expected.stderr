@@ -1,0 +1,1 @@
+{"code":"BYN2605","severity":"error","file":"input.byn","span":{"start":71,"end":74,"line":9,"column":8,"endLine":9,"endColumn":11},"message":"`assert … fails` needs a call that can fail","label":null,"help":null,"fixes":[]}

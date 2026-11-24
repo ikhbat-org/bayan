@@ -1,0 +1,23 @@
+CompilationUnit
+  ErrorEnum CartError
+    Variant empty
+  Function firstLine(List<i32> lines) -> i32 fails CartError
+    Block
+      If (. lines isEmpty)
+        Block
+          Fail .empty
+      Return (index lines 0)
+  Function main() -> void fails CartError
+    Block
+      Var n = 0
+      While (< n 3)
+        Block
+          Assign n += 1
+          If (== n 2)
+            Block
+              Break
+      If (== n 3)
+        Block
+          Expr (call print "three")
+      Let lines: List<i32> = (list 1)
+      Expr (call print (interp (try (call firstLine lines))))

@@ -1,0 +1,10 @@
+error BYN2401: `big` must return `i64` on every path
+  --> <repo>/tmp/t2/diag/interface-default-missing-return/interface-default-missing-return.byn:8:5
+
+  8 │     }
+    │     ^
+    │
+  help: add a `return` (or `panic(…)`) on the paths that reach the end
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2401

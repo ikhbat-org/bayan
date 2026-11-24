@@ -1,0 +1,45 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
+2:2 FailsKeyword `fails`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 Identifier `nver`
+2:23 NoallocKeyword `noalloc`
+2:31 Identifier `nosuspe`
+2:38 Identifier `nd`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  2 │  fails try catch nver noalloc nosuspe�nd suspends async�await
+    │                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  2 │  fails try catch nver noalloc nosuspe�nd suspends async�await
+    │                                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ����
+    │     ^

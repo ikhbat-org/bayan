@@ -1,0 +1,3 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/assert-test/assert.test.byn diagnostics
+BYN2605 10:12 `assert … fails` needs a call that can fail
+BYN2411 11:22 `i64` cannot match `E`

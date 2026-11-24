@@ -1,0 +1,21 @@
+error BYN1012: this expression does nothing as a statement
+  --> input.byn:1:1
+
+  1 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │ ^ the value is computed and discarded
+    │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1005: expected a line break after the statement
+  --> input.byn:1:2
+
+  1 │ 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^ found `42`
+    │
+  help: put the next statement on its own line
+    │ 1 │ 0
+    │ 2 │ 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN1012

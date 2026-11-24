@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr"
+  ],
+  "builtins": [
+    "Print",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufGrow",
+    "SymbolIntern"
+  ],
+  "diagnostics": []
+}

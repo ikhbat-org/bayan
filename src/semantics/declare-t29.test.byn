@@ -1,0 +1,312 @@
+// 019 T29 (coverage ratchet): declare.byn paths no golden case reaches: every kind of type, function and constant
+// declared twice, fields and payloads named twice, union values at the `i32` edge or not integer literals, and a
+// generic method. The expected values are the output of the self-hosted checker at the commit that added the test.
+
+import lexer
+
+test "declare t29: names declared twice and union values" {
+    let text = """
+        struct A {
+            i64 x
+            i64 x
+        }
+
+        struct A {}
+
+        union error E {
+            bad(i64 a, i64 a)
+        }
+
+        union error E {}
+
+        enum K {
+            x
+            y
+        }
+
+        enum K {}
+
+        union U {
+            a(i64 v, i64 v)
+            b
+        }
+
+        union U {}
+
+        interface IThing {}
+
+        interface IThing {}
+
+        type Alias = i64
+
+        type Alias = i64
+
+        void A() {}
+
+        const k = 1
+
+        const k = 2
+
+        void k() {}
+
+        void IThing() {}
+
+        void Alias() {}
+
+        void E() {}
+
+        void U() {}
+
+        void K() {}
+
+        union Big {
+            a = 2147483647
+            b
+        }
+
+        union Neg {
+            a = -5
+            b = -(1)
+            c = 1i64
+            d = !1
+            e = -3000000000
+        }
+
+        struct S<T> {
+            i64 n
+
+            S<T> make<T>() => S<T> { n: 1 }
+        }
+
+        enum Twice(i64 a, i64 a) {
+            x(1, 2)
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2006 `A` is declared twice
+        BYN2006 `E` is declared twice
+        BYN2006 `K` is declared twice
+        BYN2006 `U` is declared twice
+        BYN2006 `IThing` is declared twice
+        BYN2006 `Alias` is declared twice
+        BYN2009 `A` must be camelCase
+        BYN2006 `A` is declared twice
+        BYN2006 `k` is declared twice
+        BYN2006 `k` is declared twice
+        BYN2009 `IThing` must be camelCase
+        BYN2006 `IThing` is declared twice
+        BYN2009 `Alias` must be camelCase
+        BYN2006 `Alias` is declared twice
+        BYN2009 `E` must be camelCase
+        BYN2006 `E` is declared twice
+        BYN2009 `U` must be camelCase
+        BYN2006 `U` is declared twice
+        BYN2009 `K` must be camelCase
+        BYN2006 `K` is declared twice
+        BYN2721 enum `Twice` already has a member `a`
+        BYN2006 `v` is declared twice
+        BYN2709 a case value must be an integer constant
+        BYN2709 a case value must be an integer constant
+        BYN2709 a case value must be an integer constant
+        BYN2709 a case value must be an integer constant
+        BYN2006 `a` is declared twice
+        BYN2006 `x` is declared twice
+        BYN2022 generic methods is not supported in v0.1
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "declare t29: struct members, interfaces and enum parameters" {
+    let text = """
+        interface IHas {
+            type Item
+            void f(i64 a)
+            void f(i64 b)
+        }
+
+        struct C : IHas {
+            type Item = i64
+            type Other = i64
+            i64 n
+            C(i64 a) {}
+            C(i64 b, i64 c) {}
+            void f(i64 a) {}
+        }
+
+        void g() {}
+
+        const g = 1
+
+        void h() {}
+
+        struct h {}
+
+        enum Plain {
+            x
+        }
+
+        enum Data(i64 v) {
+            y(1)
+        }
+
+        enum Params(ref i64 a, move i64 b, out i64 d, in i64 e, Plain p, Data q, C r, i64 s = 1) {
+            z(1, 2, 3, 4, .x, .y, 1, 2)
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2006 `g` is declared twice
+        BYN2006 `h` is declared twice
+        BYN2008 type name `h` must be PascalCase
+        BYN2006 `f` is declared twice
+        BYN2724 enum parameter `a` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `b` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `d` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `e` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `q` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `r` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2724 enum parameter `s` must be a number, `bool`, `rune`, `string` or a plain enum
+        BYN2022 this kind of struct member is not supported in v0.1
+        BYN5004 `C` has 2 unlabeled parameters; give each but one a particle
+        BYN5006 `c` is a required parameter besides the object and needs a particle
+        BYN2022 overloaded constructors is not supported in v0.1
+
+        """
+    assert t29s1Diags(in c) == expected
+}
+
+test "declare t29: which overloads overlap" {
+    let text = """
+        interface IShow {
+            void show(i64 a)
+        }
+
+        struct S {
+            i64 n
+            i64 total => 1
+            S(i64 a) {}
+        }
+
+        void f(i64 a) {}
+
+        void f(i64 a, by i64 b) {}
+
+        void f(i64 a, at i64 b = 1) {}
+
+        void f(rest ReadOnlySpan<i64> xs) {}
+
+        void f(at i64 b, i64 c = 2) {}
+
+        void main() {}
+        """
+    var c = t29s1Compile(text)
+    var fns = List<FuncId>()
+    for fn in 0..c.functions.length {
+        if c.functions[fn].declIndex >= 0 && c.functions[fn].name is "f" or "show" or "S" or "total" {
+            fns.append(fn)
+        }
+    }
+    var sb = StrBuf()
+    for a in fns {
+        sb.append($"{c.functions[a].name}{t12Params(in c, for: a).length} ")
+        for b in fns {
+            sb.append(overlap(ref c, for: a, as: b) ? "y" : "n")
+        }
+        sb.append("\n")
+    }
+    sb.append($"{t12LocationOf(in c, for: prim(.i64)) is null} {t12ModifierName(.none)}\n")
+    let expected = """
+        BYN2006 `f` is declared twice
+        BYN2006 `f` is declared twice
+        f1 ynyynyy
+        f2 nynnnnn
+        f2 ynyyyyy
+        f1 ynyynyy
+        f2 nnynynn
+        show1 ynyynyy
+        S1 ynyynyy
+        true none
+
+        """
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
+}
+
+test "declare t29: members named twice, positional counts and a duplicate in another file" {
+    let text = """
+        struct P {
+            i64 n
+            void n() {}
+            void g(i64 a) {}
+            void g(string a, by i64 b) {}
+            void g(i64 c) {}
+        }
+
+        interface IItem {
+            type Item
+        }
+
+        struct Q : IItem {
+            type Item = i64
+            type Item = i64
+        }
+
+        enum Bad(Nope v) {
+            w(1)
+        }
+
+        void k(i64 a, i64 b) {}
+
+        void k() {}
+
+        void dup() {}
+
+        void main() {}
+        """
+    var sources = List<lexer.SourceText>()
+    sources.append(t29s1Source("a.byn", from: text))
+    sources.append(t29s1Source("b.byn", from: "void dup() {}\n"))
+    var c = create(from: move sources, at: ".", by: CompilationOptions {})
+    var sb = StrBuf()
+    var ks = List<FuncId>()
+    for fn in 0..c.functions.length {
+        if c.functions[fn].declIndex >= 0 && c.functions[fn].name == "k" {
+            ks.append(fn)
+        }
+    }
+    sb.append($"{overlap(ref c, for: ks[0], as: ks[1])} {overlap(ref c, for: ks[1], as: ks[0])} ")
+    let expected = """
+        BYN2002 unknown type `Nope`
+        BYN2006 `n` is declared twice
+        BYN2006 `g` is declared twice
+        BYN2006 `Item` is declared twice
+        BYN5004 `k` has 2 unlabeled parameters; give each but one a particle
+        BYN5006 `b` is a required parameter besides the object and needs a particle
+        BYN2006 `dup` is declared twice
+        false false 
+        """
+    assert $"{t29s1Diags(in c)}{sb.finish()}" == expected
+}
+
+test "declare t29: an error variant named twice" {
+    let text = """
+        union error E {
+            bad(i64 a)
+            ok
+            bad(i64 b)
+        }
+
+        void main() {}
+        """
+    let c = t29s1Compile(text)
+    let expected = """
+        BYN2006 `bad` is declared twice
+
+        """
+    assert t29s1Diags(in c) == expected
+}

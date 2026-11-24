@@ -1,0 +1,34 @@
+error BYN2219: the length of `..xs` in a `T[N]` literal must be a compile-time constant
+  --> <repo>/tmp/t2/diag/spread-run-time-length/spread-run-time-length.byn:2:22
+
+  2 │ let fixed: i32[3] = [..xs, 3]
+    │                      ^^^^ a `List<i32>` has a run-time length
+    │
+  help: spread a fixed array `T[N]` here, or build a list: `List<i32> all = [..xs, 3]`
+
+error BYN2219: the length of `..xs` in a `Span` literal must be a compile-time constant
+  --> <repo>/tmp/t2/diag/spread-run-time-length/spread-run-time-length.byn:3:24
+
+  3 │ let view: Span<i32> = [..xs]
+    │                        ^^^^ a `List<i32>` has a run-time length
+    │
+  help: spread a fixed array `T[N]` here, or build a list: `List<i32> all = [..xs]`
+
+error BYN2219: the length of `..xs` in a `T[N]` literal must be a compile-time constant
+  --> <repo>/tmp/t2/diag/spread-run-time-length/spread-run-time-length.byn:4:20
+
+  4 │ let inferred = [0, ..xs]
+    │                    ^^^^ a `List<i32>` has a run-time length
+    │
+  help: spread a fixed array `T[N]` here, or build a list: `List<i32> all = [0, ..xs]`
+
+error BYN2202: expected `i64`, found `i32`
+  --> <repo>/tmp/t2/diag/spread-run-time-length/spread-run-time-length.byn:5:24
+
+  5 │ let wide: List<i64> = [..xs]
+    │                        ^^^^ `xs` holds `i32`
+    │
+  help: spread a sequence of `i64`, or change the literal's element type to `i32`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2219

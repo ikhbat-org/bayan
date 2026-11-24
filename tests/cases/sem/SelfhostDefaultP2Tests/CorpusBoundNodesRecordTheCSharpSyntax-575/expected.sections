@@ -1,0 +1,18 @@
+== tests/cases/diag/instrument-changes-this.byn
+407..418 globalStatement
+407..418 exprStmt
+407..418 callExpr
+413..417 literalExpr string
+407..418 callExpr
+189..234 blockStmt
+199..208 assignStmt add target 199..203 value 207..208
+199..203 nameExpr
+199..203 nameExpr
+207..208 literalExpr integer
+217..228 returnStmt value 224..228
+224..228 nameExpr
+224..228 nameExpr
+317..328 memberExpr
+317..328 memberExpr
+317..328 memberExpr
+317..322 nameExpr

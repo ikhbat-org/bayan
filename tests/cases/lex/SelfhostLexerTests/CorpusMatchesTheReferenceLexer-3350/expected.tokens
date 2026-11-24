@@ -1,0 +1,46 @@
+1:1 Identifier `pen`
+1:5 ExtensibleKeyword `extensible`
+1:16 InterfaceKeyword `interface`
+1:26 DelegateKeyword `delegate`
+1:35 ExtensionKeyword `extension`
+1:45 DerivationKeyword `derivation`
+1:56 Identifier `attri`
+4:1 RawStringLiteral `"""let café = 1\n\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ pen extensible interface delegate extension derivation attri ����� ‏
+    │                                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ pen extensible interface delegate extension derivation attri ����� ‏
+    │                                                               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ pen extensible interface delegate extension derivation attri ����� ‏
+    │                                                                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ pen extensible interface delegate extension derivation attri ����� ‏
+    │                                                                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ pen extensible interface delegate extension derivation attri ����� ‏
+    │                                                                  ^
+
+error BYN0002: unexpected character `‏`
+
+  1 │ pen extensible interface delegate extension derivation attri ����� ‏
+    │                                                                    ^
+
+error BYN0003: unterminated string literal
+
+  4 │ """let café = 1
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

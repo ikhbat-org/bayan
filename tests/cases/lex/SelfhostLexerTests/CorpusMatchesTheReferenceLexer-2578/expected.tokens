@@ -1,0 +1,63 @@
+1:1 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+4:2 VarKeyword `var`
+4:6 Identifier `xs`
+4:8 Colon `:`
+4:10 Identifier `List`
+4:14 Less `<`
+4:15 Identifier `List`
+4:19 Less `<`
+4:20 Identifier `i64`
+4:23 Greater `>`
+4:24 Greater `>`
+5:1 LetKeyword `let`
+5:5 Identifier `la`
+5:7 Percent `%`
+5:8 Identifier `w`
+5:10 Equals `=`
+5:12 IntegerLiteral `3`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+7:1 ErrorKeyword `error`
+7:7 SetKeyword `set`
+7:11 UnitKeyword `unit`
+7:16 DistinctKeyword `distinct`
+7:25 Identifier `ty`
+7:27 Greater `>`
+7:28 Identifier `e`
+7:30 ImportKeyword `import`
+7:37 AsKeyword `as`
+7:40 PublicKeyword `public`
+7:47 PrivateKeyword `private`
+7:55 StaticKeyword `static`
+7:62 Identifier `readon`
+7:69 Identifier `ly`
+7:72 RequiredKeyword `required`
+7:81 ConstKeyword `const`
+7:87 LetKeyword `let`
+7:91 VarKeyword `var`
+7:95 EmbedKeyword `embed`
+7:101 ExternKeyword `extern`
+7:108 UnsafeKeyword `unsafe`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  �var xs: List<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  7 │ error set unit distinct ty>e import as public private static readon�ly required const let var embed extern unsafe
+    │                                                                    ^

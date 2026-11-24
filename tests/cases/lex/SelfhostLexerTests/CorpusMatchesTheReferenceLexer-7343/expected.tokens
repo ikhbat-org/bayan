@@ -1,0 +1,86 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\�'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:2 Identifier `_3`
+2:4 Dot `.`
+2:5 IntegerLiteral `14`
+2:8 FloatLiteral `1e5`
+2:12 FloatLiteral `2.5e-3`
+2:19 FloatLiteral `6E+2`
+2:24 FloatLiteral `1.50`
+2:28 NumericSuffix `dec`
+2:32 IntegerLiteral `1`
+2:33 DotDot `..`
+2:35 IntegerLiteral `2`
+2:37 IntegerLiteral `1`
+2:38 DotDotEquals `..=`
+2:41 IntegerLiteral `3`
+2:43 IntegerLiteral `5`
+2:44 NumericSuffix `e`
+2:46 Identifier `x`
+2:47 Dot `.`
+2:48 Identifier `y`
+2:50 FloatLiteral `2.5`
+2:53 NumericSuffix `f`
+4:8 OpenParen `(`
+5:1 Identifier `ạ̇`
+5:5 TestKeyword `test`
+5:10 AssertKeyword `assert`
+5:17 PropertyKeyword `property`
+5:26 FuzzKeyword `fuzz`
+5:31 ModelKeyword `model`
+5:37 ForeachKeyword `foreach`
+5:45 NewKeyword `new`
+5:49 Identifier `g`
+5:51 Identifier `to`
+6:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\�`
+
+  1 │ 'a' '\�' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │      ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xE4)
+
+  1 │ 'a' '\�' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │       ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  4 │ /* � */(
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 4 │ // �
+    │   │  +++
+    │ 5 │ (
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  4 │ /* � */(
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ /* � */(
+    │   │    -
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │ ạ̇ test assert property fuzz model foreach new g�to
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇ test assert property fuzz model foreach new g�to
+    │   │ ++
+
+error BYN0015: source is not valid UTF-8 (byte 0xD5)
+
+  5 │ ạ̇ test assert property fuzz model foreach new g�to
+    │                                                  ^

@@ -1,0 +1,75 @@
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 Identifier `a`
+3:1 Identifier `b`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+4:6 OpenParen `(`
+4:8 CloseParen `)`
+4:10 OpenBracket `[`
+4:12 CloseBracket `]`
+4:14 OpenBrace `{`
+4:16 CloseBrace `}`
+5:1 Identifier `t`
+5:2 Less `<`
+5:4 DistinctKeyword `distinct`
+5:13 TypeKeyword `type`
+6:1 Identifier `et`
+6:6 Equals `=`
+6:8 IntegerLiteral `2`
+8:3 StringLiteral `"total {x}"`
+8:15 InterpolatedStringStart `$"`
+8:17 InterpolatedStringText `a `
+8:19 InterpolationStart `{`
+8:20 Identifier `f`
+8:21 OpenParen `(`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolatedStringText `b `
+8:26 InterpolationStart `{`
+8:27 Identifier `c`
+8:28 InterpolationEnd `}`
+8:29 InterpolatedStringEnd `"`
+8:30 CloseParen `)`
+8:31 InterpolationEnd `}`
+8:32 InterpolatedStringText ` d`
+8:34 InterpolatedStringEnd `"`
+8:36 InterpolatedStringStart `$"`
+8:38 InterpolatedStringText `{{literal}}`
+8:49 InterpolatedStringEnd `"`
+8:51 InterpolatedStringStart `$"`
+8:53 InterpolationStart `{`
+8:54 Identifier `Point`
+8:60 OpenBrace `{`
+8:62 Identifier `x`
+8:64 Equals `=`
+8:66 IntegerLiteral `1`
+8:68 CloseBrace `}`
+8:69 InterpolationEnd `}`
+8:70 InterpolatedStringText `!`
+8:71 InterpolatedStringEnd `"`
+8:73 InterpolatedStringStart `$"`
+8:75 InterpolatedStringEnd `"`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a ( ) [ ] { }
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ et � = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  7 │ // ok � in comment
+    │       ^
+
+error BYN0002: unexpected character `\u{1F}`
+
+  8 │  �"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^

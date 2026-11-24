@@ -1,0 +1,39 @@
+1:1 Identifier `ạ̇`
+2:1 OpenParen `(`
+2:3 CloseParen `)`
+2:5 OpenBracket `[`
+2:7 CloseBracket `]`
+2:9 OpenBrace `{`
+2:11 CloseBrace `}`
+4:2 StructKeyword `struct`
+4:9 Identifier `S`
+8:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇
+    │   │ ++
+
+error BYN0002: unexpected character `‏`
+
+  4 │ ‏struct S
+    │ ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  6 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ �
+    │   │ -
+
+error BYN0002: unexpected character `‏`
+
+  7 │ ‏
+    │ ^

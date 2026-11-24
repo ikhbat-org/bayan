@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (list 1 (spread rest))

@@ -1,0 +1,4 @@
+COLORTERM=truecolor
+BAYAN_THEME=dark
+CI=1
+BAYAN_CACHE=<repo>/tmp/t7-style-cache/build-ok-verbose-ascii-csharp

@@ -1,0 +1,2 @@
+  """ c"text" u16"wide""â€® allowed in strinÞgs" "" "\u{48}i"
+t b = "bad \q esc

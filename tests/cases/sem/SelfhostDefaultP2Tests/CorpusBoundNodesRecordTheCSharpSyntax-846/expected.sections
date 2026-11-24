@@ -1,0 +1,55 @@
+== tests/cases/diag/strbuf-finish-non-local.byn
+95..230 blockStmt
+101..124 localDecl
+110..124 callExpr
+129..148 exprStmt
+129..148 callExpr
+129..131 nameExpr
+139..147 callExpr
+153..170 exprStmt
+153..170 callExpr
+153..158 indexExpr
+153..155 nameExpr
+156..157 literalExpr integer
+166..169 literalExpr string
+175..197 localDecl
+183..197 callExpr
+183..188 indexExpr
+183..185 nameExpr
+186..187 literalExpr integer
+202..215 exprStmt
+202..215 callExpr
+202..207 indexExpr
+202..204 nameExpr
+205..206 literalExpr integer
+220..228 exprStmt
+220..228 callExpr
+226..227 nameExpr
+220..228 callExpr
+245..362 blockStmt
+251..280 localDecl
+259..280 tupleExpr
+265..273 callExpr
+278..279 literalExpr integer
+285..302 exprStmt
+285..302 callExpr
+285..290 memberExpr
+285..286 nameExpr
+298..301 literalExpr string
+307..329 localDecl
+315..329 callExpr
+315..320 memberExpr
+315..316 nameExpr
+334..347 exprStmt
+334..347 callExpr
+334..339 memberExpr
+334..335 nameExpr
+352..360 exprStmt
+352..360 callExpr
+358..359 nameExpr
+352..360 callExpr
+376..405 blockStmt
+382..391 exprStmt
+382..391 callExpr
+396..403 exprStmt
+396..403 callExpr

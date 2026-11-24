@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "nodes": [
+    "BecomeStmt",
+    "BlockStmt",
+    "CallExpr",
+    "ConstantPattern",
+    "ExprStmt",
+    "FieldDecl",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IfStmt",
+    "InterpolatedExpr",
+    "IsExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "PropertyPattern",
+    "ReturnStmt",
+    "StructDecl",
+    "StructLiteralExpr",
+    "SwitchExpr",
+    "SwitchStmt",
+    "ThisExpr",
+    "UnaryExpr",
+    "VarPattern",
+    "VariantPattern"
+  ],
+  "builtins": [
+    "Print"
+  ],
+  "diagnostics": []
+}

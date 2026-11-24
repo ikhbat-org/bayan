@@ -1,0 +1,26 @@
+== helpers
+bynh_try_parse_opt_i64 static bynt_opt_i64 bynh_try_parse_opt_i64(byn_str s, byn_builtin_Radix radix) | static bynt_opt_i64 bynh_try_parse_opt_i64(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 64, true, radix, &v)) return (bynt_opt_i64){0};
+    return (bynt_opt_i64){true, (int64_t)v};
+}
+bynh_try_parse_opt_u8 static bynt_opt_u8 bynh_try_parse_opt_u8(byn_str s, byn_builtin_Radix radix) | static bynt_opt_u8 bynh_try_parse_opt_u8(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 8, false, radix, &v)) return (bynt_opt_u8){0};
+    return (bynt_opt_u8){true, (uint8_t)v};
+}
+bynh_try_parse_opt_i8 static bynt_opt_i8 bynh_try_parse_opt_i8(byn_str s, byn_builtin_Radix radix) | static bynt_opt_i8 bynh_try_parse_opt_i8(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 8, true, radix, &v)) return (bynt_opt_i8){0};
+    return (bynt_opt_i8){true, (int8_t)v};
+}
+bynh_try_parse_opt_u16 static bynt_opt_u16 bynh_try_parse_opt_u16(byn_str s, byn_builtin_Radix radix) | static bynt_opt_u16 bynh_try_parse_opt_u16(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 16, false, radix, &v)) return (bynt_opt_u16){0};
+    return (bynt_opt_u16){true, (uint16_t)v};
+}
+bynh_try_parse_opt_i32 static bynt_opt_i32 bynh_try_parse_opt_i32(byn_str s, byn_builtin_Radix radix) | static bynt_opt_i32 bynh_try_parse_opt_i32(byn_str s, byn_builtin_Radix radix) {
+    int64_t v;
+    if (!byn_int_parse(s, 32, true, radix, &v)) return (bynt_opt_i32){0};
+    return (bynt_opt_i32){true, (int32_t)v};
+}

@@ -1,0 +1,53 @@
+1:1 Identifier `_`
+1:2 CharLiteral `'a'`
+1:7 CharLiteral `'\n'`
+1:12 CharLiteral `'\u{1F600}'`
+1:24 CharLiteral `'\''`
+1:29 CharLiteral `'é'`
+1:33 CharLiteral `'\\'`
+1:38 CharLiteral `'\0'`
+2:2 CloseBrace `}`
+3:2 LetKeyword `let`
+3:8 Equals `=`
+3:10 IntegerLiteral `2`
+4:2 Identifier `fa`
+4:5 Identifier `ls`
+4:8 TryKeyword `try`
+4:12 CatchKeyword `catch`
+4:18 NeverKeyword `never`
+4:24 NoallocKeyword `noalloc`
+4:32 Identifier `nosrspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
+5:2 Identifier `ạ̇`
+5:5 EndOfFile
+
+error BYN0002: unexpected character `\u{1F}`
+
+  1 │ _'a'� '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │     ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ﻿let � = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ ﻿let � = 2
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  4 │  fa�ls try catch never noalloc nosrspend suspends async await
+    │    ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  5 │  ạ̇
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │  ạ̇
+    │   │  ++

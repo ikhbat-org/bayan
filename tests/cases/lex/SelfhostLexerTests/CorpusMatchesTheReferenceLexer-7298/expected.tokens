@@ -1,0 +1,34 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+3:1 OpenParen `(`
+3:3 CloseParen `)`
+3:5 OpenBracket `[`
+3:7 CloseBracket `]`
+3:9 OpenBrace `{`
+3:11 CloseBrace `}`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+6:2 Identifier `Bar`
+6:6 Identifier `_x`
+6:9 Identifier `camelCase2`
+7:3 StructKeyword `struct`
+7:10 Identifier `S`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  6 │  Bar _x camelCase2 �
+    │                    ^
+
+error BYN0002: unexpected character `﻿`
+
+  7 │ ﻿ struct S
+    │ ^

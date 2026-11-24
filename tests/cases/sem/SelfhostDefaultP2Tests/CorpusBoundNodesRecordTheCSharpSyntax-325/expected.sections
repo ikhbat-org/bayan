@@ -1,0 +1,165 @@
+== tests/cases/run/to-hex.byn
+0..17 globalStatement
+0..17 localDecl
+16..17 literalExpr integer
+18..38 localDecl
+35..38 literalExpr integer
+39..64 localDecl
+54..64 literalExpr integer
+65..149 exprStmt
+65..149 callExpr
+71..148 interpolatedExpr
+74..96 callExpr
+81..85 nameExpr
+91..95 targetMemberExpr
+99..122 callExpr
+106..111 nameExpr
+117..121 targetMemberExpr
+125..146 callExpr
+132..135 nameExpr
+141..145 targetMemberExpr
+65..149 callExpr
+151..170 localDecl
+167..170 literalExpr integer
+171..189 localDecl
+187..189 unaryExpr negate operand 188..189
+190..210 localDecl
+206..210 unaryExpr negate operand 207..210
+211..301 exprStmt
+211..301 callExpr
+217..300 interpolatedExpr
+223..246 callExpr
+230..235 nameExpr
+241..245 targetMemberExpr
+249..272 callExpr
+256..261 nameExpr
+267..271 targetMemberExpr
+275..298 callExpr
+282..287 nameExpr
+293..297 targetMemberExpr
+211..301 callExpr
+302..325 localDecl
+320..325 literalExpr integer
+326..346 localDecl
+344..346 unaryExpr negate operand 345..346
+347..414 exprStmt
+347..414 callExpr
+353..413 interpolatedExpr
+360..384 callExpr
+367..373 nameExpr
+379..383 targetMemberExpr
+387..411 callExpr
+394..400 nameExpr
+406..410 targetMemberExpr
+347..414 callExpr
+415..443 localDecl
+433..443 literalExpr integer
+444..464 localDecl
+462..464 unaryExpr negate operand 463..464
+465..494 localDecl
+483..494 unaryExpr negate operand 484..494
+495..589 exprStmt
+495..589 callExpr
+501..588 interpolatedExpr
+508..532 callExpr
+515..521 nameExpr
+527..531 targetMemberExpr
+535..559 callExpr
+542..548 nameExpr
+554..558 targetMemberExpr
+562..586 callExpr
+569..575 nameExpr
+581..585 targetMemberExpr
+495..589 callExpr
+590..627 localDecl
+608..627 literalExpr integer
+628..648 localDecl
+646..648 unaryExpr negate operand 647..648
+649..687 localDecl
+667..687 unaryExpr negate operand 668..687
+688..782 exprStmt
+688..782 callExpr
+694..781 interpolatedExpr
+701..725 callExpr
+708..714 nameExpr
+720..724 targetMemberExpr
+728..752 callExpr
+735..741 nameExpr
+747..751 targetMemberExpr
+755..779 callExpr
+762..768 nameExpr
+774..778 targetMemberExpr
+688..782 callExpr
+783..808 localDecl
+805..808 unaryExpr negate operand 806..808
+809..853 exprStmt
+809..853 callExpr
+815..852 interpolatedExpr
+824..850 callExpr
+831..839 nameExpr
+845..849 targetMemberExpr
+809..853 callExpr
+855..875 localDecl
+873..875 literalExpr integer
+876..895 localDecl
+892..895 literalExpr integer
+896..962 exprStmt
+896..962 callExpr
+902..961 interpolatedExpr
+908..933 callExpr
+915..922 nameExpr
+928..932 targetMemberExpr
+936..959 callExpr
+943..948 nameExpr
+954..958 targetMemberExpr
+896..962 callExpr
+963..986 localDecl
+981..986 literalExpr integer
+987..1027 exprStmt
+987..1027 callExpr
+993..1026 interpolatedExpr
+1000..1024 callExpr
+1007..1013 nameExpr
+1019..1023 targetMemberExpr
+987..1027 callExpr
+1028..1056 localDecl
+1046..1056 literalExpr integer
+1057..1097 exprStmt
+1057..1097 callExpr
+1063..1096 interpolatedExpr
+1070..1094 callExpr
+1077..1083 nameExpr
+1089..1093 targetMemberExpr
+1057..1097 callExpr
+1098..1136 localDecl
+1116..1136 literalExpr integer
+1137..1177 exprStmt
+1137..1177 callExpr
+1143..1176 interpolatedExpr
+1150..1174 callExpr
+1157..1163 nameExpr
+1169..1173 targetMemberExpr
+1137..1177 callExpr
+1178..1204 localDecl
+1200..1204 literalExpr integer
+1205..1249 exprStmt
+1205..1249 callExpr
+1211..1248 interpolatedExpr
+1220..1246 callExpr
+1227..1235 nameExpr
+1241..1245 targetMemberExpr
+1205..1249 callExpr
+1251..1276 localDecl
+1269..1276 callExpr
+1277..1369 contextStmt
+1296..1301 nameExpr
+1302..1369 blockStmt
+1308..1341 localDecl
+1318..1341 callExpr
+1325..1330 nameExpr
+1336..1340 targetMemberExpr
+1346..1367 exprStmt
+1346..1367 callExpr
+1352..1366 interpolatedExpr
+1361..1364 nameExpr
+1346..1367 callExpr

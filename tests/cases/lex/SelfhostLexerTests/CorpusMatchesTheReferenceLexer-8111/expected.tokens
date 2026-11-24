@@ -1,0 +1,85 @@
+1:1 IntegerLiteral `0x`
+2:1 IntegerLiteral `1_`
+3:1 IntegerLiteral `0b102`
+4:1 IntegerLiteral `0xFF`
+4:5 NumericSuffix `s`
+5:1 IntegerLiteral `0`
+5:2 StringLiteral `"`
+    doc `///\r`
+7:1 Identifier `fect`
+7:6 Equals `=`
+7:8 IntegerLiteral `2`
+8:1 Identifier `macro`
+8:7 Identifier `select`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  3 │ 0b102
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  4 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  5 │ 0"
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │ �� � ///
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �� � ///
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  6 │ �� � ///
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  6 │ �� � ///
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  6 │ �� � ///
+    │     ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  8 │ macro select 
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  8 │ macro select 
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

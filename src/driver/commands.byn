@@ -92,6 +92,73 @@ semantics.T26Symbols t19Symbols(in DStyle style) uses alloc {
     )
 }
 
+test "diag-secondary: a related span renders as tests/cases/style/diag-secondary in each style" {
+    // StyleTests.cs:172 `Secondary`: a BYN2104 with a fix and a related span, which no binder site produces yet (Q81).
+    let text = "i64 sum(Line line) {\n    let total = 0\n    total += line.price\n    return total\n}\n"
+    let use = goldenOffset(text, for: "total +=")
+    let declared = goldenOffset(text, for: "total = 0")
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    let empty = List<u8>()
+    var p = parser.Parser.create(
+        lexer.lex(lexer.SourceText.create("ledger.byn", from: move empty), by: lexer.Keywords.build()),
+    )
+    let unit = parser.parseCompilationUnit(ref p)
+    var c = GoldenCtx {
+        files: List<semantics.SourceFile>(),
+        modules: List<semantics.Mod>(),
+        diagnostics: List<GoldenDiag>(),
+        bags: List<semantics.DiagBag>(),
+    }
+    c.files.append(
+        GoldenFile {
+            path: "src/ledger/ledger.byn",
+            displayPath: "src/ledger/ledger.byn",
+            text: move bytes,
+            unit: move unit,
+            imports: Map<string, i64>(),
+        },
+    )
+    var related = List<GoldenRelated>()
+    related.append(
+        GoldenRelated { span: CcSpan { start: declared, length: "total".length }, label: "declared with `let` here" },
+    )
+    var diags = List<GoldenDiag>()
+    diags.append(
+        GoldenDiag {
+            code: "BYN2104",
+            file: 0,
+            span: CcSpan { start: use, length: "total".length },
+            message: "`total` is immutable",
+            label: "cannot be changed",
+            help: "declare it with `var` if it should change",
+            hasFix: true,
+            fixSpan: CcSpan { start: declared - "let ".length, length: "let".length },
+            fixReplacement: "var",
+            related: move related,
+        },
+    )
+    for ending in goldenStyleEndings() {
+        var omitted: i64 = 0
+        let rendered = semantics.renderAllBy(
+            in c,
+            from: in diags,
+            by: true,
+            until: 2147483647,
+            to: ref omitted,
+            through: in t19Symbols(in goldenStyleOf(ending)),
+        )
+        let failure = goldenStyleCompare(
+            "diag-secondary",
+            for: ending,
+            as: $"# DiagnosticRenderer.RenderAll\n{goldenStreams("", for: rendered)}",
+        )
+        assert(failure is null)
+    }
+}
+
 /// CliApp.cs:141 `Types`.
 i32 typesCommand(in List<string> kept, by in DCtx d) {
     let args = t2Rest(kept)

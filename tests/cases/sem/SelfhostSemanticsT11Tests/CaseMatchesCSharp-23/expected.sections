@@ -1,0 +1,22 @@
+== declare main-string
+module main tmp/t11-cases/main-string main
+file tmp/t11-cases/main-string/main.byn source
+diag BYN2771 tmp/t11-cases/main-string/main.byn 1:8 `main` must return `void` or `i32` and take nothing or `ReadOnlySpan<string> args` |  | write `void main()`, `i32 main()`, `void main(ReadOnlySpan<string> args)` or `i32 main(ReadOnlySpan<string> args)`, each optionally with `fails`
+variant IoError.notFound 1 
+variant IoError.permissionDenied 2 
+variant IoError.invalidUtf8 3 
+variant IoError.notADirectory 4 
+variant IoError.other 5 
+variant IoError.invalidInput 6 
+variant IoError.unsupported 7 
+variant IoError.crossDevice 8 
+variant IoError.isDirectory 9 
+variant IoError.signaled 10 signal:i32,stdout:string,stderr:string
+variant IoError.timeout 11 after:Millis,stdout:string,stderr:string
+variant Utf8Error.invalidSequence 12 at:i64
+variant ParseError.badDigit 13 at:i64
+variant ParseError.overflow 14 
+rule length 0 bounds:Range<i64>
+rule range 1 bounds:Range<i64>
+rule custom 2 
+members declared True

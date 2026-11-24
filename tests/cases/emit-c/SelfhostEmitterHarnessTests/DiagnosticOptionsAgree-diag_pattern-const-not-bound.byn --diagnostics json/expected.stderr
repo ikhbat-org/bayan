@@ -1,0 +1,1 @@
+{"code":"BYN2022","severity":"error","file":"input.byn","span":{"start":43,"end":66,"line":5,"column":15,"endLine":5,"endColumn":38},"message":"a named pattern is not supported in v0.1","label":null,"help":null,"fixes":[]}

@@ -1,0 +1,8 @@
+void main() {
+    let aisha: u8 = 250
+    let bilal: u8 = 250
+    let debt: i8 = -120
+    print($"aisha: {aisha +% 10}")
+    print($"bilal: {bilal +| 10}")
+    print($"debt: {debt -% 10}")
+}

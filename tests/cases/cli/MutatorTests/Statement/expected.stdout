@@ -1,0 +1,12 @@
+<repo>/tmp/t27-mutate/Statement/lib.byn:2:5 statement `print($"{x}")` -> ``: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:6:5 statement `note(x)` -> ``: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:8:5 statement `y = 3` -> ``: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:8:9 literal `3` -> `4`: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:8:9 literal `3` -> `2`: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:9:5 statement `y += 1` -> ``: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:9:5 arithmetic `y += 1` -> `y -= 1`: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:9:10 literal `1` -> `2`: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:9:10 literal `1` -> `0`: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:10:5 statement `y++` -> ``: not reached
+<repo>/tmp/t27-mutate/Statement/lib.byn:11:12 emptyReturn `y` -> `0`: not reached
+0 killed, 0 survived, 0 timeout, 11 not reached, 0 marked, 0 not emitted

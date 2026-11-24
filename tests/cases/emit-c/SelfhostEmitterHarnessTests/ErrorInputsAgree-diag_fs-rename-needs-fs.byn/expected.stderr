@@ -1,0 +1,12 @@
+error BYN6002: `undeclared` uses `fs` but does not declare it
+  --> input.byn:3:9
+
+  3 │     try Fs.rename(p, to: "b")
+    │         ^^^^^^^^^^^^^^^^^^^^^ uses `fs`
+    │
+  help: add `fs` to the `uses` clause, or remove the call
+    │ 2 │ public void undeclared(string p) uses fs fails IoError {
+    │   │                                 ++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6002

@@ -1,0 +1,5 @@
+error BYN2303: `x` is passed twice
+  --> <repo>/tests/cases/diag/duplicate-argument.byn:2:22
+
+  2 │ print($"{twice(x: 1, x: 2)}")
+    │                      ^^^^

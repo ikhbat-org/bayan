@@ -1,0 +1,126 @@
+== tests/cases/run/strbuf-insert.byn
+120..149 globalStatement
+120..149 localDecl
+130..149 callExpr
+147..148 literalExpr integer
+150..169 exprStmt
+150..169 callExpr
+150..153 nameExpr
+161..168 literalExpr string
+170..197 exprStmt
+170..197 callExpr
+170..173 nameExpr
+181..189 literalExpr string
+195..196 literalExpr integer
+198..229 exprStmt
+198..229 callExpr
+198..201 nameExpr
+209..212 literalExpr string
+218..228 memberExpr
+218..221 nameExpr
+230..245 exprStmt
+230..245 callExpr
+236..244 memberExpr
+236..239 nameExpr
+230..245 callExpr
+246..273 exprStmt
+246..273 callExpr
+246..249 nameExpr
+257..265 literalExpr string
+271..272 literalExpr integer
+274..289 exprStmt
+274..289 callExpr
+280..288 memberExpr
+280..283 nameExpr
+274..289 callExpr
+291..313 localDecl
+305..313 callExpr
+314..332 exprStmt
+314..332 callExpr
+314..321 nameExpr
+329..331 literalExpr integer
+329..331 literalExpr integer
+333..352 exprStmt
+333..352 callExpr
+333..340 nameExpr
+348..351 literalExpr char
+348..351 literalExpr char
+353..373 exprStmt
+353..373 callExpr
+353..360 nameExpr
+368..372 literalExpr trueKeyword
+368..372 literalExpr trueKeyword
+374..393 exprStmt
+374..393 callExpr
+374..381 nameExpr
+389..392 literalExpr char
+389..392 literalExpr char
+394..413 exprStmt
+394..413 callExpr
+394..401 nameExpr
+409..412 literalExpr floatKeyword
+409..412 literalExpr floatKeyword
+414..433 exprStmt
+414..433 callExpr
+414..421 nameExpr
+429..432 literalExpr char
+429..432 literalExpr char
+434..470 exprStmt
+434..470 callExpr
+434..441 nameExpr
+449..469 structLiteralExpr
+449..469 structLiteralExpr
+460..461 literalExpr integer
+466..467 literalExpr integer
+471..494 exprStmt
+471..494 callExpr
+477..493 callExpr
+477..484 nameExpr
+471..494 callExpr
+496..516 localDecl
+508..516 callExpr
+517..535 exprStmt
+517..535 callExpr
+517..522 nameExpr
+530..534 literalExpr string
+536..561 exprStmt
+536..561 callExpr
+536..541 nameExpr
+549..553 literalExpr string
+559..560 literalExpr integer
+562..593 exprStmt
+562..593 callExpr
+562..567 nameExpr
+575..585 memberExpr
+575..580 nameExpr
+591..592 literalExpr integer
+594..631 exprStmt
+594..631 callExpr
+600..630 interpolatedExpr
+603..613 memberExpr
+603..608 nameExpr
+616..628 memberExpr
+616..621 nameExpr
+594..631 callExpr
+632..645 exprStmt
+632..645 callExpr
+632..637 nameExpr
+646..670 exprStmt
+646..670 callExpr
+646..651 nameExpr
+659..662 literalExpr string
+668..669 literalExpr integer
+671..688 exprStmt
+671..688 callExpr
+677..687 memberExpr
+677..682 nameExpr
+671..688 callExpr
+77..116 blockStmt
+87..110 exprStmt
+87..110 callExpr
+87..88 nameExpr
+96..109 interpolatedExpr
+100..101 nameExpr
+100..101 nameExpr
+105..106 nameExpr
+105..106 nameExpr

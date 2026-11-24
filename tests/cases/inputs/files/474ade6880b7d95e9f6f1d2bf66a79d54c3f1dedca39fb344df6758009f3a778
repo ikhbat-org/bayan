@@ -1,0 +1,9 @@
+let actor = 1
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+a /* never closed
+
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+let c = """never closeda
+ // ‮x
+

@@ -1,0 +1,3 @@
+public void pass(string s, to ref string g) {
+    g = s
+}

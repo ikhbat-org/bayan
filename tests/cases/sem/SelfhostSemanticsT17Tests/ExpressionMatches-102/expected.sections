@@ -1,0 +1,2 @@
+== case name-const-local
+literal 2328..2329 : i32 = 5

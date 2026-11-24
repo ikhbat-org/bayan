@@ -1,0 +1,44 @@
+1:1 RawStringLiteral `"""0F__\n'ab'\n $"{a "\n����� el�Case2 بي�\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """0F__
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ ����� el�Case2 بي�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ ����� el�Case2 بي�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� el�Case2 بي�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� el�Case2 بي�
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ����� el�Case2 بي�
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ����� el�Case2 بي�
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  4 │ ����� el�Case2 بي�
+    │                  ^

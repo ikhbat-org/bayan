@@ -1,0 +1,2 @@
+== bag dyn-ref-list-element-ref-and-value
+BYN3005 21:10 `xs` is passed by `ref` and again in the same call |`xs` is also passed by `ref`|copy the value into a local first, or make two calls|

@@ -1,0 +1,7 @@
+dir my-proj
+=== my-proj/my-proj.byn
+mode x
+#!/usr/bin/env bayan
+#:io threaded
+
+print("Salam, world!")

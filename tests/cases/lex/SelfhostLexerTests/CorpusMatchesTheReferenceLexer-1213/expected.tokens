@@ -1,0 +1,29 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:8 IntegerLiteral `1`
+2:7 InKeyword `in`
+2:10 Identifier `comment`
+3:2 IntegerLiteral `1`
+3:3 NumericSuffix `e`
+4:1 Identifier `x́́`
+4:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �  �� in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  2 │ �  �� in comment
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ �  �� in comment
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  4 │ x́́�
+    │    ^

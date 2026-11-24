@@ -1,0 +1,143 @@
+1:1 CharLiteral `'ab'`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `�`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolatedStringText `�$`
+2:20 InterpolatedStringEnd `"`
+2:21 OpenBrace `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 Identifier `x`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringText `�`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 Identifier `macro`
+2:73 Identifier `select`
+2:80 BecomeKeyword `become`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `a`
+4:4 InterpolationStart `{`
+4:5 Identifier `b`
+4:6 InterpolationEnd `}`
+4:7 InterpolatedStringText `c\r`
+4:9 InterpolatedStringEnd
+5:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  2 │  $"�{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"macro select become
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  2 │  $"�{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"macro select become
+    │                    ^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"�{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"macro select become
+    │                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  2 │  $"�{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"macro select become
+    │                                                            ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │  $"�{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"macro select become
+    │                                                                      ^^^^^ reserved for a
+    │                                                                            future version of
+    │                                                                            Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │  $"�{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}�"}"}"}"}"macro select become
+    │                                                                            ^^^^^^ reserved for
+    │                                                                                   a future
+    │                                                                                   version of
+    │                                                                                   Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  �����
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

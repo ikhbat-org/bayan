@@ -1,0 +1,20 @@
+1:1 OpenKeyword `open`
+1:6 OpenBrace `{`
+1:7 Identifier `x`
+1:8 StringLiteral `";`
+2:1 RawStringLiteral `""" 0xFFs\u{F}fx\n `
+3:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ open {x";
+    │        ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ """ 0xFFs�fx
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

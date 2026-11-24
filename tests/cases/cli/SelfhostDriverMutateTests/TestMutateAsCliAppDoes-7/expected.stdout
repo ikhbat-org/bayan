@@ -1,0 +1,5 @@
+src/inc/a.test.byn:2:12 emptyReturn `n + 1` -> `0`: killed
+src/inc/a.test.byn:2:12 arithmetic `n + 1` -> `n - 1`: killed
+src/inc/a.test.byn:2:16 literal `1` -> `2`: survived
+src/inc/a.test.byn:2:16 literal `1` -> `0`: survived
+2 killed, 2 survived, 0 timeout, 0 not reached, 0 marked, 0 not emitted

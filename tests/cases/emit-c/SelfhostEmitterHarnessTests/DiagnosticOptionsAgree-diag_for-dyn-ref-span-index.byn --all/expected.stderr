@@ -1,0 +1,8 @@
+error BYN2106: cannot modify this value
+  --> input.byn:17:26
+
+  17 │     for x: dyn ref IC in view(k.span)[0] { x.bump() }
+     │                          ^^^^^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2106

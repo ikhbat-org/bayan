@@ -1,0 +1,39 @@
+1:1 IntegerLiteral `0x`
+2:2 VarKeyword `var`
+2:6 Identifier `xs`
+2:8 Colon `:`
+2:10 Identifier `List`
+2:14 Less `<`
+2:15 Identifier `List`
+2:19 Less `<`
+2:20 Identifier `i64`
+2:23 Greater `>`
+2:24 Greater `>`
+3:2 Identifier `τής`
+3:6 Identifier `x_1`
+3:10 Identifier `é`
+4:2 Identifier `le`
+4:4 Identifier `t`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  3 │  �τής x_1 é
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  4 │  le�t� = 2
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │  le�t� = 2
+    │      ^

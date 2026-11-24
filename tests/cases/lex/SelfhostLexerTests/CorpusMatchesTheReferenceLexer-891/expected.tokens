@@ -1,0 +1,57 @@
+1:1 Identifier `Ålet`
+1:6 Identifier `c`
+1:8 Equals `=`
+1:12 IntegerLiteral `3`
+2:1 Identifier `ne`
+2:4 Identifier `one`
+2:7 Dot `.`
+    doc `/// Doce"`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+5:2 StringLiteral `"text"`
+5:9 StringLiteral `"esc \"q\" \\ \n"`
+5:27 RawStringLiteral `"""\n t a = $ 1\nlet b = ` 2\nlet c = \u{7} 3\n\n'\u{202E}' // \u{202E}x\n\n`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8E)
+
+  1 │ �Ålet c = � 3
+    │ ^
+
+error BYN0005: identifier `Ålet` is not in Unicode normalization form C
+
+  1 │ �Ålet c = � 3
+    │  ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �Ålet c = � 3
+    │   │  +
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ �Ålet c = � 3
+    │           ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │  "text" "esc \"q\" \\ \n" """
+    │                           ^^^ raw string starts here
+    │
+  help: close it with `"""`

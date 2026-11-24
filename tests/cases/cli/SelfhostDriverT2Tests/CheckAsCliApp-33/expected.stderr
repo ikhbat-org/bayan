@@ -1,0 +1,8 @@
+error BYN2205: division by zero
+  --> <repo>/tmp/t2/diag/division-by-zero/division-by-zero.byn:1:9
+
+  1 │ let x = 10 / 0
+    │         ^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2205

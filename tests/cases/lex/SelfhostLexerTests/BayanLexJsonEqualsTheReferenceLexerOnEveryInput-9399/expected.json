@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"CharLiteral","start":1,"end":5,"text":"'é'","doc":null},{"kind":"CharLiteral","start":6,"end":10,"text":"'\\\\'","doc":null},{"kind":"CharLiteral","start":11,"end":15,"text":"'\\0'","doc":null},{"kind":"EndOfFile","start":17,"end":17,"text":"","doc":null}],"diagnostics":[]}

@@ -1,0 +1,90 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+4:2 CharLiteral `'\u{202E}'`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `total `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 InterpolationEnd `}`
+5:12 InterpolatedStringEnd `"`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolatedStringText `a `
+5:18 InterpolationStart `{`
+5:19 Identifier `f`
+5:20 OpenParen `(`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolatedStringText `b `
+5:25 InterpolationStart `{`
+5:26 Identifier `c`
+5:27 InterpolationEnd `}`
+5:28 InterpolatedStringEnd `"`
+5:29 CloseParen `)`
+5:30 InterpolationEnd `}`
+5:31 InterpolatedStringText ` d`
+5:33 InterpolatedStringEnd `"`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolatedStringText `{{literal}}`
+5:48 InterpolatedStringEnd `"`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 Identifier `Point`
+5:59 OpenBrace `{`
+5:61 Identifier `x`
+5:63 Equals `=`
+5:65 IntegerLiteral `1`
+5:67 CloseBrace `}`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringText `!`
+5:70 InterpolatedStringEnd `"`
+5:72 InterpolatedStringStart `$"`
+5:74 InterpolatedStringEnd `"`
+6:1 IfKeyword `if`
+6:4 ElseKeyword `else`
+6:9 Identifier `unles`
+6:16 SwitchKeyword `switch`
+6:23 CaseKeyword `case`
+6:28 DefaultKeyword `default`
+6:36 ForKeyword `for`
+6:40 InKeyword `in`
+6:43 WhileKeyword `while`
+6:49 DoKeyword `do`
+6:52 BreakKeyword `break`
+6:58 ContinueKeyword `continue`
+6:67 ReturnKeyword `return`
+6:74 YieldKeyword `yield`
+6:80 DeferKeyword `defer`
+6:86 ErrdeferKeyword `errdefer`
+6:95 UsingKeyword `using`
+6:101 ContextKeyword `context`
+    doc `/// 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'`
+9:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │  '�'
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  '�'
+    │   │   -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  6 │ if else unles� switch case default for in while do break continue return yield defer errdefer using context
+    │              ^

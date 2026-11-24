@@ -1,0 +1,26 @@
+== instantiateType
+box new yes Box<Tri> map T=Tri pending +1 interfaces +0
+work +2
+again new no Box<Tri> map T=Tri pending +0 interfaces +0
+work +0
+square new yes Box<Square> map T=Square pending +1 interfaces +0
+work +2
+maybe new yes Maybe<Square> map T=Square pending +1 interfaces +0
+work +0
+gen new yes IGen<Square> map T=Square pending +1 interfaces +0
+work +0
+genLater new yes IGen<Tri> map T=Tri pending +1 interfaces +1
+work +0
+free new yes Free<Square> map T=Square pending +0 interfaces +0
+work +0
+nested new yes Box<Both> map T=Both pending +0 interfaces +0
+work +2
+checked new yes Box<Circle> map T=Circle pending +0 interfaces +0
+work +2
+checkedBad new yes Maybe<Both> map T=Both pending +0 interfaces +0
+work +0
+BYN2807 2:12 `Both` does not conform to `IShape`: missing `area` | the generic code needs this of its type arguments | add `: IShape` to `Both` and provide `area`
+run
+BYN2807 2:12 `Square` does not conform to `IShape`: missing `area` | the generic code needs this of its type arguments | add `: IShape` to `Square` and provide `area`
+BYN2807 2:12 `Square` does not conform to `IShape`: missing `area` | the generic code needs this of its type arguments | add `: IShape` to `Square` and provide `area`
+BYN2807 2:12 `Square` does not conform to `IShape`: missing `area` | the generic code needs this of its type arguments | add `: IShape` to `Square` and provide `area`

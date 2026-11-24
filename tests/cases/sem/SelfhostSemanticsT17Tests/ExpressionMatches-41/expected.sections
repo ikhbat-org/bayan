@@ -1,0 +1,3 @@
+== case fn-constructor-take
+errorExpr 1528..1533 : ?
+BYN2824 78:18 `Point` cannot be used as a value: it is a constructor ||wrap it in a lambda: `a => Point(a)`|

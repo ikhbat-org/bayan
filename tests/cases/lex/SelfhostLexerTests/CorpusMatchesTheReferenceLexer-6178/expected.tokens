@@ -1,0 +1,11 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\r\n += -= *= /= %= &= |= ^= <<=\r\nif else unless switch case default for in while do break continue return yield defer errdefer using context\r\n var xs: List<List<i64>>\r\n // comment \u{202E} hidden\r\n\r\n\r\r\n $"stray } here"\r\n `
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

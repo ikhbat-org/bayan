@@ -1,0 +1,11 @@
+1:1 Identifier `ever`
+1:6 Identifier `closed`
+2:2 StringLiteral `"`
+2:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "
+    │  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

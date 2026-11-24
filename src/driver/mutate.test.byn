@@ -1,0 +1,189 @@
+// MutatorTests.cs not-emitted counts and skipFiles half (019 T27): `mutate --list` prints neither, so these call `emitter.find`,
+// the port of `Mutator.Find`, as the C# test does.
+
+import semantics
+import emitter
+import lexer
+
+/// MutatorTests.cs:12 `Find`: `emitter.find` over `text` as the one file `file` of a library, its test blocks kept for a `.test.byn`.
+emitter.Mutations t27Find(string text, by string file, for in List<string> skipFiles) uses alloc, clock, fs {
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create(file, from: move bytes))
+    let options = GoldenOptions { includeTests: file.endsWith(".test.byn"), library: true }
+    var c = semantics.create(from: move files, at: ".", by: options)
+    assert(!t5HasErrors(c))
+    return emitter.find(ref c, for: skipFiles)
+}
+
+// L021: a mutant that does not type-check is never counted as killed or survived
+// MutatorTests.cs:101, 110-115, 123, 131, 139: the not-emitted count of each operator, the C# literals.
+@cases(
+    (
+        "union error E {\n    bad\n    worse\n    other(i32 code)\n}\n\ni64 check(i64 n) fails E {\n    fail .bad if n < 0\n    return n\n}\n",
+        "variant",
+        1
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "arithmetic",
+        1
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "literal",
+        2
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "bool",
+        1
+    ),
+    (
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        "condition",
+        1
+    ),
+    ("void set(out i32 r) {\n    r = 1\n}\n", "statement", 1),
+    (
+        "void init(out i32 r) {\n    r = 1\n}\n\nvoid pass(out i32 r) {\n    init(out r)\n}\n\ni32 use() {\n    var x: i32\n    init(out x)\n    var y: i32 = 0\n    init(out y)\n    return x + y\n}\n",
+        "statement",
+        3
+    ),
+    ("i32 ends(i32[4] xs) {\n    return xs[3] + xs[0]\n}\n", "literal", 2),
+)
+test "mutator: a mutant that would not type-check is counted not emitted" (string text, string op, i64 count) {
+    let none = List<string>()
+    let m = t27Find(text, by: "lib.byn", for: none)
+    assert(m.notEmitted[op] == count)
+}
+
+// MutatorTests.cs:115: the not-emitted counts have every operator of `Mutator.Operators` and no other.
+test "mutator: the not-emitted counts have every operator" {
+    let none = List<string>()
+    let m = t27Find(
+        "i32 big() {\n    return 2147483647 - 1\n}\n\nu8 top() {\n    return 255\n}\n\ni32 spin(i32 n) {\n    while true {\n        return n\n    }\n}\n",
+        by: "lib.byn",
+        for: none,
+    )
+    let ops = emitter.mutatorOperators()
+    assert(m.notEmitted.length == ops.length)
+    for op in ops {
+        assert(m.notEmitted.contains(op))
+    }
+}
+
+// MutatorTests.cs:160: a skipped file yields no sites.
+test "mutator: a skipped file yields no sites" {
+    var skip = List<string>()
+    skip.append("main.byn")
+    let m = t27Find("i32 twice(i32 x) {\n    return x * 2\n}\n", by: "main.byn", for: skip)
+    assert(m.sites.length == 0)
+}
+
+// Decision 2026-11-20: a mutant of `bayan mutate --binary` is stopped at the mutant-0 time x 1.5 + 5 s (the owner's rule of 2026-11-05).
+test "mutate --binary: a mutant's limit is the mutant-0 time x 1.5 + 5 s in whole milliseconds" {
+    assert(t13ExternalLimit(0) == 5000)
+    assert(t13ExternalLimit(2000000000) == 8000)
+    assert(t13ExternalLimit(90000000000) == 140000)
+}
+
+/// A fresh `tmp/<name>` with a stand-in binary, its site map and `replay.sh`, the replay command: mutant 0 and the survivors exit 0,
+/// mutants 2, 5 and 7 exit 1 and mutant 4 sleeps past its limit (5 s after a mutant 0 of a few milliseconds); site 6 is marked and
+/// site 8 not emitted. Returns the directory.
+string t13JobsFixture(string name) uses alloc, fs {
+    let dir = Path.combine(Path.fullPath("tmp"), name)
+    deleteWorkDir(dir)
+    goldenWrite(dir, for: "prog", as: "")
+    var sites = StrBuf()
+    sites.append("{ \"version\": 1, \"sites\": [")
+    for id in 1..10 {
+        let mark = id == 6 ? ", \"unobservable\": \"no test can see it\"" : ""
+        let emitted = id == 8 ? ", \"emitted\": false" : ""
+        sites.append(
+            $"{id > 1 ? "," : ""} {{ \"id\": {id}, \"file\": \"lib.byn\", \"line\": {id}, \"column\": 5, \"operator\": \"arithmetic\", \"original\": \"n + {id}\", \"mutated\": \"n - {id}\"{mark}{emitted} }}",
+        )
+    }
+    sites.append(" ] }\n")
+    goldenWrite(dir, for: "prog.sites.json", as: sites.finish())
+    goldenWrite(dir, for: "replay.sh", as: "case $BAYAN_MUTANT in\n  2|5|7) exit 1 ;;\n  4) sleep 7 ;;\nesac\nexit 0\n")
+    return dir
+}
+
+/// `bayan mutate` over the `t13JobsFixture` in `dir` through `$BAYAN_EXE` with `extra` before `--` and `$BAYAN_MUTATE_JOBS` set to `jobs`
+/// (unset when null): its exit code, its stdout and the report it wrote, each without the `timing` lines, and its stderr.
+GoldenOutcome t13JobsRun(string dir, by List<string> extra, as string? jobs) uses alloc, env, fs, process {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let report = Path.combine(dir, "bayan-quality.json")
+    Io.remove(report) catch {}
+    var args = List<string>()
+    for a in ["mutate", "--binary", Path.combine(dir, "prog"), "--sites", Path.combine(dir, "prog.sites.json")] {
+        args.append(a)
+    }
+    for a in extra {
+        args.append(a)
+    }
+    for a in ["--", "/bin/sh", Path.combine(dir, "replay.sh")] {
+        args.append(a)
+    }
+    var env: Map<string, string?> = []
+    env["BAYAN_MUTATE_JOBS"] = jobs
+    let r = Io.run(exe, args.span, env: env) catch { panic($"cannot run {exe}") }
+    var kept = StrBuf()
+    for text in [r.stdout, Io.readText(report) catch ""] {
+        for line in t11ReadAllLines(text) {
+            if !(line.startsWith("timing:") || line.contains("_s\":") || line.contains("\"mutant_share_of_build\":")) {
+                kept.append($"{line}\n")
+            }
+        }
+    }
+    return GoldenOutcome { stdout: kept.finish(), stderr: r.stderr, exitCode: r.exitCode }
+}
+
+// Criterion 3 and 4 of 019-mutspeed-a: the report, summary and site lines of --jobs 4 equal --jobs 1's, timing removed, the timeout too.
+test "mutate --binary: --jobs 1 and --jobs 4 print the same lines in site order and write the same report, timing removed" {
+    if Target.os == "windows" {
+        todo("the replay command is a `sh` script and the workers start through `sh`")
+    }
+    let dir = t13JobsFixture("mutate-jobs")
+    let one = t13JobsRun(dir, by: ["--jobs", "1"], as: null)
+    let four = t13JobsRun(dir, by: ["--jobs", "4"], as: null)
+    let env = t13JobsRun(dir, by: List<string>(), as: "4")
+    deleteWorkDir(dir)
+    assert(one.exitCode == 0 && four.exitCode == 0 && env.exitCode == 0)
+    assert(four.stdout == one.stdout && env.stdout == one.stdout)
+    let lines = t11ReadAllLines(one.stdout)
+    let statuses = [
+        "survived",
+        "killed",
+        "survived",
+        "timeout (counted as killed)",
+        "killed",
+        "marked",
+        "killed",
+        "not emitted",
+        "survived",
+    ]
+    for id in 1..10 {
+        assert(lines[id - 1] == $"lib.byn:{id}:5 arithmetic `n + {id}` -> `n - {id}`: {statuses[id - 1]}")
+    }
+    assert(lines[9] == "mutation: 3 killed, 3 survived, 1 timeout, 1 marked, 0 not reached, 1 not emitted")
+}
+
+// Criterion 2 of 019-mutspeed-a: a job count below 1 or not a number, from --jobs or BAYAN_MUTATE_JOBS, is a usage error naming it.
+test "mutate --binary: --jobs 0, --jobs x and BAYAN_MUTATE_JOBS=abc exit 2 naming the value" {
+    let dir = t13JobsFixture("mutate-jobs-usage")
+    let zero = t13JobsRun(dir, by: ["--jobs", "0"], as: null)
+    let word = t13JobsRun(dir, by: ["--jobs", "x"], as: "4")
+    let env = t13JobsRun(dir, by: List<string>(), as: "abc")
+    deleteWorkDir(dir)
+    assert(zero.exitCode == exitUsage && zero.stderr == "bayan: `--jobs` expects a positive whole number, got `0`\n")
+    assert(word.exitCode == exitUsage && word.stderr == "bayan: `--jobs` expects a positive whole number, got `x`\n")
+    assert(env.exitCode == exitUsage
+        && env.stderr == "bayan: `BAYAN_MUTATE_JOBS` expects a positive whole number, got `abc`\n")
+}

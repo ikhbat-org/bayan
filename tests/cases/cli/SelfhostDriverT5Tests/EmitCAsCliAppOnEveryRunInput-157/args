@@ -1,0 +1,3 @@
+build
+--emit-c
+lines-trailing-cr.byn

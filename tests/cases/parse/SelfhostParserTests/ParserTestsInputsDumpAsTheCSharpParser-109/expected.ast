@@ -1,0 +1,11 @@
+CompilationUnit
+  TypeAlias distinct Id = i64
+
+error BYN1044: `distinct type` is an input form; write `type distinct`
+
+  1 │ distinct type Id = i64
+    │ ^^^^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `type distinct`
+    │ 1 │ type distinct Id = i64
+    │   │ +++++++++++++

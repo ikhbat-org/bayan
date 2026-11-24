@@ -1,0 +1,12 @@
+error BYN6002: `token` uses `random` but does not declare it
+  --> <repo>/tmp/t2/diag/effect-random-not-declared/effect-random-not-declared.byn:2:12
+
+  2 │     return Io.randomU64()
+    │            ^^^^^^^^^^^^^^ uses `random`
+    │
+  help: add `random` to the `uses` clause, or remove the call
+    │ 1 │ public u64 token() uses random {
+    │   │                   ++++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN6002

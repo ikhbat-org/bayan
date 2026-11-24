@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "ReturnStmt"
+  ],
+  "builtins": [
+    "Print",
+    "StringLength",
+    "SymbolIntern",
+    "SymbolText"
+  ],
+  "diagnostics": []
+}

@@ -1,0 +1,3 @@
+== call.c17
+errorExpr|?|-|-|-|1828:18|-
+BYN2742 111:15 `take` takes 0 type argument(s), not 1 ||remove the type arguments; `take` is not generic|

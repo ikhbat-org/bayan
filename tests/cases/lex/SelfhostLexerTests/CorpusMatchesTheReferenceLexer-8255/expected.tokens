@@ -1,0 +1,23 @@
+1:1 Identifier `b`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `1`
+5:16 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  4 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x9E)
+
+  5 │  let café = 2�0x�
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9B)
+
+  5 │  let café = 2�0x�
+    │                 ^

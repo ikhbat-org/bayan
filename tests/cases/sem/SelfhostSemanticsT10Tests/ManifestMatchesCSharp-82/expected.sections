@@ -1,0 +1,30 @@
+== case inline/full
+errors 0
+name local/my-lib
+version 1.2.3-rc.1+build.5
+edition 2027
+kind Lib
+targets host linux-x64 macos-arm64
+mode fast
+indent 2
+width 100
+align None
+trailingCommas Never
+lint guards.postfix Warning
+lint lambdas.it Error
+lint nesting.depth None
+lint functions.length Suggestion
+lint conditions.named Suggestion
+lint sections.banner Suggestion
+lint conditions.patterns Suggestion
+lint literals.empty Suggestion
+lint optionals.bind Suggestion
+booleans Words
+primitives Csharp
+capabilities x6673 x6e6574
+verbs x757073657274 x72656772696e64
+nouns x534b55
+adjectives x6964656d706f74656e74
+forms x61=x63 x72656772696e64=x726567726f756e64
+short my-lib
+entry myLib

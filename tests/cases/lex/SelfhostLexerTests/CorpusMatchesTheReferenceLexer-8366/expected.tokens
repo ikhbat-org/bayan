@@ -1,0 +1,65 @@
+1:1 IntegerLiteral `0xF__`
+2:2 FloatLiteral `3.14`
+2:7 FloatLiteral `1e5`
+2:11 FloatLiteral `2.5e-3`
+2:18 FloatLiteral `6E+2`
+2:23 FloatLiteral `1.50`
+2:27 NumericSuffix `dec`
+2:31 IntegerLiteral `1`
+2:32 DotDot `..`
+2:34 IntegerLiteral `2`
+2:36 IntegerLiteral `1`
+2:37 DotDotEquals `..=`
+2:40 IntegerLiteral `3`
+2:42 IntegerLiteral `5`
+2:43 NumericSuffix `e`
+2:45 Identifier `x`
+2:46 Dot `.`
+2:47 Identifier `y`
+2:49 FloatLiteral `2.5`
+2:52 NumericSuffix `f`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 UnlessKeyword `unless`
+4:16 SwitchKeyword `switch`
+4:23 CaseKeyword `case`
+4:28 DefaultKeyword `default`
+4:36 ForKeyword `for`
+4:40 InKeyword `in`
+4:43 WhileKeyword `while`
+4:49 DoKeyword `do`
+4:52 BreakKeyword `break`
+4:58 ContinueKeyword `continue`
+4:67 ReturnKeyword `return`
+4:74 YieldKeyword `yield`
+4:80 DeferKeyword `defer`
+4:86 ErrdeferKeyword `errdefer`
+4:95 UsingKeyword `using`
+4:101 ContextKeyword `context`
+5:2 DelegateKeyword `delegate`
+5:11 ExtensionKeyword `extension`
+5:21 DerivationKeyword `derivation`
+    doc `///$"{`
+5:37 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0x91)
+
+  4 │ �if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │ ^

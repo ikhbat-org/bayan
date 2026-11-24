@@ -1,0 +1,45 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 Identifier `u`
+1:17 Identifier `ni`
+1:19 CloseBrace `}`
+1:20 Identifier `n`
+1:22 EnumKeyword `enum`
+1:27 FlagsKeyword `flags`
+1:33 OpenKeyword `open`
+1:38 ExtensibleKeyword `extensible`
+1:49 InterfaceKeyword `interface`
+1:59 DelegateKeyword `delegate`
+1:68 ExtensionKeyword `extension`
+1:78 DerivationKeyword `derivation`
+1:89 AttributeKeyword `attribute`
+3:1 CloseBrace `}`
+3:3 Identifier `b1ul`
+3:8 IntegerLiteral `7`
+3:9 NumericSuffix `l`
+4:2 LetKeyword `let`
+4:6 Identifier `café`
+4:12 Equals `=`
+4:14 IntegerLiteral `1`
+6:3 Identifier `raw`
+6:7 StringLiteral `"quoted"`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  1 │ struct unique u�ni}n enum flags open extensible interface delegate extension derivation attribute
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  �
+    │  ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │  let café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  let café = 1
+    │   │         +

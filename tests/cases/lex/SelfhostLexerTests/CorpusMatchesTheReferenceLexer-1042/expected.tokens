@@ -1,0 +1,7 @@
+1:1 NeverKeyword `never`
+1:7 Identifier `c`
+2:1 Identifier `et`
+2:4 Identifier `café`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
+4:1 EndOfFile

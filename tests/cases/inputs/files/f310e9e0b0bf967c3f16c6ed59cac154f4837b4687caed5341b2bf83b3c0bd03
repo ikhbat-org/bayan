@@ -1,0 +1,3 @@
+#!/bin/sh
+echo '0.99.0'
+exit 0

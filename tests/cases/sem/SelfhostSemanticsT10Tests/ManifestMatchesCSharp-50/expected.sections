@@ -1,0 +1,8 @@
+== case inline/dist-targets-strings
+errors 2
+error BYN3102: `dist.targets` must be a list of targets, e.g. `[.host, .linuxX64]`
+  1 │ Package { name: "local/a", version: "0.1.0", dist: Dist { targets: ["host"], mode: "fast" } }
+    │                                                                    ^^^^^^^^
+error BYN3102: `dist.mode` must be `.debug`, `.safe` or `.fast`
+  1 │ Package { name: "local/a", version: "0.1.0", dist: Dist { targets: ["host"], mode: "fast" } }
+    │                                                                                    ^^^^^^

@@ -1,0 +1,97 @@
+struct Pad {
+    bool flag
+    i64 id
+}
+
+struct Small {
+    i8 tag
+    i64 id
+}
+
+struct Tail {
+    i64 id
+    rune mark
+}
+
+struct Named {
+    bool flag
+    string name
+    Symbol kind
+}
+
+struct Outer {
+    bool flag
+    Small inner
+}
+
+struct Wide {
+    i64 a
+    i64 b
+    i64 c
+}
+
+i64 smear(i64 x) {
+    var w = Wide { a: x, b: x, c: x }
+    w.b -= 1
+    return w.a + w.b + w.c
+}
+
+Pad pad(i64 id) {
+    var p = Pad { flag: false, id: 0 }
+    p.flag = id > 0
+    p.id = id
+    return p
+}
+
+Small small(i64 id) {
+    var s = Small { tag: 0, id: 0 }
+    s.tag = i8(id - 100)
+    s.id = id
+    return s
+}
+
+Tail tail(i64 id) {
+    var t = Tail { id: 0, mark: 'a' }
+    t.id = id
+    t.mark = rune(u32(id + 90))
+    return t
+}
+
+Named named(i64 id) uses alloc {
+    var n = Named { flag: false, name: "", kind: "" }
+    n.flag = id > 0
+    n.name = $"n{id}"
+    n.kind = Symbol.intern($"k{id}")
+    return n
+}
+
+Outer outer(i64 id) {
+    return Outer { flag: id > 0, inner: small(id) }
+}
+
+void main() {
+    var a = Map<Pad, i64>()
+    var b = Map<Small, i64>()
+    var c = Map<Tail, i64>()
+    var d = Map<Named, i64>()
+    var e = Map<Outer, i64>()
+    var f = Map<(bool, i64), i64>()
+    var g = Map<(i8, string), i64>()
+    a[Pad { flag: true, id: 7 }] = 1
+    b[Small { tag: -93, id: 7 }] = 1
+    c[Tail { id: 7, mark: 'a' }] = 1
+    d[Named { flag: true, name: "n7", kind: "k7" }] = 1
+    e[Outer { flag: true, inner: Small { tag: -93, id: 7 } }] = 1
+    f[(true, i64(7))] = 1
+    g[(i8(-93), "n7")] = 1
+    let s = smear(-1)
+    a[pad(7)] = s
+    b[small(7)] = s
+    c[tail(7)] = s
+    d[named(7)] = s
+    e[outer(7)] = s
+    f[(pad(7).flag, pad(7).id)] = s
+    g[(small(7).tag, named(7).name)] = s
+    print($"{a.length} {b.length} {c.length} {d.length} {e.length} {f.length} {g.length}")
+    print($"{a[pad(7)]} {b[small(7)]} {c[tail(7)]} {d[named(7)]} {e[outer(7)]} {f[(true, i64(7))]} {g[(i8(-93), "n7")]}")
+}

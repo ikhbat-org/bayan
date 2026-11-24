@@ -1,0 +1,21 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 StringLiteral `"{'x`
+3:1 RawStringLiteral `""" //// not a dc comment\n" u16"wide" "\u{202E} allowedu in strings" "" "\u{48}\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "{'x
+    │  ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ """ //// not a dc comment
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

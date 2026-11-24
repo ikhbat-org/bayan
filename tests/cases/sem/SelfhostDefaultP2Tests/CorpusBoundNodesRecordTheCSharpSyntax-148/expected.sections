@@ -1,0 +1,59 @@
+== tests/cases/run/io-stdin.byn
+105..135 globalStatement
+105..135 localDecl
+117..135 callExpr
+117..125 memberExpr
+136..480 ifStmt
+139..150 unaryExpr notKeyword operand 140..150
+140..150 memberExpr
+140..145 nameExpr
+151..179 blockStmt
+157..177 exprStmt
+157..177 callExpr
+163..176 literalExpr string
+157..177 callExpr
+185..480 blockStmt
+191..213 localDecl
+202..213 memberExpr
+202..207 nameExpr
+218..271 exprStmt
+218..271 callExpr
+224..270 interpolatedExpr
+227..238 memberExpr
+227..231 nameExpr
+248..262 memberExpr
+248..252 nameExpr
+218..271 callExpr
+276..294 localDecl
+293..294 literalExpr integer
+299..362 forStmt
+308..318 memberExpr
+308..312 nameExpr
+319..362 blockStmt
+329..356 ifStmt
+332..341 binaryExpr eq right 337..341
+332..333 nameExpr
+337..341 literalExpr integer
+342..356 blockStmt
+344..354 assignStmt add target 344..349 value 353..354
+344..349 nameExpr
+353..354 literalExpr integer
+367..478 exprStmt
+367..478 callExpr
+373..477 interpolatedExpr
+376..381 nameExpr
+401..428 indexExpr
+401..411 memberExpr
+401..405 nameExpr
+412..427 binaryExpr sub right 426..427
+412..423 memberExpr
+412..416 nameExpr
+426..427 literalExpr integer
+448..475 indexExpr
+448..458 memberExpr
+448..452 nameExpr
+459..474 binaryExpr sub right 473..474
+459..470 memberExpr
+459..463 nameExpr
+473..474 literalExpr integer
+367..478 callExpr

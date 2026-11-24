@@ -1,0 +1,14 @@
+== load
+module a.c tmp/t7-path/load/src/a/c a_c
+file src/a/c/c.byn source
+module a.b tmp/t7-path/load/src/a/b a_b
+file src/a/b/b.byn source
+import c a.c
+module main tmp/t7-path/load/src main
+file src/app/main.byn source
+import b a.b
+import x a.b
+import c a.c
+diag BYN2010 src/a/c/c.byn 1:8 import cycle: a.b → a.c → a.b |  | move the shared declarations into a module both can import
+diag BYN2004 src/app/main.byn 2:8 no module `nope.deep` |  | put the module's `.byn` files in `nope/deep/` next to the entry file; a module is a directory
+diag BYN2006 src/app/main.byn 5:8 `c` is declared twice |  | 

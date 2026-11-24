@@ -1,0 +1,11 @@
+02
+0xFFs
+0b1ms
+0x_0b__
+1__
+0x t b = "bad \q escape"
+let c = """never closed
+
+‏ """never closed
+
+0b__

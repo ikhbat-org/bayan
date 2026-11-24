@@ -1,0 +1,38 @@
+1:1 CharLiteral `'\u{D800'`
+3:1 Identifier `f`
+3:3 ElseKeyword `else`
+3:8 UnlessKeyword `unless`
+3:15 SwitchKeyword `switch`
+3:22 CaseKeyword `case`
+3:27 DefaultKeyword `default`
+3:35 ForKeyword `for`
+3:39 InKeyword `in`
+3:42 WhileKeyword `while`
+3:48 DoKeyword `do`
+3:51 BreakKeyword `break`
+3:57 ContinueKeyword `continue`
+3:66 ReturnKeyword `return`
+3:73 YieldKeyword `yield`
+3:79 DeferKeyword `defer`
+3:85 ErrdeferKeyword `errdefer`
+3:94 UsingKeyword `using`
+3:100 ContextKeyword `context`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never closed\n 0b1ms\n$"{" is and or not with move ref out this null trfe false comptime checked\n `
+7:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\u{D800`
+
+  1 │ '\u{D800'
+    │  ^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0003: unterminated string literal
+
+  4 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 IntegerLiteral `0x_`
+3:4 VarKeyword `var`
+3:8 Identifier `xs`
+3:10 Colon `:`
+3:12 Identifier `List`
+3:16 Less `<`
+3:17 Identifier `List`
+3:21 Less `<`
+3:22 Identifier `i`
+3:24 IntegerLiteral `4`
+3:25 Greater `>`
+3:26 Greater `>`
+    doc `///`
+6:3 Identifier `é`
+7:1 Identifier `ever`
+7:6 Identifier `closed`
+8:1 Identifier `b`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x_
+    │ ^^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  3 │    var xs: List<List<i�4>>
+    │                       ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  6 │ � é
+    │   ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ � é
+    │   │   +

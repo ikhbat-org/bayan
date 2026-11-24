@@ -1,0 +1,6 @@
+void Log() {
+}
+
+void main() {
+    Log.debug("x")
+}

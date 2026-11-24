@@ -1,0 +1,11 @@
+� allowed in strings" "" "\u{48}i"
+
+ = $ 1
+let b = ` 2
+let c =  3
+
+& && | || ^ ~ ! = == != < <= > >= << >> >>=
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+
+'x
+

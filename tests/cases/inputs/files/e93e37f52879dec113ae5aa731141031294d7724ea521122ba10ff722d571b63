@@ -1,0 +1,8 @@
+/// Doc line one.
+	:et b = "bad \q escape"
+
+$"{"
+0xF__
++= -= *= /= %= &=|= ^= <<=
+/// Doc line two.
+ 

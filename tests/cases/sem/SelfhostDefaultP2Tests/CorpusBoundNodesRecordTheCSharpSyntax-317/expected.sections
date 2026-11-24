@@ -1,0 +1,46 @@
+== tests/cases/run/symbol-switch.byn
+109..222 blockStmt
+115..220 switchStmt
+122..123 nameExpr
+139..142 constantPattern
+139..142 literalExpr string
+144..154 exprStmt
+144..154 callExpr
+150..153 literalExpr string
+144..154 callExpr
+168..171 constantPattern
+168..171 literalExpr string
+173..183 exprStmt
+173..183 callExpr
+179..182 literalExpr string
+173..183 callExpr
+197..198 discardPattern
+200..214 exprStmt
+200..214 callExpr
+206..213 literalExpr string
+200..214 callExpr
+236..387 blockStmt
+242..261 localDecl
+258..261 literalExpr string
+266..371 switchStmt
+273..274 nameExpr
+290..293 constantPattern
+290..293 literalExpr string
+295..305 exprStmt
+295..305 callExpr
+301..304 literalExpr string
+295..305 callExpr
+319..322 constantPattern
+319..322 literalExpr string
+324..334 exprStmt
+324..334 callExpr
+330..333 literalExpr string
+324..334 callExpr
+348..349 discardPattern
+351..365 exprStmt
+351..365 callExpr
+357..364 literalExpr string
+351..365 callExpr
+376..385 exprStmt
+376..385 callExpr
+381..384 literalExpr string

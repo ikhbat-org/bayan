@@ -1,0 +1,13 @@
+/* â€­ */
+let b = "bad \q escape"
+
+failstry catch never noalloc nosuspend suspends async await
+2
+// ok þ in comment
+
+let b = "bad \q escape"
+
+'\q'
+'\u{D800}'
+'\u{110000}'
+'x

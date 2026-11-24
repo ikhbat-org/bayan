@@ -1,0 +1,9 @@
+/// Doc line two.
+'\u{D800}'
+ü
+"text" "esc \Cq\" \\ \n" """
+let ä =  3
+block
+   com// â€®x
+À€let c =  3
+

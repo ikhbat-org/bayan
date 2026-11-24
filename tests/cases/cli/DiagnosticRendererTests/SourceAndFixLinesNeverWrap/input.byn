@@ -1,0 +1,4 @@
+void main() {
+    var aVeryLongNameThatKeepsGoingAndGoing: i64 = 1000000 + 2000000 + 3000000 + 4000000 + 5000000 + 6000000 + 7000000
+    print($"{aVeryLongNameThatKeepsGoingAndGoing}")
+}

@@ -1,0 +1,38 @@
+2:1 FloatLiteral `5e-3`
+2:6 FloatLiteral `6E+2`
+2:11 FloatLiteral `1.50`
+2:15 NumericSuffix `dec`
+2:19 IntegerLiteral `1`
+2:20 DotDot `..`
+2:22 IntegerLiteral `2`
+2:24 IntegerLiteral `1`
+2:25 DotDotEquals `..=`
+2:28 IntegerLiteral `3`
+2:30 IntegerLiteral `5`
+2:31 NumericSuffix `e`
+2:33 Identifier `x`
+2:34 Dot `.`
+2:35 Identifier `y`
+2:37 FloatLiteral `2.5`
+2:40 NumericSuffix `f`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:9 StringLiteral `"bad \q escape"`
+4:2 IntegerLiteral `0xF__`
+5:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ let b = "bad \q escape"
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  0xF__
+    │     ^^
+    │
+    │ 4 │  0xF__
+    │   │     --

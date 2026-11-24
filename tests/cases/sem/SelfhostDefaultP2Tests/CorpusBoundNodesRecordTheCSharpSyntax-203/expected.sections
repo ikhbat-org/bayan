@@ -1,0 +1,57 @@
+== tests/cases/run/memory-stackalloc.byn
+0..27 globalStatement
+0..27 localDecl
+10..27 stackallocExpr
+28..71 forStmt
+37..41 rangeExpr
+37..38 literalExpr integer
+40..41 literalExpr integer
+42..71 blockStmt
+48..69 assignStmt assign target 48..54 value 57..69
+48..54 indexExpr
+48..51 nameExpr
+52..53 nameExpr
+52..53 nameExpr
+57..69 binaryExpr mul right 67..69
+57..69 binaryExpr mul right 67..69
+58..63 binaryExpr add right 62..63
+58..59 nameExpr
+62..63 literalExpr integer
+67..69 literalExpr integer
+72..88 localDecl
+87..88 literalExpr integer
+89..118 forStmt
+98..101 nameExpr
+102..118 blockStmt
+108..116 assignStmt add target 108..111 value 115..116
+108..111 nameExpr
+115..116 nameExpr
+119..157 exprStmt
+119..157 callExpr
+125..156 interpolatedExpr
+128..138 memberExpr
+128..131 nameExpr
+141..144 nameExpr
+147..154 indexExpr
+147..150 nameExpr
+152..153 literalExpr integer
+119..157 callExpr
+158..187 localDecl
+170..187 stackallocExpr
+188..210 localDecl
+197..210 callExpr
+204..209 nameExpr
+211..230 exprStmt
+211..230 callExpr
+211..213 nameExpr
+221..229 literalExpr string
+231..250 exprStmt
+231..250 callExpr
+231..233 nameExpr
+241..249 interpolatedExpr
+244..247 nameExpr
+251..269 exprStmt
+251..269 callExpr
+257..268 callExpr
+257..259 nameExpr
+251..269 callExpr

@@ -221,6 +221,7 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
             case .count:
                 return $"byn_cov[{t.counts[i].id}]++"
             default:
+                // coverage-exempt: Q1286 `default: panic`
                 panic($"cannot emit {t10LoweredName(ltree.lKindOf(e))}")
         }
     }
@@ -365,6 +366,7 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
                     }
                     return $"(({ctype}){{{{{t10Join(in parts)}}}}})"
                 default:
+                    // coverage-exempt: Q1286 `default: panic`
                     panic("cannot emit BoundCollection")
             }
         case .index:
@@ -393,6 +395,7 @@ public string emitExpr(ref CCtx cc, for ref CFunc f, from ref Ctx c, through in 
         case .staticArray:
             return staticArray(ref cc, from: ref c, for: c.bStaticArrays[i].constId)
         default:
+            // coverage-exempt: Q1286 `default: panic`
             panic($"cannot emit {t10BoundName(semantics.boundKind(e))}")
     }
 }
@@ -489,6 +492,15 @@ public string call(
                 as: $"{{\n    uint8_t* p = NULL;\n    int64_t n = 0;\n    uint32_t err = byn_io_read_stdin_bytes(&p, &n, byn_context);\n    if (err == 0 && out) *out = ({list}){{p, n, n, byn_context}};\n    return err;\n}}\n",
             )
             return $"{name}({outArg})"
+        case .ioStdinRead:
+            let span = cType(ref cc, from: ref c, for: c.locals[c.functions[fn].parameters[0]].type)
+            let name = helper(
+                ref cc,
+                for: "bynh_io_stdin_read",
+                from: $"static uint32_t bynh_io_stdin_read({span} buffer, int64_t* out)",
+                as: "{\n    return byn_io_read_stdin_some(buffer.ptr, buffer.len, out);\n}\n",
+            )
+            return $"{name}({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
         case .ioReadText:
             return $"byn_io_read_text({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg}, byn_context)"
         case .ioWriteFile:
@@ -673,6 +685,8 @@ public string call(
             return $"byn_fs_copy({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"
         case .fsModified:
             return $"byn_fs_modified({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
+        case .fsFileSize:
+            return $"byn_fs_size({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])}, {outArg})"
         case .fsSetModified:
             let path = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
             return $"byn_fs_set_modified({path}, {emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[1])})"

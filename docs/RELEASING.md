@@ -1,6 +1,6 @@
 # Releasing Bayān
 
-Version: 0.3.2 (matches `bayan --version`)
+Version: 0.4.0 (matches `bayan --version`)
 
 How a version is cut, checked, tagged and published, and where the version and the versioned docs live.
 
@@ -9,8 +9,7 @@ How a version is cut, checked, tagged and published, and where the version and t
 `VERSION` at the repo root is the source: `X.Y.Z` on a release commit, `X.Y.Z-dev` between releases. It is mirrored in
 (`bayan_mirrors` in `scripts/release/version.sh`):
 
-- `csharp/Bayan.Backend.C/Toolchain.cs`: `CompilerVersion`, what `bayan --version` prints;
-- `src/driver/main.byn`: `version`, the self-hosted driver's;
+- `src/driver/main.byn`: `version`, what `bayan --version` prints;
 - `tests/cases/out/dist.tree`: the `"compiler": "bayan …"` lines of the `bayan dist` golden;
 - `README.md`: the `dist/<target>/<version>/bayan` path in the build example.
 
@@ -56,15 +55,16 @@ bash scripts/docs/gen-spec-index.sh --write    # docs/specs/README.md
 Without `--write` each prints to stdout. Output is sorted and has no dates. All three generated docs are release docs: each
 generator writes the `Version:` and `Revisions applied:` header itself, from `VERSION` and the highest revision.
 
-- `gen-diagnostics.sh` reads `csharp/Bayan.Syntax/Diagnostics/DiagnosticCodes.cs`: the descriptors, the `// BYNnnnn is
-  retired|reserved` comments and the `// Reserved: round 4` block. It also checks which `docs/diagnostics/BYNnnnn.md`
+- `gen-diagnostics.sh` reads the diagnostic tables of `src/`, and `scripts/docs/data/csharp-facts.tsv` for what they do not
+  give (read once from the retired C# `DiagnosticCodes.cs`: the `// BYNnnnn is retired|reserved` comments and the
+  `// Reserved: round 4` block). It also checks which `docs/diagnostics/BYNnnnn.md`
   pages exist. Codes with no machine-readable source are in the hand-kept `docs/diagnostics-allocated.txt`, and the
   generator reads that file too. The file lists plan codes (allocated in a plan, spec or revision, with no descriptor
   yet), reservations with no descriptor, and retirements recorded only in a code's page. It holds one code per line:
   `plan|reserved|retired BYNnnnn Name-or-- note`. Edit it when such a code is allocated, reserved or retired, then
   regenerate.
-- `gen-status.sh` reads `csharp/Bayan.Syntax/Lexing/Keywords.cs` and `TokenKind.cs` for keywords and
-  `csharp/Bayan.Semantics/Binding/BuiltinMembers.cs` for stdlib members.
+- `gen-status.sh` reads the `kw` and `mem` rows of `scripts/docs/data/csharp-facts.tsv` for keywords and stdlib members
+  (extracted once from the retired C# `Keywords.cs`, `TokenKind.cs` and `BuiltinMembers.cs`).
 - `gen-spec-index.sh` reads the title and the `Status:`, `Release:` and `Sources:` header lines of each
   `docs/specs/NNN-*/NNN-spec.md`, and which plan, tasks and api files sit beside it. It fails on a Status that starts
   with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
@@ -129,13 +129,16 @@ Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
      `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md` and `CHANGELOG.md`;
    - the memory gate runs on Linux and macOS, the editor gate (`bayan-lsp` memory tests, the extension packaged under a
      size bound) on Linux, and the full tier of every enacted law (`laws-nightly.yml`, up to 180 minutes);
+   - once spec 019 adds the R27 job (diverse double-compiling), a red R27 run means fix the job's environment (the SDK download,
+     the runner image) and re-run it; it does not mean the release is broken (decided 2026-11-17);
    - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the same six docs, and every other release doc under its path
      below `docs/`, among them `specs/README.md` and `bayan-feature-history.md`, under `bayan-X.Y.Z-docs/share/doc/bayan/`)
      and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section. While the major version is 0 the draft
      is marked a prerelease (`package.sh release-flags`; user, 2026-11-14).
 
    Publishing the draft is a manual step.
-8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome; `CHROME` names it) and attach `dist/bayan-manifesto-X.Y.Z.pdf`
+8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome; `CHROME` names it; `BAYAN` names the compiler that runs the book's examples, default the CLI
+   built from `HEAD` by `scripts/pinned-bayan.sh`) and attach `dist/bayan-manifesto-X.Y.Z.pdf`
    and `dist/bayan-book-X.Y.Z.pdf` to the GitHub release.
 9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
    and the headers to `-dev` and regenerates the generated docs. Regenerate `bootstrap/bayan.c` and commit all of it

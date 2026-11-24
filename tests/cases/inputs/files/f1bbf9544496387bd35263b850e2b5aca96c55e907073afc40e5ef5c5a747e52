@@ -1,0 +1,11 @@
+let c = """never closed
+
+ "\u{48}i"
+ 'ab'
+
+'x
+$"stray } here"
+
+각.=3 5e x.y 2.5f
+
+//// not a doc comment

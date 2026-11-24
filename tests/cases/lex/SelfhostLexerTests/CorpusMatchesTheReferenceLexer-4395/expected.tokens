@@ -1,0 +1,29 @@
+1:1 Identifier `a`
+7:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ a /* nver closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  2 │ � = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE7)
+
+  3 │ is and or not with move ref� out this null true false comptime checked
+    │                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  5 │ �k�'\q'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �k�'\q'
+    │   ^

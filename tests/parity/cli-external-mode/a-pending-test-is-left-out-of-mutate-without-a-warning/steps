@@ -1,0 +1,1 @@
+$ $BAYAN test --mutate $WORK/p > out.txt 2> err.txt; echo "test $?"; grep -c 'does not pass unmutated' err.txt; grep -o ' killed, ' out.txt | sort -u

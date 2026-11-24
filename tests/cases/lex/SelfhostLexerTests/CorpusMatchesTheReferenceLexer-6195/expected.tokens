@@ -1,0 +1,42 @@
+1:1 Identifier `aw`
+1:4 Equals `=`
+2:1 Identifier `ot`
+2:4 Identifier `a`
+2:6 Identifier `doc`
+2:10 Identifier `comment`
+3:1 Identifier `b`
+4:2 VarKeyword `var`
+4:6 Identifier `xs`
+4:8 Colon `:`
+4:10 Identifier `List`
+4:14 Less `<`
+4:15 Identifier `List`
+4:19 Less `<`
+4:20 Identifier `i64`
+4:23 Greater `>`
+4:24 Greater `>`
+5:1 Comma `,`
+5:2 Slash `/`
+5:3 Dot `.`
+5:5 DotDot `..`
+5:8 DotDotEquals `..=`
+5:12 Colon `:`
+5:14 Question `?`
+5:16 QuestionQuestion `??`
+5:19 QuestionQuestionEquals `??=`
+5:23 QuestionDot `?.`
+5:26 FatArrow `=>`
+5:29 Arrow `->`
+5:31 At `@`
+5:33 Hash `#`
+7:1 Identifier `_`
+8:1 IntegerLiteral `0xF_`
+8:6 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  8 │ 0xF_ 
+    │    ^
+    │
+    │ 8 │ 0xF_ 
+    │   │    -

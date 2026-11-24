@@ -1,0 +1,4 @@
+dist
+tally
+--target
+macos-arm64

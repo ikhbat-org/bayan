@@ -1,0 +1,11 @@
+const limit: i64 = 2 + 3
+
+struct P {
+    i64 x = limit * 2
+    string s = "a"
+}
+
+void main() {
+    let p = P {}
+    print($"{p.x} {p.s}")
+}

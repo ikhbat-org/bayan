@@ -1,0 +1,3 @@
+== bind.probes.b33
+flags 4
+binary:i32[2343:6]=4(shl literal:i32[2343:1]=1(1) literal:i32[2348:1]=2(2))

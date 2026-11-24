@@ -1,0 +1,152 @@
+enum Color {
+    red
+    green
+}
+
+union error ParseError {
+    empty
+    badDigit
+}
+
+struct Nothing {
+}
+
+struct Plain {
+    i64 x
+}
+
+struct One {
+    i64 x
+    void formatInto(ref StrBuf sb) { }
+}
+
+struct Two {
+    i64 x
+    void formatInto(ref StrBuf sb, as FormatSpec spec) { }
+}
+
+struct Both {
+    i64 x
+    void formatInto(ref StrBuf sb, as FormatSpec spec) { }
+    void formatInto(ref StrBuf sb) { }
+}
+
+struct Wrong {
+    i64 x
+    void formatInto(ref StrBuf sb, as i64 n) { }
+}
+
+struct Static {
+    i64 x
+    static void formatInto(ref StrBuf sb) { }
+}
+
+struct Fails {
+    i64 x
+    void formatInto(ref StrBuf sb) fails ParseError { }
+}
+
+struct ByValue {
+    i64 x
+    void formatInto(in StrBuf sb) { }
+}
+
+struct NotBuf {
+    i64 x
+    void formatInto(ref List<i64> xs) { }
+}
+
+struct Three {
+    i64 x
+    void formatInto(ref StrBuf sb, as FormatSpec spec, to i64 n) { }
+}
+
+struct SpecRef {
+    i64 x
+    void formatInto(ref StrBuf sb, as ref FormatSpec spec) { }
+}
+
+struct Reverse {
+    i64 x
+    void formatInto(ref StrBuf sb) { }
+    void formatInto(ref StrBuf sb, as FormatSpec spec) { }
+}
+
+struct StaticSpec {
+    i64 x
+    static void formatInto(ref StrBuf sb, as FormatSpec spec) { }
+}
+
+struct FailsSpec {
+    i64 x
+    void formatInto(ref StrBuf sb, as FormatSpec spec) fails ParseError { }
+}
+
+struct SpecByValue {
+    i64 x
+    void formatInto(in StrBuf sb, as FormatSpec spec) { }
+}
+
+struct SpecNotBuf {
+    i64 x
+    void formatInto(ref List<i64> xs, as FormatSpec spec) { }
+}
+
+void zbadEq(List<i64> a) { }
+void zbadFmt(Plain a) { }
+void zbadFmtList(List<i64> a) { }
+void zbadEqBuf(ref StrBuf a) { }
+void zbadFmtBuf(ref StrBuf a) { }
+void eq0(i64 a) { }
+void eq1(u8 a) { }
+void eq2(f64 a) { }
+void eq3(bool a) { }
+void eq4(rune a) { }
+void eq5(string a) { }
+void eq6(Color a) { }
+void eq7(Symbol a) { }
+void eq8(ParseError a) { }
+void eq9(i64? a) { }
+void eq10(string? a) { }
+void eq11(Result<i64, ParseError> a) { }
+void eq12((i64, string) a) { }
+void eq13(i64[3] a) { }
+void eq14((i64, (bool, string)) a) { }
+void eq15(Nothing a) { }
+void eq16(Owned<i64> a) { }
+void eq17(ParseError? a) { }
+void eq18(Result<Nothing, ParseError> a) { }
+void eq19(Nothing[2] a) { }
+void eq20((i64, Symbol) a) { }
+void eq21(Untrusted<string> a) { }
+void fmt22(i64 a) { }
+void fmt23(u8 a) { }
+void fmt24(i8 a) { }
+void fmt25(i16 a) { }
+void fmt26(u16 a) { }
+void fmt27(u32 a) { }
+void fmt28(f64 a) { }
+void fmt29(f32 a) { }
+void fmt30(bool a) { }
+void fmt31(rune a) { }
+void fmt32(string a) { }
+void fmt33(i32 a) { }
+void fmt34(u64 a) { }
+void fmt35(ParseError a) { }
+void fmt36(Owned<i64> a) { }
+void fmt37(i64? a) { }
+void fmt38(string? a) { }
+void fmt39(Result<i64, ParseError> a) { }
+void fmt40(Result<string, ParseError> a) { }
+void fmt41(Owned<i64?> a) { }
+void fmt42(Color a) { }
+void fmt43(Symbol a) { }
+void map44(Map<i64, string> a) { }
+void map45(Map<string, i64> a) { }
+void map46(Map<(i64, string), bool> a) { }
+void map47(Map<Symbol, i64> a) { }
+void map48(Map<bool, f64> a) { }
+void map49(Map<Nothing, i64> a) { }
+void map50(Map<i64, i64?> a) { }
+void map51(Map<u8, Map<i64, i64>> a) { }
+i32 main() => 0

@@ -1,0 +1,76 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+3:1 Identifier `List`
+3:5 Less `<`
+3:6 Identifier `i64`
+3:9 Greater `>`
+3:10 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+8:2 LetKeyword `let`
+8:6 Identifier `café`
+8:11 Equals `=`
+8:13 IntegerLiteral `2`
+9:2 Comma `,`
+9:4 Dot `.`
+9:6 DotDot `..`
+9:9 DotDotEquals `..=`
+9:13 Colon `:`
+9:15 Question `?`
+9:17 QuestionQuestion `??`
+9:20 QuestionQuestionEquals `??=`
+9:24 QuestionDot `?.`
+9:27 FatArrow `=>`
+9:30 Arrow `->`
+9:33 At `@`
+9:35 Hash `#`
+11:1 Identifier `et`
+11:4 Identifier `a`
+11:6 Equals `=`
+11:7 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ // comment � hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  8 │ �let café = 2
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  8 │ �let café = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  11 │ et a =�
+     │       ^

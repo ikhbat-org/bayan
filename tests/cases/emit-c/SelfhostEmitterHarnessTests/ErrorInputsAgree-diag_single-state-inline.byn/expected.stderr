@@ -1,0 +1,12 @@
+error BYN7006: `Order order is .paid` is an input form; write `Order.paid order`
+  --> input.byn:9:23
+
+  9 │ void ship(Order order is .paid) {
+    │                       ^^ one state
+    │
+  help: write the state type `Order.paid`
+    │ 9 │ void ship(Order.paid order) {
+    │   │                +++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN7006

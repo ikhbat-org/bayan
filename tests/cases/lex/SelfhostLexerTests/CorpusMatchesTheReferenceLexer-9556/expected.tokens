@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:2 IntegerLiteral `1__`
+3:2 CharLiteral `'  "" c"text" u16"wide" "\u{202E} allowed in strings" "V" "\u{48}i"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1__
+    │   ^^
+    │
+    │ 2 │  1__
+    │   │   --
+
+error BYN0008: unterminated char literal
+
+  3 │  '  "" c"text" u16"wide" "� allowed in strings" "V" "\u{48}i"
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │  '  "" c"text" u16"wide" "� allowed in strings" "V" "\u{48}i"
+    │                           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │  '  "" c"text" u16"wide" "� allowed in strings" "V" "\u{48}i"
+    │   │                           -
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  4 │ �
+    │ ^

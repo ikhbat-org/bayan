@@ -1,0 +1,55 @@
+union error E {
+    x
+    y(i64 n)
+}
+
+struct P {
+    i64 a
+    i64 b
+}
+
+union U {
+    one(i64 v)
+    two
+}
+
+i64 g() fails E => 1
+
+i64 h() => 2
+
+i64 f(i64 k, from P p, to i64? o, until (i64 x, i64 y) tu, at bool q, by List<i64> xs) {
+    let a = 1
+    let b = k
+    let c = p.a
+    let d = tu.x
+    let e = -k
+    let f1 = k + h()
+    let g1 = q && k > 1
+    let g2 = q || h() > 1
+    let g3 = q ? 1 : 2
+    let g4 = q ? h() : 2
+    let g5 = o ?? 3
+    let g6 = o ?? h()
+    let g7 = P { a: 1, b: h() }
+    let g8 = U.one(h())
+    let g9 = p with { a: h() }
+    let g10 = (x: 1, y: h())
+    let g11 = 1..k
+    let g13: List<i64> = [1, h()]
+    let g16 = xs[k]
+    let g17 = xs[1..k]
+    let g18 = k is 1 or 2
+    let g19 = k in 1..h()
+    let g22: () -> i64 = h
+    let g23 = E.y(h())
+    return 0
+}
+
+i64 fails1() fails E {
+    let a = try g()
+    let b = g() catch 0
+    let c = g() catch (.x) 7
+    return a
+}
+
+void main() { }

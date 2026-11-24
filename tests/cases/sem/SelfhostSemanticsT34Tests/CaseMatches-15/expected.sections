@@ -1,0 +1,8 @@
+== s8
+switchExpr|i32|1871:60
+value local:i64=n
+arm 1882:9 rangePattern[1882:4]:i64(literal:i64=1,literal:i64=5,false) guard - value literal:i32=1
+arm 1893:6 constantPattern[1893:1]:i64(literal:i64=7) guard - value literal:i32=2
+arm 1901:8 relationalPattern[1901:3]:i64(gt literal:i64=9) guard - value literal:i32=3
+arm 1911:10 notPattern[1911:3]:i64(constantPattern[1915:1]:i64(literal:i64=8)) guard - value literal:i32=4
+arm 1923:6 bindPattern[1923:1]:i64_(-) guard - value literal:i32=0

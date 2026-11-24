@@ -1,0 +1,6 @@
+void bump(ref i64 total) {
+    total += 1
+}
+
+var t: i64 = 0
+bump(t)

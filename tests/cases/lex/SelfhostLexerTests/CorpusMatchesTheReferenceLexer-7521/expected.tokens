@@ -1,0 +1,23 @@
+1:2 Identifier `café`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `café`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringEnd `"`
+4:2 Identifier `a`
+4:4 Greater `>`
+4:6 Identifier `b`
+    doc `/// & && | || ^ ~ ! = == != < <= > >= << >> >>\r`
+7:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │  café = 1
+    │  ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │  café = 1
+    │   │     +

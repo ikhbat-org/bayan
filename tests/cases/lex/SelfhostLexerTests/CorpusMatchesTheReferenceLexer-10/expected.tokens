@@ -1,0 +1,78 @@
+    doc `///�Doc line two.`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:12 Tilde `~`
+3:14 Bang `!`
+3:16 Equals `=`
+3:18 EqualsEquals `==`
+3:21 BangEquals `!=`
+3:24 Less `<`
+3:26 LessEquals `<=`
+3:29 Greater `>`
+3:31 GreaterEquals `>=`
+3:34 LessLess `<<`
+3:37 Greater `>`
+3:38 Greater `>`
+3:40 Greater `>`
+3:41 GreaterEquals `>=`
+4:1 LetKeyword `let`
+4:5 Identifier `b`
+4:7 Equals `=`
+4:11 IntegerLiteral `2`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 InterpolationEnd `}`
+6:5 InterpolatedStringEnd `"`
+6:7 Identifier `ạ̇struct`
+6:17 Identifier `S`
+8:1 Comma `,`
+8:3 Dot `.`
+8:5 DotDot `..`
+8:8 DotDotEquals `..=`
+8:12 Colon `:`
+8:14 Question `?`
+8:16 QuestionQuestion `??`
+8:19 QuestionQuestionEquals `??=`
+8:23 QuestionDot `?.`
+8:26 FatArrow `=>`
+8:29 Arrow `->`
+8:32 At `@`
+8:34 Hash `#`
+9:2 CharLiteral `'\u{202E}'`
+9:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  1 │ ///�Doc line two.
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x83)
+
+  1 │ ///�Doc line two.
+    │     ^
+
+error BYN0002: unexpected character ```
+
+  4 │ let b = ` 2
+    │         ^
+
+error BYN0005: identifier `ạ̇struct` is not in Unicode normalization form C
+
+  6 │ $"{}" ạ̇struct S
+    │       ^^^^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ $"{}" ạ̇struct S
+    │   │       ++
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  9 │  '�' 
+    │   ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 9 │  '�' 
+    │   │   -

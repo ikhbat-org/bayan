@@ -1,0 +1,10 @@
+error BYN1046: `pattern` is allowed only after `=` in a `const`
+  --> input.byn:6:17
+
+  6 │     let empty = pattern Line { qty: 0 }
+    │                 ^^^^^^^ `pattern` outside a `const`
+    │
+  help: declare the pattern as `const name = pattern T { … }`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1046

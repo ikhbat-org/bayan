@@ -1,0 +1,24 @@
+1:3 CharLiteral `'x`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ � 'x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ � 'x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ � 'x
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  1 │ � 'x
+    │   ^^
+    │
+  help: close it with `'`

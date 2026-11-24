@@ -1,0 +1,2 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; $BAYAN build tally --mode debug > /dev/null; echo "build $?"; $BAYAN cache stats > before.txt
+$ mkdir elsewhere && mv tally elsewhere/renamed; $BAYAN build elsewhere/renamed --mode debug > /dev/null; echo "build $?"; $BAYAN cache stats > after.txt; cmp -s before.txt after.txt && echo "stats unchanged"

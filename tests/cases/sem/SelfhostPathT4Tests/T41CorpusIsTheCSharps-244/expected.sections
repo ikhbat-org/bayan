@@ -1,0 +1,11 @@
+== diags.diag/function-typed-parameter-particle
+BYN5004 1:6 `holds` has 2 unlabeled parameters; give each but one a particle
+  label 2 unlabeled parameters
+  help keep one unlabeled parameter, the object
+BYN5006 1:40 `p` is a required parameter besides the object and needs a particle
+  label needs a particle
+  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+BYN5005 8:21 `p` is passed without its particle `by:`
+  label needs `by:`
+  help add `by:` before the argument
+  fix 8:21-8:21 by: 

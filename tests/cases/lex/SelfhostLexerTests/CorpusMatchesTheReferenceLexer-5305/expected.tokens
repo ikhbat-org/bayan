@@ -1,0 +1,18 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:1 IntegerLiteral `1__`
+3:2 OpenParen `(`
+3:4 CloseParen `)`
+3:6 OpenBracket `[`
+3:8 CloseBracket `]`
+3:10 OpenBrace `{`
+3:12 CloseBrace `}`
+5:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1__
+    │  ^^
+    │
+    │ 2 │ 1__
+    │   │  --

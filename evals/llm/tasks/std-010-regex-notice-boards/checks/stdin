@@ -1,0 +1,26 @@
+zakat \bzakat\b
+iftar (?i)iftar
+  iftar [Ii]ftar|suhoor  
+sadaqah sadaqah|charity
+nospace
+zakat nisab [0-9]+
+lessons (tafsir
+lessons \d{1001}
+lessons (a)\1
+lessons ((a{1000}){1000}){1000}
+zakāt zakāt(
+classes ^Quran class
+
+---
+zakat due before Ramadan
+Iftar at the masjid on Friday
+  sadaqah box by the door  
+suhoor packs for the night
+zakat nisab 85 grams of gold
+Quran class after Isha
+weekly Quran class
+the zakatfund meeting
+
+lost keys at the gate
+---
+Eid prayer at 07:30

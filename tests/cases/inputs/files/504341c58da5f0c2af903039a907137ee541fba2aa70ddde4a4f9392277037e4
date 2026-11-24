@@ -1,0 +1,9 @@
+// line comment
+/// Doc line on.
+
+let effect =Þ2
+
+ \"q\" \\ \n" """
+  raw "quoted"
+'\u{110000}'
+ 

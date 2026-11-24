@@ -1,0 +1,3 @@
+== call.u2
+errorExpr|?|-|-|1551:11|-
+BYN2301 77:14 missing argument `value` for `Untrusted` |||

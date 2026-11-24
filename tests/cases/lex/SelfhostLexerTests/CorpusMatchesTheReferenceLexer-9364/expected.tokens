@@ -1,0 +1,43 @@
+1:1 Identifier `a`
+1:3 Slash `/`
+1:5 NeverKeyword `never`
+1:11 Identifier `closed`
+2:2 Identifier `f`
+2:3 OpenBrace `{`
+2:4 Identifier `ils`
+2:8 TryKeyword `try`
+2:12 CatchKeyword `catch`
+2:18 NeverKeyword `never`
+2:24 NoallocKeyword `noalloc`
+2:32 NosuspendKeyword `nosuspend`
+2:42 SuspendsKeyword `suspends`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
+6:38 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  1 │ a /� never closed
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ �� /* bloc�
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �� /* bloc�
+    │  ^
+
+error BYN0004: unterminated block comment
+
+  3 │ �� /* bloc�
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  3 │ �� /* bloc�
+    │           ^

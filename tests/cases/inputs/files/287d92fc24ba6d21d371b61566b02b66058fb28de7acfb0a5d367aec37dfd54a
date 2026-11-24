@@ -1,0 +1,10 @@
+let law = 3
+   comment */ a
+ b
+
+   comment */ a
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+
+0b1ms
+
+/*

@@ -1,0 +1,2 @@
+== expr.probes.i6
+interpolated:string[3538:16]=-(v:local:i64[3541:1]=-(n)/16,false,0,32,-1,-1)

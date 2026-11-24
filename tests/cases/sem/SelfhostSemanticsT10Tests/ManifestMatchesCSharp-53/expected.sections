@@ -1,0 +1,9 @@
+== case inline/int-max
+errors 1
+error BYN3100: `package.byn` is data only: expected a string, an integer, `true`, `false`, `.name`,
+`[…]` or `Type { … }`
+  1 │ Package { name: "local/a", version: "0.1.0", style: Style { indent: 9223372036854775807, width: 9223372036854775808 } }
+    │                                                                                                 ^^^^^^^^^^^^^^^^^^^
+    │
+  help: write strings, integers, `true`/`false`, `.names`, `[lists]` or `Type { field: value }`; no
+        calls or expressions

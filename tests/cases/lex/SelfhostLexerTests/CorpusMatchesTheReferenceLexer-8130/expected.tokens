@@ -1,0 +1,25 @@
+1:2 Identifier `ڏ`
+1:4 Identifier `Å`
+2:1 CharLiteral `'\u{D800}'`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �ڏ Å
+    │ ^
+
+error BYN0005: identifier `Å` is not in Unicode normalization form C
+
+  1 │ �ڏ Å
+    │    ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �ڏ Å
+    │   │    +
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  2 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

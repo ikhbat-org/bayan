@@ -1,0 +1,9 @@
+warning BYN2310: `values` is never written through; use `ReadOnlySpan<i64>`
+  --> input.byn:1:11
+
+  1 │ i64 first(Span<i64> values) {
+    │           ^^^^^^^^^
+    │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+    │ 1 │ i64 first(ReadOnlySpan<i64> values) {
+    │   │           ++++++++

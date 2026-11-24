@@ -1,0 +1,6 @@
+struct S
+ error set unit distinct type import as public private static readonly reìuired const let var embed extern unsafe
+is and or not with move ref out this null true false comptime checked
+ {0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+let effect = 2
+let x‚Åß = 1

@@ -1,0 +1,4 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+void main() {
+    let n = b?.size
+}

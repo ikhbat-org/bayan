@@ -1,0 +1,68 @@
+2:1 Amp `&`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 BarBar `||`
+2:11 Caret `^`
+2:13 Tilde `~`
+2:15 Bang `!`
+2:17 Equals `=`
+2:19 EqualsEquals `==`
+2:22 BangEquals `!=`
+2:25 Less `<`
+2:27 LessEquals `<=`
+2:30 Greater `>`
+2:32 GreaterEquals `>=`
+2:35 LessLess `<<`
+2:38 Greater `>`
+2:39 Greater `>`
+2:41 Greater `>`
+2:42 GreaterEquals `>=`
+3:1 CharLiteral `'\q'`
+4:1 Identifier `Y`
+4:3 Equals `=`
+4:7 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `c`
+5:6 Star `*`
+5:8 Equals `=`
+5:12 IntegerLiteral `3`
+6:1 Identifier `c`
+6:3 Greater `>`
+6:4 GreaterEquals `>=`
+6:7 IntegerLiteral `1`
+7:2 Identifier `foo`
+7:6 Identifier `Bar`
+7:10 Identifier `_x`
+7:13 Identifier `camelCase2`
+7:24 Identifier `بيان`
+7:29 Identifier `μετρητής`
+7:38 Identifier `x_1`
+7:42 Identifier `é`
+8:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��
+    │  ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character ```
+
+  4 │ Y = ` 2
+    │     ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  5 │ let c* = � 3
+    │          ^

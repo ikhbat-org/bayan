@@ -1,0 +1,11 @@
+1:1 Identifier `vr`
+1:4 Identifier `xs`
+1:6 Colon `:`
+1:8 Identifier `List`
+1:12 Less `<`
+1:13 Identifier `Lit`
+1:16 Less `<`
+1:17 Identifier `i64`
+1:20 Greater `>`
+1:21 Greater `>`
+3:1 EndOfFile

@@ -1,0 +1,7 @@
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN check main.byn
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN --ascii check --color always main.byn
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u $BAYAN check main.byn --ascii
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u LANG=C $BAYAN check main.byn
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u LANG=C LC_ALL=en_US.utf8 $BAYAN check main.byn 2> e.txt; rc=$?; grep -v ": setlocale: " e.txt >&2; exit $rc
+$ u() { env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE LANG=en_US.UTF-8 "$@"; }; u LC_CTYPE=POSIX $BAYAN check main.byn
+$ env -u NO_COLOR -u FORCE_COLOR -u TERM -u COLORTERM -u BAYAN_THEME -u COLORFGBG -u LC_ALL -u LC_CTYPE -u LANG $BAYAN check main.byn

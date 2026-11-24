@@ -1,0 +1,8 @@
+i32 clamp(i32 x) {
+    @unobservable because "the caller never passes 0"
+    if x <= 0 {
+        return 0
+    }
+    @unobservable(boundary) because "x is at most 100"
+    return x
+}

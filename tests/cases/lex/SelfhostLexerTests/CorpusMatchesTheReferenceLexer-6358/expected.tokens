@@ -1,0 +1,30 @@
+1:1 Identifier `a`
+1:3 Greater `>`
+1:4 Greater `>`
+1:6 Identifier `b`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `x`
+3:4 InterpolationStart `{`
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+4:3 RawStringLiteral `""" c"text"u16"wide" "�\u{202E} allowed in srings" "" "\u{48}i"\n0xFFs\n*/ // comment \u{202E} hidden\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │   """ c"text"u16"wide" "�� allowed in srings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x89)
+
+  4 │   """ c"text"u16"wide" "�� allowed in srings" "" "\u{48}i"
+    │                         ^

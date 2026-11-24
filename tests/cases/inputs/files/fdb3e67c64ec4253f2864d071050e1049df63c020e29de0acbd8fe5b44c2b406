@@ -1,0 +1,8 @@
+is and or not with move ref out this null true false comptime checked
+ ''
+1.
+let café = 2
+
+!
+ var xs: List<List<i64>>
+ 

@@ -1,0 +1,22 @@
+== tests/cases/diag/ref-out-escape-returned-source.byn
+22..38 blockStmt
+28..36 returnStmt value 35..36
+35..36 nameExpr
+52..202 blockStmt
+58..71 localDecl
+69..71 literalExpr string
+76..184 blockStmt
+86..111 localDecl
+104..111 callExpr
+120..152 localDecl
+131..152 callExpr
+131..136 literalExpr string
+146..151 nameExpr
+161..178 assignStmt assign target 161..165 value 168..178
+161..165 nameExpr
+168..178 callExpr
+173..177 nameExpr
+189..200 exprStmt
+189..200 callExpr
+195..199 nameExpr
+189..200 callExpr

@@ -1,0 +1,2 @@
+{"code":"BYN2706","severity":"error","file":"input.byn","span":{"start":70,"end":82,"line":7,"column":13,"endLine":7,"endColumn":25},"message":"variant `none` has no payload","label":null,"help":"write `Shape.none` without parentheses","fixes":[]}
+{"code":"BYN2706","severity":"error","file":"input.byn","span":{"start":120,"end":127,"line":9,"column":13,"endLine":9,"endColumn":20},"message":"variant `none` has no payload","label":null,"help":"match it with `.none`","fixes":[]}

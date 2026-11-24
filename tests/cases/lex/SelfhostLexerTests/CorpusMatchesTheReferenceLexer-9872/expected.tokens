@@ -1,0 +1,21 @@
+1:1 IntegerLiteral `0xF__`
+3:1 RawStringLiteral `""" 0b__\r\n = 2\r\nmacro select beco�me\r\nlet  3\r\n Å\r\n"tex�t "esc \"q\" \\ \n" """`
+9:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xC2)
+
+  5 │ macro select beco�me
+    │                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFB)
+
+  8 │ "tex�t "esc \"q\" \\ \n" """
+    │     ^

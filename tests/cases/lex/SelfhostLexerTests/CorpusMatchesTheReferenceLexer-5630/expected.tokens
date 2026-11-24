@@ -1,0 +1,51 @@
+3:2 OpenBrace `{`
+3:3 Identifier `a`
+3:7 Identifier `p0n`
+3:11 OpenBrace `{`
+3:12 Identifier `x`
+3:13 StringLiteral `"`
+4:1 IntegerLiteral `0`
+4:3 IntegerLiteral `0xFF`
+4:8 IntegerLiteral `0x_ff`
+4:14 IntegerLiteral `0b101`
+4:20 StringLiteral `"{ }`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ �
+    │ ^
+
+error BYN0002: unexpected character `$`
+
+  3 │ ${a ﻿ p0n {x"
+    │ ^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ ${a ﻿ p0n {x"
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  3 │ ${a ﻿ p0n {x"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ 0 0xFF 0x_ff 0b101 "{ }
+    │                    ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

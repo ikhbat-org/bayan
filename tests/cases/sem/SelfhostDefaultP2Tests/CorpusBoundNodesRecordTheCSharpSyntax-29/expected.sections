@@ -1,0 +1,21 @@
+== tests/cases/run/defer-modifier-registration.byn
+99..183 blockStmt
+105..117 localDecl
+113..117 literalExpr trueKeyword
+122..127 deferStmt
+128..149 guardedStmt
+148..149 nameExpr
+128..144 exprStmt
+128..144 callExpr
+134..143 literalExpr string
+128..144 callExpr
+154..163 assignStmt assign target 154..155 value 158..163
+154..155 nameExpr
+158..163 literalExpr falseKeyword
+168..181 exprStmt
+168..181 callExpr
+174..180 literalExpr string
+168..181 callExpr
+184..187 globalStatement
+184..187 exprStmt
+184..187 callExpr

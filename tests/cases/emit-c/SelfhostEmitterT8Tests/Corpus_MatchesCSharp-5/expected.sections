@@ -1,0 +1,216 @@
+== helpers
+bynh_eq_err static bool bynh_eq_err(byn_err a, byn_err b) | static bool bynh_eq_err(byn_err a, byn_err b) {
+    if (a.code != b.code) return false;
+    switch (a.code) {
+    case 10: return (a.p.e10.signal == b.p.e10.signal)
+        && byn_str_eq(a.p.e10.stdout_, b.p.e10.stdout_)
+        && byn_str_eq(a.p.e10.stderr_, b.p.e10.stderr_);
+    case 11: return (a.p.e11.after == b.p.e11.after)
+        && byn_str_eq(a.p.e11.stdout_, b.p.e11.stdout_)
+        && byn_str_eq(a.p.e11.stderr_, b.p.e11.stderr_);
+    case 12: return (a.p.e12.at == b.p.e12.at);
+    case 15: return (a.p.e15.n == b.p.e15.n);
+    case 17: return (a.p.e17.at == b.p.e17.at);
+    }
+    return true;
+}
+bynh_eq_opt_err static bool bynh_eq_opt_err(bynt_opt_err a, bynt_opt_err b) | static bool bynh_eq_opt_err(bynt_opt_err a, bynt_opt_err b) {
+    return a.has == b.has && (!a.has || bynh_eq_err(a.value, b.value));
+}
+bynh_eq_main__Flag static bool bynh_eq_main__Flag(byn_main_Flag a, byn_main_Flag b) | static bool bynh_eq_main__Flag(byn_main_Flag a, byn_main_Flag b) {
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    default: return true;
+    }
+}
+bynh_eq_main__Shape static bool bynh_eq_main__Shape(byn_main_Shape a, byn_main_Shape b) | static bool bynh_eq_main__Shape(byn_main_Shape a, byn_main_Shape b) {
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    case 0: return (a.u.circle.r == b.u.circle.r);
+    case 1: return byn_str_eq(a.u.square.side, b.u.square.side)
+        && (a.u.square.filled == b.u.square.filled);
+    default: return true;
+    }
+}
+bynh_eq_main__Pt static bool bynh_eq_main__Pt(bynt_main__Pt a, bynt_main__Pt b) | static bool bynh_eq_main__Pt(bynt_main__Pt a, bynt_main__Pt b) {
+    return (a.x == b.x)
+        && (a.y == b.y);
+}
+bynh_eq_arr2_main__Pt static bool bynh_eq_arr2_main__Pt(bynt_arr2_main__Pt a, bynt_arr2_main__Pt b) | static bool bynh_eq_arr2_main__Pt(bynt_arr2_main__Pt a, bynt_arr2_main__Pt b) {
+    for (int64_t i = 0; i < 2; i++)
+        if (!bynh_eq_main__Pt(a.v[i], b.v[i])) return false;
+    return true;
+}
+bynh_eq_tup2_main__Pt_i64 static bool bynh_eq_tup2_main__Pt_i64(bynt_tup2_main__Pt_i64 a, bynt_tup2_main__Pt_i64 b) | static bool bynh_eq_tup2_main__Pt_i64(bynt_tup2_main__Pt_i64 a, bynt_tup2_main__Pt_i64 b) {
+    return bynh_eq_main__Pt(a.item1, b.item1)
+        && (a.item2 == b.item2);
+}
+bynh_eq_main__Order static bool bynh_eq_main__Order(bynt_main__Order a, bynt_main__Order b) | static bool bynh_eq_main__Order(bynt_main__Order a, bynt_main__Order b) {
+    if (!(a.id == b.id)) return false;
+    if (a.tag != b.tag) return false;
+    switch (a.tag) {
+    case 1: return (a.u.paid.payment == b.u.paid.payment);
+    default: return true;
+    }
+}
+bynh_eq_opt_main__Order static bool bynh_eq_opt_main__Order(bynt_opt_main__Order a, bynt_opt_main__Order b) | static bool bynh_eq_opt_main__Order(bynt_opt_main__Order a, bynt_opt_main__Order b) {
+    return a.has == b.has && (!a.has || bynh_eq_main__Order(a.value, b.value));
+}
+bynh_fmt_main__Flag static void bynh_fmt_main__Flag(byn_writer* w, byn_main_Flag v) | static void bynh_fmt_main__Flag(byn_writer* w, byn_main_Flag v) {
+    switch (v.tag) {
+    case 0:
+    byn_w_str(w, BYN_STR("on", 2));
+        break;
+    case 1:
+    byn_w_str(w, BYN_STR("off", 3));
+        break;
+    }
+}
+bynh_fmt_main__Shape static void bynh_fmt_main__Shape(byn_writer* w, byn_main_Shape v) | static void bynh_fmt_main__Shape(byn_writer* w, byn_main_Shape v) {
+    switch (v.tag) {
+    case 0:
+    byn_w_str(w, BYN_STR("circle(", 7));
+    byn_w_str(w, BYN_STR("r: ", 3));
+    byn_w_i64(w, (int64_t)(v.u.circle.r));
+    byn_w_str(w, BYN_STR(")", 1));
+        break;
+    case 1:
+    byn_w_str(w, BYN_STR("square(", 7));
+    byn_w_str(w, BYN_STR("side: ", 6));
+    byn_w_str(w, v.u.square.side);
+    byn_w_str(w, BYN_STR(", filled: ", 10));
+    byn_w_bool(w, v.u.square.filled);
+    byn_w_str(w, BYN_STR(")", 1));
+        break;
+    case 2:
+    byn_w_str(w, BYN_STR("none", 4));
+        break;
+    }
+}
+bynh_fmt_tup2_i64_bool static void bynh_fmt_tup2_i64_bool(byn_writer* w, bynt_tup2_i64_bool v) | static void bynh_fmt_tup2_i64_bool(byn_writer* w, bynt_tup2_i64_bool v) {
+    byn_w_str(w, BYN_STR("(", 1));
+    byn_w_i64(w, (int64_t)(v.item1));
+    byn_w_str(w, BYN_STR(", ", 2));
+    byn_w_bool(w, v.item2);
+    byn_w_str(w, BYN_STR(")", 1));
+}
+bynh_fmt_map_i64_str static void bynh_fmt_map_i64_str(byn_writer* w, bynt_map_i64_str v) | static void bynh_fmt_map_i64_str(byn_writer* w, bynt_map_i64_str v) {
+    byn_w_str(w, BYN_STR("{", 1));
+    bool first = true;
+    for (int64_t i = 0; i < v.h.len; i++) {
+        if (v.h.dead[i]) continue;
+        if (!first) byn_w_str(w, BYN_STR(", ", 2));
+        first = false;
+        byn_w_i64(w, (int64_t)(v.keys[i]));
+        byn_w_str(w, BYN_STR(": ", 2));
+        byn_w_str(w, v.vals[i]);
+    }
+    byn_w_str(w, BYN_STR("}", 1));
+}
+bynh_fmt_main__One static void bynh_fmt_main__One(byn_writer* w, bynt_main__One v) | static void bynh_fmt_main__One(byn_writer* w, bynt_main__One v) {
+    byn_main__One__formatInto(&v, w);
+}
+bynh_fmt_main__Two static void bynh_fmt_main__Two(byn_writer* w, bynt_main__Two v) | static void bynh_fmt_main__Two(byn_writer* w, bynt_main__Two v) {
+    byn_main__Two__formatInto(&v, w, ((byn_format_spec){2, false, 0, ' ', 0, -1}));
+}
+bynh_fmt_main__Both static void bynh_fmt_main__Both(byn_writer* w, bynt_main__Both v) | static void bynh_fmt_main__Both(byn_writer* w, bynt_main__Both v) {
+    byn_main__Both__formatInto__o1(&v, w);
+}
+bynh_hash_main__Pt static uint64_t bynh_hash_main__Pt(bynt_main__Pt k) | static uint64_t bynh_hash_main__Pt(bynt_main__Pt k) {
+    uint64_t h = byn_hash_bytes(NULL, 0);
+    h = byn_hash_mix(h, bynh_hash_i64(k.x));
+    h = byn_hash_mix(h, bynh_hash_i64(k.y));
+    return h;
+}
+bynh_hash_i64 static uint64_t bynh_hash_i64(int64_t k) | static uint64_t bynh_hash_i64(int64_t k) {
+    return byn_hash_bytes(&k, (int64_t)sizeof k);
+}
+bynh_keq_main__Pt static bool bynh_keq_main__Pt(const void* a, const void* b) | static bool bynh_keq_main__Pt(const void* a, const void* b) {
+    return bynh_eq_main__Pt(*(const bynt_main__Pt*)a, *(const bynt_main__Pt*)b);
+}
+bynh_slot_map_main__Pt_i64 static int64_t* bynh_slot_map_main__Pt_i64(bynt_map_main__Pt_i64* m, bynt_main__Pt k, int64_t d) | static int64_t* bynh_slot_map_main__Pt_i64(bynt_map_main__Pt_i64* m, bynt_main__Pt k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(bynt_main__Pt), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_main__Pt(k), bynh_keq_main__Pt, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_index_map_main__Pt_i64 static int64_t bynh_index_map_main__Pt_i64(bynt_map_main__Pt_i64 m, bynt_main__Pt k, const char* file, int line) | static int64_t bynh_index_map_main__Pt_i64(bynt_map_main__Pt_i64 m, bynt_main__Pt k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Pt), &k, bynh_hash_main__Pt(k), bynh_keq_main__Pt);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_try_get_map_main__Pt_i64 static bynt_opt_i64 bynh_try_get_map_main__Pt_i64(bynt_map_main__Pt_i64 m, bynt_main__Pt k) | static bynt_opt_i64 bynh_try_get_map_main__Pt_i64(bynt_map_main__Pt_i64 m, bynt_main__Pt k) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Pt), &k, bynh_hash_main__Pt(k), bynh_keq_main__Pt);
+    return i < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, m.vals[i]};
+}
+bynh_has_map_main__Pt_i64 static bool bynh_has_map_main__Pt_i64(bynt_map_main__Pt_i64 m, bynt_main__Pt k) | static bool bynh_has_map_main__Pt_i64(bynt_map_main__Pt_i64 m, bynt_main__Pt k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Pt), &k, bynh_hash_main__Pt(k), bynh_keq_main__Pt) >= 0;
+}
+bynh_remove_map_main__Pt_i64 static bool bynh_remove_map_main__Pt_i64(bynt_map_main__Pt_i64* m, bynt_main__Pt k) | static bool bynh_remove_map_main__Pt_i64(bynt_map_main__Pt_i64* m, bynt_main__Pt k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(bynt_main__Pt), &k, bynh_hash_main__Pt(k), bynh_keq_main__Pt);
+}
+bynh_hash_main__Order static uint64_t bynh_hash_main__Order(bynt_main__Order k) | static uint64_t bynh_hash_main__Order(bynt_main__Order k) {
+    uint64_t h = byn_hash_bytes(NULL, 0);
+    h = byn_hash_mix(h, bynh_hash_i64(k.id));
+    return h;
+}
+bynh_keq_main__Order static bool bynh_keq_main__Order(const void* a, const void* b) | static bool bynh_keq_main__Order(const void* a, const void* b) {
+    return bynh_eq_main__Order(*(const bynt_main__Order*)a, *(const bynt_main__Order*)b);
+}
+bynh_slot_map_main__Order_i64 static int64_t* bynh_slot_map_main__Order_i64(bynt_map_main__Order_i64* m, bynt_main__Order k, int64_t d) | static int64_t* bynh_slot_map_main__Order_i64(bynt_map_main__Order_i64* m, bynt_main__Order k, int64_t d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(bynt_main__Order), (void**)&m->vals, (int64_t)sizeof(int64_t), &k, bynh_hash_main__Order(k), bynh_keq_main__Order, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_index_map_main__Order_i64 static int64_t bynh_index_map_main__Order_i64(bynt_map_main__Order_i64 m, bynt_main__Order k, const char* file, int line) | static int64_t bynh_index_map_main__Order_i64(bynt_map_main__Order_i64 m, bynt_main__Order k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Order), &k, bynh_hash_main__Order(k), bynh_keq_main__Order);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_try_get_map_main__Order_i64 static bynt_opt_i64 bynh_try_get_map_main__Order_i64(bynt_map_main__Order_i64 m, bynt_main__Order k) | static bynt_opt_i64 bynh_try_get_map_main__Order_i64(bynt_map_main__Order_i64 m, bynt_main__Order k) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Order), &k, bynh_hash_main__Order(k), bynh_keq_main__Order);
+    return i < 0 ? (bynt_opt_i64){0} : (bynt_opt_i64){true, m.vals[i]};
+}
+bynh_has_map_main__Order_i64 static bool bynh_has_map_main__Order_i64(bynt_map_main__Order_i64 m, bynt_main__Order k) | static bool bynh_has_map_main__Order_i64(bynt_map_main__Order_i64 m, bynt_main__Order k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(bynt_main__Order), &k, bynh_hash_main__Order(k), bynh_keq_main__Order) >= 0;
+}
+bynh_remove_map_main__Order_i64 static bool bynh_remove_map_main__Order_i64(bynt_map_main__Order_i64* m, bynt_main__Order k) | static bool bynh_remove_map_main__Order_i64(bynt_map_main__Order_i64* m, bynt_main__Order k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(bynt_main__Order), &k, bynh_hash_main__Order(k), bynh_keq_main__Order);
+}
+bynh_keq_i64 static bool bynh_keq_i64(const void* a, const void* b) | static bool bynh_keq_i64(const void* a, const void* b) {
+    return (*(const int64_t*)a == *(const int64_t*)b);
+}
+bynh_slot_map_i64_main__Shape static byn_main_Shape* bynh_slot_map_i64_main__Shape(bynt_map_i64_main__Shape* m, int64_t k, byn_main_Shape d) | static byn_main_Shape* bynh_slot_map_i64_main__Shape(bynt_map_i64_main__Shape* m, int64_t k, byn_main_Shape d) {
+    if (!m->h.alloc) m->h.alloc = byn_context;
+    bool added;
+    int64_t i = byn_map_insert(&m->h, (void**)&m->keys, (int64_t)sizeof(int64_t), (void**)&m->vals, (int64_t)sizeof(byn_main_Shape), &k, bynh_hash_i64(k), bynh_keq_i64, &added);
+    if (added) {
+        m->keys[i] = k;
+        m->vals[i] = d;
+    }
+    return &m->vals[i];
+}
+bynh_index_map_i64_main__Shape static byn_main_Shape bynh_index_map_i64_main__Shape(bynt_map_i64_main__Shape m, int64_t k, const char* file, int line) | static byn_main_Shape bynh_index_map_i64_main__Shape(bynt_map_i64_main__Shape m, int64_t k, const char* file, int line) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+    if (i < 0) byn_panic("key not found in map", file, line);
+    return m.vals[i];
+}
+bynh_try_get_map_i64_main__Shape static bynt_opt_main__Shape bynh_try_get_map_i64_main__Shape(bynt_map_i64_main__Shape m, int64_t k) | static bynt_opt_main__Shape bynh_try_get_map_i64_main__Shape(bynt_map_i64_main__Shape m, int64_t k) {
+    int64_t i = byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+    return i < 0 ? (bynt_opt_main__Shape){0} : (bynt_opt_main__Shape){true, m.vals[i]};
+}
+bynh_has_map_i64_main__Shape static bool bynh_has_map_i64_main__Shape(bynt_map_i64_main__Shape m, int64_t k) | static bool bynh_has_map_i64_main__Shape(bynt_map_i64_main__Shape m, int64_t k) {
+    return byn_map_find(&m.h, m.keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64) >= 0;
+}
+bynh_remove_map_i64_main__Shape static bool bynh_remove_map_i64_main__Shape(bynt_map_i64_main__Shape* m, int64_t k) | static bool bynh_remove_map_i64_main__Shape(bynt_map_i64_main__Shape* m, int64_t k) {
+    return byn_map_remove(&m->h, m->keys, (int64_t)sizeof(int64_t), &k, bynh_hash_i64(k), bynh_keq_i64);
+}

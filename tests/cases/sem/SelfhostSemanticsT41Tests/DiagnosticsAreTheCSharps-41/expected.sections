@@ -1,0 +1,8 @@
+== diags.diag/participle-changes-this
+BYN5001 5:10 `sorted` changes `this`; name it `sort`
+  help name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+BYN5001 15:10 `trimmed` changes `this`; name it `trim`
+  help name the member that changes `this` with the plain verb, and keep `-ed` for the copy or view
+BYN7005 12:23 `Words` has states; a literal must name one: `Words.drafted { … }`
+  help name the state the value starts in
+returns joined -1

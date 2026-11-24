@@ -1,0 +1,12 @@
+2:1 Identifier `al`
+2:3 CloseBrace `}`
+2:4 CloseBrace `}`
+2:5 StringLiteral `"le effect = 2`
+4:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ al}}"le effect = 2
+    │     ^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

@@ -1,0 +1,10 @@
+error BYN2781: `s` is used after it was moved
+  --> <repo>/tmp/l006/read-after-switch-move-s/main.byn:21:12
+
+  21 │     switch s {
+     │            ^ moved on line 15
+     │
+  help: assign `s` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2781

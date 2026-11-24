@@ -1,0 +1,44 @@
+2:1 Identifier `b`
+3:1 Identifier `n`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:2 CharLiteral `'ab'`
+6:3 Identifier `a`
+6:5 Equals `=`
+6:7 IntegerLiteral `1`
+7:1 LetKeyword `let`
+7:7 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │ �� a = 1
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �� a = 1
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  7 │ let � 
+    │     ^

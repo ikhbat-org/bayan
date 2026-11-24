@@ -1,0 +1,5 @@
+#!/usr/bin/env bayan
+#:io threaded
+
+print("hi")
+print("changed")

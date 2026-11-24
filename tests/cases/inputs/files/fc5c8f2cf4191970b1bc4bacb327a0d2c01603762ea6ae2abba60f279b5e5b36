@@ -1,0 +1,166 @@
+import lexer
+
+void summary(ref Parser p, at TextSpan span, for TextSpan name, by i64 count) {
+    print($"{p.lexed.source.getText(name)} {span.start}+{span.length} {count}")
+    for d in p.lexed.diagnostics {
+        let fix = d.hasFix ? $" fix {d.fixSpan.start}+{d.fixSpan.length} [{d.fixReplacement}]" : ""
+        print($"{d.code} {d.span.start}+{d.span.length} {d.message} | {d.label} | {d.help}{fix}")
+    }
+}
+
+Parser makeParser(string text, by Keywords keywords) {
+    var bytes = List<u8>()
+    for b in text.bytes { bytes.append(b) }
+    return Parser.create(lexer.lex(SourceText.create("t4.byn", from: move bytes), by: keywords))
+}
+void main() {
+    let keywords = Keywords.build()
+    using let arena = Arena()
+    provide allocator: arena {
+        {
+            var p = makeParser("import a.b as c\nimport d\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("}\nimport a\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("public public import x\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("readonly static struct S {}\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("public\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("delegate void Handler(i64 a, string b);\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("delegate T F<T>(T x);\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("@allow import x\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("@allow because \"\" import x\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("[Inline]\nimport x\n", by: keywords)
+            let d = parseCompilationUnit(ref p)
+            summary(ref p, at: d.span, for: TextSpan { start: 0, length: 0 }, by: d.members.length)
+        }
+        {
+            var p = makeParser("f(i64 a, by i64 b) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(i64 a, ref this) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(this) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(this, i64 a) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(ref this is .open or .shut, i64 a) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(i64 x is .small) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(i64... xs) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f(rest i64 xs, i64 y) {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f() fails uses alloc, net where T : I {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f() fails becomes .open {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f() fails noalloc {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("f<T, U>() fails {}", by: keywords)
+            let d = parseFunction(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.name, for: d.name, by: d.params.length)
+        }
+        {
+            var p = makeParser("struct unique S<T> : I, J where T : K {}", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+        {
+            var p = makeParser("struct S {\n    state open\n    state shut\n}\n", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+        {
+            var p = makeParser("struct S {\n    state open // why\n}\n", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+        {
+            var p = makeParser("struct S {\n    states {\n        a\n        b\n    }\n}\n", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+        {
+            var p = makeParser("struct S {\n    states { a }\n    states { b }\n}\n", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+        {
+            var p = makeParser("struct S {\n    states { a }\n    state b\n}\n", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+        {
+            var p = makeParser("struct S {", by: keywords)
+            let d = parseStruct(ref p, at: 0, by: modifierNone)
+            summary(ref p, at: d.span, for: d.name, by: d.states.length)
+        }
+    }
+}

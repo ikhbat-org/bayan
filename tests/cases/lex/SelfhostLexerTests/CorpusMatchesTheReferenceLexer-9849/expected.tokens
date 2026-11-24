@@ -1,0 +1,19 @@
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never closed\n \u{0}\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{C$"{$"{x}"}}"}"}"}"}"}"}"}"}" e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f\n let c = """`
+7:13 NeverKeyword `never`
+7:19 Identifier `closed`
+8:2 CharLiteral `''`
+9:2 EndOfFile
+
+error BYN0007: empty char literal
+
+  8 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

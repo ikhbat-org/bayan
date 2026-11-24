@@ -1,0 +1,30 @@
+ok
+fail
+fail
+fail
+fail
+fail
+fail
+fail
+fail
+fail
+fail
+fail
+ok
+fail
+fail
+ok
+fail
+fail
+fail
+fail
+fail
+fail
+file 66696c652e747874 644 78
+link 6c696e6b2d64616e676c696e67 6e6f7768657265 file
+link 6c696e6b2d66696c65 66696c652e747874 file
+dir 6e6f6e656d707479 755
+dir 6e6f6e656d7074792f696e6e6572 755
+file 6e6f6e656d7074792f696e6e65722f662e747874 644 78
+dir 726f646972 500
+dir 726f6469722f656d7074796368696c64 755

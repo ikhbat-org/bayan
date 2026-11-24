@@ -1,0 +1,4 @@
+== tests/cases/diag/invalid-main-signature.byn
+23..44 blockStmt
+29..42 returnStmt value 36..42
+36..42 literalExpr string

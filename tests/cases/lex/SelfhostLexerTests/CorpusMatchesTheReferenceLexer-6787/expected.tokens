@@ -1,0 +1,34 @@
+1:1 CharLiteral `' �����$"{"0b1ms`
+2:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' �����$"{"0b1ms
+    │ ^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  1 │ ' �����$"{"0b1ms
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  1 │ ' �����$"{"0b1ms
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ' �����$"{"0b1ms
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ' �����$"{"0b1ms
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ' �����$"{"0b1ms
+    │       ^

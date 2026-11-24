@@ -1,0 +1,7 @@
+== diags.diag/generic-conflicting-inference
+BYN2741 4:21 type argument `T` of `pick` is inferred as both `i32` and `string`
+  help make the arguments agree, or write it out: `pick<…>(…)`
+BYN2741 6:25 type argument `T` of `head` is inferred as both `string` and `i32`
+  help make the arguments agree, or write it out: `head<…>(…)`
+returns head 1
+returns pick 0 1

@@ -1,0 +1,26 @@
+1:2 Identifier `a`
+1:4 Identifier `x`
+1:5 Colon `:`
+1:7 Identifier `List`
+1:11 Less `<`
+1:12 Identifier `List`
+1:16 Less `<`
+1:17 Identifier `i64`
+1:20 Greater `>`
+1:21 Greater `>`
+2:3 EndOfFile
+
+error BYN0002: unexpected character `\u{1E}`
+
+  1 │ �a x: List<List<i64>>
+    │ ^
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │ �� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �� 
+    │  ^

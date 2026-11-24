@@ -1,0 +1,85 @@
+CompilationUnit
+  Function find(List<i32> xs, at i32 v) -> i32?
+    Block
+      For Let x in xs
+        Block
+          Guarded if (== x v)
+            Return x
+      Return null
+  Function viaReturn(List<i32> xs) -> i32
+    Block
+      If (is (call find xs (at: 3)) (props) k)
+        Block
+          Let doubled = (* k 2)
+          Return doubled
+      Else
+        Block
+          Return 0
+  Function viaLongReturn(List<i32> xs) -> i32
+    Block
+      If (is (call find xs (at: 3)) (props) k)
+        Block
+          Return k
+      Else
+        Block
+          Return (+ (call viaReturn xs) 1)
+  Function viaParameter(i32? p) -> i32
+    Block
+      If (is p (props) k)
+        Block
+          Return (+ k 1)
+      Return 0
+  Function viaLet(List<i32> xs) -> i32
+    Block
+      Let found = (call find xs (at: 1))
+      If (is found (props) k)
+        Block
+          Return k
+      Return (- 1)
+  Function viaWhile(List<i32> xs) -> i32
+    Block
+      Var total = 0
+      Var i = 0
+      While (is (call find xs (at: i)) (props) k)
+        Block
+          Assign total += k
+          Assign i += 1
+      Return total
+  Function viaContinue(List<i32> xs) -> i32
+    Block
+      Var total = 0
+      For Let v in xs
+        Block
+          If (is (call find xs (at: (+ v 1))) (props) k)
+            Block
+              Assign total += k
+          Else
+            Block
+              Continue
+      Return total
+  Function hitOnly(List<i32> xs) -> i32
+    Block
+      Var total = 0
+      If (is (call find xs (at: 2)) (props) k)
+        Block
+          Assign total = k
+      Return total
+  Function inAnd(List<i32> xs, at bool ok) -> i32
+    Block
+      If (&& ok (is (call find xs (at: 2)) (props) k))
+        Block
+          Return k
+      Return 0
+  Function varOperand(List<i32> xs) -> i32
+    Block
+      Var found = (call find xs (at: 1))
+      Assign found = (call find xs (at: 2))
+      If (is found (props) k)
+        Block
+          Return k
+      Return 0
+  Function main() -> void
+    Block
+      Let xs: List<i32> = (list 1 2 3)
+      Expr (call print (interp (call viaReturn xs) (call viaLongReturn xs) (call viaParameter 4) (call viaLet xs) (call viaWhile xs) (call viaContinue xs)))
+      Expr (call print (interp (call hitOnly xs) (call inAnd xs (at: true)) (call varOperand xs)))

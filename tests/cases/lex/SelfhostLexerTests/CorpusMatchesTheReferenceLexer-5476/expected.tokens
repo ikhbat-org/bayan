@@ -1,0 +1,89 @@
+1:1 IntegerLiteral `1__`
+4:1 Identifier `lt`
+4:4 Identifier `café`
+4:9 Equals `=`
+4:11 IntegerLiteral `2`
+6:1 IntegerLiteral `0x`
+6:4 IntegerLiteral `1_`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ �
+    │  ^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x 1_
+    │ ^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0x 1_
+    │     ^
+    │
+    │ 6 │ 0x 1_
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  7 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  7 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │  �����
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  8 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  8 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ����
+    │    ^

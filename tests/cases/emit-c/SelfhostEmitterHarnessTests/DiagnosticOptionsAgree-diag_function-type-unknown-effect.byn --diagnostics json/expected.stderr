@@ -1,0 +1,1 @@
+{"code":"BYN6003","severity":"error","file":"input.byn","span":{"start":54,"end":61,"line":3,"column":34,"endLine":3,"endColumn":41},"message":"`network` is not an effect","label":"not an effect or an `effect` alias of this module","help":"choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias","fixes":[]}

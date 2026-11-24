@@ -1,0 +1,37 @@
+1:2 IntegerLiteral `1_`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:7 Equals `=`
+3:9 IntegerLiteral `1`
+4:3 IntegerLiteral `3`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+6:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  1 │ �1_
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ �1_
+    │   ^
+    │
+    │ 1 │ �1_
+    │   │   -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  4 │  �3
+    │  ^
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ̈́� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ̈́� 
+    │  ^

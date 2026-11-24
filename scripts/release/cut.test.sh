@@ -37,6 +37,16 @@ grep -qx 'Version: 1.2.3-dev (matches `bayan --version`)' "$r/docs/STATUS.md" ||
 check next-dev
 commit "1.2.3-dev"
 
+# A minor bump renames the status tags to the new major.minor (check.sh (e)), on a copy (under $t) so the cut below sees 1.2.3-dev.
+m="$t/minor"; cp -R "$r" "$m"
+printf 'a (not in 1.2) b (partial in 1.2, x)\n' >> "$m/docs/bayan-spec.md"
+printf 'c (not in 1.2)\n' >> "$m/docs/bayan-style.md"
+out="$(bash "$m/scripts/release/next-dev.sh" 1.3.0)"
+echo "$out" | grep -qx "changed docs/bayan-spec.md" || fail "minor next-dev did not name the spec: $out"
+grep -qx 'a (not in 1.3) b (partial in 1.3, x)' "$m/docs/bayan-spec.md" || fail "spec tags: $(tail -n 1 "$m/docs/bayan-spec.md")"
+grep -qx 'c (not in 1.3)' "$m/docs/bayan-style.md" || fail "style tags: $(tail -n 1 "$m/docs/bayan-style.md")"
+bash "$m/scripts/docs/check.sh" || fail "check.sh fails after a minor next-dev"
+
 printf '# 0003 — Third\n\nStatus: done\nRelease: 1.2.3\nSources: none recorded\n' > "$r/docs/revisions/0003-third.md"
 printf '0003-third.md\n' >> "$r/docs/bayan-feature-history.md"
 printf 'edited\n' >> "$r/docs/revisions/0001-first.md"
@@ -85,7 +95,7 @@ cmp -s "$t/VERSION" "$r/VERSION" || fail "an undated-roadmap refusal changed VER
 g checkout -q HEAD -- docs/bayan-roadmap.md
 
 out="$(bash "$cut" 1.2.3)"
-for f in VERSION csharp/Bayan.Backend.C/Toolchain.cs docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
+for f in VERSION docs/bayan-spec.md CHANGELOG.md docs/specs/README.md; do
   echo "$out" | grep -qx "changed $f" || fail "no 'changed $f' in: $out"
 done
 [ "$(cat "$r/VERSION")" = 1.2.3 ] || fail "cut VERSION: $(cat "$r/VERSION")"

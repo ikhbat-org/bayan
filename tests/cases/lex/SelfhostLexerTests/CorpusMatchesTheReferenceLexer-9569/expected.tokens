@@ -1,0 +1,68 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+    doc `/// Doc line one.\r`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 StringLiteral `"`
+8:1 IntegerLiteral `0x`
+8:4 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ �/* � *//// Doc line one.
+    │ ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  5 │ �/* � *//// Doc line one.
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 5 │ �// �
+    │   │   +++
+    │ 6 │ /// Doc line one.
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  5 │ �/* � *//// Doc line one.
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ �/* � *//// Doc line one.
+    │   │     -
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{"
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{"
+    │    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  8 │ 0x 
+    │ ^^

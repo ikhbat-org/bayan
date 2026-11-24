@@ -1,0 +1,6 @@
+== diag.unique-move-from-field
+BYN2782 11:18 cannot move out of field `items` ||take it with `.take()`, or copy it with `.copy(to: alloc)`; its owner keeps it|
+BYN2782 12:18 cannot move out of an element ||take it with `.take()`, or copy it with `.copy(to: alloc)`; its owner keeps it|
+BYN2782 13:18 cannot move out of parameter `plain` ||declare it `move plain` to take ownership; a plain parameter is borrowed from the caller|
+BYN2782 14:18 cannot move out of a fresh value ||remove the `move`; a fresh value needs none|
+BYN2782 20:18 cannot move out of `ref` parameter `shared` ||copy it with `.copy(to: alloc)`; the caller still owns it|

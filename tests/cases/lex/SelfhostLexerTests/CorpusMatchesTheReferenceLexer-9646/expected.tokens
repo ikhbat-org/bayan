@@ -1,0 +1,172 @@
+1:2 Identifier `strings`
+1:9 StringLiteral `" "`
+1:12 StringLiteral `" "`
+1:16 Identifier `u`
+1:17 OpenBrace `{`
+1:18 IntegerLiteral `48`
+1:20 CloseBrace `}`
+1:21 Identifier `i`
+1:22 StringLiteral `"`
+2:2 IntegerLiteral `1`
+2:3 NumericSuffix `e`
+3:1 LetKeyword `let`
+3:5 Identifier `s`
+3:7 Equals `=`
+3:9 InterpolatedStringStart `$"`
+3:11 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
+3:15 InterpolatedStringStart `$"`
+3:17 InterpolationStart `{`
+3:18 InterpolatedStringStart `$"`
+3:20 InterpolationStart `{`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolationStart `{`
+3:24 InterpolatedStringStart `$"`
+3:26 InterpolationStart `{`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolationStart `{`
+3:30 InterpolatedStringStart `$"`
+3:32 InterpolationStart `{`
+3:33 InterpolatedStringStart `$"`
+3:35 InterpolationStart `{`
+3:36 InterpolatedStringStart `$"`
+3:38 InterpolationStart `{`
+3:39 InterpolatedStringStart `$"`
+3:41 InterpolationStart `{`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolationStart `{`
+3:45 InterpolatedStringStart `$"`
+3:47 InterpolationStart `{`
+3:48 InterpolatedStringStart `$"`
+3:50 InterpolationStart `{`
+3:51 InterpolatedStringStart `$"`
+3:53 InterpolationStart `{`
+3:54 InterpolatedStringStart `$"`
+3:56 InterpolationStart `{`
+3:57 StringLiteral `$"{$"`
+3:62 OpenBrace `{`
+3:63 StringLiteral `$"{$"`
+3:68 OpenBrace `{`
+3:69 Identifier `x`
+3:70 CloseBrace `}`
+3:71 StringLiteral `"}"`
+3:74 CloseBrace `}`
+3:75 StringLiteral `"}"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+3:82 InterpolationEnd `}`
+3:83 InterpolatedStringEnd `"`
+3:84 InterpolationEnd `}`
+3:85 InterpolatedStringEnd `"`
+3:86 InterpolationEnd `}`
+3:87 InterpolatedStringEnd `"`
+3:88 InterpolationEnd `}`
+3:89 InterpolatedStringEnd `"`
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+3:92 InterpolationEnd `}`
+3:93 InterpolatedStringEnd `"`
+3:94 InterpolationEnd `}`
+3:95 InterpolatedStringEnd `"`
+3:96 InterpolationEnd `}`
+3:97 InterpolatedStringEnd `"`
+3:98 InterpolationEnd `}`
+3:99 InterpolatedStringEnd `"`
+3:100 InterpolationEnd `}`
+3:101 InterpolatedStringEnd `"`
+3:102 InterpolationEnd `}`
+3:103 InterpolatedStringEnd `"`
+3:104 InterpolationEnd `}`
+3:105 InterpolatedStringEnd `"`
+3:106 InterpolationEnd `}`
+3:107 InterpolatedStringEnd `"`
+3:108 InterpolationEnd `}`
+3:109 InterpolatedStringEnd `"`
+4:2 Identifier `foo`
+4:7 Identifier `Bar`
+4:11 Identifier `_x`
+4:14 Identifier `camelCase2`
+4:25 Identifier `بيان`
+4:30 Identifier `μετρητής`
+4:39 Identifier `x_1`
+4:43 Identifier `é`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 Identifier `x`
+5:48 InterpolationEnd `}`
+5:49 InterpolatedStringEnd `"`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 CharLiteral `'\u{202E}'`
+5:55 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │  strings" "" "\u{48}i"
+    │               ^
+
+error BYN0003: unterminated string literal
+
+  1 │  strings" "" "\u{48}i"
+    │                      ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  4 │  foo �Bar _x camelCase2 بيان μετρητής x_1 é
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"'�'
+    │                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"'�'
+    │                                                     ^ invisible character that reorders how
+    │                                                       the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"'�'
+    │   │                                                     -

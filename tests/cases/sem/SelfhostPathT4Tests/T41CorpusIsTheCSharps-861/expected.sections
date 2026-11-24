@@ -1,0 +1,21 @@
+== diags.diag/style-fix-keeps-comments
+BYN1047 16:26 `/* */` is an input form; write `//` lines
+  label block comment
+  help write each line with `//`
+  fix 16:26-16:35 // why
+    
+BYN1047 19:8 `/* */` is an input form; write `//` lines
+  label block comment
+  help write each line with `//`
+  fix 19:8-19:17 // why
+    
+BYN1047 22:42 `/* */` is an input form; write `//` lines
+  label block comment
+  help write each line with `//`
+  fix 22:42-22:51 // why
+    
+BYN1047 23:38 `/* */` is an input form; write `//` lines
+  label block comment
+  help write each line with `//`
+  fix 23:38-23:45 // q
+    

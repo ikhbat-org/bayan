@@ -1,0 +1,110 @@
+1:2 LetKeyword `let`
+1:6 Identifier `café`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+1:15 Semicolon `;`
+2:1 Identifier `here`
+2:5 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `open `
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
+5:1 LetKeyword `let`
+5:6 Equals `=`
+5:8 StringLiteral `"bad \q escape"`
+5:23 CloseBracket `]`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolationStart `{`
+6:4 StringLiteral `"{$"`
+6:8 OpenBrace `{`
+6:9 InterpolatedStringStart `$"`
+6:11 InterpolationStart `{`
+6:12 InterpolatedStringStart `$"`
+6:14 InterpolationStart `{`
+6:15 InterpolatedStringStart `$"`
+6:17 InterpolationStart `{`
+6:18 InterpolatedStringStart `$"`
+6:20 InterpolationStart `{`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolationStart `{`
+6:24 InterpolatedStringStart `$"`
+6:26 InterpolationStart `{`
+6:27 InterpolatedStringStart `$"`
+6:29 InterpolationStart `{`
+6:30 InterpolatedStringStart `$"`
+6:32 InterpolationStart `{`
+6:33 InterpolatedStringStart `$"`
+6:35 InterpolationStart `{`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolationStart `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 Identifier `x`
+6:43 InterpolationEnd `}`
+6:44 InterpolatedStringEnd `"`
+6:45 InterpolationEnd `}`
+6:46 InterpolatedStringEnd `"`
+6:47 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �let café = 1;
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �let café = 1;
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �let café = 1;
+    │  ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ �let café = 1;
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ �let café = 1;
+    │   │         +
+
+error BYN0003: unterminated string literal
+
+  2 │ here"
+    │     ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x8B)
+
+  5 │ let � = "bad \q escape"]
+    │     ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ let � = "bad \q escape"]
+    │              ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ $"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  6 │ $"{�"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"
+    │                                  ^^ this string never ends
+    │
+  help: close the `{` and the string

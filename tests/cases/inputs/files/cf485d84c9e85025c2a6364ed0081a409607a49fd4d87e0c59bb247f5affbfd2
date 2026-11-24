@@ -1,0 +1,9 @@
+void main() uses alloc {
+    let d: string? = Path.directoryName("/a/b")
+    let parts: ReadOnlySpan<string> = ["/a", "b"]
+    print(Path.combine("/a", "b"))
+    print(Path.combine(parts))
+    print(Path.fullPath("x"))
+    print(Path.relative("/a", "/a/b"))
+    print(d ?? "")
+}

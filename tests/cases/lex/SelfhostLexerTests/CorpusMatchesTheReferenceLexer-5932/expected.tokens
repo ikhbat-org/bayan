@@ -1,0 +1,35 @@
+1:1 Equals `=`
+1:3 BarEquals `|=`
+1:6 CaretEquals `^=`
+1:9 Less `<`
+1:10 Identifier `foo`
+1:14 Identifier `Bar`
+1:18 Identifier `_x`
+1:21 Identifier `camelCase2`
+1:32 Identifier `بيان`
+1:37 Identifier `μετρητής`
+1:46 Identifier `x_1`
+1:50 Identifier `é`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `a`
+2:4 InterpolationStart `{`
+2:5 Identifier `b`
+2:6 InterpolationEnd `}`
+2:7 InterpolatedStringText `c`
+2:8 InterpolatedStringEnd
+3:1 CharLiteral `'\u{110000}'`
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

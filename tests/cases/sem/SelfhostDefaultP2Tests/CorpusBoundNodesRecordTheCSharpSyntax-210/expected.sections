@@ -1,0 +1,17 @@
+== tests/cases/run/overflow-add.byn
+0..34 globalStatement
+0..34 localDecl
+15..34 literalExpr integer
+35..50 exprStmt
+35..50 callExpr
+41..49 literalExpr string
+35..50 callExpr
+51..69 localDecl
+62..69 binaryExpr add right 68..69
+62..65 nameExpr
+68..69 literalExpr integer
+70..92 exprStmt
+70..92 callExpr
+76..91 interpolatedExpr
+85..89 nameExpr
+70..92 callExpr

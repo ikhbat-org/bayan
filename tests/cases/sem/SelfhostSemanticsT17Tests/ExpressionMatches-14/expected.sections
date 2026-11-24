@@ -1,0 +1,2 @@
+== case int-int-target
+literal 668..670 : i8 = 42

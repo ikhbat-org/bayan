@@ -1,0 +1,4 @@
+// `Time.now` reads the wall clock: nanoseconds since 1970, so after 2001.
+void main() uses clock, console {
+    print($"after 2001: {Time.now().nanos > 978307200000000000}")
+}

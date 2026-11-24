@@ -1,0 +1,4 @@
+== bind.probes.b15
+flags 4
+errorExpr:?[1919:14]=-()
+BYN2204 122:15 constant arithmetic overflows `i32` |||

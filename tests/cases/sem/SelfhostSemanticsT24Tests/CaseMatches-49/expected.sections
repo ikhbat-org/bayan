@@ -1,0 +1,6 @@
+== analyzeOwnership.flows
+BYN2781 295:19 `xs` is used after it was moved |moved on line 295|assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead|
+BYN2781 299:14 `a` is used after it was moved |moved on line 298|assign `a` a new value before using it again, or move a `.copy(to: alloc)` of it instead|
+BYN2781 304:14 `b` is used after it was moved |moved on line 302|assign `b` a new value before using it again, or move a `.copy(to: alloc)` of it instead|
+BYN2781 307:14 `d` is used after it was moved |moved on line 306|assign `d` a new value before using it again, or move a `.copy(to: alloc)` of it instead|
+BYN2781 310:14 `e` is used after it was moved |moved on line 309|assign `e` a new value before using it again, or move a `.copy(to: alloc)` of it instead|

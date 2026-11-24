@@ -1,0 +1,3 @@
+== bag borrow-returned
+BYN3003 3:12 cannot return a borrow of the `stackalloc` buffer on line 2, which is freed when `scratch` returns ||let the caller pass the buffer or allocator in, and borrow or allocate from that|
+BYN3003 6:46 cannot return a borrow of `values`, which is freed when `firstTwo` returns ||let the caller pass the buffer or allocator in, and borrow or allocate from that|

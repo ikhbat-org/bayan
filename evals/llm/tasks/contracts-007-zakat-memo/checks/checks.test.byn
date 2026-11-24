@@ -1,0 +1,46 @@
+ZakatPayment paid(string payer, by i64 amount) fails ValidationError<ZakatPayment> {
+    return try ZakatPayment { payer: payer, amount: amount, memo: "" }
+}
+
+test "withMemo replaces only the note" {
+    let p = try ZakatPayment { payer: "Aisha", amount: 250, memo: "" }
+    let noted = withMemo(p, to: "for the orphans fund")
+    assert noted.memo == "for the orphans fund"
+    assert noted.payer == "Aisha"
+    assert noted.amount == 250
+    assert p.memo == ""
+}
+
+test "withMemo takes any note, empty or long" {
+    let p = try ZakatPayment { payer: "Bilal", amount: 40, memo: "first" }
+    assert withMemo(p, to: "").memo == ""
+    let note = "paid in cash after the Friday prayer at the masjid on the east side"
+    assert withMemo(p, to: note).memo == note
+    assert withMemo(withMemo(p, to: "a"), to: "b").memo == "b"
+}
+
+@cases(1, 7, 1000000)
+test "withAmount accepts an amount above 0" (i64 amount) {
+    let p = try ZakatPayment { payer: "Zaynab", amount: 90, memo: "gold" }
+    let changed = try withAmount(p, to: amount)
+    assert changed.amount == amount
+    assert changed.payer == "Zaynab"
+    assert changed.memo == "gold"
+}
+
+@cases(0, -1, -500)
+test "withAmount refuses an amount of 0 or less" (i64 amount) {
+    let p = try ZakatPayment { payer: "Zaynab", amount: 90, memo: "gold" }
+    assert withAmount(p, to: amount) fails ValidationError<ZakatPayment>
+}
+
+@cases(("", 10), ("Aisha", 0), ("abcdefghijklmnopqrstuvwxy", 10))
+test "a payment that breaks a rule is refused" (string payer, i64 amount) {
+    assert paid(payer, by: amount) fails ValidationError<ZakatPayment>
+}
+
+test "the edges of the payer rule are allowed" {
+    assert (try ZakatPayment { payer: "H", amount: 1, memo: "" }).payer == "H"
+    let full = "abcdefghijklmnopqrstuvwx"
+    assert (try ZakatPayment { payer: full, amount: 1, memo: "" }).payer == full
+}

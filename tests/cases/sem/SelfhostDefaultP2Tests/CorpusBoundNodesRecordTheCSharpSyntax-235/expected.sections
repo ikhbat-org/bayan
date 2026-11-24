@@ -1,0 +1,18 @@
+== tests/cases/run/pending-peers-negate.byn
+0..9 globalStatement
+0..9 localDecl
+8..9 literalExpr integer
+10..19 localDecl
+18..19 literalExpr integer
+20..34 localDecl
+33..34 nameExpr
+35..41 assignStmt assign target 35..36 value 39..41
+35..36 nameExpr
+39..41 unaryExpr negate operand 40..41
+40..41 nameExpr
+42..59 exprStmt
+42..59 callExpr
+48..58 interpolatedExpr
+51..52 nameExpr
+55..56 nameExpr
+42..59 callExpr

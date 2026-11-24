@@ -1,0 +1,35 @@
+== tests/cases/run/region-combo-store-through-ref-this-map-in-time.byn
+290..306 blockStmt
+296..304 exprStmt
+296..304 callExpr
+296..297 nameExpr
+302..303 nameExpr
+320..508 blockStmt
+326..506 blockStmt
+336..361 localDecl
+354..361 callExpr
+370..407 localDecl
+378..407 structLiteralExpr
+387..405 callExpr
+416..448 localDecl
+427..448 callExpr
+427..432 literalExpr string
+442..447 nameExpr
+457..478 exprStmt
+457..478 callExpr
+462..466 nameExpr
+476..477 nameExpr
+487..500 exprStmt
+487..500 callExpr
+493..499 indexExpr
+493..496 memberExpr
+493..494 nameExpr
+497..498 literalExpr integer
+487..500 callExpr
+228..252 blockStmt
+238..246 assignStmt assign target 238..242 value 245..246
+238..242 indexExpr
+238..239 nameExpr
+238..239 nameExpr
+240..241 literalExpr integer
+245..246 nameExpr

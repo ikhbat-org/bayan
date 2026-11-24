@@ -1,0 +1,1 @@
+{"code":"BYN2613","severity":"error","file":"input.byn","span":{"start":125,"end":130,"line":4,"column":67,"endLine":4,"endColumn":72},"message":"a panic handler reads only `let` bindings and parameters","label":"`count` is not a `let` or a parameter","help":"copy the value into a `let` before the handler and read that","fixes":[]}

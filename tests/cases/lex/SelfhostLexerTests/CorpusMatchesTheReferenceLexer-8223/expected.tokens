@@ -1,0 +1,26 @@
+1:1 VarKeyword `var`
+1:5 Identifier `xs`
+1:7 Colon `:`
+1:9 Identifier `List`
+1:13 Less `<`
+1:14 Identifier `List`
+1:18 Less `<`
+1:19 Identifier `i64`
+1:22 Greater `>`
+1:23 Greater `>`
+2:1 Identifier `macro`
+2:7 Identifier `selct`
+2:13 Identifier `dbecome`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  2 │ �macro selct dbecome
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ �macro selct dbecome
+    │  ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

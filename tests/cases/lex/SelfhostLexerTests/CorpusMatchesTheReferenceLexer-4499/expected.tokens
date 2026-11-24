@@ -1,0 +1,53 @@
+2:1 IntegerLiteral `0b__`
+2:5 NumericSuffix `let`
+2:9 Identifier `b`
+2:11 Equals `=`
+2:13 StringLiteral `"bad \q escape"`
+3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E}( allowed in strings" "" "�\u{48}i"\n ��`
+4:3 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏
+    │ ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__let b = "bad \q escape"
+    │ ^^^^
+
+error BYN0011: unit suffix `let` is not allowed on a binary literal
+
+  2 │ 0b__let b = "bad \q escape"
+    │     ^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ 0b__let b = "bad \q escape"
+    │                  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  3 │   """ c"text" u16"wide" "�( allowed in strings" "" "�\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  3 │   """ c"text" u16"wide" "�( allowed in strings" "" "�\u{48}i"
+    │                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │  ��
+    │   ^

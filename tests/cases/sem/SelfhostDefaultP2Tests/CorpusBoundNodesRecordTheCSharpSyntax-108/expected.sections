@@ -1,0 +1,104 @@
+== tests/cases/run/int-try-parse.byn
+137..262 globalStatement
+137..262 exprStmt
+137..262 callExpr
+143..261 interpolatedExpr
+146..170 binaryExpr coalesce right 168..170
+146..164 callExpr
+159..163 literalExpr string
+146..164 callExpr
+168..170 unaryExpr negate operand 169..170
+173..215 binaryExpr coalesce right 213..215
+173..209 callExpr
+186..208 literalExpr string
+173..209 callExpr
+213..215 unaryExpr negate operand 214..215
+218..259 binaryExpr coalesce right 257..259
+218..253 callExpr
+231..252 literalExpr string
+218..253 callExpr
+257..259 unaryExpr negate operand 258..259
+137..262 callExpr
+263..376 exprStmt
+263..376 callExpr
+269..375 interpolatedExpr
+272..295 binaryExpr coalesce right 294..295
+272..290 callExpr
+284..289 literalExpr string
+272..290 callExpr
+294..295 literalExpr integer
+298..321 binaryExpr coalesce right 320..321
+298..316 callExpr
+310..315 literalExpr string
+298..316 callExpr
+320..321 literalExpr integer
+324..346 binaryExpr coalesce right 345..346
+324..341 callExpr
+336..340 literalExpr string
+324..341 callExpr
+345..346 literalExpr integer
+349..373 binaryExpr coalesce right 372..373
+349..368 callExpr
+361..367 literalExpr string
+349..368 callExpr
+372..373 literalExpr integer
+263..376 callExpr
+453..613 exprStmt
+453..613 callExpr
+459..612 interpolatedExpr
+462..494 binaryExpr coalesce right 493..494
+462..489 callExpr
+474..478 literalExpr string
+484..488 targetMemberExpr
+493..494 literalExpr integer
+497..532 binaryExpr coalesce right 531..532
+497..527 callExpr
+510..516 literalExpr string
+522..526 targetMemberExpr
+531..532 literalExpr integer
+535..572 binaryExpr coalesce right 571..572
+535..567 callExpr
+548..553 literalExpr string
+559..566 targetMemberExpr
+571..572 literalExpr integer
+575..610 binaryExpr coalesce right 609..610
+575..605 callExpr
+587..592 literalExpr string
+598..604 targetMemberExpr
+609..610 literalExpr integer
+453..613 callExpr
+614..731 exprStmt
+614..731 callExpr
+620..730 interpolatedExpr
+623..645 binaryExpr coalesce right 643..645
+623..639 callExpr
+636..638 literalExpr string
+623..639 callExpr
+643..645 unaryExpr negate operand 644..645
+648..672 binaryExpr coalesce right 670..672
+648..666 callExpr
+661..665 literalExpr string
+648..666 callExpr
+670..672 unaryExpr negate operand 671..672
+675..699 binaryExpr coalesce right 697..699
+675..693 callExpr
+688..692 literalExpr string
+675..693 callExpr
+697..699 unaryExpr negate operand 698..699
+702..728 binaryExpr coalesce right 726..728
+702..722 callExpr
+715..721 literalExpr string
+702..722 callExpr
+726..728 unaryExpr negate operand 727..728
+614..731 callExpr
+732..796 exprStmt
+732..796 callExpr
+738..795 interpolatedExpr
+741..793 binaryExpr coalesce right 792..793
+741..788 callExpr
+753..777 callExpr
+763..765 unaryExpr negate operand 764..765
+772..776 targetMemberExpr
+783..787 targetMemberExpr
+792..793 literalExpr integer
+732..796 callExpr

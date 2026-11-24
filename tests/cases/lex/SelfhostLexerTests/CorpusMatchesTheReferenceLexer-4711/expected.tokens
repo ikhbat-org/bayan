@@ -1,0 +1,129 @@
+1:1 Identifier `List`
+1:5 Less `<`
+1:6 Identifier `i64`
+1:9 Greater `>`
+1:10 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 StructKeyword `struct`
+4:9 Identifier `uique`
+4:15 UnionKeyword `union`
+4:21 EnumKeyword `enum`
+4:26 FlagsKeyword `flags`
+4:32 OpenKeyword `open`
+4:37 ExtensibleKeyword `extensible`
+4:48 InterfaceKeyword `interface`
+4:58 DelegateKeyword `delegate`
+4:67 ExtensionKeyword `extension`
+4:77 DerivationKeyword `derivation`
+4:88 Identifier `attribut`
+5:1 LetKeyword `let`
+5:5 Identifier `s`
+5:7 Equals `=`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:39 InterpolatedStringStart `$"`
+5:41 InterpolationStart `{`
+5:42 InterpolatedStringStart `$"`
+5:44 InterpolationStart `{`
+5:45 InterpolatedStringStart `$"`
+5:47 InterpolationStart `{`
+5:48 InterpolatedStringStart `$"`
+5:50 InterpolationStart `{`
+5:51 InterpolatedStringStart `$"`
+5:53 InterpolationStart `{`
+5:54 InterpolatedStringStart `$"`
+5:56 InterpolationStart `{`
+5:57 StringLiteral `$"{$"`
+5:62 OpenBrace `{`
+5:63 StringLiteral `$"{$"`
+5:68 OpenBrace `{`
+5:69 Identifier `x`
+5:70 CloseBrace `}`
+5:71 StringLiteral `"}"`
+5:74 CloseBrace `}`
+5:75 StringLiteral `"}"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolationEnd `}`
+5:83 InterpolatedStringEnd `"`
+5:84 InterpolationEnd `}`
+5:85 InterpolatedStringEnd `"`
+5:86 InterpolationEnd `}`
+5:87 InterpolatedStringEnd `"`
+5:88 InterpolationEnd `}`
+5:89 InterpolatedStringEnd `"`
+5:90 InterpolationEnd `}`
+5:91 InterpolatedStringEnd `"`
+5:92 InterpolationEnd `}`
+5:93 InterpolatedStringEnd `"`
+5:94 InterpolationEnd `}`
+5:95 InterpolatedStringEnd `"`
+5:96 InterpolationEnd `}`
+5:97 InterpolatedStringEnd `"`
+5:98 InterpolationEnd `}`
+5:99 InterpolatedStringEnd `"`
+5:100 InterpolationEnd `}`
+5:101 InterpolatedStringEnd `"`
+5:102 InterpolationEnd `}`
+5:103 InterpolatedStringEnd `"`
+5:104 InterpolationEnd `}`
+5:105 InterpolatedStringEnd `"`
+5:106 InterpolationEnd `}`
+5:107 InterpolatedStringEnd `"`
+5:108 InterpolationEnd `}`
+5:109 InterpolatedStringEnd `"`
+6:1 IntegerLiteral `0x`
+6:4 LetKeyword `let`
+6:8 Identifier `b`
+6:10 Equals `=`
+6:12 StringLiteral `"bad \q escape"`
+7:2 EndOfFile
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                         ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x let �b = "bad \q escape"
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ 0x let �b = "bad \q escape"
+    │        ^
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ 0x let �b = "bad \q escape"
+    │                  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

@@ -1,0 +1,132 @@
+1:1 StringLiteral `"{ $"`
+1:6 OpenBrace `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:19 InterpolatedStringStart `$"`
+1:21 InterpolationStart `{`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:45 OpenBrace `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 InterpolatedStringStart `$"`
+1:54 InterpolationStart `{`
+1:55 InterpolatedStringStart `$"`
+1:57 InterpolationStart `{`
+1:58 StringLiteral `$"{x}"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringEnd `"`
+1:70 InterpolationEnd `}`
+1:71 InterpolatedStringEnd `"`
+1:72 CloseBrace `}`
+1:73 StringLiteral `" _ struct S`
+3:1 CharLiteral `'x\r`
+4:1 Identifier `et`
+4:4 EffectKeyword `effect`
+4:11 Equals `=`
+4:13 IntegerLiteral `2`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 Identifier `beco`
+6:1 CharLiteral `'\r`
+7:1 CharLiteral `'\u{1100\r`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{x}"}"}"}"}"}" _ struct S
+    │                                        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  1 │ "{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{x}"}"}"}"}"}" _ struct S
+    │                                           ^
+
+error BYN0002: unexpected character `\u{8}`
+
+  1 │ "{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{x}"}"}"}"}"}" _ struct S
+    │                                            ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ "{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{x}"}"}"}"}"}" _ struct S
+    │                                                          ^^
+
+error BYN0003: unterminated string literal
+
+  1 │ "{ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{x}"}"}"}"}"}" _ struct S
+    │                                                                         ^^^^^^^^^^^^ string
+    │                                                                                      ends at
+    │                                                                                      the end
+    │                                                                                      of the
+    │                                                                                      line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  3 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select beco
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select beco
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  6 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  7 │ '\u{1100
+    │ ^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{1100`
+
+  7 │ '\u{1100
+    │  ^^^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`

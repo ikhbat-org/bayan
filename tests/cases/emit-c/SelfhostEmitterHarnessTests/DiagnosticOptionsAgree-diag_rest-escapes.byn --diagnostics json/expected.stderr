@@ -1,0 +1,2 @@
+{"code":"BYN3214","severity":"error","file":"input.byn","span":{"start":63,"end":65,"line":2,"column":12,"endLine":2,"endColumn":14},"message":"`xs` is borrowed for the call and cannot be stored","label":null,"help":"copy it first: `xs.copy()`","fixes":[]}
+{"code":"BYN3214","severity":"error","file":"input.byn","span":{"start":166,"end":170,"line":7,"column":12,"endLine":7,"endColumn":16},"message":"`xs` is borrowed for the call and cannot be stored","label":null,"help":"copy it first: `xs.copy()`","fixes":[]}

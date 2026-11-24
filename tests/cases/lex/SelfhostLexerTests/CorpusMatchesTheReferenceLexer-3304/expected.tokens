@@ -1,0 +1,62 @@
+    doc `///`
+2:1 Identifier `b`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:2 Identifier `ạ̇`
+    doc `/// Doc lineone.`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:7 Equals `=`
+5:9 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � ///
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ � ///
+    │  ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │  ạ̇/// Doc lineone.
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │  ạ̇/// Doc lineone.
+    │   │  +
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  5 │ let x��� = 1
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  5 │ let x��� = 1
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  5 │ let x��� = 1
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │  �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  6 │  �
+    │   ^

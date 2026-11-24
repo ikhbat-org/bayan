@@ -1,0 +1,28 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 IntegerLiteral `0x`
+3:2 Identifier `fe`
+4:1 IfKeyword `if`
+4:4 ElseKeyword `else`
+4:9 Identifier `unles`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  0x
+    │  ^^
+
+error BYN0003: unterminated string literal
+
+  4 │ if else unles$"{
+    │              ^^ this string never ends
+    │
+  help: close the `{` and the string

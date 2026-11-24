@@ -1,0 +1,5 @@
+== tests/cases/diag/function-type-unknown-effect.byn
+69..73 literalExpr trueKeyword
+69..73 literalExpr trueKeyword
+69..73 literalExpr trueKeyword
+87..90 blockStmt

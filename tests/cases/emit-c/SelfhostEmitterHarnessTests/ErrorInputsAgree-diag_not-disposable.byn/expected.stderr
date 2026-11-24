@@ -1,0 +1,10 @@
+error BYN2226: `using` needs a value that owns memory, not `i32`
+  --> input.byn:1:11
+
+  1 │ using let n = 5
+    │           ^
+    │
+  help: use `using` only for values that own memory: `Arena` and `List<T>`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2226

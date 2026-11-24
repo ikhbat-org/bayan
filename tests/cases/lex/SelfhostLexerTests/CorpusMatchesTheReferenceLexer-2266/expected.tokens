@@ -1,0 +1,33 @@
+1:1 Identifier `den`
+2:1 LetKeyword `let`
+3:1 LetKeyword `let`
+3:5 LawKeyword `law`
+3:9 Equals `=`
+3:11 IntegerLiteral `3`
+4:2 OpenBrace `{`
+4:3 Identifier `c`
+4:4 CloseBrace `}`
+4:5 StringLiteral `")} d"`
+4:12 InterpolatedStringStart `$"`
+4:14 InterpolatedStringText `{{literal}}`
+4:25 InterpolatedStringEnd `"`
+4:27 InterpolatedStringStart `$"`
+4:29 InterpolationStart `{`
+4:30 Identifier `Point`
+4:36 OpenBrace `{`
+4:38 Identifier `x`
+4:40 Equals `=`
+4:42 IntegerLiteral `1`
+4:44 CloseBrace `}`
+4:45 InterpolationEnd `}`
+4:46 InterpolatedStringText `!`
+4:47 InterpolatedStringEnd `"`
+4:49 InterpolatedStringStart `$"`
+4:51 InterpolatedStringEnd `"`
+5:1 Identifier `ca`
+7:1 IntegerLiteral `1`
+7:2 Dot `.`
+8:1 Identifier `ruct`
+8:6 Identifier `S`
+10:1 Identifier `b`
+10:2 EndOfFile

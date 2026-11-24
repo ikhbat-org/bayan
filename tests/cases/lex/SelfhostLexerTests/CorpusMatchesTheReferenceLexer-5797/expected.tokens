@@ -1,0 +1,27 @@
+1:2 LetKeyword `let`
+1:6 Identifier `c`
+1:8 Equals `=`
+1:10 RawStringLiteral `"""never closed\n\n// comment \u{202E} hiden\n0b1ms\n var xs: �ist<List<i64>>\n`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ ��let c = """never closed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��let c = """never closed
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  1 │ ��let c = """never closed
+    │           ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  5 │  var xs: �ist<List<i64>>
+    │          ^

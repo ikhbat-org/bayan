@@ -1,0 +1,96 @@
+struct Point {
+    i64 x
+    i64 y
+    i64 sum() => x + y
+}
+
+enum Color {
+    red
+    green
+}
+
+i64 colorCode(Color c) => c switch {
+    .red => 1,
+    .green => 2,
+}
+
+union Shape {
+    circle(i64 r)
+    square(i64 side)
+    none
+}
+
+i64 area(Shape s) => s switch {
+    .circle(let r) => r * r * 3,
+    .square(let side) => side * side,
+    .none => 0,
+}
+
+interface IArea {
+    i64 area()
+}
+
+struct Box : IArea {
+    i64 w
+    i64 h
+    i64 area() => w * h
+}
+
+i64 biggerArea<T>(T a, to T b) where T : IArea => a.area() > b.area() ? a.area() : b.area()
+
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+i64 owned(i64 n) {
+    var a = List<i64>()
+    a.append(n)
+    let b = move a
+    return b.length
+}
+
+i64 orZero(i64? n) => n ?? 0
+
+string greet(string name) uses alloc => $"hello {name}"
+
+const limit: i64 = 100
+
+i64 widen(i32 n) => i64(n)
+
+void main() {
+    var total: i64 = 0
+    if total >= 0 {
+        total += widen(i32(3))
+        if total >= 0 {
+            total += limit
+            if total >= 0 {
+                print(greet($"{total}"))
+                if total >= 0 {
+                    total += biggerArea(Box { w: 1, h: 2 }, to: Box { w: 3, h: total })
+                    if total >= 0 {
+                        total += orZero(null)
+                        if total >= 0 {
+                            total += area(.square(total))
+                            total += 1
+                        }
+                    }
+                }
+            }
+        }
+    total = missingName4 + 1
+    }
+    print($"{total}")
+}

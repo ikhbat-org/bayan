@@ -1,0 +1,43 @@
+1:1 Identifier `_`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 Identifier `beome`
+3:1 IntegerLiteral `0x`
+4:1 Identifier `doc`
+4:5 Identifier `comment`
+5:1 Identifier `b`
+6:1 Identifier `macro`
+6:7 Identifier `selct`
+6:13 Identifier `beome`
+7:2 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select beome
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select beome
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x﻿
+    │ ^^
+
+error BYN0002: unexpected character `﻿`
+
+  3 │ 0x﻿
+    │   ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  6 │ macro selct beome
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

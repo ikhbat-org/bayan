@@ -1,0 +1,9 @@
+{"fs":"write","path":".worktrees/x/a.byn","text":"struct Hidden {}\n"}
+{"fs":"write","path":"src/big.byn","text":{"@repeat":"struct Big {}\n","@times":300000}}
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":"file://@WS@","capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/.worktrees/x/a.byn","languageId":"bayan","version":1,"text":"struct Bilal {}\n"}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/src/big.byn","languageId":"bayan","version":1,"text":"struct Iftar {}\n"}}}
+{"jsonrpc":"2.0","id":2,"method":"workspace/symbol","params":{"query":""}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/.worktrees/x/a.byn"}}}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/src/big.byn"}}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

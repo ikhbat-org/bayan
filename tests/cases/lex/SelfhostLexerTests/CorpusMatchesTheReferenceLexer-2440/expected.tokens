@@ -1,0 +1,57 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `a`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:9 InterpolatedStringStart `$"`
+1:11 InterpolationStart `{`
+1:12 InterpolatedStringStart `$"`
+1:14 InterpolationStart `{`
+1:15 InterpolatedStringStart `$"`
+1:17 InterpolationStart `{`
+1:18 InterpolatedStringStart `$"`
+1:20 InterpolationStart `{`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolationStart `{`
+1:24 InterpolatedStringStart `$"`
+1:26 InterpolationStart `{`
+1:27 Identifier `p`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 Identifier `x`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:55 Dot `.`
+1:56 IntegerLiteral `50`
+1:58 NumericSuffix `dec`
+1:62 IntegerLiteral `1`
+1:63 DotDot `..`
+1:65 IntegerLiteral `2`
+1:67 IntegerLiteral `1`
+1:68 DotDotEquals `..=`
+1:71 IntegerLiteral `3`
+1:73 IntegerLiteral `5`
+1:74 NumericSuffix `e`
+1:76 Identifier `x`
+1:78 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{a $"{$"{$"{$"{$"{$"{$"{p$"{$"{$"{$"{$"{$"{$"{$"{x}".50dec 1..2 1..=3 5e x 
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string

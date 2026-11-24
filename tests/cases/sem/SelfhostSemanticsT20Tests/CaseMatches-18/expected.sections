@@ -1,0 +1,6 @@
+== args.a15
+literal|i64|-|-|-|2917:1|1
+local|bool|-|verbose|-|2924:7|-
+literal|i64|-|-|-|276:1|3
+literal|string|-|-|-|294:3|"x"
+BYN2306 146:23 argument for `verbose` must be passed as a plain value |||

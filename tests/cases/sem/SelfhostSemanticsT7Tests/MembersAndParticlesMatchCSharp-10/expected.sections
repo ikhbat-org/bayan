@@ -1,0 +1,4 @@
+== parameter-needs-particle
+BYN5004 125+6 `record` has 2 unlabeled parameters; give each but one a particle | 2 unlabeled parameters | keep one unlabeled parameter, the object | 
+BYN5006 158+3 `fee` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | 
+end

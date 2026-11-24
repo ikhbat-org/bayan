@@ -1,0 +1,119 @@
+1:1 Identifier `x́́`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 InterpolatedStringStart `$"`
+1:19 InterpolationStart `{`
+1:20 InterpolatedStringStart `$"`
+1:22 InterpolationStart `{`
+1:23 InterpolatedStringStart `$"`
+1:25 InterpolationStart `{`
+1:26 InterpolatedStringStart `$"`
+1:28 InterpolationStart `{`
+1:29 InterpolatedStringStart `$"`
+1:31 InterpolationStart `{`
+1:32 InterpolatedStringStart `$"`
+1:34 InterpolationStart `{`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolationStart `{`
+1:38 InterpolatedStringStart `$"`
+1:40 InterpolationStart `{`
+1:41 InterpolatedStringStart `$"`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 StringLiteral `$"{$"`
+1:58 OpenBrace `{`
+1:59 StringLiteral `$"{x}"`
+1:65 CloseBrace `}`
+1:66 StringLiteral `"}"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 InterpolationEnd `}`
+1:80 InterpolatedStringEnd `"`
+1:81 InterpolationEnd `}`
+1:82 InterpolatedStringEnd `"`
+1:88 Identifier `raw`
+1:92 StringLiteral `"quoted"`
+2:2 Identifier `allowed3`
+2:11 InKeyword `in`
+2:14 Identifier `st_rings`
+2:22 StringLiteral `" "`
+2:25 StringLiteral `" "`
+2:29 Identifier `u`
+2:30 OpenBrace `{`
+2:31 IntegerLiteral `48`
+2:33 CloseBrace `}`
+2:34 Identifier `i`
+2:35 StringLiteral `"`
+3:2 Identifier `tension`
+3:10 DerivationKeyword `derivation`
+3:21 AttributeKeyword `attribute`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 Identifier `diDstinct`
+4:26 TypeKeyword `type`
+4:31 Identifier `impo`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ x́́ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ���   raw "quoted"
+    │                             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  1 │ x́́ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ���   raw "quoted"
+    │                                                     ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ x́́ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ���   raw "quoted"
+    │                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ x́́ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ���   raw "quoted"
+    │                                                                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ x́́ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}" ���   raw "quoted"
+    │                                                                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  2 │ � allowed3 in st_rings" "" "\u{48}i"
+    │ ^
+
+error BYN0002: unexpected character `\`
+
+  2 │ � allowed3 in st_rings" "" "\u{48}i"
+    │                             ^
+
+error BYN0003: unterminated string literal
+
+  2 │ � allowed3 in st_rings" "" "\u{48}i"
+    │                                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

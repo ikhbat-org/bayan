@@ -1,0 +1,3 @@
+== type-acronym
+BYN2008 7+10 type name `HTTPClient` must be PascalCase |  | rename it `HttpClient` | 7+10=HttpClient
+end

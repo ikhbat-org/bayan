@@ -1,0 +1,2 @@
+$"total {x}" $"a {f($"b {c}")} d" $"{{literal ‮
+�$"{{"  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"

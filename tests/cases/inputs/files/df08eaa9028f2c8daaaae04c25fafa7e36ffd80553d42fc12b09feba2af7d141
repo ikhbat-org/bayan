@@ -1,0 +1,5 @@
+void f() {
+    if (checkedStore(ref cc, for: ref f, from: ref c, through: t, at: t.assignExprs[i].target, to: t.assignExprs[i].value, claim: false) is { } stored) {
+        return stored
+    }
+}

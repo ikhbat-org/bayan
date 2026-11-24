@@ -1,0 +1,24 @@
+1:1 Identifier `_`
+5:2 Identifier `b`
+6:2 Identifier `co`
+6:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  3 │ // ��x
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  3 │ // ��x
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  3 │ // ��x
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  5 │ �b
+    │ ^

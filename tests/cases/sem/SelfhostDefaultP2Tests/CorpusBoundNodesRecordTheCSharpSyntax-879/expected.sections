@@ -1,0 +1,20 @@
+== tests/cases/diag/symbol-from-string.byn
+132..135 blockStmt
+149..388 blockStmt
+155..181 localDecl
+174..181 literalExpr string
+186..210 localDecl
+206..210 nameExpr
+215..252 localDecl
+242..252 interpolatedExpr
+257..287 localDecl
+277..287 indexExpr
+292..320 localDecl
+316..320 nameExpr
+325..343 exprStmt
+325..343 callExpr
+338..342 nameExpr
+348..386 localDecl
+367..386 callExpr
+381..385 nameExpr
+132..135 blockStmt

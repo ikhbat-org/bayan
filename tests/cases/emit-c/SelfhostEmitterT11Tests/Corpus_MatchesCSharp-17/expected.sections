@@ -1,0 +1,3 @@
+== cases
+0 (l0_cart.subtotal.cents == INT64_C(750))
+count 1

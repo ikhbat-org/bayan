@@ -1,0 +1,124 @@
+1:2 Identifier `st`
+1:4 Less `<`
+1:5 Identifier `i64`
+1:8 Greater `>`
+1:9 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `berror`
+2:13 SetKeyword `set`
+2:17 UnitKeyword `unit`
+2:22 DistinctKeyword `distinct`
+2:31 TypeKeyword `type`
+2:36 ImportKeyword `import`
+2:43 AsKeyword `as`
+2:46 PublicKeyword `public`
+2:53 PrivateKeyword `private`
+2:61 StaticKeyword `static`
+2:68 ReadonlyKeyword `readonly`
+2:77 RequiredKeyword `required`
+2:86 ConstKeyword `const`
+2:92 LetKeyword `let`
+2:96 VarKeyword `var`
+2:100 EmbedKeyword `embed`
+2:106 ExternKeyword `extern`
+2:113 UnsafeKeyword `unsafe`
+3:2 FloatLiteral `3.14`
+3:7 FloatLiteral `1e5`
+3:11 FloatLiteral `2.5e-3`
+3:18 FloatLiteral `6E+2`
+3:23 FloatLiteral `1.50`
+3:27 NumericSuffix `dec`
+3:31 IntegerLiteral `1`
+3:32 DotDot `..`
+3:34 IntegerLiteral `2`
+3:36 IntegerLiteral `1`
+3:37 DotDotEquals `..=`
+3:40 IntegerLiteral `3`
+3:42 IntegerLiteral `5`
+3:43 NumericSuffix `e`
+3:45 Identifier `x`
+3:46 Dot `.`
+3:47 Identifier `y`
+3:49 FloatLiteral `2.5`
+3:52 NumericSuffix `f`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 InterpolatedStringStart `$"`
+5:6 InterpolationStart `{`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
+5:13 InterpolatedStringStart `$"`
+5:15 InterpolationStart `{`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolationStart `{`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolationStart `{`
+5:22 InterpolatedStringStart `$"`
+5:24 InterpolationStart `{`
+5:25 InterpolatedStringStart `$"`
+5:27 InterpolationStart `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolationStart `{`
+5:46 InterpolatedStringStart `$"`
+5:48 InterpolationStart `{`
+5:49 StringLiteral `$"{$"`
+5:54 OpenBrace `{`
+5:55 StringLiteral `$"{$"`
+5:60 OpenBrace `{`
+5:61 Identifier `x`
+5:62 CloseBrace `}`
+5:63 StringLiteral `"}"`
+5:66 CloseBrace `}`
+5:67 StringLiteral `"}"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+5:72 InterpolationEnd `}`
+5:73 InterpolatedStringEnd `"`
+5:74 InterpolationEnd `}`
+5:75 InterpolatedStringEnd `"`
+5:76 InterpolationEnd `}`
+5:77 InterpolatedStringEnd `"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+6:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n 'ab'\nÅ`
+8:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ � st<i64>>
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"
+    │                                                 ^^
+
+error BYN0003: unterminated string literal
+
+  6 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

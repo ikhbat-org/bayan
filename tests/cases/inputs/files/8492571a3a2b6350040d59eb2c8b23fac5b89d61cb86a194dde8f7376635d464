@@ -1,0 +1,8 @@
+#!/bin/sh
+printf '%s\n' "${0##*/}" "$@" > "${0%/*}/argv"
+prev=
+for a in "$@"; do
+  if [ "$prev" = "-o" ]; then : > "$a"; fi
+  prev=$a
+done
+exit 0

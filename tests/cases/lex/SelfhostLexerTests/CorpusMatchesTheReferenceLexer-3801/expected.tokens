@@ -1,0 +1,63 @@
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+5:1 IntegerLiteral `600`
+5:4 CloseBrace `}`
+5:5 CharLiteral `' '`
+5:9 CharLiteral `''`
+5:12 CharLiteral `'é'`
+5:16 CharLiteral `'\\'`
+5:21 CharLiteral `'\0'`
+7:3 IsKeyword `is`
+7:6 AndKeyword `and`
+7:10 OrKeyword `or`
+7:13 NotKeyword `not`
+7:17 WithKeyword `with`
+7:22 MoveKeyword `move`
+7:27 RefKeyword `ref`
+7:31 OutKeyword `out`
+7:35 ThisKeyword `this`
+7:40 NullKeyword `null`
+7:45 TrueKeyword `true`
+7:50 FalseKeyword `false`
+7:56 ComptimeKeyword `comptime`
+7:65 CheckedKeyword `checked`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  1 │ // ok � in� co@mment 'ab'
+    │       ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0002: unexpected character `\`
+
+  5 │ 600}' '\'' 'é' '\\' '\0'
+    │        ^
+
+error BYN0007: empty char literal
+
+  5 │ 600}' '\'' 'é' '\\' '\0'
+    │         ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  7 │ ��� is and or not with move ref out this null true false comptime checked
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  7 │ ��� is and or not with move ref out this null true false comptime checked
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ��� is and or not with move ref out this null true false comptime checked
+    │   ^

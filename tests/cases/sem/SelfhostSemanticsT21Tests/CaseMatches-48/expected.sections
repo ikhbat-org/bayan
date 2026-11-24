@@ -1,0 +1,2 @@
+== diag.literal-needs-try
+BYN3207 5:52 a literal of `Order` can fail its `requires`; write `try Order { … }` ||add `try` before the literal and handle the `ValidationError<Order>`|fix 102..102 try 

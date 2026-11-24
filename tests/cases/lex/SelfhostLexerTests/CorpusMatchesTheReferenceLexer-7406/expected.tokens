@@ -1,0 +1,32 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+3:1 Identifier `a`
+10:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  2 │ //� ok � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │ //� ok � in comment
+    │        ^
+
+error BYN0004: unterminated block comment
+
+  3 │ a /* never �losed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  3 │ a /* never �losed
+    │            ^

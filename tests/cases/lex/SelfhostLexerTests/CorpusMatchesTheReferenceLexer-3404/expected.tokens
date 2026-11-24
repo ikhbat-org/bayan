@@ -1,0 +1,33 @@
+2:1 Identifier `l`
+2:3 Identifier `t`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""never c�oged\n `
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD0)
+
+  2 │ l�t c = """never c�oged
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ l�t c = """never c�oged
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC9)
+
+  2 │ l�t c = """never c�oged
+    │                   ^

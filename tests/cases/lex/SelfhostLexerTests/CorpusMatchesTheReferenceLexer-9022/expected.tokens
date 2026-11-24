@@ -1,0 +1,36 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 OpenBrace `{`
+2:3 Identifier `x`
+2:4 StringLiteral `";`
+3:2 IntegerLiteral `0b1`
+3:5 NumericSuffix `ms`
+5:1 RawStringLiteral `""" /// Doc line two.\n0 0xFF 0x_ff 0a1010 0B11 5s 250ms 4`
+6:36 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  {x";
+    │    ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  5 │ """ /// Doc line two.
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

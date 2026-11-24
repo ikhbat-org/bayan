@@ -1,0 +1,50 @@
+    doc `///`
+2:2 Equals `=`
+2:4 IntegerLiteral `2`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+3:21 CharLiteral `'a'`
+3:25 CharLiteral `'\n'`
+3:30 CharLiteral `'\u{1F600}'`
+3:42 CharLiteral `'\''`
+3:47 CharLiteral `'é'`
+3:51 CharLiteral `'\\'`
+3:56 CharLiteral `'\0'`
+5:1 Identifier `dec`
+5:5 IntegerLiteral `1`
+5:6 DotDot `..`
+5:8 IntegerLiteral `2`
+5:10 Identifier `GG`
+5:12 DotDotEquals `..=`
+5:15 IntegerLiteral `3`
+5:17 IntegerLiteral `5`
+5:18 NumericSuffix `e`
+5:20 Identifier `x`
+5:21 Dot `.`
+5:22 Identifier `y`
+5:24 FloatLiteral `2.5`
+5:27 NumericSuffix `f`
+7:1 CharLiteral `'`
+8:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  7 │ '
+    │ ^
+    │
+  help: close it with `'`

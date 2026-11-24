@@ -1,0 +1,5 @@
+ "bad \q escape"
+let c = """never closed
+ error set unit distinct type import as public private static readonly required const let var emed extern unsafe
+
+error set unit distint type import as public private static readonly required const let var embed extern unsafe

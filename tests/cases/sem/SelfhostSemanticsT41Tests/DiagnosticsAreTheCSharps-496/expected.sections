@@ -1,0 +1,3 @@
+== diags.diag/unknown-std-module
+BYN2032 1:8 no std module `std.nope`
+  help import one of <std modules>

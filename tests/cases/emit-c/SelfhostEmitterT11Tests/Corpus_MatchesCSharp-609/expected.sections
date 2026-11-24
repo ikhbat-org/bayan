@@ -1,0 +1,17 @@
+== cases
+0 byn_add_i64(p_base, INT64_C(1), byn_file_0, 18)
+1 ((bynt_opt_i64){true, INT64_C(2)})
+2 byn_add_i64(p_n, ((int64_t)((bynt_tup1_i32*)env)->item1), byn_file_0, 9)
+3 ((int64_t)((bynt_tup1_i32*)env)->item1)
+4 byn_add_i64(byn_mul_i64(p_n, ((bynt_tup2_i64_i32*)env)->item1, byn_file_0, 14), ((int64_t)((bynt_tup2_i64_i32*)env)->item2), byn_file_0, 14)
+5 byn_mul_i64(p_n, ((bynt_tup2_i64_i32*)env)->item1, byn_file_0, 14)
+6 ((int64_t)((bynt_tup2_i64_i32*)env)->item2)
+7 byn_add_i64(byn_add_i64(p_y, ((bynt_tup2_i64_i64*)env)->item1, byn_file_0, 19), ((bynt_tup2_i64_i64*)env)->item2, byn_file_0, 19)
+8 byn_add_i64(p_y, ((bynt_tup2_i64_i64*)env)->item1, byn_file_0, 19)
+11 byn_add_i64(byn_add_i64(p_x, ((int64_t)((bynt_tup2_i32_i64*)env)->item1), byn_file_0, 44), ((bynt_tup2_i32_i64*)env)->item2, byn_file_0, 44)
+12 byn_add_i64(p_x, ((int64_t)((bynt_tup2_i32_i64*)env)->item1), byn_file_0, 44)
+13 ((int64_t)((bynt_tup2_i32_i64*)env)->item1)
+14 byn_mul_i64(p_it, ((int64_t)((bynt_tup1_i32*)env)->item1), byn_file_0, 47)
+15 ((int64_t)((bynt_tup1_i32*)env)->item1)
+16 byn_mul_i64(p_n, ((bynt_tup1_i64*)env)->item1, byn_file_0, 34)
+count 17

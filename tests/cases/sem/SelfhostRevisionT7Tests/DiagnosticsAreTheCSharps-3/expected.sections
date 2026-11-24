@@ -1,0 +1,24 @@
+== diags.count-name
+BYN2770 13:6 unknown attribute `json`
+  help use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+BYN2009 8:16 `Count` must be camelCase
+  help rename it `count`; only types are PascalCase
+  fix 8:16-8:21 count
+BYN5105 2:16 `linesCount` counts items; name it `lineCount`
+  help rename it `lineCount`
+  fix 2:16-2:26 lineCount
+BYN5105 3:16 `numLines` counts items; name it `lineCount`
+  help rename it `lineCount`
+  fix 3:16-3:24 lineCount
+BYN5105 4:16 `numberOfItems` counts items; name it `itemCount`
+  help rename it `itemCount`
+  fix 4:16-4:29 itemCount
+BYN5105 7:16 `totalLinesCount` counts items; name it `totalLineCount`
+  help rename it `totalLineCount`
+  fix 7:16-7:31 totalLineCount
+BYN5105 10:16 `peopleCount` counts items; name it `personCount`
+  help rename it `personCount`
+  fix 10:16-10:27 personCount
+BYN5105 11:15 `numEntries` counts items; name it `entryCount`
+  help rename it `entryCount`
+  fix 11:15-11:25 entryCount

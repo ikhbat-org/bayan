@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "steps.byn",
+      "name": "Rows.next",
+      "span": {
+        "start": 83,
+        "end": 87
+      },
+      "bindings": []
+    },
+    {
+      "path": "steps.byn",
+      "name": "copied",
+      "span": {
+        "start": 202,
+        "end": 208
+      },
+      "bindings": [
+        {
+          "name": "limit",
+          "kind": "param",
+          "span": {
+            "start": 213,
+            "end": 218
+          },
+          "type": "i64"
+        },
+        {
+          "name": "sum",
+          "kind": "var",
+          "span": {
+            "start": 246,
+            "end": 249
+          },
+          "type": "i64"
+        },
+        {
+          "name": "row",
+          "kind": "pattern",
+          "span": {
+            "start": 266,
+            "end": 269
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "steps.byn",
+      "name": "inPlace",
+      "span": {
+        "start": 341,
+        "end": 348
+      },
+      "bindings": [
+        {
+          "name": "rows",
+          "kind": "var",
+          "span": {
+            "start": 377,
+            "end": 381
+          },
+          "type": "Rows"
+        },
+        {
+          "name": "sum",
+          "kind": "var",
+          "span": {
+            "start": 417,
+            "end": 420
+          },
+          "type": "i64"
+        },
+        {
+          "name": "row",
+          "kind": "pattern",
+          "span": {
+            "start": 437,
+            "end": 440
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "steps.byn",
+      "name": "fromLet",
+      "span": {
+        "start": 539,
+        "end": 546
+      },
+      "bindings": [
+        {
+          "name": "rows",
+          "kind": "let",
+          "span": {
+            "start": 575,
+            "end": 579
+          },
+          "type": "Rows"
+        },
+        {
+          "name": "sum",
+          "kind": "var",
+          "span": {
+            "start": 615,
+            "end": 618
+          },
+          "type": "i64"
+        },
+        {
+          "name": "row",
+          "kind": "pattern",
+          "span": {
+            "start": 635,
+            "end": 638
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "steps.byn",
+      "name": "byRef",
+      "span": {
+        "start": 694,
+        "end": 699
+      },
+      "bindings": [
+        {
+          "name": "rows",
+          "kind": "param",
+          "span": {
+            "start": 709,
+            "end": 713
+          },
+          "type": "Rows"
+        },
+        {
+          "name": "sum",
+          "kind": "var",
+          "span": {
+            "start": 741,
+            "end": 744
+          },
+          "type": "i64"
+        },
+        {
+          "name": "row",
+          "kind": "pattern",
+          "span": {
+            "start": 761,
+            "end": 764
+          },
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "path": "steps.byn",
+      "name": "main",
+      "span": {
+        "start": 808,
+        "end": 843
+      },
+      "bindings": [
+        {
+          "name": "rows",
+          "kind": "var",
+          "span": {
+            "start": 812,
+            "end": 816
+          },
+          "type": "Rows"
+        }
+      ]
+    }
+  ]
+}

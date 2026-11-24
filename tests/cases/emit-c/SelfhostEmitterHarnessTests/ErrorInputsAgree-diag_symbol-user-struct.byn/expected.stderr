@@ -1,0 +1,14 @@
+error BYN2003: `id` is not a member of `Symbol`
+  --> input.byn:6:25
+
+  6 │ i32 idOf(Symbol s) => s.id
+    │                         ^^
+
+error BYN2114: `Symbol` is not a struct
+  --> input.byn:9:13
+
+  9 │     let s = Symbol { id: 3 }
+    │             ^^^^^^^^^^^^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2003

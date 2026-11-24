@@ -1,0 +1,9 @@
+1:1 LawKeyword `law`
+1:5 Equals `=`
+1:7 IntegerLiteral `3`
+2:3 EndOfFile
+
+error BYN0002: unexpected character `﻿`
+
+  2 │  ﻿
+    │  ^

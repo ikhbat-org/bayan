@@ -1,0 +1,11 @@
+error BYN2605: `try` needs a call that can fail
+  --> <repo>/tmp/t7-style/diag-removal-fix-no-color/tally/main.byn:4:17
+
+  4 │     let n = try twice(2)
+    │                 ^^^^^^^^
+    │
+    │ 4 │     let n = try twice(2)
+    │   │             ----
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2605

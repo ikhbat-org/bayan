@@ -1,0 +1,5 @@
+ c = """never closed
+Ã
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+_error set unit distinct type import asL public private static readonly required const let var embed extern unsafe
+ 

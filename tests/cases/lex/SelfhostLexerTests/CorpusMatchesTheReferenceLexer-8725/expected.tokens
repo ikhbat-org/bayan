@@ -1,0 +1,9 @@
+1:1 CharLiteral `'`
+2:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '
+    │ ^
+    │
+  help: close it with `'`

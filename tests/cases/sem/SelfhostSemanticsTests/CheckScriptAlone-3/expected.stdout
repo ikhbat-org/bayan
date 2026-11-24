@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "tool.byn",
+      "name": "main",
+      "span": {
+        "start": 21,
+        "end": 32
+      },
+      "bindings": []
+    }
+  ]
+}

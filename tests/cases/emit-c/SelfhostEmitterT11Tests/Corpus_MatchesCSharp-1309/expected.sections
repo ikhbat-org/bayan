@@ -1,0 +1,10 @@
+== cases
+0 bynh_add_list_i64(&l0_xs, byn_mul_i64(l1_i, l1_i, byn_file_0, 9))
+1 byn_mul_i64(l1_i, l1_i, byn_file_0, 9)
+2 bynh_add_list_i64(&l0_l.entries, INT64_C(100))
+3 l0_xs.len
+4 (*bynh_at_list_i64(l0_xs, (int64_t)INT64_C(3), false, byn_file_0, 23))
+5 l1_l.entries.len
+6 (*bynh_at_list_i64(l1_l.entries, (int64_t)INT64_C(3), false, byn_file_0, 25))
+7 l2_ys.len
+count 8

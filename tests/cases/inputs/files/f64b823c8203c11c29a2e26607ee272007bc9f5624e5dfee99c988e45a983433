@@ -1,0 +1,11 @@
+let a = 1
+
+1__
+ 	 '\q'
+ e.
+/// Doc line two.
+struct S
+//// not a doc comment
+b
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+  3

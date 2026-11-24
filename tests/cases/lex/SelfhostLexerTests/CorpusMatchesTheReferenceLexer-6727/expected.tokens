@@ -1,0 +1,97 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 InterpolatedStringStart `$"`
+2:10 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolationStart `{`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolationStart `{`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolationStart `{`
+2:23 InterpolatedStringStart `$"`
+2:25 InterpolationStart `{`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolationStart `{`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolationStart `{`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 StringLiteral `$"{$"`
+2:55 OpenBrace `{`
+2:56 StringLiteral `$"{$"`
+2:61 OpenBrace `{`
+2:62 StringLiteral `$"{x}"`
+2:68 CloseBrace `}`
+2:69 StringLiteral `"}"`
+2:72 CloseBrace `}`
+2:73 StringLiteral `" $"`
+2:77 OpenBrace `{`
+2:78 StringLiteral `$"{$"`
+2:83 OpenBrace `{`
+2:84 StringLiteral `$"{o"`
+2:89 OpenBrace `{`
+2:90 StringLiteral `$"{$"`
+2:95 OpenBrace `{`
+2:96 StringLiteral `$"{$�"`
+2:102 OpenBrace `{`
+2:103 StringLiteral `$"{$"`
+2:108 OpenBrace `{`
+2:109 StringLiteral `$"{$"`
+2:114 OpenBrace `{`
+2:115 StringLiteral `$"{$"`
+2:120 OpenBrace `{`
+2:121 StringLiteral `$"{$"`
+2:126 OpenBrace `{`
+2:127 StringLiteral `$"{$"`
+2:132 OpenBrace `{`
+2:133 StringLiteral `$"{x}"`
+2:139 CloseBrace `}`
+2:140 StringLiteral `"}"`
+2:144 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{o"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}" 
+    │                                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{o"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}" 
+    │                                                  ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{o"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}" 
+    │                                                                                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  2 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" $"{$"{$"{$"{o"{$"{$"{$"{$�"{$"{$"{$"{$"{$"{$"{�$"{$"{$"{$"{$"{x}"}"}" 
+    │                                                                                                                         ^

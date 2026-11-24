@@ -1,0 +1,13 @@
+// os: unix
+// A bare program name is searched in our PATH, not the child's: `env: PATH` reaches the child but does not change which
+// `sh` runs, with or without `directory:` (plan 007, Q1247).
+void main() fails IoError {
+    try Io.createDirectory("bin")
+    let setup: string[2] = ["-c", "printf '#!/bin/sh\\necho decoy\\n' > bin/sh && chmod +x bin/sh"]
+    let _ = try Io.run("sh", setup.span)
+    var env = Map<string, string?>()
+    env["PATH"] = "bin"
+    let show: string[2] = ["-c", "echo \"real sh, PATH=$PATH\""]
+    print((try Io.run("sh", show.span, env: env)).stdout)
+    print((try Io.run("sh", show.span, directory: ".", env: env)).stdout)
+}

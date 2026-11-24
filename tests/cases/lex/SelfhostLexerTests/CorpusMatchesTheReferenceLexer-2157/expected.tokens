@@ -1,0 +1,42 @@
+2:1 Identifier `y`
+2:3 CloseBrace `}`
+2:5 Identifier `here`
+2:9 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText ` `
+3:4 InterpolatedStringEnd
+3:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  1 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ����
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │ y } here"
+    │         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  3 │ $" 
+    │ ^^ this string never ends
+    │
+  help: close it with `"`

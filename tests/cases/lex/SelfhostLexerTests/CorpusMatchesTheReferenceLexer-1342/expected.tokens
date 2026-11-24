@@ -1,0 +1,70 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 Identifier `a`
+3:5 CharLiteral `' '`
+3:9 CharLiteral `''`
+3:12 CharLiteral `'é (  [ ] { }`
+5:1 Identifier `leta`
+5:6 Equals `=`
+5:8 StringLiteral `"open`
+6:1 Identifier `x́́`
+6:6 TryKeyword `try`
+6:10 CatchKeyword `catch`
+6:16 NeverKeyword `never`
+6:22 Identifier `noall`
+6:28 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro �select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xAF)
+
+  1 │ macro �select become
+    │       ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro �select become
+    │        ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{a' '\'' 'é (  [ ] { }
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\`
+
+  3 │ $"{a' '\'' 'é (  [ ] { }
+    │        ^
+
+error BYN0007: empty char literal
+
+  3 │ $"{a' '\'' 'é (  [ ] { }
+    │         ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0008: unterminated char literal
+
+  3 │ $"{a' '\'' 'é (  [ ] { }
+    │            ^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  5 │ leta = "open
+    │        ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

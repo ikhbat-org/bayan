@@ -1,0 +1,12 @@
+CompilationUnit
+  ErrorEnum CartError
+    Variant empty
+  Function check(List<i32> lines) -> void fails CartError
+    Block
+      If (. lines isEmpty)
+        Block
+          Fail .empty
+  Function main() -> void fails CartError
+    Block
+      Let lines: List<i32> = (list 1)
+      Expr (try (call check lines))

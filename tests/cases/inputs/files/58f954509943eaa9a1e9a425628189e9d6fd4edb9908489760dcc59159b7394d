@@ -1,0 +1,27 @@
+union error Bad {
+    bad
+}
+
+i64 plain(i64 x) => x
+
+void unit() { }
+
+i64 failing(i64 x) fails Bad {
+    fail .bad if x < 0
+    return x
+}
+
+void failingUnit() fails Bad { }
+
+never halt() { panic("stop") }
+
+never haltFails() fails Bad { panic("stop") }
+
+void main() {
+    let a: (i64) -> i64 = plain
+    let b: () -> void = unit
+    let c: (i64) -> i64 fails Bad = failing
+    let d: () -> void fails Bad = failingUnit
+    let e: () -> never = halt
+    let g: () -> never fails Bad = haltFails
+}

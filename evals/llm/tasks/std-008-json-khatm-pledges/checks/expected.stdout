@@ -1,0 +1,44 @@
+{
+  "total": 30,
+  "complete": true,
+  "readers": [
+    {
+      "name": "Aisha",
+      "juz": 3
+    },
+    {
+      "name": "Bilal",
+      "juz": 2
+    },
+    {
+      "name": "Zaynab\"",
+      "juz": 1
+    },
+    {
+      "name": "Ibn\\Abbas",
+      "juz": 4
+    },
+    {
+      "name": "Mary\u0101m",
+      "juz": 5
+    },
+    {
+      "name": "\u0639\u0627\u0626\u0634\u0629",
+      "juz": 6
+    },
+    {
+      "name": "Umar",
+      "juz": 9
+    }
+  ],
+  "skipped": [
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ]
+}

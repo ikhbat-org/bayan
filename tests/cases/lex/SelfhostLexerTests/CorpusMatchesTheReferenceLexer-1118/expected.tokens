@@ -1,0 +1,67 @@
+1:1 IntegerLiteral `02`
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:1 IntegerLiteral `0x_0b__`
+5:1 IntegerLiteral `1__`
+6:1 IntegerLiteral `0x`
+6:4 Identifier `t`
+6:6 Identifier `b`
+6:8 Equals `=`
+6:10 StringLiteral `"bad \q escape"`
+7:1 LetKeyword `let`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""never closed\r\n\r\n‏ """`
+9:6 NeverKeyword `never`
+9:12 Identifier `closed`
+11:1 IntegerLiteral `0b__`
+12:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0x_0b__
+    │      ^^
+    │
+    │ 4 │ 0x_0b__
+    │   │      --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │ 0x t b = "bad \q escape"
+    │ ^^
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │ 0x t b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  11 │ 0b__
+     │ ^^^^

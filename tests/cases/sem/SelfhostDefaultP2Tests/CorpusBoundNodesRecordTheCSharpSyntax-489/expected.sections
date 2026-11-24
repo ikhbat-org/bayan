@@ -1,0 +1,27 @@
+== tests/cases/diag/for-dyn-ref-let-array.byn
+126..229 blockStmt
+132..164 localDecl
+140..164 collectionExpr
+141..151 structLiteralExpr
+148..149 literalExpr integer
+153..163 structLiteralExpr
+160..161 literalExpr integer
+169..204 forStmt
+190..191 nameExpr
+192..204 blockStmt
+194..202 exprStmt
+194..202 callExpr
+194..195 nameExpr
+209..227 exprStmt
+209..227 callExpr
+215..226 interpolatedExpr
+218..224 memberExpr
+218..222 indexExpr
+218..219 nameExpr
+220..221 literalExpr integer
+209..227 callExpr
+101..111 blockStmt
+103..109 assignStmt add target 103..104 value 108..109
+103..104 nameExpr
+103..104 nameExpr
+108..109 literalExpr integer

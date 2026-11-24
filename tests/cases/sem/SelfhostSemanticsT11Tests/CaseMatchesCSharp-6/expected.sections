@@ -1,0 +1,83 @@
+== declfile decls
+module main tmp/t11-cases/decls main
+file tmp/t11-cases/decls/one.byn source
+file tmp/t11-cases/decls/two.byn source
+diag BYN2006 tmp/t11-cases/decls/one.byn 1:13 `T` is declared twice | already declared on line 1 | 
+diag BYN1016 tmp/t11-cases/decls/one.byn 18:1 `@positional(strict)` is not allowed here |  | write `@positional` with no arguments and no `because`
+diag BYN1016 tmp/t11-cases/decls/one.byn 22:1 `@positional` is not allowed here |  | remove `@positional`: a struct with states is built with state literals
+diag BYN1016 tmp/t11-cases/decls/one.byn 31:1 `@sealed` is not allowed here |  | write `@sealed` with no arguments and no `because`
+diag BYN1016 tmp/t11-cases/decls/one.byn 33:5 `@exitCode` is not allowed here |  | put `@exitCode` on an error enum variant
+diag BYN1016 tmp/t11-cases/decls/one.byn 40:1 `@sealed` is not allowed here |  | put `@sealed` on a struct
+diag BYN1016 tmp/t11-cases/decls/one.byn 44:1 `@exitCode` is not allowed here |  | put `@exitCode` on an error enum variant
+diag BYN2770 tmp/t11-cases/decls/one.byn 46:2 unknown attribute `whatever` |  | use `@exitCode(n)` on an error variant or `@cases(...)` on a test
+diag BYN2815 tmp/t11-cases/decls/one.byn 47:14 `U` is a union; only structs can conform yet | listed here | wrap it in a struct that conforms
+diag BYN2815 tmp/t11-cases/decls/one.byn 50:15 `Color2` is an enum; only structs can conform yet | listed here | wrap it in a struct that conforms
+diag BYN2006 tmp/t11-cases/decls/one.byn 54:11 `IEnumerator` is declared twice | already declared as a built-in interface | 
+diag BYN2006 tmp/t11-cases/decls/one.byn 55:19 `B` is declared twice | already declared on line 55 | 
+diag BYN2022 tmp/t11-cases/decls/one.byn 56:11 `extension` declarations is not supported in v0.1 |  | 
+diag BYN2811 tmp/t11-cases/decls/one.byn 57:1 `extension Money : IShape, IBox<Money>` is not supported yet | retroactive conformance | list `IShape, IBox<Money>` on `Money`'s declaration
+diag BYN2006 tmp/t11-cases/decls/one.byn 61:15 `Sku` is declared twice | already declared on line 60 | 
+diag BYN2006 tmp/t11-cases/decls/one.byn 64:6 `Alias2` is declared twice | already declared on line 63 | 
+diag BYN2006 tmp/t11-cases/decls/one.byn 72:13 `Errs3` is declared twice | already declared on line 69 | 
+diag BYN2006 tmp/t11-cases/decls/one.byn 75:8 `f` is declared twice | already declared on line 73 | 
+diag BYN2008 tmp/t11-cases/decls/one.byn 75:8 type name `f` must be PascalCase |  | rename it `F`
+diag BYN2006 tmp/t11-cases/decls/one.byn 77:7 `k` is declared twice | already declared on line 76 | 
+diag BYN2006 tmp/t11-cases/decls/one.byn 78:6 `k` is declared twice | already declared on line 76 | 
+diag BYN2006 tmp/t11-cases/decls/one.byn 79:11 `A` is declared twice | already declared on line 79 | 
+diag BYN2013 tmp/t11-cases/decls/one.byn 81:6 the program has two entry points |  | 
+diag BYN1016 tmp/t11-cases/decls/one.byn 84:15 `i64 n, bool b` is not allowed here | a test without `@cases` takes no parameters | add `@cases(...)` with one value per parameter for each case, or remove the parameters
+diag BYN2773 tmp/t11-cases/decls/one.byn 86:19 `@cases` gives 1 values but the test takes 2 parameters |  | give each case one value per parameter, in order: `(n, b)`
+diag BYN2774 tmp/t11-cases/decls/one.byn 86:24 each `@cases` value must be a constant | cases from a const list are not supported yet | write each case as a tuple literal, such as `@cases((0, false), (1, true))`
+diag BYN2774 tmp/t11-cases/decls/one.byn 86:27 each `@cases` value must be a constant | cases from a const list are not supported yet | write each case as a tuple literal, such as `@cases((0, false), (1, true))`
+diag BYN2774 tmp/t11-cases/decls/one.byn 86:36 each `@cases` value must be a constant |  | write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+diag BYN2774 tmp/t11-cases/decls/one.byn 86:79 each `@cases` value must be a constant |  | write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+diag BYN2774 tmp/t11-cases/decls/one.byn 86:91 each `@cases` value must be a constant |  | write the value as a literal: a number, string, rune, `true`, `false`, `null` or a `.case`
+diag BYN1016 tmp/t11-cases/decls/one.byn 87:11 `@cases` is not allowed here |  | combine the cases into one `@cases(...)`
+diag BYN2773 tmp/t11-cases/decls/one.byn 88:8 `@cases` gives 1 values but the test takes 0 parameters |  | give each case one value per parameter, in order: `()`
+diag BYN2773 tmp/t11-cases/decls/one.byn 89:8 `@cases` gives 2 values but the test takes 1 parameters |  | give one value per case: `@cases(1, 2, 3)`
+diag BYN2013 tmp/t11-cases/decls/one.byn 82:1 the program has two entry points | `main` is also declared on line 80 | 
+diag BYN2006 tmp/t11-cases/decls/two.byn 2:8 `S` is declared twice | already declared on tmp/t11-cases/decls/one.byn:1 | 
+diag BYN2013 tmp/t11-cases/decls/two.byn 1:1 the program has two entry points | `main` is also declared on line 80 | 
+decls main
+type S struct
+type R struct
+type Q struct
+type G struct
+type P struct
+type P2 struct
+type Door struct
+type Sealed struct
+type Sealed2 struct
+type Color enum
+type E2 struct
+type U union
+type Color2 enum
+type IShape interface
+type IBox interface
+type Sku struct
+type Alias1 alias
+type Alias2 struct
+type Errs errorset
+type Errs2 alias
+type Errs3 enum
+fn f 2
+fn g 1
+fn main 1
+const k
+structs S<T> R<>/R_Field Q<>/Q_Field G<T> P<> P2<> Door<> Sealed<> Sealed2<> E2<> Sku<> Alias2<>
+enums R_Field Q_Field Color Color2 Errs3
+unions U<A>
+interfaces IShape<> IBox<B>
+errorsets Errs
+all f Function 73:6 <>
+all f Function 74:6 <>
+all g Function 79:6 <A>
+all main Function 80:6 <>
+main Function
+aliases Alias1 Errs2
+distinct Sku
+positional 1
+wheres 26
+testcases 5
+mainstatements 0
+testbodies 0 withvalues 0

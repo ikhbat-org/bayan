@@ -1,0 +1,6 @@
+== call.ref
+counts 2 0 2
+mut xs 1481..1483 false -
+mut xs 1493..1495 false -
+BYN3005 94:25 `xs` is passed by `ref` and again in the same call |`xs` is also passed by `ref`|copy the value into a local first, or make two calls|
+BYN3005 94:13 `xs` is passed by `ref` and again in the same call |`xs` is also passed by `ref`|copy the value into a local first, or make two calls|

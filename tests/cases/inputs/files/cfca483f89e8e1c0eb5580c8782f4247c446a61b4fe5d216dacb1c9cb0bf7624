@@ -1,0 +1,8 @@
+let a = "open
+È//// not a doc comment
+
+let cafeÌ = 1;
+â‚
+let c = """never closed
+b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b
+n// comment â€®Ï hidden

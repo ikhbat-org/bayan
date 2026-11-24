@@ -1,0 +1,11 @@
+== cases
+0 bynh_add_list_main__S(&l0_xs, ((bynt_main__S){INT64_C(1)}))
+1 bynh_add_list_main__S(&l0_xs, ((bynt_main__S){INT64_C(2)}))
+2 ((byn_dyn_main__IThing){&(*bynh_at_list_main__S(l0_xs, (int64_t)INT64_C(1), false, byn_file_0, 17)), &bynh_vtab_main__S_main__IThing})
+3 (*bynh_at_list_main__S(l0_xs, (int64_t)INT64_C(1), false, byn_file_0, 17))
+4 ((byn_dyn_main__IThing){&(*bynh_at_list_main__S(l0_xs, (int64_t)INT64_C(0), false, byn_file_0, 19)), &bynh_vtab_main__S_main__IThing})
+5 (*bynh_at_list_main__S(l0_xs, (int64_t)INT64_C(0), false, byn_file_0, 19))
+6 bynh_add_list_main__S(&l0_xs, ((bynt_main__S){INT64_C(3)}))
+7 ((byn_dyn_main__IThing){&(*bynh_at_list_main__S(l0_xs, (int64_t)INT64_C(2), false, byn_file_0, 21)), &bynh_vtab_main__S_main__IThing})
+8 (*bynh_at_list_main__S(l0_xs, (int64_t)INT64_C(2), false, byn_file_0, 21))
+count 9

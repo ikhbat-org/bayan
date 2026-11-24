@@ -1,0 +1,8 @@
+error BYN2610: `return` cannot leave a `defer` or `defer failing` body
+  --> tmp/t26-tests/cli/diag_jump-out-of-defer.byn/jump-out-of-defer.byn:3:9
+
+  3 │         return
+    │         ^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2610

@@ -1,0 +1,2 @@
+== diags.diag/circular-alias
+BYN2011 1:6 type alias `Alpha` refers to itself

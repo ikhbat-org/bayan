@@ -1,0 +1,11 @@
+error BYN2780: implicit copy of a unique value: `Ledger` is unique because field `items` is a
+`List<i64>`
+  --> <repo>/tmp/t2/diag/with-unique-copy/with-unique-copy.byn:9:16
+
+  9 │     let copy = ledger with { label: "copy" }
+    │                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: write `move ledger with { … }` to give up `ledger`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780

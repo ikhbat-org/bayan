@@ -1,0 +1,7 @@
+== diags.diag/expression-statement
+BYN1012 2:5 this expression does nothing as a statement
+  label the value is computed and discarded
+  help write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone
+BYN1012 3:5 this expression does nothing as a statement
+  label the value is computed and discarded
+  help write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone

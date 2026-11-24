@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/run/map-index-panic.byn
+--package
+<repo>/tests/cases/run

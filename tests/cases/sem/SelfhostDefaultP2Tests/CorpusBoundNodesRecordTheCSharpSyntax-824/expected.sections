@@ -1,0 +1,42 @@
+== tests/cases/diag/shadowing.byn
+0..13 globalStatement
+0..13 localDecl
+12..13 literalExpr integer
+14..71 ifStmt
+17..27 binaryExpr eq right 26..27
+17..22 nameExpr
+26..27 literalExpr integer
+28..71 blockStmt
+34..47 localDecl
+46..47 literalExpr integer
+52..69 exprStmt
+52..69 callExpr
+58..68 interpolatedExpr
+61..66 nameExpr
+52..69 callExpr
+72..87 localDecl
+84..87 literalExpr string
+88..112 localDecl
+100..112 memberExpr
+100..105 nameExpr
+113..125 localDecl
+124..125 literalExpr integer
+126..138 localDecl
+137..138 literalExpr integer
+139..151 localDecl
+150..151 literalExpr integer
+152..161 assignStmt add target 152..156 value 160..161
+152..156 nameExpr
+160..161 literalExpr integer
+162..174 localDecl
+173..174 literalExpr integer
+175..184 assignStmt add target 175..179 value 183..184
+175..179 nameExpr
+183..184 literalExpr integer
+185..216 exprStmt
+185..216 callExpr
+191..215 interpolatedExpr
+194..199 nameExpr
+202..206 nameExpr
+209..213 nameExpr
+185..216 callExpr

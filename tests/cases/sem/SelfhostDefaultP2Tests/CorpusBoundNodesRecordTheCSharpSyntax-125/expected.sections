@@ -1,0 +1,65 @@
+== tests/cases/run/io-missing-file.byn
+114..582 catchExpr
+114..582 catchExpr
+114..582 catchExpr
+114..131 callExpr
+126..130 nameExpr
+138..582 switchExpr
+138..144 caughtErrorExpr
+151..160 constantPattern
+151..160 targetMemberExpr
+164..175 literalExpr string
+181..198 constantPattern
+181..198 targetMemberExpr
+202..221 literalExpr string
+227..239 constantPattern
+227..239 targetMemberExpr
+243..254 literalExpr string
+260..274 constantPattern
+260..274 targetMemberExpr
+278..295 literalExpr string
+301..307 constantPattern
+301..307 targetMemberExpr
+311..324 literalExpr string
+330..343 constantPattern
+330..343 targetMemberExpr
+347..362 literalExpr string
+368..380 constantPattern
+368..380 targetMemberExpr
+384..397 literalExpr string
+403..415 constantPattern
+403..415 targetMemberExpr
+419..433 literalExpr string
+439..451 constantPattern
+439..451 targetMemberExpr
+455..471 literalExpr string
+477..499 variantPattern
+487..490 varPattern
+494..495 discardPattern
+497..498 discardPattern
+503..518 interpolatedExpr
+515..516 nameExpr
+524..549 variantPattern
+533..536 varPattern
+544..545 discardPattern
+547..548 discardPattern
+553..579 interpolatedExpr
+572..577 nameExpr
+596..751 blockStmt
+602..637 exprStmt
+602..637 callExpr
+608..636 callExpr
+617..635 literalExpr string
+602..637 callExpr
+642..702 localDecl
+654..702 catchExpr
+654..689 callExpr
+666..688 literalExpr string
+696..702 jumpExpr
+696..702 returnStmt
+707..749 exprStmt
+707..749 callExpr
+713..748 interpolatedExpr
+728..740 memberExpr
+728..733 nameExpr
+707..749 callExpr

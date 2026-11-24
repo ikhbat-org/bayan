@@ -1,0 +1,3 @@
+== lower
+fn main locals=1 ctx=0 panic=0 stmts=1
+main main

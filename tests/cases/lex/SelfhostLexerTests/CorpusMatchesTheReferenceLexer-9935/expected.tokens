@@ -1,0 +1,45 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
+2:2 StringLiteral `"{macro select become`
+3:2 CharLiteral `'\u{D800}'`
+4:2 LetKeyword `let`
+4:6 Identifier `b`
+4:8 Equals `=`
+4:12 IntegerLiteral `2`
+5:2 Equals `=`
+5:4 IntegerLiteral `1`
+6:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  "{macro select become
+    │  ^^^^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0002: unexpected character ```
+
+  4 │  let b = ` 2
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │  �
+    │  ^

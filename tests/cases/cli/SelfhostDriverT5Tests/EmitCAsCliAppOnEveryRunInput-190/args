@@ -1,0 +1,3 @@
+build
+--emit-c
+memory-arena-padded-too-large.byn

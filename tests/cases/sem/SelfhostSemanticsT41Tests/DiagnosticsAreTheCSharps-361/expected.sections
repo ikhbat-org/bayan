@@ -1,0 +1,2 @@
+== diags.diag/assert-fails-missing-case
+BYN2411 11:20 `ParseError.blank` cannot match `ParseError`

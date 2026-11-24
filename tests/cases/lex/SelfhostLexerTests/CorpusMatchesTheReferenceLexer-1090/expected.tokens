@@ -1,0 +1,30 @@
+1:1 Identifier `café`
+1:6 Equals `=`
+1:8 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `café`
+3:10 Equals `=`
+3:12 IntegerLiteral `2`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 Comma `,`
+4:11 Semicolon `;`
+6:1 LetKeyword `let`
+6:5 Identifier `b`
+6:7 Equals `=`
+6:11 IntegerLiteral `2`
+7:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x,;
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character ```
+
+  6 │ let b = ` 2
+    │         ^

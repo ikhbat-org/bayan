@@ -1,0 +1,21 @@
+1:1 IsKeyword `is`
+1:4 Identifier `ad`
+1:7 OrKeyword `or`
+1:10 NotKeyword `not`
+1:14 WithKeyword `with`
+1:19 MoveKeyword `move`
+1:24 RefKeyword `ref`
+1:28 OutKeyword `out`
+1:32 ThisKeyword `this`
+1:37 NullKeyword `null`
+1:42 TrueKeyword `true`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 Identifier `ch`
+1:65 Identifier `ecked`
+3:1 EndOfFile
+
+error BYN0002: unexpected character `\u{1C}`
+
+  1 │ is ad or not with move ref out this null true false comptime ch�ecked
+    │                                                                ^

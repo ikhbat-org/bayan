@@ -1,0 +1,45 @@
+== tests/cases/run/for-enumerator-var.byn
+187..387 blockStmt
+193..226 localDecl
+205..226 structLiteralExpr
+223..224 literalExpr integer
+231..280 forStmt
+240..245 nameExpr
+246..280 blockStmt
+256..274 exprStmt
+256..274 callExpr
+262..273 interpolatedExpr
+270..271 nameExpr
+256..274 callExpr
+285..312 exprStmt
+285..312 callExpr
+291..311 interpolatedExpr
+299..309 memberExpr
+299..304 nameExpr
+285..312 callExpr
+317..367 forStmt
+326..331 nameExpr
+332..367 blockStmt
+342..361 exprStmt
+342..361 callExpr
+348..360 interpolatedExpr
+357..358 nameExpr
+342..361 callExpr
+372..385 exprStmt
+372..385 callExpr
+378..384 literalExpr string
+372..385 callExpr
+96..146 blockStmt
+106..115 assignStmt sub target 106..110 value 114..115
+106..110 nameExpr
+106..110 nameExpr
+114..115 literalExpr integer
+124..140 returnStmt value 131..140
+131..140 binaryExpr ge right 139..140
+131..135 nameExpr
+131..135 nameExpr
+139..140 literalExpr integer
+167..171 nameExpr
+167..171 nameExpr
+167..171 nameExpr
+167..171 nameExpr

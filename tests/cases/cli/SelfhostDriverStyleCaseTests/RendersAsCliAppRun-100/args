@@ -1,0 +1,4 @@
+--color
+always
+run
+<repo>/tmp/t7-style/run-fail-dumb/tally/main.byn

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "nodes": [
+    "BinaryExpr",
+    "CallExpr",
+    "ExprStmt",
+    "GlobalStatement",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "UnaryExpr"
+  ],
+  "builtins": [
+    "CharValue",
+    "Print"
+  ],
+  "diagnostics": []
+}

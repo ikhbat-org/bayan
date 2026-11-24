@@ -1,0 +1,3 @@
+build
+--emit-c
+strbuf-append-repeated-negative.byn

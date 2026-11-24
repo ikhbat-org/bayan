@@ -1,0 +1,18 @@
+1:1 Identifier `lt`
+1:4 Identifier `b`
+1:6 Equals `=`
+1:10 IntegerLiteral `2`
+2:2 RawStringLiteral `""" \u{0}*/ `
+2:10 EndOfFile
+
+error BYN0002: unexpected character ```
+
+  1 │ lt b = ` 2
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  2 │  """ �*/ 
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

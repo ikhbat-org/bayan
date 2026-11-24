@@ -1,0 +1,46 @@
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+4:1 OpenParen `(`
+4:3 CloseParen `)`
+4:4 Identifier `M`
+4:6 OpenBracket `[`
+4:8 CloseBracket `]`
+4:10 OpenBrace `{`
+4:12 CloseBrace `}`
+5:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ ‏ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ ‏ ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ‏ ����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ ‏ ����
+    │      ^

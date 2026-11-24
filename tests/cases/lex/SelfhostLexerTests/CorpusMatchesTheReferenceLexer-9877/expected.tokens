@@ -1,0 +1,119 @@
+1:1 LetKeyword `let`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+3:1 Identifier `t`
+3:3 Identifier `café`
+3:9 Equals `=`
+3:11 IntegerLiteral `1`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:10 Equals `=`
+4:12 IntegerLiteral `2`
+5:3 InterpolatedStringStart `$"`
+5:5 InterpolatedStringText `total `
+5:11 InterpolationStart `{`
+5:12 Identifier `x`
+5:13 InterpolationEnd `}`
+5:14 InterpolatedStringEnd `"`
+5:16 InterpolatedStringStart `$"`
+5:18 InterpolatedStringText `a `
+5:20 InterpolationStart `{`
+5:21 Identifier `f`
+5:22 OpenParen `(`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolatedStringText `b `
+5:27 InterpolationStart `{`
+5:28 Identifier `c`
+5:29 InterpolationEnd `}`
+5:30 InterpolatedStringEnd `"`
+5:31 CloseParen `)`
+5:32 InterpolationEnd `}`
+5:33 InterpolatedStringText ` d`
+5:35 InterpolatedStringEnd `"`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolatedStringText `{{literal}}`
+5:50 InterpolatedStringEnd `"`
+5:52 InterpolatedStringStart `$"`
+5:54 InterpolationStart `{`
+5:55 Identifier `Point`
+5:61 OpenBrace `{`
+5:63 Identifier `x`
+5:65 Equals `=`
+5:67 IntegerLiteral `1`
+5:69 CloseBrace `}`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringText `!`
+5:72 InterpolatedStringEnd `"`
+5:74 InterpolatedStringStart `$"`
+5:76 InterpolatedStringEnd `"`
+6:2 StructKeyword `struct`
+6:9 UniqueKeyword `unique`
+6:16 UnionKeyword `union`
+6:22 EnumKeyword `enum`
+6:27 FlagsKeyword `flags`
+6:33 OpenKeyword `open`
+6:38 ExtensibleKeyword `extensible`
+6:49 InterfaceKeyword `interface`
+6:59 DelegateKeyword `delegate`
+6:68 ExtensionKeyword `extension`
+6:78 DerivationKeyword `derivation`
+6:89 AttributeKeyword `attribute`
+7:1 IntegerLiteral `0b1`
+7:4 NumericSuffix `ms`
+8:3 Identifier `b`
+9:2 CharLiteral `''`
+10:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  1 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ let x� = 1
+    │   │      -
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ t café = 1
+    │   ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ t café = 1
+    │   │      +
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  5 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  5 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ ���� $"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │    ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  7 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0007: empty char literal
+
+  9 │  ''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

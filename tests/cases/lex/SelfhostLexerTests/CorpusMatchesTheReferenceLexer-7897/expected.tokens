@@ -1,0 +1,31 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 BarBar `||`
+3:8 Bar `|`
+3:10 Caret `^`
+3:12 Tilde `~`
+3:14 Bang `!`
+3:16 Equals `=`
+3:18 Equals `=`
+3:19 Colon `:`
+3:20 Equals `=`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:35 LessLess `<<`
+3:38 Greater `>`
+3:39 Greater `>`
+3:41 Greater `>`
+3:42 GreaterEquals `>=`
+4:2 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

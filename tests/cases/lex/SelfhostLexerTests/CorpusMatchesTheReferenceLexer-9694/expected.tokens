@@ -1,0 +1,21 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+3:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  1 │ $"{{" /*
+    │       ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE7)
+
+  2 │ C= -= *�= /= %= &= |= ^= �<=
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  2 │ C= -= *�= /= %= &= |= ^= �<=
+    │                          ^

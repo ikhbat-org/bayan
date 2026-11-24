@@ -1,0 +1,8 @@
+== distinct
+diag BYN2002 3:19 unknown type `Missing` |  | 
+struct X
+  field value i64 public required=False default=False at=1:19
+struct P
+  field value List<string> public required=False default=False at=2:26
+struct M
+  field value ? public required=False default=False at=3:19

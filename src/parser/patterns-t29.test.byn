@@ -1,0 +1,52 @@
+// 019 T29 (coverage ratchet): patterns.byn edges no golden case reaches: a type name that does not scan as a type, a
+// property pattern followed by `when`, and property and list patterns cut off at the end of the input. The helpers are
+// `t3Pattern` of patterns.test.byn. The expected values are the output of the self-hosted parser at the commit that
+// added the test.
+
+test "parser t29: pattern edges" {
+    var sb = StrBuf()
+    sb.append(t3Pattern("Foo"))
+    sb.append(t3Pattern("Foo<"))
+    sb.append(t3Pattern("Foo + 1"))
+    sb.append(t3Pattern("Foo when"))
+    sb.append(t3Pattern("Foo { a: _ } when"))
+    sb.append(t3Pattern("{ a: _ } when"))
+    sb.append(t3Pattern("{ a: _,"))
+    sb.append(t3Pattern("{ a: _, }"))
+    sb.append(t3Pattern("{ a: _ }\nb"))
+    sb.append(t3Pattern("[_,"))
+    sb.append(t3Pattern("[.."))
+    sb.append(t3Pattern("[..,"))
+    sb.append(t3Pattern("[_ _]"))
+    sb.append(t3Pattern("[)"))
+    sb.append(t3Pattern("Foo(_, _) x"))
+    sb.append(t3Pattern("Foo()"))
+    sb.append(t3Pattern(".a b"))
+    sb.append(t3Pattern(".a\nb"))
+    sb.append(t3Pattern("_.x"))
+    sb.append(t3Pattern("_(1)"))
+    let expected = """
+            const pos 1 noLambda false
+            const pos 1 noLambda false
+            const pos 3 noLambda false
+            const pos 1 noLambda false
+            (property 1:_) pos 6 noLambda false
+            (property 1:_) pos 5 noLambda false
+            (property 1:_) pos 5 noLambda false [BYN1001 7+0 expected `}`, found end of file]
+            (property 1:_) pos 6 noLambda false
+            (property 1:_) pos 5 noLambda false
+            (list 0+3 _) pos 3 noLambda false [BYN1001 3+0 expected `]`, found end of file]
+            (list 0+3 (.. const)) pos 2 noLambda false [BYN1002 3+0 expected an expression, found end of file]
+            (list 0+4 (.. none)) pos 3 noLambda false [BYN1001 4+0 expected `]`, found end of file]
+            (list 0+2 _) pos 2 noLambda false [BYN1001 3+1 expected `]`, found `_`]
+            (list 0+1 const) pos 1 noLambda false [BYN1002 1+1 expected an expression, found `)`]
+            (positional _ _) pos 6 noLambda false
+            (positional) pos 3 noLambda false
+            (variant 0+4 bind b) pos 3 noLambda false
+            const pos 2 noLambda false
+            const pos 3 noLambda false
+            const pos 4 noLambda false
+
+            """
+    assert sb.finish() == expected
+}

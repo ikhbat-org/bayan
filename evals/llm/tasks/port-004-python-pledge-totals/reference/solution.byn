@@ -1,0 +1,41 @@
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var names = List<string>()
+    var totals = Map<string, i64>()
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            continue if part.isEmpty
+            fields.append(part)
+        }
+        let amount = fields.length == 2 ? (i64.tryParse(fields[1]) ?? -1) : -1
+        if amount < 0 {
+            print($"ignored: {text}")
+            continue
+        }
+        let name = fields[0]
+        if !totals.contains(name) {
+            names.append(name)
+        }
+        totals[name] = (totals.tryGet(at: name) ?? 0) + amount
+    }
+    var best = ""
+    var bestTotal: i64 = -1
+    for name in names {
+        let total = totals[name]
+        print($"{name.padded(to: 8, by: ' ')}{total, width: 6, align: .end}")
+        if total > bestTotal {
+            best = name
+            bestTotal = total
+        }
+    }
+    if names.length > 0 {
+        print($"leader: {best}")
+    }
+}

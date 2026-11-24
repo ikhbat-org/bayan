@@ -1,0 +1,3 @@
+== cases
+0 ((bynt_opt_i64){true, INT64_C(2)})
+count 3

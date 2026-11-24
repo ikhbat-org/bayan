@@ -1,0 +1,88 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:2 TestKeyword `test`
+2:7 AssertKeyword `assert`
+2:14 PropertyKeyword `property`
+2:23 FuzzKeyword `fuzz`
+2:28 ModelKeyword `model`
+2:34 ForeachKeyword `foreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 FloatLiteral `2.5e-3`
+4:17 FloatLiteral `6E+2`
+4:22 FloatLiteral `1.50`
+4:26 NumericSuffix `dec`
+4:30 IntegerLiteral `1`
+4:31 DotDot `..`
+4:33 IntegerLiteral `2`
+4:35 IntegerLiteral `1`
+4:36 DotDotEquals `..=`
+4:39 IntegerLiteral `3`
+4:41 IntegerLiteral `5`
+4:42 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+6:1 LetKeyword `let`
+6:7 Equals `=`
+6:9 IntegerLiteral `2`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `open `
+8:8 InterpolationStart `{`
+8:9 Identifier `x`
+8:10 StringLiteral `";`
+10:1 Identifier `x́́`
+11:1 LetKeyword `let`
+11:5 LawKeyword `law`
+11:9 Equals `=`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ let � = 2
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  10 │ x́́ �����
+     │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  10 │ x́́ �����
+     │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ x́́ �����
+     │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ x́́ �����
+     │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ x́́ �����
+     │         ^

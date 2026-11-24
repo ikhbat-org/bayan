@@ -1,0 +1,4 @@
+== member.probes.-.v15
+errorExpr|?|-|-|-|-|-|2835:10|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 145:19 `offset` is now `position` |the old name|rename it `position`|fix 2839..2845 position

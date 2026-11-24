@@ -1,0 +1,4 @@
+== member.probes.-.m9
+errorExpr|?|-|-|-|-|-|1643:8|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2003 96:18 `nope` is not a member of `i32` |||

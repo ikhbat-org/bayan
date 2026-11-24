@@ -1,0 +1,11 @@
+struct unique union enum flags open extensible interface delegate extension derivation attribute
+
+⁦ " $"{Point { x = 1 }}!" $""
+ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+test assert property fuzz model foreach new goto
+
+two.
+struct S
+//// not a doc
+a >> b
+

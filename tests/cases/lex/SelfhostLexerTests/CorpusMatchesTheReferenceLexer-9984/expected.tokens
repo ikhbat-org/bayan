@@ -1,0 +1,91 @@
+1:1 StringLiteral `"`
+2:1 CloseBrace `}`
+3:1 Identifier `d`
+4:1 Identifier `b`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolationStart `{`
+5:4 Identifier `a`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolatedStringText `total `
+5:14 InterpolationStart `{`
+5:15 Identifier `x`
+5:16 InterpolationEnd `}`
+5:17 InterpolatedStringEnd `"`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolatedStringText `a `
+5:23 InterpolationStart `{`
+5:24 Identifier `M`
+5:25 OpenParen `(`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolatedStringText `b `
+5:30 InterpolationStart `{`
+5:31 Identifier `c`
+5:32 InterpolationEnd `}`
+5:33 InterpolatedStringEnd `"`
+5:34 CloseParen `)`
+5:35 InterpolationEnd `}`
+5:36 InterpolatedStringText ` d`
+5:38 InterpolatedStringEnd `"`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolatedStringText `v`
+5:43 InterpolationStart `{`
+5:44 Identifier `literal`
+5:51 InterpolationEnd `}`
+5:52 InterpolatedStringText `}`
+5:53 InterpolatedStringEnd `"`
+5:55 InterpolatedStringStart `$"`
+5:57 InterpolationStart `{`
+5:58 Identifier `Point`
+5:64 OpenBrace `{`
+5:66 Identifier `x`
+5:68 Equals `=`
+5:70 IntegerLiteral `1`
+5:72 CloseBrace `}`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringText `!`
+5:75 InterpolatedStringEnd `"`
+5:77 InterpolatedStringStart `$"`
+5:79 InterpolatedStringEnd `"`
+7:1 Identifier `ạ̇`
+7:5 VarKeyword `var`
+7:9 Identifier `xs`
+7:11 Colon `:`
+7:13 Identifier `List`
+7:17 Less `<`
+7:18 Identifier `List`
+7:22 Less `<`
+7:23 Identifier `i64`
+7:26 Greater `>`
+7:27 Greater `>`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"{a $"total {x}" $"a {M($"b {c}")} d" $"v{literal}}" $"{Point { x = 1 }}!" $""
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"{a $"total {x}" $"a {M($"b {c}")} d" $"v{literal}}" $"{Point { x = 1 }}!" $""
+    │                                                    ^
+    │
+    │ 5 │ $"{a $"total {x}" $"a {M($"b {c}")} d" $"v{literal}}}" $"{Point { x = 1 }}!" $""
+    │   │                                                     +
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  7 │ ạ̇ var xs: List<List<i64>>
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ ạ̇ var xs: List<List<i64>>
+    │   │ +

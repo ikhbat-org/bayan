@@ -1,0 +1,8 @@
+let‚ b = ` 2
+ðŸ˜
+nt $"a{b}c
+0xFFs
+_0xF__
+
+  """ c"text" u16"wide" "â€® allowed in strings" §"" "\u{48}i"
+ 

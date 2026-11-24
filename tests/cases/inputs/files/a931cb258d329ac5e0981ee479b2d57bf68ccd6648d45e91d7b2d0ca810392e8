@@ -1,0 +1,7 @@
+void f() {
+    if (i < barrier && !isTrivial(in c, through: in l, for: values[i])
+            || movedFirst[i]) && !lvalue
+            && !isVoidExpr(values[i]) {
+        values[i] = spill(ref c, through: ref l, for: values[i])
+    }
+}

@@ -1,0 +1,3 @@
+void main() {
+    let n = sbyte(3)
+}

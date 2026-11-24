@@ -1,0 +1,5 @@
+build
+--emit-c
+--target
+host
+<repo>/tmp/t5/target/app

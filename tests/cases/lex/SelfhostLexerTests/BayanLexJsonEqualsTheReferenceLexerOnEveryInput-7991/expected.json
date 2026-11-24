@@ -1,0 +1,1 @@
+{"tokens":[{"kind":"Equals","start":1,"end":2,"text":"=","doc":null},{"kind":"IntegerLiteral","start":3,"end":4,"text":"3","doc":null},{"kind":"EndOfFile","start":33,"end":33,"text":"","doc":null}],"diagnostics":[{"code":"BYN0004","severity":"error","start":23,"end":25,"message":"unterminated block comment","label":"comment starts here","help":"close it with `*/`","fixes":[]}]}

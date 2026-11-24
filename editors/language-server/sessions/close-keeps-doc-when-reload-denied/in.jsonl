@@ -1,0 +1,6 @@
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"processId":null,"rootUri":null,"capabilities":{}}}
+{"jsonrpc":"2.0","method":"textDocument/didOpen","params":{"textDocument":{"uri":"file://@WS@/src/a.byn","languageId":"bayan","version":1,"text":"struct Buffer {}\n"}}}
+{"jsonrpc":"2.0","id":2,"method":"textDocument/documentSymbol","params":{"textDocument":{"uri":"file://@WS@/src/a.byn"}}}
+{"fs":"chmod","path":"src/a.byn","mode":"000"}
+{"jsonrpc":"2.0","method":"textDocument/didClose","params":{"textDocument":{"uri":"file://@WS@/src/a.byn"}}}
+{"jsonrpc":"2.0","id":3,"method":"workspace/symbol","params":{"query":""}}

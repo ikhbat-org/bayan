@@ -1,0 +1,4 @@
+== cases
+0 byn_mul_i64((*self).size, INT64_C(2), byn_file_0, 10)
+1 byn_mul_i64((*self).size, INT64_C(2), byn_file_0, 10)
+count 2

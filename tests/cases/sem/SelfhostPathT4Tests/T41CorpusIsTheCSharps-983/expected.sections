@@ -1,0 +1,7 @@
+== diags.diag/rest-named-after
+BYN1001 1:37 expected a named optional parameter after `rest`, found `i32 extra`
+  label a positional parameter after `rest`
+  help give it a default value, or move it before the `rest` parameter
+BYN1001 4:38 expected a named optional parameter after `rest`, found `rest ReadOnlySpan<i32> ys`
+  label a second `rest` parameter
+  help keep one `rest` parameter

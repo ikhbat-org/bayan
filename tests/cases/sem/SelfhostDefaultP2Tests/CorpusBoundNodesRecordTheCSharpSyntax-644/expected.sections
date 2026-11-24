@@ -1,0 +1,32 @@
+== tests/cases/diag/loop-item-user-iteration-escapes.byn
+304..305 nameExpr
+304..305 nameExpr
+304..305 nameExpr
+330..512 blockStmt
+336..364 localDecl
+347..364 structLiteralExpr
+361..362 literalExpr integer
+369..394 localDecl
+380..394 callExpr
+399..490 forStmt
+408..412 nameExpr
+413..490 blockStmt
+423..484 forStmt
+432..445 callExpr
+437..444 memberExpr
+437..444 memberExpr
+437..438 nameExpr
+446..484 blockStmt
+460..474 exprStmt
+460..474 callExpr
+460..464 nameExpr
+472..473 nameExpr
+495..510 localDecl
+503..510 indexExpr
+503..507 nameExpr
+508..509 literalExpr integer
+229..247 structLiteralExpr
+229..247 structLiteralExpr
+229..247 structLiteralExpr
+238..245 collectionExpr
+239..244 literalExpr string

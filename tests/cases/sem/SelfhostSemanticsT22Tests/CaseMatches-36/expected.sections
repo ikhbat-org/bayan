@@ -1,0 +1,3 @@
+== pat.probes.-.q3
+bindPattern|-
+BYN2706 57:20 variant `closed` has no payload ||match it with `.closed`|

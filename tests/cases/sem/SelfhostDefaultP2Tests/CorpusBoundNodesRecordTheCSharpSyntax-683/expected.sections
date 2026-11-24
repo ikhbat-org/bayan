@@ -1,0 +1,23 @@
+== tests/cases/diag/non-exhaustive-enum.byn
+84..154 switchExpr
+84..154 switchExpr
+84..154 switchExpr
+84..85 nameExpr
+99..119 binaryPattern
+99..106 constantPattern
+99..106 targetMemberExpr
+110..119 constantPattern
+110..119 targetMemberExpr
+123..128 literalExpr string
+134..140 constantPattern
+134..140 targetMemberExpr
+144..151 literalExpr string
+174..252 blockStmt
+180..250 switchStmt
+187..188 nameExpr
+204..215 constantPattern
+204..215 memberExpr
+229..244 exprStmt
+229..244 callExpr
+235..243 literalExpr string
+229..244 callExpr

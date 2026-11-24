@@ -1,0 +1,8 @@
+error BYN2003: `get` is not a member of `Json`
+  --> tmp/t26-tests/cli/diag_std-json-no-lookup.byn/std-json-no-lookup.byn:6:38
+
+  6 │     print(json.Json.encode(json.Json.get(v, "a")) catch "")
+    │                                      ^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

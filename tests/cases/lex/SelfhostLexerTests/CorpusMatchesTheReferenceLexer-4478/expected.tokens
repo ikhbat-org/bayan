@@ -1,0 +1,74 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `clet café = 1; 0xFFs`
+1:28 InterpolatedStringEnd
+3:1 StringLiteral `"{ '\u{202E}'`
+4:1 Identifier `ext`
+4:4 StringLiteral `" u16"`
+4:10 Identifier `wide`
+4:14 StringLiteral `" "`
+4:19 Identifier `allowed`
+4:27 InKeyword `in`
+4:30 Identifier `strings`
+4:37 StringLiteral `" "`
+4:40 StringLiteral `"`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `stray } here`
+5:15 InterpolatedStringEnd `"`
+7:1 LetKeyword `let`
+7:5 Identifier `x`
+7:8 Equals `=`
+7:10 IntegerLiteral `1`
+8:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}clet café = 1; 0xFFs
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  3 │ "{ '�'
+    │ ^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ ext" u16"wide" "� allowed in strings" ""
+    │                 ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ ext" u16"wide" "� allowed in strings" ""
+    │   │                 -
+
+error BYN0003: unterminated string literal
+
+  4 │ ext" u16"wide" "� allowed in strings" ""
+    │                                        ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  5 │ $"stray } here"
+    │         ^
+    │
+    │ 5 │ $"stray }} here"
+    │   │          +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ let x� = 1
+    │   │      -

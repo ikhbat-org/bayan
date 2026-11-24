@@ -1,0 +1,99 @@
+1:1 IntegerLiteral `0x_`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 StringLiteral `"{$"`
+2:9 OpenBrace `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 Identifier `x`
+2:44 InterpolationEnd `}`
+2:45 InterpolatedStringEnd `"`
+2:46 InterpolationEnd `}`
+2:47 InterpolatedStringEnd `"`
+2:48 InterpolationEnd `}`
+2:49 InterpolatedStringEnd `"`
+2:50 InterpolationEnd `}`
+2:51 InterpolatedStringEnd `"`
+2:52 InterpolatedStringStart `$"`
+2:54 InterpolatedStringText `stray } here`
+2:66 InterpolatedStringEnd `"`
+3:2 CharLiteral `'\u{110000}'`
+4:1 CharLiteral `'`
+5:1 CharLiteral `'\u{11var xs: List<List<i64>>`
+6:2 CharLiteral `'\q'`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0003: unterminated string literal
+
+  2 │  $"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"$"stray } here"
+    │                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  2 │  $"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"$"stray } here"
+    │                                                            ^
+    │
+    │ 2 │  $"{"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"$"stray }} here"
+    │   │                                                             +
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  3 │  '\u{110000}'
+    │   ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  4 │ '
+    │ ^
+    │
+  help: close it with `'`
+
+error BYN0008: unterminated char literal
+
+  5 │ '\u{11var xs: List<List<i64>>
+    │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{11`
+
+  5 │ '\u{11var xs: List<List<i64>>
+    │  ^^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0006: invalid escape sequence `\q`
+
+  6 │  '\q'
+    │   ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

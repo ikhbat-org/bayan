@@ -1,0 +1,35 @@
+1:1 Identifier `lock`
+1:8 Identifier `comment`
+1:16 Star `*`
+1:17 Slash `/`
+1:19 Identifier `a`
+    doc `/// Do let a = "open`
+4:2 Comma `,`
+4:4 Dot `.`
+4:6 DotDot `..`
+4:9 DotDotEquals `..=`
+4:13 Colon `:`
+4:15 Question `?`
+4:17 QuestionQuestion `??`
+4:20 QuestionQuestionEquals `??=`
+4:24 QuestionDot `?.`
+4:27 FatArrow `=>`
+4:30 Arrow `->`
+4:33 At `@`
+4:35 Hash `#`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  4 │ ���, . .. ..= : ? ?? ??= ?. => -> @ #
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  4 │ ���, . .. ..= : ? ?? ??= ?. => -> @ #
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ���, . .. ..= : ? ?? ??= ?. => -> @ #
+    │   ^

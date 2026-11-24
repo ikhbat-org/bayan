@@ -1,0 +1,80 @@
+// 019 T29 (coverage ratchet): `rangeBound` and `integerValue` (lints.byn) on the bounds no golden case writes: signed and
+// suffixed literals, every radix prefix, over-long and out-of-radix digits, and rune literals of one to four UTF-8
+// bytes. The helper `t3ParserOf` is recover.test.byn's. The expected values are the output of the self-hosted parser at
+// the commit that added the test.
+
+test "parser t29: rangeBound reads integer and rune bounds" {
+    let inputs = [
+        "0",
+        "-0",
+        "-7",
+        "-7u",
+        "-x",
+        "!1",
+        "-'a'",
+        "1u",
+        "1_000",
+        "0x1F",
+        "0X1f",
+        "0o17",
+        "0O7",
+        "0b101",
+        "0B1",
+        "0b2",
+        "0x",
+        "1234567890123456789012345678901",
+        "123456789012345678901234567890",
+        "'a'",
+        "'é'",
+        "'中'",
+        "'😀'",
+        "'ab'",
+        "'\\n'",
+        "\"s\"",
+        "1.5",
+        "x",
+    ]
+    var sb = StrBuf()
+    for input in inputs {
+        var p = t3ParserOf(input)
+        let e = parseExpression(ref p)
+        let b = rangeBound(ref p, for: e)
+        if b is not null {
+            sb.append($"{input} {b.kind} {b.negative} {b.l0} {b.l1} {b.l2} {b.l3}\n")
+        } else {
+            sb.append($"{input} null\n")
+        }
+    }
+    let expected = """
+            0 integer false 0 0 0 0
+            -0 integer false 0 0 0 0
+            -7 integer true 7 0 0 0
+            -7u null
+            -x null
+            !1 null
+            -'a' null
+            1u null
+            1_000 integer false 1000 0 0 0
+            0x1F integer false 31 0 0 0
+            0X1f integer false 31 0 0 0
+            0o17 null
+            0O7 null
+            0b101 integer false 5 0 0 0
+            0B1 integer false 1 0 0 0
+            0b2 null
+            0x null
+            1234567890123456789012345678901 null
+            123456789012345678901234567890 integer false 1312754386 3279151342 2397638646 1
+            'a' rune false 97 0 0 0
+            'é' rune false 233 0 0 0
+            '中' rune false 20013 0 0 0
+            '😀' rune false 128512 0 0 0
+            'ab' null
+            '\n' null
+            "s" null
+            1.5 null
+            x null
+
+            """
+    assert sb.finish() == expected
+}

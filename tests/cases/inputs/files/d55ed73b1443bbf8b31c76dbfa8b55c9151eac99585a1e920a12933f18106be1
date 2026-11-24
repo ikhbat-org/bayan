@@ -1,0 +1,10 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$k"{$"{$"{x}"}"}"
+a /* �never closed
+
+  """ c"text" u16"wide" "‮ allo5wed in strings" "" "\u{48}i"
+let actor = 1
+ '‮'$"stray } here"
+   """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+

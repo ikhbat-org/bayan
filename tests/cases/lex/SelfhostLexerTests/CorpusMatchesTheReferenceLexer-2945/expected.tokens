@@ -1,0 +1,18 @@
+3:1 Identifier `legt`
+3:6 Identifier `café`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+4:1 Identifier `b`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `{{`
+5:6 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │ legt café = 1
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ legt café = 1
+    │   │         +

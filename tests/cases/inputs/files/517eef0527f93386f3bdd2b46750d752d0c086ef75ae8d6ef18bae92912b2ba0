@@ -1,0 +1,7 @@
+(i64 lo, i64 hi) bounds(i64 n) => (lo: 0, hi: n)
+
+void main() {
+    var total: i64 = 0
+    total += bounds(total).hi
+    print($"{total}")
+}

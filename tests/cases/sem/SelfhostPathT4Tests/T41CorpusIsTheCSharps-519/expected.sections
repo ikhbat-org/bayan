@@ -1,0 +1,3 @@
+== diags.diag/tuple-name-mismatch
+BYN2223 1:26 tuple element `y` is named `x` in the target type
+BYN2223 1:32 tuple element `x` is named `y` in the target type

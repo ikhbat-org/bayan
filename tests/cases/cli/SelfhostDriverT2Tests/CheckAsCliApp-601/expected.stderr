@@ -1,0 +1,12 @@
+error BYN2001: `cout` is not defined
+  --> <repo>/tmp/t2/diag/undefined-name/undefined-name.byn:2:10
+
+  2 │ print($"{cout}")
+    │          ^^^^
+    │
+  help: did you mean `count`?
+    │ 2 │ print($"{count}")
+    │   │             +
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2001

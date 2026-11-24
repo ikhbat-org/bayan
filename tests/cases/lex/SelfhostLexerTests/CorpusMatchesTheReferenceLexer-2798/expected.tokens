@@ -1,0 +1,147 @@
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `open `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 StringLiteral `";`
+4:1 ErrorKeyword `error`
+4:7 SetKeyword `set`
+4:11 UnitKeyword `unit`
+4:16 DistinctKeyword `distinct`
+4:25 TypeKeyword `type`
+4:30 ImportKeyword `import`
+4:37 AsKeyword `as`
+4:40 PublicKeyword `public`
+4:47 PrivateKeyword `private`
+4:55 StaticKeyword `static`
+4:62 ReadonlyKeyword `readonly`
+4:71 RequiredKeyword `required`
+4:80 Comma `,`
+4:81 ConstKeyword `const`
+4:87 LetKeyword `let`
+4:91 VarKeyword `var`
+4:95 EmbedKeyword `embed`
+4:101 ExternKeyword `extern`
+4:108 UnsafeKeyword `unsafe`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolationStart `{`
+5:32 InterpolatedStringStart `$"`
+5:34 InterpolationStart `{`
+5:35 InterpolatedStringStart `$"`
+5:37 InterpolationStart `{`
+5:38 InterpolatedStringStart `$"`
+5:40 InterpolationStart `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 StringLiteral `$"{$"`
+5:52 OpenBrace `{`
+5:54 Identifier `H`
+5:55 OpenBrace `{`
+5:56 StringLiteral `$"{x}"`
+5:62 CloseBrace `}`
+5:63 StringLiteral `"}"`
+5:66 CloseBrace `}`
+5:67 StringLiteral `"}"`
+6:1 LetKeyword `let`
+6:5 Identifier `s`
+6:7 Equals `=`
+6:9 StringLiteral `$"{$"`
+6:14 OpenBrace `{`
+6:15 StringLiteral `$"{$"`
+6:20 OpenBrace `{`
+6:21 StringLiteral `$"{$"`
+6:26 OpenBrace `{`
+6:27 StringLiteral `$"{$"`
+6:32 OpenBrace `{`
+6:33 StringLiteral `$"{$"`
+6:38 OpenBrace `{`
+6:39 StringLiteral `$"{$"`
+6:44 OpenBrace `{`
+6:45 StringLiteral `$"{$"`
+6:50 OpenBrace `{`
+6:51 StringLiteral `$"{$"`
+6:56 OpenBrace `{`
+6:57 StringLiteral `$"{$"`
+6:62 OpenBrace `{`
+6:63 StringLiteral `$"{$"`
+6:68 OpenBrace `{`
+6:69 Identifier `x`
+6:70 CloseBrace `}`
+6:71 StringLiteral `"}"`
+6:74 CloseBrace `}`
+6:75 StringLiteral `"}"`
+6:78 CloseBrace `}`
+6:79 StringLiteral `"}"`
+6:82 CloseBrace `}`
+6:83 StringLiteral `"}"`
+6:86 CloseBrace `}`
+6:87 StringLiteral `"}"`
+6:90 CloseBrace `}`
+6:91 StringLiteral `"}"`
+6:94 CloseBrace `}`
+6:95 StringLiteral `"}"`
+6:98 CloseBrace `}`
+6:99 StringLiteral `"}"`
+6:102 CloseBrace `}`
+6:103 StringLiteral `"}"`
+6:106 CloseBrace `}`
+6:107 StringLiteral `"}"`
+7:5 Identifier `c`
+7:7 Equals `=`
+7:9 RawStringLiteral `"""neve `
+7:17 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"open {x";
+    │           ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$H{$"{x}"}"}"}"}"
+    │                                            ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$H{$"{x}"}"}"}"}"
+    │                                               ^^
+
+error BYN0002: unexpected character `$`
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$H{$"{x}"}"}"}"}"
+    │                                                     ^
+
+error BYN0002: unexpected character `﻿`
+
+  7 │  ﻿  c = """neve 
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  7 │  ﻿  c = """neve 
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`

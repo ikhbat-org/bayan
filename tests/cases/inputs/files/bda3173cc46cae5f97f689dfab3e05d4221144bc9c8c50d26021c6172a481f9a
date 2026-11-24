@@ -1,0 +1,5 @@
+let b = ` 2
+
+$"tota
+ {x}" $"a I($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+ 

@@ -1,0 +1,14 @@
+1:1 RawStringLiteral `"""1evar xs: List<List<i64>>\n~ ! = == != < <= > >= <\n/* bloc�\n \u{2069}\nlet a = "open\n   raw "quoted"\n`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """1evar xs: List<List<i64>>
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD6)
+
+  3 │ /* bloc�
+    │        ^

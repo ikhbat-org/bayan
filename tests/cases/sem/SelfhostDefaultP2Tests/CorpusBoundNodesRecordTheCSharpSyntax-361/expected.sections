@@ -1,0 +1,8 @@
+== tests/cases/diag/bad-unary-operand.byn
+0..14 globalStatement
+0..14 localDecl
+13..14 literalExpr integer
+15..25 localDecl
+23..25 unaryExpr negate operand 24..25
+26..36 localDecl
+34..36 unaryExpr notKeyword operand 35..36

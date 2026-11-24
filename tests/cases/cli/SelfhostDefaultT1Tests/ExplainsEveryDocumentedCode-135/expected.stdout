@@ -1,0 +1,12 @@
+# BYN2201: string indexer
+
+**Why.** A `string` is UTF-8. `s[i]` would have to pick between a byte, a code point and a grapheme, and either be wrong for some text or hide an O(n) scan. Bayan makes you choose.
+
+**Example.**
+
+```
+let name = "Ali"
+let first = name[0]
+```
+
+**Fix.** Read a byte, slice, or take characters: `s.bytes[i]` for the byte at offset `i` (the machine fix), `s[a..b]` for the text between byte offsets, `s.runes.take(n)` for the first `n` runes, or `s.graphemes` for user-perceived characters.

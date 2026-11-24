@@ -1,0 +1,18 @@
+== tests/cases/diag/path-full-path-needs-alloc.byn
+166..197 blockStmt
+172..195 returnStmt value 179..195
+179..195 callExpr
+193..194 nameExpr
+247..278 blockStmt
+253..276 returnStmt value 260..276
+260..276 callExpr
+274..275 nameExpr
+292..353 blockStmt
+298..351 exprStmt
+298..351 callExpr
+304..350 interpolatedExpr
+307..327 callExpr
+322..326 literalExpr string
+330..348 callExpr
+343..347 literalExpr string
+298..351 callExpr

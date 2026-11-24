@@ -1,0 +1,7 @@
+error BYN2410: `switch` does not handle every `Planet`
+  --> <repo>/tests/cases/diag/non-exhaustive-data-enum.byn:7:29
+
+  7 │ string climate(Planet p) => p switch {
+    │                             ^ not covered: .venus, .earth
+    │
+  help: add the missing arms, or `_ => …` for the rest

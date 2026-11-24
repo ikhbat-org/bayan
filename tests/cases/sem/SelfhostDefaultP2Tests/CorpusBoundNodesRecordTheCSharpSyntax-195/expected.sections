@@ -1,0 +1,18 @@
+== tests/cases/run/memory-arena-padded-too-large.byn
+129..289 blockStmt
+135..160 localDecl
+153..160 callExpr
+165..287 contextStmt
+184..189 nameExpr
+190..287 blockStmt
+200..252 localDecl
+208..252 callExpr
+208..211 literalExpr string
+223..242 literalExpr integer
+248..251 literalExpr char
+261..281 exprStmt
+261..281 callExpr
+267..280 interpolatedExpr
+270..278 memberExpr
+270..271 nameExpr
+261..281 callExpr

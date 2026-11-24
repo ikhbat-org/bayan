@@ -1,0 +1,80 @@
+1:1 CharLiteral `''`
+3:3 Identifier `ist`
+3:6 Less `<`
+3:7 Identifier `List`
+3:11 Less `<`
+3:12 Identifier `i64`
+3:15 Greater `>`
+3:16 Greater `>`
+4:1 Identifier `a`
+4:3 Greater `>`
+4:4 Greater `>`
+4:6 Identifier `b`
+5:1 Identifier `c`
+5:3 Greater `>`
+5:4 GreaterEquals `>=`
+5:7 IntegerLiteral `1`
+6:2 IfKeyword `if`
+6:5 ElseKeyword `else`
+6:10 UnlessKeyword `unless`
+6:17 SwitchKeyword `switch`
+6:24 CaseKeyword `case`
+6:29 DefaultKeyword `default`
+6:37 ForKeyword `for`
+6:41 InKeyword `in`
+6:44 WhileKeyword `while`
+6:50 DoKeyword `do`
+6:53 BreakKeyword `break`
+6:59 ContinueKeyword `continue`
+6:68 Identifier `Qeturn`
+6:75 YieldKeyword `yield`
+6:81 DeferKeyword `defer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
+7:3 IntegerLiteral `42`
+7:6 IntegerLiteral `1_000_000`
+7:16 IntegerLiteral `0xFF`
+7:21 IntegerLiteral `0x_ff`
+7:27 IntegerLiteral `0b1010`
+7:33 CharLiteral `'\u{110000}'`
+8:1 VarKeyword `var`
+8:5 Identifier `xs`
+8:7 Colon `:`
+8:9 Identifier `List`
+8:13 Less `<`
+8:14 Identifier `List`
+8:18 Less `<`
+8:19 Identifier `i64`
+8:22 Greater `>`
+8:23 Greater `>`
+9:1 EndOfFile
+
+error BYN0007: empty char literal
+
+  1 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��ist<List<i64>>
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  3 │ ��ist<List<i64>>
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��ist<List<i64>>
+    │   ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │   42 1_000_000 0xFF 0x_ff 0b1010'\u{110000}'
+    │                                  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

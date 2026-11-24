@@ -1,0 +1,203 @@
+interface IGen0 {
+    i64 m0
+    string m1() uses alloc
+    string m2() uses alloc => $"m2 {m0} {m0}"
+}
+
+struct S00 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0 => f0 * f0
+    string m1() => $"S00 {f0 * f0}"
+}
+
+struct S01 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0 => f1 * f0
+    string m1() => $"S01 {f0 * f1}"
+    // override
+    string m2() => $"S01 m2 {f0 * f1}"
+}
+
+struct S02 : IGen0 {
+    i64 f0
+    i64 f1
+
+    i64 m0 => 1 * f0
+    string m1() => $"S02 {2 + f1}"
+    // override
+    string m2() => $"S02 m2 {7 + 8}"
+}
+
+void roS00(S00 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void rwS00(ref S00 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void roS01(S01 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void rwS01(ref S01 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void roS02(S02 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void rwS02(ref S02 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void roVia0<T>(T v) where T : IGen0 {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void rwVia0<T>(ref T v) where T : IGen0 {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void roDyn0(dyn ref readonly IGen0 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void rwDyn0(dyn ref IGen0 v) {
+    print(v.m1())
+    print(v.m1())
+    print(v.m1())
+    print($"m0 {v.m0}")
+    print(v.m1())
+    print(v.m2())
+    print($"m0 {v.m0}")
+    print($"m0 {v.m0}")
+}
+
+void main() {
+    print("== direct")
+    {
+        var v = S00 { f0: 9, f1: 1 }
+        roS00(v)
+        rwS00(ref v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: -5, f1: -1 }
+        roS01(v)
+        rwS01(ref v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    {
+        var v = S02 { f0: -2, f1: 4 }
+        roS02(v)
+        rwS02(ref v)
+        print($"S02 {v.f0} {v.f1}")
+    }
+    print("== constraint")
+    {
+        var v = S00 { f0: 9, f1: 1 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: -5, f1: -1 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    {
+        var v = S02 { f0: -2, f1: 4 }
+        roVia0(v)
+        rwVia0(ref v)
+        print($"S02 {v.f0} {v.f1}")
+    }
+    print("== dyn")
+    {
+        var v = S00 { f0: 9, f1: 1 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S00 {v.f0} {v.f1}")
+    }
+    {
+        var v = S01 { f0: -5, f1: -1 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S01 {v.f0} {v.f1}")
+    }
+    {
+        var v = S02 { f0: -2, f1: 4 }
+        roDyn0(v)
+        rwDyn0(v)
+        print($"S02 {v.f0} {v.f1}")
+    }
+}

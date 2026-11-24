@@ -1,0 +1,5 @@
+union error MoneyError {
+    invalid
+}
+
+let e = MoneyError.overflow

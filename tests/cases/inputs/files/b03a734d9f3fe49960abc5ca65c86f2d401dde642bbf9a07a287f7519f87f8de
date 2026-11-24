@@ -1,0 +1,2 @@
+void f() uses io where T : I {
+}

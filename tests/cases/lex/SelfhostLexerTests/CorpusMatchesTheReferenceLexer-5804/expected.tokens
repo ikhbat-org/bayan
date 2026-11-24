@@ -1,0 +1,15 @@
+1:1 IntegerLiteral `0x_`
+3:2 Identifier `S`
+3:3 StringLiteral `"x{ $"`
+3:9 OpenBrace `{`
+3:11 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0002: unexpected character `$`
+
+  3 │ $S"x{ $"{ 
+    │ ^

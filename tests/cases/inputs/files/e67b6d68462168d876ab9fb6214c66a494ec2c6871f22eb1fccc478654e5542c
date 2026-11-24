@@ -1,0 +1,89 @@
+struct Point {
+    i64 x
+    i64 y
+    i64 sum() => x + y
+}
+
+union Shape {
+    circle(i64 r)
+    square(i64 side)
+    none
+}
+
+i64 area(Shape s) => s switch {
+    .circle(let r) => r * r * 3,
+    .square(let side) => side * side,
+    .none => 0,
+}
+
+interface IArea {
+    i64 area()
+}
+
+struct Box : IArea {
+    i64 w
+    i64 h
+    i64 area() => w * h
+}
+
+i64 biggerArea<T>(T a, to T b) where T : IArea => a.area() > b.area() ? a.area() : b.area()
+
+union error ParseError {
+    empty
+    badDigit(i64 at)
+}
+
+i64 parseDigit(i64 n) fails ParseError {
+    if n < 0 { fail .badDigit(n) }
+    return n
+}
+
+i64 viaTry(i64 n) fails ParseError {
+    let d = try parseDigit(n)
+    return d + 1
+}
+
+i64 safe(i64 n) => viaTry(n) catch 0
+
+i64 sumAll(List<i64> xs) {
+    var sum: i64 = 0
+    for x in xs { sum += x }
+    var i = 0
+    while i < xs.length { i += 1 }
+    return sum + i
+}
+
+i64 owned(i64 n) {
+    var a = List<i64>()
+    a.append(n)
+    let b = move a
+    return b.length
+}
+
+i64 twice(i64 n) => n * 2
+
+test "twice doubles" {
+    assert twice(2) == 4
+}
+
+void main() {
+    var total: i64 = 0
+    if total >= 0 {
+        total += safe(total)
+        if total >= 0 {
+            total = "text1"
+            total += Point { x: total, y: 2 }.sum()
+            if total >= 0 {
+                total += biggerArea(Box { w: 1, h: 2 }, to: Box { w: 3, h: total })
+                if total >= 0 {
+                    total += Point { x: total, y: 2 }.sum()
+                    if total >= 0 {
+                        total += twice(total)
+                        total += 1
+                    }
+                }
+            }
+        }
+    }
+    print($"{total}")
+}

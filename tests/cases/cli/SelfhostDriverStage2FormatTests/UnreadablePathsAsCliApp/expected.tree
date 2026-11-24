@@ -1,0 +1,7 @@
+== b.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true
+if a {
+    print("x")
+}
+== locked/a.byn OtherRead, GroupRead, UserWrite, UserRead
+let a = true;

@@ -1,0 +1,109 @@
+1:1 LetKeyword `let`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
+3:1 IntegerLiteral `1`
+3:2 Dot `.`
+3:4 Identifier `café`
+3:9 Equals `=`
+3:11 IntegerLiteral `2`
+5:1 LetKeyword `let`
+5:5 Identifier `s`
+5:7 Equals `=`
+5:9 InterpolatedStringStart `$"`
+5:11 InterpolationStart `{`
+5:12 InterpolatedStringStart `$"`
+5:14 InterpolationStart `{`
+5:15 InterpolatedStringStart `$"`
+5:17 InterpolationStart `{`
+5:18 InterpolatedStringStart `$"`
+5:20 InterpolationStart `{`
+5:21 InterpolatedStringStart `$"`
+5:23 InterpolationStart `{`
+5:24 InterpolatedStringStart `$"`
+5:26 InterpolationStart `{`
+5:27 InterpolatedStringStart `$"`
+5:29 InterpolationStart `{`
+5:30 InterpolatedStringStart `$"`
+5:32 InterpolationStart `{`
+5:33 InterpolatedStringStart `$"`
+5:35 InterpolationStart `{`
+5:36 InterpolatedStringStart `$"`
+5:38 InterpolationStart `{`
+5:40 OpenBrace `{`
+5:41 InterpolatedStringStart `$"`
+5:43 InterpolationStart `{`
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:50 InterpolatedStringStart `$"`
+5:52 InterpolationStart `{`
+5:53 InterpolatedStringStart `$"`
+5:55 InterpolationStart `{`
+5:56 InterpolatedStringStart `$"`
+5:58 InterpolationStart `{`
+5:59 StringLiteral `$"{$"`
+5:64 OpenBrace `{`
+5:65 StringLiteral `$"x}\t"`
+5:71 CloseBrace `}`
+5:72 StringLiteral `"}"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 CloseBrace `}`
+5:88 StringLiteral `"}"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+5:93 InterpolationEnd `}`
+5:94 InterpolatedStringEnd `"`
+5:95 InterpolationEnd `}`
+5:96 InterpolatedStringEnd `"`
+5:97 InterpolationEnd `}`
+5:98 InterpolatedStringEnd `"`
+5:99 InterpolationEnd `}`
+5:100 InterpolatedStringEnd `"`
+5:101 InterpolationEnd `}`
+5:102 InterpolatedStringEnd `"`
+5:103 InterpolationEnd `}`
+5:104 InterpolatedStringEnd `"`
+5:105 InterpolationEnd `}`
+5:106 InterpolatedStringEnd `"`
+5:107 InterpolationEnd `}`
+5:108 InterpolatedStringEnd `"`
+6:2 LetKeyword `let`
+6:6 Identifier `a`
+6:8 Equals `=`
+6:12 IntegerLiteral `1`
+7:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"x}	"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"x}	"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                       ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"x}	"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                           ^^
+
+error BYN0002: unexpected character `$`
+
+  6 │  let a = $ 1
+    │          ^

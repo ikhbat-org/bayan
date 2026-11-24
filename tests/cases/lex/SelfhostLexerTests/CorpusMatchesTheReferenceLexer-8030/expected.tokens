@@ -1,0 +1,33 @@
+1:1 CharLiteral `'ab'`
+3:1 Plus `+`
+3:3 Minus `-`
+3:5 Star `*`
+3:7 Slash `/`
+3:9 Percent `%`
+3:11 PlusPercent `+%`
+3:13 MinusPercent `-%`
+3:16 StarPercent `*%`
+3:19 PlusBar `+|`
+3:22 MinusBar `-|`
+3:25 StarBar `*|`
+3:28 Identifier `n`
+3:29 Plus `+`
+3:31 MinusMinus `--`
+4:2 StringLiteral `"{$"`
+4:6 OpenBrace `{`
+4:7 StringLiteral `" \u{2066} \t ''p `
+4:17 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0003: unterminated string literal
+
+  4 │  "{$"{" � 	 ''p 
+    │       ^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

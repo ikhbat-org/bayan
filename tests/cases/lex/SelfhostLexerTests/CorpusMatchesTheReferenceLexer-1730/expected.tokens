@@ -1,0 +1,21 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:1 Identifier `ield`
+2:6 DeferKeyword `defer`
+2:12 ErrdeferKeyword `errdefer`
+2:21 Identifier `usin`
+2:26 ContextKeyword `context`
+3:1 Identifier `fpails`
+3:8 TryKeyword `try`
+3:12 Identifier `cat`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 Identifier `a`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

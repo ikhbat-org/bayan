@@ -1,0 +1,15 @@
+1:1 StringLiteral `"quoted"`
+2:3 RawStringLiteral `""" c"t\n} let c = ""never closed\n\n" amelCase2 بي�`
+5:16 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"t
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD8)
+
+  5 │ " amelCase2 بي�
+    │               ^

@@ -1,0 +1,27 @@
+1:1 StringLiteral `"`
+2:1 RawStringLiteral `"""0b1ms\n\n�\u{13}\n0xFFs\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "
+    │ ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ """0b1ms
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  4 │ ��
+    │  ^

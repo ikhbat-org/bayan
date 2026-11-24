@@ -1,0 +1,41 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+    doc `/// let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"`
+3:2 Identifier `a`
+7:2 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0004: unterminated block comment
+
+  3 │  a /* never closed
+    │    ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  5 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  5 │ ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  5 │ ��
+    │   ^

@@ -1,0 +1,5 @@
+== helpers
+static bynt_opt_main__Color bynh_from_ordinal_main__Color(int64_t i) {
+    if (i < 0 || i >= 2) return (bynt_opt_main__Color){0};
+    return (bynt_opt_main__Color){true, (byn_main_Color)i};
+}

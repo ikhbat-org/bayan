@@ -1,0 +1,3 @@
+== bind.probes.c7
+flags 0
+conditional:i32[3727:13]=-(literal:bool[3727:5]=false(false) local:i32[3735:1]=-(a) local:i32[3739:1]=-(b))

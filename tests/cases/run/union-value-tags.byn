@@ -1,0 +1,23 @@
+// UnionValueTests.DeclaredValuesAreTheEmittedTags: payload-free cases with declared values (200, 404, -1), a payload case
+// after one (405) and a case after a negative value (0) each dispatch to their own arm.
+union Reply {
+    ok = 200
+    notFound = 404
+    moved(string to)
+    none = -1
+    last
+}
+void show(Reply r) {
+    switch r {
+        case .ok: print("ok")
+        case .notFound: print("not found")
+        case .moved(let to): print(to)
+        case .none: print("none")
+        case .last: print("last")
+    }
+}
+show(.ok)
+show(.notFound)
+show(.moved("x"))
+show(.none)
+show(.last)

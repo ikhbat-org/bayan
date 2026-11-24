@@ -1,0 +1,12 @@
+1:1 Identifier `lt`
+1:4 Identifier `c`
+1:6 Equals `=`
+1:8 RawStringLiteral `"""never closed\r\nro select become\r\nlet law = 3\r\n$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"\r\n1__\r\n `
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ lt c = """never closed
+    │        ^^^ raw string starts here
+    │
+  help: close it with `"""`

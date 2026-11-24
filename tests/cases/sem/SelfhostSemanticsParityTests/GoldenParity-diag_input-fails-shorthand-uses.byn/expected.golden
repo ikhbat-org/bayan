@@ -1,0 +1,8 @@
+error BYN1031: `T!E` is an input form; write `T f() fails E`
+
+  4 │ i32!E g() uses console {
+    │    ^^ the input form
+    │
+  help: write `fails E` as the last clause of the signature
+    │ 4 │ i32 g() uses console fails E {
+    │   │    +++++++++++++++++++++++++

@@ -1,0 +1,3 @@
+build
+--emit-c
+call-result-ref-plain-struct.byn

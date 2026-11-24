@@ -1,0 +1,12 @@
+== effects.declared
+BYN2006 8:8 `alloc` is declared twice |already an effect||
+BYN2006 9:8 `db` is declared twice |||
+BYN6003 6:15 `loop` is not an effect |the alias refers to itself|choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias|
+BYN6003 7:20 `disk` is not an effect |not an effect or an `effect` alias of this module|choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias|
+BYN6003 11:18 `disk` is not an effect |not an effect or an `effect` alias of this module|choose one of `alloc`, `suspend`, `net`, `fs`, `clock`, `random`, `env`, `process`, `console`, or a declared effect alias|
+BYN6002 16:5 `greet` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 231..231  uses console
+BYN6002 21:12 `measure` uses `clock` but does not declare it |uses `clock`|add `clock` to the `uses` clause, or remove the call|fix 308..308 , clock
+BYN6002 29:5 `callsHelper` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 427..427  uses console
+BYN6002 33:5 `fixFails` uses `console` but does not declare it |uses `console`|add `console` to the `uses` clause, or remove the call|fix 472..472  uses console
+BYN6002 39:14 `sinks` uses `alloc` but does not declare it |uses `alloc`|add `alloc` to the `uses` clause, or remove the call|fix 545..545  uses alloc
+BYN6002 44:25 `allocs` uses `alloc` but does not declare it |uses `alloc`|add `alloc` to the `uses` clause, or remove the call|fix 635..635  uses alloc

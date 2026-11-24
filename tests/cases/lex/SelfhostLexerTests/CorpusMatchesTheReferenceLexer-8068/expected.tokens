@@ -1,0 +1,12 @@
+1:2 Identifier `Ц`
+1:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �Ц
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ �Ц
+    │  ^

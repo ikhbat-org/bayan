@@ -1,0 +1,1 @@
+{"code":"BYN1001","severity":"error","file":"input.byn","span":{"start":21,"end":21,"line":3,"column":1,"endLine":3,"endColumn":1},"message":"expected `}`, found end of file","label":null,"help":"close the struct opened on line 1","fixes":[]}

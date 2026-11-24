@@ -1,0 +1,26 @@
+== tests/cases/run/io-stdin-bytes.byn
+97..270 blockStmt
+103..196 localDecl
+115..196 catchExpr
+115..138 callExpr
+145..196 blockExpr
+145..196 blockStmt
+155..175 exprStmt
+155..175 callExpr
+161..174 literalExpr string
+155..175 callExpr
+184..190 returnStmt
+201..231 exprStmt
+201..231 callExpr
+207..230 interpolatedExpr
+210..222 memberExpr
+210..215 nameExpr
+201..231 callExpr
+236..268 forStmt
+245..250 nameExpr
+251..268 blockStmt
+253..266 exprStmt
+253..266 callExpr
+259..265 interpolatedExpr
+262..263 nameExpr
+253..266 callExpr

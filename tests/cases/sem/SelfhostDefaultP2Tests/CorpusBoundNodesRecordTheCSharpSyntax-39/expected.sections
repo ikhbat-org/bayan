@@ -1,0 +1,34 @@
+== tests/cases/run/dyn-ref-this-map-slot.byn
+203..338 blockStmt
+209..245 localDecl
+217..245 structLiteralExpr
+230..243 callExpr
+250..273 assignStmt assign target 250..260 value 263..273
+250..260 indexExpr
+250..257 memberExpr
+250..251 nameExpr
+258..259 literalExpr integer
+263..273 structLiteralExpr
+270..271 literalExpr integer
+278..312 localDecl
+302..312 callExpr
+302..303 nameExpr
+310..311 literalExpr integer
+317..336 exprStmt
+317..336 callExpr
+323..335 interpolatedExpr
+326..333 callExpr
+326..327 nameExpr
+317..336 callExpr
+88..89 nameExpr
+88..89 nameExpr
+88..89 nameExpr
+88..89 nameExpr
+174..187 callExpr
+174..187 callExpr
+174..187 callExpr
+174..187 callExpr
+174..179 nameExpr
+174..179 nameExpr
+185..186 nameExpr
+68..69 literalExpr integer

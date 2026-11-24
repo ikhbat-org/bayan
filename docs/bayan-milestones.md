@@ -1,6 +1,6 @@
 # Bayān milestones
 
-Version: 0.3.2 (matches `bayan --version`)
+Version: 0.4.0 (matches `bayan --version`)
 
 What v0.1 was, its milestones M0 to M12, what came after, and the road to self-hosting. The coarse table of releases is `work/milestones.md`; the plan after 0.3.0 is `docs/bayan-roadmap.md`.
 
@@ -336,9 +336,9 @@ Building, testing and shipping Bayan should need nothing but Bayan. Today it nee
 
 | Dependency | Used for | Leaves when |
 |---|---|---|
-| .NET 10 SDK | the C# compiler, the test suite | spec 019 (approved 2026-11-13, written after 0.3.0, est. 4–7 weeks): C# test outputs become goldens run by `bayan test` and shell, the language server is ported to Bayan, CI builds from `bootstrap/bayan.c`. The C# compiler stays frozen for diverse double-compiling, run weekly or per release; the Visual Studio extension stays .NET |
+| .NET 10 SDK | only the weekly ddc job (R27, `.github/workflows/ddc.yml`, builds the C# compiler from the tag `csharp-final`) and the Visual Studio extension | done, spec 019: C# test outputs became goldens run by `bayan test` and shell, the language server is in Bayān, CI builds from `bootstrap/bayan.c`, and the C# compiler was removed at 493d3fd78 (2026-11-24); it stays frozen at `csharp-final` for diverse double-compiling |
 | zig 0.17.0 (or a system cc/clang/gcc, host builds only) | C compiler and cross-target libc (`Toolchain.FindCompiler`) | approved 2026-11-13: toolchain phase 3 (v0.4 plan, B12) removes zig, leaving any C compiler; phase 4, sabk, Bayan's own debug backend to machine code (`bayan build --backend native`; parking lot B04, now scheduled after spec 019), removes the C compiler for debug builds. LLVM (clang or zig) stays for release builds |
-| Python 3 | `scripts/ci/known-failures.py`, `scripts/selfhost/*.py`, `scripts/quality/*.py`, `scripts/unicode/gen-lowercase.py` | the scripts are rewritten as Bayan scripts (the interpreter, v0.2) |
+| Python 3 | `scripts/ci/known-failures.py`, `scripts/selfhost/*.py`, `scripts/quality/*.py` | the scripts are rewritten as Bayan scripts (the interpreter, v0.2) |
 | bash, curl, tar/unzip, sha256sum/shasum | `scripts/**/*.sh`, `scripts/ci/install-zig.sh` | the same |
 | PowerShell | `scripts/selfhost/wp1-test.sh` (the remote command runs on wp1, a Windows host) | the same |
 | Node / VS Code | `editors/vscode/extension.js` (the extension runs inside VS Code) | an LSP server in Bayan leaves only the editor's own host |
@@ -396,13 +396,13 @@ Phase 1 tool: `tools/lex-diff/` (M15). Phase 2: `src/lexer/` checked against the
 - Process: cross-file calls went through compiling stubs with final signatures (010-api.md) and per-task stand-ins until T28 merged them; the stand-ins are gone (no `// stub:` marker remains in `src/semantics/`), but T28 still owes the stale-citation and unreached-arm lines in `work/todo.md`.
 - Not got: `bayan-check --time` prints parse plus check, not the declare/bind/analysis split (Q648); a working-directory builtin, so paths are passed absolute (R1); a C# parser that does not throw on random input, so L018 and L023 stay proposed (Q509, Q662, Q663); a Windows run of the new tests (the UTF-8 harness fix is unmerged, `work/todo.md`).
 
-**Bootstrap from `bootstrap/` (012).** `bootstrap/bayan.c` is the C that stage 1 emits for `build --emit-c --mode safe --package src src/driver`; `bayan-rt.h` and `bayan-rt.c` are byte copies of `runtime/`, and `BootstrapTests` fails when any of the three differs. With a C11 compiler and no .NET or Zig, from the repository root:
+**Bootstrap from `bootstrap/` (012).** `bootstrap/bayan.c` is the C that stage 1 emits for `build --emit-c --mode safe --package src src/driver`; `bayan-rt.h` and `bayan-rt.c` are byte copies of `runtime/`, and `scripts/ci/bootstrap-check.sh` fails when any of the three differs. With a C11 compiler and no .NET or Zig, from the repository root:
 
 ```
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm
 ```
 
-The result is `a.out`, and `./a.out version` prints `bayan <version> (selfhost)`. `BAYAN_UPDATE=1 dotnet test --filter FullyQualifiedName~BootstrapTests` regenerates the three files, and `scripts/selfhost/land.sh` does it when a change under `src/` or `runtime/` lands (Q1045). Byte identity is claimed per host only; L027 leaves cross-host identity as a future strengthening (Q975 made `Target.os` and `Target.arch` preprocessor constants so the file is host-neutral).
+The result is `a.out`, and `./a.out version` prints `bayan <version> (selfhost)`. `bootstrap/README.md` gives the regeneration steps (no .NET, spec 019 R26), and `scripts/selfhost/land.sh` does it when a change under `src/` or `runtime/` lands (Q1045). Byte identity is claimed per host only; L027 leaves cross-host identity as a future strengthening (Q975 made `Target.os` and `Target.arch` preprocessor constants so the file is host-neutral).
 
 **Friction found porting the driver (012).** The port needed compiler and runtime additions that earlier ports did not; what it needed and did not get:
 - Host state with no builtin (Q919, Q970, Q975, Q978, Q1007): the driver could not read the terminal, the environment or the host, so the user decided on `Target.os`/`Target.arch`, `Env.get` and `Fs.fileExists` (a named exception to the no-new-builtin rule), emitted host-neutral as preprocessor constants; the selfhost bound tree had to mirror the new `BoundHostTarget` record, and `Target.os` is not a constant expression without `--target`.

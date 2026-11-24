@@ -1,0 +1,41 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 Identifier `staic`
+1:61 ReadonlyKeyword `readonly`
+1:70 RequiredKeyword `required`
+1:79 ConstKeyword `const`
+1:85 LetKeyword `let`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+7:2 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ /* � '\\' '\�'
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ /* � '\\' '\�'
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ /* � '\\' '\�'
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  2 │ /* � '\\' '\�'
+    │             ^

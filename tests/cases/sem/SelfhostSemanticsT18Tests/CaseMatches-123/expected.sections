@@ -1,0 +1,4 @@
+== member.probes.-.v28
+errorExpr|?|-|-|-|-|-|3094:9|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2230 156:18 `toList()` is now `copy()` |the old name|rename it `copy`|fix 3097..3103 copy

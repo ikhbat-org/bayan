@@ -1,0 +1,37 @@
+1:1 IntegerLiteral `0b1`
+1:4 NumericSuffix `ms`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+4:1 StringLiteral `"{struct S`
+5:1 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  1 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ��$"{
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ��$"{
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  3 │ ��$"{
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ "{struct S
+    │ ^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

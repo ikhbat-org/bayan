@@ -1,0 +1,10 @@
+== tests/cases/diag/assert-not-bool.byn
+0..13 globalStatement
+0..13 localDecl
+12..13 literalExpr integer
+14..26 assertStmt
+27..41 assertStmt
+42..59 assertStmt
+49..59 binaryExpr eq right 58..59
+49..54 nameExpr
+58..59 literalExpr integer

@@ -1,0 +1,9 @@
+   comment */ a
+
+"text" "esc \"q\" \\ \n" """
+ 1
+let b = ` 2
+let c =  3
+ í € b
+///
+1_

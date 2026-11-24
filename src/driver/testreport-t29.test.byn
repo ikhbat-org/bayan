@@ -1,0 +1,70 @@
+// 019 T29 (coverage ratchet): testreport.byn paths no golden case reaches: a golden report, the fail and timeout statuses,
+// control characters in a string, and durations past and on a tie. The expected values are the output of the
+// self-hosted driver at the commit that added the test.
+
+test "driver t29: testReportJson writes a golden report" {
+    var r = TestReport { package: null, mode: "safe", target: "t", golden: true }
+    r.tests.append(TestResult {
+        name: "a\u{8}\t\u{C}\r\u{1}",
+        file: "f",
+        line: 1,
+        status: .failed,
+        elapsedNanos: 0,
+        output: "",
+        kind: "golden",
+        caseKind: "run",
+        path: "p",
+    })
+    r.tests.append(TestResult { name: "b", file: "f", line: 2, status: .timedOut, elapsedNanos: 0, output: "" })
+    let expected = """
+            {
+              "package": null,
+              "mode": "safe",
+              "target": "t",
+              "tests": [
+                {
+                  "name": "a\b\t\f\r\u0001",
+                  "file": "f",
+                  "line": 1,
+                  "status": "fail",
+                  "durationMs": 0,
+                  "output": "",
+                  "kind": "golden",
+                  "caseKind": "run",
+                  "path": "p"
+                },
+                {
+                  "name": "b",
+                  "file": "f",
+                  "line": 2,
+                  "status": "timeout",
+                  "durationMs": 0,
+                  "output": "",
+                  "kind": "test",
+                  "caseKind": "",
+                  "path": ""
+                }
+              ],
+              "summary": {
+                "total": 2,
+                "passed": 0,
+                "failed": 1,
+                "panicked": 0,
+                "timedOut": 1,
+                "pending": 0,
+                "skipped": 0,
+                "testBlocks": 1,
+                "goldenCases": 1,
+                "durationMs": 0
+              }
+            }
+
+            """
+    t29Same(testReportJson(in r), as: expected)
+}
+
+test "driver t29: t11JsonMilliseconds rounds past and on a tie" {
+    t29Same(t11JsonMilliseconds(160000), as: "0.2")
+    t29Same(t11JsonMilliseconds(150000), as: "0.2")
+    t29Same(t11JsonMilliseconds(250000), as: "0.2")
+}

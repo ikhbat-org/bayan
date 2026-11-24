@@ -1,0 +1,10 @@
+error BYN2401: `sign` must return `i64` on every path
+  --> input.byn:5:1
+
+  5 │ }
+    │ ^
+    │
+  help: add a `return` (or `panic(…)`) on the paths that reach the end
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2401

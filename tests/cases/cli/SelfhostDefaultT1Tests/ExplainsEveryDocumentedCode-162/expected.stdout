@@ -1,0 +1,16 @@
+# BYN2228: unknown variant
+
+**Why.** An error enum lists its variants; others do not exist.
+
+**Example.**
+
+```
+union error MoneyError {
+    invalid
+}
+void check() fails MoneyError {
+    fail MoneyError.overflow
+}
+```
+
+**Fix.** Use one of the declared variants, or add the variant to the error enum.

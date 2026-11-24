@@ -1,0 +1,27 @@
+1:1 CharLiteral `' $"{$"{$"{$\u{1B}$"{'`
+1:19 CharLiteral `'`
+1:20 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ ' $"{$"{$"{$�$"{'�'
+    │ ^^^^^^^^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ ' $"{$"{$"{$�$"{'�'
+    │                  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ ' $"{$"{$"{$�$"{'�'
+    │   │                  -
+
+error BYN0008: unterminated char literal
+
+  1 │ ' $"{$"{$"{$�$"{'�'
+    │                   ^
+    │
+  help: close it with `'`

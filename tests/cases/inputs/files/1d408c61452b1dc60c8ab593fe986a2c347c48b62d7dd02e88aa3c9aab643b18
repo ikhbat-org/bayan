@@ -1,0 +1,12 @@
+0xF__
+
+let law = 3
+{oc line one.
+/// Doc line two.
+struct S
+//// not a 
+mment */ a
+/// Doc line one.
+
+0xF__
+

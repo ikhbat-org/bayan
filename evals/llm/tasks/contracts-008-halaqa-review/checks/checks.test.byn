@@ -1,0 +1,28 @@
+test "a valid student is accepted" {
+    assert review("Aisha", at: 9, for: 3) == "accepted Aisha"
+    assert review("Abd al-Rahman", at: 14, for: 12) == "accepted Abd al-Rahman"
+}
+
+@cases(("Hu", 7, 0), ("abcdefghijklmnopqrst", 16, 30))
+test "the edges of every rule are allowed" (string name, i32 age, i32 juz) {
+    assert review(name, at: age, for: juz) == $"accepted {name}"
+    let s = try enrol(name, at: age, for: juz)
+    assert s.age == age
+    assert s.juz == juz
+}
+
+@cases(("Y", "refused: name"), ("abcdefghijklmnopqrstu", "refused: name"), (" Bilal", "refused: name"), ("Bilal ", "refused: name"), (" ", "refused: name, name"), ("", "refused: name"))
+test "each broken name rule is listed" (string name, string expected) {
+    assert review(name, at: 10, for: 2) == expected
+    assert enrol(name, at: 10, for: 2) fails ValidationError<Student>
+}
+
+@cases((6, 5, "refused: age"), (17, 5, "refused: age"), (10, -1, "refused: juz"), (10, 31, "refused: juz"), (3, 40, "refused: age, juz"))
+test "a broken age or juz is listed" (i32 age, i32 juz, string expected) {
+    assert review("Zaynab", at: age, for: juz) == expected
+}
+
+test "every broken rule is listed in order" {
+    assert review(" ", at: 0, for: 99) == "refused: name, name, age, juz"
+    assert review("Omar ", at: 20, for: 0) == "refused: name, age"
+}

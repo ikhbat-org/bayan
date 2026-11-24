@@ -1,0 +1,45 @@
+1:1 CharLiteral `'x`
+2:2 IntegerLiteral `0b102`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 CharLiteral `'\u{110000}'`
+6:1 Identifier `Ytruct`
+6:8 UniqueKeyword `unique`
+6:15 UnionKeyword `union`
+6:21 EnumKeyword `enum`
+6:26 FlagsKeyword `flags`
+6:32 OpenKeyword `open`
+6:37 ExtensibleKeyword `extensible`
+6:48 InterfaceKeyword `interface`
+6:58 DelegateKeyword `delegate`
+6:67 ExtensionKeyword `extension`
+6:77 Identifier `drivation`
+6:87 Question `?`
+6:88 AttributeKeyword `attribute`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �'x
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  1 │ �'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  2 │  0b102
+    │      ^
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

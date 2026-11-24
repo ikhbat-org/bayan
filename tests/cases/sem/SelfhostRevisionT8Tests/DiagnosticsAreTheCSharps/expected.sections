@@ -1,0 +1,6 @@
+== diags.m-collective-mixed-list
+BYN3102 6:22 `grammar.collectives` must be a list of words, e.g. `["upsert"]`
+verbs
+nouns a
+adjectives
+collectives

@@ -1,0 +1,6 @@
+�
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ ' '\n' '\u{1F600}' '\'' 'é x́́110000}'
+'x y } here"
+�"open {x";
+

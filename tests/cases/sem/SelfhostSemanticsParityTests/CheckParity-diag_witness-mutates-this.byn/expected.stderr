@@ -1,0 +1,12 @@
+error BYN2115: `reset` modifies `this` but is not declared `ref this`
+  --> tmp/t26-tests/cli/diag_witness-mutates-this.byn/witness-mutates-this.byn:9:9
+
+  9 │         value = 0
+    │         ^^^^^ `this` is modified here
+    │
+  help: declare it `ref this` as the first parameter
+    │ 8 │     void reset(ref this) {
+    │   │                ++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2115

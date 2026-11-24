@@ -1,0 +1,3 @@
+a >> &b
+$"stray } here"
+ a /* neverV closed

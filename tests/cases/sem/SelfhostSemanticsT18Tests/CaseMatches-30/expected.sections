@@ -1,0 +1,4 @@
+== index.probes.-.i4
+index|i32|local:fixed|-|-|-|f|3920:8|literal:i64=5
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2213 188:20 index 5 is out of range for `i32[2]` |||

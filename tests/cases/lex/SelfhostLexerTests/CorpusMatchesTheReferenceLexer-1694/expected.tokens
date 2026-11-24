@@ -1,0 +1,43 @@
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:11 IntegerLiteral `3`
+3:2 IntegerLiteral `1_`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";�`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  2 │ let c = � 3
+    │         ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │  1_
+    │   ^
+    │
+    │ 3 │  1_
+    │   │   -
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";�
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";�
+    │          ^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xA4)
+
+  5 │ $"open {x";�
+    │            ^

@@ -1,0 +1,12 @@
+== tests/cases/diag/env-fs-target-far-member.byn
+110..215 blockStmt
+116..149 exprStmt
+116..149 callExpr
+122..148 binaryExpr coalesce right 146..148
+116..149 callExpr
+154..186 localDecl
+166..186 callExpr
+191..213 exprStmt
+191..213 callExpr
+197..212 memberExpr
+191..213 callExpr

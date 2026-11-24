@@ -1,0 +1,89 @@
+union error E {
+    bad(i64 code)
+    gone
+}
+
+struct P {
+    i64 x
+}
+
+i64 results(Result<i64, E> r) {
+    let ok = r.isOk
+    let v = r.value
+    let e = r.err
+    return 0
+}
+
+i64 owned(Owned<P> o) {
+    let v = o.value
+    return 0
+}
+
+void copies(Arena arena) uses alloc {
+    var m = Map<i64, i64>()
+    var w = StrBuf()
+    var a = arena
+    var mc = m.copy(to: a)
+    var wc = w.copy(to: a)
+    a.reset()
+}
+
+void onCrash(Panic p) uses console {
+    let m = p.message
+}
+
+i32 process(ProcessResult r) {
+    let o = r.stdout
+    let e = r.stderr
+    return r.exitCode
+}
+
+struct B {
+    i64 n
+    public void formatInto(ref StrBuf output, as FormatSpec spec) {
+        let r = spec.radix
+        let d = spec.debug
+        let w = spec.width
+        let f = spec.fill
+        let al = spec.align
+        let dg = spec.digits
+    }
+}
+
+void input() uses console, alloc {
+    var i = Io.stdin
+    let all = i.readAll()
+}
+
+void loops() uses console, alloc {
+    var s = "a,b"
+    var t = ","
+    var n = 0
+    for r in s.runes { n += 1 }
+    for u in s.utf16 { n += 1 }
+    for ln in s.lines { n += 1 }
+    for p in s.parts(by: t) { n += 1 }
+    var m = Map<i64, i64>()
+    for e in m { n += 1 }
+}
+
+void maps() uses alloc {
+    var m = Map<i64, i64>()
+    var k = 1
+    var v = 2
+    m[k] = v
+    let x = m[k]
+    let g = m.tryGet(k)
+    let h = m.contains(k)
+    let d = m.remove(k)
+}
+
+void radix(FormatSpec spec) uses alloc {
+    var r = spec.radix
+    var s = "ff"
+    var n = 5
+    let p = i32.tryParse(s, as: r)
+    let t = string(n, as: r)
+}
+
+void main() { }

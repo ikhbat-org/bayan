@@ -1,0 +1,32 @@
+== tests/cases/diag/renamed-call-shape.byn
+12..296 blockStmt
+18..38 localDecl
+27..38 callExpr
+43..55 exprStmt
+43..55 callExpr
+43..45 nameExpr
+53..54 literalExpr integer
+60..80 exprStmt
+60..80 callExpr
+85..115 exprStmt
+85..115 callExpr
+120..151 localDecl
+133..151 callExpr
+156..173 assignStmt assign target 156..169 value 172..173
+156..169 indexExpr
+156..162 nameExpr
+163..168 literalExpr string
+172..173 literalExpr integer
+178..208 localDecl
+186..208 callExpr
+213..232 localDecl
+221..232 callExpr
+237..253 localDecl
+250..253 literalExpr integer
+258..294 exprStmt
+258..294 callExpr
+264..293 interpolatedExpr
+267..276 callExpr
+279..280 nameExpr
+283..291 memberExpr
+258..294 callExpr

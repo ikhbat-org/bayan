@@ -1,0 +1,12 @@
+1:1 IntegerLiteral `00_000`
+1:8 IntegerLiteral `0xFF`
+1:13 IntegerLiteral `0x_ff`
+1:19 IntegerLiteral `0`
+1:20 NumericSuffix `b`
+2:1 IntegerLiteral `0x`
+3:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^

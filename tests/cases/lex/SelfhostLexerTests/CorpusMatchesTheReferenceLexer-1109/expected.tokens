@@ -1,0 +1,22 @@
+1:1 IntegerLiteral `1__`
+2:1 StringLiteral `"a\u{2067}b"`
+3:1 Colon `:`
+3:3 Question `?`
+3:5 QuestionQuestion `??`
+3:8 QuestionQuestionEquals `??=`
+3:12 QuestionDot `?.`
+3:15 FatArrow `=>`
+3:18 Arrow `->`
+3:21 At `@`
+3:23 Hash `#`
+4:1 Plus `+`
+4:3 Minus `-`
+4:6 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --

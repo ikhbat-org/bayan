@@ -1,0 +1,1 @@
+long i8(long x) => x + 1000

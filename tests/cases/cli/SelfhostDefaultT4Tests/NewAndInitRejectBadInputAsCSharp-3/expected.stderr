@@ -1,0 +1,2 @@
+bayan: unexpected argument `--bogus`
+usage: bayan new <name> [--lib|--script] [--vcs git|none] [--ci github|none]

@@ -1,0 +1,2 @@
+PATH=tmp/t9-cache/rt-mtime-bin:$PATH
+CCLOG=<root>/cc.log

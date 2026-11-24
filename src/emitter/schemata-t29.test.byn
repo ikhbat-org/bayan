@@ -1,0 +1,544 @@
+// 019 T29 (coverage ratchet): `buildSchema` and a `--mutate` emit over the corpus of lower-t29.test.byn. The expected
+// values are the output of the self-hosted emitter at the commit that added the test.
+
+import lexer
+import parser
+import semantics
+
+type T29Mark = semantics.UnobservableMark
+
+test "emitter t29: buildSchema's sites over the corpus" {
+    let corpus = t29Corpus()
+    var failed = StrBuf()
+    for k in 0..corpus.length {
+        var c = t29Compile(corpus[k])
+        let compiled = t29Errors(in c)
+        if compiled != "" {
+            failed.append($"{k}: {compiled}")
+            continue
+        }
+        let schema = buildSchema(ref c, for: in List<string>())
+        var emitted = 0
+        for s in schema.sites {
+            emitted += 1 if s.emitted
+        }
+        var counts = StrBuf()
+        for op in mutatorOperators() {
+            counts.append($" {op}={schema.notEmitted.tryGet(at: op) ?? 0}")
+        }
+        let notEmitted = counts.finish()
+        if k == 0 {
+            assert emitted == 57
+            assert schema.switches.length == 32
+            let expected = " boundary=0 relational=0 logical=0 condition=0 bool=0 arithmetic=0 literal=0 negation=0 statement=0 emptyReturn=0 variant=2"
+            assert notEmitted == expected
+        } else if k == 2 {
+            assert emitted > 0
+            assert schema.switches.length == 23
+        } else if k == 4 {
+            assert emitted > 0
+            assert schema.switches.length == 6
+        }
+        // The `--mutate` emit selects site `id` with `byn_mutant_is(id)` exactly when the schema emitted that site.
+        let e = t29Emit(corpus[k], mutating: true)
+        for s in schema.sites {
+            if e.contains($"byn_mutant_is({s.id})") != s.emitted {
+                failed.append($"{k}: site {s.id} emitted {s.emitted}")
+            }
+        }
+        assert !e.contains($"byn_mutant_is({schema.sites.length + 1})")
+        assert e.contains("byn_mutant_read();")
+    }
+    assert failed.finish() == ""
+}
+
+test "emitter t29: the Int128 helpers multiply and divide past 64 bits" {
+    let all: u64 = 0xFFFFFFFFFFFFFFFF
+    let square = t10BigMulU64(all, by: all)
+    assert square.lo == 1 && square.hi == 0xFFFFFFFFFFFFFFFE
+    assert semantics.bigText(t10BigMul(t10Big(-3), by: t10Big(7))) == "-21"
+    assert semantics.bigText(t10BigDiv(t10Big(-7), by: t10Big(2), as: false)) == "-3"
+    assert semantics.bigText(t10BigDiv(t10Big(-7), by: t10Big(2), as: true)) == "-1"
+    assert semantics.bigText(t10BigDiv(t10Big(7), by: t10Big(-2), as: false)) == "-3"
+    assert semantics.bigText(t10BigDiv(Big { lo: 0, hi: 1 }, by: t10Big(2), as: false)) == "9223372036854775808"
+    let i64Type = semantics.prim(.i64)
+    let u8Type = semantics.prim(.u8)
+    assert mutatorFolds(.mul, from: t10Big(3), to: t10Big(4), as: i64Type)
+    assert !mutatorFolds(.div, from: t10Big(3), to: t10Big(0), as: i64Type)
+    assert mutatorFolds(.div, from: t10Big(9), to: t10Big(4), as: i64Type)
+    assert mutatorFolds(.rem, from: t10Big(9), to: t10Big(4), as: i64Type)
+    assert mutatorFolds(.lt, from: t10Big(9), to: t10Big(4), as: i64Type)
+    assert !mutatorFolds(.mul, from: t10Big(16), to: t10Big(16), as: u8Type)
+    assert !mutatorFits(t10Big(-1), as: u8Type)
+    assert mutatorFits(t10Big(255), as: u8Type)
+}
+
+test "emitter t29: mutatorOpText, mutatorEmptyText, the string searches and t10Json" {
+    var ops = StrBuf()
+    for op in [
+        parser.BinaryOp.add,
+        parser.BinaryOp.sub,
+        parser.BinaryOp.mul,
+        parser.BinaryOp.div,
+        parser.BinaryOp.rem,
+        parser.BinaryOp.lt,
+        parser.BinaryOp.gt,
+        parser.BinaryOp.le,
+        parser.BinaryOp.ge,
+        parser.BinaryOp.eq,
+        parser.BinaryOp.ne,
+        parser.BinaryOp.logicalAnd,
+        parser.BinaryOp.logicalOr,
+    ] {
+        ops.append($"{mutatorOpText(op)} ")
+    }
+    assert ops.finish() == "+ - * / % < > <= >= == != && || "
+    var c = t29Compile(
+        "union error E {\n    a(i64 x)\n    b(string s)\n    c(i64 y)\n    d\n}\n\nvoid main() {}\n",
+    )
+    assert mutatorEmptyText(semantics.prim(.f64)) == "0.0"
+    assert mutatorEmptyText(semantics.prim(.bool)) == "false"
+    assert mutatorEmptyText(semantics.prim(.string)) == "\"\""
+    assert mutatorEmptyText(semantics.internOptional(ref c, by: semantics.prim(.i64))) == "null"
+    assert mutatorEmptyText(semantics.prim(.void)) is null
+    var a: i64 = -1
+    var b: i64 = -1
+    var cc: i64 = -1
+    var d: i64 = -1
+    for k in 0..c.errorVariants.length {
+        let n = c.errorVariants[k].name
+        a = k if n == "a"
+        b = k if n == "b"
+        cc = k if n == "c"
+        d = k if n == "d"
+    }
+    assert t10SameFields(in c, for: a, as: cc)
+    assert !t10SameFields(in c, for: a, as: b)
+    assert !t10SameFields(in c, for: a, as: d)
+    var vs = List<i64>()
+    vs.append(a)
+    assert t10Has(in vs, for: a) && !t10Has(in vs, for: b)
+    assert t10IndexOf("abcabc", for: "ca") == 2
+    assert t10IndexOf("abcabc", for: "zz") == -1
+    assert t10LastIndexOf("abcabc", for: "bc", at: 5) == 4
+    assert t10LastIndexOf("abcabc", for: "bc", at: 3) == 1
+    assert t10LastIndexOf("abcabc", for: "zz", at: 5) == -1
+    assert t10Json("a\"b\\c\u{8}\t\n\u{C}\r\u{1}z") == "\"a\\\"b\\\\c\\b\\t\\n\\f\\r\\u0001z\""
+}
+
+/// The sites of `source`'s schema, one `line:column op original -> mutated emitted` line each, and its switch count.
+string t29SchemaDump(string source) {
+    var c = t29Compile(source)
+    let errors = t29Errors(in c)
+    return $"errors: {errors}" if errors != ""
+    let schema = buildSchema(ref c, for: in List<string>())
+    var sb = StrBuf()
+    for s in schema.sites {
+        sb.append($"{s.site.line}:{s.site.column} {s.site.op} `{s.site.original}` -> `{s.site.mutated}` {s.emitted}")
+        if (s.unobservable is { } u) {
+            sb.append($" unobservable: {u}")
+        }
+        sb.append("\n")
+    }
+    sb.append($"switches {schema.switches.length}")
+    return sb.finish()
+}
+
+test "emitter t29: buildSchema transfers a generic's sites to its other instances" {
+    let d = t29SchemaDump(
+        """
+        union error E {
+            a(i64 x)
+            b(i64 y)
+            c
+        }
+
+        void note(i64 n) {}
+
+        bool less<T>(T a, by T b, at i64 n) fails E {
+            var k = n
+            k += 1
+            k = -k
+            note(k)
+            fail .a(k) if k == 3
+            if a == b && k > 0 {
+                return true
+            }
+            while k < 10 {
+                k += 2
+            }
+            return false
+        }
+
+        i64 keep<T>(T a, as bool f) {
+            return 1 if f
+            return 0
+        }
+
+        T? maybe<T>(move T a, as bool f) {
+            let o: T? = move a
+            return o if f
+            return null
+        }
+
+        void main() {
+            let p = less(1, by: 2, at: 3) catch { return }
+            let q = less("a", by: "b", at: 3) catch { return }
+            let r = keep(1, as: true)
+            let s = keep("x", as: false)
+            let m = maybe(1, as: true)
+            let n = maybe("x", as: true)
+            do {
+                note(1)
+            } while p && q
+        }
+        """,
+    )
+    // The first instance of each generic owns its sites; the other instances' twins become switch arms through
+    // `schemataTransfer`, and `maybe<string>`'s `o` (a `string?`, not an `i64?`) gets none.
+    for line in [
+        "14:10 variant `.a(k)` -> `.b(k)` true",
+        "12:9 negation `-k` -> `k` true",
+        "15:8 logical `a == b && k > 0` -> `a == b || k > 0` true",
+        "16:16 emptyReturn `true` -> `false` true",
+        "19:9 arithmetic `k += 2` -> `k -= 2` true",
+        "25:12 emptyReturn `1` -> `0` true",
+        "31:12 emptyReturn `o` -> `null` true",
+        "44:13 condition `p && q` -> `!(p && q)` true",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    assert d.endsWith("\nswitches 58")
+}
+
+test "emitter t29: t10BigDiv sets quotient bits past 64" {
+    let q = t10BigDiv(Big { lo: 0, hi: 4 }, by: t10Big(2), as: false)
+    assert q.hi == 2 && q.lo == 0
+    let r = t10BigDiv(Big { lo: 5, hi: 4 }, by: t10Big(2), as: true)
+    assert semantics.bigText(r) == "1"
+}
+
+test "emitter t29: buildSchema over compound assignments, fixed-array indexes, suffixes and marks" {
+    let d = t29SchemaDump(
+        """
+        union error E {
+            a(i64 x)
+            c
+        }
+
+        interface IShape {
+            i64 area()
+        }
+
+        const five: i64 = 5
+
+        union Shape {
+            circle(i64 r)
+            none
+        }
+
+        T same<T>(move T a) {
+            return move a
+        }
+
+        struct P {
+            i64 x = 0
+        }
+
+        void setOut(out i64 x) {
+            x = 1
+        }
+
+        void touch(i64 n) fails E {
+            fail .c if n == 8
+        }
+
+        i64 probe(i64 n) fails E {
+            var k = n
+            k *= 2
+            k /= 2
+            k %= 3
+            let f = 2.0 * 1.5
+            let u: u64 = 7
+            let w = 1 + k
+            let z = five + k
+            fail .c if k != 4
+            let s = "é" == "e" || k > 1
+            let sh = Shape.circle(k)
+            if sh is .circle(let r) && r > 1 {
+                k = r
+            }
+            let xs: i64[3] = [1, 2, 3]
+            let y1 = xs[1u]
+            let su = 5l
+            let y2 = xs[u8(1)]
+            let y3 = xs[u8(k)]
+            if false {
+                k = 3
+            }
+            let ch: u8 = 'a'
+            var held: () -> i64 = () => 2
+            assert k > -5
+            try touch(k)
+            var pt = P {}
+            setOut(out pt.x)
+            let last = xs[^1]
+            for i in 0..3 {
+                k += i
+            }
+            unless k > 2 {
+                k = 1
+            }
+            let err = E.c
+            fail err if k == 9
+            @unobservable(boundary) because "clamped"
+            k = k + 1 if k < 7
+            @unobservable because "any"
+            k = k - 1 if k > 70
+            return k
+        }
+
+        void main() {
+            let a = same(1)
+            let b = same("x")
+            let p = probe(1) catch { return }
+        }
+        """,
+    )
+    for line in [
+        "36:5 arithmetic `k /= 2` -> `k *= 2` true",
+        "37:5 arithmetic `k %= 3` -> `k *= 3` true",
+        "38:13 arithmetic `2.0 * 1.5` -> `2.0 / 1.5` true",
+        "39:18 literal `7` -> `8` true",
+        "43:13 relational `\"é\" == \"e\"` -> `\"é\" != \"e\"` true",
+        "45:32 boundary `r > 1` -> `r >= 1` true",
+        "49:17 literal `1u` -> `0u` true",
+        "50:14 literal `5l` -> `4l` true",
+        "53:8 condition `false` -> `!(false)` true",
+        "61:5 statement `setOut(out pt.x)` -> `` true",
+        "66:12 condition `k > 2` -> `!(k > 2)` false",
+        "72:18 boundary `k < 7` -> `k <= 7` true unobservable: clamped",
+        "72:18 relational `k < 7` -> `k >= 7` true",
+        "74:9 arithmetic `k - 1` -> `k + 1` true unobservable: any",
+        "18:12 emptyReturn `move` -> `0` false",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    // `r > 1` reads what `sh is .circle(let r)` proved, so the `&&` is not flipped.
+    assert !d.contains("logical `sh is")
+    assert d.endsWith("\nswitches 59")
+}
+
+test "emitter t29: buildSchema mutates a requires rule's comparisons, not the checks the binder made for it" {
+    let d = t29SchemaDump(
+        """
+        union error E {
+            a
+            b
+        }
+
+        struct Bounds {
+            i64 lo
+                requires it >= 0
+                requires it < 100
+            i64 hi
+            requires lo <= hi
+        }
+
+        i64 sum(List<i64> xs) fails E {
+            var k: i64 = 0
+            for x in xs {
+                k += x
+            }
+            fail .a if k == 3
+            return k
+        }
+
+        i64 mk(i64 n) fails ValidationError<Bounds> {
+            let b = try Bounds { lo: n, hi: 2 }
+            return b.lo
+        }
+
+        void main() {
+            let b = mk(1) catch { return }
+            var xs = List<i64>()
+            xs.append(1)
+            let s = sum(xs) catch { return }
+        }
+        """,
+    )
+    for line in [
+        "8:18 boundary `it >= 0` -> `it > 0` true",
+        "8:24 literal `0` -> `-1` true",
+        "9:18 relational `it < 100` -> `it >= 100` true",
+        "11:14 boundary `lo <= hi` -> `lo < hi` true",
+        "11:14 relational `lo <= hi` -> `lo > hi` true",
+        "19:10 variant `.a` -> `.b` true",
+        "25:12 emptyReturn `b.lo` -> `0` true",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    // The `if`, `fail` and flag assignment the binder builds for each rule carry the rule's syntax: no condition,
+    // statement or variant site comes from them.
+    assert !d.contains("condition `it")
+    assert !d.contains("condition `lo")
+    assert !d.contains("statement `it")
+    assert !d.contains("statement `lo")
+    assert !d.contains("variant `.invalid")
+    assert d.endsWith("\nswitches 16")
+}
+
+test "emitter t29: t10BigDiv by a divisor past 64 bits" {
+    let q = t10BigDiv(Big { lo: 0, hi: 6 }, by: Big { lo: 0, hi: 4 }, as: false)
+    assert q.hi == 0 && q.lo == 1
+    let r = t10BigDiv(Big { lo: 0, hi: 6 }, by: Big { lo: 0, hi: 4 }, as: true)
+    assert r.hi == 2 && r.lo == 0
+}
+
+test "emitter t29: schemataMarkOf skips a mark of another file" {
+    var c = t29Compile(
+        "i64 f(i64 k) {\n    @unobservable(boundary) because \"clamped\"\n    return 1 if k < 7\n    return 0\n}\n\nvoid main() {\n    let x = f(1)\n}\n",
+    )
+    assert t29Errors(in c) == ""
+    let schema = buildSchema(ref c, for: in List<string>())
+    var at: i64 = -1
+    for k in 0..schema.sites.length {
+        at = k if schema.sites[k].site.op == mutatorBoundary
+    }
+    assert at != -1
+    let site = schema.sites[at].site
+    assert schemataMarkOf(in c, for: in site) == "clamped"
+    let own = c.unobservable[0]
+    var marks = List<T29Mark>()
+    marks.append(
+        T29Mark { file: "other.byn", span: own.span, op: null, reason: "elsewhere" },
+    )
+    c.unobservable = marks.copy()
+    assert schemataMarkOf(in c, for: in site) is null
+    marks.append(T29Mark { file: own.file, span: own.span, op: own.op, reason: own.reason })
+    c.unobservable = move marks
+    assert schemataMarkOf(in c, for: in site) == "clamped"
+}
+
+test "emitter t29: buildSchema keeps an uninitialized local's first assignment and reads a converted `fail`" {
+    let d = t29SchemaDump(
+        """
+        union error F {
+            a
+            b
+        }
+
+        union error X {
+            odd
+        }
+
+        i64 f(i64 n) fails F, X {
+            var k: i64
+            k = n
+            k += 2
+            let xs: i64[3] = [1, 2, 3]
+            let y = xs[i32(1)]
+            let y2 = xs[1ul]
+            let e = F.a
+            fail e if k == 9
+            let o: F? = k == 7 ? F.a : null
+            if o is not null {
+                fail o
+            }
+            fail F.b if k == 8
+            return k
+        }
+
+        void main() {
+            let p = f(1) catch { return }
+        }
+        """,
+    )
+    // `k = n` is `k`'s first assignment, so it is not removed; `k += 2` is, and is mutated as arithmetic.
+    for line in [
+        "13:5 statement `k += 2` -> `` true",
+        "13:5 arithmetic `k += 2` -> `k -= 2` true",
+        "15:20 literal `1` -> `2` true",
+        "16:17 literal `1ul` -> `2ul` true",
+        "23:10 variant `F.b` -> `F.a` true",
+    ] {
+        assert d.contains($"{line}\n")
+    }
+    assert !d.contains("12:5 statement")
+    // `fail e` fails a local and `fail o` a narrowed optional, not a variant: neither has a variant site.
+    assert !d.contains("18:10 variant")
+    assert !d.contains("21:9 variant")
+    assert !d.contains("21:14 variant")
+    assert d.endsWith("\nswitches 16")
+}
+
+test "emitter t29: schemataOffset stops at the end of the source inside a scalar" {
+    var bytes = List<u8>()
+    for b in "aé".bytes {
+        bytes.append(b)
+    }
+    var source = lexer.SourceText.create("x.byn", from: move bytes)
+    assert schemataOffset(ref source, at: 1, by: 2) == 1
+    assert schemataOffset(ref source, at: 1, by: 3) == 3
+}
+
+test "emitter t29: buildSchema with no statement syntax mutates only expressions" {
+    var c = t29Compile(
+        "i64 f(i64 k) {\n    var n = k\n    while n < 3 {\n        n += 1\n    }\n    return n\n}\n\nvoid main() {\n    let x = f(1)\n}\n",
+    )
+    assert t29Errors(in c) == ""
+    c.nodeSyntaxOf = []
+    let schema = buildSchema(ref c, for: in List<string>())
+    var sb = StrBuf()
+    for s in schema.sites {
+        sb.append($"{s.site.line}:{s.site.column} {s.site.op} `{s.site.original}` -> `{s.site.mutated}` {s.emitted}\n")
+    }
+    // No condition, statement, arithmetic-assignment or empty-return site: those need the statement's syntax.
+    let expected = """
+        3:11 boundary `n < 3` -> `n <= 3` true
+        3:11 relational `n < 3` -> `n >= 3` true
+        3:15 literal `3` -> `4` true
+        3:15 literal `3` -> `2` true
+        4:14 literal `1` -> `2` true
+        4:14 literal `1` -> `0` true
+        10:15 literal `1` -> `2` true
+        10:15 literal `1` -> `0` true
+        """
+    assert sb.finish() == $"{expected}\n"
+}
+
+test "emitter t29: buildSchema skips a function with no body, no file or another kind" {
+    var c = t29Compile(
+        "i64 a(i64 k) {\n    return k + 1\n}\n\ni64 b(i64 k) {\n    return k + 2\n}\n\ni64 d(i64 k) {\n    return k + 3\n}\n\nvoid main() {\n    let x = a(1) + b(1) + d(1)\n}\n",
+    )
+    assert t29Errors(in c) == ""
+    for f in c.modules[c.entryModule].allFunctions {
+        if c.functions[f].name == "a" {
+            c.functions[f].body = -1
+        } else if c.functions[f].name == "b" {
+            c.functions[f].file = -1
+        } else if c.functions[f].name == "d" {
+            c.functions[f].kind = .testKeyword
+        }
+    }
+    let schema = buildSchema(ref c, for: in List<string>())
+    var sb = StrBuf()
+    for s in schema.sites {
+        sb.append($"{s.site.line}:{s.site.column} {s.site.op} `{s.site.original}` -> `{s.site.mutated}` {s.emitted}\n")
+    }
+    // Only `main` has sites.
+    let expected = """
+        14:13 arithmetic `a(1) + b(1) + d(1)` -> `a(1) + b(1) - d(1)` true
+        14:13 arithmetic `a(1) + b(1)` -> `a(1) - b(1)` true
+        14:15 literal `1` -> `2` true
+        14:15 literal `1` -> `0` true
+        14:22 literal `1` -> `2` true
+        14:22 literal `1` -> `0` true
+        14:29 literal `1` -> `2` true
+        14:29 literal `1` -> `0` true
+        """
+    assert sb.finish() == $"{expected}\n"
+    assert schema.switches.length == 5
+    // A literal with no parent is in no constant expression, so any value folds.
+    assert mutatorFoldsInParent(in c, for: 0, by: t10Big(1), at: -1, as: semantics.prim(.i64))
+}

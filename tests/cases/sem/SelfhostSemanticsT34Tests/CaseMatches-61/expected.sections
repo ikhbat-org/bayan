@@ -1,0 +1,6 @@
+== s6
+switchExpr|i64|1763:38
+value local:Shape=sh
+arm 1775:16 unionPattern[1775:9]:Shape(circle;|c:Shape:b:-:let) guard - value unionField:i64
+arm 1793:6 bindPattern[1793:1]:Shape_(-) guard - value literal:i64=0
+BYN2712 77:44 `_` hides future cases of `Shape`, declared in this package |matches every case added later|list the cases instead: .square, .empty|

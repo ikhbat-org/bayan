@@ -1,0 +1,7 @@
+== cases
+0 bynh_eq_err(l0_a, l1_b)
+1 bynh_eq_err(l0_a, l2_c)
+2 (!bynh_eq_err(l0_a, l1_b))
+3 bynh_eq_err(l0_a, l3_e)
+4 (l4_l.code == ((byn_err){ .code = UINT32_C(13) }).code)
+count 5

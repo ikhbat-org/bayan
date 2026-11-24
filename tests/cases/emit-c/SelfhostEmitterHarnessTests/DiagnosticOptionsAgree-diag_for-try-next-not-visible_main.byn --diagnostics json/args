@@ -1,0 +1,5 @@
+build
+--emit-c
+input/main.byn
+--diagnostics
+json

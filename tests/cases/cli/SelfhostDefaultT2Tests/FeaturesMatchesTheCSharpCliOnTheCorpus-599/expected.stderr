@@ -1,0 +1,27 @@
+error BYN2302: `f` takes 1 argument(s)
+  --> <repo>/tests/cases/diag/function-value-call.byn:6:18
+
+  6 │     let a = f(x, x)
+    │                  ^
+
+error BYN2021: `f` has no parameter `x`
+  --> <repo>/tests/cases/diag/function-value-call.byn:7:15
+
+  7 │     let b = f(x: x)
+    │               ^
+
+error BYN2021: `f` has no parameter `to`
+  --> <repo>/tests/cases/diag/function-value-call.byn:8:15
+
+  8 │     let c = f(to: x)
+    │               ^^
+
+error BYN2602: `f` can fail; handle the error or pass it on
+  --> <repo>/tests/cases/diag/function-value-call.byn:13:12
+
+  13 │     return f(1)
+     │            ^^^^
+     │
+  help: propagate the error with `try`, or handle it with `catch`
+     │ 13 │     return try f(1)
+     │    │            ++++

@@ -1,0 +1,63 @@
+1:1 CharLiteral `'\q'`
+2:1 CharLiteral `'\q'`
+6:1 Amp `&`
+6:3 AmpAmp `&&`
+6:6 Bar `|`
+6:9 BarBar `||`
+6:12 Caret `^`
+6:14 Tilde `~`
+6:16 Bang `!`
+6:18 Equals `=`
+6:20 EqualsEquals `==`
+6:23 BangEquals `!=`
+6:26 Less `<`
+6:28 LessEquals `<=`
+6:31 Greater `>`
+6:33 GreaterEquals `>=`
+6:36 LessLess `<<`
+6:39 Greater `>`
+6:40 Greater `>`
+6:42 Greater `>`
+6:43 Greater `>`
+6:44 OpenParen `(`
+6:45 Equals `=`
+7:2 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\q`
+
+  2 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEC)
+
+  6 │ & && |� || ^ ~ ! = == != < <= > >= << >> >>(=
+    │       ^

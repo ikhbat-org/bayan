@@ -1,0 +1,8 @@
+== tests/cases/diag/not-visible
+24..29 nameExpr
+24..29 nameExpr
+24..29 nameExpr
+13..35 globalStatement
+13..35 localDecl
+21..35 callExpr
+33..34 literalExpr integer

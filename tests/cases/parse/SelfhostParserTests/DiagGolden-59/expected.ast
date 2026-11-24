@@ -1,0 +1,17 @@
+CompilationUnit
+  Attribute @cases 1 2
+  Function step() -> void
+    Block
+  ErrorEnum StepError
+    Variant timedOut @cases 1
+  Test `takes values` (i32 n, bool ok)
+    Block
+      Assert (paren ok)
+  Attribute @cases 1
+  Attribute @cases 2
+  Test `twice` (i32 n)
+    Block
+      Assert (paren (> n 0))
+  Function main() -> void
+    Block
+      Expr (call step)

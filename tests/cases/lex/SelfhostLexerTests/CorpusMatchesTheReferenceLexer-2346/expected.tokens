@@ -1,0 +1,43 @@
+1:1 Identifier `foo`
+1:5 Identifier `Bar`
+1:9 Identifier `_x`
+1:12 Identifier `camelCase2`
+1:23 Identifier `بيان`
+1:28 Identifier `μετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
+2:2 Identifier `b`
+4:2 CharLiteral `'a'`
+4:6 CharLiteral `'\n'`
+4:11 CharLiteral `'\{1F600}'`
+4:22 CharLiteral `'\''`
+4:27 CharLiteral `'é'`
+4:31 CharLiteral `'\\'`
+4:36 CharLiteral `'\0'`
+5:1 FloatLiteral `2.5`
+5:4 NumericSuffix `f`
+7:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ �'a' '\n' '\{1F600}' '\'' 'é' '\\' '\0'
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ �'a' '\n' '\{1F600}' '\'' 'é' '\\' '\0'
+    │   │ -
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  4 │ �'a' '\n' '\{1F600}' '\'' 'é' '\\' '\0'
+    │           ^^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0006: invalid escape sequence `\{`
+
+  4 │ �'a' '\n' '\{1F600}' '\'' 'é' '\\' '\0'
+    │            ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

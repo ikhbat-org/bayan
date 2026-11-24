@@ -1,0 +1,18 @@
+error BYN3003: cannot return a borrow of `s`, which is freed when `fresh` returns
+  --> input.byn:16:16
+
+  16 │         return s
+     │                ^
+     │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+error BYN3003: cannot return a borrow of `s`, which is freed when `make` returns
+  --> input.byn:22:12
+
+  22 │     return s
+     │            ^
+     │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3003

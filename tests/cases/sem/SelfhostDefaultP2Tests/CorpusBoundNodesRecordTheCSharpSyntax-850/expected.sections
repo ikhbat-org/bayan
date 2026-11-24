@@ -1,0 +1,18 @@
+== tests/cases/diag/strbuf-over-needs-alloc.byn
+80..172 blockStmt
+86..123 localDecl
+94..123 callExpr
+106..122 stackallocExpr
+128..150 exprStmt
+128..150 callExpr
+128..129 nameExpr
+137..149 literalExpr string
+155..170 returnStmt value 162..170
+162..170 memberExpr
+162..163 nameExpr
+206..229 blockStmt
+212..227 exprStmt
+212..227 callExpr
+218..226 interpolatedExpr
+221..224 callExpr
+212..227 callExpr

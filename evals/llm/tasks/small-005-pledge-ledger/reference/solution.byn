@@ -1,0 +1,77 @@
+/// What one person has promised and given.
+struct Pledge {
+    string name
+    i64    pledged
+    i64    paid
+}
+
+/// Where in `ledger` `name` is, or -1.
+i64 indexOf(List<Pledge> ledger, for string name) {
+    for i in 0..ledger.length {
+        return i if ledger[i].name == name
+    }
+    return -1
+}
+
+/// How a pledge stands: `unpaid`, `partial`, `settled` or `over`.
+string status(Pledge p) {
+    return "unpaid" if p.paid == 0
+    return "partial" if p.paid < p.pledged
+    return "settled" if p.paid == p.pledged
+    return "over"
+}
+
+/// The line `pay` prints once `p` has been paid.
+string balance(Pledge p) {
+    return $"{p.name}: settled" if p.paid == p.pledged
+    return $"{p.name}: {p.pledged - p.paid} left" if p.paid < p.pledged
+    return $"{p.name}: over by {p.paid - p.pledged}"
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var ledger = List<Pledge>()
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        if fields.length == 1 && fields[0] == "report" {
+            var pledged: i64 = 0
+            var paid: i64 = 0
+            for p in ledger {
+                print($"{p.name} {p.pledged} {p.paid} {status(p)}")
+                pledged += p.pledged
+                paid += p.paid
+            }
+            print($"pledged: {pledged} paid: {paid}")
+            continue
+        }
+        let amount = fields.length == 3 ? (i64.tryParse(fields[2]) ?? 0) : 0
+        if amount < 1 || (fields[0] != "pledge" && fields[0] != "pay") {
+            print($"bad command: {text}")
+            continue
+        }
+        let at = indexOf(ledger, for: fields[1])
+        if fields[0] == "pledge" {
+            if at < 0 {
+                ledger.append(Pledge { name: fields[1], pledged: amount, paid: 0 })
+                print($"{fields[1]} pledged {amount}")
+            } else {
+                ledger[at].pledged += amount
+                print($"{fields[1]} pledged {ledger[at].pledged}")
+            }
+        } else if at < 0 {
+            print($"unknown: {fields[1]}")
+        } else {
+            ledger[at].paid += amount
+            print(balance(ledger[at]))
+        }
+    }
+}

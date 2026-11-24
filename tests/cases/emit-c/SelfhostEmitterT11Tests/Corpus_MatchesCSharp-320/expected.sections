@@ -1,0 +1,8 @@
+== locals
+indexed: digits seen d t t
+enumerated: steps seen n
+main:
+count:
+get:
+moveNext:
+current:

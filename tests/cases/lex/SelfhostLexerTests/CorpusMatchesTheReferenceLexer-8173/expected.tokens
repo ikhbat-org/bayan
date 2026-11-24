@@ -1,0 +1,89 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `a`
+1:4 InterpolationStart `{`
+1:5 Identifier `b`
+1:6 InterpolationEnd `}`
+1:7 InterpolatedStringText `c`
+1:8 InterpolatedStringEnd
+2:1 Equals `=`
+2:2 CharLiteral `''`
+3:2 IntegerLiteral `0`
+3:4 IntegerLiteral `42`
+3:7 IntegerLiteral `1_000_000`
+3:17 IntegerLiteral `0xFF`
+3:22 IntegerLiteral `0xff`
+3:27 IntegerLiteral `0b1010`
+3:34 IntegerLiteral `0B11`
+3:39 IntegerLiteral `5`
+3:40 NumericSuffix `s`
+3:42 IntegerLiteral `250`
+3:45 NumericSuffix `ms`
+3:48 IntegerLiteral `4`
+3:49 NumericSuffix `KiB`
+3:53 IntegerLiteral `1`
+3:54 NumericSuffix `u`
+3:56 IntegerLiteral `0xFF`
+3:60 NumericSuffix `u`
+3:62 IntegerLiteral `0b1`
+3:65 NumericSuffix `ul`
+3:68 IntegerLiteral `7`
+3:69 NumericSuffix `l`
+4:2 CharLiteral `'a'`
+4:6 CharLiteral `'\n'`
+4:11 CharLiteral `'\u{1F600}'`
+4:23 CharLiteral `'\''`
+4:28 CharLiteral `'é'`
+4:32 CharLiteral `'\\'`
+4:37 CharLiteral `'\0'`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `total `
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 InterpolationEnd `}`
+6:12 InterpolatedStringEnd `"`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolatedStringText `a `
+6:18 InterpolationStart `{`
+6:19 Identifier `f`
+6:20 OpenParen `(`
+6:21 InterpolatedStringStart `$"`
+6:23 InterpolatedStringText `b `
+6:25 InterpolationStart `{`
+6:26 Identifier `c`
+6:27 InterpolationEnd `}`
+6:28 InterpolatedStringEnd `"`
+6:29 CloseParen `)`
+6:30 InterpolationEnd `}`
+6:31 InterpolatedStringText ` d`
+6:33 InterpolatedStringEnd `"`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolatedStringText `{{literal}}`
+6:48 InterpolatedStringEnd `"`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 Identifier `Point`
+6:59 OpenBrace `{`
+6:61 Identifier `x`
+6:63 Equals `=`
+6:65 IntegerLiteral `1`
+6:67 CloseBrace `}`
+6:68 InterpolationEnd `}`
+6:69 InterpolatedStringText `!`
+6:70 InterpolatedStringEnd `"`
+6:72 InterpolatedStringStart `$"`
+6:74 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0007: empty char literal
+
+  2 │ =''
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`

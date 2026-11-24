@@ -1,0 +1,75 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 Identifier `uness`
+1:15 SwitchKeyword `switch`
+1:22 CaseKeyword `case`
+1:27 DefaultKeyword `default`
+1:35 ForKeyword `for`
+1:39 InKeyword `in`
+1:42 WhileKeyword `while`
+1:48 DoKeyword `do`
+1:51 BreakKeyword `break`
+1:57 ContinueKeyword `continue`
+1:66 ReturnKeyword `return`
+1:73 YieldKeyword `yield`
+1:79 DeferKeyword `defer`
+1:85 ErrdeferKeyword `errdefer`
+1:94 Identifier `usin`
+1:100 Identifier `contex`
+1:106 Identifier `t`
+4:1 Identifier `é`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  1 │ if else uness switch case default for in while do break continue return yield defer errdefer usin� contex�t
+    │                                                                                                  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  1 │ if else uness switch case default for in while do break continue return yield defer errdefer usin� contex�t
+    │                                                                                                          ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ ������
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ ������
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  3 │ ������
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  3 │ ������
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������
+    │      ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  4 │ é
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ é
+    │   │ +

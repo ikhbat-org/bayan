@@ -1,0 +1,26 @@
+== ctype
+int64_t
+bool
+int64_t
+int64_t
+int64_t
+byn_str
+byn_str
+byn_str
+void
+int64_t
+bynt_fn1_i64_bool
+bool
+byn_str
+bynt_fn1_str_str
+byn_str
+byn_str
+byn_str
+bynt_fn1_str_void
+void
+void
+error byn_err
+order bynt_fn1_i64_bool
+order bynt_fn1_str_str
+order bynt_fn1_str_void
+order byn_err

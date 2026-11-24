@@ -1,0 +1,40 @@
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:1 CharLiteral `'\qx�`
+4:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ // �
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ // �
+    │     ^
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0008: unterminated char literal
+
+  3 │ '\qx�
+    │ ^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\qx�
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0015: source is not valid UTF-8 (byte 0x99)
+
+  3 │ '\qx�
+    │     ^

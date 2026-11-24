@@ -1,0 +1,24 @@
+== tests/cases/run/const-string-array.byn
+93..142 globalStatement
+93..142 exprStmt
+93..142 callExpr
+99..141 interpolatedExpr
+109..121 memberExpr
+109..114 nameExpr
+131..139 indexExpr
+131..136 nameExpr
+137..138 literalExpr integer
+93..142 callExpr
+143..174 forStmt
+152..157 nameExpr
+158..174 blockStmt
+164..172 exprStmt
+164..172 callExpr
+170..171 nameExpr
+164..172 callExpr
+25..91 collectionExpr
+26..33 literalExpr string
+35..41 literalExpr string
+43..50 literalExpr string
+52..69 literalExpr string
+71..90 literalExpr string

@@ -1,0 +1,13 @@
+== diags.diag/defer-declaration-body
+BYN1018 2:11 the body of `defer` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+  fix 2:10-2:20  { let x = 1 }
+BYN1018 3:11 the body of `defer` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+  fix 3:10-3:25  { let y: i32 = 1 }
+BYN1018 8:19 the body of `defer` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+  fix 8:18-8:28  { let z = 1 }

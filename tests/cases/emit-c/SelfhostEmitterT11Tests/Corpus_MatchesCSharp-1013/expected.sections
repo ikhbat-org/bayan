@@ -1,0 +1,8 @@
+== cases
+1 (!(p_total >= ((int32_t)0)))
+2 (p_total >= ((int32_t)0))
+3 byn_sub_i32(p_total, byn_div_i32(byn_mul_i32(p_total, p_percent, byn_file_0, 4), ((int32_t)100), byn_file_0, 4), byn_file_0, 4)
+4 byn_div_i32(byn_mul_i32(p_total, p_percent, byn_file_0, 4), ((int32_t)100), byn_file_0, 4)
+5 byn_mul_i32(p_total, p_percent, byn_file_0, 4)
+7 byn_mul_i32(l1_scale, ((int32_t)20), byn_file_0, 14)
+count 8

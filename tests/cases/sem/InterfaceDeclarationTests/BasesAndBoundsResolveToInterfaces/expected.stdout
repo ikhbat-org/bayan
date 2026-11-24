@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "input.byn",
+      "name": "describe",
+      "span": {
+        "start": 45,
+        "end": 53
+      },
+      "bindings": []
+    },
+    {
+      "path": "input.byn",
+      "name": "Tokens.area",
+      "span": {
+        "start": 114,
+        "end": 118
+      },
+      "bindings": []
+    },
+    {
+      "path": "input.byn",
+      "name": "show",
+      "span": {
+        "start": 134,
+        "end": 138
+      },
+      "bindings": [
+        {
+          "name": "shape",
+          "kind": "param",
+          "span": {
+            "start": 148,
+            "end": 153
+          },
+          "type": "T"
+        }
+      ]
+    },
+    {
+      "path": "input.byn",
+      "name": "main",
+      "span": {
+        "start": 195,
+        "end": 199
+      },
+      "bindings": []
+    }
+  ]
+}

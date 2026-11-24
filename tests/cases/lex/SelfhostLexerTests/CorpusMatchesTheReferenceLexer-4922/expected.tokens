@@ -1,0 +1,31 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+3:1 Identifier `ne`
+3:4 Identifier `one`
+3:7 Dot `.`
+    doc `/// D2c line two.`
+5:1 StructKeyword `struct`
+5:8 Identifier `S`
+7:1 Identifier `b`
+8:2 Identifier `a`
+8:4 Greater `>`
+8:5 Greater `>`
+8:7 Identifier `b`
+    doc `/// Doc line two.`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0004: unterminated block comment
+
+  11 │  /* block
+     │  ^^ comment starts here
+     │
+  help: close it with `*/`

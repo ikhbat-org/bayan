@@ -1,0 +1,5 @@
+== case inline/lexer-error-char
+errors 1
+error BYN0002: unexpected character `\u{1}`
+  1 │ Package { name: "local/a", version: "0.1.0" } �
+    │                                               ^

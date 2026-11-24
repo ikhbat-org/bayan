@@ -1,0 +1,14 @@
+# BYN2224: interpolation not allowed here
+
+**No longer reported since M14.** `$"…"` is now an expression of type `string` anywhere: outside `print`, `panic` and `StrBuf.append` it formats into a temporary growable `StrBuf` from `context.allocator`, and the result borrows that allocator's region. The code stays reserved.
+
+**Why (before M14).** `$"…"` wrote straight into its output (standard output, a panic message, a `StrBuf`) without allocating. Storing it would have needed a hidden allocation.
+
+**Example.**
+
+```
+let n = 1
+let msg = $"total {n}"
+```
+
+**Fix.** None needed today. To keep text past a `using` arena, build it outside the arena's `context` or `.copy(to: alloc)` it into a longer-lived allocator.

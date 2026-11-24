@@ -1,0 +1,7 @@
+i32 first() {
+    let more: i32[2] = [5, 6]
+    let s: Span<i32> = [..more, 3]
+    return s[0]
+}
+
+print($"{first()}")

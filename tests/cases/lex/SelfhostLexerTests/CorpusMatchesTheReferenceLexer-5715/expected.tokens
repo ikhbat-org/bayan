@@ -1,0 +1,14 @@
+2:1 Identifier `a`
+9:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  2 │ a /* never closed
+    │   ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  5 │ let �a = 2
+    │     ^

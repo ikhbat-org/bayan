@@ -1,0 +1,84 @@
+/// One table at the iftar.
+struct Table {
+    string host
+    i64    guests
+    i64    chairs
+}
+
+/// The hall and what is seated in it.
+struct Hall {
+    List<Table> tables
+    i64         capacity
+    i64         used
+}
+
+/// What the hall holds at the end.
+struct Summary {
+    i64 tables
+    i64 guests
+    i64 free
+}
+
+/// Chairs for `guests`: the next even number.
+i64 chairsFor(i64 guests) => guests % 2 == 0 ? guests : guests + 1
+
+/// A table for `host` with room for `guests`.
+Table tableFor(string host, for i64 guests) {
+    return Table { host: host, guests: guests, chairs: chairsFor(guests) }
+}
+
+/// An empty hall with `capacity` chairs.
+Hall emptyHall(i64 capacity) {
+    return Hall { tables: List<Table>(), capacity: capacity, used: 0 }
+}
+
+/// Seats `table` if the chairs left allow it. Returns whether it did.
+bool seat(ref Hall hall, for Table table) {
+    return false if hall.used + table.chairs > hall.capacity
+    hall.tables.append(table)
+    hall.used += table.chairs
+    return true
+}
+
+/// Counts what `hall` holds.
+Summary countHall(Hall hall) {
+    var guests: i64 = 0
+    for table in hall.tables {
+        guests += table.guests
+    }
+    return Summary { tables: hall.tables.length, guests: guests, free: hall.capacity - hall.used }
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    var hall = emptyHall(0)
+    var first = true
+    for line in read.value.lines {
+        let text = line.trimmed()
+        continue if text.isEmpty
+        if first {
+            hall = emptyHall(i64.tryParse(text) ?? 0)
+            first = false
+            continue
+        }
+        var fields = List<string>()
+        for part in text.parts(by: " ") {
+            fields.append(part)
+        }
+        continue if fields.length != 2
+        let guests = i64.tryParse(fields[1]) ?? 0
+        continue if guests < 1
+        let table = tableFor(fields[0], for: guests)
+        if seat(ref hall, for: table) {
+            print($"{table.host}: {table.chairs} chairs")
+        } else {
+            print($"{table.host}: turned away")
+        }
+    }
+    let summary = countHall(hall)
+    print($"tables: {summary.tables}, guests: {summary.guests}, free chairs: {summary.free}")
+}

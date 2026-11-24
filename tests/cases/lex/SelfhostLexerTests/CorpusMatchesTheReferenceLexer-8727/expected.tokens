@@ -1,0 +1,18 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" @\u{48}i"\n\nver closed\nb\n\nmacro select become\n\n`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{// line comment
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  2 │   """ c"text" u16"wide" "� allowed in strings" "" @\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

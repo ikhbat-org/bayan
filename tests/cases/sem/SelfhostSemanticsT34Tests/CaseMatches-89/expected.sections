@@ -1,0 +1,5 @@
+== s19
+switchExpr|i64|2460:42
+value local:Order=od
+arm 2472:20 unionPattern[2472:7]:Order(paid;|p:Order.paid:b:-:let) guard - value unionField:i64
+arm 2494:6 bindPattern[2494:1]:Order_(-) guard - value literal:i64=0

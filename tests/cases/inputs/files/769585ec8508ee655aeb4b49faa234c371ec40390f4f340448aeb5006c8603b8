@@ -1,0 +1,13 @@
+struct P {
+    i64 x = 1
+    i64 y
+    P(i64 a) { }
+}
+
+void f() { { } }
+
+T id<T>(move T v) => move v
+
+test "nothing" { }
+
+void main() { }

@@ -1,0 +1,7 @@
+error BYN1046: `pattern` is allowed only after `=` in a `const`
+  --> <repo>/tests/cases/diag/pattern-outside-const.byn:6:17
+
+  6 │     let empty = pattern Line { qty: 0 }
+    │                 ^^^^^^^ `pattern` outside a `const`
+    │
+  help: declare the pattern as `const name = pattern T { … }`

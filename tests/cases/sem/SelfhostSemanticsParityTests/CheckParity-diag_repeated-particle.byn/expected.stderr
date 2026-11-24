@@ -1,0 +1,10 @@
+error BYN5013: `copy` uses the particle `from` twice
+  --> tmp/t26-tests/cli/diag_repeated-particle.byn/repeated-particle.byn:2:28
+
+  2 │ void copy(from string src, from string backup) {
+    │                            ^^^^ used again
+    │
+  help: group the values in a struct, or choose another particle
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN5013

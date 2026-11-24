@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/fail-in-defer.byn
+--package
+<repo>/tests/cases/diag

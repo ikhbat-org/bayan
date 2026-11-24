@@ -1,0 +1,42 @@
+== tests/cases/diag/non-exhaustive-union.byn
+88..129 switchExpr
+88..129 switchExpr
+88..129 switchExpr
+88..89 nameExpr
+103..117 variantPattern
+111..114 varPattern
+121..126 binaryExpr mul right 125..126
+121..122 nameExpr
+125..126 nameExpr
+154..300 blockStmt
+160..298 switchStmt
+167..168 nameExpr
+184..203 variantPattern
+190..193 varPattern
+197..200 varPattern
+217..234 exprStmt
+217..234 callExpr
+223..233 interpolatedExpr
+226..227 nameExpr
+230..231 nameExpr
+217..234 callExpr
+248..258 variantPattern
+256..257 constantPattern
+256..257 literalExpr integer
+272..292 exprStmt
+272..292 callExpr
+278..291 literalExpr string
+272..292 callExpr
+324..445 blockStmt
+330..443 switchStmt
+337..338 nameExpr
+354..364 variantPattern
+362..363 discardPattern
+378..393 exprStmt
+378..393 callExpr
+384..392 literalExpr string
+378..393 callExpr
+423..437 exprStmt
+423..437 callExpr
+429..436 literalExpr string
+423..437 callExpr

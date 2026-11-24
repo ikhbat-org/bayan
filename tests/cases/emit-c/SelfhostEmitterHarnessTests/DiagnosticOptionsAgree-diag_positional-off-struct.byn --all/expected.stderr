@@ -1,0 +1,10 @@
+error BYN1016: `@positional` is not allowed here
+  --> input.byn:1:1
+
+  1 │ @positional
+    │ ^^^^^^^^^^^
+    │
+  help: put `@positional` on a struct
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1016

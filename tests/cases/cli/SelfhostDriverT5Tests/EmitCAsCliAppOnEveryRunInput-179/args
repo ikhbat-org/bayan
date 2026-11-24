@@ -1,0 +1,3 @@
+build
+--emit-c
+map-coalesce-assign-missing.byn

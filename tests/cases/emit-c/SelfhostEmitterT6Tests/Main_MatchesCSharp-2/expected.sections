@@ -1,0 +1,10 @@
+== main
+int main(int argc, char** argv) {
+    byn_err err = {0};
+    byn_hash_seed_init(false);
+    (void)argv;
+    (void)argc;
+    if (err.code != 0) { byn_report_error(byn_errors[err.code - 1]); return byn_exit_codes[err.code - 1]; }
+    byn_stdout_flush();
+    return 0;
+}

@@ -1,0 +1,4 @@
+outer: while x {
+    break
+        outer
+}

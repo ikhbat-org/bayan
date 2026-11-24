@@ -1,0 +1,75 @@
+1:1 Identifier `ent`
+1:5 Star `*`
+1:6 Slash `/`
+1:8 Identifier `a`
+    doc `///�Doc line one.\n/// Doc li`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `open `
+4:8 InterpolationStart `{`
+4:9 Identifier `x`
+4:10 StringLiteral `";`
+7:1 IsKeyword `is`
+7:4 AndKeyword `and`
+7:8 OrKeyword `or`
+7:11 NotKeyword `not`
+7:15 WithKeyword `with`
+7:20 MoveKeyword `move`
+7:25 RefKeyword `ref`
+7:29 OutKeyword `out`
+7:33 ThisKeyword `this`
+7:38 Identifier `nullJtrue`
+7:48 FalseKeyword `false`
+7:54 ComptimeKeyword `comptime`
+7:63 CheckedKeyword `checked`
+8:1 Comma `,`
+8:3 Dot `.`
+8:5 DotDot `..`
+8:8 DotDotEquals `..=`
+8:12 Colon `:`
+8:14 Question `?`
+8:16 QuestionQuestion `??`
+8:19 QuestionQuestionEquals `??=`
+8:23 QuestionDot `?.`
+8:26 FatArrow `=>`
+8:29 Arrow `->`
+8:32 At `@`
+8:34 Hash `#`
+9:4 Identifier `c`
+9:6 Greater `>`
+9:7 GreaterEquals `>=`
+9:10 IntegerLiteral `1`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ ///�Doc line one.
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  4 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0xBB)
+
+  6 │ //� ok � in comment
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │ //� ok � in comment
+    │        ^
+
+error BYN0002: unexpected character `﻿`
+
+  9 │  ﻿ c >>= 1
+    │  ^

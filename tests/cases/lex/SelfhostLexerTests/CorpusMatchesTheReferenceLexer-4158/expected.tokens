@@ -1,0 +1,124 @@
+1:1 OpenBrace `{`
+1:2 InterpolatedStringStart `$"`
+1:4 InterpolationStart `{`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 InterpolatedStringStart `$"`
+1:13 InterpolationStart `{`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolationStart `{`
+1:17 Identifier `x`
+1:18 InterpolationEnd `}`
+1:19 InterpolatedStringEnd `"`
+1:20 InterpolationEnd `}`
+1:21 InterpolatedStringEnd
+2:1 IntegerLiteral `0xFF`
+2:5 NumericSuffix `s`
+3:2 Identifier `select`
+3:9 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 Identifier `la`
+4:8 Equals `=`
+5:1 LetKeyword `let`
+5:5 LawKeyword `law`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
+6:1 IntegerLiteral `50`
+6:3 NumericSuffix `dec`
+6:7 IntegerLiteral `1`
+6:8 DotDot `..`
+6:10 IntegerLiteral `2`
+6:12 IntegerLiteral `1`
+6:13 DotDotEquals `..=`
+6:16 IntegerLiteral `3`
+6:18 IntegerLiteral `5`
+6:19 NumericSuffix `e`
+6:21 Identifier `comment`
+6:30 Identifier `l`
+6:32 Identifier `hidden`
+7:1 LetKeyword `let`
+7:5 Identifier `x`
+7:8 Equals `=`
+7:11 IntegerLiteral `5`
+7:12 NumericSuffix `e`
+7:14 Identifier `x`
+7:15 Dot `.`
+7:16 Identifier `y`
+7:18 FloatLiteral `2.5`
+7:21 NumericSuffix `f`
+8:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ {$"{$"{$"{$"{$"{x}"}
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  1 │ {$"{$"{$"{$"{$"{x}"}
+    │           ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  2 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │  select become
+    │  ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  6 │ �50dec 1..2 1..=3 5e comment �l hidden
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  6 │ �50dec 1..2 1..=3 5e comment �l hidden
+    │                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ �50dec 1..2 1..=3 5e comment �l hidden
+    │                               ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  7 │ let x� =  5e x.y 2.5f
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ let x� =  5e x.y 2.5f
+    │   │      -
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  8 │  ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  8 │  ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │  ����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │  ����
+    │     ^

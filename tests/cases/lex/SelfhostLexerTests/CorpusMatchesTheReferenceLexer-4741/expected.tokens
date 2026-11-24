@@ -1,0 +1,117 @@
+1:1 IsKeyword `is`
+1:4 AndKeyword `and`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 WithKeyword `with`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
+3:4 Identifier `comment`
+3:12 Star `*`
+3:13 Slash `/`
+3:15 Identifier `a`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `open `
+5:8 InterpolationStart `{`
+5:9 Identifier `x`
+5:10 StringLiteral `";`
+7:1 IntegerLiteral `0b__`
+9:1 PlusEquals `+=`
+9:4 MinusEquals `-=`
+9:7 StarEquals `*=`
+9:10 SlashEquals `/=`
+9:13 PercentEquals `%=`
+9:16 AmpEquals `&=`
+9:19 BarEquals `|=`
+9:22 CaretEquals `^=`
+9:25 LessLessEquals `<<=`
+10:2 Identifier `a`
+10:4 Greater `>`
+10:5 Greater `>`
+10:7 Identifier `b`
+11:2 InterpolatedStringStart `$"`
+11:4 InterpolationStart `{`
+11:5 InterpolatedStringStart `$"`
+11:7 InterpolationStart `{`
+11:8 InterpolatedStringStart `$"`
+11:10 InterpolationStart `{`
+11:11 InterpolatedStringStart `$"`
+11:13 InterpolationStart `{`
+11:14 InterpolatedStringStart `$"`
+11:16 InterpolationStart `{`
+11:17 InterpolatedStringStart `$"`
+11:19 InterpolationStart `{`
+11:20 InterpolatedStringStart `$"`
+11:22 InterpolationStart `{`
+11:23 InterpolatedStringStart `$"`
+11:25 InterpolationStart `{`
+11:26 InterpolatedStringStart `$"`
+11:28 InterpolationStart `{`
+11:30 Identifier `A`
+11:31 StringLiteral `"{$"`
+11:35 OpenBrace `{`
+11:36 InterpolatedStringStart `$"`
+11:38 InterpolationStart `{`
+11:39 InterpolatedStringStart `$"`
+11:41 InterpolationStart `{`
+11:42 InterpolatedStringStart `$"`
+11:44 InterpolationStart `{`
+11:45 InterpolatedStringStart `$"`
+11:47 InterpolationStart `{`
+11:48 InterpolatedStringStart `$"`
+11:50 InterpolationStart `{`
+11:51 InterpolatedStringStart `$"`
+11:53 InterpolationStart `{`
+11:54 StringLiteral `$"{$"`
+11:59 OpenBrace `{`
+11:60 Identifier `x`
+11:61 CloseBrace `}`
+11:62 StringLiteral `"}"`
+11:65 InterpolationEnd `}`
+11:66 InterpolatedStringEnd `"`
+11:67 InterpolationEnd `}`
+11:68 InterpolatedStringEnd `"`
+11:69 InterpolationEnd `}`
+11:70 InterpolatedStringEnd `"`
+12:1 IntegerLiteral `0b102`
+14:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  5 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  7 │ 0b__
+    │ ^^^^
+
+error BYN0002: unexpected character `$`
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$A"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+     │                             ^
+
+error BYN0003: unterminated string literal
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$A"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+     │                                          ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  11 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$A"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"
+     │                                                      ^^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  12 │ 0b102
+     │     ^

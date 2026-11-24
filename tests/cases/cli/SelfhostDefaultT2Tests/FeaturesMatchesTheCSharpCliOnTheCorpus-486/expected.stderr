@@ -1,0 +1,5 @@
+error BYN2204: constant arithmetic overflows `i32`
+  --> <repo>/tests/cases/diag/constant-overflow.byn:1:18
+
+  1 │ const big: i32 = 2_000_000_000 * 2
+    │                  ^^^^^^^^^^^^^^^^^

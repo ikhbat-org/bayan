@@ -1,0 +1,4 @@
+== member.probes.-.m28
+errorExpr|?|-|-|-|-|-|2139:10|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2700 115:21 `nope` is not a variant of union `Shape` |||

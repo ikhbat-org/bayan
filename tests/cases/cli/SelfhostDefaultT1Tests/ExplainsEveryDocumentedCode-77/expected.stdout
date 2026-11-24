@@ -1,0 +1,21 @@
+# BYN1072: early exit in a block
+
+A style lint (`guards.postfix`): reported by `bayan check` only, never by `build`, `run` or `test`. Its severity comes from `lints` in `package.byn` (`.suggestion` by default; `.none` silences it, `.error` makes `bayan check` fail).
+
+**What.** An `if` without `else` or `unless`/`unlikely`/`never` whose block holds only one `return`, `fail`, `break` or `continue`.
+
+**Why.** A postfix guard says the same on one line and keeps the exit at the left margin (spec §7.3, [style guide](../bayan-style.md)).
+
+**Example.**
+
+```
+if cart.lines.isEmpty {
+    fail .emptyCart
+}
+```
+
+**Fix.** Write the exit with a postfix guard (the fix does it when the block holds the one statement and no comment):
+
+```
+fail .emptyCart if cart.lines.isEmpty
+```

@@ -1,0 +1,5 @@
+== locals
+mk: t
+touch: t
+get: failed n t t
+main: hit t t

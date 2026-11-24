@@ -1,0 +1,81 @@
+1:9 Identifier `ms`
+2:1 IntegerLiteral `0x_`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:1 PlusEquals `+=`
+6:4 MinusEquals `-=`
+6:7 StarEquals `*=`
+6:10 SlashEquals `/=`
+6:13 PercentEquals `%=`
+6:16 AmpEquals `&=`
+6:19 BarEquals `|=`
+6:22 CaretEquals `^=`
+6:25 LessLessEquals `<<=`
+7:2 CharLiteral `'a'`
+7:6 CharLiteral `'\n'`
+7:11 CharLiteral `'\u{1F600}'`
+7:23 CharLiteral `'\''`
+7:28 CharLiteral `'é'`
+7:32 CharLiteral `'\\'`
+7:37 CharLiteral `'\0'`
+8:2 Plus `+`
+8:4 Minus `-`
+8:6 Star `*`
+8:8 Slash `/`
+8:10 Percent `%`
+8:12 PlusPercent `+%`
+8:15 MinusPercent `-%`
+8:18 StarPercent `*%`
+8:21 PlusBar `+|`
+8:24 MinusBar `-|`
+8:27 StarBar `*|`
+8:30 PlusPlus `++`
+8:33 MinusMinus `--`
+9:2 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */ ms
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │  ms
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */ ms
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */ ms
+    │   │    -
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x_
+    │ ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --

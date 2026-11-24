@@ -1,0 +1,4 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:8 IntegerLiteral `1`
+2:1 EndOfFile

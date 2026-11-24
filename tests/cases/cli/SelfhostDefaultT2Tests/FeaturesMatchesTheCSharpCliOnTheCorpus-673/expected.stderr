@@ -1,0 +1,43 @@
+error BYN2772: `@exitCode` needs one integer constant from 1 to 255
+  --> <repo>/tests/cases/diag/invalid-exit-code.byn:2:15
+
+  2 │     @exitCode(0)
+    │               ^
+    │
+  help: pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the
+        operating system
+
+error BYN2772: `@exitCode` needs one integer constant from 1 to 255
+  --> <repo>/tests/cases/diag/invalid-exit-code.byn:5:15
+
+  5 │     @exitCode(300)
+    │               ^^^
+    │
+  help: pick a code from 1 to 255; 0 means success, and exit codes above 255 do not survive the
+        operating system
+
+error BYN2772: `@exitCode` needs one integer constant from 1 to 255
+  --> <repo>/tests/cases/diag/invalid-exit-code.byn:8:5
+
+  8 │     @exitCode
+    │     ^^^^^^^^^
+
+error BYN2772: `@exitCode` needs one integer constant from 1 to 255
+  --> <repo>/tests/cases/diag/invalid-exit-code.byn:11:15
+
+  11 │     @exitCode("x")
+     │               ^^^
+
+error BYN2772: `@exitCode` needs one integer constant from 1 to 255
+  --> <repo>/tests/cases/diag/invalid-exit-code.byn:14:5
+
+  14 │     @exitCode(1, 2)
+     │     ^^^^^^^^^^^^^^^
+
+error BYN1016: `@exitCode` is not allowed here
+  --> <repo>/tests/cases/diag/invalid-exit-code.byn:18:5
+
+  18 │     @exitCode(5)
+     │     ^^^^^^^^^^^^
+     │
+  help: remove the repeated attribute

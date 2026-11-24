@@ -1,0 +1,10 @@
+error BYN2612: allocation is not allowed in a panic handler
+  --> tmp/t26-tests/cli/diag_panic-handler-strbuf-over.byn/panic-handler-strbuf-over.byn:2:13
+
+  2 │     var s = StrBuf.over(stackalloc u8[2])
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: remove it; panic handlers can't recover
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2612

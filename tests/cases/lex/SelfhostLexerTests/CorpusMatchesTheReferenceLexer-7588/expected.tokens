@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `"""\n$"open {x";\nlet effect = 2\n `
+4:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

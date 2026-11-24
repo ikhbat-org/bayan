@@ -1,0 +1,81 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:12 IntegerLiteral `1`
+1:13 Semicolon `;`
+1:15 Identifier `x`
+1:16 CloseBrace `}`
+1:17 StringLiteral `"}"`
+1:20 CloseBrace `}`
+1:21 StringLiteral `"}"`
+1:24 CloseBrace `}`
+1:25 StringLiteral `"}"`
+1:28 CloseBrace `}`
+1:29 StringLiteral `"}"`
+1:32 CloseBrace `}`
+1:33 StringLiteral `"}"`
+1:36 CloseBrace `}`
+1:37 StringLiteral `"}"`
+1:40 CloseBrace `}`
+1:41 StringLiteral `"}"`
+1:44 CloseBrace `}`
+1:45 StringLiteral `"`
+2:1 CharLiteral `'\n'`
+2:6 CharLiteral `'\u{1F600}'`
+2:18 CharLiteral `'\''`
+2:23 CharLiteral `'é'`
+2:27 CharLiteral `'\\'`
+2:32 CharLiteral `'\0'`
+4:1 Identifier `café`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+4:10 NumericSuffix `le`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+6:1 StringLiteral `"text"`
+6:8 StringLiteral `"esc \"q\" \\ \n"`
+6:26 RawStringLiteral `"""\n\n`
+8:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café  1; x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café  1; x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   │        +
+
+error BYN0003: unterminated string literal
+
+  1 │ let café  1; x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │ café = 1le
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ café = 1le
+    │   │    +
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0003: unterminated string literal
+
+  6 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`

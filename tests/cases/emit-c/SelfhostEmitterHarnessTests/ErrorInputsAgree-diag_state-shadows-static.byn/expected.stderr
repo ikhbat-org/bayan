@@ -1,0 +1,10 @@
+error BYN7008: state `.empty` has the same name as static member `Cart.empty`
+  --> input.byn:4:9
+
+  4 │         empty
+    │         ^^^^^
+    │
+  help: rename the state or the static member
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN7008

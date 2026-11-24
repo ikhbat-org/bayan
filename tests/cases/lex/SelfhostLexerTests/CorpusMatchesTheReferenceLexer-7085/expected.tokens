@@ -1,0 +1,129 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+2:2 Identifier `r`
+2:4 UsingKeyword `using`
+2:10 ContextKeyword `context`
+3:1 FailsKeyword `fails`
+3:7 TryKeyword `try`
+3:11 CatchKeyword `catch`
+3:17 Identifier `h`
+4:1 CharLiteral `'\u{110000}'`
+5:1 LetKeyword `let`
+5:5 Identifier `café`
+5:11 Equals `=`
+5:13 IntegerLiteral `1`
+7:8 Identifier `Kgs`
+7:11 StringLiteral `"9 "`
+7:15 StringLiteral `" "`
+7:19 Identifier `u`
+7:20 OpenBrace `{`
+7:21 IntegerLiteral `48`
+7:23 CloseBrace `}`
+7:24 Identifier `i`
+7:25 StringLiteral `"`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolationStart `{`
+8:5 InterpolatedStringStart `$"`
+8:7 InterpolationStart `{`
+8:8 InterpolatedStringStart `$"`
+8:10 InterpolationStart `{`
+8:11 InterpolatedStringStart `$"`
+8:13 InterpolationStart `{`
+8:14 InterpolatedStringStart `$"`
+8:16 InterpolationStart `{`
+8:17 InterpolatedStringStart `$"`
+8:19 InterpolationStart `{`
+8:20 InterpolatedStringStart `$"`
+8:22 InterpolationStart `{`
+8:23 InterpolatedStringStart `$"`
+8:25 InterpolationStart `{`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolationStart `{`
+8:29 InterpolatedStringStart `$"`
+8:31 InterpolationStart `{`
+8:32 InterpolatedStringStart `$"`
+8:34 InterpolationStart `{`
+8:35 InterpolatedStringStart `$"`
+8:37 InterpolationStart `{`
+8:38 InterpolatedStringStart `$"`
+8:40 InterpolationStart `{`
+8:41 InterpolatedStringStart `$"`
+8:43 InterpolationStart `{`
+8:44 Identifier `x`
+8:45 InterpolationEnd `}`
+8:46 InterpolatedStringEnd `"`
+8:47 InterpolationEnd `}`
+8:48 InterpolatedStringEnd `"`
+8:49 InterpolationEnd `}`
+8:50 InterpolatedStringEnd `"`
+8:51 InterpolationEnd `}`
+8:52 InterpolatedStringEnd `"`
+8:53 InterpolationEnd `}`
+8:54 InterpolatedStringEnd `"`
+8:55 InterpolationEnd `}`
+8:56 InterpolatedStringEnd `"`
+8:57 InterpolationEnd `}`
+8:58 InterpolatedStringEnd `"`
+8:59 InterpolationEnd `}`
+8:60 InterpolatedStringEnd `"`
+8:61 InterpolationEnd `}`
+8:62 InterpolatedStringEnd `"`
+8:63 InterpolationEnd `}`
+8:64 InterpolatedStringEnd `"`
+8:65 InterpolationEnd `}`
+8:66 InterpolatedStringEnd `"`
+8:67 InterpolationEnd `}`
+8:68 InterpolatedStringEnd `"`
+8:69 InterpolationEnd `}`
+8:70 InterpolatedStringEnd `"`
+8:71 InterpolationEnd `}`
+8:72 InterpolatedStringEnd `"`
+8:74 EndOfFile
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  4 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  5 │ let café = 1
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ let café = 1
+    │   │        +
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │ /* � */Kgs"9 "" "\u{48}i"
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │ // �
+    │   │  +++
+    │ 8 │ Kgs"9 "" "\u{48}i"
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  7 │ /* � */Kgs"9 "" "\u{48}i"
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ /* � */Kgs"9 "" "\u{48}i"
+    │   │    -
+
+error BYN0002: unexpected character `\`
+
+  7 │ /* � */Kgs"9 "" "\u{48}i"
+    │                  ^
+
+error BYN0003: unterminated string literal
+
+  7 │ /* � */Kgs"9 "" "\u{48}i"
+    │                         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

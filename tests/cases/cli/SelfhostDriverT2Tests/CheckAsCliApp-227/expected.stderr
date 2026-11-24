@@ -1,0 +1,10 @@
+error BYN2410: `switch` does not handle every `ValidationError<a.Point> | ValidationError<b.Point>`
+  --> <repo>/tmp/t2/diag/validation-error-same-name-unhandled/main/main.byn:11:26
+
+  11 │     both(1, at: 0) catch switch {
+     │                          ^^^^^^ not covered: ValidationError<b.Point>
+     │
+  help: add the missing arms, or `_ => …` for the rest
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2410

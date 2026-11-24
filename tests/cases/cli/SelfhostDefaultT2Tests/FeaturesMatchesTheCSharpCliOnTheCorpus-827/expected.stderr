@@ -1,0 +1,10 @@
+error BYN1042: a postfix `if` must be on the line of its statement
+  --> <repo>/tests/cases/diag/postfix-on-new-line.byn:5:9
+
+  5 │         if done
+    │         ^^ on the next line
+    │
+  help: move the `if` clause up to the statement's line
+    │ 4 │     stop()
+    │ 5 │         if done
+    │   │ -------

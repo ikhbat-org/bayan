@@ -1,0 +1,6 @@
+== cases
+0 (l0_other.len > INT64_C(3))
+1 l0_other.len
+2 ((int64_t)l0_n)
+3 ((bynt_opt_i64){true, INT64_C(4)})
+count 4

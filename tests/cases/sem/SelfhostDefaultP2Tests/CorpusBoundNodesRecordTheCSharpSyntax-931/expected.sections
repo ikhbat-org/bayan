@@ -1,0 +1,4 @@
+== tests/cases/diag/unique-state-copy.byn
+107..129 blockStmt
+113..127 localDecl
+124..127 nameExpr

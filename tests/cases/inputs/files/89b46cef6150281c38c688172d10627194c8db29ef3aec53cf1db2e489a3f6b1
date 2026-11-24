@@ -1,0 +1,11 @@
+��( ) [ ] { }
+//// not a doc comment
+
+� in comment
+foo Bar _x camelCase2 بيان μετρητής x_1 é
+
+if else unless switch case default for in while do break continue return yield defer errdefer using context
+
+& && | || ^ ~ ! = == != < <= > >= << >> >>=
+'\\' '\0'
+ 

@@ -1,0 +1,29 @@
+error BYN2789: `switch move …` needs a local or a `move` parameter, not field `slot`
+  --> tmp/t26-tests/cli/diag_switch-move-field.byn/switch-move-field.byn:14:17
+
+  14 │     switch move box.slot {
+     │                 ^^^^^^^^
+     │
+  help: drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection
+        field into a local first
+
+error BYN2789: `switch move …` needs a local or a `move` parameter, not an element
+  --> tmp/t26-tests/cli/diag_switch-move-field.byn/switch-move-field.byn:17:17
+
+  17 │     switch move slots[0] {
+     │                 ^^^^^^^^
+     │
+  help: drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection
+        field into a local first
+
+error BYN2789: `switch move …` needs a local or a `move` parameter, not parameter `plain`
+  --> tmp/t26-tests/cli/diag_switch-move-field.byn/switch-move-field.byn:20:17
+
+  20 │     switch move plain {
+     │                 ^^^^^
+     │
+  help: drop `move` so the bindings borrow, declare the parameter `move`, or `.take()` a collection
+        field into a local first
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN2789

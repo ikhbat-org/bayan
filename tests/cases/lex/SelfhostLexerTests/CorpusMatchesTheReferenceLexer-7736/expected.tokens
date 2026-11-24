@@ -1,0 +1,25 @@
+1:5 Identifier `Ϯ`
+1:6 CharLiteral `'`
+2:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  1 │ � ��Ϯ'
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  1 │ � ��Ϯ'
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ � ��Ϯ'
+    │    ^
+
+error BYN0008: unterminated char literal
+
+  1 │ � ��Ϯ'
+    │      ^
+    │
+  help: close it with `'`

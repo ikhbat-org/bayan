@@ -1,0 +1,50 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+4:1 LetKeyword `let`
+4:7 Equals `=`
+4:9 IntegerLiteral `2`
+6:1 IntegerLiteral `1`
+6:2 Dot `.`
+7:1 IntegerLiteral `1__`
+9:1 Identifier `a`
+9:3 Greater `>`
+9:4 Greater `>`
+9:6 Identifier `b`
+11:1 Identifier `macro`
+11:7 Identifier `select`
+11:14 BecomeKeyword `become`
+12:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ let � = 2
+    │     ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 1__
+    │  ^^
+    │
+    │ 7 │ 1__
+    │   │  --
+
+error BYN0002: unexpected character `‏`
+
+  8 │  ‏
+    │  ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  11 │ macro select become
+     │ ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  11 │ macro select become
+     │       ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name

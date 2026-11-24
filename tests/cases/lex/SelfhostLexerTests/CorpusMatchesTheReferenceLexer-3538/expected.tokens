@@ -1,0 +1,12 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `S`
+5:1 StringLiteral `"a\u{2067}b"`
+5:7 CharLiteral `'x`
+6:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  5 │ "a�b" 'x
+    │       ^^
+    │
+  help: close it with `'`

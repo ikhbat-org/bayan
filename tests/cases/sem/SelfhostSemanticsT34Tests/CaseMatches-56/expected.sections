@@ -1,0 +1,4 @@
+== c17
+catchExpr|i64|5471:26
+operand call:i64 binding - variant closed handler literal:i64=0
+variantSpan 5487:7

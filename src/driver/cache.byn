@@ -461,7 +461,7 @@ string? t9LookupEntry(string dir, by string file, from string sumName, through r
             return exe
         }
     }
-    try discard(dir, through: ref d)
+    try discard(dir, at: t9Staging(), through: ref d)
     return null
 }
 
@@ -576,7 +576,14 @@ T9Runtime t9RuntimeIn(
     args.append(Path.combine(work, "bayan-rt.c"))
     args.append("-o")
     args.append(obj)
-    let r = Io.run(compiler[0], args.span) catch switch {
+    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+        // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:397-402).
+        .signaled(let s, let streamOut, let streamErr) => return T9Runtime {
+            result: NativeBuild {
+                errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
+                rejected: true,
+            },
+        },
         IoError e => return T9Runtime {
             result: NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" },
         },
@@ -645,7 +652,7 @@ NativeBuild t9Compile(
 /// The `finally` of `Compile` (Toolchain.cs:461-464).
 void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
     if t9DirectoryExists(work) {
-        try discard(work, through: ref d)
+        try discard(work, at: t9Staging(), through: ref d)
     }
 }
 
@@ -683,7 +690,12 @@ NativeBuild t9CompileIn(
     args.append(exe)
     // `CommandLineToArgvW` (program arguments) is in shell32.
     args.append(windows ? "-lshell32" : "-lm")
-    let r = Io.run(compiler[0], args.span) catch switch {
+    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+        // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
+        .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
+            errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
+            rejected: true,
+        },
         IoError e => return NativeBuild { errors: $"cannot run the C compiler `{ccJoin(in compiler)}`: {e}" },
     }
     return NativeBuild {
@@ -737,6 +749,146 @@ void evict(string keep, through ref DCtx d) uses alloc, clock, env, fs, random {
     evictWith(keep, to: mb *% 1048576, by: 4000, until: 600000000000, through: ref d)
 }
 
+/// Spec 019 T17d (R1): the most entries `<cache>/zig/o/` keeps (docs/memory-leaks.md).
+const zigCacheEntries: i64 = 2000
+
+/// An `o/` entry written less than this many nanoseconds ago (10 minutes, `evict`'s) is kept past the limit, so a concurrent `zig cc`
+/// keeps its entry.
+const zigCacheMinAge: i64 = 600000000000
+
+/// The env of a `zig cc` the driver starts: `ZIG_GLOBAL_CACHE_DIR=<cacheDirectory()>/zig`, its `o/` trimmed first, when the
+/// driver's own `ZIG_GLOBAL_CACHE_DIR` is unset or empty; nothing for another compiler or a set value, which the child inherits.
+Map<string, string?> zigCacheEnv(List<string> compiler) uses alloc, clock, env, fs {
+    return zigCacheEnvFor(
+        compiler,
+        from: Env.get("ZIG_GLOBAL_CACHE_DIR"),
+        at: cacheDirectory(),
+        by: zigCacheEntries,
+        until: zigCacheMinAge,
+    )
+}
+
+/// `zigCacheEnv` with the driver's `ZIG_GLOBAL_CACHE_DIR` (`set`), its cache directory, the entry limit and the minimum age given.
+Map<string, string?> zigCacheEnvFor(
+    List<string> compiler,
+    from string? set,
+    at string cache,
+    by i64 limit,
+    until i64 minAgeNanos
+)
+        uses alloc, clock, fs {
+    var env: Map<string, string?> = []
+    let zig = compiler.length > 1 && compiler[1] == "cc" && ccWithoutExtension(Path.fileName(compiler[0])) == "zig"
+    return env if !zig || (set ?? "") != ""
+    let dir = Path.combine(cache, "zig")
+    zigTrim(Path.combine(dir, "o"), by: limit, until: minAgeNanos)
+    env["ZIG_GLOBAL_CACHE_DIR"] = dir
+    return env
+}
+
+/// When `dir` holds more than `limit` entries, removes the oldest by write time, each whole, until at most `limit - limit / 4` are
+/// left (1500 for 2000), as `t9Evict` trims programs; the slack makes a trim, and its read of `h/`, one per ~`limit / 4` compiles,
+/// not one per compile past the limit. A link is removed and its target kept. An entry written less than `minAgeNanos` ago is kept, as `evictWith` keeps one. An IO
+/// error (`dir` missing, an entry gone in between) ends it.
+void zigTrim(string dir, by i64 limit, until i64 minAgeNanos) uses alloc, clock, fs {
+    zigTrimEntries(dir, by: limit, until: minAgeNanos) catch return
+}
+
+/// The body of `zigTrim`.
+void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc, clock, fs fails IoError {
+    let names = try Io.listDir(dir)
+    return if names.length <= limit
+    var paths = List<string>()
+    var used = List<i64>()
+    for name in names {
+        let path = Path.combine(dir, name)
+        continue if t9DirectoryExists(path) && !zigDriverObject(path)
+        paths.append(path)
+        used.append((try Fs.modified(path)).nanos)
+    }
+    return if paths.length <= limit
+    // Oldest first: an insertion sort of the indices, as `t9Evict`.
+    var order = List<i64>()
+    for i in 0..paths.length {
+        order.append(i)
+        var at = order.length - 1
+        while at > 0 && used[order[at - 1]] > used[i] {
+            order[at] = order[at - 1]
+            at -= 1
+        }
+        order[at] = i
+    }
+    var count = paths.length
+    let keep = limit - limit / 4
+    let cutoff = Time.now().nanos - minAgeNanos
+    var gone = List<i64>()
+    for i in order {
+        break if count <= keep
+        continue if used[i] > cutoff
+        count -= 1
+        gone.append(i)
+    }
+    return if gone.length == 0
+    // A manifest in `h/` names its inputs, not its `o/` entry, so a hit on one whose entry is gone fails `FileNotFound`; a manifest
+    // gone is only a miss. Only a driver object is trimmed, so the rule is: before any `o/` entry goes, every manifest naming
+    // `main.c` or `bayan-rt.c` goes. The toolchain manifests stay (removing all of `h/` rebuilds compiler_rt, 6.5 s, every trim).
+    // The manifests go first, so a failure there ends the trim with `o/` whole.
+    try zigTrimManifests(Path.combine(Path.directoryName(dir) ?? "", "h"))
+    for i in gone {
+        continue if t3Unlinked(paths[i])
+        try t9DeleteTree(paths[i])
+    }
+}
+
+/// Removes each file of zig's manifest directory `h` that names a file `main.c` or `bayan-rt.c` (zig 0.17 stores an input's path
+/// as its bytes; a manifest of another file that matches is only a miss). A missing `h` has none.
+void zigTrimManifests(string h) uses alloc, fs fails IoError {
+    return unless t9DirectoryExists(h)
+    for name in try Io.listDir(h) {
+        let path = Path.combine(h, name)
+        continue if name == "timestamp" || t9DirectoryExists(path)
+        let bytes = try Io.readFile(path)
+        if zigNamesBytes(bytes, as: "main.c") || zigNamesBytes(bytes, as: "bayan-rt.c") {
+            try Io.remove(path)
+        }
+    }
+}
+
+/// Whether `bytes` names a file whose whole name is `text`: `text`'s bytes after a `/`, `\` or space and before a `\n`, `\r`,
+/// `\0` or the end, so zig's own `gccmain.c`, `dllmain.c` and `__libc_start_main.c` do not match `main.c`.
+bool zigNamesBytes(List<u8> bytes, as string text) {
+    let want = text.bytes
+    for at in 1..bytes.length - want.length + 1 {
+        continue unless bytes[at - 1] is 0x2F or 0x5C or 0x20
+        let end = at + want.length
+        let ends = end == bytes.length || bytes[end] is 0x0A or 0x0D or 0x00
+        continue unless ends
+        var same = true
+        for k in 0..want.length {
+            if bytes[at + k] != want[k] {
+                same = false
+                break
+            }
+        }
+        return true if same
+    }
+    return false
+}
+
+/// Whether the `o/` entry `path` holds only objects of the driver's own compiles (`main.c`, `bayan-rt.c`), so it may be trimmed.
+/// zig builds its toolchain pieces (`libcompiler_rt.a`, libc, crt, ubsan) once per target into `o/` and every later link reads
+/// them through a manifest in `h/`; removing one makes that link fail with `failed to parse archive: FileNotFound` (laws-nightly
+/// 44901747519, 2026-11-21). Those pieces are bounded per target, so they are kept, as is an empty or unreadable entry. The trim
+/// asks this only of a directory: a link or a file in `o/` holds no toolchain piece and is removed as before.
+bool zigDriverObject(string path) uses alloc, fs {
+    let names = Io.listDir(path) catch return false
+    return false if names.length == 0
+    for name in names {
+        return false if name != "main.o" && name != "main.obj" && name != "bayan-rt.o" && name != "bayan-rt.obj"
+    }
+    return true
+}
+
 /// `TryParse` with `NumberStyles.None` (Toolchain.cs:147, :485): `text` as decimal digits only, null when it is empty, has
 /// another character or is above `max`.
 i64? t9Digits(string text, until i64 max) {
@@ -754,19 +906,21 @@ i64? t9Digits(string text, until i64 max) {
 /// Toolchain.cs:490 `Evict(keep, maxBytes, maxEntries, minAge)`: an IO error ends it.
 void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d)
         uses alloc, clock, env, fs, random {
-    t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, through: ref d) catch return
+    t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, at: cacheData(), through: ref d) catch return
 }
 
-/// The `try` body of `Evict` (Toolchain.cs:490-516). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
-void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, through ref DCtx d)
+/// The `try` body of `Evict` (Toolchain.cs:490-516) on the cache data directory `data` (`cacheData()`; the evict blocks of bounds.byn
+/// give another). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
+void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, at string data, through ref DCtx d)
         uses alloc, clock, env, fs, random
         fails IoError {
-    let programs = t9Programs()
+    let programs = Path.combine(data, "programs")
+    let runtime = Path.combine(data, "runtime")
     // Runtime objects share the cap and the LRU order with programs (Toolchain.cs:494-496).
     var parents = List<string>()
     parents.append(programs)
-    if t9DirectoryExists(t9Runtime()) {
-        parents.append(t9Runtime())
+    if t9DirectoryExists(runtime) {
+        parents.append(runtime)
     }
     var keys = List<string>()
     var dirs = List<string>()
@@ -817,11 +971,11 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
     for i in order {
         break if count <= maxEntries && bytes <= maxBytes
         continue if keys[i] == keep || used[i] > cutoff
-        try discard(dirs[i], through: ref d)
+        try discard(dirs[i], at: Path.combine(data, "tmp"), through: ref d)
         count -= 1
         bytes -= sizes[i]
     }
-    let scripts = t9Scripts()
+    let scripts = Path.combine(data, "scripts")
     unless t9DirectoryExists(scripts) {
         return
     }
@@ -918,20 +1072,22 @@ void t9DeleteTree(string dir) uses alloc, fs fails IoError {
 }
 
 /// Toolchain.cs:557 `Discard`: `Directory.CreateDirectory(Staging)`, whose `UnauthorizedAccessException` the C# does not catch, so
-/// a permission error fails; any other error is the caught `IOException`.
-void discard(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
-    Io.createDirectory(t9Staging()) catch switch {
+/// a permission error fails; any other error is the caught `IOException`. `staging` is `Staging` (`t9Staging()`).
+void discard(string dir, at string staging, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
+    Io.createDirectory(staging) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
         IoError e => return,
     }
-    try t9MoveAndDelete(dir, through: ref d)
+    try t9MoveAndDelete(dir, at: staging, through: ref d)
 }
 
 /// `Directory.Move(dir, trash)` and `Directory.Delete(trash, recursive: true)` of `Discard`, `trash` being `trash-<Guid>` in
 /// `Staging`, so a half-deleted entry is never visible. A failed move is the caught `IOException`: .NET's `Directory.Move` throws
 /// `IOException` for `EACCES` on Unix and `ERROR_ACCESS_DENIED` on Windows (Q1114).
-void t9MoveAndDelete(string dir, through ref DCtx d) uses alloc, clock, env, fs, random fails IoError {
-    let trash = Path.combine(t9Staging(), $"trash-{t9Unique(ref d)}")
+void t9MoveAndDelete(string dir, at string staging, through ref DCtx d)
+        uses alloc, clock, env, fs, random
+        fails IoError {
+    let trash = Path.combine(staging, $"trash-{t9Unique(ref d)}")
     t9MoveDirectory(dir, to: trash) catch return
     t9DeleteTree(trash) catch switch {
         IoError.permissionDenied => fail .permissionDenied,
@@ -1029,4 +1185,213 @@ string t9Hash(string text) uses alloc => Hex.encode(sha256(text.bytes).span)
 string t9HashFile(string path) uses alloc, fs fails IoError {
     let bytes = try Io.readFile(path)
     return Hex.encode(sha256(bytes.span).span)
+}
+
+/// `CacheTests.Root`: tmp/cache-tests/<name>, emptied and created.
+string t9TestRoot(string name) uses alloc, fs {
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "cache-tests"), name)
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    return dir
+}
+
+// CacheTests.ScriptKeysDependOnTheCompilerBuild.
+test "script-key: a script's key depends on the compiler build, the same build giving the same key" {
+    let script = "print(\"hi\")\n"
+    assert(scriptKey(script.bytes, by: "safe", for: "a") != scriptKey(script.bytes, by: "safe", for: "b"))
+    assert(scriptKey(script.bytes, by: "safe", for: "a") == scriptKey(script.bytes, by: "safe", for: "a"))
+    assert(compilerBuild() != "")
+}
+
+// CacheTests.ASingleWordOrZigCompilerKeepsItsStamp, the rows that name the compiler by its path: the rows that find `cc` and `zig`
+// on a `PATH` set to the test's directory are not ported, as a test block cannot set `PATH` (no `Env.set`).
+test "compiler-stamp: a single-word compiler's stamp is its path and write time in ticks, and a word naming no file has none" {
+    let root = t9TestRoot("stamp-words")
+    let cc = Path.combine(root, "cc")
+    Io.writeFile(cc, "".bytes) catch { panic($"cannot write {cc}") }
+    // `new DateTime(2021, 1, 1, 0, 0, 0, DateTimeKind.Utc)`: 1609459200 Unix seconds, 637450560000000000 ticks.
+    Fs.setModified(cc, to: Time.fromNanos(1609459200 * 1000000000)) catch { panic($"cannot stamp {cc}") }
+    assert(t9CompilerStamp(boundList([cc])) == $"{cc}:637450560000000000")
+    assert(t9CompilerStamp(boundList(["nosuch"])) == "")
+}
+
+// CacheTests.ReplaceFileRetriesWhileDestinationIsOpen, its non-Windows branch: the content is replaced.
+test "replace-file: replacing a file leaves the new content at its path" {
+    let root = t9TestRoot("replace-open")
+    let path = Path.combine(root, "target.txt")
+    let source = Path.combine(root, "source.txt")
+    Io.writeFile(path, "before".bytes) catch { panic($"cannot write {path}") }
+    Io.writeFile(source, "after".bytes) catch { panic($"cannot write {source}") }
+    var d = newDCtx()
+    replaceFile(path, from: source, through: ref d) catch { panic($"cannot replace {path}") }
+    assert((Io.readText(path) catch "") == "after")
+}
+
+/// `<root>/zig/o/` with `count` entries `e0`..`e<count-1>`, each a directory holding one driver object `main.o`, `e<i>` written
+/// at 2021-01-01 + i hours, so `e0` is the oldest.
+string zigTestCache(string root, at i64 count) uses alloc, fs {
+    let o = Path.combine(Path.combine(root, "zig"), "o")
+    for i in 0..count {
+        let entry = Path.combine(o, $"e{i}")
+        Io.createDirectory(entry) catch { panic($"cannot create {entry}") }
+        Io.writeFile(Path.combine(entry, "main.o"), "x".bytes) catch { panic($"cannot write in {entry}") }
+        Fs.setModified(
+            entry,
+            to: Time.fromNanos((1609459200 + i * 3600) * 1000000000),
+        ) catch { panic($"cannot stamp {entry}") }
+    }
+    return o
+}
+
+test "zig-cache-trim: past the limit the oldest entries of zig/o are removed whole and the newest kept" {
+    let root = t9TestRoot("zig-trim")
+    let o = zigTestCache(root, at: 5)
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 3, until: 0)
+    assert(env.length == 1)
+    assert(!t9DirectoryExists(Path.combine(o, "e0")))
+    assert(!t9DirectoryExists(Path.combine(o, "e1")))
+    for name in ["e2", "e3", "e4"] {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "main.o")))
+    }
+    assert((Io.listDir(o) catch List<string>()).length == 3)
+}
+
+test "zig-cache-toolchain: past the limit an entry holding anything but main or bayan-rt objects is kept, however old" {
+    let root = t9TestRoot("zig-toolchain")
+    let o = zigTestCache(root, at: 5)
+    let rt = Path.combine(o, "e0")
+    Io.writeFile(Path.combine(rt, "libcompiler_rt.a"), "x".bytes) catch { panic($"cannot write in {rt}") }
+    let win = Path.combine(o, "e1")
+    Io.remove(Path.combine(win, "main.o")) catch { panic($"cannot empty {win}") }
+    Io.writeFile(Path.combine(win, "bayan-rt.obj"), "x".bytes) catch { panic($"cannot write in {win}") }
+    let crt = Path.combine(o, "e2")
+    Io.remove(Path.combine(crt, "main.o")) catch { panic($"cannot empty {crt}") }
+    Io.writeFile(Path.combine(crt, "Scrt1.o"), "x".bytes) catch { panic($"cannot write in {crt}") }
+    let empty = Path.combine(o, "e3")
+    Io.remove(Path.combine(empty, "main.o")) catch { panic($"cannot empty {empty}") }
+    for name in ["e0", "e1", "e2", "e3"] {
+        Fs.setModified(Path.combine(o, name), to: Time.fromNanos((1609459200 + 3600) * 1000000000)) catch { panic($"cannot stamp {name}") }
+    }
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 1, until: 0)
+    assert(env.length == 1)
+    assert(Fs.fileExists(Path.combine(rt, "libcompiler_rt.a")))
+    assert(!t9DirectoryExists(win))
+    assert(Fs.fileExists(Path.combine(crt, "Scrt1.o")))
+    assert(t9DirectoryExists(empty))
+    assert(Fs.fileExists(Path.combine(Path.combine(o, "e4"), "main.o")))
+    assert((Io.listDir(o) catch List<string>()).length == 4)
+}
+
+test "zig-cache-toolchain-over-limit: toolchain entries do not count toward keep so newest driver objects survive" {
+    let root = t9TestRoot("zig-toolchain-over-limit")
+    let o = zigTestCache(root, at: 5)
+    for i in 0..5 {
+        let tc = Path.combine(o, $"t{i}")
+        Io.createDirectory(tc) catch { panic($"cannot create {tc}") }
+        Io.writeFile(Path.combine(tc, "libcompiler_rt.a"), "x".bytes) catch { panic($"cannot write in {tc}") }
+        let secs: i64 = 1609459200 - (5 - i64(i)) * 3600
+        Fs.setModified(tc, to: Time.fromNanos(secs * 1000000000)) catch { panic($"cannot stamp {tc}") }
+    }
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 4, until: 0)
+    assert(env.length == 1)
+    for i in 0..5 {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, $"t{i}"), "libcompiler_rt.a")))
+    }
+    assert(!t9DirectoryExists(Path.combine(o, "e0")))
+    assert(!t9DirectoryExists(Path.combine(o, "e1")))
+    for name in ["e2", "e3", "e4"] {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "main.o")))
+    }
+    assert((Io.listDir(o) catch List<string>()).length == 8)
+}
+
+test "zig-cache-set: a set ZIG_GLOBAL_CACHE_DIR is passed through unchanged and nothing is trimmed" {
+    let root = t9TestRoot("zig-set")
+    let o = zigTestCache(root, at: 5)
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: "/elsewhere/zig", at: root, by: 3, until: 0)
+    assert(env.length == 0)
+    assert((Io.listDir(o) catch List<string>()).length == 5)
+    let other = zigCacheEnvFor(boundList(["cc"]), from: null, at: root, by: 3, until: 0)
+    assert(other.length == 0)
+    assert((Io.listDir(o) catch List<string>()).length == 5)
+}
+
+test "zig-cache-unset: an unset ZIG_GLOBAL_CACHE_DIR gives the zig cc child <cache>/zig" {
+    let root = t9TestRoot("zig-unset")
+    let env = zigCacheEnvFor(boundList(["/opt/zig/zig", "cc"]), from: null, at: root, by: 3, until: 0)
+    assert(env["ZIG_GLOBAL_CACHE_DIR"] == Path.combine(root, "zig"))
+    let empty = zigCacheEnvFor(boundList(["zig", "cc"]), from: "", at: root, by: 3, until: 0)
+    assert(empty["ZIG_GLOBAL_CACHE_DIR"] == Path.combine(root, "zig"))
+}
+
+test "zig-cache-young: an entry written within the minimum age survives past the limit" {
+    let root = t9TestRoot("zig-young")
+    let o = zigTestCache(root, at: 5)
+    for name in ["e3", "e4"] {
+        let entry = Path.combine(o, name)
+        Fs.setModified(entry, to: Time.now()) catch { panic($"cannot stamp {entry}") }
+    }
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 1, until: 600000000000)
+    assert(env.length == 1)
+    for name in ["e0", "e1", "e2"] {
+        assert(!t9DirectoryExists(Path.combine(o, name)))
+    }
+    for name in ["e3", "e4"] {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "main.o")))
+    }
+}
+
+/// A fake C compiler that kills itself with SIGKILL, as a one-word compiler.
+string t9KilledCompiler(string root) uses alloc, fs, process {
+    let cc = Path.combine(root, "cc")
+    Io.writeFile(cc, "#!/bin/sh\nkill -9 $$\n".bytes) catch { panic($"cannot write {cc}") }
+    let _ = Io.run("chmod", boundList(["+x", cc]).span) catch { panic($"cannot chmod {cc}") }
+    return cc
+}
+
+// Q53: a compiler killed by signal n is exit 128+n, a failed compile, for the runtime object and for the program.
+test "signaled-runtime: a compiler killed by a signal fails the runtime object build as exit 128+signal" {
+    if Target.os == "windows" {
+        todo("the compiler is a `sh` script")
+    }
+    let root = t9TestRoot("signaled-runtime")
+    let cc = t9KilledCompiler(root)
+    let work = Path.combine(root, "work")
+    Io.createDirectory(work) catch { panic($"cannot create {work}") }
+    var d = newDCtx()
+    let r = t9RuntimeIn(
+        work,
+        by: boundList([cc]),
+        through: List<string>(),
+        for: "key",
+        to: ref d,
+    ) catch { panic("t9RuntimeIn failed") }
+    assert(r.result.rejected)
+    assert(!r.result.succeeded)
+    assert(r.result.errors == "C compiler failed (exit 137):\n")
+}
+
+test "signaled-program: a compiler killed by a signal fails the program build as exit 128+signal" {
+    if Target.os == "windows" {
+        todo("the compiler is a `sh` script")
+    }
+    let root = t9TestRoot("signaled-program")
+    let cc = t9KilledCompiler(root)
+    let work = Path.combine(root, "work")
+    Io.createDirectory(work) catch { panic($"cannot create {work}") }
+    var d = newDCtx()
+    let r = t9CompileIn(
+        work,
+        by: boundList([cc]),
+        through: List<string>(),
+        from: "int main(void) { return 0; }\n",
+        for: "key",
+        as: "prog",
+        until: Path.combine(root, "rt.o"),
+        at: false,
+        to: ref d,
+    ) catch { panic("t9CompileIn failed") }
+    assert(r.rejected)
+    assert(!r.succeeded)
+    assert(r.errors == "C compiler failed (exit 137):\n")
 }

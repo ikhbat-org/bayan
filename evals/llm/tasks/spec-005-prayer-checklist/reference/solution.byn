@@ -1,0 +1,64 @@
+enum Prayer(i64 rakaat) {
+    fajr(2)
+    dhuhr(4)
+    asr(4)
+    maghrib(3)
+    isha(4)
+}
+
+struct Pledge {
+    string donor
+    i64    amount
+    bool   paid
+}
+
+void showPrayers() {
+    var total: i64 = 0
+    for prayer in Prayer.values {
+        print($"salah {prayer.name}: {prayer.rakaat}")
+        total += prayer.rakaat
+    }
+    print($"salah total: {total}")
+}
+
+void showRemovals() {
+    var gifts = List<i64>()
+    for gift in [10, 20, 30, 40, 50] {
+        gifts.append(gift)
+    }
+    gifts.remove(from: 1, until: 3)
+    print($"gifts after until: {gifts.length}, {gifts[0]}, {gifts[1]}, {gifts[2]}")
+    gifts.remove(from: 0, through: 0)
+    print($"gifts after through: {gifts.length}, {gifts[0]}, {gifts[1]}")
+}
+
+void showSlices() {
+    let name = "Ḥasan ibn Zaynab"
+    let first = name[0..7]
+    let rest = name[8..name.length]
+    print($"word head: {first}, {first.length}, {first.runeCount}")
+    print($"word tail: {rest}, {rest.length}, {rest.runeCount}")
+}
+
+void showSearch() {
+    let name = "Ḥasan ibn Zaynab"
+    let at = name.position("ibn") ?? -1
+    let missing = name.position("bint") ?? -1
+    print($"word position ibn: {at}")
+    print($"word position bint: {missing}")
+}
+
+void showUpdate() {
+    let pledge = Pledge { donor: "Bilal", amount: 40, paid: false }
+    let settled = pledge with { paid: true }
+    print($"pledge before: {pledge.paid}, {pledge.amount}")
+    print($"pledge after: {settled.paid}, {settled.amount}")
+}
+
+void main() {
+    showPrayers()
+    showRemovals()
+    showSlices()
+    showSearch()
+    showUpdate()
+}

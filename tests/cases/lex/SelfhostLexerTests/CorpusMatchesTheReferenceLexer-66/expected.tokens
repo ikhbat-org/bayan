@@ -1,0 +1,37 @@
+1:2 FailsKeyword `fails`
+1:8 TryKeyword `try`
+1:12 CatchKeyword `catch`
+1:18 NeverKeyword `never`
+1:24 Identifier `no`
+1:27 Identifier `lloc`
+1:32 NosuspendKeyword `nosuspend`
+1:43 Identifier `uspend`
+1:50 Identifier `s`
+1:52 AsyncKeyword `async`
+1:58 AwaitKeyword `await`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ �fails try catch never no�lloc nosuspend �uspend�s async await
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ �fails try catch never no�lloc nosuspend �uspend�s async await
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xD2)
+
+  1 │ �fails try catch never no�lloc nosuspend �uspend�s async await
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �fails try catch never no�lloc nosuspend �uspend�s async await
+    │                                          ^
+
+error BYN0002: unexpected character `\u{2}`
+
+  1 │ �fails try catch never no�lloc nosuspend �uspend�s async await
+    │                                                 ^

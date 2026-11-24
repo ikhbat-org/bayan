@@ -1,0 +1,65 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 StringLiteral `"open`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+3:1 Identifier `lCase2بيا`
+4:3 Identifier `b`
+6:1 NotKeyword `not`
+6:5 Identifier `a`
+6:7 Identifier `doc`
+6:11 Identifier `comme`
+6:17 IntegerLiteral `1__`
+7:9 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ let a = "open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xD9)
+
+  3 │ lCase2بيا�
+    │          ^
+
+error BYN0002: unexpected character `‏`
+
+  4 │ ‏ b
+    │ ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ not a doc comme 1__
+    │                  ^^
+    │
+    │ 6 │ not a doc comme 1__
+    │   │                  --
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  7 │  /* � */
+    │  ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 7 │  // �
+    │   │   +++
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  7 │  /* � */
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │  /* � */
+    │   │     -

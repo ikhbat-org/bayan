@@ -1,0 +1,18 @@
+== tests/cases/diag/fs-rename-needs-fs.byn
+152..185 blockStmt
+158..183 exprStmt
+158..183 tryExpr
+162..183 callExpr
+172..173 nameExpr
+179..182 literalExpr string
+240..273 blockStmt
+246..271 exprStmt
+246..271 tryExpr
+250..271 callExpr
+260..261 nameExpr
+267..270 literalExpr string
+287..306 blockStmt
+293..304 exprStmt
+293..304 callExpr
+299..303 literalExpr string
+293..304 callExpr

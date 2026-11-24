@@ -1,0 +1,2 @@
+== case hex
+literal 900..904 : i32 = 42

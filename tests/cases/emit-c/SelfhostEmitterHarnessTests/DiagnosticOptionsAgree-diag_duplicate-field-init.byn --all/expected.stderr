@@ -1,0 +1,8 @@
+error BYN2110: field `x` is set twice
+  --> input.byn:5:23
+
+  5 │ let p = Point { x: 1, x: 2 }
+    │                       ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2110

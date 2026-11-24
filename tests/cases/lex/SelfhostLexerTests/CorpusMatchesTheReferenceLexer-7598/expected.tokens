@@ -1,0 +1,57 @@
+1:9 IntegerLiteral `0xFF`
+1:13 NumericSuffix `s`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 Identifier `aerror`
+2:11 Identifier `setPunit`
+2:20 DistinctKeyword `distinct`
+2:29 TypeKeyword `type`
+2:34 ImportKeyword `import`
+2:41 Identifier `aspublic`
+2:50 Identifier `rivate`
+2:57 StaticKeyword `static`
+2:64 ReadonlyKeyword `readonly`
+2:73 RequiredKeyword `required`
+2:82 ConstKeyword `const`
+2:88 LetKeyword `let`
+2:92 VarKeyword `var`
+2:96 EmbedKeyword `embed`
+2:102 ExternKeyword `extern`
+2:109 UnsafeKeyword `unsafe`
+3:3 Identifier `raw`
+3:7 StringLiteral `"quoted"`
+4:1 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  1 │ /* � */ 0xFFs
+    │ ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 1 │ // �
+    │   │  +++
+    │ 2 │  0xFFs
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  1 │ /* � */ 0xFFs
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ /* � */ 0xFFs
+    │   │    -
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ /* � */ 0xFFs
+    │             ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{aerror setPunit distinct type import aspublic rivate static readonly required const let var embed extern unsafe
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string

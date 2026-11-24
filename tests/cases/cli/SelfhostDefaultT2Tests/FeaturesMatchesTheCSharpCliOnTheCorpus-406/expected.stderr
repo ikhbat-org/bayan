@@ -1,0 +1,71 @@
+error BYN1002: expected an expression, found `.`
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:2:15
+
+  2 │ let pb = x is .
+    │               ^
+
+error BYN1002: expected an expression, found `.`
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:3:15
+
+  3 │ let pc = x is .5
+    │               ^
+
+error BYN1002: expected an expression, found `{`
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:16:9
+
+  16 │ if x is { }
+     │         ^
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:17:1
+
+  17 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`
+
+error BYN1021: `x = …` in a literal is an input form; write `x: …`
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:20:25
+
+  20 │ let ta = Order.paid { x = 1 }
+     │                         ^ the input form
+     │
+  help: write `:` after the field name
+     │ 20 │ let ta = Order.paid { x: 1 }
+     │    │                        +
+
+error BYN1005: expected a line break after the statement
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:21:20
+
+  21 │ let tb = order.paid { x: 1 }
+     │                    ^ found `{`
+     │
+  help: put the next statement on its own line
+     │ 21 │ let tb = order.paid
+     │ 22 │ { x: 1 }
+
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:21:26
+
+  21 │ let tb = order.paid { x: 1 }
+     │                          ^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1012: this expression does nothing as a statement
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:22:20
+
+  22 │ if Order.paid { x: 1 }
+     │                    ^ the value is computed and discarded
+     │
+  help: write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand
+        alone
+
+error BYN1001: expected a declaration or statement, found `}`
+  --> <repo>/tests/cases/parse/pattern-branches-unicode.byn:23:1
+
+  23 │ }
+     │ ^
+     │
+  help: remove this `}`; it has no matching `{`

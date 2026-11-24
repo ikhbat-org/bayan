@@ -1,0 +1,39 @@
+1:3 Identifier `Å0x`
+4:1 CharLiteral `'a'`
+4:4 CharLiteral `'\n'`
+4:9 CharLiteral `'\u{1F600}'`
+4:21 CharLiteral `'\''`
+4:26 CharLiteral `'é'`
+4:30 CharLiteral `'\\'`
+4:35 CharLiteral `'\0'`
+4:39 Bar `|`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ � Å0x
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ � Å0x
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ � Å0x
+    │  ^
+
+error BYN0005: identifier `Å0x` is not in Unicode normalization form C
+
+  1 │ � Å0x
+    │   ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ � Å0x
+    │   │   +
+
+error BYN0002: unexpected character `̈́`
+
+  3 │ ̈́
+    │ ^

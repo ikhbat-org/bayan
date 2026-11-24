@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "nodes": [
+    "AssignStmt",
+    "BlockStmt",
+    "CallExpr",
+    "CollectionExpr",
+    "ExprStmt",
+    "ForStmt",
+    "FunctionDecl",
+    "GlobalStatement",
+    "IndexExpr",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "LocalDecl",
+    "MemberExpr",
+    "NameExpr",
+    "SpreadExpr"
+  ],
+  "builtins": [
+    "ArrayAsSpan",
+    "MapContains",
+    "MapIndex",
+    "MapIndexSet",
+    "MapLength",
+    "Print",
+    "SpanLength",
+    "StrBufAppend",
+    "StrBufAsString",
+    "StrBufGrow"
+  ],
+  "diagnostics": [
+    "BYN2311"
+  ]
+}

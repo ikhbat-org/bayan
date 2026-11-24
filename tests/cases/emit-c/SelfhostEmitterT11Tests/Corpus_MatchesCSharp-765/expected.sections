@@ -1,0 +1,20 @@
+== cases
+1 l0_words.h.live
+2 bynh_try_get_map_str_i64(l0_words, BYN_STR("cat", 3))
+3 bynh_try_get_map_str_i64(l0_words, BYN_STR("cow", 3))
+4 l0_words.h.live
+5 bynh_has_map_str_i64(l0_words, BYN_STR("cow", 3))
+6 bynh_has_map_str_i64(l0_words, BYN_STR("dog", 3))
+7 (*bynh_slot_map_str_i64(&l0_words, BYN_STR("saw", 3), ((int64_t){0})))
+8 (*bynh_slot_map_str_i64(&l0_words, BYN_STR("the", 3), ((int64_t){0})))
+10 bynh_remove_map_str_i64(&l0_words, BYN_STR("cat", 3))
+11 bynh_remove_map_str_i64(&l0_words, BYN_STR("cat", 3))
+15 bynh_index_map_str_i64(l0_words, BYN_STR("dog", 3), byn_file_0, 37)
+16 bynh_index_map_str_i64(l0_words, BYN_STR("eel", 3), byn_file_0, 37)
+17 l0_words.h.live
+20 byn_map_clear(&l0_words.h)
+21 l0_words.h.live
+23 t11.h.len
+24 (!t11.h.dead[t12])
+25 ((bynt_tup2_str_i64){t11.keys[t12], t11.vals[t12]})
+count 26

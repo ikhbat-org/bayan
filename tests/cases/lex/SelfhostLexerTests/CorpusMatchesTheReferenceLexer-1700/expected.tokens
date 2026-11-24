@@ -1,0 +1,145 @@
+1:1 CharLiteral `'\u{D800}'`
+3:2 LetKeyword `let`
+3:6 Identifier `s`
+3:8 Equals `=`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:27 OpenBrace `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 InterpolatedStringStart `$"`
+3:51 InterpolationStart `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 InterpolatedStringStart `$"`
+3:57 InterpolationStart `{`
+3:58 InterpolatedStringStart `$"`
+3:60 InterpolationStart `{`
+3:61 StringLiteral `$"{$"`
+3:66 OpenBrace `{`
+3:67 StringLiteral `$"{x}"`
+3:73 CloseBrace `}`
+3:74 StringLiteral `"}"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:91 InterpolationEnd `}`
+3:92 InterpolatedStringEnd `"`
+3:93 InterpolationEnd `}`
+3:94 InterpolatedStringEnd `"`
+3:95 InterpolationEnd `}`
+3:96 InterpolatedStringEnd `"`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 CloseBrace `}`
+3:100 StringLiteral `"}"`
+3:103 InterpolationEnd `}`
+3:104 InterpolatedStringEnd `"`
+3:105 InterpolationEnd `}`
+3:106 InterpolatedStringEnd `"`
+3:107 InterpolationEnd `}`
+3:108 InterpolatedStringEnd `"`
+3:109 InterpolationEnd `}`
+3:110 InterpolatedStringEnd `"`
+    doc `///`
+4:5 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │ �� ���� // comment � htdden
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �� ���� // comment � htdden
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  2 │ �� ���� // comment � htdden
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  2 │ �� ���� // comment � htdden
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �� ���� // comment � htdden
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �� ���� // comment � htdden
+    │       ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ �� ���� // comment � htdden
+    │                    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �� ���� // comment � htdden
+    │   │                    -
+
+error BYN0003: unterminated string literal
+
+  3 │  let s = $"{$"{$"{$"{$"{�${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │  let s = $"{$"{$"{$"{$"{�${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                         ^
+
+error BYN0002: unexpected character `$`
+
+  3 │  let s = $"{$"{$"{$"{$"{�${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                          ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │  let s = $"{$"{$"{$"{$"{�${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                             ^^

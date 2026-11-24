@@ -1,0 +1,45 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:14 Bang `!`
+1:16 Equals `=`
+1:18 EqualsEquals `==`
+1:21 Equals `=`
+1:23 Less `<`
+1:25 LessEquals `<=`
+1:28 Greater `>`
+1:30 GreaterEquals `>=`
+1:33 LessLess `<<`
+1:36 Greater `>`
+1:37 Greater `>`
+1:39 Greater `>`
+1:40 GreaterEquals `>=`
+2:1 Identifier `x`
+2:2 Dot `.`
+2:3 Identifier `y`
+2:5 FloatLiteral `2.5`
+2:8 NumericSuffix `f`
+3:1 LetKeyword `let`
+3:5 Identifier `ca`
+3:7 Identifier `é`
+3:10 Equals `=`
+3:12 IntegerLiteral `1`
+3:13 Semicolon `;`
+3:15 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  3 │ let ca�é = 1; 
+    │       ^
+
+error BYN0005: identifier `é` is not in Unicode normalization form C
+
+  3 │ let ca�é = 1; 
+    │        ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ let ca�é = 1; 
+    │   │        +

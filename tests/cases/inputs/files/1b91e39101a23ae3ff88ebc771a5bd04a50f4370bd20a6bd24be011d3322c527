@@ -1,0 +1,7 @@
+let shipment = carrier.book(
+    parcel,
+    from: warehouse.address,
+    to: order.shippingAddress,
+    by: order.deadline,
+    as: .express,
+)

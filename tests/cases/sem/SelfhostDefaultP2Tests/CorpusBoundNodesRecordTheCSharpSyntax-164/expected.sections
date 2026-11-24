@@ -1,0 +1,123 @@
+== tests/cases/run/list-remove-forms.byn
+26..136 blockStmt
+32..51 localDecl
+43..51 callExpr
+56..92 forStmt
+65..67 nameExpr
+68..92 blockStmt
+70..90 exprStmt
+70..90 callExpr
+70..74 nameExpr
+82..89 interpolatedExpr
+86..87 nameExpr
+97..134 returnStmt value 104..134
+104..134 interpolatedExpr
+107..116 memberExpr
+107..109 nameExpr
+119..132 callExpr
+119..123 nameExpr
+155..237 blockStmt
+161..181 localDecl
+170..181 callExpr
+186..221 forStmt
+195..199 rangeExpr
+195..196 literalExpr integer
+198..199 literalExpr integer
+200..221 blockStmt
+202..219 exprStmt
+202..219 callExpr
+202..204 nameExpr
+212..218 binaryExpr mul right 216..218
+212..218 binaryExpr mul right 216..218
+212..213 nameExpr
+216..218 literalExpr integer
+226..235 returnStmt value 233..235
+233..235 nameExpr
+239..259 globalStatement
+239..259 localDecl
+253..259 callExpr
+260..295 exprStmt
+260..295 callExpr
+260..267 nameExpr
+281..282 literalExpr integer
+293..294 literalExpr integer
+296..329 exprStmt
+296..329 callExpr
+302..328 interpolatedExpr
+313..326 callExpr
+318..325 nameExpr
+296..329 callExpr
+331..348 localDecl
+342..348 callExpr
+349..381 exprStmt
+349..381 callExpr
+349..353 nameExpr
+367..368 literalExpr integer
+379..380 literalExpr integer
+382..409 exprStmt
+382..409 callExpr
+388..408 interpolatedExpr
+396..406 callExpr
+401..405 nameExpr
+382..409 callExpr
+411..426 localDecl
+420..426 callExpr
+427..443 exprStmt
+427..443 callExpr
+427..429 nameExpr
+441..442 literalExpr integer
+444..460 exprStmt
+444..460 callExpr
+444..446 nameExpr
+458..459 literalExpr integer
+461..484 exprStmt
+461..484 callExpr
+467..483 interpolatedExpr
+473..481 callExpr
+478..480 nameExpr
+461..484 callExpr
+486..508 localDecl
+502..508 callExpr
+509..535 exprStmt
+509..535 callExpr
+509..518 nameExpr
+530..534 rangeExpr
+530..531 literalExpr integer
+533..534 literalExpr integer
+536..569 exprStmt
+536..569 callExpr
+542..568 interpolatedExpr
+551..566 callExpr
+556..565 nameExpr
+536..569 callExpr
+571..593 localDecl
+587..593 callExpr
+594..621 exprStmt
+594..621 callExpr
+594..603 nameExpr
+615..620 rangeExpr
+615..616 literalExpr integer
+619..620 literalExpr integer
+622..659 exprStmt
+622..659 callExpr
+628..658 interpolatedExpr
+641..656 callExpr
+646..655 nameExpr
+622..659 callExpr
+661..678 localDecl
+672..678 callExpr
+679..701 localDecl
+687..701 rangeExpr
+687..688 literalExpr integer
+690..701 memberExpr
+690..694 nameExpr
+702..720 exprStmt
+702..720 callExpr
+702..706 nameExpr
+718..719 nameExpr
+721..748 exprStmt
+721..748 callExpr
+727..747 interpolatedExpr
+735..745 callExpr
+740..744 nameExpr
+721..748 callExpr

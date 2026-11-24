@@ -1,0 +1,80 @@
+1:1 Identifier `lt`
+1:4 Identifier `a`
+1:6 Equals `=`
+1:8 IntegerLiteral `1`
+2:1 Identifier `macro`
+2:7 Identifier `select`
+2:14 BecomeKeyword `become`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:1 CloseBrace `}`
+5:2 CharLiteral `'\r`
+6:1 CharLiteral `'\u{110000}'`
+7:1 CharLiteral `'x\r`
+9:1 StringLiteral `"a\u{2067}b"`
+9:8 Identifier `a`
+12:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  5 │ }'
+    │  ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  6 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  7 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  9 │ "a�b" ����a /* never closed
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  9 │ "a�b" ����a /* never closed
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ "a�b" ����a /* never closed
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  9 │ "a�b" ����a /* never closed
+    │          ^
+
+error BYN0004: unterminated block comment
+
+  9 │ "a�b" ����a /* never closed
+    │             ^^ comment starts here
+    │
+  help: close it with `*/`

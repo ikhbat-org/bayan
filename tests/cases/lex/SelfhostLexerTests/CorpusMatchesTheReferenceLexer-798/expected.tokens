@@ -1,0 +1,19 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:10 Equals `=`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  1 │ let café = �
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xEF)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBF)
+
+  3 │ �
+    │  ^

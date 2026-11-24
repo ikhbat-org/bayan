@@ -1,0 +1,15 @@
+union error ParseError {
+    /// Nothing to parse.
+    empty
+    /// Not a digit.
+    notDigit
+}
+
+i64 parse(string s) fails ParseError {
+    fail .empty if s.isEmpty
+    fail .notDigit
+}
+
+let n = parse("x") catch switch {
+    .empty => 0,
+}

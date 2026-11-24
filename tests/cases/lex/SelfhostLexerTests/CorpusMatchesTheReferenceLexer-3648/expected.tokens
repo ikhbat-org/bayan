@@ -1,0 +1,55 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+2:1 Identifier `_`
+3:1 IntegerLiteral `0x`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `a`
+3:6 InterpolationStart `{`
+3:7 Identifier `b`
+3:8 InterpolationEnd `}`
+3:9 InterpolatedStringText `c\r`
+3:11 InterpolatedStringEnd
+4:1 TestKeyword `test`
+4:6 AssertKeyword `assert`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 ModelKeyword `model`
+4:33 ForeachKeyword `foreach`
+4:41 Identifier `ne`
+4:43 OpenBrace `{`
+4:45 GotoKeyword `goto`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+8:1 Identifier `fet`
+8:5 Identifier `a`
+8:7 Equals `=`
+8:11 IntegerLiteral `1`
+10:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  3 │ 0x$"a{b}c
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  3 │ 0x$"a{b}c
+    │   ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0002: unexpected character `$`
+
+  8 │ fet a = $ 1
+    │         ^

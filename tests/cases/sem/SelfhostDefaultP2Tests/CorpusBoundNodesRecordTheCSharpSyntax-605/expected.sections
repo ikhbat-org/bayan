@@ -1,0 +1,40 @@
+== tests/cases/diag/io-read-escapes-context.byn
+26..386 blockStmt
+32..45 localDecl
+43..45 literalExpr string
+50..72 localDecl
+62..72 callExpr
+77..339 blockStmt
+87..112 localDecl
+105..112 callExpr
+121..333 contextStmt
+140..145 nameExpr
+146..333 blockStmt
+160..201 localDecl
+173..201 tryExpr
+177..201 callExpr
+189..200 literalExpr string
+214..227 exprStmt
+214..227 callExpr
+220..226 nameExpr
+214..227 callExpr
+240..275 assignStmt assign target 240..244 value 247..275
+240..244 nameExpr
+247..275 tryExpr
+251..275 callExpr
+263..274 literalExpr string
+288..323 assignStmt assign target 288..293 value 296..323
+288..293 nameExpr
+296..323 tryExpr
+300..323 callExpr
+312..322 literalExpr string
+344..355 exprStmt
+344..355 callExpr
+350..354 nameExpr
+344..355 callExpr
+360..384 exprStmt
+360..384 callExpr
+366..383 interpolatedExpr
+369..381 memberExpr
+369..374 nameExpr
+360..384 callExpr

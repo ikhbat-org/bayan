@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (| a (^ b (& c d)))

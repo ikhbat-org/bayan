@@ -1,0 +1,22 @@
+1:1 CloseBrace `}`
+2:2 Identifier `uct`
+2:6 Identifier `S`
+4:1 Identifier `b`
+6:1 Identifier `er`
+6:4 Identifier `closed`
+7:1 Identifier `b`
+8:1 Amp `&`
+8:2 RawStringLiteral `"""'\q'\n`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAF)
+
+  7 │ b�
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  8 │ &"""'\q'
+    │  ^^^ raw string starts here
+    │
+  help: close it with `"""`

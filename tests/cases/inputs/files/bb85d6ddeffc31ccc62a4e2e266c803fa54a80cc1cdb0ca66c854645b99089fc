@@ -1,0 +1,7 @@
+let effect = 2
+
+{
+escape"
+lHet c = """ne⁩quoted"
+  """ c"text" u16�"wide"s"‮ allowed in strings" "" 
+ =

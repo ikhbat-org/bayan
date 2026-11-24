@@ -1,0 +1,16 @@
+error BYN8001: `trustUnchecked()` bypasses a safety rule and needs `because "…"`
+  --> tmp/t26-tests/cli/diag_trust-unchecked-because.byn/trust-unchecked-because.byn:2:7
+
+  2 │ print(u.trustUnchecked())
+    │       ^^^^^^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause
+
+error BYN2202: expected `Untrusted<string>`, found `string`
+  --> tmp/t26-tests/cli/diag_trust-unchecked-because.byn/trust-unchecked-because.byn:3:7
+
+  3 │ print("x".trustUnchecked() because "a literal")
+    │       ^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN8001

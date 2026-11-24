@@ -1,0 +1,8 @@
+== tests/cases/diag/interface-unique-field-witness-type-argument.byn
+76..159 blockStmt
+82..125 localDecl
+90..125 structLiteralExpr
+112..123 callExpr
+130..157 localDecl
+138..157 structLiteralExpr
+154..155 literalExpr integer

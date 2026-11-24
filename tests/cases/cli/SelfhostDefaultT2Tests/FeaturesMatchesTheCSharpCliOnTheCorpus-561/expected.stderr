@@ -1,0 +1,8 @@
+error BYN3216: `SignupForm.password` can be written only by `SignupForm`'s own methods or with
+`with`: `SignupForm` has `requires`
+  --> <repo>/tests/cases/diag/field-write-outside.byn:7:5
+
+  7 │     form.password = "x"
+    │     ^^^^^^^^^^^^^^^^^^^
+    │
+  help: add a `ref this` method to `SignupForm`, or build a new value with `with`

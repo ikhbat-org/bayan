@@ -1,0 +1,34 @@
+1:1 Identifier `t`
+1:2 Less `<`
+1:3 Identifier `i6`
+1:5 Greater `>`
+1:6 Greater `>`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Colon `:`
+2:7 Identifier `b`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+3:9 Identifier `foo`
+3:13 Identifier `Bar`
+3:17 Identifier `_x`
+3:20 Identifier `camelCase2`
+3:31 Identifier `بيان`
+3:36 Identifier `μετρη`
+3:42 Identifier `ής`
+3:45 Identifier `x_1`
+3:49 Identifier `é`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ t<i6�>>
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xCF)
+
+  3 │ c >>= 1 foo Bar _x camelCase2 بيان μετρη�ής x_1 é
+    │                                         ^

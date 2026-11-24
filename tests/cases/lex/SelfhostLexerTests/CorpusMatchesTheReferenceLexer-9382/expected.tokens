@@ -1,0 +1,48 @@
+1:1 Identifier `b`
+3:1 LetKeyword `let`
+3:5 Identifier `a`
+3:6 Equals `=`
+3:8 Identifier `m`
+3:9 StringLiteral `"open`
+4:2 Identifier `_let`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:13 IntegerLiteral `1`
+6:1 CharLiteral `''`
+7:1 IntegerLiteral `0xFF`
+7:5 NumericSuffix `s`
+9:1 Identifier `a`
+9:3 Greater `>`
+9:4 Greater `>`
+9:6 CloseParen `)`
+10:1 Identifier `c`
+10:3 Greater `>`
+10:4 GreaterEquals `>=`
+10:7 IntegerLiteral `1`
+12:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ let a= m"open
+    │         ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0002: unexpected character `$`
+
+  4 │  _let a = $ 1
+    │           ^
+
+error BYN0007: empty char literal
+
+  6 │ ''
+    │ ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  7 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

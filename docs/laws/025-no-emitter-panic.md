@@ -6,8 +6,8 @@ release: 0.2.0
 sources: Q662, Q663, Q890
 kind: property
 scope: src/emitter/
-proof: src/tests/SelfhostEmitterNoPanicLawTests.cs
-check: dotnet test -v q --filter "Law=L025"
+proof: src/driver/nopanic-l025.test.byn
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L025:'
 timeout: 1200
 enacted: 2026-11-04
 ---
@@ -56,3 +56,22 @@ so the figures are per run, never summed over modes, and the largest is 17 s aga
 (`BAYAN_LAW_TIER` unset).
 
 Enacted by the agent under the standing self-host authorization (2026-10-21; decisions 2026-11-03: the agent enacts L024/L025 after proof; spec 011 T19), after L018 and L023 were enacted, with T14's proof passing: `dotnet test -v q --filter "Law=L025"` 1 passed (`SelfhostEmitterNoPanicLawTests.BayanEmitNeverPanicsOnSeedsCorruptionsAndRunInputs`) on 2026-11-04, 47 s test time (55 s wall; both include rebuilding `bayan-emit`, which the Proof notes' 21 s quick figure does not). The app `CacheTests.cs:192` passes to `--emit-c` (the `bayan new` template) is not in this law's corpus, which is only the generator seeds and the `tests/cases/run/` inputs (Q890).
+
+The paragraphs above are the C# proof's history (spec 019 T31c). Bayān port, 2026-11-19 (share S4): the test block `L025: …` in
+`src/driver/nopanic-l025.test.byn` builds the stage-1 `bayan-emit` with `goldenProgram("emitter", …)`, writes three corpora under
+`tmp/l025-nopanic/` and runs `bayan-emit --mode m --many <dir>` for m in debug, safe and fast over each: the 79 programs of the 8 fixed seeds
+(L023's `l023SeedPrograms`, pinned to the C# `PinnedCorpus` hash; the C# 256/1,024-seed tiers are not ported, the statement names the fixed
+seeds), the first 1,000 (quick) or 10,000 (`BAYAN_LAW_TIER=full`) inputs of L023's `l023Mutated` over those 79 programs with seed
+0x9E3779B97F4A7C15, and the flat `tests/cases/run/*.byn` inputs (352). It asserts exit 0, no `panic:` on stderr, a section per input in
+order, only `exit 1` lines, and that each run took at most 120 s; a run dying on a signal is narrowed to the input that dies alone and fails
+naming it with its bytes. The C# checker oracle is replaced by the generator's names: a `fault-*` seed's section starts with `exit 1` and a
+`valid-*` seed's does not. The floor is measured with the port's own checker, in each mode: corrupted inputs whose section has no `exit 1`
+number 51 of 1,000 (quick) and 533 of 10,000 (full), the same as the C# counts of 2026-11-04; the floors stay 45 and 500. Measured
+2026-11-19 (macOS, emitter already built): the block takes 4.0 s quick and 32.9 s full; per run (milliseconds, debug/safe/fast) quick seeds
+149/127/124, corrupted 664/522/567, run 456/366/381; full seeds 308/161/228, corrupted 11475/6860/9079, run 447/423/340. A cold emitter build
+adds about 40 s. The 120 s bound is measured after the run, not enforced by a kill: `goldenChild` keeps whole output only without a
+`timeout:` (a timed run keeps 64 KiB of each end, too little for the section check), so a hung run is stopped by the test block's limit
+(`BAYAN_TEST_TIMEOUT_MS`, 60 s by default). Break tests, each applied alone and undone: changing `src/emitter/main.byn:99` (`t12Finish`) so a
+rejected input returns `exitUsage` fails the block with `L025 counterexample: seeds (debug): exit 2 after fault-MissingFails-000.byn in
+…/tmp/l025-nopanic/seeds`; adding `panic("L025 break")` at the top of `emit` in `src/emitter/cprint/program.byn` fails it with
+`L025 counterexample: seeds (debug): exit 134 on valid-constants.byn in …/tmp/l025-nopanic/seeds, bytes 636f6e73…` and `L025 break`.

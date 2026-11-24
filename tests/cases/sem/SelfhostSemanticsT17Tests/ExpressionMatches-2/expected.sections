@@ -1,0 +1,2 @@
+== case int-optional-target
+literal 668..670 : i32 = 42

@@ -1,0 +1,22 @@
+== tests/cases/diag/type-parameter-comparison.byn
+35..58 conditionalExpr
+35..58 conditionalExpr
+35..58 conditionalExpr
+35..40 binaryExpr lt right 39..40
+43..47 moveExpr
+48..49 nameExpr
+52..56 moveExpr
+57..58 nameExpr
+92..98 binaryExpr ge right 97..98
+92..98 binaryExpr ge right 97..98
+92..98 binaryExpr ge right 97..98
+128..147 binaryExpr logicalAnd right 138..147
+128..147 binaryExpr logicalAnd right 138..147
+128..147 binaryExpr logicalAnd right 138..147
+128..134 binaryExpr eq right 133..134
+128..129 nameExpr
+133..134 nameExpr
+138..147 unaryExpr notKeyword operand 139..147
+140..146 binaryExpr ne right 145..146
+140..141 nameExpr
+145..146 nameExpr

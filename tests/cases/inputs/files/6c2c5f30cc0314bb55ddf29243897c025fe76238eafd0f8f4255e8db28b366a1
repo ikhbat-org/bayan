@@ -1,0 +1,18 @@
+union Shape {
+    circle(i64 r)
+}
+
+void main() {
+    let s: string? = null
+    let a = s?.trim()
+    let b = s.trustUnchecked(1)
+    let c = bool.tryFrom(1)
+    let c2 = Nope.tryFrom(1)
+    let d = bool.tryParse("x")
+    let d2 = Nope.tryParse("x")
+    let e = i32.tryParse("1")
+    let f = f64.parse("1")
+    let g = StrBuf<u8>.over(stackalloc u8[4])
+    let g2 = Nope.over(stackalloc u8[4])
+    let h = Shape.circle(1)(2)
+}

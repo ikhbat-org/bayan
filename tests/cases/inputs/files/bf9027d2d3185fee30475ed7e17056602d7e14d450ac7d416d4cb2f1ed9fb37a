@@ -1,0 +1,7 @@
+$"a{b}c */
+test assert property fuzz model foreach new go�o
+
+'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+ /// Do line two.
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+ 

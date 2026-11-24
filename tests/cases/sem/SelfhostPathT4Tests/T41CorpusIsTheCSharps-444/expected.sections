@@ -1,0 +1,5 @@
+== diags.run/region-combo-all-three-in-time
+returns mk 1
+returns mk2 1
+store pass 0 1 484..485
+store put 0 -1 426..427

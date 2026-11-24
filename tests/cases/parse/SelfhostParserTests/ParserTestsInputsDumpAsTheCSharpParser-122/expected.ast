@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (catch (call f) (struct _ (y 1) (z 2)))

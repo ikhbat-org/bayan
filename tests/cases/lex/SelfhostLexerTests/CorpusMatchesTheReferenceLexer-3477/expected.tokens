@@ -1,0 +1,54 @@
+1:1 Identifier `ment`
+3:15 Identifier `a`
+    doc `/// Doc line one.\n///^Doc line two`
+6:1 Identifier `literal`
+6:8 CloseBrace `}`
+6:9 CloseBrace `}`
+6:10 StringLiteral `" $"`
+6:14 OpenBrace `{`
+6:15 Identifier `Point`
+6:21 OpenBrace `{`
+6:23 Identifier `x`
+6:25 Equals `=`
+6:27 IntegerLiteral `1`
+6:29 CloseBrace `}`
+6:30 CloseBrace `}`
+6:31 Bang `!`
+6:32 StringLiteral `" $"`
+6:36 StringLiteral `"`
+8:1 Identifier `ne`
+8:4 Identifier `comment`
+10:15 Identifier `a`
+    doc `/// Doc line one.\n///D`
+12:5 EndOfFile
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  2 │ /* block
+    │ ^^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 2 │ // block
+    │   │  +++++++
+    │ 3 │ // comment
+    │   │ ++++++++++
+    │ 4 │  a
+
+error BYN0003: unterminated string literal
+
+  6 │ literal}}" $"{Point { x = 1 }}!" $""
+    │                                    ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+   9 │ /* block
+     │ ^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │  9 │ // block
+     │    │  +++++++
+     │ 10 │ // comment
+     │    │ ++++++++++
+     │ 11 │  a

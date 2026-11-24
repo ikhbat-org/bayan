@@ -1,0 +1,9 @@
+'a' '\n' '\u{1F6�00}' '\'' 'é' '\\' '\0'
+/// Doc line one.
+
+!" $""
+ fails try catch ndever noalloc nos/spend suspends async await
+
+$"stray } here"
+1 é
+ let effect = 2

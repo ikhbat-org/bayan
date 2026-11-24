@@ -1,0 +1,7 @@
+== diags.diag/bool-without-prefix
+BYN5102 6:17 `locked` is a `bool` state; prefix with `is`, `has` or `can`
+  help rename it `isLocked`
+  fix 6:17-6:23 isLocked
+BYN5102 4:17 `ajar` is a `bool` state; prefix with `is`, `has` or `can`
+  help rename it `isAjar`
+  fix 4:17-4:21 isAjar

@@ -1,0 +1,1 @@
+{"code":"BYN2304","severity":"error","file":"input.byn","span":{"start":52,"end":55,"line":2,"column":20,"endLine":2,"endColumn":23},"message":"a positional argument cannot follow a named one","label":null,"help":null,"fixes":[]}

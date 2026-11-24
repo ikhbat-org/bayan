@@ -1,0 +1,49 @@
+1:1 CharLiteral `' tion attribue`
+2:1 Identifier `err`
+2:5 TestKeyword `test`
+2:10 AssertKeyword `assert`
+2:17 PropertyKeyword `property`
+2:26 FuzzKeyword `fuzz`
+2:31 ModelKeyword `model`
+2:37 ForeachKeyword `foreach`
+2:45 NewKeyword `new`
+2:49 GotoKeyword `goto`
+4:1 Identifier `ạ̇`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `x`
+5:4 InterpolationStart `{`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+6:1 IntegerLiteral `1__`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ ' tion attribue
+    │ ^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │ ạ̇
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ạ̇
+    │   │ ++
+
+error BYN0003: unterminated string literal
+
+  5 │ $"x{ $"{
+    │      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --

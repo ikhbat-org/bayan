@@ -1,0 +1,32 @@
+1:4 IsKeyword `is`
+1:7 AndKeyword `and`
+1:11 OrKeyword `or`
+1:14 NotKeyword `not`
+1:18 WithKeyword `with`
+1:23 MoveKeyword `move`
+1:28 RefKeyword `ref`
+1:32 OutKeyword `out`
+1:36 ThisKeyword `this`
+1:41 NullKeyword `null`
+1:46 TrueKeyword `true`
+1:51 FalseKeyword `false`
+1:57 ComptimeKeyword `comptime`
+1:66 CheckedKeyword `checked`
+4:4 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏﻿ is and or not with move ref out this null true false comptime checked
+    │ ^
+
+error BYN0002: unexpected character `﻿`
+
+  1 │ ‏﻿ is and or not with move ref out this null true false comptime checked
+    │  ^
+
+error BYN0004: unterminated block comment
+
+  2 │ /* block
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

@@ -1,0 +1,4 @@
+== c5
+catchExpr|i64|1142:18
+operand call:i64 binding - variant - handler errorExpr:?
+BYN2202 65:29 expected `i64`, found `string` |||

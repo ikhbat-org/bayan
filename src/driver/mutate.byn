@@ -6,6 +6,7 @@
 import semantics
 import emitter
 import emitter.cprint
+import lexer
 import std.json
 
 /// `MutantStatus` (MutationRunner.cs), in its declaration order, which `Messages.MutateTotals` counts in.
@@ -177,11 +178,14 @@ i64 t13Index(MutantStatus s) {
     }
 }
 
-/// CliApp.cs:888 `MutateBinary`: `bayan mutate --binary <exe> --sites <map.json> -- <cmd>`, the command run once per site of a
-/// prebuilt schemata binary.
+/// CliApp.cs:888 `MutateBinary`: `bayan mutate --binary <exe> --sites <map.json> [--jobs N] -- <cmd>`, the command run once per site
+/// of a prebuilt schemata binary, up to N sites at once (`--jobs`, else `$BAYAN_MUTATE_JOBS`, else 1; `mutationRunExternal`).
 i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, process {
+    return mutateWorker(args) if args.length > 0 && args[0] == "--mutate-worker"
     var binary: string? = null
     var sites: string? = null
+    var jobsText: string? = null
+    var jobsName = "--jobs"
     var command = List<string>()
     var i: i64 = 0
     while i < args.length {
@@ -191,6 +195,9 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
         } else if args[i] == "--sites" && i + 1 < args.length {
             i += 1
             sites = args[i]
+        } else if args[i] == "--jobs" && i + 1 < args.length {
+            i += 1
+            jobsText = args[i]
         } else if args[i] == "--" {
             for k in (i + 1)..args.length {
                 command.append(args[k])
@@ -205,8 +212,36 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
     let b = binary ?? ""
     let s = sites ?? ""
     if binary is null || sites is null || command.length == 0 {
-        Io.stderr.write("bayan: usage: bayan mutate --binary <exe> --sites <map.json> -- <command>\n")
+        Io.stderr.write("bayan: usage: bayan mutate --binary <exe> --sites <map.json> [--jobs N] -- <command>\n")
         return exitUsage
+    }
+    if jobsText is null {
+        jobsText = Env.get("BAYAN_MUTATE_JOBS")
+        jobsName = "BAYAN_MUTATE_JOBS"
+    }
+    let jt = jobsText ?? "1"
+    var jobs = t9Digits(jt, until: 2147483647) ?? 0
+    if jobs == 0 {
+        Io.stderr.write($"bayan: `{jobsName}` expects a positive whole number, got `{jt}`\n")
+        return exitUsage
+    }
+    // the workers are this driver started again (`mutateWorker`), which the runtime can only name through `$BAYAN_EXE`, as the golden
+    // runner's `--jobs` workers (golden.byn `goldenJobs`); Windows has no `sh` to start them
+    var driver = ""
+    // coverage-exempt: Q1286 through `jobs = 1` the Windows arm
+    if jobs > 1 && Target.os == "windows" {
+        Io.stderr.write($"bayan: Windows has no `sh` to start mutant workers: {jobsName} {jobs} runs as 1\n")
+        jobs = 1
+    } else if jobs > 1 {
+        driver = Env.get("BAYAN_EXE") ?? ""
+        // coverage-exempt: Q1286 through `names no file` needs BAYAN_EXE to name no file
+        unless Fs.fileExists(driver) {
+            Io.stderr.write(
+                $"bayan: {jobsName} {jobs} starts its workers through `BAYAN_EXE`, which names no file: `{driver}`\n",
+            )
+            // coverage-exempt: Q1286 needs BAYAN_EXE to name no file
+            return exitUsage
+        }
     }
     for path in [b, s] {
         unless Fs.fileExists(path) {
@@ -221,6 +256,7 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
     let map = externalSiteReadAll(text) ?? return t13BadSites(s)
     let full = Path.fullPath(b)
     var min: i64? = null
+    // coverage-exempt: Q1286 through `min = manifest.minMutation` needs `package.byn` in the working directory
     if Fs.fileExists("package.byn") {
         // `Manifest.Read` throws, uncaught, when the existing manifest cannot be read.
         // coverage-exempt: Q1258 an IO failure the C# lets escape
@@ -235,6 +271,8 @@ i32 mutateBinary(in List<string> args) uses alloc, clock, console, env, fs, proc
         to: Path.directoryName(full) ?? "",
         as: 0,
         minMutation: min,
+        jobs: jobs,
+        driver: driver,
     )
 }
 
@@ -384,7 +422,7 @@ List<string> shellCommand(string command) uses alloc {
 }
 
 /// CliApp.cs:932 `RunExternal`: the command over `sites`, a line per site and the report summary, and `bayan-quality.json` written
-/// to `reportDir`.
+/// to `reportDir`; `jobs` sites at once through the workers `driver` starts (`mutationRunExternal`).
 i32 runExternal(
     in List<ExternalSite> sites,
     by in List<string> command,
@@ -392,10 +430,19 @@ i32 runExternal(
     through string tool,
     to string reportDir,
     as i64 buildNanos,
-    i64? minMutation = null
+    i64? minMutation = null,
+    i64 jobs = 1,
+    string driver = ""
 ) uses alloc, clock, console, env, fs, process {
     let total = Io.monotonicNanos()
-    let results = mutationRunExternal(in sites, by: in command, for: binary, as: testTimeout())
+    let results = mutationRunExternal(
+        in sites,
+        by: in command,
+        for: binary,
+        as: testTimeout(),
+        jobs: jobs,
+        driver: driver,
+    )
         ?? return t13BaselineFailed()
     let report = qualityMutation(tool, from: in results, by: buildNanos, as: Io.monotonicNanos() - total)
     let none = List<string>()
@@ -557,33 +604,161 @@ i64 t13Limit(i64 elapsedNanos) {
     return limit / 10000
 }
 
+/// The limit of a mutant of the external route, the owner's rule of 2026-11-05 (Decision 2026-11-20: after the dotnet exit this
+/// route no longer follows the C# runner): the mutant-0 time x 1.5 + 5 s, in whole milliseconds, truncated.
+i64 t13ExternalLimit(i64 elapsedNanos) => elapsedNanos * 3 / 2 / 1000000 + 5000
+
 /// MutationRunner.cs:85 `RunExternal`: `command` once per emitted site with `BAYAN_MUTANT` set to its id and `BAYAN_BINARY` to
-/// `binary` (CliApp.cs:936). Null when the unmutated run (mutant 0) cannot start or does not exit 0 within `baselineMs`.
+/// `binary` (CliApp.cs:936), each bounded by `t13ExternalLimit` of the unmutated run (mutant 0). With `jobs` above 1 the sites run
+/// in that many worker processes of `driver` (`t13Workers`), started after mutant 0 ran alone, and their lines are printed once
+/// all have run, in site order. Null when mutant 0 cannot start or does not exit 0 within `baselineMs`.
 List<ExternalResult>? mutationRunExternal(
     in List<ExternalSite> sites,
     by in List<string> command,
     for string binary,
-    as i64 baselineMs
-) uses alloc, clock, console, process {
+    as i64 baselineMs,
+    i64 jobs = 1,
+    string driver = ""
+) uses alloc, clock, console, env, fs, process {
     // The command could not be started (not found, not executable).
     let baseline = t13RunCommand(in command, at: 0, by: binary, as: baselineMs) ?? return null
     return null if baseline.timedOut || baseline.exitCode != 0
-    let timeout = t13Limit(baseline.elapsedNanos)
+    let timeout = t13ExternalLimit(baseline.elapsedNanos)
+    var dir = ""
+    if jobs > 1 {
+        dir = t13Workers(sites, by: command, for: binary, as: timeout, to: jobs, through: driver)
+    }
     var results = List<ExternalResult>()
-    for site in sites {
+    for i in 0..sites.length {
+        let site = sites[i]
         var result = ExternalResult { site: site, status: .notEmitted }
         if site.emitted {
-            // `Process.Start` throws, uncaught, when the command the baseline ran cannot start for a site (MutationRunner.cs:120).
+            // `Process.Start` throws, uncaught, when the command the baseline ran cannot start for a site (MutationRunner.cs:120);
+            // a worker that could not start it, or stopped, wrote no outcome for the site.
             // coverage-exempt: Q1258 a command that started for the baseline cannot start for a site
-            let outcome = t13RunCommand(in command, at: site.id, by: binary, as: timeout)
-                ?? panic($"cannot run {command[0]}")
+            let outcome = (dir == ""
+                ? t13RunCommand(in command, at: site.id, by: binary, as: timeout)
+                : t13WorkerOutcome(dir, at: i))
+                ?? panic($"cannot run {command[0]}{t13WorkerErr(dir, by: jobs)}")
             let status: MutantStatus = outcome.timedOut ? .timeout : outcome.exitCode != 0 ? .killed : site.unobservable is not null ? .marked : .survived
             result = ExternalResult { site: site, status: status, seconds: f64(outcome.elapsedNanos / 100) / 1e7 }
         }
         print(externalLine(in result))
         results.append(result)
     }
+    if dir != "" {
+        deleteWorkDir(dir)
+    }
     return results
+}
+
+/// `sh -c` text: starts `$1 mutate --mutate-worker $3 <k> $2 $4 $5 -- <command>` for k from 0 to `$2 - 1` in the background, the
+/// command being the arguments after `$5`, stdout dropped and stderr in `$3`/err-<k>, and waits for all.
+const t13WorkersScript: string = "exe=$1 n=$2 dir=$3 limit=$4 bin=$5; shift 5; k=0; while [ \"$k\" -lt \"$n\" ]; do \"$exe\" mutate --mutate-worker \"$dir\" \"$k\" \"$n\" \"$limit\" \"$bin\" -- \"$@\" >/dev/null 2>\"$dir/err-$k\" & k=$((k + 1)); done; wait"
+
+/// The emitted `sites` run by `jobs` workers of `driver` (`mutateWorker`), each mutant within `limitMs`: their outcomes are in the
+/// returned directory, a file per site index (`t13WorkerOutcome`). The directory, under the temp path and named for this run, is the
+/// only one the workers write; each writes only the files of its own sites and its own err-<k>.
+string t13Workers(
+    List<ExternalSite> sites,
+    by List<string> command,
+    for string binary,
+    as i64 limitMs,
+    to i64 jobs,
+    through string driver
+) uses alloc, clock, env, fs, process {
+    let dir = Path.combine(t9TempPath(), $"bayan-mutjobs-{Io.monotonicNanos()}")
+    deleteWorkDir(dir)
+    var list = StrBuf()
+    for s in sites {
+        list.append(s.emitted ? $"{s.id}\n" : "-\n")
+    }
+    // coverage-exempt: Q1258 through `Io.writeFile` an IO failure in the temp directory
+    Io.createDirectory(dir) catch { panic($"cannot create the directory {dir}") }
+    let path = Path.combine(dir, "sites")
+    Io.writeFile(path, list.finish().bytes) catch { panic($"cannot write {path}") }
+    var args = List<string>()
+    for a in ["-c", t13WorkersScript, "sh", driver, $"{jobs}", dir, $"{limitMs}", binary] {
+        args.append(a)
+    }
+    for a in command {
+        args.append(a)
+    }
+    // a failure to start `sh` leaves every outcome unwritten, which `mutationRunExternal` reports at the first site
+    // coverage-exempt: Q1286 needs `sh` to fail to start
+    let _ = Io.run("sh", args.span) catch return dir
+    return dir
+}
+
+/// The outcome worker `mutateWorker` wrote for site index `i` in `dir`; null when there is none.
+T13Outcome? t13WorkerOutcome(string dir, at i64 i) uses alloc, fs {
+    let text = Io.readText(Path.combine(dir, $"{i}")) catch return null
+    var parts = List<string>()
+    for p in text.trimmed().parts(by: " ") {
+        parts.append(p)
+    }
+    return null if parts.length != 3
+    let timedOut = t9Digits(parts[0], until: 1) ?? return null
+    let failed = t9Digits(parts[1], until: 1) ?? return null
+    let elapsed = t9Digits(parts[2], until: 9223372036854775807) ?? return null
+    return T13Outcome { exitCode: failed == 1 ? 1 : 0, timedOut: timedOut == 1, elapsedNanos: elapsed }
+}
+
+/// The `jobs` workers' stderr in `dir` as the end of the message that no outcome was written; empty without workers.
+string t13WorkerErr(string dir, by i64 jobs) uses alloc, fs {
+    return "" if dir == ""
+    var text = StrBuf()
+    for k in 0..jobs {
+        text.append(Io.readText(Path.combine(dir, $"err-{k}")) catch "")
+    }
+    return $" (a mutant worker wrote no outcome; the workers' stderr: {text.finish()})"
+}
+
+/// `bayan mutate --mutate-worker <dir> <k> <n> <limitMs> <binary> -- <command>`, a worker of `t13Workers`: of the sites in `dir`/sites
+/// (an id per line, `-` for one not emitted), the emitted ones whose position among the emitted is `k` modulo `n`, each run through
+/// `t13RunCommand` within `limitMs`, its outcome written to `dir`/<index> as `<timed out 0|1> <failed 0|1> <elapsed ns>`.
+/// `exitUsage` on bad arguments; `exitFailure` when the command cannot start or an outcome cannot be written.
+i32 mutateWorker(List<string> args) uses alloc, clock, console, fs, process {
+    if args.length < 8 || args[6] != "--" {
+        Io.stderr.write("bayan: usage: bayan mutate --mutate-worker <dir> <k> <n> <limitMs> <binary> -- <command>\n")
+        return exitUsage
+    }
+    let dir = args[1]
+    let k = t9Digits(args[2], until: 2147483647) ?? return exitUsage
+    let n = t9Digits(args[3], until: 2147483647) ?? return exitUsage
+    let limit = t9Digits(args[4], until: 9223372036854775807) ?? return exitUsage
+    return exitUsage if n == 0
+    var command = List<string>()
+    for i in 7..args.length {
+        command.append(args[i])
+    }
+    let path = Path.combine(dir, "sites")
+    let text = Io.readText(path) catch {
+        Io.stderr.write($"bayan: cannot read {path}\n")
+        return exitFailure
+    }
+    let lines = t11ReadAllLines(text)
+    var emitted: i64 = 0
+    for i in 0..lines.length {
+        continue if lines[i] == "-"
+        emitted += 1
+        continue if (emitted - 1) % n != k
+        let id = t9Digits(lines[i], until: 9223372036854775807) ?? return exitUsage
+        let ran = t13RunCommand(in command, at: id, by: args[5], as: limit)
+        if ran is null {
+            Io.stderr.write($"bayan: cannot run {command[0]} for mutant {id}\n")
+            return exitFailure
+        }
+        // coverage-exempt: Q1286 the null result already returned at the `if ran is null` above
+        if (ran is { } o) {
+            let file = Path.combine(dir, $"{i}")
+            Io.writeFile(file, $"{o.timedOut ? 1 : 0} {o.exitCode != 0 ? 1 : 0} {o.elapsedNanos}\n".bytes) catch {
+                Io.stderr.write($"bayan: cannot write {file}\n")
+                return exitFailure
+            }
+        }
+    }
+    return exitOk
 }
 
 /// `Run` (MutationRunner.cs:88) of the external command; null when it cannot start (`Win32Exception`).
@@ -790,4 +965,198 @@ string? t13Str(in List<json.JsonMember> members, for string key) uses alloc {
         default:
             return null
     }
+}
+
+/// ExternalModeTests.cs:203 `TheSiteMapReaderRoundTripsSitesJson`'s source.
+const t13RoundTripSource: string = "i64 inc(i64 n) {\n    var y = n\n    @unobservable because \"no test can see it\"\n    y += 0\n    return n + 1\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n"
+
+// ExternalModeTests.TheSiteMapReaderRoundTripsSitesJson.
+test "site-map: the reader reads back each site of a schemata build's sites JSON, its unobservable mark kept, and refuses version 2" {
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in t13RoundTripSource.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create("lib.test.byn", from: move bytes))
+    let options = GoldenOptions { includeTests: true, library: true }
+    var c = semantics.create(from: move files, at: ".", by: options)
+    assert(!t5HasErrors(c))
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: none)
+    let read = externalSiteReadAll(emitter.sitesJson(schema))
+    assert(read is not null)
+    if (read is { } sites) {
+        assert(sites.length > 0)
+        assert(sites.length == schema.sites.length)
+        var marked = false
+        for i in 0..sites.length {
+            assert(sites[i] == externalSiteFrom(schema.sites[i]))
+            marked = marked || sites[i].unobservable == "no test can see it"
+        }
+        assert(marked)
+    }
+    assert(externalSiteReadAll("{ \"version\": 2, \"sites\": [] }") is null)
+}
+
+/// MutationRunnerTests.cs:14 `Fixture`.
+const t13RunnerFixture: string = "i64 big(i64 n) {\n    if n > 5 { return 1 }\n    return 0\n}\n\ni64 inc(i64 n) {\n    return n + 1\n}\n\ni64 count() {\n    var i = 0\n    while i < 3 {\n        i += 1\n    }\n    return i\n}\n\ni64 hidden(i64 n) {\n    var y = n\n    @unobservable because \"no test can see it\"\n    y += 0\n    return y\n}\n\ni64 unused(i64 n) {\n    return n * 2\n}\n\ntest \"big\" {\n    assert big(9) == 1\n    assert big(2) == 0\n}\n\ntest \"inc\" {\n    assert inc(1) == 2\n}\n\ntest \"inc again\" {\n    assert inc(2) == 3\n}\n\ntest \"count\" {\n    assert count() == 3\n}\n\ntest \"hidden\" {\n    assert hidden(4) == 4\n}\n\n"
+
+/// A fresh `tmp/<name>` and `source` compiled there as `lib.test.byn`, a library with its tests.
+semantics.Ctx t13RunnerCompile(string name, by string source, at ref string dir) uses alloc, clock, fs {
+    dir = Path.combine(Path.fullPath("tmp"), name)
+    deleteWorkDir(dir)
+    // coverage-exempt: Q1286 a test helper's `catch { panic }`
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in source.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create(Path.combine(dir, "lib.test.byn"), from: move bytes))
+    let options = GoldenOptions { includeTests: true, library: true }
+    var c = semantics.create(from: move files, at: dir, by: options)
+    assert(!t5HasErrors(c))
+    return c
+}
+
+/// The one mutant of `result` at `op`, `original` and `mutated`.
+MutantResult t13RunnerMutant(in MutationResult result, by string op, for string original, to string mutated) {
+    for m in result.mutants {
+        return m if m.site.op == op && m.site.original == original && m.site.mutated == mutated
+    }
+    // coverage-exempt: Q1286 `panic`
+    panic($"no {op} mutant {original} -> {mutated}")
+}
+
+/// `Processes`: the wrapper's log lines for `mutant`.
+i64 t13RunnerProcesses(in List<string> log, for i64 mutant) uses alloc {
+    var n: i64 = 0
+    for line in log {
+        n += line.startsWith($"{mutant} ") ? 1 : 0
+    }
+    return n
+}
+
+/// True when `log` holds the line `line`.
+bool t13RunnerHas(in List<string> log, for string line) {
+    for l in log {
+        return true if l == line
+    }
+    return false
+}
+
+// MutationRunnerTests.StatusesAreKilledSurvivedTimeoutNotReachedMarked, AMutantRunsOnlyTheTestsThatReachItAndStopsAtTheFirstFailure,
+// ATimedOutMutantCountsAsKilledAndIsNamed and SitesJsonCarriesTheMark, on the C#'s one shared run: the fixture built once, every
+// mutant run through a wrapper that logs `mutant test` per process. Sites are found by line, as `ExternalSite` has no function.
+test "mutation-runner: statuses, reach, the first failure, timeouts and the mark" {
+    if Target.os == "windows" {
+        todo("the wrapper is a `sh` script")
+    }
+    var dir = ""
+    var c = t13RunnerCompile("mutation-runner", by: t13RunnerFixture, at: ref dir)
+    let none = List<string>()
+    var schema = emitter.buildSchema(ref c, for: none)
+    assert(emitter.sitesJson(schema).contains("\"unobservable\": \"no test can see it\""))
+    var l = T11LCtx {}
+    l.mutating = true
+    l.mutants = schema.switches.take()
+    let program = emitter.lower(ref c, to: ref l)
+    assert(program.tests.length == 5)
+    let source = cprint.emit(ref c, from: l.tree, through: program, by: false)
+    var d = newDCtx()
+    let native = t9Build(source, by: "safe", to: null, for: null, through: ref d)
+    print(native.result.errors) unless native.result.succeeded
+    assert(native.result.succeeded)
+    let log = Path.combine(dir, "log.txt")
+    goldenWrite(
+        dir,
+        for: "wrapper.sh",
+        as: $"#!/bin/sh\necho \"$BAYAN_MUTANT $2\" >> '{log}'\nexec '{native.exe}' \"$@\"\n",
+    )
+    boundSh("chmod 700 \"$1/wrapper.sh\"", at: dir)
+    let result = mutationRun(Path.combine(dir, "wrapper.sh"), by: schema, for: [0, 1, 2, 3, 4], through: dir, as: 60000)
+    let lines = t11ReadAllLines(Io.readText(log) catch "")
+    // Statuses.
+    let killed = t13RunnerMutant(result, by: "arithmetic", for: "n + 1", to: "n - 1")
+    let survived = t13RunnerMutant(result, by: "boundary", for: "n > 5", to: "n >= 5")
+    let spin = t13RunnerMutant(result, by: "statement", for: "i += 1", to: "")
+    assert(killed.status == .killed && survived.status == .survived && spin.status == .timeout)
+    var unused: i64 = 0
+    var hidden: i64 = 0
+    var hiddenRan = false
+    for m in result.mutants {
+        if m.site.line == 26 {
+            unused += 1
+            assert(m.status == .notReached)
+        }
+        if m.site.line == 21 {
+            hidden += 1
+            assert(m.status is .marked or .killed or .timeout)
+            hiddenRan = hiddenRan || m.runs > 0
+        }
+    }
+    assert(unused > 0 && hidden > 0 && hiddenRan)
+    // `inc` is reached by tests 1 and 2: the kill by test 1 ends the mutant. `big` is reached by test 0 only.
+    assert(killed.runs == 1 && t13RunnerProcesses(lines, for: killed.site.id) == 1)
+    assert(t13RunnerHas(lines, for: $"{killed.site.id} 1"))
+    assert(t13RunnerProcesses(lines, for: survived.site.id) == 1 && t13RunnerHas(lines, for: $"{survived.site.id} 0"))
+    // Mutants not run start no process; the total is mutant 0 once per test plus every counted run.
+    var runs: i64 = 0
+    for m in result.mutants {
+        if m.status is .notReached or .notEmitted {
+            assert(t13RunnerProcesses(lines, for: m.site.id) == 0)
+        }
+        assert(m.runs == t13RunnerProcesses(lines, for: m.site.id))
+        runs += m.runs
+    }
+    assert(t13RunnerProcesses(lines, for: 0) == 5)
+    assert(lines.length == 5 + runs && result.processes == lines.length)
+    // A timed-out mutant counts as killed and is named.
+    assert(spin.killedBy == 3 && spin.runs == 1)
+    deleteWorkDir(dir)
+}
+
+// MutationRunnerTests.TheWorkDirectoryIsTouchedSoAnotherProcessDoesNotSweepItMidRun.
+test "mutation-runner: the work directory is touched so another process does not sweep it mid-run" {
+    var dir = ""
+    var c = t13RunnerCompile("mutation-runner-touch", by: "i64 inc(i64 n) {\n    return n + 1\n}\n", at: ref dir)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: none)
+    assert(schema.sites.length > 0)
+    Fs.setModified(
+        dir,
+        to: Time.fromNanos(Time.now().nanos - 3 * 60 * 60 * 1000000000),
+    ) catch { panic($"cannot age {dir}") }
+    let tests = List<i64>()
+    let _ = mutationRun("none", by: schema, for: tests, through: dir, as: 1000)
+    let modified = (Fs.modified(dir) catch Time.fromNanos(0)).nanos
+    assert(modified > Time.now().nanos - 5 * 60 * 1000000000)
+    deleteWorkDir(dir)
+}
+
+// MutationRunnerTests.AWorkDirectoryAnotherProcessSweptIsRecreatedAndARemovedReachFileReachesNothing.
+test "mutation-runner: a work directory another process swept leaves a removed reach file reaching nothing" {
+    if Target.os == "windows" {
+        todo("the test is a `sh` script")
+    }
+    var root = ""
+    var c = t13RunnerCompile("mutation-runner-swept", by: "i64 inc(i64 n) {\n    return n + 1\n}\n", at: ref root)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: none)
+    assert(schema.sites.length > 0)
+    goldenWrite(
+        root,
+        for: "test.sh",
+        as: "#!/bin/sh\necho 0 > \"$BAYAN_SITE_REACH\"\nrm -rf \"$(dirname \"$BAYAN_SITE_REACH\")\"\n",
+    )
+    boundSh("chmod 700 \"$1/test.sh\"", at: root)
+    let work = Path.combine(root, "work")
+    let result = mutationRun(Path.combine(root, "test.sh"), by: schema, for: [0, 1], through: work, as: 10000)
+    assert(result.excluded.length == 0)
+    for m in result.mutants {
+        if m.site.emitted {
+            assert(m.status == .notReached)
+        }
+    }
+    deleteWorkDir(root)
 }

@@ -1,0 +1,1 @@
+let parsed = Suit.parse("spades") ?? .clubs

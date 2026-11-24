@@ -1,0 +1,3 @@
+== call.k2
+errorExpr|?|-|-|710:8|-
+BYN2112 44:14 `Plain` has no constructor ||set the fields with a struct literal: `Plain { v: … }`|

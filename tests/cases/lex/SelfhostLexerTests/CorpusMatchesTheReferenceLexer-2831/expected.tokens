@@ -1,0 +1,25 @@
+1:1 Identifier `F600`
+1:5 CloseBrace `}`
+1:6 CharLiteral `' '`
+1:10 CharLiteral `''`
+1:13 CharLiteral `'é'`
+1:17 CharLiteral `'\\'`
+1:22 CharLiteral `'\0'`
+2:2 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ F600}' '\'' 'é' '\\' '\0'
+    │         ^
+
+error BYN0007: empty char literal
+
+  1 │ F600}' '\'' 'é' '\\' '\0'
+    │          ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character `̈́`
+
+  2 │ ̈́
+    │ ^

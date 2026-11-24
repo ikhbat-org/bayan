@@ -1,0 +1,10 @@
+error BYN1001: expected `}`, found `void`
+  --> <repo>/tmp/t2/diag/unclosed-brace/unclosed-brace.byn:5:1
+
+  5 │ void g() {}
+    │ ^^^^
+    │
+  help: close the block opened on line 2
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1001

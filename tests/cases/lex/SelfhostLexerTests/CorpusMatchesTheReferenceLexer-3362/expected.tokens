@@ -1,0 +1,100 @@
+1:1 Identifier `x́́`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `stray  `
+2:10 InterpolatedStringEnd `"`
+2:11 CloseBrace `}`
+2:12 StringLiteral `"}"`
+2:15 CloseBrace `}`
+2:16 StringLiteral `"}"`
+2:19 CloseBrace `}`
+2:20 StringLiteral `"}"`
+2:23 CloseBrace `}`
+2:24 StringLiteral `"}"`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolationStart `{`
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolationStart `{`
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolationStart `{`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolationStart `{`
+3:17 InterpolatedStringStart `$"`
+3:19 InterpolationStart `{`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolationStart `{`
+3:23 InterpolatedStringStart `$"`
+3:25 InterpolationStart `{`
+3:26 InterpolatedStringStart `$"`
+3:28 InterpolationStart `{`
+3:29 InterpolatedStringStart `$"`
+3:31 InterpolationStart `{`
+3:32 InterpolatedStringStart `$"`
+3:34 InterpolationStart `{`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolationStart `{`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 StringLiteral `$"{$"`
+3:55 OpenBrace `{`
+3:56 StringLiteral `$"{$"`
+3:61 OpenBrace `{`
+3:63 OpenBrace `{`
+3:64 Identifier `x`
+3:65 CloseBrace `}`
+3:66 StringLiteral `"}"`
+3:69 CloseBrace `}`
+3:70 StringLiteral `"}"`
+3:73 CloseBrace `}`
+3:74 StringLiteral `"}"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolationEnd `}`
+3:84 InterpolatedStringEnd `"`
+3:85 InterpolationEnd `}`
+3:86 InterpolatedStringEnd `"`
+3:87 InterpolationEnd `}`
+3:88 InterpolatedStringEnd `"`
+3:89 InterpolationEnd `}`
+3:90 InterpolatedStringEnd `"`
+3:92 CharLiteral `'a'`
+3:96 CharLiteral `'\n'`
+3:101 CharLiteral `'\u{1F600}'`
+3:113 CharLiteral `'\''`
+3:118 CharLiteral `'é'`
+3:122 CharLiteral `'\\'`
+3:127 CharLiteral `'\0'`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                          ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                                                  ^^
+
+error BYN0002: unexpected character `$`
+
+  3 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${x}"}"}"}"}"}"}"}"}"}"}"}"}" 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+    │                                                              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │  �
+    │  ^

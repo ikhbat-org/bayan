@@ -1,0 +1,3 @@
+== exh.e6
+result false
+BYN2410 56:20 `switch` does not handle every `Shape` |not covered: .rect, .none|add the missing arms: .rect, .none|

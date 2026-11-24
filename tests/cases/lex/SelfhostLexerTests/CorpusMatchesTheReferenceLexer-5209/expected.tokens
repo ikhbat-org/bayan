@@ -1,0 +1,137 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:9 Equals `=`
+2:11 IntegerLiteral `3`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+5:1 Identifier `ever`
+5:6 Identifier `closed`
+6:1 Identifier `b`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolationStart `{`
+7:5 InterpolatedStringStart `$"`
+7:7 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:11 InterpolatedStringStart `$"`
+7:13 InterpolationStart `{`
+7:14 InterpolatedStringStart `$"`
+7:16 InterpolationStart `{`
+7:17 InterpolatedStringStart `$"`
+7:19 InterpolationStart `{`
+7:20 InterpolatedStringStart `$"`
+7:22 InterpolationStart `{`
+7:23 InterpolatedStringStart `$"`
+7:25 InterpolationStart `{`
+7:26 InterpolatedStringStart `$"`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 Identifier `x`
+7:45 InterpolationEnd `}`
+7:46 InterpolatedStringEnd `"`
+7:47 InterpolationEnd `}`
+7:48 InterpolatedStringEnd `"`
+7:49 InterpolationEnd `}`
+7:50 InterpolatedStringEnd `"`
+7:51 InterpolationEnd `}`
+7:52 InterpolatedStringEnd `"`
+7:53 InterpolationEnd `}`
+7:54 InterpolatedStringEnd `"`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 StringLiteral `$"{$"`
+9:27 OpenBrace `{`
+9:28 StringLiteral `$"{$"`
+9:33 OpenBrace `{`
+9:34 StringLiteral `$"{$"`
+9:39 OpenBrace `{`
+9:40 StringLiteral `$"{$"`
+9:45 OpenBrace `{`
+9:46 StringLiteral `$"{$"`
+9:51 OpenBrace `{`
+9:52 StringLiteral `$"{$"`
+9:57 OpenBrace `{`
+9:58 StringLiteral `$"{$"`
+9:63 OpenBrace `{`
+9:64 Identifier `x`
+9:65 CloseBrace `}`
+9:66 StringLiteral `"}"`
+9:69 CloseBrace `}`
+9:70 StringLiteral `"}"`
+9:73 CloseBrace `}`
+9:74 StringLiteral `"}"`
+9:77 CloseBrace `}`
+9:78 StringLiteral `"}"`
+9:81 CloseBrace `}`
+9:82 StringLiteral `"}"`
+9:85 CloseBrace `}`
+9:86 StringLiteral `"}"`
+9:89 CloseBrace `}`
+9:90 StringLiteral `"}"`
+9:93 InterpolationEnd `}`
+9:94 InterpolatedStringEnd `"`
+9:95 InterpolationEnd `}`
+9:96 InterpolatedStringEnd `"`
+10:1 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  8 │ ��� �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  8 │ ��� �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ��� �
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ��� �
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │             ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                      ^^

@@ -1,0 +1,34 @@
+== tests/cases/run/assert-pass.byn
+66..98 globalStatement
+66..98 localDecl
+78..98 structLiteralExpr
+93..96 literalExpr integer
+99..118 localDecl
+107..118 memberExpr
+119..144 assertStmt
+126..144 binaryExpr eq right 141..144
+126..137 memberExpr
+126..131 nameExpr
+141..144 literalExpr integer
+145..193 assertStmt
+152..193 binaryExpr logicalAnd right 177..193
+152..173 binaryExpr gt right 170..173
+152..167 binaryExpr mul right 166..167
+152..163 memberExpr
+152..157 nameExpr
+166..167 literalExpr integer
+170..173 literalExpr integer
+177..193 binaryExpr eq right 182..193
+177..178 nameExpr
+182..193 memberExpr
+194..219 assertStmt
+201..218 binaryExpr eq right 211..218
+201..207 memberExpr
+201..202 nameExpr
+211..218 literalExpr string
+220..231 assertStmt
+227..231 literalExpr trueKeyword
+232..247 exprStmt
+232..247 callExpr
+238..246 literalExpr string
+232..247 callExpr

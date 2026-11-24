@@ -1,0 +1,13 @@
+{D800}'
+'\u{110000}'
+'x
+ "stray } here"
+$"open {x";
+
+error set unit ditinct type import as public private static readonly required const let var embed extern unsafe
+ '\u{110000}'
+ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'
+
+` 2
+let c =  3
+

@@ -1,0 +1,96 @@
+== tests/cases/run/fail-statement.byn
+217..299 blockStmt
+223..241 guardedStmt
+236..241 binaryExpr lt right 240..241
+236..237 nameExpr
+240..241 literalExpr integer
+223..227 failStmt
+228..232 targetMemberExpr
+246..284 ifStmt
+249..255 binaryExpr gt right 253..255
+249..250 nameExpr
+253..255 literalExpr integer
+256..284 blockStmt
+266..270 failStmt
+271..278 memberExpr
+289..297 returnStmt value 296..297
+296..297 nameExpr
+325..341 conditionalExpr
+325..341 conditionalExpr
+325..341 conditionalExpr
+325..330 binaryExpr gt right 329..330
+325..326 nameExpr
+329..330 literalExpr integer
+333..334 nameExpr
+333..334 nameExpr
+337..341 literalExpr nullKeyword
+370..425 blockStmt
+376..410 localDecl
+384..410 binaryExpr coalesce right 399..403
+384..395 callExpr
+393..394 nameExpr
+399..403 jumpExpr
+399..403 failStmt
+404..410 targetMemberExpr
+415..423 returnStmt value 422..423
+422..423 nameExpr
+533..604 blockStmt
+539..560 guardedStmt
+554..560 binaryExpr gt right 558..560
+554..555 nameExpr
+558..560 literalExpr integer
+539..543 failStmt
+544..550 targetMemberExpr
+565..585 guardedStmt
+580..585 binaryExpr lt right 584..585
+580..581 nameExpr
+584..585 literalExpr integer
+565..576 returnStmt value 572..576
+572..576 targetMemberExpr
+590..602 returnStmt value 597..602
+597..602 targetMemberExpr
+606..677 globalStatement
+606..677 exprStmt
+606..677 callExpr
+612..676 interpolatedExpr
+615..632 catchExpr
+615..623 callExpr
+621..622 literalExpr integer
+630..632 unaryExpr negate operand 631..632
+635..653 catchExpr
+635..644 callExpr
+641..643 unaryExpr negate operand 642..643
+651..653 unaryExpr negate operand 652..653
+656..674 catchExpr
+656..665 callExpr
+662..664 literalExpr integer
+672..674 unaryExpr negate operand 673..674
+606..677 callExpr
+678..731 exprStmt
+678..731 callExpr
+684..730 interpolatedExpr
+687..706 catchExpr
+687..697 callExpr
+695..696 literalExpr integer
+704..706 unaryExpr negate operand 705..706
+709..728 catchExpr
+709..719 callExpr
+717..718 literalExpr integer
+726..728 unaryExpr negate operand 727..728
+678..731 callExpr
+732..807 exprStmt
+732..807 callExpr
+738..806 interpolatedExpr
+741..760 catchExpr
+741..748 callExpr
+746..747 literalExpr integer
+755..760 targetMemberExpr
+763..781 catchExpr
+763..770 callExpr
+768..769 literalExpr integer
+777..781 targetMemberExpr
+784..804 catchExpr
+784..792 callExpr
+789..791 literalExpr integer
+799..804 targetMemberExpr
+732..807 callExpr

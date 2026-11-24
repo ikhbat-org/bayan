@@ -1,0 +1,49 @@
+1:1 CharLiteral `'x`
+3:1 TestKeyword `test`
+3:6 AssertKeyword `assert`
+3:13 PropertyKeyword `property`
+3:22 FuzzKeyword `fuzz`
+3:27 ModelKeyword `model`
+3:33 ForeachKeyword `foreach`
+3:41 NewKeyword `new`
+3:45 GotoKeyword `goto`
+4:1 IntegerLiteral `0b__`
+5:2 CharLiteral `'ab'`
+6:1 ErrorKeyword `error`
+6:7 SetKeyword `set`
+6:11 UnitKeyword `unit`
+6:16 DistinctKeyword `distinct`
+6:25 TypeKeyword `type`
+6:30 ImportKeyword `import`
+6:37 AsKeyword `as`
+6:40 PublicKeyword `public`
+6:47 PrivateKeyword `private`
+6:55 StaticKeyword `static`
+6:62 ReadonlyKeyword `readonly`
+6:71 RequiredKeyword `required`
+6:80 ConstKeyword `const`
+6:86 LetKeyword `let`
+6:90 VarKeyword `var`
+6:94 EmbedKeyword `embed`
+6:100 ExternKeyword `extern`
+6:107 UnsafeKeyword `unsafe`
+8:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

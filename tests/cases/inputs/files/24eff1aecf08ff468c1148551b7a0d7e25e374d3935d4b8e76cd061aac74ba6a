@@ -1,0 +1,10 @@
+$"x{ $"{
+nt
+/* block
+   comment */ a
+/// Doc line one.
+/// Doc line two.
+   comment */ a
+
+let effect = 2
+

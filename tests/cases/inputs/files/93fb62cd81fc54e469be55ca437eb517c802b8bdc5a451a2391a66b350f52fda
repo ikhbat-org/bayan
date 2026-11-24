@@ -1,0 +1,9 @@
+$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{U$"{$"{$"{$"{x}"}"}"
+  """ c"text" u16"zwide" "‮ allowed in strings" "" "\u{48}i"
+ let café = 1
+ // line comment
+error set unit distinct type import as public private static readonly required const let var embed extern unsafe
+
+"a⁧b"
+⁦
+   comment */ a

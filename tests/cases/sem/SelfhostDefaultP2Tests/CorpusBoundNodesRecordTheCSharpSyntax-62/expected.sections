@@ -1,0 +1,93 @@
+== tests/cases/run/float-try-parse.byn
+236..292 blockStmt
+242..272 ifStmt
+245..254 isExpr
+245..246 nameExpr
+250..254 constantPattern
+250..254 literalExpr nullKeyword
+255..272 blockStmt
+257..270 returnStmt value 264..270
+264..270 literalExpr string
+277..290 returnStmt value 284..290
+284..290 interpolatedExpr
+287..288 nameExpr
+287..288 nameExpr
+320..376 blockStmt
+326..356 ifStmt
+329..338 isExpr
+329..330 nameExpr
+334..338 constantPattern
+334..338 literalExpr nullKeyword
+339..356 blockStmt
+341..354 returnStmt value 348..354
+348..354 literalExpr string
+361..374 returnStmt value 368..374
+368..374 interpolatedExpr
+371..372 nameExpr
+371..372 nameExpr
+390..892 blockStmt
+396..582 forStmt
+405..528 collectionExpr
+406..430 literalExpr string
+432..442 literalExpr string
+444..462 literalExpr string
+464..474 literalExpr string
+476..483 literalExpr string
+485..493 literalExpr string
+495..499 literalExpr string
+501..507 literalExpr string
+509..517 literalExpr string
+519..527 literalExpr string
+529..582 blockStmt
+539..576 exprStmt
+539..576 callExpr
+545..575 interpolatedExpr
+548..549 nameExpr
+552..573 callExpr
+557..572 callExpr
+570..571 nameExpr
+539..576 callExpr
+587..743 forStmt
+596..687 collectionExpr
+597..601 literalExpr string
+603..607 literalExpr string
+609..616 literalExpr string
+618..623 literalExpr string
+625..630 literalExpr string
+632..636 literalExpr string
+638..641 literalExpr string
+643..645 literalExpr string
+647..656 literalExpr string
+658..662 literalExpr string
+664..668 literalExpr string
+670..674 literalExpr string
+676..681 literalExpr string
+683..686 literalExpr string
+688..743 blockStmt
+698..737 exprStmt
+698..737 callExpr
+704..736 interpolatedExpr
+708..709 nameExpr
+713..734 callExpr
+718..733 callExpr
+731..732 nameExpr
+698..737 callExpr
+748..890 forStmt
+757..830 collectionExpr
+758..772 literalExpr string
+774..782 literalExpr string
+784..791 literalExpr string
+793..803 literalExpr string
+805..810 literalExpr string
+812..816 literalExpr string
+818..823 literalExpr string
+825..829 literalExpr string
+831..890 blockStmt
+841..884 exprStmt
+841..884 callExpr
+847..883 interpolatedExpr
+850..851 nameExpr
+854..881 callExpr
+865..880 callExpr
+878..879 nameExpr
+841..884 callExpr

@@ -1,0 +1,6 @@
+fails try catch never noalloc nosuspend suspends async await
+
+s: List<List<i64>>
+a >> b
+c >>= 1
+macro select become

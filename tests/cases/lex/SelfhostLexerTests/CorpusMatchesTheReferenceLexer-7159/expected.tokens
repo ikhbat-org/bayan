@@ -1,0 +1,28 @@
+1:1 LetKeyword `let`
+1:5 Identifier `a`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 VarKeyword `var`
+2:5 Identifier `xs`
+2:7 Colon `:`
+2:9 Identifier `List`
+2:13 Less `<`
+2:14 Identifier `List`
+2:18 Less `<`
+2:19 Identifier `i64`
+2:22 Greater `>`
+2:23 Greater `>`
+4:1 RawStringLiteral `""" c"text" u16"wide" "\u{202E} all' � `
+4:33 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  4 │ """ c"text" u16"wide" "� all' � 
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  4 │ """ c"text" u16"wide" "� all' � 
+    │                               ^

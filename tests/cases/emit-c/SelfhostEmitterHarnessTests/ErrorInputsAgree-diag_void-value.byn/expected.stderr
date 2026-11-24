@@ -1,0 +1,8 @@
+error BYN2025: `void` is not a value type
+  --> input.byn:1:14
+
+  1 │ var nothing: void
+    │              ^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2025

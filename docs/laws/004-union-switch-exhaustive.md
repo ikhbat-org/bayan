@@ -6,8 +6,8 @@ release: 0.1.0
 sources: none recorded
 kind: guard
 scope: csharp/Bayan.Semantics/Binding/BinderCalls.cs
-proof: csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs
-check: dotnet test --filter Law=L004
+proof: scripts/ci/bootstrap-check.sh
+check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'diag/non-exhaustive'
 enacted: 2026-10-20
 ---
 
@@ -16,3 +16,6 @@ For every `union` and every `switch` statement or expression whose subject has t
 
 ## Counterexample looks like
 `union S { a, b(i64 x), c }` with arms `.a`, `.b(var x) when x > 0` and `.c` compiling cleanly, or arms `.a or .c` and `.b(var x)` reporting BYN2410, or arms `.a` and `let s =>` reporting BYN2410.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `csharp/tests/Bayan.Tests/L004UnionSwitchTests.cs` this law cited before is at the tag `csharp-final`.

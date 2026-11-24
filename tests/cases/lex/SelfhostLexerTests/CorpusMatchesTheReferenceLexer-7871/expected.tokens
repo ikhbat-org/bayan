@@ -1,0 +1,45 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `{{`
+1:5 InterpolatedStringEnd `"`
+1:7 StructKeyword `struct`
+1:14 UniqueKeyword `unique`
+1:21 UnionKeyword `union`
+1:27 EnumKeyword `enum`
+1:32 Identifier `flag`
+1:37 OpenKeyword `open`
+1:42 ExtensibleKeyword `extensible`
+1:53 InterfaceKeyword `interface`
+1:63 DelegateKeyword `delegate`
+1:72 ExtensionKeyword `extension`
+1:82 DerivationKeyword `derivation`
+1:93 AttributeKeyword `attribute`
+3:1 Slash `/`
+3:2 Star `*`
+3:6 Star `*`
+3:7 Slash `/`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  2 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  3 │ /�* � */ �
+    │  ^
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ /�* � */ �
+    │     ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ /�* � */ �
+    │   │     -
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │ /�* � */ �
+    │          ^

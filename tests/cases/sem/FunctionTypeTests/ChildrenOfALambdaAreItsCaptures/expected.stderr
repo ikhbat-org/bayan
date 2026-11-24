@@ -1,0 +1,34 @@
+error BYN2101: `let limit` needs a value
+  --> input.byn:4:9
+
+  4 │     let limit: i32
+    │         ^^^^^
+    │
+  help: give it a value, or declare it with `var` and assign it on every path before use
+
+error BYN2101: `let name` needs a value
+  --> input.byn:5:9
+
+  5 │     let name: string
+    │         ^^^^
+    │
+  help: give it a value, or declare it with `var` and assign it on every path before use
+
+error BYN2102: `limit` is used before it is assigned
+  --> input.byn:6:34
+
+  6 │     let k = keep(3, by: x => x > limit && name.length > 0)
+    │                                  ^^^^^ declared without a value on line 4
+    │
+  help: assign it on every path before this, or give the declaration a value
+
+error BYN2102: `name` is used before it is assigned
+  --> input.byn:6:43
+
+  6 │     let k = keep(3, by: x => x > limit && name.length > 0)
+    │                                           ^^^^ declared without a value on line 5
+    │
+  help: assign it on every path before this, or give the declaration a value
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2101

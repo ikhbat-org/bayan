@@ -1,0 +1,1 @@
+sed "s|ABS|$PWD|" report.json > r.tmp && mv r.tmp report.json

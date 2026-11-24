@@ -1,0 +1,81 @@
+1:2 CharLiteral `'"a{b}c '`
+1:12 Identifier `q`
+1:13 CharLiteral `'`
+3:1 Identifier `macro`
+3:7 Identifier `select`
+3:14 BecomeKeyword `become`
+4:1 StringLiteral `""`
+5:3 Identifier `raw`
+5:7 StringLiteral `"quoted"`
+6:3 RawStringLiteral `"""\u{FEFF}  `
+6:9 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  1 │ $'"a{b}c '\q'
+    │ ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ $'"a{b}c '\q'
+    │  ^^^^^^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0002: unexpected character `\`
+
+  1 │ $'"a{b}c '\q'
+    │           ^
+
+error BYN0008: unterminated char literal
+
+  1 │ $'"a{b}c '\q'
+    │             ^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │  �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │  �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �����
+    │      ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  3 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  6 │   """﻿  
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,44 @@
+== tests/cases/run/io-run-batch.byn
+137..413 blockStmt
+143..182 localDecl
+168..182 callExpr
+187..379 localDecl
+195..379 catchExpr
+195..223 callExpr
+207..211 nameExpr
+213..222 memberExpr
+213..217 nameExpr
+230..379 switchExpr
+230..236 caughtErrorExpr
+247..259 constantPattern
+247..259 targetMemberExpr
+263..283 jumpExpr
+263..283 jumpExpr
+263..283 returnStmt value 270..283
+270..283 literalExpr string
+293..306 constantPattern
+293..306 targetMemberExpr
+310..332 jumpExpr
+310..332 jumpExpr
+310..332 returnStmt value 317..332
+317..332 literalExpr string
+342..343 discardPattern
+347..372 jumpExpr
+347..372 jumpExpr
+347..372 returnStmt value 354..372
+354..372 literalExpr string
+384..411 returnStmt value 391..411
+391..411 interpolatedExpr
+399..409 memberExpr
+399..400 nameExpr
+427..494 blockStmt
+433..460 exprStmt
+433..460 callExpr
+439..459 callExpr
+448..458 literalExpr string
+433..460 callExpr
+465..492 exprStmt
+465..492 callExpr
+471..491 callExpr
+480..490 literalExpr string
+465..492 callExpr

@@ -1,0 +1,10 @@
+== diags.diag/particle-required
+BYN5004 2:6 `transfer` has 3 unlabeled parameters; give each but one a particle
+  label 3 unlabeled parameters
+  help keep one unlabeled parameter, the object
+BYN5006 2:31 `payer` is a required parameter besides the object and needs a particle
+  label needs a particle
+  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+BYN5006 2:42 `payee` is a required parameter besides the object and needs a particle
+  label needs a particle
+  help label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`

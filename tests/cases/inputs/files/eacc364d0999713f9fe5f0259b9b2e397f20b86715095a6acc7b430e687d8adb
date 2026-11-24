@@ -1,0 +1,7 @@
+let actor = 1
+
+let a = $ 1
+let effect = 2
++= -= *= /= = &= |= ^= <<=
+let law = 3
+

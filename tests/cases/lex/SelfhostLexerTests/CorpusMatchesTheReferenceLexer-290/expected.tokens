@@ -1,0 +1,48 @@
+1:1 Identifier `b`
+4:1 Identifier `_`
+5:3 Identifier `macro`
+5:9 Identifier `select`
+5:16 BecomeKeyword `become`
+7:4 IntegerLiteral `2`
+8:1 Identifier `le`
+8:4 Identifier `c`
+8:6 Equals `=`
+8:8 OpenBrace `{`
+8:9 StringLiteral `"`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  5 │ � macro select become
+    │ ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ � macro select become
+    │   ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ � macro select become
+    │         ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character ```
+
+  7 │  ` 2
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  8 │ le c = {"
+    │         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

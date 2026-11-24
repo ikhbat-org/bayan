@@ -1,0 +1,9 @@
+== cases
+0 (l0_x == p_v)
+1 ((bynt_opt_i32){true, l0_x})
+2 byn_mul_i32(l1_k, ((int32_t)2), byn_file_0, 11)
+3 byn_add_i32(byn_main__viaReturn(p_xs), ((int32_t)1), byn_file_0, 22)
+4 byn_add_i32(l0_k, ((int32_t)1), byn_file_0, 28)
+5 byn_add_i32(l1_v, ((int32_t)1), byn_file_0, 52)
+7 ((bynt_opt_i32){true, ((int32_t)4)})
+count 8

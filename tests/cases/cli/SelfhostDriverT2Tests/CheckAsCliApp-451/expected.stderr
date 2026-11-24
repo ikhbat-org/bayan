@@ -1,0 +1,22 @@
+note BYN1077: a banner comment ends at column 17; fill it with `─` to column 80
+  --> <repo>/tmp/t2/diag/style-sections-banner/style-sections-banner.byn:3:13
+
+  3 │ // ── Short ─────
+    │             ^^^^^ ends at column 17
+    │
+  help: fill it with `─` to column 80
+    │ 3 │ // ── Short ────────────────────────────────────────────────────────────────────
+    │   │                  +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+note BYN1077: a banner comment ends at column 88; fill it with `─` to column 80
+  --> <repo>/tmp/t2/diag/style-sections-banner/style-sections-banner.byn:6:12
+
+  6 │ // ── Long ─────────────────────────────────────────────────────────────────────────────
+    │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ends
+    │                                                                                          at
+    │                                                                                          column
+    │                                                                                          88
+    │
+  help: fill it with `─` to column 80
+    │ 6 │ // ── Long ─────────────────────────────────────────────────────────────────────────────
+    │   │                                                                                 --------

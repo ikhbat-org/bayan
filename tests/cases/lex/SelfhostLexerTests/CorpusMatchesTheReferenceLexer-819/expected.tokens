@@ -1,0 +1,48 @@
+1:1 Greater `>`
+1:2 GreaterEquals `>=`
+1:5 IntegerLiteral `1`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `x`
+2:5 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+3:1 Identifier `ch`
+3:4 NeverKeyword `never`
+3:10 NoallocKeyword `noalloc`
+3:18 Identifier `no`
+4:1 LetKeyword `let`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+5:2 StructKeyword `struct`
+5:9 UniqueKeyword `unique`
+5:16 UnionKeyword `union`
+5:22 EnumKeyword `enum`
+5:27 FlagsKeyword `flags`
+5:33 OpenKeyword `open`
+5:38 ExtensibleKeyword `extensible`
+5:49 InterfaceKeyword `interface`
+5:59 DelegateKeyword `delegate`
+5:68 ExtensionKeyword `extension`
+5:78 Identifier `deriPvation`
+5:90 AttributeKeyword `attribute`
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │  $"x{ $"{
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  4 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  5 │  struct unique�union enum flags open extensible interface delegate extension deriPvation attribute
+    │               ^

@@ -1,0 +1,21 @@
+1:1 IntegerLiteral `0x_`
+3:1 IntegerLiteral `0`
+3:2 CharLiteral `'{0 42 1_000_000 0xFF �0x_ff d0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l`
+4:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0008: unterminated char literal
+
+  3 │ 0'{0 42 1_000_000 0xFF �0x_ff d0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xD1)
+
+  3 │ 0'{0 42 1_000_000 0xFF �0x_ff d0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+    │                        ^

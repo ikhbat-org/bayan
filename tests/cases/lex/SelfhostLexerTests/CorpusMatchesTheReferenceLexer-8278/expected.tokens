@@ -1,0 +1,108 @@
+    doc `/// Doc line one.`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 StringLiteral `$"{$"`
+2:54 OpenBrace `{`
+2:55 StringLiteral `$"{$"`
+2:60 OpenBrace `{`
+2:61 Identifier `x`
+2:62 CloseBrace `}`
+2:63 StringLiteral `"}"`
+2:66 IfKeyword `if`
+2:69 ElseKeyword `else`
+2:74 UnlessKeyword `unless`
+2:81 SwitchKeyword `switch`
+2:88 CaseKeyword `case`
+2:93 DefaultKeyword `default`
+2:101 ForKeyword `for`
+2:105 InKeyword `in`
+2:108 WhileKeyword `while`
+2:114 DoKeyword `do`
+2:117 BreakKeyword `break`
+2:123 ContinueKeyword `continue`
+2:132 ReturnKeyword `return`
+2:139 YieldKeyword `yield`
+2:145 DeferKeyword `defer`
+2:151 ErrdeferKeyword `errdefer`
+2:160 UsingKeyword `using`
+2:166 ContextKeyword `context`
+3:2 Identifier `t`
+3:4 Identifier `b`
+3:6 Equals `=`
+3:8 StringLiteral `"bad \q escape"`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never closed\n\n  """`
+6:7 CStringLiteral `c"text"`
+6:15 U16StringLiteral `u16"wide"`
+6:25 StringLiteral `"\u{202E} allowed in strings"`
+6:48 StringLiteral `""`
+6:51 StringLiteral `"\u{48}i"`
+7:1 StringLiteral `"}"`
+7:4 CloseBrace `}`
+7:5 StringLiteral `"}"`
+7:8 InterpolationEnd `}`
+7:9 InterpolatedStringEnd `"`
+7:10 InterpolationEnd `}`
+7:11 InterpolatedStringEnd `"`
+7:12 InterpolationEnd `}`
+7:13 InterpolatedStringEnd `"`
+7:14 InterpolationEnd `}`
+7:15 InterpolatedStringEnd `"`
+7:16 InterpolationEnd `}`
+7:17 InterpolatedStringEnd `"`
+8:1 LetKeyword `let`
+8:5 EffectKeyword `effect`
+8:12 Equals `=`
+8:14 IntegerLiteral `2`
+9:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"if else unless switch case default for in while do break continue return yield defer errdefer using context
+    │                                                 ^^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  t b = "bad \q escape"
+    │             ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

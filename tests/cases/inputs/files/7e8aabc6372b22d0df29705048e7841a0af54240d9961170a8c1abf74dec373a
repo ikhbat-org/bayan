@@ -1,0 +1,8 @@
+is and or not with move ref out this null true false comptime checked
+
+'\u{D800}'
+
+let c = """never closed
+
+a /* never closed
+ struct unique union enum flags open extensible nterface delegat extension derivation attribute

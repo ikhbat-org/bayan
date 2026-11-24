@@ -1,0 +1,98 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:2 Identifier `x`
+2:4 Equals `=`
+2:6 IntegerLiteral `1`
+2:8 CloseBrace `}`
+2:9 CloseBrace `}`
+2:10 Bang `!`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolationStart `{`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolatedStringText `|$`
+2:31 InterpolatedStringEnd `"`
+2:32 InterpolatedStringStart `$"`
+2:34 InterpolationStart `{`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolationStart `{`
+2:38 InterpolatedStringStart `$"`
+2:40 InterpolationStart `{`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolationStart `{`
+2:44 InterpolatedStringStart `$"`
+2:46 InterpolationStart `{`
+2:47 InterpolatedStringStart `$"`
+2:49 InterpolationStart `{`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 Identifier `x`
+2:55 IntegerLiteral `0b__`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:8 Equals `=`
+4:10 IntegerLiteral `1`
+5:2 IntegerLiteral `1_`
+6:2 Identifier `foo`
+6:6 Identifier `Bar`
+6:10 Identifier `_x`
+6:13 Identifier `camelCase2`
+6:24 Identifier `بيان`
+6:29 Identifier `μετρητής`
+6:38 Identifier `x_1`
+6:42 Identifier `é`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB7)
+
+  2 │  x = 1 }}! $"{$"{$"{$"{$"{$"|$"�$"{$"{$"{$"{$"{$"{$"{x�0b__
+    │                                ^
+
+error BYN0003: unterminated string literal
+
+  2 │  x = 1 }}! $"{$"{$"{$"{$"{$"|$"�$"{$"{$"{$"{$"{$"{$"{x�0b__
+    │                                                   ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xCB)
+
+  2 │  x = 1 }}! $"{$"{$"{$"{$"{$"|$"�$"{$"{$"{$"{$"{$"{$"{x�0b__
+    │                                                       ^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │  x = 1 }}! $"{$"{$"{$"{$"{$"|$"�$"{$"{$"{$"{$"{$"{$"{x�0b__
+    │                                                        ^^^^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ let x� = 1
+    │   │      -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │  1_
+    │   ^
+    │
+    │ 5 │  1_
+    │   │   -

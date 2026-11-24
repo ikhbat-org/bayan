@@ -1,0 +1,34 @@
+== expr
+a1: assign(local t#2:bool local q#-:bool) ifStmt(local t#2:bool block(failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#1:i64 literal 0:0:i64=0:0))) assign(local t#2:bool binary op14:bool(local t#1:i64 literal 0:1:i64=0:1)))) => local t#2:bool locals=3
+a2: assign(local t#2:bool local q#-:bool) ifStmt(unary op2:bool(local t#2:bool) block(failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#1:i64 literal 0:0:i64=0:0))) assign(local t#2:bool binary op14:bool(local t#1:i64 literal 0:1:i64=0:1)))) => local t#2:bool locals=3
+a3: ifStmt(local q#-:bool block(failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#1:i64 literal 0:0:i64=0:0))) assign(local t#2:i64 local t#1:i64)) block(assign(local t#2:i64 literal 0:2:i64=0:2))) => local t#2:i64 locals=3
+a4: ifStmt(local q#-:bool block(assign(local t#2:i64 literal 0:1:i64=0:1)) block(failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#1:i64 literal 0:0:i64=0:0))) assign(local t#2:i64 local t#1:i64))) => local t#2:i64 locals=3
+a5: ifStmt(optionalHas:bool(local o#-:i64?) block(assign(local t#2:i64 optionalValue:i64(local o#-:i64?))) block(failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#1:i64 literal 0:0:i64=0:0))) assign(local t#2:i64 local t#1:i64))) => local t#2:i64 locals=3
+a6: assign(local t#0:i64[3] local arr#-:i64[3]) => collection:i64[4](indexUnchecked:i64(local t#0:i64[3] literal 0:0:i64=0:0) indexUnchecked:i64(local t#0:i64[3] literal 0:1:i64=0:1) indexUnchecked:i64(local t#0:i64[3] literal 0:2:i64=0:2) literal 0:4:i64=0:4) locals=1
+a7: assign(local t#0:List<i64> collection:List<i64>) assign(local t#1:List<i64> local xs#-:List<i64>) assign(local t#2:i64 literal 0:0:i64=0:0) loop(block(ifStmt(unary op2:bool(binary op13:bool(local t#2:i64 builtinCall m40:i64(local t#1:List<i64>))) block(gotoStmt break_1)) exprStmt(builtinCall m42:void(local t#0:List<i64> indexUnchecked:i64(local t#1:List<i64> local t#2:i64))) assign(local t#2:i64 binary op5:i64(local t#2:i64 literal 0:1:i64=0:1)))) label break_1 exprStmt(builtinCall m42:void(local t#0:List<i64> literal 0:5:i64=0:5)) => local t#0:List<i64> locals=3
+a8: assign(local t#0:List<i64> collection:List<i64>) assign(local t#1:i64[3] local arr#-:i64[3]) assign(local t#2:i64 literal 0:0:i64=0:0) loop(block(ifStmt(unary op2:bool(binary op13:bool(local t#2:i64 builtinCall m66:i64(local t#1:i64[3]))) block(gotoStmt break_1)) exprStmt(builtinCall m42:void(local t#0:List<i64> indexUnchecked:i64(local t#1:i64[3] local t#2:i64))) assign(local t#2:i64 binary op5:i64(local t#2:i64 literal 0:1:i64=0:1)))) label break_1 exprStmt(builtinCall m42:void(local t#0:List<i64> literal 0:6:i64=0:6)) => local t#0:List<i64> locals=3
+a9: => collection:i32[2](literal 0:1:i32=0:1 literal 0:2:i32=0:2) locals=0
+b1: => binary op22:bool(binary op22:bool(binary op17:bool(unionTag:i32(local u#-:U) literal 0:0:i32=0:0) sequence:bool(assignExpr:i64(local v#0:i64 unionField 0:i64(local u#-:U)) literal true:bool=true)) binary op14:bool(local v#0:i64 literal 0:1:i64=0:1)) locals=1
+b2: => binary op22:bool(binary op22:bool(binary op17:bool(unionTag:i32(local u#-:U) literal 0:1:i32=0:1) binary op17:bool(unionField 0:i64(local u#-:U) literal 0:1:i64=0:1)) sequence:bool(assignExpr:i64(local w#0:i64 unionField 1:i64(local u#-:U)) literal true:bool=true)) locals=1
+b3: => binary op22:bool(binary op17:bool(field:i64(local p#-:P) literal 0:1:i64=0:1) binary op14:bool(field:i64(local p#-:P) literal 0:2:i64=0:2)) locals=0
+b4: => binary op22:bool(binary op14:bool(local k#-:i64 literal 0:1:i64=0:1) binary op13:bool(local k#-:i64 literal 0:9:i64=0:9)) locals=0
+b5: => unary op2:bool(binary op17:bool(local k#-:i64 literal 0:3:i64=0:3)) locals=0
+b6: => binary op22:bool(binary op17:bool(field:i64(field:P(local qq#-:Q)) literal 0:1:i64=0:1) binary op17:bool(field:i64(field:P(local qq#-:Q)) literal 0:2:i64=0:2)) locals=0
+b7: => binary op22:bool(optionalHas:bool(local o#-:i64?) binary op17:bool(optionalValue:i64(local o#-:i64?) literal 0:3:i64=0:3)) locals=0
+b8: => binary op22:bool(optionalHas:bool(local o#-:i64?) binary op14:bool(optionalValue:i64(local o#-:i64?) literal 0:3:i64=0:3)) locals=0
+b9: => binary op22:bool(optionalHas:bool(local o#-:i64?) binary op22:bool(binary op16:bool(optionalValue:i64(local o#-:i64?) literal 0:1:i64=0:1) binary op13:bool(optionalValue:i64(local o#-:i64?) literal 0:5:i64=0:5))) locals=0
+c1: => binary op22:bool(optionalHas:bool(local ou#-:U?) binary op17:bool(unionTag:i32(optionalValue:U(local ou#-:U?)) literal 0:0:i32=0:0)) locals=0
+c2: => binary op17:bool(call sum:i64(local p#-:P) literal 0:3:i64=0:3) locals=0
+c3: => binary op17:bool(builtinCall m0:i64(field:string(local qq#-:Q)) literal 0:3:i64=0:3) locals=0
+c4: => binary op17:bool(unionTag:i32(local u#-:U) literal 0:2:i32=0:2) locals=0
+c5: => binary op22:bool(binary op16:bool(local k#-:i64 literal 0:1:i64=0:1) binary op15:bool(local k#-:i64 literal 0:5:i64=0:5)) locals=0
+c6: assign(local t#0:i64 local k#-:i64) assign(local t#1:i64 call h:i64) => binary op22:bool(binary op16:bool(local t#0:i64 local t#1:i64) binary op15:bool(local t#0:i64 literal 0:9:i64=0:9)) locals=2
+d1: assign(local t#0:(i64) tuple:(i64)(local k#-:i64)) => functionValue lazy$lambda1 t#0:i64 -> i64 locals=1
+d2: => functionValue lazy$lambda2:() -> i64 locals=0
+d3: failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(returnError(local t#0:E))) => local t#1:i64 locals=2
+stmt: failingCall t#0 -(call gv:void) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block) => voidValue:void locals=1
+stmt: failingCall t#0 -(call gv:void) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(returnError(local t#0:E))) => voidValue:void locals=1
+stmt: exprStmt(call hv:void) => voidValue:void locals=0
+ys: assign(local t#0:List<i64> collection:List<i64>) exprStmt(builtinCall m42:void(local t#0:List<i64> literal 0:1:i64=0:1)) => local t#0:List<i64> locals=1
+d6: => moveExpr:List<i64>(local ys#0:List<i64>) locals=1
+d7: => conversion:i32(local k#-:i64) locals=0

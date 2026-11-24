@@ -1,0 +1,5 @@
+error BYN2406: `break` outside a loop
+  --> <repo>/tests/cases/diag/lambda-break-outside-loop.byn:8:13
+
+  8 │             break
+    │             ^

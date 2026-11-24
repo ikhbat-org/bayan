@@ -1,0 +1,64 @@
+1:2 CharLiteral `'\u{1`
+2:1 Comma `,`
+2:3 Dot `.`
+2:5 DotDot `..`
+2:8 DotDotEquals `..=`
+2:12 Colon `:`
+2:14 Question `?`
+2:16 QuestionQuestion `??`
+2:19 QuestionQuestionEquals `??=`
+2:23 QuestionDot `?.`
+2:26 FatArrow `=>`
+2:29 Arrow `->`
+2:32 At `@`
+2:34 Hash `#`
+3:1 Identifier `ạ̇`
+3:5 StringLiteral `"text"`
+3:12 StringLiteral `"esc \"q\" \\ \n"`
+3:30 RawStringLiteral `"""\n� // li�e comment\n� é `
+5:5 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │  '\u{1
+    │  ^^^^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\u{1`
+
+  1 │  '\u{1
+    │   ^^^^
+    │
+  help: write `\u{` followed by 1–6 hex digits and `}`
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  3 │ ạ̇ "text" "esc \"q\" \\ \n" """
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │ ạ̇ "text" "esc \"q\" \\ \n" """
+    │   │ +
+
+error BYN0003: unterminated string literal
+
+  3 │ ạ̇ "text" "esc \"q\" \\ \n" """
+    │                              ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ � // li�e comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x97)
+
+  4 │ � // li�e comment
+    │        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ � é 
+    │ ^

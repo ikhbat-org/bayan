@@ -1,0 +1,6 @@
+== expr
+a: => binary op22:bool(binary op17:bool(unionTag:i32(local u#-:U) literal 0:0:i32=0:0) sequence:bool(assignExpr:U(local uw#0:U local u#-:U) literal true:bool=true)) locals=1
+v: => unionField 0:i64(local uq#0:U) locals=1
+n: => errorField 0:i64(local ey#0:E) locals=1
+b: => binary op22:bool(binary op17:bool(errorCode:u32(local err#-:E) literal 0:14:u32=0:14) binary op17:bool(errorField 0:i64(local err#-:E) literal 0:1:i64=0:1)) locals=0
+c: => binary op22:bool(binary op22:bool(binary op17:bool(errorCode:u32(local err#-:E) literal 0:14:u32=0:14) sequence:bool(assignExpr:i64(local m#0:i64 errorField 0:i64(local err#-:E)) literal true:bool=true)) binary op14:bool(local m#0:i64 literal 0:0:i64=0:0)) locals=1

@@ -1,0 +1,7 @@
+/// Doc line one.
+
+$"total {x}" $"a {f($"b {c}")} d" $Å"{{literal}}" $"{Point { x = 1 }}!" $""
+ // ok þ in comment
+
+if else unless swich case default for in while do brek continue return yield defer errdefer using context
+

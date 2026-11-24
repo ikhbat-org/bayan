@@ -1,0 +1,86 @@
+1:1 LetKeyword `let`
+1:5 Identifier `actor`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 LawKeyword `law`
+2:11 IntegerLiteral `3`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+4:1 Identifier `ạ̇`
+4:4 Identifier `macro`
+4:10 Identifier `select`
+4:17 BecomeKeyword `become`
+5:1 RawStringLiteral `"""\n\u{3}��� \n `
+7:2 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  1 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  2 │ let law � 3
+    │         ^
+
+error BYN0003: unterminated string literal
+
+  3 │  let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │ ạ̇�macro select become
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ạ̇�macro select become
+    │   │ +
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  4 │ ạ̇�macro select become
+    │    ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  4 │ ạ̇�macro select become
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  4 │ ạ̇�macro select become
+    │           ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  5 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ���� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ���� 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ���� 
+    │    ^

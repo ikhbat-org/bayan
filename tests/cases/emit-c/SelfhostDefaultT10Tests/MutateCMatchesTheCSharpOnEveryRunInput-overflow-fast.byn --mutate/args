@@ -1,0 +1,6 @@
+--mutate
+--mode
+fast
+--package
+.
+input.byn

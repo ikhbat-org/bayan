@@ -1,0 +1,1 @@
+{"code":"BYN2802","severity":"error","file":"input.byn","span":{"start":166,"end":168,"line":10,"column":12,"endLine":10,"endColumn":14},"message":"`S.area` is `IA.area` but `IB` requires `i64 area()`","label":"`area` has a default in `IA`","help":"add `i64 area()` to `S` to choose one","fixes":[]}

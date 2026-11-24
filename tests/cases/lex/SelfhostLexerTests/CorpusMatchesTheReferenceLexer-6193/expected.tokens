@@ -1,0 +1,134 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `stray } here`
+1:15 InterpolatedStringEnd `"`
+4:2 Identifier `Doc`
+4:6 Identifier `line`
+4:11 Identifier `two`
+4:14 Dot `.`
+5:1 Identifier `struc`
+6:2 Plus `+`
+6:4 Minus `-`
+6:6 Star `*`
+6:8 Slash `/`
+6:10 Percent `%`
+6:12 PlusPercent `+%`
+6:15 MinusPercent `-%`
+6:18 StarPercent `*%`
+6:21 PlusBar `+|`
+6:24 MinusBar `-|`
+6:27 StarBar `*|`
+6:30 PlusPlus `++`
+6:33 MinusMinus `--`
+8:1 InterpolatedStringStart `$"`
+8:3 InterpolatedStringText `open `
+8:8 InterpolationStart `{`
+8:9 Identifier `x`
+8:10 StringLiteral `";`
+10:1 LetKeyword `let`
+10:5 Identifier `s`
+10:7 Equals `=`
+10:9 InterpolatedStringStart `$"`
+10:11 InterpolationStart `{`
+10:12 InterpolatedStringStart `$"`
+10:14 InterpolationStart `{`
+10:15 InterpolatedStringStart `$"`
+10:17 InterpolationStart `{`
+10:18 InterpolatedStringStart `$"`
+10:20 InterpolationStart `{`
+10:21 InterpolatedStringStart `$"`
+10:23 InterpolationStart `{`
+10:24 InterpolatedStringStart `$"`
+10:26 InterpolationStart `{`
+10:27 InterpolatedStringStart `$"`
+10:29 InterpolationStart `{`
+10:30 InterpolatedStringStart `$"`
+10:32 InterpolationStart `{`
+10:33 InterpolatedStringStart `$"`
+10:35 InterpolationStart `{`
+10:36 InterpolatedStringStart `$"`
+10:38 InterpolationStart `{`
+10:39 InterpolatedStringStart `$"`
+10:41 InterpolationStart `{`
+10:42 InterpolatedStringStart `$"`
+10:44 InterpolationStart `{`
+10:45 InterpolatedStringStart `$"`
+10:47 InterpolationStart `{`
+10:48 InterpolatedStringStart `$"`
+10:50 InterpolationStart `{`
+10:51 InterpolatedStringStart `$"`
+10:53 InterpolationStart `{`
+10:54 StringLiteral `$"{$"`
+10:59 OpenBrace `{`
+10:60 StringLiteral `$"{$"`
+10:65 OpenBrace `{`
+10:66 StringLiteral `$"{x}"`
+10:72 CloseBrace `}`
+10:73 StringLiteral `"}"`
+10:76 CloseBrace `}`
+10:77 StringLiteral `"}"`
+10:80 InterpolationEnd `}`
+10:81 InterpolatedStringEnd `"`
+10:82 InterpolationEnd `}`
+10:83 InterpolatedStringEnd `"`
+10:84 InterpolationEnd `}`
+10:85 InterpolatedStringEnd `"`
+10:86 InterpolationEnd `}`
+10:87 InterpolatedStringEnd `"`
+10:88 InterpolationEnd `}`
+10:89 InterpolatedStringEnd `"`
+10:90 InterpolationEnd `}`
+10:91 InterpolatedStringEnd `"`
+10:92 InterpolationEnd `}`
+10:93 InterpolatedStringEnd `"`
+10:94 InterpolationEnd `}`
+10:95 InterpolatedStringEnd `"`
+10:96 InterpolationEnd `}`
+10:97 InterpolatedStringEnd `"`
+10:98 InterpolationEnd `}`
+10:99 InterpolatedStringEnd `"`
+10:100 InterpolationEnd `}`
+10:101 InterpolatedStringEnd `"`
+10:102 InterpolationEnd `}`
+10:103 InterpolatedStringEnd `"`
+10:104 InterpolationEnd `}`
+10:105 InterpolatedStringEnd `"`
+10:106 InterpolationEnd `}`
+10:107 InterpolatedStringEnd `"`
+10:108 InterpolationEnd `}`
+10:109 InterpolatedStringEnd `"`
+12:1 InterpolatedStringStart `$"`
+12:3 InterpolatedStringText `{{`
+12:5 InterpolatedStringEnd `"`
+12:6 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ $"stray } here"
+    │         ^
+    │
+    │ 1 │ $"stray }} here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �+ - * / % +% -% *% +| -| *| ++ --
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  8 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  10 │ let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+     │                                                      ^^

@@ -1,0 +1,6 @@
+== tests/cases/diag/duplicate-main.byn
+23..41 blockStmt
+29..39 exprStmt
+29..39 callExpr
+35..38 literalExpr string
+29..39 callExpr

@@ -1,0 +1,84 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `e`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolatedStringText `�`
+1:6 InterpolationStart `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:10 InterpolatedStringStart `$"`
+1:12 InterpolationStart `{`
+1:13 InterpolatedStringStart `$"`
+1:15 InterpolationStart `{`
+1:16 InterpolatedStringStart `$"`
+1:18 InterpolationStart `{`
+1:20 OpenBrace `{`
+1:21 Identifier `Q`
+1:22 InterpolatedStringStart `$"`
+1:24 InterpolationStart `{`
+1:25 InterpolatedStringStart `$"`
+1:27 InterpolationStart `{`
+1:28 InterpolatedStringStart `$"`
+1:30 InterpolationStart `{`
+1:31 InterpolatedStringStart `$"`
+1:33 InterpolationStart `{`
+1:34 InterpolatedStringStart `$"`
+1:36 InterpolationStart `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 Identifier `x`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 InterpolationEnd `}`
+1:50 InterpolatedStringEnd `"`
+1:51 InterpolationEnd `}`
+1:52 InterpolatedStringEnd `"`
+1:53 InterpolationEnd `}`
+1:54 InterpolatedStringEnd `"`
+1:56 IntegerLiteral `0x`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ 1e $"�{$"{$"{$"{$"{${Q$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 0x
+    │      ^
+
+error BYN0002: unexpected character `$`
+
+  1 │ 1e $"�{$"{$"{$"{$"{${Q$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 0x
+    │                    ^
+
+error BYN0003: unterminated string literal
+
+  1 │ 1e $"�{$"{$"{$"{$"{${Q$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 0x
+    │                                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 1e $"�{$"{$"{$"{$"{${Q$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}" 0x
+    │                                                         ^^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ � ��
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � ��
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � ��
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ � ��
+    │    ^

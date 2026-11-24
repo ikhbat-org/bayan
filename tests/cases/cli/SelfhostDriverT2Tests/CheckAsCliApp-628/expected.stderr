@@ -1,0 +1,34 @@
+error BYN5009: `at` is a particle; name the member with a verb or a noun
+  --> <repo>/tmp/t2/diag/particle-as-member-name/particle-as-member-name.byn:4:9
+
+  4 │     i64 at(i64 index) => count + index
+    │         ^^
+    │
+  help: rename the member, for example `tryGet(at:)` instead of `at(…)`
+
+error BYN5009: `toI64` spells a conversion with `to`; write `i64(shelf)`
+  --> <repo>/tmp/t2/diag/particle-as-member-name/particle-as-member-name.byn:6:9
+
+  6 │     i64 toI64() => count
+    │         ^^^^^
+    │
+  help: use a view noun, `copy()`, or a `T(x)` conversion
+
+error BYN5009: `asCount` spells a conversion with `as`; write `count`
+  --> <repo>/tmp/t2/diag/particle-as-member-name/particle-as-member-name.byn:8:9
+
+  8 │     i64 asCount => count
+    │         ^^^^^^^
+    │
+  help: use a view noun, `copy()`, or a `T(x)` conversion
+
+error BYN5009: `toString` spells a conversion with `to`; write `string(shelf)`
+  --> <repo>/tmp/t2/diag/particle-as-member-name/particle-as-member-name.byn:10:12
+
+  10 │     string toString() => ""
+     │            ^^^^^^^^
+     │
+  help: use a view noun, `copy()`, or a `T(x)` conversion
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN5009

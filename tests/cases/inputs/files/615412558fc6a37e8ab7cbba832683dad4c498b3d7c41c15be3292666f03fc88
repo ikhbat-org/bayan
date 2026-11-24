@@ -1,0 +1,7 @@
+let effect = 2
+   raw "quoted"
+ "bad \q e
+10 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l
+
+>>= 1
+ À€

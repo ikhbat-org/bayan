@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/format-spec-errors.byn
+--package
+<repo>/tests/cases/diag

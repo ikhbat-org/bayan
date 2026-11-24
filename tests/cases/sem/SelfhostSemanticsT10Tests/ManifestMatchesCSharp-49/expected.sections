@@ -1,0 +1,5 @@
+== case manifest/style-not-style
+errors 1
+error BYN3102: `style` must be a `Style { … }`
+  4 │     style: [.sameLine],
+    │            ^^^^^^^^^^^

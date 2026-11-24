@@ -1,0 +1,14 @@
+== tests/cases/diag/time-now-needs-clock.byn
+120..151 blockStmt
+126..149 returnStmt value 133..149
+133..149 memberExpr
+133..143 callExpr
+186..217 blockStmt
+192..215 returnStmt value 199..215
+199..215 memberExpr
+199..209 callExpr
+231..250 blockStmt
+237..248 exprStmt
+237..248 callExpr
+243..247 literalExpr string
+237..248 callExpr

@@ -1,0 +1,56 @@
+1:4 Identifier `raw`
+1:8 StringLiteral `"quoted"`
+3:6 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n"a\u{2067}b"\n_\nb\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �  raw "quoted"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �  raw "quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �  raw "quoted"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │      ^
+
+error BYN0003: unterminated string literal
+
+  3 │ ������   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

@@ -1,0 +1,3 @@
+== lintNeverReassignedVar.vars
+BYN2311 140:9 `total` is never reassigned; declare it with `let` ||declare it with `let` to tell the reader the value never changes|fix 2464..2467 let
+BYN2311 145:21 `v` is never reassigned; declare it with `let` ||declare it with `let` to tell the reader the value never changes|fix 2571..2574 let

@@ -1,0 +1,8 @@
+error BYN3100: `package.byn` is data only: expected `Package { … }`
+  --> package.byn:1:1
+
+  1 │ Dist {
+    │ ^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3100

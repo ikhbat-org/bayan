@@ -1,0 +1,63 @@
+union error ParseError {
+    bad
+}
+
+public struct Probe {
+    i64 n
+    public void fetchAccountActiveCatalogPeopleFromThenUpsertSkuKycLedger(ref this) { n += 1 }
+    public void upserted(ref this) { n += 1 }
+    public void criteria(ref this) { n += 1 }
+    public void isReady(ref this) { n += 1 }
+    public void total(ref this) { n += 1 }
+    public void fetch(ref this) { n += 1 }
+    i64 parse() fails ParseError {
+        fail .bad
+    }
+    i64 tryParse() => 1
+    i64? tryLoad() => 1
+    bool tryOpen() => true
+    Missing tryScan() => 1
+    i64 tryZip() => 1
+    i64 trying() => 1
+    i64 withArgs(i64 a) => a
+    public i64 withArgsPublic(i64 a) => a
+    public i64 account() => 1
+    bool hidden => true
+    i64 abc1d() => 1
+    i64 fetchSqrt() => 1
+    void widgeted(ref this) { n += 1 }
+    bool flip(ref this) {
+        n += 1
+        return true
+    }
+    public bool ready() => true
+    public bool isDone() => true
+    public bool containsKey() => true
+    public bool fresh => true
+    public bool isOld => true
+    i64 sqrt() => 1
+    i64 café() => 1
+    i64 x() => 1
+    i64 v2() => 1
+    i64 at() => 1
+    i64 toList() => 1
+    i64 toString() => 1
+    i64 asSpan() => 1
+    i64 fromList() => 1
+    i64 ascii() => 1
+    static i64 toName() => 1
+    i64 load() fails ParseError {
+        fail .bad
+    }
+    i64 scan() fails ParseError {
+        fail .bad
+    }
+    i64 open() fails ParseError {
+        fail .bad
+    }
+}
+struct Hidden {
+    i64 n
+    void fetch(ref this) { n += 1 }
+    public bool ready() => true
+}

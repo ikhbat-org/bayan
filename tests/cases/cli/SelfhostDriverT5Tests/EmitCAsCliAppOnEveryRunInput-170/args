@@ -1,0 +1,3 @@
+build
+--emit-c
+log-builtin.byn

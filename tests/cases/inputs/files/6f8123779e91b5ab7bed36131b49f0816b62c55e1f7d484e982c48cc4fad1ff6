@@ -1,0 +1,44 @@
+interface IGrow {
+    void grow(ref this, to ref string t)
+
+    void twice(ref this, to ref string t) {
+        grow(to: ref t)
+    }
+}
+
+struct G : IGrow {
+    string s
+
+    void grow(ref this, to ref string t) {
+        t = s
+    }
+}
+
+struct C {
+    string s
+    string name => s
+}
+
+enum Color {
+    red
+    green
+}
+
+string make(Arena a) => "x".copy(to: a)
+
+string pair(Arena a, by Arena b) => make(b)
+
+void main() {
+    var g = G { s: "" }
+    var kept = ""
+    g.twice(to: ref kept)
+    let c = C { s: "a" }
+    let k = Color.fromOrdinal(0)
+    let q = Color.parse("red")
+    {
+        using let a1 = Arena()
+        using let a2 = Arena()
+        kept = pair(a1, by: a2)
+    }
+    print($"{kept}{c.name}")
+}

@@ -1,0 +1,32 @@
+1:2 Identifier `ᅡ`
+1:5 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  1 │ �ᅡ���
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �ᅡ���
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  1 │ �ᅡ���
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x86)
+
+  1 │ �ᅡ���
+    │    ^
+
+error BYN0002: unexpected character `\u{B}`
+
+  1 │ �ᅡ���
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  1 │ �ᅡ���
+    │     ^

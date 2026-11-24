@@ -1,0 +1,3 @@
+build
+--emit-c
+utf8-decode.byn

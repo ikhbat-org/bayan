@@ -1,0 +1,263 @@
+// sabk phase 1 (spec 024, R6, R10): live intervals over SIR for the linear-scan allocator (T9). Every instruction and every
+// terminator gets a position, numbered in block order. Per-block live-in/live-out sets come from a backward worklist run to
+// a fixpoint (no recursion over the input; every buffer is sized from the function). A value's interval is one range
+// `[start, end]` covering every position where it is defined, used or live, so a loop back-edge stretches it over the loop.
+// Parameters count as defined at the first position of the entry block.
+
+import sabk.sir
+
+type VReg       = sir.VReg
+type BlockId    = sir.BlockId
+type SInst      = sir.SInst
+type Terminator = sir.Terminator
+type Function   = sir.Function
+
+public struct Interval {
+    public sir.VReg vreg
+    public i64  start
+    public i64  end
+}
+
+public struct Liveness {
+    /// One interval per value that is defined or used, sorted by `start` then `vreg`.
+    public List<Interval> intervals
+    /// The position of every `call`, ascending.
+    public List<i64>      calls
+    /// The value each call in `calls` defines (`sir.noReg()` for none), at the same index.
+    public List<VReg>     callDefs
+}
+
+/// True when the value is live across the call at some position: live before it (defined earlier, or a parameter, which
+/// starts at the same position 0 as a first-instruction call) and still needed after it. The call's own result starts at
+/// the call and does not cross it.
+public bool crossesCall(Liveness live, at Interval iv) {
+    for i in 0..live.calls.length {
+        let p = live.calls[i]
+        let before = iv.start < p || (iv.start == p && iv.vreg != live.callDefs[i])
+        return true if before && p < iv.end
+    }
+    return false
+}
+
+/// The operands `inst` reads.
+List<VReg> instUses(SInst inst) uses alloc {
+    var r = List<VReg>()
+    switch inst {
+        case .imm(let dst, let value): return r
+        case .add(let dst, let a, let b):
+            r.append(a)
+            r.append(b)
+        case .sub(let dst, let a, let b):
+            r.append(a)
+            r.append(b)
+        case .mul(let dst, let a, let b):
+            r.append(a)
+            r.append(b)
+        case .div(let dst, let a, let b):
+            r.append(a)
+            r.append(b)
+        case .addrStr(let dst, let index): return r
+        case .addrGlobal(let dst, let name): return r
+        case .load(let dst, let name): return r
+        case .store(let name, let src): r.append(src)
+        case .call(let dst, let symbol, let args):
+            for a in args {
+                r.append(a)
+            }
+    }
+    return r
+}
+
+/// The value `inst` writes, or `noReg`.
+VReg instDef(SInst inst) {
+    switch inst {
+        case .imm(let dst, let value): return dst
+        case .add(let dst, let a, let b): return dst
+        case .sub(let dst, let a, let b): return dst
+        case .mul(let dst, let a, let b): return dst
+        case .div(let dst, let a, let b): return dst
+        case .addrStr(let dst, let index): return dst
+        case .addrGlobal(let dst, let name): return dst
+        case .load(let dst, let name): return dst
+        case .store(let name, let src): return sir.noReg()
+        case .call(let dst, let symbol, let args): return dst
+    }
+}
+
+List<VReg> termUses(Terminator t) uses alloc {
+    var r = List<VReg>()
+    switch t {
+        case .open: return r
+        case .jump(let target): return r
+        case .br(let cond, let a, let b, let yes, let no):
+            r.append(a)
+            r.append(b)
+        case .ret(let value): r.append(value) if value != sir.noReg()
+    }
+    return r
+}
+
+List<BlockId> termSuccs(Terminator t) uses alloc {
+    var r = List<BlockId>()
+    switch t {
+        case .open: return r
+        case .jump(let target): r.append(target)
+        case .br(let cond, let a, let b, let yes, let no):
+            r.append(yes)
+            r.append(no)
+        case .ret(let value): return r
+    }
+    return r
+}
+
+List<bool> emptySet(by i64 n) uses alloc {
+    var s = List<bool>()
+    for i in 0..n {
+        s.append(false)
+    }
+    return s
+}
+
+/// Widens the range of `v` to include position `p`.
+struct Ranges {
+    List<i64> lo
+    List<i64> hi
+}
+
+void touch(ref Ranges r, for VReg v, at i64 p) {
+    r.lo[v] = p if r.lo[v] < 0 || p < r.lo[v]
+    r.hi[v] = p if p > r.hi[v]
+}
+
+public Liveness liveIntervals(Function f) uses alloc {
+    let nv = f.nextVReg
+    let nb = f.blocks.length
+
+    // Per block: values read before any write (use), values written (def), and the first position.
+    var use = List<List<bool>>()
+    var def = List<List<bool>>()
+    var first = List<i64>()
+    var succs = List<List<BlockId>>()
+    var preds = List<List<BlockId>>()
+    var pos = 0
+    for b in f.blocks {
+        var u = emptySet(by: nv)
+        var d = emptySet(by: nv)
+        first.append(pos)
+        for inst in b.insts {
+            for v in instUses(inst) {
+                u[v] = true if !d[v]
+            }
+            let w = instDef(inst)
+            d[w] = true if w != sir.noReg()
+            pos = pos + 1
+        }
+        for v in termUses(b.terminator) {
+            u[v] = true if !d[v]
+        }
+        pos = pos + 1
+        use.append(move u)
+        def.append(move d)
+        succs.append(termSuccs(b.terminator))
+        preds.append(List<BlockId>())
+    }
+    for i in 0..nb {
+        for s in succs[i] {
+            preds[s].append(i)
+        }
+    }
+
+    // Backward worklist: liveIn = use + (liveOut - def); liveOut = union of the successors' liveIn.
+    var liveIn = List<List<bool>>()
+    var liveOut = List<List<bool>>()
+    var queued = List<bool>()
+    var queue = List<BlockId>()
+    var head = 0
+    for i in 0..nb {
+        liveIn.append(emptySet(by: nv))
+        liveOut.append(emptySet(by: nv))
+        queued.append(true)
+        queue.append(nb - 1 - i)
+    }
+    while head < queue.length {
+        let b = queue[head]
+        head = head + 1
+        queued[b] = false
+        for s in succs[b] {
+            for v in 0..nv {
+                liveOut[b][v] = true if liveIn[s][v]
+            }
+        }
+        var changed = false
+        for v in 0..nv {
+            let now = use[b][v] || (liveOut[b][v] && !def[b][v])
+            if now && !liveIn[b][v] {
+                liveIn[b][v] = true
+                changed = true
+            }
+        }
+        if changed {
+            for p in preds[b] {
+                if !queued[p] {
+                    queued[p] = true
+                    queue.append(p)
+                }
+            }
+        }
+    }
+
+    // One range per value, and the call positions.
+    var r = Ranges { lo: List<i64>(), hi: List<i64>() }
+    for v in 0..nv {
+        r.lo.append(-1)
+        r.hi.append(-1)
+    }
+    var calls = List<i64>()
+    var callDefs = List<VReg>()
+    if nb > 0 {
+        for p in f.params {
+            touch(ref r, for: p, at: 0)
+        }
+    }
+    pos = 0
+    for b in f.blocks {
+        let start = pos
+        for inst in b.insts {
+            for v in instUses(inst) {
+                touch(ref r, for: v, at: pos)
+            }
+            let w = instDef(inst)
+            touch(ref r, for: w, at: pos) if w != sir.noReg()
+            switch inst {
+                case .call(let dst, let symbol, let args): {
+                    calls.append(pos)
+                    callDefs.append(dst)
+                }
+                default: pos = pos
+            }
+            pos = pos + 1
+        }
+        for v in termUses(b.terminator) {
+            touch(ref r, for: v, at: pos)
+        }
+        for v in 0..nv {
+            touch(ref r, for: v, at: start) if liveIn[b.id][v]
+            touch(ref r, for: v, at: pos) if liveOut[b.id][v]
+        }
+        pos = pos + 1
+    }
+
+    var intervals = List<Interval>()
+    for v in 0..nv {
+        continue if r.lo[v] < 0
+        let iv = Interval { vreg: v, start: r.lo[v], end: r.hi[v] }
+        var at = intervals.length
+        intervals.append(iv)
+        while at > 0 && intervals[at - 1].start > iv.start {
+            intervals[at] = intervals[at - 1]
+            at = at - 1
+        }
+        intervals[at] = iv
+    }
+    return Liveness { intervals: move intervals, calls: move calls, callDefs: move callDefs }
+}

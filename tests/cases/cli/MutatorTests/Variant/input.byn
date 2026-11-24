@@ -1,0 +1,10 @@
+union error E {
+    bad
+    worse
+    other(i32 code)
+}
+
+i64 check(i64 n) fails E {
+    fail .bad if n < 0
+    return n
+}

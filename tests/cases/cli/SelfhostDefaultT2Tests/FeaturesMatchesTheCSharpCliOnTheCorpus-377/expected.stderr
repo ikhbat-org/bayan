@@ -1,0 +1,39 @@
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/control-flow-same-line.byn:2:12
+
+  2 │     if a { x() } if b { y() }
+    │            ^
+    │
+  help: did you mean `a`?
+    │ 2 │     if a { a() } if b { y() }
+    │   │            +
+
+error BYN2001: `y` is not defined
+  --> <repo>/tests/cases/parse/control-flow-same-line.byn:2:25
+
+  2 │     if a { x() } if b { y() }
+    │                         ^
+    │
+  help: did you mean `a`?
+    │ 2 │     if a { x() } if b { a() }
+    │   │                         +
+
+error BYN2001: `x` is not defined
+  --> <repo>/tests/cases/parse/control-flow-same-line.byn:3:15
+
+  3 │     while a { x() } unless b { y() }
+    │               ^
+    │
+  help: did you mean `a`?
+    │ 3 │     while a { a() } unless b { y() }
+    │   │               +
+
+error BYN2001: `y` is not defined
+  --> <repo>/tests/cases/parse/control-flow-same-line.byn:3:32
+
+  3 │     while a { x() } unless b { y() }
+    │                                ^
+    │
+  help: did you mean `a`?
+    │ 3 │     while a { x() } unless b { a() }
+    │   │                                +

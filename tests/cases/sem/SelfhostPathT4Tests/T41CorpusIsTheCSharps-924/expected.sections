@@ -1,0 +1,5 @@
+== diags.diag/for-dyn-ref-let-array
+BYN2104 11:26 `a` is immutable
+  label it is borrowed element by element as `dyn ref IC`; declared with `let` on line 10
+  help declare it with `var` if it should change
+  fix 10:5-10:8 var

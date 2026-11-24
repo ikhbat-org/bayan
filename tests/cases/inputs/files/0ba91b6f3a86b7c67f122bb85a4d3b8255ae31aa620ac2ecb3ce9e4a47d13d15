@@ -1,0 +1,9 @@
+union error E {
+    a
+}
+union error F {
+    b
+}
+union error G {
+    c
+}

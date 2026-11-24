@@ -1,0 +1,3 @@
+== locals
+showList: line x t t t
+main: arena list i t t listCopy i t t _ t t map i t t t _ mapCopy i t t t t _ _ buf bufCopy i t t

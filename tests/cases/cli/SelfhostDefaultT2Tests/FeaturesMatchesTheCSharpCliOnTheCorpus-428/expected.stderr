@@ -1,0 +1,5 @@
+error BYN2227: `.invalid` is ambiguous; it exists in `MoneyError`, `ParseError`
+  --> <repo>/tests/cases/diag/ambiguous-variant.byn:10:10
+
+  10 │     fail .invalid if n < 0
+     │          ^^^^^^^^

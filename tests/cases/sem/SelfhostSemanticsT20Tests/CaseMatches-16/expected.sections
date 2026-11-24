@@ -1,0 +1,3 @@
+== inst.i4
+null
+BYN2741 151:22 type argument `T` of `pick` is inferred as both `i32` and `string` ||make the arguments agree, or write it out: `pick<…>(…)`|

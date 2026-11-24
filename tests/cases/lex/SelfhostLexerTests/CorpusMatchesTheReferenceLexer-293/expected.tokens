@@ -1,0 +1,25 @@
+1:2 Less `<`
+1:5 Identifier `comment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
+2:2 IntegerLiteral `1_`
+4:1 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ �1_
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �1_
+    │   │ -
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ �1_
+    │   ^
+    │
+    │ 2 │ �1_
+    │   │   -

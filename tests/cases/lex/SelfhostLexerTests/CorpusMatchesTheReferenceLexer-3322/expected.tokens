@@ -1,0 +1,25 @@
+    doc `/// Doc line one.`
+2:1 Identifier `ist`
+2:4 Less `<`
+2:5 Identifier `i64`
+2:8 Greater `>`
+2:9 Greater `>`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+3:6 Identifier `b`
+4:1 Identifier `c`
+4:3 Greater `>`
+4:4 GreaterEquals `>=`
+4:7 IntegerLiteral `1`
+4:8 Question `?`
+5:2 StringLiteral `"a\u{2067}b"`
+6:2 CharLiteral `'ab'`
+8:1 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text

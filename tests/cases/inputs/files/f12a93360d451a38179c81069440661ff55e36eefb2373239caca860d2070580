@@ -1,0 +1,12 @@
+i64 owned(i64 n) {
+    var a = List<i64>()
+    a.append(n)
+    let b = move a
+    return b.length
+}
+
+void main() {
+    var total: i64 = 0
+    total += owned(total)
+    print($"{total}")
+}

@@ -1,0 +1,10 @@
+error BYN2810: `static` interface members are not supported yet
+  --> tmp/t26-tests/cli/diag_static-interface-member.byn/static-interface-member.byn:2:16
+
+  2 │     static i64 parse(string text)
+    │                ^^^^^ declared `static`
+    │
+  help: remove `static` or make it a free function
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2810

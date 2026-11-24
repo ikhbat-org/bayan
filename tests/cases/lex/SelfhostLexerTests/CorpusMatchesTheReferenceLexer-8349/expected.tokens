@@ -1,0 +1,48 @@
+1:1 Plus `+`
+1:2 IntegerLiteral `2`
+1:4 FloatLiteral `1.50`
+1:8 NumericSuffix `dec`
+1:12 IntegerLiteral `1`
+1:13 DotDot `..`
+1:15 IntegerLiteral `2`
+1:17 IntegerLiteral `1`
+1:18 DotDot `..`
+1:20 Bar `|`
+1:21 IntegerLiteral `3`
+1:23 IntegerLiteral `5`
+1:24 NumericSuffix `e`
+1:26 Identifier `x`
+1:27 Dot `.`
+1:28 Identifier `y`
+1:30 LetKeyword `let`
+1:34 Identifier `c`
+1:36 Equals `=`
+1:38 RawStringLiteral `"""never closed\n\n"stray } here"\n$"open {x";\n\n�ي\n// comment \u{202E} hidden\n__\n�`
+9:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ +2 1.50dec 1..2 1..|3 5e x.y let c = """never closed
+    │                                      ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xA8)
+
+  6 │ �ي
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  9 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  9 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  9 │ �
+    │  ^

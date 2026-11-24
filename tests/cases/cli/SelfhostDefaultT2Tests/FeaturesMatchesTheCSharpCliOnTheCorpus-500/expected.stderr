@@ -1,0 +1,15 @@
+error BYN2822: a function type is not supported as a field yet
+  --> <repo>/tests/cases/diag/doer-without-verb-exempt.byn:10:12
+
+  10 │     public i64 -> i64 parser
+     │            ^^^^^^^^^^
+     │
+  help: take the function as a parameter instead
+
+error BYN2770: unknown attribute `json`
+  --> <repo>/tests/cases/diag/doer-without-verb-exempt.byn:14:2
+
+  14 │ @json(name: "csv_parser")
+     │  ^^^^
+     │
+  help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test

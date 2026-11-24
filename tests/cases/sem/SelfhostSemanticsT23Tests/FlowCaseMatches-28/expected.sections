@@ -1,0 +1,2 @@
+== flow.infallible
+BYN2604 114:13 `infallible` cannot fail, so it cannot pass on `NetError` ||handle the error with `catch`, or declare `fails NetError`|

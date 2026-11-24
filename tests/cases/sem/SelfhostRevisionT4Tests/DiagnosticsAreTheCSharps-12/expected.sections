@@ -1,0 +1,6 @@
+== diags.m-case-differs
+BYN3102 6:22 `grammar.adjectives` must be free of `fetch`, which `grammar.verbs` lists; only a verb that is also a noun may be in two lists
+verbs Fetch
+nouns
+adjectives fetch
+collectives

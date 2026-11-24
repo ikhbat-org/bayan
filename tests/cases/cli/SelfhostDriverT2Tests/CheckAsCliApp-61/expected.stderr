@@ -1,0 +1,10 @@
+error BYN2804: `i64` is not an interface
+  --> <repo>/tmp/t2/diag/input-csharp-type-name-dyn/input-csharp-type-name-dyn.byn:1:16
+
+  1 │ void g(dyn ref long x) {}
+    │                ^^^^ after `dyn`
+    │
+  help: name an `interface` after `dyn ref`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2804

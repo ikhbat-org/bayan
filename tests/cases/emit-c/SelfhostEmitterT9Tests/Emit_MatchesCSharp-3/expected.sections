@@ -1,0 +1,1390 @@
+== emit
+fn nv
+sig BYN_NORETURN void byn_main__nv(void)
+BYN_NORETURN void byn_main__nv(void) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 21 "a.byn"
+    goto L0;
+#line 21 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 21 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 21 "a.byn"
+    byn_context = ctx0;
+#line 21 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 21 "a.byn"
+    byn_panic_pop(&ph0);
+#line 21 "a.byn"
+    byn_panic("boom", byn_file_0, 21);
+#line 21 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 21};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 21);
+    }
+#line 21 "a.byn"
+    return;
+    byn_unreachable(byn_file_0, 21);
+}
+#line generated
+fn nf
+sig byn_err byn_main__nf(void)
+byn_err byn_main__nf(void) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 23 "a.byn"
+    goto L0;
+#line 23 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 23 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 23 "a.byn"
+    byn_context = ctx0;
+#line 23 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 23 "a.byn"
+    byn_panic_pop(&ph0);
+#line 23 "a.byn"
+    byn_panic("boom", byn_file_0, 23);
+#line 23 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 23};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 23);
+    }
+#line 23 "a.byn"
+    return (byn_err){0};
+    return (byn_err){0};
+}
+#line generated
+fn rq
+sig void byn_main__rq(int64_t* p_zr, bynt_map_i64_i64* p_zm, bynt_list_i64* p_zl)
+void byn_main__rq(int64_t* p_zr, bynt_map_i64_i64* p_zm, bynt_list_i64* p_zl) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 25 "a.byn"
+    goto L0;
+#line 25 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 25 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 25 "a.byn"
+    byn_context = ctx0;
+#line 25 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 25 "a.byn"
+    byn_panic_pop(&ph0);
+#line 25 "a.byn"
+    byn_panic("boom", byn_file_0, 25);
+#line 25 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 25};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 25);
+    }
+#line 27 "a.byn"
+    (*bynh_slot_map_i64_i64(&(*p_zm), INT64_C(1), ((int64_t){0}))) = INT64_C(2);
+#line 28 "a.byn"
+    (*bynh_slot_map_i64_i64(&(*p_zm), INT64_C(1), ((int64_t){0}))) = INT64_C(2);
+#line 29 "a.byn"
+    (*bynh_at_list_i64((*p_zl), (int64_t)INT64_C(0), false, byn_file_0, 29)) = INT64_C(1);
+#line 25 "a.byn"
+    (void)(*p_zr);
+#line 25 "a.byn"
+    (*p_zr) = (*p_zr);
+#line 25 "a.byn"
+    (*p_zr) = (*p_zr);
+#line 25 "a.byn"
+    return (*p_zr);
+#line 25 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc((*p_zr));
+#line 25 "a.byn"
+    byn_arena_free((*p_zr));
+#line 25 "a.byn"
+    return (*p_zr);
+#line 25 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zr
+slot false own_p_zm
+slot false own_p_zl
+store bynh_chk_set_map_i64_i64(&(*p_zm), (*p_zr), NULL, false, byn_file_0, 25)
+fn fc
+sig byn_err byn_main__fc(byn_str p_zs)
+byn_err byn_main__fc(byn_str p_zs) {
+    bynt_list_u8 l0_k1 = {0};
+    int64_t l1_k2 = {0};
+    byn_str l2_k3 = {0};
+    byn_own_slot own_l0_k1 = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 32 "a.byn"
+    goto L0;
+#line 32 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 32 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 32 "a.byn"
+    byn_context = ctx0;
+#line 32 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 32 "a.byn"
+    byn_panic_pop(&ph0);
+#line 32 "a.byn"
+    byn_panic("boom", byn_file_0, 32);
+#line 32 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 32};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 32);
+    }
+#line 32 "a.byn"
+    (void)p_zs;
+#line 32 "a.byn"
+    p_zs = p_zs;
+#line 32 "a.byn"
+    p_zs = p_zs;
+#line 32 "a.byn"
+    return p_zs;
+#line 32 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_zs);
+#line 32 "a.byn"
+    byn_arena_free(p_zs);
+#line 32 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        l0_k1 = byn_panic_current();
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 32 "a.byn"
+    *byn_out = p_zs;
+    return (byn_err){0};
+#line 32 "a.byn"
+    {
+        int64_t detail = 0;
+        l0_k1 = (byn_err){ .code = bynh_hex_decode(p_zs, &l1_k2, &detail) };
+        if (l0_k1.code == UINT32_C(15)) l0_k1.p.e15.at = (int64_t)detail;
+    }
+#line 32 "a.byn"
+    {
+        int64_t detail = 0;
+        l0_k1 = (byn_err){ .code = bynh_parse_i64(p_zs, ((byn_builtin_Radix)2), NULL, &detail) };
+        if (l0_k1.code == UINT32_C(15)) l0_k1.p.e15.at = (int64_t)detail;
+    }
+#line 32 "a.byn"
+    {
+        int64_t detail = 0;
+        l0_k1 = (byn_err){ .code = bynh_utf8_decode(((bynt_span_u8){(*(byn_own_read(&own_l0_k1, "List<u8>", byn_file_0, 36), &l0_k1)).ptr, (*(byn_own_read(&own_l0_k1, "List<u8>", byn_file_0, 36), &l0_k1)).len}), NULL, &detail) };
+        if (l0_k1.code == UINT32_C(12)) l0_k1.p.e12.at = (int64_t)detail;
+    }
+#line 32 "a.byn"
+    return (byn_err){0};
+    return (byn_err){0};
+}
+#line generated
+slot false own_p_zs
+slot true own_l0_k1
+slot false own_l1_k2
+slot false own_l2_k3
+fn lm
+sig void byn_main__lm(int64_t p_zq)
+void byn_main__lm(int64_t p_zq) {
+    int32_t l0_k = {0};
+    bynt_fn1_i64_i64 l1_g = {0};
+    bynt_fn1_i64_i64 l2_g2 = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 39 "a.byn"
+    goto L0;
+#line 39 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 39 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 39 "a.byn"
+    byn_context = ctx0;
+#line 39 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 39 "a.byn"
+    byn_panic_pop(&ph0);
+#line 39 "a.byn"
+    byn_panic("boom", byn_file_0, 39);
+#line 39 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 39);
+    }
+#line 39 "a.byn"
+    (void)p_zq;
+#line 39 "a.byn"
+    p_zq = p_zq;
+#line 39 "a.byn"
+    p_zq = p_zq;
+#line 39 "a.byn"
+    return p_zq;
+#line 39 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_zq);
+#line 39 "a.byn"
+    byn_arena_free(p_zq);
+#line 39 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        l0_k = byn_panic_current();
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 39 "a.byn"
+    return p_zq;
+#line 39 "a.byn"
+    {
+        uint8_t wb[256];
+        byn_writer wv = {wb, 256, 0, p_zq == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 39};
+        byn_writer* w = &wv;
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_bool(sw, p_zq.has); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 0); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(p_zq.value)); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(p_zq.tag)); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(p_zq.u.ua9.n)); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_u64(sw, (uint64_t)(p_zq.code)); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(p_zq.p.e14.code)); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)((p_zq = p_zq))); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)((p_zq, p_zq))); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(p_zq.ptr[p_zq])); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 39}; byn_writer* sw = &sv; byn_w_char(sw, byn_str_next(p_zq, &p_zq)); bynh_w_padded(w, (byn_str){sb, sv.len}, 1, 32u, 0); }
+        byn_w_println(w);
+    }
+#line 39 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zq
+slot false own_l0_k
+slot false own_l1_g
+slot false own_l2_g2
+fn e0
+sig void byn_main__e0(void)
+void byn_main__e0(void) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+}
+fn h2
+sig void byn_main__h2(void)
+void byn_main__h2(void) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 51 "a.byn"
+    goto L0;
+#line 51 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 51 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 51 "a.byn"
+    byn_context = ctx0;
+#line 51 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 51 "a.byn"
+    byn_panic_pop(&ph0);
+#line 51 "a.byn"
+    byn_panic("boom", byn_file_0, 51);
+#line 51 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 51};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 51);
+    }
+#line 51 "a.byn"
+    return;
+}
+#line generated
+fn w
+sig void byn_main__w(int64_t p_zq, byn_str p_zs, bool p_zb, uint32_t p_zc, byn_sym p_zy, bynt_main__P p_zp, bynt_main__Q p_zr, bynt_main__K p_zk)
+void byn_main__w(int64_t p_zq, byn_str p_zs, bool p_zb, uint32_t p_zc, byn_sym p_zy, bynt_main__P p_zp, bynt_main__Q p_zr, bynt_main__K p_zk) {
+    int64_t l0_k1 = {0};
+    byn_str l1_k2 = {0};
+    bool l2_k3 = {0};
+    uint32_t l3_k4 = {0};
+    byn_sym l4_k5 = {0};
+    bynt_main__P l5_k6 = {0};
+    bynt_main__Q l6_k7 = {0};
+    bynt_map_i64_i64 l7_k8 = {0};
+    int64_t t8 = {0};
+    int64_t l11_pv = {0};
+    int64_t l12_pb = {0};
+    byn_own_slot own_l7_k8 = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 68 "a.byn"
+    goto L0;
+#line 68 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 68 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 68 "a.byn"
+    byn_context = ctx0;
+#line 68 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 68 "a.byn"
+    byn_panic_pop(&ph0);
+#line 68 "a.byn"
+    byn_panic("boom", byn_file_0, 68);
+#line 68 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 68);
+    }
+#line 78 "a.byn"
+    (*bynh_slot_map_i64_i64(&(*(byn_own_read(&own_l7_k8, "Map<i64, i64>", byn_file_0, 78), &l7_k8)), p_zq, ((int64_t){0}))) = p_zq;
+    bynh_chk_claim_map_i64_i64(&l7_k8, byn_file_0, 78);
+#line 79 "a.byn"
+    (*bynh_slot_map_i64_i64(&(*(byn_own_read(&own_l7_k8, "Map<i64, i64>", byn_file_0, 79), &l7_k8)), p_zq, ((int64_t){0}))) = p_zq;
+    bynh_chk_claim_map_i64_i64(&l7_k8, byn_file_0, 79);
+#line 68 "a.byn"
+    (void)p_zq;
+#line 68 "a.byn"
+    p_zq = p_zq;
+#line 68 "a.byn"
+    p_zq = p_zq;
+#line 68 "a.byn"
+    return p_zq;
+#line 68 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_zq);
+#line 68 "a.byn"
+    byn_arena_free(p_zq);
+#line 68 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        l0_k1 = byn_panic_current();
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 68 "a.byn"
+    return p_zq;
+#line 68 "a.byn"
+    l0_k1 = byn_main__h2(&l1_k2);
+#line 68 "a.byn"
+    l0_k1 = (byn_err){ .code = byn_print(((byn_builtin_Stream)0), BYN_STR("x", 1)) };
+#line 68 "a.byn"
+    if (p_zb) {
+        {
+        }
+    }
+#line 68 "a.byn"
+    if (p_zb) {
+        {
+        }
+    } else {
+        {
+        }
+    }
+#line 68 "a.byn"
+    if (p_zb) {
+        {
+        }
+    } else {
+#line 68 "a.byn"
+        if (p_zb) {
+            {
+            }
+        }
+    }
+#line 68 "a.byn"
+    if (p_zb) {
+        {
+        }
+    } else {
+    L2:;
+    }
+#line 68 "a.byn"
+    {
+        uint8_t wb[256];
+        byn_writer wv = {wb, 256, 0, p_zb == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 68};
+        byn_writer* w = &wv;
+        byn_w_str(w, BYN_STR("a", 1));
+        if (p_zb) { byn_w_i64(w, (int64_t)(p_zq)); }
+        bynh_w_radix(w, (uint64_t)(p_zq), (p_zq) < 0, 16);
+        bynh_w_radix(w, (uint64_t)(p_zb), false, 2);
+        bynh_w_digits(w, (double)(p_zq), 2);
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; bynh_w_radix(sw, (uint64_t)(p_zq), (p_zq) < 0, 8); bynh_w_padded(w, (byn_str){sb, sv.len}, 6, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; bynh_w_quoted(sw, p_zs, '"'); bynh_w_padded(w, (byn_str){sb, sv.len}, 4, 32u, 0); }
+        bynh_w_quoted(w, p_zs, '"');
+        byn_w_i64(w, (int64_t)(p_zq));
+        bynh_w_rune_quoted(w, p_zc);
+        bynh_w_quoted(w, byn_sym_text(p_zy), '"');
+        bynh_debug_main__P(w, p_zp);
+        bynh_debug_main__Q(w, p_zr);
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; bynh_w_digits(sw, (double)(p_zq), 1); bynh_w_padded(w, (byn_str){sb, sv.len}, 2, 42u, 2); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(p_zq)); bynh_w_padded(w, (byn_str){sb, sv.len}, 3, 32u, 1); }
+        byn_w_println(w);
+    }
+#line 68 "a.byn"
+    {
+        uint8_t wb[512];
+        byn_writer wv = {wb, 512, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68};
+        byn_writer* w = &wv;
+        byn_w_str(w, BYN_STR("b", 1));
+        byn_log(p_zq, (byn_str){wb, wv.len});
+    }
+#line 68 "a.byn"
+    {
+        byn_writer* w = &p_zq;
+        w->file = byn_file_0;
+        w->line = 68;
+    }
+#line 68 "a.byn"
+    {
+        byn_writer* w = &l5_k6.x;
+        w->file = byn_file_0;
+        w->line = 68;
+        bynh_chk_claim_i64(w, byn_file_0, 68);
+    }
+#line 68 "a.byn"
+    byn_on_panic = byn_main__w;
+#line 68 "a.byn"
+    {
+        uint8_t wb[256];
+        byn_writer wv = {wb, 256, 0, p_zb == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 68};
+        byn_writer* w = &wv;
+        { bynt_main__F fv = p_zk.kf; byn_main__F__formatInto(&fv, w, (byn_format_spec){0, false, 0, 32u, 0, -1}); }
+        { bynt_main__F fv = p_zk.kf; byn_main__F__formatInto(&fv, w, (byn_format_spec){1, false, 0, 32u, 1, -1}); }
+        { bynt_main__F fv = p_zk.kf; byn_main__F__formatInto(&fv, w, (byn_format_spec){3, true, 0, 32u, 0, -1}); }
+        { bynt_main__F fv = p_zk.kf; byn_main__F__formatInto(&fv, w, (byn_format_spec){2, false, 5, 32u, 0, -1}); }
+        bynh_debug_main__K(w, p_zk);
+        byn_w_println(w);
+    }
+#line 68 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zq
+slot false own_p_zs
+slot false own_p_zb
+slot false own_p_zc
+slot false own_p_zy
+slot false own_p_zp
+slot false own_p_zr
+slot false own_p_zk
+slot false own_l0_k1
+slot false own_l1_k2
+slot false own_l2_k3
+slot false own_l3_k4
+slot false own_l4_k5
+slot false own_l5_k6
+slot false own_l6_k7
+slot true own_l7_k8
+slot false own_t8
+slot false own_t9
+slot false own_t10
+slot false own_l11_pv
+slot false own_l12_pb
+claimed x()
+claimed (x(), bynh_chk_claim_i64(&l5_k6.x, byn_file_0, 68))
+claimed (x(), bynh_chk_claim_i64(&l0_k1.item1, byn_file_0, 68))
+after 0
+store null
+store null
+store null
+store null
+store null
+store null
+store bynh_chk_set_map_i64_i64(&l7_k8, p_zq, &own_l7_k8, false, byn_file_0, 68)
+store bynh_chk_set_map_i64_i64(&p_zq.value, p_zq, NULL, false, byn_file_0, 68)
+store bynh_chk_set_map_i64_i64(&(*bynh_at_i64(p_zq, (int64_t)p_zq, false, byn_file_0, 68)), p_zq, NULL, false, byn_file_0, 68)
+afterc bynh_chk_claim_map_i64_i64(&l7_k8, byn_file_0, 68);
+claimed x()
+claimed x()
+fn v
+sig byn_err byn_main__v(void)
+byn_err byn_main__v(void) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 84 "a.byn"
+    goto L0;
+#line 84 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 84 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 84 "a.byn"
+    byn_context = ctx0;
+#line 84 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 84 "a.byn"
+    byn_panic_pop(&ph0);
+#line 84 "a.byn"
+    byn_panic("boom", byn_file_0, 84);
+#line 84 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 84};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 84);
+    }
+#line 84 "a.byn"
+    return (byn_err){0};
+    return (byn_err){0};
+}
+#line generated
+fn u
+sig byn_err byn_main__u(int64_t p_zq, int64_t* byn_out)
+byn_err byn_main__u(int64_t p_zq, int64_t* byn_out) {
+    int64_t l0_k1 = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 86 "a.byn"
+    goto L0;
+#line 86 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 86 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 86 "a.byn"
+    byn_context = ctx0;
+#line 86 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 86 "a.byn"
+    byn_panic_pop(&ph0);
+#line 86 "a.byn"
+    byn_panic("boom", byn_file_0, 86);
+#line 86 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 86};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 86);
+    }
+#line 86 "a.byn"
+    (void)p_zq;
+#line 86 "a.byn"
+    p_zq = p_zq;
+#line 86 "a.byn"
+    p_zq = p_zq;
+#line 86 "a.byn"
+    return p_zq;
+#line 86 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_zq);
+#line 86 "a.byn"
+    byn_arena_free(p_zq);
+#line 86 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        l0_k1 = byn_panic_current();
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 86 "a.byn"
+    *byn_out = p_zq;
+    return (byn_err){0};
+#line 86 "a.byn"
+    return (byn_err){0};
+}
+#line generated
+slot false own_p_zq
+slot false own_l0_k1
+fn h
+sig void byn_main__h(bynt_list_i64 p_zl)
+void byn_main__h(bynt_list_i64 p_zl) {
+    byn_own_slot own_p_zl = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 92 "a.byn"
+    goto L0;
+#line 92 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 92 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 92 "a.byn"
+    byn_context = ctx0;
+#line 92 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 92 "a.byn"
+    byn_panic_pop(&ph0);
+#line 92 "a.byn"
+    bynh_chk_claim_list_i64(&p_zl, byn_file_0, 92);
+#line 92 "a.byn"
+    byn_panic("boom", byn_file_0, 92);
+#line 92 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 92};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 92);
+    }
+#line 92 "a.byn"
+    (void)(*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl));
+#line 92 "a.byn"
+    (void)bynh_chk_set_list_i64(&p_zl, (*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl)), &own_p_zl, true, byn_file_0, 92);
+#line 92 "a.byn"
+    (*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl)) = (*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl));
+#line 92 "a.byn"
+    return (*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl));
+#line 92 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc((*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl)));
+#line 92 "a.byn"
+    byn_arena_free((*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl)));
+#line 92 "a.byn"
+    return bynh_chk_ret_list_i64((*(byn_own_read(&own_p_zl, "List<i64>", byn_file_0, 92), &p_zl)));
+#line 92 "a.byn"
+    return;
+}
+#line generated
+slot true own_p_zl
+fn rl
+sig bool byn_main__rl(bynt_list_i64* p_zl)
+bool byn_main__rl(bynt_list_i64* p_zl) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 94 "a.byn"
+    goto L0;
+#line 94 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 94 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 94 "a.byn"
+    byn_context = ctx0;
+#line 94 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 94 "a.byn"
+    byn_panic_pop(&ph0);
+#line 94 "a.byn"
+    byn_panic("boom", byn_file_0, 94);
+#line 94 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 94};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 94);
+    }
+#line 94 "a.byn"
+    (void)(*p_zl);
+#line 94 "a.byn"
+    (void)bynh_chk_set_list_i64(&(*p_zl), (*p_zl), NULL, false, byn_file_0, 94);
+#line 94 "a.byn"
+    (*p_zl) = (*p_zl);
+#line 94 "a.byn"
+    return (*p_zl);
+#line 94 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc((*p_zl));
+#line 94 "a.byn"
+    byn_arena_free((*p_zl));
+#line 94 "a.byn"
+    return bynh_chk_ret_list_i64((*p_zl));
+#line 94 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zl
+fn rv
+sig void byn_main__rv(bynt_list_i64* p_zl)
+void byn_main__rv(bynt_list_i64* p_zl) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 96 "a.byn"
+    goto L0;
+#line 96 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 96 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 96 "a.byn"
+    byn_context = ctx0;
+#line 96 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 96 "a.byn"
+    byn_panic_pop(&ph0);
+#line 96 "a.byn"
+    byn_panic("boom", byn_file_0, 96);
+#line 96 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 96};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 96);
+    }
+#line 96 "a.byn"
+    (void)(*p_zl);
+#line 96 "a.byn"
+    (void)bynh_chk_set_list_i64(&(*p_zl), (*p_zl), NULL, false, byn_file_0, 96);
+#line 96 "a.byn"
+    (*p_zl) = (*p_zl);
+#line 96 "a.byn"
+    return (*p_zl);
+#line 96 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc((*p_zl));
+#line 96 "a.byn"
+    byn_arena_free((*p_zl));
+#line 96 "a.byn"
+    return bynh_chk_ret_list_i64((*p_zl));
+#line 96 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zl
+fn ow
+sig void byn_main__ow(int64_t p_zn, bynt_list_i64 p_zm)
+void byn_main__ow(int64_t p_zn, bynt_list_i64 p_zm) {
+    byn_own_slot own_p_zm = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 98 "a.byn"
+    goto L0;
+#line 98 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 98 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 98 "a.byn"
+    byn_context = ctx0;
+#line 98 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 98 "a.byn"
+    byn_panic_pop(&ph0);
+#line 98 "a.byn"
+    byn_panic("boom", byn_file_0, 98);
+#line 98 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 98};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 98);
+    }
+#line 98 "a.byn"
+    (void)p_zn;
+#line 98 "a.byn"
+    p_zn = p_zn;
+#line 98 "a.byn"
+    p_zn = p_zn;
+#line 98 "a.byn"
+    return p_zn;
+#line 98 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_zn);
+#line 98 "a.byn"
+    byn_arena_free(p_zn);
+#line 98 "a.byn"
+    return p_zn;
+#line 98 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zn
+slot true own_p_zm
+fn ox
+sig void byn_main__ox(bynt_list_i64* p_zl, bynt_list_i64 p_zm)
+void byn_main__ox(bynt_list_i64* p_zl, bynt_list_i64 p_zm) {
+    byn_own_slot own_p_zm = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 100 "a.byn"
+    goto L0;
+#line 100 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 100 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 100 "a.byn"
+    byn_context = ctx0;
+#line 100 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 100 "a.byn"
+    byn_panic_pop(&ph0);
+#line 100 "a.byn"
+    byn_panic("boom", byn_file_0, 100);
+#line 100 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 100};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 100);
+    }
+#line 100 "a.byn"
+    (void)(*p_zl);
+#line 100 "a.byn"
+    (void)bynh_chk_set_list_i64(&(*p_zl), (*p_zl), NULL, false, byn_file_0, 100);
+#line 100 "a.byn"
+    (*p_zl) = (*p_zl);
+#line 100 "a.byn"
+    return (*p_zl);
+#line 100 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc((*p_zl));
+#line 100 "a.byn"
+    byn_arena_free((*p_zl));
+#line 100 "a.byn"
+    return bynh_chk_ret_list_i64((*p_zl));
+#line 100 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_zl
+slot true own_p_zm
+fn oc
+sig void byn_main__oc(void)
+void byn_main__oc(void) {
+    bynt_list_i64 l0_zl = {0};
+    bynt_list_i64 l1_z2 = {0};
+    byn_own_slot own_l0_zl = {0};
+    byn_own_slot own_l1_z2 = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 102 "a.byn"
+    goto L0;
+#line 102 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 102 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 102 "a.byn"
+    byn_context = ctx0;
+#line 102 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 102 "a.byn"
+    byn_panic_pop(&ph0);
+#line 102 "a.byn"
+    byn_panic("boom", byn_file_0, 102);
+#line 102 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 102};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 102);
+    }
+#line 106 "a.byn"
+    if (byn_main__rl(&(*(byn_own_read(&own_l0_zl, "List<i64>", byn_file_0, 106), &l0_zl)))) {
+        bynh_chk_claim_list_i64(&l0_zl, byn_file_0, 106);
+#line 107 "a.byn"
+        (void)byn_main__rv(&(*(byn_own_read(&own_l0_zl, "List<i64>", byn_file_0, 107), &l0_zl)));
+        bynh_chk_claim_list_i64(&l0_zl, byn_file_0, 107);
+#line 108 "a.byn"
+        (void)byn_main__ow((*(byn_own_read(&own_l0_zl, "List<i64>", byn_file_0, 108), &l0_zl)).len, (*bynh_chk_move_list_i64(&l0_zl, NULL, byn_file_0, 108)));
+#line 109 "a.byn"
+        (void)byn_main__ox(&(*(byn_own_read(&own_l1_z2, "List<i64>", byn_file_0, 109), &l1_z2)), (*bynh_chk_move_list_i64(&l1_z2, NULL, byn_file_0, 109)));
+    } else {
+        bynh_chk_claim_list_i64(&l0_zl, byn_file_0, 106);
+    }
+#line 102 "a.byn"
+    return;
+}
+#line generated
+slot true own_l0_zl
+slot true own_l1_z2
+fn main
+sig void byn_main__main(void)
+void byn_main__main(void) {
+    int32_t l0_k = {0};
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 113 "a.byn"
+    goto L0;
+#line 113 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 113 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 113 "a.byn"
+    byn_context = ctx0;
+#line 113 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 113 "a.byn"
+    byn_panic_pop(&ph0);
+#line 113 "a.byn"
+    byn_panic("boom", byn_file_0, 113);
+#line 113 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 113};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 113);
+    }
+#line 113 "a.byn"
+    return;
+}
+#line generated
+slot false own_l0_k
+fn P
+sig bynt_main__P byn_main__P__init0(int64_t p_zq)
+bynt_main__P byn_main__P__init0(int64_t p_zq) {
+    bynt_main__P self_v = {0};
+    bynt_main__P* self = &self_v;
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 8 "a.byn"
+    goto L0;
+#line 8 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 8 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 8 "a.byn"
+    byn_context = ctx0;
+#line 8 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 8 "a.byn"
+    byn_panic_pop(&ph0);
+#line 8 "a.byn"
+    byn_panic("boom", byn_file_0, 8);
+#line 8 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 8};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 8);
+    }
+#line 8 "a.byn"
+    (void)p_zq;
+#line 8 "a.byn"
+    p_zq = p_zq;
+#line 8 "a.byn"
+    p_zq = p_zq;
+#line 8 "a.byn"
+    return p_zq;
+#line 8 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_zq);
+#line 8 "a.byn"
+    byn_arena_free(p_zq);
+#line 8 "a.byn"
+    return self_v;
+#line 8 "a.byn"
+    return self_v;
+    return self_v;
+}
+#line generated
+slot false own_p_zq
+fn m
+sig void byn_main__P__m(bynt_main__P* self)
+void byn_main__P__m(bynt_main__P* self) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 9 "a.byn"
+    goto L0;
+#line 9 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 9 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 9 "a.byn"
+    byn_context = ctx0;
+#line 9 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 9 "a.byn"
+    byn_panic_pop(&ph0);
+#line 9 "a.byn"
+    byn_panic("boom", byn_file_0, 9);
+#line 9 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 9};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 9);
+    }
+#line 9 "a.byn"
+    return;
+}
+#line generated
+fn lm$lambda1
+sig int64_t byn_main__lm__lambda1(void* env, int64_t p_a)
+int64_t byn_main__lm__lambda1(void* env, int64_t p_a) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    {
+        {
+        }
+    }
+L0:;
+#line 42 "a.byn"
+    goto L0;
+#line 42 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 42 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 42 "a.byn"
+    byn_context = ctx0;
+#line 42 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 42 "a.byn"
+    byn_panic_pop(&ph0);
+#line 42 "a.byn"
+    byn_panic("boom", byn_file_0, 42);
+#line 42 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 42};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 42);
+    }
+#line 42 "a.byn"
+    (void)p_a;
+#line 42 "a.byn"
+    p_a = p_a;
+#line 42 "a.byn"
+    p_a = p_a;
+#line 42 "a.byn"
+    return p_a;
+#line 42 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_a);
+#line 42 "a.byn"
+    byn_arena_free(p_a);
+#line 42 "a.byn"
+    return p_a;
+#line 42 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_a
+fn lm$lambda2
+sig int64_t byn_main__lm__lambda2(void* env, int64_t p_a)
+int64_t byn_main__lm__lambda2(void* env, int64_t p_a) {
+    byn_alloc* ctx0 = byn_context;
+    byn_panic_handler ph0;
+    (void)env;
+    {
+        {
+        }
+    }
+L0:;
+#line 43 "a.byn"
+    goto L0;
+#line 43 "a.byn"
+    for (;;) {
+        {
+        }
+    }
+#line 43 "a.byn"
+    for (;;) {
+    L1:;
+    }
+#line 43 "a.byn"
+    byn_context = ctx0;
+#line 43 "a.byn"
+    if (BYN_PANIC_CATCH(&ph0)) {
+        {
+        }
+        byn_panic_resume();
+    }
+    byn_panic_push(&ph0);
+#line 43 "a.byn"
+    byn_panic_pop(&ph0);
+#line 43 "a.byn"
+    byn_panic("boom", byn_file_0, 43);
+#line 43 "a.byn"
+    {
+        uint8_t wb[1024];
+        byn_writer wv = {wb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 43};
+        byn_writer* w = &wv;
+        byn_panic_str((byn_str){wb, wv.len}, byn_file_0, 43);
+    }
+#line 43 "a.byn"
+    (void)p_a;
+#line 43 "a.byn"
+    p_a = p_a;
+#line 43 "a.byn"
+    p_a = p_a;
+#line 43 "a.byn"
+    return p_a;
+#line 43 "a.byn"
+    ctx0 = byn_context;
+    byn_context = byn_arena_alloc(p_a);
+#line 43 "a.byn"
+    byn_arena_free(p_a);
+#line 43 "a.byn"
+    return p_a;
+#line 43 "a.byn"
+    return;
+}
+#line generated
+slot false own_p_a

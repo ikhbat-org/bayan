@@ -1,0 +1,17 @@
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    edition: 2027,
+    kind: .app,
+    capabilities: [.net],
+    deps: [],
+    test: Tests { diffCoverage: 80, nightly: [.fuzz] },
+    dist: Dist { targets: [.host], mode: .safe },
+    style: Style {
+        indent: 4,
+        width: 100,
+        align: .none,
+        trailingCommas: .never,
+        lints: ["guards.postfix": .warning],
+    },
+}

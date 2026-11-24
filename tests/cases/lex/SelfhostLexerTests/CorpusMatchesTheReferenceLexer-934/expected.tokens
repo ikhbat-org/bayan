@@ -1,0 +1,27 @@
+1:2 NeverKeyword `never`
+1:8 Identifier `clos`
+1:13 Identifier `e`
+2:1 Identifier `b`
+3:2 LetKeyword `let`
+3:6 Identifier `a`
+3:8 Equals `=`
+3:10 StringLiteral `"open`
+    doc `///{`
+4:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  1 │  never clos�e
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ �let a = "open
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ �let a = "open
+    │          ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

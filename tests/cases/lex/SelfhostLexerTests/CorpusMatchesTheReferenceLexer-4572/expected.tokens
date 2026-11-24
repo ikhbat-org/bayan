@@ -1,0 +1,173 @@
+1:1 Amp `&`
+1:3 AmpAmp `&&`
+1:6 Bar `|`
+1:8 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 Equals `=`
+1:19 EqualsEquals `==`
+1:22 BangEquals `!=`
+1:25 Less `<`
+1:27 LessEquals `<=`
+1:30 Greater `>`
+1:32 GreaterEquals `>=`
+1:35 LessLess `<<`
+1:38 Greater `>`
+1:39 Greater `>`
+1:41 Greater `>`
+1:42 GreaterEquals `>=`
+3:1 Identifier `Bar`
+3:5 Identifier `_x`
+3:8 Identifier `camelCase2`
+3:19 Identifier `بيان`
+3:24 Identifier `μετρητής`
+3:33 Identifier `x_1`
+3:38 InterpolatedStringStart `$"`
+3:40 InterpolationStart `{`
+3:41 InterpolatedStringStart `$"`
+3:43 InterpolationStart `{`
+3:44 InterpolatedStringStart `$"`
+3:46 InterpolationStart `{`
+3:47 InterpolatedStringStart `$"`
+3:49 InterpolationStart `{`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 InterpolatedStringStart `$"`
+3:55 InterpolationStart `{`
+3:56 InterpolatedStringStart `$"`
+3:58 InterpolationStart `{`
+3:59 InterpolatedStringStart `$"`
+3:61 InterpolationStart `{`
+3:62 InterpolatedStringStart `$"`
+3:64 InterpolationStart `{`
+3:65 InterpolatedStringStart `$"`
+3:67 InterpolationStart `{`
+3:68 InterpolatedStringStart `$"`
+3:70 InterpolationStart `{`
+3:71 InterpolatedStringStart `$"`
+3:73 InterpolationStart `{`
+3:74 InterpolatedStringStart `$"`
+3:76 InterpolationStart `{`
+3:77 InterpolatedStringStart `$"`
+3:79 InterpolationStart `{`
+3:80 InterpolatedStringStart `$"`
+3:82 InterpolationStart `{`
+3:83 InterpolatedStringStart `$"`
+3:85 InterpolationStart `{`
+3:86 StringLiteral `$"{$"`
+3:91 OpenBrace `{`
+3:92 StringLiteral `$"{$"`
+3:97 OpenBrace `{`
+3:98 StringLiteral `$"{x}"`
+3:104 CloseBrace `}`
+3:105 StringLiteral `"}"`
+3:108 CloseBrace `}`
+3:109 StringLiteral `"}"`
+3:112 InterpolationEnd `}`
+3:113 InterpolatedStringEnd `"`
+3:114 InterpolationEnd `}`
+3:115 InterpolatedStringEnd `"`
+3:116 InterpolationEnd `}`
+3:117 InterpolatedStringEnd `"`
+3:118 InterpolationEnd `}`
+3:119 InterpolatedStringEnd `"`
+3:120 InterpolationEnd `}`
+3:121 InterpolatedStringEnd `"`
+3:122 InterpolationEnd `}`
+3:123 InterpolatedStringEnd `"`
+3:124 InterpolationEnd `}`
+3:125 InterpolatedStringEnd `"`
+3:126 InterpolationEnd `}`
+3:127 InterpolatedStringEnd `"`
+3:128 InterpolationEnd `}`
+3:129 InterpolatedStringEnd `"`
+3:130 InterpolationEnd `}`
+3:131 InterpolatedStringEnd `"`
+3:133 InterpolationEnd `}`
+3:134 InterpolatedStringEnd `"`
+3:135 InterpolationEnd `}`
+3:136 InterpolatedStringEnd `"`
+3:137 InterpolationEnd `}`
+3:138 InterpolatedStringEnd `"`
+3:139 InterpolationEnd `}`
+3:140 InterpolatedStringEnd `"`
+3:143 FailsKeyword `fails`
+3:149 TryKeyword `try`
+3:153 CatchKeyword `catch`
+3:159 Identifier `nev`
+3:163 Identifier `r`
+3:165 NoallocKeyword `noalloc`
+3:173 NosuspendKeyword `nosuspend`
+3:183 SuspendsKeyword `suspends`
+3:192 AsyncKeyword `async`
+3:198 AwaitKeyword `await`
+4:1 StringLiteral `"{{literal}}"`
+4:15 InterpolatedStringStart `$"`
+4:17 InterpolationStart `{`
+4:18 Identifier `Point`
+4:24 OpenBrace `{`
+4:26 Identifier `x`
+4:28 Equals `=`
+4:30 IntegerLiteral `1`
+4:32 CloseBrace `}`
+4:33 InterpolationEnd `}`
+4:34 InterpolatedStringText `!`
+4:35 InterpolatedStringEnd `"`
+4:37 InterpolatedStringStart `$"`
+4:39 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                      ^
+
+error BYN0003: unterminated string literal
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                         ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                                                                      ^^
+
+error BYN0002: unexpected character `\u{10}`
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                                                                                                                    ^
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                                                                                                                              ^ invisible
+    │                                                                                                                                                character
+    │                                                                                                                                                that
+    │                                                                                                                                                reorders
+    │                                                                                                                                                how
+    │                                                                                                                                                the
+    │                                                                                                                                                text
+    │                                                                                                                                                displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │   │                                                                                                                                              -
+
+error BYN0002: unexpected character `\u{5}`
+
+  3 │ Bar _x camelCase2 بيان μετρητής x_1 �$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"�}"}"}"}" �fails try catch nev�r noalloc nosuspend suspends async await
+    │                                                                                                                                                                  ^

@@ -1,0 +1,12 @@
+1:2 Identifier `line`
+1:7 Identifier `one`
+1:10 Dot `.`
+    doc `/// Doc line two.`
+3:1 StructKeyword `struct`
+3:8 Identifier `S`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xBD)
+
+  3 │ struct �S
+    │        ^

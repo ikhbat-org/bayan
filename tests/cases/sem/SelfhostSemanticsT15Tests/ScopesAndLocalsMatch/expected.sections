@@ -1,0 +1,4 @@
+== scopes outer-first
+declared x 0
+declared x 1
+BYN2007 2:4 `x` is already a local here |already declared on line 1|pick a different name; Bayan does not let a local hide another one|

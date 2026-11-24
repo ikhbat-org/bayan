@@ -1,0 +1,90 @@
+== tests/cases/run/dyn-ref-dispatch.byn
+501..578 blockStmt
+507..519 exprStmt
+507..519 callExpr
+507..508 nameExpr
+524..576 exprStmt
+524..576 callExpr
+530..575 interpolatedExpr
+533..539 memberExpr
+533..534 nameExpr
+543..551 callExpr
+543..544 nameExpr
+563..573 callExpr
+563..564 nameExpr
+571..572 literalExpr integer
+524..576 callExpr
+592..678 blockStmt
+598..624 localDecl
+606..624 structLiteralExpr
+621..622 literalExpr integer
+629..652 localDecl
+637..652 structLiteralExpr
+649..650 literalExpr integer
+657..664 exprStmt
+657..664 callExpr
+662..663 nameExpr
+662..663 nameExpr
+669..676 exprStmt
+669..676 callExpr
+674..675 nameExpr
+674..675 nameExpr
+191..202 binaryExpr mul right 198..202
+191..202 binaryExpr mul right 198..202
+191..202 binaryExpr mul right 198..202
+191..195 nameExpr
+191..195 nameExpr
+198..202 nameExpr
+198..202 nameExpr
+223..231 literalExpr string
+223..231 literalExpr string
+223..231 literalExpr string
+258..269 binaryExpr mul right 267..269
+258..269 binaryExpr mul right 267..269
+258..269 binaryExpr mul right 267..269
+258..264 callExpr
+258..262 nameExpr
+267..269 nameExpr
+327..336 binaryExpr mul right 335..336
+327..336 binaryExpr mul right 335..336
+327..336 binaryExpr mul right 335..336
+327..332 binaryExpr mul right 331..332
+327..328 literalExpr integer
+331..332 nameExpr
+331..332 nameExpr
+335..336 nameExpr
+335..336 nameExpr
+357..365 literalExpr string
+357..365 literalExpr string
+357..365 literalExpr string
+392..403 binaryExpr mul right 401..403
+392..403 binaryExpr mul right 401..403
+392..403 binaryExpr mul right 401..403
+392..398 callExpr
+392..396 nameExpr
+401..403 nameExpr
+428..460 callExpr
+428..460 callExpr
+428..460 callExpr
+434..459 interpolatedExpr
+456..457 nameExpr
+456..457 nameExpr
+428..460 callExpr
+95..130 callExpr
+95..130 callExpr
+95..130 callExpr
+101..129 interpolatedExpr
+104..108 nameExpr
+104..108 nameExpr
+121..127 callExpr
+121..125 nameExpr
+95..130 callExpr
+95..130 callExpr
+95..130 callExpr
+95..130 callExpr
+101..129 interpolatedExpr
+104..108 nameExpr
+104..108 nameExpr
+121..127 callExpr
+121..125 nameExpr
+95..130 callExpr

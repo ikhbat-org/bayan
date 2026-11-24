@@ -1,0 +1,4 @@
+build
+-o
+<repo>/tmp/t7-style/build-ok-no-color/tally/tally
+<repo>/tmp/t7-style/build-ok-no-color/tally/main.byn

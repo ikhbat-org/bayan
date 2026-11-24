@@ -1,0 +1,9 @@
+  raw "quoted"
+>=
++= -= *= /= %= &= |= ^= <<=
+ a /* never closed
+ /* block
+let b = "bad \q escape"
+let c let cøafeÌ = 1
+
+â‚Ã

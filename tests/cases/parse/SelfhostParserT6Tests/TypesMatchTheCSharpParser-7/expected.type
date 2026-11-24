@@ -1,0 +1,3 @@
+(ptr 0..9 true (named 7..9 7..9 < >)) at 3
+BYN1066 0+1 `*const u8` is an input form; write `readonly u8*` [the input form] [write the pointer after the type: `readonly u8*`] fix 0+9 'readonly u8*'
+BYN1067 0+9 pointer types are allowed only in `extern` declarations [a pointer type] [wrap the C call in an `extern` declaration]

@@ -1,0 +1,84 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:2 StructKeyword `struct`
+2:9 Identifier `JS`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 StringLiteral `$"{$\u{1}{$"`
+3:57 OpenBrace `{`
+3:58 StringLiteral `$"{x}"`
+3:64 CloseBrace `}`
+3:65 StringLiteral `"}"`
+3:68 StringLiteral `$"{$"`
+3:73 OpenBrace `{`
+3:74 StringLiteral `$"{$"`
+3:79 OpenBrace `{`
+3:80 StringLiteral `$"{$"`
+3:85 OpenBrace `{`
+3:86 StringLiteral `$"{$"`
+3:91 OpenBrace `{`
+3:92 StringLiteral `$"{$"`
+3:97 OpenBrace `{`
+3:98 StringLiteral `$"{$"`
+3:103 OpenBrace `{`
+3:104 StringLiteral `$"{$"`
+3:109 OpenBrace `{`
+3:110 StringLiteral `$"{$"`
+3:115 OpenBrace `{`
+3:116 Identifier `x`
+3:117 CloseBrace `}`
+3:118 StringLiteral `"}"`
+3:121 CloseBrace `}`
+3:122 StringLiteral `"}"`
+3:125 CloseBrace `}`
+3:126 StringLiteral `"}"`
+3:129 CloseBrace `}`
+3:130 StringLiteral `"}"`
+3:133 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{x}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                                              ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{x}"}"}"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"
+    │                                                 ^^

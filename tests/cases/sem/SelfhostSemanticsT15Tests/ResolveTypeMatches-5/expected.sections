@@ -1,0 +1,7 @@
+== resolve function-map-first
+resolve 0 ?
+resolve 1 List<i32>
+resolve 2 ?
+resolve 3 u8
+BYN2002 50:8 unknown type `T` |||
+BYN2002 50:26 unknown type `Zyzzyva` |||

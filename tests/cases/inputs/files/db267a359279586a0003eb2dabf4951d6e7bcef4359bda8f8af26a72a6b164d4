@@ -1,0 +1,11 @@
+ 1
+let b = ` 2
+let c =  ‮
+$"stray } here"
+$"open {x";
+'x
+
+///
+0b102
+
+o

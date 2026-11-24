@@ -1,0 +1,9 @@
+1:1 RawStringLiteral `"""\n}et x\u{2067} = 1\n \u{2069} $"{$"{$"{B$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{x}"}"}"`
+3:65 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`

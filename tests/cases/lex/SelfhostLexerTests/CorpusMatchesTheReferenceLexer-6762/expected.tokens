@@ -1,0 +1,43 @@
+1:1 OpenBrace `{`
+2:1 Greater `>`
+3:1 Identifier `c`
+3:3 Greater `>`
+3:4 GreaterEquals `>=`
+3:7 IntegerLiteral `1`
+4:2 IntegerLiteral `1_`
+5:2 IntegerLiteral `0`
+5:4 IntegerLiteral `42`
+5:7 IntegerLiteral `1_000_000`
+5:17 IntegerLiteral `0xFF`
+5:22 IntegerLiteral `0x_ff`
+5:28 IntegerLiteral `0b1`
+5:32 IntegerLiteral `010`
+5:36 IntegerLiteral `0B11`
+5:41 IntegerLiteral `5`
+5:42 NumericSuffix `s`
+5:44 IntegerLiteral `250`
+5:47 NumericSuffix `m3`
+5:50 IntegerLiteral `4`
+5:51 NumericSuffix `KiB`
+5:55 IntegerLiteral `1`
+5:56 NumericSuffix `u`
+5:58 IntegerLiteral `0xFF`
+5:62 NumericSuffix `u`
+5:64 IntegerLiteral `0b1`
+5:67 NumericSuffix `ul`
+5:70 IntegerLiteral `7`
+5:71 NumericSuffix `l`
+6:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │  1_
+    │   ^
+    │
+    │ 4 │  1_
+    │   │   -
+
+error BYN0002: unexpected character `\u{11}`
+
+  5 │  0 42 1_000_000 0xFF 0x_ff 0b1�010 0B11 5s 250m3 4KiB 1u 0xFFu 0b1ul 7l
+    │                               ^

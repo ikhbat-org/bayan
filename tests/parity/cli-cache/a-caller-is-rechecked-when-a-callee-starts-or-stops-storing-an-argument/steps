@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; mkdir tally/src/keep; cp fresh.byn tally/src/keep/keep.byn; cp main.byn tally/src/app/main.byn; $BAYAN build tally > /dev/null; echo "build $?"
+$ cp keeps.byn tally/src/keep/keep.byn; $BAYAN build tally > out.txt 2>&1; echo "build $?"; grep -o BYN3002 out.txt | sort -u
+$ cp fresh.byn tally/src/keep/keep.byn; $BAYAN build tally > /dev/null; echo "build $?"

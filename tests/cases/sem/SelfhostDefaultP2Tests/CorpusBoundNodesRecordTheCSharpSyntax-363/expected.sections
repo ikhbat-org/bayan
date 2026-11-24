@@ -1,0 +1,21 @@
+== tests/cases/diag/because-unchecked.byn
+69..195 blockStmt
+75..96 localDecl
+83..96 structLiteralExpr
+93..94 literalExpr integer
+101..130 exprStmt
+101..130 callExpr
+107..129 interpolatedExpr
+110..127 callExpr
+110..111 nameExpr
+101..130 callExpr
+135..193 exprStmt
+135..193 callExpr
+141..192 interpolatedExpr
+144..161 callExpr because
+144..145 nameExpr
+135..193 callExpr
+52..53 nameExpr
+52..53 nameExpr
+52..53 nameExpr
+52..53 nameExpr

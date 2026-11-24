@@ -1,0 +1,52 @@
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `{{`
+5:5 InterpolatedStringEnd `"`
+5:7 StructKeyword `struct`
+5:14 Identifier `S`
+7:1 LetKeyword `let`
+7:5 Identifier `a`
+7:7 Equals `=`
+8:2 LetKeyword `let`
+8:6 Identifier `b`
+8:8 Equals `=`
+8:12 IntegerLiteral `2`
+11:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  1 │ //// no a doc comme�t
+    │                    ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c = � 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  6 │  // ok � in comment
+    │        ^
+
+error BYN0002: unexpected character `$`
+
+  7 │ let a = $ 
+    │         ^
+
+error BYN0002: unexpected character ```
+
+  8 │  let b = ` 2
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  10 │ ��
+     │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  10 │ ��
+     │  ^

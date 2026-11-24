@@ -1,0 +1,87 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:2 Amp `&`
+2:4 AmpAmp `&&`
+2:7 Bar `|`
+2:9 BarBar `||`
+2:12 Caret `^`
+2:14 Tilde `~`
+2:16 Bang `!`
+2:18 Equals `=`
+2:20 EqualsEquals `==`
+2:23 BangEquals `!=`
+2:26 Less `<`
+2:28 LessEquals `<=`
+2:31 Greater `>`
+2:33 GreaterEquals `>=`
+2:36 LessLess `<<`
+2:40 Greater `>`
+2:41 Greater `>`
+2:43 Greater `>`
+2:44 GreaterEquals `>=`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolationStart `{`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolationStart `{`
+4:10 InterpolatedStringStart `$"`
+4:12 InterpolationStart `{`
+4:13 InterpolatedStringStart `$"`
+4:15 InterpolationStart `{`
+4:16 InterpolatedStringStart `$"`
+4:18 InterpolationStart `{`
+4:19 InterpolatedStringStart `$"`
+4:21 InterpolationStart `{`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolationStart `{`
+4:25 InterpolatedStringStart `$"`
+4:27 InterpolationStart `{`
+4:28 InterpolatedStringStart `$"`
+4:30 InterpolatedStringText `$`
+4:31 InterpolatedStringEnd `"`
+4:32 OpenBrace `{`
+4:33 InterpolatedStringStart `$"`
+4:35 InterpolationStart `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 InterpolatedStringStart `$"`
+4:41 InterpolationStart `{`
+4:42 InterpolatedStringStart `$"`
+4:44 InterpolationStart `{`
+4:45 InterpolatedStringStart `$"`
+4:47 InterpolationStart `{`
+4:48 Identifier `x`
+4:49 InterpolationEnd `}`
+4:50 InterpolatedStringEnd `"`
+5:2 Dot `.`
+5:4 Dot `.`
+5:6 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDC)
+
+  2 │  & && | || ^ ~ ! = == != < <= > >= <<� >> >>=
+    │                                      ^
+
+error BYN0003: unterminated string literal
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{x}"
+    │                                          ^^ this string never ends
+    │
+  help: close the `{` and the string

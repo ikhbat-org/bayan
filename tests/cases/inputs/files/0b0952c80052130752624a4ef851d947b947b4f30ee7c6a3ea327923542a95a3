@@ -1,0 +1,1 @@
+Package { name: "local/a", version: "0.1.0", edition: 0x7E3 }

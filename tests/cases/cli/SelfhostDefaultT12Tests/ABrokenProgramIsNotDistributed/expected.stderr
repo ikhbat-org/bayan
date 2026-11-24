@@ -1,0 +1,5 @@
+error BYN2202: expected `i32`, found `string`
+  --> src/app/main.byn:8:23
+
+  8 │ i32 broken() { return "no" }
+    │                       ^^^^

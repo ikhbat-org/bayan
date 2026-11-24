@@ -1,0 +1,29 @@
+2:1 PlusEquals `+=`
+2:4 MinusEquals `-=`
+2:7 StarEquals `*=`
+2:10 SlashEquals `/=`
+2:13 PercentEquals `%=`
+2:16 AmpEquals `&=`
+2:19 BarEquals `|=`
+2:22 CaretEquals `^=`
+2:25 LessLessEquals `<<=`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `{{`
+3:6 InterpolatedStringEnd `"`
+3:7 LetKeyword `let`
+3:11 Identifier `c`
+3:13 Equals `=`
+3:15 RawStringLiteral `"""never closed\n`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `‏`
+
+  1 │ ‏
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │  $"{{"let c = """never closed
+    │               ^^^ raw string starts here
+    │
+  help: close it with `"""`

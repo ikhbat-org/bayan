@@ -1,0 +1,7 @@
+{"jsonrpc":"2.0","id":1,"error":{"code":-32601,"message":"method not found: foo/bar"}}
+{"jsonrpc":"2.0","id":"abc","error":{"code":-32601,"message":"method not found: x\"y\\z\n\t\u0001é ​﻿￿<>&'+`"}}
+{"jsonrpc":"2.0","id":1500.0,"error":{"code":-32601,"message":"method not found: num"}}
+{"jsonrpc":"2.0","id":0,"error":{"code":-32601,"message":"method not found: neg"}}
+{"jsonrpc":"2.0","id":Infinity,"error":{"code":-32601,"message":"method not found: big"}}
+{"jsonrpc":"2.0","id":"é/😀","error":{"code":-32601,"message":"method not found: a"}}
+{"jsonrpc":"2.0","id":2,"error":{"code":-32601,"message":"method not found: 😀"}}

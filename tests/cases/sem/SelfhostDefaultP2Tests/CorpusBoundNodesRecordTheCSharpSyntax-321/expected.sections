@@ -1,0 +1,109 @@
+== tests/cases/run/test-cases.test.byn
+20..53 blockStmt
+26..51 returnStmt value 33..51
+33..51 binaryExpr logicalAnd right 43..51
+33..39 binaryExpr ge right 38..39
+33..34 nameExpr
+38..39 literalExpr integer
+43..51 binaryExpr le right 48..51
+43..44 nameExpr
+48..51 literalExpr integer
+158..197 blockStmt
+135..144 param
+63..64 literalExpr integer
+146..156 param
+66..71 literalExpr falseKeyword
+158..197 blockStmt
+164..195 assertStmt
+171..194 binaryExpr eq right 189..194
+171..185 callExpr
+179..184 nameExpr
+189..194 nameExpr
+158..197 blockStmt
+135..144 param
+75..76 literalExpr integer
+146..156 param
+78..82 literalExpr trueKeyword
+158..197 blockStmt
+164..195 assertStmt
+171..194 binaryExpr eq right 189..194
+171..185 callExpr
+179..184 nameExpr
+189..194 nameExpr
+158..197 blockStmt
+135..144 param
+86..89 literalExpr integer
+146..156 param
+91..95 literalExpr trueKeyword
+158..197 blockStmt
+164..195 assertStmt
+171..194 binaryExpr eq right 189..194
+171..185 callExpr
+179..184 nameExpr
+189..194 nameExpr
+158..197 blockStmt
+135..144 param
+99..102 literalExpr integer
+146..156 param
+104..108 literalExpr trueKeyword
+158..197 blockStmt
+164..195 assertStmt
+171..194 binaryExpr eq right 189..194
+171..185 callExpr
+179..184 nameExpr
+189..194 nameExpr
+257..288 blockStmt
+244..255 param
+206..209 literalExpr string
+257..288 blockStmt
+263..286 assertStmt
+270..285 binaryExpr lt right 284..285
+270..281 memberExpr
+270..274 nameExpr
+284..285 literalExpr integer
+257..288 blockStmt
+244..255 param
+211..215 literalExpr string
+257..288 blockStmt
+263..286 assertStmt
+270..285 binaryExpr lt right 284..285
+270..281 memberExpr
+270..274 nameExpr
+284..285 literalExpr integer
+257..288 blockStmt
+244..255 param
+217..222 literalExpr string
+257..288 blockStmt
+263..286 assertStmt
+270..285 binaryExpr lt right 284..285
+270..281 memberExpr
+270..274 nameExpr
+284..285 literalExpr integer
+392..421 blockStmt
+353..363 param
+298..300 unaryExpr negate operand 299..300
+365..376 param
+302..305 literalExpr char
+378..390 param
+307..311 literalExpr nullKeyword
+392..421 blockStmt
+398..419 assertStmt
+405..418 binaryExpr ne right 415..418
+405..411 nameExpr
+415..418 literalExpr floatKeyword
+392..421 blockStmt
+353..363 param
+315..318 literalExpr floatKeyword
+365..376 param
+320..323 literalExpr char
+378..390 param
+325..328 literalExpr string
+325..328 literalExpr string
+392..421 blockStmt
+398..419 assertStmt
+405..418 binaryExpr ne right 415..418
+405..411 nameExpr
+415..418 literalExpr floatKeyword
+436..456 blockStmt
+442..454 assertStmt
+449..453 literalExpr trueKeyword

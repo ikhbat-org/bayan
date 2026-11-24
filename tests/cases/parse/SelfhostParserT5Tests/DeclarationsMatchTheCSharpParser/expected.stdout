@@ -1,0 +1,40 @@
+Color 0+41 3
+Color 0+31 3
+BYN1053 16+1 `Color` declares its cases on one line; write one per line | the first `,` | write each case on its own line fix 12+18 [
+    red
+    green
+    blue
+]
+E 0+23 2
+BYN1053 14+1 `E` declares its cases on one line; write one per line | the first `,` | write each case on its own line fix 8+14 [
+    a
+    b
+]
+E 0+23 2
+BYN1047 12+7 `/* */` is an input form; write `//` lines | block comment | write each line with `//` fix 12+7 [// x
+]
+BYN1053 10+1 `E` declares its cases on one line; write one per line | the first `,` | write each case on its own line fix 8+14 [
+    a /* x */
+    b
+]
+E 0+10 1
+BYN1001 10+0 expected `}`, found end of file |  | close the enum opened on line 1
+Mode 0+26 2
+BYN1053 17+1 `Mode` declares its cases on one line; write one per line | the first `,` | write each case on its own line fix 12+13 [
+    read
+    write
+]
+E 0+28 2
+BYN1053 19+1 `E` declares its cases on one line; write one per line | the first `,` | write each case on its own line fix 15+12 [
+    bad
+    worse
+]
+E 0+22 1
+E 0+21 1
+BYN1044 0+11 `error union` is an input form; write `union error` | the input form | put the kind first: `union error` fix 0+11 [union error]
+Foo 0+13 0
+Foo 0+17 0
+I 0+25 1
+I 0+21 0
+BYN1001 18+1 expected a method, getter or `type Name`, found `5` |  | 
+io 0+19 2

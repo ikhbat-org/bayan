@@ -1,0 +1,1 @@
+{"code":"BYN2107","severity":"error","file":"input.byn","span":{"start":65,"end":71,"line":5,"column":19,"endLine":5,"endColumn":25},"message":"property `latest` modifies the value","label":null,"help":"make it a method if it needs to change the value","fixes":[]}

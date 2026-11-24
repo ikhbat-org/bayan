@@ -1,0 +1,9 @@
+== tests/cases/diag/readonly-field.byn
+38..62 globalStatement
+38..62 localDecl
+47..62 structLiteralExpr
+59..60 literalExpr integer
+63..75 assignStmt assign target 63..71 value 74..75
+63..71 memberExpr
+63..65 nameExpr
+74..75 literalExpr integer

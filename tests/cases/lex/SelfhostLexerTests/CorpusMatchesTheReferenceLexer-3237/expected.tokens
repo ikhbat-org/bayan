@@ -1,0 +1,67 @@
+1:1 IntegerLiteral `0x`
+1:4 Identifier `closed`
+2:1 Identifier `b`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `total `
+3:9 InterpolationStart `{`
+3:10 Identifier `x`
+3:11 InterpolationEnd `}`
+3:12 InterpolatedStringEnd `"`
+3:14 InterpolatedStringStart `$"`
+3:16 InterpolatedStringText `a `
+3:18 InterpolationStart `{`
+3:19 Identifier `f`
+3:20 OpenParen `(`
+3:21 InterpolatedStringStart `$"`
+3:23 InterpolatedStringText `b `
+3:25 InterpolationStart `{`
+3:26 Identifier `c`
+3:27 InterpolationEnd `}`
+3:28 InterpolatedStringEnd `"`
+3:29 CloseParen `)`
+3:30 InterpolationEnd `}`
+3:31 InterpolatedStringText ` d`
+3:33 InterpolatedStringEnd `"`
+3:35 InterpolatedStringStart `$"`
+3:37 InterpolatedStringText `{{literal}}`
+3:48 InterpolatedStringEnd `"`
+3:50 InterpolatedStringStart `$"`
+3:52 InterpolationStart `{`
+3:53 Identifier `Point`
+3:59 OpenBrace `{`
+3:61 Identifier `x`
+3:63 Equals `=`
+3:65 IntegerLiteral `1`
+3:67 CloseBrace `}`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringText `!`
+3:70 InterpolatedStringEnd `"`
+3:72 InterpolatedStringStart `$"`
+3:74 InterpolatedStringEnd `"`
+4:2 TestKeyword `test`
+4:7 AssertKeyword `assert`
+4:14 PropertyKeyword `property`
+4:23 FuzzKeyword `fuzz`
+4:28 ModelKeyword `model`
+4:34 ForeachKeyword `foreach`
+4:42 NewKeyword `new`
+4:46 GotoKeyword `goto`
+6:1 Plus `+`
+6:3 Minus `-`
+6:5 Star `*`
+6:7 Slash `/`
+6:9 Percent `%`
+6:11 PlusPercent `+%`
+6:14 MinusPercent `-%`
+6:17 StarPercent `*%`
+6:20 PlusBar `+|`
+6:23 MinusBar `-|`
+6:26 StarBar `*|`
+6:29 PlusPlus `++`
+6:32 MinusMinus `--`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x closed
+    │ ^^

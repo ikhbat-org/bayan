@@ -1,0 +1,24 @@
+union error ReadError { broken }
+
+type Pair = (i64 x, i64 y)
+
+struct Pairs {
+    i64 at
+    i64 limit
+
+    Pair? next(ref this) fails ReadError {
+        if at >= limit { return null }
+        at += 1
+        return (x: at, y: at * 10)
+    }
+}
+
+i64 total(through i64 limit) fails ReadError {
+    var sum = 0
+    for try (a, b) in (Pairs { at: 0, limit: limit }) {
+        sum += a + b
+    }
+    return sum
+}
+
+print($"total {try total(through: 3)}")

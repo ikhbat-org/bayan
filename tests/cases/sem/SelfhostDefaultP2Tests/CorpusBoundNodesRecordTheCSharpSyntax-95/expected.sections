@@ -1,0 +1,47 @@
+== tests/cases/run/function-type-key-nested-fails.byn
+66..79 catchExpr
+66..79 catchExpr
+66..79 catchExpr
+66..71 callExpr
+66..69 callExpr
+66..67 nameExpr
+78..79 literalExpr integer
+117..202 blockStmt
+123..153 localDecl
+146..153 lambdaExpr
+158..183 localDecl
+168..183 catchExpr
+168..171 callExpr
+168..169 nameExpr
+178..183 nameExpr
+188..200 returnStmt value 195..200
+195..200 callExpr
+195..198 nameExpr
+215..284 blockStmt
+221..249 exprStmt
+221..249 callExpr
+227..248 interpolatedExpr
+230..246 callExpr
+232..245 lambdaExpr
+221..249 callExpr
+254..282 exprStmt
+254..282 callExpr
+260..281 interpolatedExpr
+263..279 callExpr
+265..278 lambdaExpr
+254..282 callExpr
+152..153 literalExpr integer
+152..153 literalExpr integer
+152..153 literalExpr integer
+238..245 lambdaExpr
+238..245 lambdaExpr
+238..245 lambdaExpr
+244..245 literalExpr integer
+244..245 literalExpr integer
+244..245 literalExpr integer
+271..278 lambdaExpr
+271..278 lambdaExpr
+271..278 lambdaExpr
+277..278 literalExpr integer
+277..278 literalExpr integer
+277..278 literalExpr integer

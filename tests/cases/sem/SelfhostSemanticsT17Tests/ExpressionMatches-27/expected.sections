@@ -1,0 +1,3 @@
+== case name-array-type-arg
+errorExpr 1919..1937 : ?
+BYN2019 104:19 `gen` is a function, not a value ||call it: `gen()`|

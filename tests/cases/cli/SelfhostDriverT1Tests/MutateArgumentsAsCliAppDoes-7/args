@@ -1,0 +1,5 @@
+mutate
+--sites
+<repo>/tmp/t13-mutate/args/prog.sites.json
+--
+true

@@ -1,0 +1,49 @@
+import std.json
+
+/// The text of member `key` of an object, or null.
+string? textOf(json.JsonValue v, at string key) {
+    if v is .object(let members) {
+        for m in members {
+            return value if m.key == key && m.value is .text(let value)
+        }
+    }
+    return null
+}
+
+/// The number of member `key` of an object, or null.
+f64? numberOf(json.JsonValue v, at string key) {
+    if v is .object(let members) {
+        for m in members {
+            return value if m.key == key && m.value is .number(let value, _)
+        }
+    }
+    return null
+}
+
+void main() {
+    let read = Io.stdin.readAll()
+    if !read.isOk {
+        print("cannot read input", to: .stderr)
+        return
+    }
+    let parsed = json.Json.parse(read.value) catch {
+        print("invalid json")
+        return
+    }
+    let root = (move parsed).trustUnchecked() because "every member is checked before use"
+    print($"host: {textOf(root, at: "host") ?? "unknown"}")
+    var dishes: i64 = 0
+    if root is .object(let members) {
+        for m in members {
+            if m.key == "guests" && m.value is .list(let guests) {
+                for guest in guests {
+                    let name = textOf(guest, at: "name") ?? "unknown"
+                    let count = i64(numberOf(guest, at: "dishes") ?? 0.0)
+                    dishes += count
+                    print($"{name} brings {count}")
+                }
+            }
+        }
+    }
+    print($"dishes: {dishes}")
+}

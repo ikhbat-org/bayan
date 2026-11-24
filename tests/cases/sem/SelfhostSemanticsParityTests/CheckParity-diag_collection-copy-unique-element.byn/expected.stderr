@@ -1,0 +1,38 @@
+error BYN2784: a `List<List<i64>>` holding `List<i64>` cannot be copied: the copy would share its
+storage
+  --> tmp/t26-tests/cli/diag_collection-copy-unique-element.byn/collection-copy-unique-element.byn:7:13
+
+  7 │     let l = lists.copy(to: a)
+    │             ^^^^^^^^^^^^^^^^^
+    │
+  help: build the copy with a loop that copies each element, or share the original by `ref`
+
+error BYN2784: a `Map<string, StrBuf>` holding `StrBuf` cannot be copied: the copy would share its
+storage
+  --> tmp/t26-tests/cli/diag_collection-copy-unique-element.byn/collection-copy-unique-element.byn:9:13
+
+  9 │     let m = maps.copy(to: a)
+    │             ^^^^^^^^^^^^^^^^
+    │
+  help: build the copy with a loop that copies each element, or share the original by `ref`
+
+error BYN2784: a `Map<i64, Holder>` holding `List<i64>` cannot be copied: the copy would share its
+storage
+  --> tmp/t26-tests/cli/diag_collection-copy-unique-element.byn/collection-copy-unique-element.byn:11:13
+
+  11 │     let k = keyed.copy(to: a)
+     │             ^^^^^^^^^^^^^^^^^
+     │
+  help: build the copy with a loop that copies each element, or share the original by `ref`
+
+error BYN2784: a `List<Owned<i64>?>` holding `Owned<i64>` cannot be copied: the copy would share its
+storage
+  --> tmp/t26-tests/cli/diag_collection-copy-unique-element.byn/collection-copy-unique-element.byn:13:13
+
+  13 │     let o = owned.copy(to: a)
+     │             ^^^^^^^^^^^^^^^^^
+     │
+  help: build the copy with a loop that copies each element, or share the original by `ref`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2784

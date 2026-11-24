@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/ambiguous-variant.byn
+--package
+<repo>/tests/cases/diag

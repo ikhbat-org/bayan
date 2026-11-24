@@ -1,0 +1,4 @@
+== diags.diag/pattern-outside-const
+BYN1046 6:17 `pattern` is allowed only after `=` in a `const`
+  label `pattern` outside a `const`
+  help declare the pattern as `const name = pattern T { … }`

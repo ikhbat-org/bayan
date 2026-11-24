@@ -1,0 +1,4 @@
+== cases
+0 byn_todo_str(BYN_STR("not ready", 9), byn_file_0, 3)
+1 byn_add_i64(l1_n, INT64_C(1), byn_file_0, 4)
+count 3

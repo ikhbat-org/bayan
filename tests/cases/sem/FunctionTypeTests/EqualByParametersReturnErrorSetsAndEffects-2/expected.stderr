@@ -1,0 +1,38 @@
+error BYN2202: expected `(i64, string) -> bool uses fs, net fails IoError, Utf8Error`, found
+`bool g(i32, string) fails IoError, Utf8Error`
+  --> input.byn:14:16
+
+  14 │     let a = t1(g)
+     │                ^
+     │
+  help: pass a function of type `(i64, string) -> bool uses fs, net fails IoError, Utf8Error`
+
+error BYN2202: expected `i32 -> bool uses fs, net fails IoError, Utf8Error`, found
+`bool g(i32, string) fails IoError, Utf8Error`
+  --> input.byn:15:16
+
+  15 │     let b = t2(g)
+     │                ^
+     │
+  help: pass a function of type `i32 -> bool uses fs, net fails IoError, Utf8Error`
+
+error BYN2202: expected `(i32, string) -> i32 uses fs, net fails IoError, Utf8Error`, found
+`bool g(i32, string) fails IoError, Utf8Error`
+  --> input.byn:16:16
+
+  16 │     let c = t3(g)
+     │                ^
+     │
+  help: pass a function of type `(i32, string) -> i32 uses fs, net fails IoError, Utf8Error`
+
+error BYN2202: expected `(i32, string) -> bool uses fs, net fails IoError`, found
+`bool g(i32, string) fails IoError, Utf8Error`
+  --> input.byn:17:16
+
+  17 │     let d = t4(g)
+     │                ^
+     │
+  help: pass a function of type `(i32, string) -> bool uses fs, net fails IoError`
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2202

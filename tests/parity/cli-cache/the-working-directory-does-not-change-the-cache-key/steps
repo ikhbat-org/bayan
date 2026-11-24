@@ -1,0 +1,1 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; cd tally && $BAYAN build $WORK/tally --emit-c > ../root.c; echo "emit $?"; cd src && $BAYAN build $WORK/tally --emit-c > ../../src.c; echo "emit $?"; cd ../..; cmp -s root.c src.c && echo "same C"; grep -qF '"src/app/main.byn"' root.c && echo "relative path"; grep -qF "$ROOT" root.c || echo "no repo path"

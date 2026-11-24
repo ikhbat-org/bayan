@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/empty-error-set.byn
+--package
+<repo>/tests/cases/diag

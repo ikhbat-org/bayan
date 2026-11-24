@@ -1,0 +1,77 @@
+== diags.diag/input-paren-braceless-body
+BYN1017 3:11 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 3:11-3:25 x == 0 { x = 1 }
+BYN1018 3:20 the body of `while` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 4:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 4:8-5:24 x > 2 { print("big") }
+    else { print("small") }
+BYN1018 4:16 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1018 5:10 the body of `else` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1007 6:5 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+  fix 6:5-6:36 if (x > 0) { print("none") }
+BYN1018 6:23 the body of `unless` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1019 7:9 `for (let x in xs)` is an input form; write `for x in xs`
+  label the input form
+  help write the loop variable and iterable without parentheses
+  fix 7:9-7:33 a in args { print(a) }
+BYN1018 7:25 the body of `for` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 8:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 8:8-8:33 !(x > 5) { print("small") }
+BYN1018 8:19 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 12:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 12:8-14:22 x {
+        print("a")
+    } else { print("b") }
+BYN1018 14:12 the body of `else` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 15:8 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 15:8-15:22 x { print("c") }
+BYN1018 15:12 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1017 16:13 parentheses around a condition are an input form
+  label not needed
+  help remove the parentheses
+  fix 16:13-17:20 x { print("d") }
+    else { print("e") }
+BYN1018 16:17 the body of `if` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1018 17:10 the body of `else` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+BYN1007 18:5 `unless` with a negated condition is a double negative
+  label `unless` already negates
+  help use `if` with the condition as written
+BYN1018 18:17 the body of `unless` must be a block
+  label a single statement
+  help wrap the statement in `{ }`
+  fix 18:16-18:27  { print("f") }
+BYN1006 19:5 `unless` cannot have an `else` branch
+  label `else` after `unless`
+  help use `if` with the opposite condition, so both branches read positively

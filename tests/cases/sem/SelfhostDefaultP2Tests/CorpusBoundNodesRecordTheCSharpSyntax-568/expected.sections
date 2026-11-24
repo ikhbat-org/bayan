@@ -1,0 +1,26 @@
+== tests/cases/diag/input-negated-if.byn
+37..177 blockStmt
+43..69 localDecl
+54..69 binaryExpr gt right 68..69
+54..65 memberExpr
+54..58 nameExpr
+68..69 literalExpr integer
+74..115 ifStmt
+77..82 unaryExpr notKeyword operand 78..82
+78..82 nameExpr
+83..115 blockStmt
+93..109 exprStmt
+93..109 callExpr
+99..108 literalExpr string
+93..109 callExpr
+120..175 ifStmt
+123..142 unaryExpr notKeyword operand 124..142
+125..141 binaryExpr eq right 140..141
+125..136 memberExpr
+125..129 nameExpr
+140..141 literalExpr integer
+143..175 blockStmt
+153..169 exprStmt
+153..169 callExpr
+159..168 literalExpr string
+153..169 callExpr

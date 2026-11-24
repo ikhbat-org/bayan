@@ -1,0 +1,12 @@
+# BYN2605: nothing to handle
+
+**Why.** `try` and `catch` apply to a call of a function that `fails`; on anything else they do nothing.
+
+**Example.**
+
+```
+i64 twice(i64 n) => n * 2
+let n = try twice(2)
+```
+
+**Fix.** Remove `try` / `catch`.

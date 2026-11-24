@@ -1,0 +1,18 @@
+1:3 Identifier `raw`
+1:7 StringLiteral `"quoted"`
+2:1 StringLiteral `"text"`
+2:8 StringLiteral `"esc \"q\" \\ \n"`
+2:26 RawStringLiteral `"""\n t actor = \n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{x\n" `
+5:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  2 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  4 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$�{$"{$"{$"{x
+    │                                            ^

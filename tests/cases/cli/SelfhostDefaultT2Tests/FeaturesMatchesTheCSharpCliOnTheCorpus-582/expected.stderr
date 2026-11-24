@@ -1,0 +1,5 @@
+error BYN2225: `Q` cannot be formatted
+  --> <repo>/tests/cases/diag/format-debug-struct-field.byn:6:10
+
+  6 │ print($"{q, as: .debug}")
+    │          ^ field `xs` is `List<i64>`

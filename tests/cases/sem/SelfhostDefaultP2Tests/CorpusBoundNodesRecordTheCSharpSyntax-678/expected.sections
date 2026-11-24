@@ -1,0 +1,4 @@
+== tests/cases/diag/no-target-type.byn
+0..16 globalStatement
+0..16 localDecl
+8..16 targetMemberExpr

@@ -1,0 +1,10 @@
+error BYN2781: `b` is used after it was moved
+  --> tmp/t26-tests/cli/diag_move-narrowed-use-after.byn/move-narrowed-use-after.byn:14:18
+
+  14 │         print($"{b.length}")
+     │                  ^ moved on line 12
+     │
+  help: assign `b` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2781

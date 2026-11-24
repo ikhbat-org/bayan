@@ -1,0 +1,34 @@
+1:1 Identifier `x́́`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:18 StarPercent `*%`
+2:21 PlusBar `+|`
+2:24 MinusBar `-|`
+2:27 StarBar `*|`
+2:30 PlusPlus `++`
+2:33 MinusMinus `--`
+4:1 LetKeyword `let`
+4:5 Identifier `x`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xEA)
+
+  2 │ + - * / % +% -%� *% +| -| *| ++ --
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x81)
+
+  4 │ let x�� = 1
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA7)
+
+  4 │ let x�� = 1
+    │       ^

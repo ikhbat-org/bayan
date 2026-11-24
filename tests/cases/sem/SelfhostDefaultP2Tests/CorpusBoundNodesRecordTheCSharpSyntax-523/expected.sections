@@ -1,0 +1,58 @@
+== tests/cases/diag/function-value-mismatch.byn
+91..96 binaryExpr gt right 95..96
+91..96 binaryExpr gt right 95..96
+91..96 binaryExpr gt right 95..96
+91..92 nameExpr
+95..96 literalExpr integer
+135..177 blockStmt
+141..159 guardedStmt
+154..159 binaryExpr lt right 158..159
+154..155 nameExpr
+158..159 literalExpr integer
+141..145 failStmt
+146..150 targetMemberExpr
+164..175 returnStmt value 171..175
+171..175 literalExpr trueKeyword
+208..258 blockStmt
+214..240 guardedStmt
+235..240 binaryExpr lt right 239..240
+235..236 nameExpr
+239..240 literalExpr integer
+214..218 failStmt
+219..231 memberExpr
+245..256 returnStmt value 252..256
+252..256 literalExpr trueKeyword
+281..295 blockStmt
+287..293 assignStmt add target 287..288 value 292..293
+287..288 nameExpr
+292..293 literalExpr integer
+327..331 literalExpr trueKeyword
+327..331 literalExpr trueKeyword
+327..331 literalExpr trueKeyword
+367..371 literalExpr trueKeyword
+367..371 literalExpr trueKeyword
+367..371 literalExpr trueKeyword
+425..429 literalExpr trueKeyword
+425..429 literalExpr trueKeyword
+425..429 literalExpr trueKeyword
+481..485 literalExpr trueKeyword
+481..485 literalExpr trueKeyword
+481..485 literalExpr trueKeyword
+499..686 blockStmt
+505..528 localDecl
+513..528 callExpr
+518..527 nameExpr
+533..559 localDecl
+541..559 callExpr
+553..558 nameExpr
+564..591 localDecl
+572..591 callExpr
+581..590 nameExpr
+596..621 localDecl
+616..621 nameExpr
+626..657 localDecl
+634..657 callExpr
+646..656 nameExpr
+662..684 localDecl
+670..684 callExpr
+679..683 nameExpr

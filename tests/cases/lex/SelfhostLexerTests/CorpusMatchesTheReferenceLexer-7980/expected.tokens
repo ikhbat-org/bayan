@@ -1,0 +1,46 @@
+1:1 Identifier `ever`
+1:6 Identifier `closed`
+3:1 RawStringLiteral `"""\n������  i � `
+4:9 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  3 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  4 │ ������  i � 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  4 │ ������  i � 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ������  i � 
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ������  i � 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ ������  i � 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ ������  i � 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  4 │ ������  i � 
+    │           ^

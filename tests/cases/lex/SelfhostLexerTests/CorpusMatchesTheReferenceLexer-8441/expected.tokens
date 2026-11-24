@@ -1,0 +1,47 @@
+1:2 CharLiteral `''`
+1:5 CharLiteral `'é'`
+1:9 CharLiteral `'\\'`
+1:14 CharLiteral `'\0'`
+2:1 Identifier `r`
+3:1 LetKeyword `let`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
+5:1 CharLiteral `'ab'`
+7:1 Identifier `foo`
+7:5 Identifier `Bar`
+7:9 Identifier `_x`
+7:12 Identifier `camelCase2`
+7:23 Identifier `بيان`
+7:28 Identifier `μετρητής`
+7:37 Identifier `x_1`
+7:41 Identifier `é`
+8:1 LetKeyword `let`
+8:5 Identifier `a`
+8:7 Equals `=`
+8:9 IntegerLiteral `1`
+9:2 EndOfFile
+
+error BYN0002: unexpected character `\`
+
+  1 │ \'' 'é' '\\' '\0'
+    │ ^
+
+error BYN0007: empty char literal
+
+  1 │ \'' 'é' '\\' '\0'
+    │  ^^
+    │
+  help: write the character between the quotes, e.g. `' '`
+
+error BYN0002: unexpected character ```
+
+  3 │ let b = ` 2
+    │         ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text

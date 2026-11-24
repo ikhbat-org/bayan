@@ -1,0 +1,75 @@
+== tests/cases/diag/validation-error-ambiguous-arm.byn
+360..401 blockStmt
+366..399 localDecl
+374..399 tryExpr
+378..399 structLiteralExpr
+378..399 structLiteralExpr
+393..397 nameExpr
+403..474 globalStatement
+403..474 exprStmt
+403..474 catchExpr
+403..420 callExpr
+412..419 literalExpr string
+427..474 switchExpr
+427..433 caughtErrorExpr
+440..450 variantPattern
+454..471 callExpr
+460..470 literalExpr string
+454..471 callExpr
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+150..176 requiresRule
+150..176 requiresRule
+159..176 binaryExpr ge right 175..176
+159..171 memberExpr
+159..161 nameExpr
+159..161 nameExpr
+175..176 literalExpr integer
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+150..176 requiresRule
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+110..178 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+221..238 requiresRule
+221..238 requiresRule
+230..238 binaryExpr ne right 236..238
+230..232 nameExpr
+230..232 nameExpr
+236..238 literalExpr string
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+221..238 requiresRule
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl
+180..240 structDecl

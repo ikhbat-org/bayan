@@ -1,0 +1,1 @@
+bayan: building for windows-x64 on this machine needs zig (https://ziglang.org); the C compiler is `<repo>/tmp/t3/bin-refuse/cc`

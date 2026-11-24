@@ -1,0 +1,38 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:9 RawStringLiteral `"""never closed\n\nlet c = """`
+3:12 NeverKeyword `never`
+3:18 Identifier `closed`
+6:1 Identifier `b`
+7:2 CharLiteral `'x`
+9:1 CharLiteral `'\q'`
+11:1 LetKeyword `let`
+11:5 Identifier `b`
+11:7 Equals `=`
+11:11 IntegerLiteral `2`
+12:2 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  5 │ �
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  7 │  'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0006: invalid escape sequence `\q`
+
+  9 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0002: unexpected character ```
+
+  11 │ let b = ` 2
+     │         ^

@@ -1,0 +1,40 @@
+1:1 StructKeyword `struct`
+1:8 UniqueKeyword `unique`
+1:15 UnionKeyword `union`
+1:21 EnumKeyword `enum`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 Identifier `attribut`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{12}`
+
+  1 │ struct unique union enum flags open extensible interface delegate extension derivation attribut�
+    │                                                                                                ^
+
+error BYN0004: unterminated block comment
+
+  2 │  /* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  4 │ �
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  4 │ �
+    │  ^

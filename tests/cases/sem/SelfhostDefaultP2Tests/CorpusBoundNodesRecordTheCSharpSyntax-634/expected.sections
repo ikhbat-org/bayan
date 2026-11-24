@@ -1,0 +1,15 @@
+== tests/cases/diag/line-join-and.byn
+84..96 globalStatement
+84..96 localDecl
+92..96 literalExpr trueKeyword
+97..110 localDecl
+105..110 literalExpr falseKeyword
+111..128 localDecl
+122..128 binaryExpr logicalAnd right 127..128
+122..123 nameExpr
+127..128 nameExpr
+129..145 exprStmt
+129..145 callExpr
+135..144 interpolatedExpr
+138..142 nameExpr
+129..145 callExpr

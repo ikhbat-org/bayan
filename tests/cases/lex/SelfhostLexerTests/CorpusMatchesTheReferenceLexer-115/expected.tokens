@@ -1,0 +1,9 @@
+1:1 CharLiteral `'-{110000}\u{F}`
+3:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ '-{110000}�
+    │ ^^^^^^^^^^^
+    │
+  help: close it with `'`

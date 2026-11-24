@@ -1,0 +1,20 @@
+== tests/cases/diag/error-equality-list-payload.byn
+166..314 blockStmt
+172..215 localDecl
+191..215 callExpr
+203..214 callExpr
+220..263 localDecl
+239..263 callExpr
+251..262 callExpr
+268..286 exprStmt
+268..286 callExpr
+274..285 interpolatedExpr
+277..283 binaryExpr eq right 282..283
+268..286 callExpr
+291..312 exprStmt
+291..312 callExpr
+297..311 interpolatedExpr
+300..309 binaryExpr eq right 305..309
+300..301 nameExpr
+305..309 targetMemberExpr
+291..312 callExpr

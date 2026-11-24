@@ -1,0 +1,51 @@
+1:1 CharLiteral `'ab'`
+2:1 IsKeyword `is`
+2:4 AndKeyword `and`
+2:8 OrKeyword `or`
+2:11 NotKeyword `not`
+2:15 WithKeyword `with`
+2:20 MoveKeyword `move`
+2:25 RefKeyword `ref`
+2:29 OutKeyword `out`
+2:33 ThisKeyword `this`
+2:38 NullKeyword `null`
+2:43 TrueKeyword `true`
+2:48 FalseKeyword `false`
+2:54 ComptimeKeyword `comptime`
+2:63 CheckedKeyword `checked`
+4:3 Identifier `a`
+9:2 EndOfFile
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  1 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  4 │ � a /* never closed
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  4 │ � a /* never closed
+    │  ^
+
+error BYN0004: unterminated block comment
+
+  4 │ � a /* never closed
+    │     ^^ comment starts here
+    │
+  help: close it with `*/`
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  8 │ �//}ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  8 │ �//}ok � in comment
+    │        ^

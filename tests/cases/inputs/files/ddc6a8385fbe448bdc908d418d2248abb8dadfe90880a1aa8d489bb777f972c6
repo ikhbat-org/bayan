@@ -1,0 +1,8 @@
+e"
+let c = """never closed
+
+0xF__
+$"{}" """
+"   """ c"text" u16"widÐe" "â€® allowed in strings" "" "\u{48}i¼
+ 1µ.
+'â€®'

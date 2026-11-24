@@ -1,0 +1,172 @@
+1:1 Slash `/`
+    doc `/// not a doc comment`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolationStart `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 InterpolatedStringStart `$"`
+2:12 InterpolationStart `{`
+2:13 InterpolatedStringStart `$"`
+2:15 InterpolationStart `{`
+2:16 InterpolatedStringStart `$"`
+2:18 InterpolationStart `{`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
+2:25 InterpolatedStringStart `$"`
+2:27 InterpolationStart `{`
+2:28 InterpolatedStringStart `$"`
+2:30 InterpolationStart `{`
+2:31 InterpolatedStringStart `$"`
+2:33 InterpolationStart `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 Identifier `x`
+2:47 InterpolationEnd `}`
+2:48 InterpolatedStringEnd `"`
+2:49 InterpolationEnd `}`
+2:50 InterpolatedStringEnd `"`
+2:51 InterpolationEnd `}`
+2:52 InterpolatedStringEnd `"`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 Identifier `macro`
+2:69 Identifier `select`
+2:76 BecomeKeyword `become`
+3:2 Identifier `x́́`
+4:3 FailsKeyword `fails`
+4:9 Identifier `tr`
+4:12 CatchKeyword `catch`
+4:18 NeverKeyword `never`
+4:24 NoallocKeyword `noalloc`
+4:32 NosuspendKeyword `nosuspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 Identifier `aw`
+4:60 Identifier `it`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolationStart `{`
+5:29 StringLiteral `$"{$"`
+5:34 OpenBrace `{`
+5:35 StringLiteral `$"{$"`
+5:40 OpenBrace `{`
+5:41 StringLiteral `$"{$"`
+5:46 OpenBrace `{`
+5:47 StringLiteral `$"{$"`
+5:52 OpenBrace `{`
+5:53 StringLiteral `$"{$"`
+5:58 OpenBrace `{`
+5:59 StringLiteral `$"{x}"`
+5:65 CloseBrace `}`
+5:66 StringLiteral `"}"`
+5:69 CloseBrace `}`
+5:70 StringLiteral `"}"`
+5:73 CloseBrace `}`
+5:74 StringLiteral `"}"`
+5:77 CloseBrace `}`
+5:78 StringLiteral `"}"`
+5:81 CloseBrace `}`
+5:82 StringLiteral `"}"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+5:93 InterpolationEnd `}`
+5:94 InterpolatedStringEnd `"`
+5:95 InterpolationEnd `}`
+5:96 InterpolatedStringEnd `"`
+5:97 InterpolationEnd `}`
+5:98 InterpolatedStringEnd `"`
+5:99 InterpolationEnd `}`
+5:100 InterpolatedStringEnd `"`
+5:101 InterpolationEnd `}`
+5:102 InterpolatedStringEnd `"`
+5:103 InterpolationEnd `}`
+5:104 InterpolatedStringEnd `"`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x9A)
+
+  1 │ /�/// not a doc comment
+    │  ^
+
+error BYN0003: unterminated string literal
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"macro select become
+    │                ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"macro select become
+    │                                                               ^^^^^ reserved for a future
+    │                                                                     version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  2 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"macro select become
+    │                                                                     ^^^^^^ reserved for a
+    │                                                                            future version of
+    │                                                                            Bayan
+    │
+  help: choose another name
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  4 │ � fails tr catch never noalloc nosuspend suspends async aw�it
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ � fails tr catch never noalloc nosuspend suspends async aw�it
+    │   │ -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  4 │ � fails tr catch never noalloc nosuspend suspends async aw�it
+    │                                                           ^
+
+error BYN0016: interpolated strings are nested too deeply
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                             ^^

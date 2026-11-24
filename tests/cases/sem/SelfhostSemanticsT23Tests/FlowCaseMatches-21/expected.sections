@@ -1,0 +1,2 @@
+== flow.outRead
+BYN2102 103:13 `r` is used before it is assigned |an `out` parameter starts unassigned||

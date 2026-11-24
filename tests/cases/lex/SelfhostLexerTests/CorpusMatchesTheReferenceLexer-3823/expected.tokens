@@ -1,0 +1,89 @@
+1:1 Amp `&`
+1:2 IntegerLiteral `2`
+1:4 AmpAmp `&&`
+1:7 Bar `|`
+1:9 BarBar `||`
+1:11 Caret `^`
+1:13 Tilde `~`
+1:15 Bang `!`
+1:17 Equals `=`
+1:19 Equals `=`
+1:20 Identifier `i`
+1:21 Equals `=`
+1:23 BangEquals `!=`
+1:26 Less `<`
+1:28 LessEquals `<=`
+1:31 Greater `>`
+1:33 GreaterEquals `>=`
+1:36 LessLess `<<`
+1:39 Greater `>`
+1:40 Greater `>`
+1:42 Greater `>`
+1:43 GreaterEquals `>=`
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+4:1 CharLiteral `'x`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+7:2 StructKeyword `struct`
+7:9 Identifier `S`
+8:2 LetKeyword `let`
+8:6 Identifier `s`
+8:8 Equals `=`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:13 InterpolatedStringStart `$"`
+8:15 InterpolationStart `{`
+8:16 InterpolatedStringStart `$"`
+8:18 InterpolationStart `{`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolationStart `{`
+8:22 InterpolatedStringStart `$"`
+8:24 InterpolationStart `{`
+8:25 InterpolatedStringStart `$"`
+8:27 InterpolationStart `{`
+8:28 InterpolatedStringStart `$"`
+8:30 InterpolationStart `{`
+8:31 InterpolatedStringStart `$"`
+8:33 InterpolationStart `{`
+8:34 InterpolatedStringStart `$"`
+8:36 InterpolationStart `{`
+8:37 InterpolatedStringStart `$"`
+8:39 InterpolationStart `{`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolationStart `{`
+8:43 InterpolatedStringStart `$"`
+8:45 InterpolationStart `{`
+9:1 PlusEquals `+=`
+9:4 MinusEquals `-=`
+9:7 StarEquals `*=`
+9:10 SlashEquals `/=`
+9:13 PercentEquals `%=`
+9:16 AmpEquals `&=`
+9:19 BarEquals `|=`
+9:22 CaretEquals `^=`
+9:25 LessLessEquals `<<=`
+11:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  4 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  8 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                           ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  8 │  let s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$
+    │                                              ^

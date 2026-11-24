@@ -1,0 +1,4 @@
+build
+--diagnostics
+xml
+<repo>/tmp/t7-diag-json/bad.byn

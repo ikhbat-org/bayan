@@ -1,0 +1,89 @@
+1:1 IntegerLiteral `1`
+1:2 NumericSuffix `ms`
+2:1 IntegerLiteral `0x`
+3:1 IntegerLiteral `0b__`
+4:1 IntegerLiteral `1__`
+5:1 IntegerLiteral `0xF__`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `x $`
+6:6 InterpolatedStringEnd `"`
+6:7 OpenBrace `{`
+6:8 CloseBrace `}`
+6:9 CharLiteral `'`
+7:1 CharLiteral `'\u{110000}'`
+8:1 CharLiteral `'x`
+9:1 LetKeyword `let`
+9:5 Identifier `actor`
+9:11 Equals `=`
+9:13 IntegerLiteral `1`
+10:1 InterpolatedStringStart `$"`
+10:3 InterpolationStart `{`
+10:4 Identifier `a`
+12:2 Identifier `_`
+12:3 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 1__
+    │  ^^
+    │
+    │ 4 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 0xF__
+    │    ^^
+    │
+    │ 5 │ 0xF__
+    │   │    --
+
+error BYN0008: unterminated char literal
+
+  6 │ $"x $"{}'
+    │         ^
+    │
+  help: close it with `'`
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │ '\u{110000}'
+    │  ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  9 │ let actor = 1
+    │     ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0003: unterminated string literal
+
+  10 │ $"{a
+     │ ^^ this string never ends
+     │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `﻿`
+
+  11 │ ﻿ 
+     │ ^

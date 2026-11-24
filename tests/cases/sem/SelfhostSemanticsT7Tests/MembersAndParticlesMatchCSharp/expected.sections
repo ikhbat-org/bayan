@@ -1,0 +1,5 @@
+== particle-required
+BYN5004 122+8 `transfer` has 3 unlabeled parameters; give each but one a particle | 3 unlabeled parameters | keep one unlabeled parameter, the object | 
+BYN5006 147+5 `payer` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | 
+BYN5006 158+5 `payee` is a required parameter besides the object and needs a particle | needs a particle | label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as` | 
+end

@@ -1,0 +1,17 @@
+2:1 Identifier `b`
+4:3 InterpolatedStringStart `$"`
+4:5 InterpolationStart `{`
+5:1 Identifier `b`
+7:1 EndOfFile
+
+error BYN0002: unexpected character `́`
+
+  4 │ ́ $"{
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │ ́ $"{
+    │   ^^ this string never ends
+    │
+  help: close the `{` and the string

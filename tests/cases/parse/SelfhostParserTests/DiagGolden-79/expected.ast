@@ -1,0 +1,13 @@
+CompilationUnit
+  Function check(i32 n) -> void
+    Block
+      If (except (is n 0) (> n 3))
+        Block
+          Expr (call print "x")
+
+error BYN1052: `except` takes a pattern, not a condition
+
+  2 │     if n is 0 except n > 3 {
+    │                      ^^^^^ a condition
+    │
+  help: use `where` for a condition

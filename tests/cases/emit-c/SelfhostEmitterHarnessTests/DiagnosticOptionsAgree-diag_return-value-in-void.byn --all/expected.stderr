@@ -1,0 +1,10 @@
+error BYN2403: `log` returns nothing, but `return` has a value
+  --> input.byn:2:12
+
+  2 │     return 1
+    │            ^
+    │
+  help: declare a return type instead of `void`, or remove the value
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2403

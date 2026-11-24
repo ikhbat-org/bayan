@@ -1,0 +1,103 @@
+1:1 IntegerLiteral `0xFF`
+1:5 NumericSuffix `s`
+4:2 InterpolatedStringStart `$"`
+4:4 InterpolationStart `{`
+4:5 InterpolatedStringStart `$"`
+4:7 InterpolationStart `{`
+4:8 InterpolatedStringStart `$"`
+4:10 InterpolationStart `{`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolationStart `{`
+4:17 InterpolationEnd `}`
+4:18 InterpolatedStringEnd `"`
+4:19 OpenBrace `{`
+4:20 InterpolatedStringStart `$"`
+4:22 InterpolationStart `{`
+4:23 InterpolatedStringStart `$"`
+4:25 InterpolationStart `{`
+4:26 InterpolatedStringStart `$"`
+4:28 InterpolationStart `{`
+4:29 InterpolatedStringStart `$"`
+4:31 InterpolationStart `{`
+4:32 InterpolatedStringStart `$"`
+4:34 InterpolationStart `{`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:38 InterpolatedStringStart `$"`
+4:40 InterpolationStart `{`
+4:41 InterpolatedStringStart `$"`
+4:43 InterpolationStart `{`
+4:44 InterpolatedStringStart `$"`
+4:46 InterpolationStart `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 Identifier `x`
+4:51 InterpolationEnd `}`
+4:52 InterpolatedStringEnd `"`
+4:53 InterpolationEnd `}`
+4:54 InterpolatedStringEnd `"`
+4:55 InterpolationEnd `}`
+4:56 InterpolatedStringEnd `"`
+4:58 IfKeyword `if`
+4:61 ElseKeyword `else`
+4:66 UnlessKeyword `unless`
+4:73 SwitchKeyword `switch`
+4:80 CaseKeyword `case`
+4:85 DefaultKeyword `default`
+4:93 ForKeyword `for`
+4:97 InKeyword `in`
+4:100 WhileKeyword `while`
+4:106 DoKeyword `do`
+4:109 BreakKeyword `break`
+4:115 ContinueKeyword `continue`
+4:124 Identifier `retrn`
+4:130 YieldKeyword `yield`
+4:136 DeferKeyword `defer`
+4:142 ErrdeferKeyword `errdefer`
+4:151 UsingKeyword `using`
+4:157 ContextKeyword `context`
+5:2 Comma `,`
+5:4 Dot `.`
+5:6 DotDot `..`
+5:9 DotDotEquals `..=`
+5:13 Colon `:`
+5:15 Question `?`
+5:17 QuestionQuestion `??`
+5:20 QuestionQuestionEquals `??=`
+5:24 QuestionDot `?.`
+5:27 FatArrow `=>`
+5:30 Arrow `->`
+5:33 At `@`
+5:35 Hash `#`
+7:1 IntegerLiteral `0xF__`
+    doc `///`
+8:5 EndOfFile
+
+error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
+
+  1 │ 0xFFs
+    │     ^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  4 │  $"{$"{$"{$"{$"{}"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}" if else unless switch case default for in while do break continue retrn yield defer errdefer using context
+    │                                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --

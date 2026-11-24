@@ -1,0 +1,19 @@
+1:1 RawStringLiteral `"""never closed\n\n3.14 1e5 2.5�-3 6E+� 1.50dec 1..2 1..=3 5e x.y 2.5f\n\n`
+5:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """never closed
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  3 │ 3.14 1e5 2.5�-3 6E+� 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  3 │ 3.14 1e5 2.5�-3 6E+� 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │                    ^

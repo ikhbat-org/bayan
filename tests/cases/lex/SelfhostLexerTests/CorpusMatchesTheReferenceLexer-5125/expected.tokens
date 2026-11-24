@@ -1,0 +1,19 @@
+1:1 RawStringLiteral `"""�c�b\n `
+2:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ """�c�b
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  1 │ """�c�b
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAB)
+
+  1 │ """�c�b
+    │      ^

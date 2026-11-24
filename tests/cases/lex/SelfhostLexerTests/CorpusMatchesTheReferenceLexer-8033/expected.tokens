@@ -1,0 +1,77 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `total `
+1:9 InterpolationStart `{`
+1:10 Identifier `x`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringEnd `"`
+1:14 InterpolatedStringStart `$"`
+1:16 InterpolatedStringText `a `
+1:18 InterpolationStart `{`
+1:19 Identifier `f`
+1:20 OpenParen `(`
+1:21 InterpolatedStringStart `$"`
+1:23 InterpolatedStringText `b `
+1:25 InterpolationStart `{`
+1:26 Identifier `c`
+1:27 InterpolationEnd `}`
+1:28 InterpolatedStringEnd `"`
+1:29 CloseParen `)`
+1:30 InterpolationEnd `}`
+1:31 InterpolatedStringText ` d`
+1:33 InterpolatedStringEnd `"`
+1:35 InterpolatedStringStart `$"`
+1:37 InterpolatedStringText `{{literal}}`
+1:48 InterpolatedStringEnd `"`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 Identifier `Point`
+1:59 OpenBrace `{`
+1:61 Identifier `x`
+1:63 Equals `=`
+1:65 IntegerLiteral `1`
+1:67 CloseBrace `}`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringText `!`
+1:70 InterpolatedStringEnd `"`
+1:72 InterpolatedStringStart `$"`
+1:74 InterpolatedStringEnd `"`
+2:1 StringLiteral `"{ let c = "`
+2:13 StringLiteral `""`
+2:15 NeverKeyword `never`
+2:21 Identifier `clos`
+2:26 Identifier `d`
+4:1 IntegerLiteral `64`
+4:3 Greater `>`
+4:4 Greater `>`
+5:1 Identifier `a`
+5:3 Greater `>`
+5:4 Greater `>`
+5:6 Identifier `b`
+6:1 Identifier `c`
+6:3 Greater `>`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ "{ let c = """never clos�d
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  7 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  7 │ ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  8 │ ��
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ��
+    │  ^

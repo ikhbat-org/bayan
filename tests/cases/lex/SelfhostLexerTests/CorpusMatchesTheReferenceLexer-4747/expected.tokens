@@ -1,0 +1,9 @@
+1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n$"{"if else unless switch case default for in while do break co|tinue return yield defer errdefer using context\n\n0b__\n 0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l\n`
+6:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

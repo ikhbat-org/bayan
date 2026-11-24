@@ -1,0 +1,1 @@
+{"code":"BYN2227","severity":"error","file":"input.byn","span":{"start":440,"end":441,"line":19,"column":5,"endLine":19,"endColumn":6},"message":"`.invalid` is ambiguous; it exists in `ValidationError<Signup>`, `ValidationError<Address>`","label":null,"help":null,"fixes":[]}

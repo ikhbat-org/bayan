@@ -1,0 +1,22 @@
+struct Box {
+    i64 v
+
+    T pick<T>(T x) => x
+    i64 get<T>(T x) => v
+}
+
+struct D {
+    i64 a = 1
+    i64 b = zzz
+}
+
+const k: i64[2] = [1, 2]
+
+void main() {
+    const cc = k
+    let ee = cc
+    const dd = 3
+    let ff = dd
+    let bx = Box { v: 1 }
+    print($"{bx.get(1)}{bx.pick(2)}{ee}{ff}")
+}

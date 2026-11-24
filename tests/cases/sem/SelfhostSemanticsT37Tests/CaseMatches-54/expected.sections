@@ -1,0 +1,7 @@
+== call.outer2
+counts 5 0 0
+mut items 820..827 false -
+mut items 803..811 false -
+mut inner 803..811 false -
+mut extra 803..811 false -
+mut count 803..811 false -

@@ -1,0 +1,34 @@
+dir cache
+dir cache/v1
+dir cache/v1/programs
+dir cache/v1/programs/k0
+file cache/v1/programs/k0/program 1
+x
+dir cache/v1/programs/k1
+file cache/v1/programs/k1/program 1
+x
+dir cache/v1/programs/k2
+file cache/v1/programs/k2/program 1
+x
+dir cache/v1/programs/k3
+file cache/v1/programs/k3/program 1
+x
+dir cache/v1/programs/k4
+file cache/v1/programs/k4/program 1
+x
+dir cache/v1/programs/k5
+file cache/v1/programs/k5/program 1
+x
+dir cache/v1/scripts
+file64 cache/v1/scripts/new 14
+azUKL2Jpbi96aWc6MQo=
+file64 cache/v1/scripts/old 3
+azAK
+age cache/v1/programs/k0 600
+age cache/v1/programs/k1 540
+age cache/v1/programs/k2 480
+age cache/v1/programs/k3 420
+age cache/v1/programs/k4 360
+age cache/v1/programs/k5 300
+evict k0 9223372036854775807 3 600
+evict k5 9223372036854775807 1 600

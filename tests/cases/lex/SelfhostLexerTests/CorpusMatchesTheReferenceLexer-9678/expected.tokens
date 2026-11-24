@@ -1,0 +1,85 @@
+2:1 IntegerLiteral `0b__`
+3:1 IntegerLiteral `1__`
+4:1 IntegerLiteral `0xF__`
+6:1 OpenParen `(`
+6:3 CloseParen `)`
+6:5 OpenBracket `[`
+6:7 CloseBracket `]`
+6:9 OpenBrace `{`
+6:11 CloseBrace `}`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+10:1 PlusEquals `+=`
+10:4 MinusEquals `-=`
+10:7 StarEquals `*=`
+10:10 SlashEquals `/=`
+10:13 PercentEquals `%=`
+10:16 AmpEquals `&=`
+10:19 BarEquals `|=`
+10:22 CaretEquals `^=`
+10:25 LessLessEquals `<<=`
+11:1 LetKeyword `let`
+11:7 Equals `=`
+11:9 IntegerLiteral `2`
+13:1 CharLiteral `'\u{D800}'`
+14:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  2 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  3 │ 1__
+    │  ^^
+    │
+    │ 3 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  4 │ 0xF__
+    │    ^^
+    │
+    │ 4 │ 0xF__
+    │   │    --
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  8 │ // comment � hidden
+    │            ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 8 │ // comment � hidden
+    │   │            -
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  11 │ let � = 2
+     │     ^
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  12 │  �
+     │  ^ invisible character that reorders how the text displays
+     │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+     │ 12 │  �
+     │    │  -
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  13 │ '\u{D800}'
+     │  ^^^^^^^^
+     │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

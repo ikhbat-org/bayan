@@ -1,0 +1,28 @@
+1:1 Identifier `FF`
+1:4 IntegerLiteral `0x_ff`
+1:10 IntegerLiteral `0b1010`
+1:17 IntegerLiteral `0B11`
+1:22 IntegerLiteral `5`
+1:23 NumericSuffix `s`
+1:25 IntegerLiteral `250`
+1:28 NumericSuffix `ms`
+1:31 IntegerLiteral `4`
+1:32 NumericSuffix `K`
+1:34 Identifier `B`
+1:36 Identifier `ku`
+1:40 StringLiteral `"text"`
+1:47 StringLiteral `"esc \"q\" \\ \n"`
+1:65 RawStringLiteral `"""\n let a = $ 1\n\n, . .. ..= : ? ?? ??= ?. => -> @ #\n\n'\q'\n`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF7)
+
+  1 │ FF 0x_ff 0b1010 0B11 5s 250ms 4K�B ku  "text" "esc \"q\" \\ \n" """
+    │                                 ^
+
+error BYN0003: unterminated string literal
+
+  1 │ FF 0x_ff 0b1010 0B11 5s 250ms 4K�B ku  "text" "esc \"q\" \\ \n" """
+    │                                                                 ^^^ raw string starts here
+    │
+  help: close it with `"""`

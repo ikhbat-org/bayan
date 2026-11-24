@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "functions": [
+    {
+      "path": "a.byn",
+      "name": "main",
+      "span": {
+        "start": 249,
+        "end": 253
+      },
+      "bindings": []
+    },
+    {
+      "path": "b.byn",
+      "name": "twice",
+      "span": {
+        "start": 4,
+        "end": 9
+      },
+      "bindings": [
+        {
+          "name": "x",
+          "kind": "param",
+          "span": {
+            "start": 14,
+            "end": 15
+          },
+          "type": "i64"
+        },
+        {
+          "name": "f",
+          "kind": "let",
+          "span": {
+            "start": 27,
+            "end": 28
+          },
+          "type": "i64 -> i64"
+        }
+      ]
+    },
+    {
+      "path": "b.byn",
+      "name": "twice$lambda1",
+      "span": {
+        "start": 45,
+        "end": 57
+      },
+      "bindings": [
+        {
+          "name": "y",
+          "kind": "param",
+          "span": {
+            "start": 46,
+            "end": 47
+          },
+          "type": "i64"
+        }
+      ],
+      "captures": []
+    },
+    {
+      "path": "b.byn",
+      "name": "ten",
+      "span": {
+        "start": 81,
+        "end": 84
+      },
+      "bindings": []
+    }
+  ]
+}

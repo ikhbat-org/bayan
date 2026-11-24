@@ -1,0 +1,10 @@
+error BYN2215: a range needs both ends here
+  --> tmp/t26-tests/cli/diag_open-range.byn/open-range.byn:1:10
+
+  1 │ for i in 0.. {
+    │          ^^^
+    │
+  help: use open ranges (`a..`, `..b`) only inside `[ ]`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2215

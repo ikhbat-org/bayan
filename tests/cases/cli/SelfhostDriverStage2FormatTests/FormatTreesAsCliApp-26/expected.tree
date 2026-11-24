@@ -1,0 +1,14 @@
+== main.byn OtherRead, GroupRead, UserWrite, UserRead
+bool f(bool a, bool b) => a and b
+
+bool g(bool a, bool b) => a or
+    b
+
+bool h(bool a, bool b) => a and
+    b
+== package.byn OtherRead, GroupRead, UserWrite, UserRead
+Package {
+    name: "local/shop",
+    version: "0.1.0",
+    style: Style { booleans: .words },
+}

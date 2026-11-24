@@ -1,0 +1,102 @@
+1:1 CharLiteral `'x`
+3:2 Bar `|`
+3:4 BarBar `||`
+3:7 Caret `^`
+3:9 Tilde `~`
+3:11 Bang `!`
+3:13 Equals `=`
+3:14 LetKeyword `let`
+3:18 Identifier `café`
+3:24 Equals `=`
+3:26 IntegerLiteral `1`
+5:1 Identifier `stray`
+5:7 CloseBrace `}`
+5:9 Identifier `here`
+5:13 StringLiteral `"`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `open `
+6:8 InterpolationStart `{`
+6:9 Identifier `x`
+6:10 StringLiteral `";`
+7:1 Comma `,`
+7:3 Dot `.`
+7:5 DotDot `..`
+7:8 DotDotEquals `..=`
+7:12 Colon `:`
+7:14 Question `?`
+7:16 QuestionQuestion `??`
+7:19 QuestionQuestionEquals `??=`
+7:23 QuestionDot `?.`
+7:26 FatArrow `=>`
+7:29 Arrow `->`
+7:32 At `@`
+7:34 Hash `#`
+8:2 OpenParen `(`
+8:4 CloseParen `)`
+8:6 OpenBracket `[`
+8:8 CloseBracket `]`
+8:10 OpenBrace `{`
+8:12 CloseBrace `}`
+9:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  2 │ �����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  2 │ �����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �����
+    │     ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  3 │  | || ^ ~ ! =let café = 1
+    │                  ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 3 │  | || ^ ~ ! =let café = 1
+    │   │                     +
+
+error BYN0003: unterminated string literal
+
+  5 │ stray } here"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  6 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

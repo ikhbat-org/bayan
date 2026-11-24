@@ -1,0 +1,13 @@
+== tests/cases/diag/string-concatenation.byn
+0..18 globalStatement
+0..18 localDecl
+11..18 literalExpr string
+19..50 localDecl
+34..50 binaryExpr add right 46..50
+51..77 localDecl
+62..77 binaryExpr add right 71..77
+78..107 localDecl
+90..107 binaryExpr add right 103..107
+108..120 localDecl
+118..120 literalExpr string
+121..132 assignStmt add target 121..124 value 128..132

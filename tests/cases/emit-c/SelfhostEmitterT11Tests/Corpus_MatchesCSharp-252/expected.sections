@@ -1,0 +1,5 @@
+== locals
+totalDyn: sum x t t t t t
+main: xs t
+area:
+total: sum x t t t t

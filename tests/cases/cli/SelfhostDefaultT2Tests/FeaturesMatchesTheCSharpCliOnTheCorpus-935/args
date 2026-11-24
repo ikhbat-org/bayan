@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/style-optionals-bind.byn
+--package
+<repo>/tests/cases/diag

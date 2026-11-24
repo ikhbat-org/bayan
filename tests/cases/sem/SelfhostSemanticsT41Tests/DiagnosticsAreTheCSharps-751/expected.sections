@@ -1,0 +1,5 @@
+== diags.diag/panic-handler-path
+BYN2612 4:16 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover
+BYN2612 5:15 allocation is not allowed in a panic handler
+  help remove it; panic handlers can't recover

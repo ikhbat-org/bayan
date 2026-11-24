@@ -1,0 +1,1 @@
+{"code":"BYN1012","severity":"error","file":"input/package.byn","span":{"start":0,"end":127,"line":1,"column":1,"endLine":8,"endColumn":2},"message":"this expression does nothing as a statement","label":"the value is computed and discarded","help":"write `_ = f()` to discard a call's result; only calls, assignments and `++`/`--` can stand alone","fixes":[]}

@@ -1,0 +1,10 @@
+== diags.diag/generic-method
+BYN2006 7:9 `T` is declared twice
+  label already declared on line 7
+BYN2008 8:12 type name `item` must be PascalCase
+  help rename it `Item`
+  fix 8:12-8:16 Item
+BYN2022 4:12 generic methods is not supported in v0.1
+  help declare a generic free function, or make the struct generic
+returns echo 0
+returns id 0

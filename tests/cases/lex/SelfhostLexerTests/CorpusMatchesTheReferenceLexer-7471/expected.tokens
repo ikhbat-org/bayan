@@ -1,0 +1,21 @@
+1:1 Identifier `x́́`
+1:5 IfKeyword `if`
+1:8 ElseKeyword `else`
+1:13 UnlessKeyword `unless`
+1:20 IntegerLiteral `2`
+1:21 NumericSuffix `switch`
+1:28 CaseKeyword `case`
+1:33 DefaultKeyword `default`
+1:41 ForKeyword `for`
+1:45 InKeyword `in`
+1:48 WhileKeyword `while`
+1:54 DoKeyword `do`
+1:57 BreakKeyword `break`
+1:63 ContinueKeyword `continue`
+1:72 Identifier `retur`
+1:78 YieldKeyword `yield`
+1:84 DeferKeyword `defer`
+1:90 ErrdeferKeyword `errdefer`
+1:99 UsingKeyword `using`
+1:105 ContextKeyword `context`
+2:2 EndOfFile

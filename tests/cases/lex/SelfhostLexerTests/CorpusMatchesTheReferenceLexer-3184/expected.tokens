@@ -1,0 +1,64 @@
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 FloatLiteral `2.5e-3`
+2:17 FloatLiteral `6E+2`
+2:22 FloatLiteral `1.50`
+2:26 NumericSuffix `dec`
+2:30 IntegerLiteral `1`
+2:31 DotDot `..`
+2:33 IntegerLiteral `2`
+2:35 IntegerLiteral `1`
+2:36 DotDotEquals `..=`
+2:39 IntegerLiteral `3`
+2:41 IntegerLiteral `5`
+2:42 NumericSuffix `e`
+2:44 Identifier `x`
+2:45 Dot `.`
+2:46 Identifier `y`
+2:48 Dot `.`
+2:49 IntegerLiteral `5`
+2:50 NumericSuffix `f`
+3:1 IntegerLiteral `0b__`
+4:1 InterpolatedStringStart `$"`
+4:3 InterpolatedStringText `total `
+4:9 InterpolationStart `{`
+4:10 Identifier `x`
+4:11 InterpolationEnd `}`
+4:12 InterpolatedStringEnd `"`
+4:14 InterpolatedStringStart `$"`
+4:16 InterpolatedStringText `a `
+4:18 InterpolationStart `{`
+4:19 Identifier `f`
+4:20 OpenParen `(`
+4:21 InterpolatedStringStart `$"`
+4:23 InterpolatedStringText `b `
+4:25 InterpolationStart `{`
+4:26 Identifier `c`
+4:27 InterpolationEnd `}`
+4:28 InterpolatedStringEnd `"`
+4:29 CloseParen `)`
+4:30 InterpolationEnd `}`
+4:31 InterpolatedStringText ` d`
+4:33 InterpolatedStringEnd `"`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolatedStringText `{{literal}}`
+4:48 InterpolatedStringEnd `"`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 Identifier `Point`
+4:59 OpenBrace `{`
+4:61 Identifier `x`
+4:63 Equals `=`
+4:65 IntegerLiteral `1`
+4:67 CloseBrace `}`
+4:68 InterpolationEnd `}`
+4:69 InterpolatedStringText `!`
+4:70 InterpolatedStringEnd `"`
+4:72 InterpolatedStringStart `$"`
+4:74 InterpolatedStringEnd `"`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  3 │ 0b__
+    │ ^^^^

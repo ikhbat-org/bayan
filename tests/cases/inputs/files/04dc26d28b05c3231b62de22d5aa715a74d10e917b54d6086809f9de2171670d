@@ -1,0 +1,36 @@
+union error Bad {
+    bad
+}
+
+interface IBox {
+    i64 n
+}
+
+struct E : IBox {
+    i64 n => 1
+}
+
+struct Pt {
+}
+
+i64 f1(Map<string, i64> m) fails Bad => 0
+i64 f2(List<i64> l) => 0
+i64 f3(StrBuf b) => 0
+i64 f4(i64? o) => 0
+i64 f5(E e) => 0
+i64 f6((i64, bool) t) => 0
+i64 f7((i64) -> i64 fn) => 0
+i64 f8(dyn ref IBox d) => 0
+i64 f9(Owned<Pt> w) => 0
+i64 f10(List<Pt> ps) => 0
+Pt? f11(Pt p) => p
+void f12(Result<i64, Bad> r) { }
+void f13(i64[3] a) { }
+i64 f14(Span<i64> s) => 0
+
+void f15() {
+    let local = (List<i64>(), Map<string, i64>())
+}
+
+void main() {
+}

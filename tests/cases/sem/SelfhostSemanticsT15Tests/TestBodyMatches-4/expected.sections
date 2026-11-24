@@ -1,0 +1,12 @@
+== test mism
+block 1056..1059
+  localDecl 1041..1046
+    errorExpr 1018..1022 : ?
+  localDecl 1048..1054
+    errorExpr 1024..1025 : ?
+  block 1056..1059
+local n 0 0
+local f 1 0
+requires 0 infers true
+BYN2202 74:9 expected `i32`, found `bool` |||
+BYN2202 74:15 expected `bool`, found `i32` |||

@@ -1,0 +1,11 @@
+error BYN3219: `bogus` is not a mutation operator
+  --> input.byn:2:19
+
+  2 │     @unobservable(bogus) because "x is clamped by the caller"
+    │                   ^^^^^ not an operator
+    │
+  help: use one of `boundary`, `relational`, `logical`, `condition`, `bool`, `arithmetic`,
+        `literal`, `negation`, `statement`, `emptyReturn`, `variant`, or no argument for all
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3219

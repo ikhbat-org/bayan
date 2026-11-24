@@ -1,0 +1,2 @@
+== diags.diag/interpolation-hole
+BYN1001 1:20 expected `}` to end the interpolated expression, found `y`

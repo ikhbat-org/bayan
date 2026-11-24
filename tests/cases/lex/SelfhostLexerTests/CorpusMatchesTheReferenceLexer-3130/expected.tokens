@@ -1,0 +1,38 @@
+1:1 Identifier `et`
+1:4 Identifier `a`
+1:6 Equals `=`
+1:8 StringLiteral `"open`
+2:2 IntegerLiteral `1__`
+4:2 IntegerLiteral `0xFF`
+4:7 IntegerLiteral `0x_`
+4:11 Identifier `ff`
+4:14 IntegerLiteral `0b1010`
+4:21 IntegerLiteral `0B11`
+4:26 IntegerLiteral `5`
+4:27 NumericSuffix `sA250ms`
+4:34 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ et a = "open
+    │        ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1__
+    │   ^^
+    │
+    │ 2 │  1__
+    │   │   --
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │  0xFF 0x_�ff 0b1010 0B11 5sA250ms
+    │       ^^^
+
+error BYN0002: unexpected character `\u{18}`
+
+  4 │  0xFF 0x_�ff 0b1010 0B11 5sA250ms
+    │          ^

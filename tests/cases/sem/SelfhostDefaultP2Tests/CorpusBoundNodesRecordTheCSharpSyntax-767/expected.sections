@@ -1,0 +1,15 @@
+== tests/cases/diag/ref-and-value.byn
+62..97 blockStmt
+68..95 exprStmt
+68..95 callExpr
+68..73 nameExpr
+81..94 memberExpr
+81..87 nameExpr
+111..173 blockStmt
+117..137 localDecl
+126..137 callExpr
+142..171 exprStmt
+142..171 callExpr
+158..160 nameExpr
+168..170 nameExpr
+168..170 nameExpr

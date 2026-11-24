@@ -1,0 +1,34 @@
+1:1 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `afé`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
+3:1 CharLiteral `'\u{D800}'`
+5:1 IntegerLiteral `1_`
+6:1 Identifier `one`
+6:4 Dot `.`
+    doc `/// Doc line two.`
+8:1 StructKeyword `struct`
+8:8 Identifier `S`
+10:1 Identifier `b`
+11:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1_
+    │  ^
+    │
+    │ 5 │ 1_
+    │   │  -
+
+error BYN0015: source is not valid UTF-8 (byte 0xCA)
+
+  9 │ ////�not a doc comment
+    │     ^

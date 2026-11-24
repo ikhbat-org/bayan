@@ -1,0 +1,107 @@
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms`
+4:2 Identifier `idden`
+5:1 LetKeyword `let`
+5:5 Identifier `x`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
+9:1 InterpolatedStringStart `$"`
+9:3 InterpolationStart `{`
+9:4 InterpolatedStringStart `$"`
+9:6 InterpolationStart `{`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolationStart `{`
+9:10 InterpolatedStringStart `$"`
+9:12 InterpolationStart `{`
+9:13 InterpolatedStringStart `$"`
+9:15 InterpolationStart `{`
+9:16 InterpolatedStringStart `$"`
+9:18 InterpolationStart `{`
+9:19 InterpolatedStringStart `$"`
+9:21 InterpolationStart `{`
+9:22 InterpolatedStringStart `$"`
+9:24 InterpolationStart `{`
+9:25 StringLiteral `"{$"`
+9:29 OpenBrace `{`
+9:30 InterpolatedStringStart `$"`
+9:32 InterpolationStart `{`
+9:33 InterpolatedStringStart `$"`
+9:35 InterpolationStart `{`
+9:36 InterpolatedStringStart `$"`
+9:38 InterpolationStart `{`
+9:39 InterpolatedStringStart `$"`
+9:41 InterpolationStart `{`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolationStart `{`
+9:45 InterpolatedStringStart `$"`
+9:47 InterpolationStart `{`
+9:48 Less `<`
+9:49 StringLiteral `"{$"`
+9:53 Identifier `z`
+9:54 InterpolatedStringStart `$"`
+9:56 InterpolationStart `{`
+9:57 InterpolatedStringStart `$"`
+9:59 InterpolationStart `{`
+9:60 Identifier `x`
+9:61 InterpolationEnd `}`
+9:62 InterpolatedStringEnd `"`
+9:63 InterpolationEnd `}`
+9:64 InterpolatedStringEnd `"`
+9:65 InterpolationEnd `}`
+9:66 InterpolatedStringEnd `"`
+9:67 InterpolationEnd `}`
+9:68 InterpolatedStringEnd `"`
+10:1 Star `*`
+10:3 NeverKeyword `never`
+10:9 Identifier `closed`
+11:1 Identifier `b`
+12:2 InterpolationEnd `}`
+12:3 InterpolatedStringText ` `
+12:4 InterpolatedStringEnd
+12:4 EndOfFile
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  3 │ 0b1ms
+    │    ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  5 │ let x� = 1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │ let x� = 1
+    │   │      -
+
+error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
+
+  7 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ �
+    │   │ -
+
+error BYN0002: unexpected character `‏`
+
+  8 │ ‏
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{<"{$"z$"{$"{x}"}"}"}"
+    │                                    ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0003: unterminated string literal
+
+  9 │ $"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"{$"{$"{<"{$"z$"{$"{x}"}"}"}"
+    │                                       ^^ this string never ends
+    │
+  help: close it with `"`

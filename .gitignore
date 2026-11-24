@@ -1,6 +1,8 @@
 bin/
 obj/
 tmp/
+# `bayan test <cases dir>` writes out/test/results.json under the current directory (spec 019 T8)
+/out/
 .worktrees/
 *.user
 .vs/

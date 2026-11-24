@@ -1,0 +1,2 @@
+CompilationUnit
+  Assign x = (move (paren (with p (x 1))))

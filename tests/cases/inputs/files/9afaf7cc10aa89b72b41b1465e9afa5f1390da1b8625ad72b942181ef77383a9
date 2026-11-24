@@ -1,0 +1,11 @@
+/// Doc line two.
+ â‚
+// line comment
+
+" $""
+
++= -= *= /= %= &= |= ^= <<=
+
+
+// ok þ in comment
+

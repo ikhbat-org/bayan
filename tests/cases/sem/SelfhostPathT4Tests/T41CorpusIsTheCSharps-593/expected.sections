@@ -1,0 +1,4 @@
+== diags.diag/interface-static-witness
+BYN2802 6:16 `A.area` is `static i64 area()` but `IShape` requires `i64 area()`
+  label does not match `IShape`
+  help change the signature to `i64 area()`

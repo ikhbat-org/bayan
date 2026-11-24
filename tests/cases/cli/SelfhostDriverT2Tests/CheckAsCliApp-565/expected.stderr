@@ -1,0 +1,8 @@
+error BYN1001: expected `}` to end the interpolated expression, found `y`
+  --> <repo>/tmp/t2/diag/interpolation-hole/interpolation-hole.byn:1:20
+
+  1 │ let s = $"value {x y}"
+    │                    ^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1001

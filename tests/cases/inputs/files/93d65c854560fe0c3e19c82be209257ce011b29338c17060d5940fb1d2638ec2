@@ -1,0 +1,116 @@
+union error E {
+    bad
+}
+
+struct P {
+    i64 x = 1
+    i64 y = 2
+    P(i64 zq) { { { } } }
+    void m(ref this) { { { } } }
+}
+
+union U {
+    ua9(i64 n)
+    ub9
+}
+
+union error E2 {
+    bad29(i64 code)
+}
+
+never nv() { { { } } panic("x") }
+
+never nf() fails E2 { { { } } panic("y") }
+
+void rq(ref i64 zr, to ref Map<i64, i64> zm, at ref List<i64> zl) {
+    { { } }
+    zm[1] = 2
+    zm[1] += 2
+    zl[0] = 1
+}
+
+void fc(string zs) fails ParseError, Utf8Error {
+    { { } }
+    let k1 = try Hex.decode(zs)
+    let k2 = try i64.parse(zs)
+    let k3 = try Utf8.decode(k1)
+}
+
+void lm(i64 zq) {
+    { { } }
+    let k = 1
+    let g: i64 -> i64 = a => { { { } } return a + k }
+    let g2: i64 -> i64 = a => { { { } } return a }
+}
+
+void e0() { { { } } }
+
+struct Q {
+}
+
+void h2() { { { } } }
+
+struct F {
+    i64 fa = 0
+    void formatInto(ref StrBuf output, as FormatSpec spec) { { { } } }
+}
+
+struct G {
+    i64 ga = 0
+    void formatInto(ref StrBuf output) { { { } } }
+}
+
+struct K {
+    F kf
+    G kg
+}
+
+void w(i64 zq, for string zs, by bool zb, at rune zc, to Symbol zy, from P zp, through Q zr, until K zk) {
+    { { } }
+    let k1 = zq
+    let k2 = zs
+    let k3 = zb
+    let k4 = zc
+    let k5 = zy
+    let k6 = zp
+    let k7 = zr
+    var k8 = Map<i64, i64>()
+    k8[zq] = zq
+    k8.slot(zq) = zq
+    h2()
+    print("x")
+}
+
+void v() fails E { { { } } }
+
+i64 u(i64 zq) fails E {
+    { { } }
+    let k1 = zq
+    return k1
+}
+
+void h(move List<i64> zl) { { { } } }
+
+bool rl(ref List<i64> zl) { { { } } return true }
+
+void rv(ref List<i64> zl) { { { } } }
+
+void ow(i64 zn, from move List<i64> zm) { { { } } }
+
+void ox(ref List<i64> zl, from move List<i64> zm) { { { } } }
+
+void oc() {
+    { { } }
+    var zl = List<i64>()
+    var z2 = List<i64>()
+    if rl(ref zl) {
+        rv(ref zl)
+        ow(zl.length, from: move zl)
+        ox(ref z2, from: move z2)
+    }
+}
+
+void main() {
+    { { } }
+    let k = 1
+}

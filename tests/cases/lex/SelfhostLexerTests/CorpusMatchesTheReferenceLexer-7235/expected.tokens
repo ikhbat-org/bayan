@@ -1,0 +1,119 @@
+1:1 CharLiteral `'x`
+2:2 IntegerLiteral `1_`
+4:1 StructKeyword `struct`
+4:8 Identifier `S`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 InterpolatedStringStart `$"`
+5:7 InterpolationStart `{`
+5:8 InterpolatedStringStart `$"`
+5:10 InterpolationStart `{`
+5:11 InterpolatedStringStart `$"`
+5:13 InterpolationStart `{`
+5:14 InterpolatedStringStart `$"`
+5:16 InterpolationStart `{`
+5:17 InterpolatedStringStart `$"`
+5:19 InterpolationStart `{`
+5:20 InterpolatedStringStart `$"`
+5:22 InterpolationStart `{`
+5:23 InterpolatedStringStart `$"`
+5:25 InterpolationStart `{`
+5:27 OpenBrace `{`
+5:28 InterpolatedStringStart `$"`
+5:30 InterpolationStart `{`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolationStart `{`
+5:34 InterpolatedStringStart `$"`
+5:36 InterpolationStart `{`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolationStart `{`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolationStart `{`
+5:43 InterpolatedStringStart `$"`
+5:45 InterpolatedStringText `2`
+5:46 InterpolationStart `{`
+5:47 InterpolatedStringStart `$"`
+5:49 InterpolationStart `{`
+5:51 Identifier `n`
+5:52 OpenBrace `{`
+5:53 Identifier `x`
+5:54 CloseBrace `}`
+5:55 StringLiteral `"}"`
+5:58 InterpolationEnd `}`
+5:59 InterpolatedStringEnd `"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 InterpolationEnd `}`
+5:65 InterpolatedStringEnd `"`
+5:66 InterpolationEnd `}`
+5:67 InterpolatedStringEnd `"`
+5:68 InterpolationEnd `}`
+5:69 InterpolatedStringEnd `"`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringEnd `"`
+6:1 CharLiteral `'ab'`
+7:1 IntegerLiteral `0xF__`
+9:1 IntegerLiteral `0xF__`
+11:1 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │  1_
+    │   ^
+    │
+    │ 2 │  1_
+    │   │   -
+
+error BYN0003: unterminated string literal
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"2{$"{$n{x}"}"}"}"}"}"}"}"}" ‏
+    │                       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `$`
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"2{$"{$n{x}"}"}"}"}"}"}"}"}" ‏
+    │                          ^
+
+error BYN0002: unexpected character `$`
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"2{$"{$n{x}"}"}"}"}"}"}"}"}" ‏
+    │                                                  ^
+
+error BYN0002: unexpected character `‏`
+
+  5 │  $"{$"{$"{$"{$"{$"{$"{$"{${$"{$"{$"{$"{$"{$"2{$"{$n{x}"}"}"}"}"}"}"}"}" ‏
+    │                                                                         ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │ 'ab'
+    │ ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  9 │ 0xF__
+    │    ^^
+    │
+    │ 9 │ 0xF__
+    │   │    --

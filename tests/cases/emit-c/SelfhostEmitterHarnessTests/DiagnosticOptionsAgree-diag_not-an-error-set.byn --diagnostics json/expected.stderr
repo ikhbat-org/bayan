@@ -1,0 +1,1 @@
+{"code":"BYN2608","severity":"error","file":"input.byn","span":{"start":14,"end":17,"line":1,"column":15,"endLine":1,"endColumn":18},"message":"`i64` is not an error enum","label":null,"help":null,"fixes":[]}

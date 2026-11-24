@@ -1,0 +1,95 @@
+1:1 Identifier `ạ̇`
+1:8 IntegerLiteral `1`
+2:1 LetKeyword `let`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
+3:1 LetKeyword `let`
+3:5 Identifier `c`
+3:7 Equals `=`
+3:11 IntegerLiteral `3`
+5:1 StringLiteral `"/// Doc line one.`
+7:1 Identifier `comment`
+7:11 Identifier `hidden`
+8:1 Identifier `l0`
+8:4 IntegerLiteral `42`
+8:7 IntegerLiteral `1_000_000`
+8:17 IntegerLiteral `0xFF`
+8:22 IntegerLiteral `0x_ff`
+8:28 IntegerLiteral `0b1010`
+8:35 IntegerLiteral `0B11`
+8:40 IntegerLiteral `5`
+8:41 NumericSuffix `s`
+8:43 IntegerLiteral `250`
+8:46 NumericSuffix `ms`
+8:49 IntegerLiteral `4`
+8:50 NumericSuffix `KiB`
+8:54 IntegerLiteral `1`
+8:55 NumericSuffix `u`
+8:57 IntegerLiteral `0xFF`
+8:61 NumericSuffix `u`
+8:63 IntegerLiteral `0b1`
+8:66 NumericSuffix `ul`
+8:69 IntegerLiteral `7`
+8:70 NumericSuffix `l`
+9:1 Identifier `ab`
+9:3 CharLiteral `'`
+10:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇  $ 1
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇  $ 1
+    │   │ +
+
+error BYN0002: unexpected character `$`
+
+  1 │ ạ̇  $ 1
+    │      ^
+
+error BYN0002: unexpected character ```
+
+  2 │ let b = ` 2
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9D)
+
+  3 │ let c =� � 3
+    │        ^
+
+error BYN0002: unexpected character `\u{7}`
+
+  3 │ let c =� � 3
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │ "/// Doc line one.
+    │ ^^^^^^^^^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  7 │ comment � hidden
+    │         ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ comment � hidden
+    │   │         -
+
+error BYN0015: source is not valid UTF-8 (byte 0x97)
+
+  9 │ �ab'
+    │ ^
+
+error BYN0008: unterminated char literal
+
+  9 │ �ab'
+    │    ^
+    │
+  help: close it with `'`

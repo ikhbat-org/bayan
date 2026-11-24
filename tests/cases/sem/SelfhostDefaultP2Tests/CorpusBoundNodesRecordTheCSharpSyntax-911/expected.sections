@@ -1,0 +1,9 @@
+== tests/cases/diag/undefined-name.byn
+0..13 globalStatement
+0..13 localDecl
+12..13 literalExpr integer
+14..30 exprStmt
+14..30 callExpr
+20..29 interpolatedExpr
+23..27 nameExpr
+14..30 callExpr

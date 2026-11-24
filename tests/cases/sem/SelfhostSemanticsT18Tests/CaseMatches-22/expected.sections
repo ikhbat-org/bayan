@@ -1,0 +1,4 @@
+== member.probes.-.x1
+literal|i32|-|-|-|-|-|2362:8|1
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2005 124:20 `oc` is not visible here |module constants are not visible outside their module||

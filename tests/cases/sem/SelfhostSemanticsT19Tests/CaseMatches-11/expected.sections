@@ -1,0 +1,2 @@
+== fold.probes.d2
+binary:i32[6231:5]=-(add local:i32[6231:1]=-(a) local:i32[6235:1]=-(b))

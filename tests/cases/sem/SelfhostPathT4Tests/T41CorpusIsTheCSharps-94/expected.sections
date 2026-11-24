@@ -1,0 +1,4 @@
+== diags.diag/c-style-for
+BYN1015 2:16 C-style `for` loops do not exist in Bayan
+  label expected `in`
+  help loop over a range instead: `for i in 0..n { … }`

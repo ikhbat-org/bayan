@@ -1,0 +1,3 @@
+== bind.probes.i4
+flags 0
+is:bool[3397:15]=-(local:rune[3397:2]=-(ch) rangePattern:-[3403:9]=-(true literal:rune[3403:3]=a(a) literal:rune[3409:3]=z(z)))

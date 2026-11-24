@@ -1,0 +1,82 @@
+1:1 IntegerLiteral `0x`
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
+4:1 FloatLiteral `3.14`
+4:6 FloatLiteral `1e5`
+4:10 IntegerLiteral `2`
+4:11 Dot `.`
+4:13 Identifier `e`
+4:14 Minus `-`
+4:15 IntegerLiteral `3`
+4:17 FloatLiteral `6E+2`
+4:22 IntegerLiteral `1`
+4:23 Dot `.`
+4:25 IntegerLiteral `50`
+4:27 NumericSuffix `dec`
+4:31 IntegerLiteral `1`
+4:32 DotDot `..`
+4:34 IntegerLiteral `2`
+4:36 IntegerLiteral `1`
+4:37 DotDotEquals `..=`
+4:40 IntegerLiteral `3`
+4:42 IntegerLiteral `5`
+4:43 NumericSuffix `e`
+4:44 Identifier `x`
+4:45 Dot `.`
+4:46 Identifier `y`
+4:48 FloatLiteral `2.5`
+4:51 NumericSuffix `f`
+5:1 Identifier `_`
+6:3 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  4 │ 3.14 1e5 2.�e-3 6E+2 1.�50dec 1..2 1..=3 5e�x.y 2.5f
+    │            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF1)
+
+  4 │ 3.14 1e5 2.�e-3 6E+2 1.�50dec 1..2 1..=3 5e�x.y 2.5f
+    │                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8A)
+
+  4 │ 3.14 1e5 2.�e-3 6E+2 1.�50dec 1..2 1..=3 5e�x.y 2.5f
+    │                                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ _�
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ _�
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  6 │ ��� 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  6 │ ��� 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │ ��� 
+    │   ^

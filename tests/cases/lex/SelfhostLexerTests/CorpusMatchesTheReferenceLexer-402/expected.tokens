@@ -1,0 +1,64 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 ReturnKeyword `return`
+1:74 YieldKeyword `yield`
+1:80 DeferKeyword `defer`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
+2:1 ErrorKeyword `error`
+2:7 SetKeyword `set`
+2:11 UnitKeyword `unit`
+2:16 DistinctKeyword `distinct`
+2:25 TypeKeyword `type`
+2:30 ImportKeyword `import`
+2:37 AsKeyword `as`
+2:40 PublicKeyword `public`
+2:47 PrivateKeyword `private`
+2:55 StaticKeyword `static`
+2:62 ReadonlyKeyword `readonly`
+2:71 RequiredKeyword `required`
+2:80 ConstKeyword `const`
+2:86 LetKeyword `let`
+2:90 Identifier `va`
+2:93 EmbedKeyword `embed`
+2:99 ExternKeyword `extern`
+2:106 UnsafeKeyword `unsafe`
+4:1 LetKeyword `let`
+4:5 Identifier `café`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
+4:14 Semicolon `;`
+5:3 OpenParen `(`
+5:5 CloseParen `)`
+5:7 OpenBracket `[`
+5:9 CloseBracket `]`
+5:11 OpenBrace `{`
+5:13 CloseBrace `}`
+6:2 StructKeyword `struct`
+6:9 Identifier `S`
+7:2 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  4 │ let café = 1;
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ let café = 1;
+    │   │        +
+
+error BYN0002: unexpected character `₀`
+
+  5 │ ₀ ( ) [ ] { }
+    │ ^

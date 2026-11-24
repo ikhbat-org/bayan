@@ -1,0 +1,5 @@
+error BYN2114: `i32` is not a struct
+  --> <repo>/tests/cases/diag/not-a-struct.byn:2:9
+
+  2 │ let m = n with { value: 1 }
+    │         ^

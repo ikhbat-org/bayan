@@ -1,0 +1,6 @@
+u{110000}'
+'x
+
+/* block
+$"total {x}" $"a {f($"b {c}")º d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+

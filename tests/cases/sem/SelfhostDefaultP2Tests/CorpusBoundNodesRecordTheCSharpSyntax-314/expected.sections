@@ -1,0 +1,36 @@
+== tests/cases/run/symbol-literal-runtime.byn
+121..348 blockStmt
+127..150 localDecl
+143..150 literalExpr string
+155..185 localDecl
+165..185 callExpr
+182..184 literalExpr integer
+190..207 exprStmt
+190..207 callExpr
+190..193 nameExpr
+201..206 literalExpr string
+212..228 exprStmt
+212..228 callExpr
+212..215 nameExpr
+223..227 literalExpr string
+233..264 localDecl
+241..264 callExpr
+255..263 memberExpr
+255..258 nameExpr
+269..287 exprStmt
+269..287 callExpr
+275..286 interpolatedExpr
+278..284 binaryExpr eq right 283..284
+278..279 nameExpr
+283..284 nameExpr
+269..287 callExpr
+292..323 localDecl
+300..323 callExpr
+314..322 literalExpr string
+328..346 exprStmt
+328..346 callExpr
+334..345 interpolatedExpr
+337..343 binaryExpr eq right 342..343
+337..338 nameExpr
+342..343 nameExpr
+328..346 callExpr

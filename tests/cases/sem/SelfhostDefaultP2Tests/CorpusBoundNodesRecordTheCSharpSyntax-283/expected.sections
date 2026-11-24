@@ -1,0 +1,34 @@
+== tests/cases/run/string-padded.byn
+97..138 globalStatement
+97..138 exprStmt
+97..138 callExpr
+103..137 interpolatedExpr
+107..134 callExpr
+107..111 literalExpr string
+123..124 literalExpr integer
+130..133 literalExpr char
+97..138 callExpr
+139..184 exprStmt
+139..184 callExpr
+145..183 interpolatedExpr
+149..180 callExpr
+149..157 literalExpr string
+169..170 literalExpr integer
+176..179 literalExpr char
+139..184 callExpr
+185..227 exprStmt
+185..227 callExpr
+191..226 interpolatedExpr
+195..223 callExpr
+195..199 literalExpr string
+211..212 literalExpr integer
+218..222 literalExpr char
+185..227 callExpr
+228..267 exprStmt
+228..267 callExpr
+234..266 interpolatedExpr
+238..263 callExpr
+238..240 literalExpr string
+252..253 literalExpr integer
+259..262 literalExpr char
+228..267 callExpr

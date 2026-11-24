@@ -1,0 +1,85 @@
+1:1 CaretEquals `^=`
+1:4 LessLessEquals `<<=`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `total `
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 InterpolationEnd `}`
+2:12 InterpolatedStringEnd `"`
+2:14 InterpolatedStringStart `$"`
+2:16 InterpolatedStringText `a `
+2:18 InterpolationStart `{`
+2:19 Identifier `f`
+2:20 OpenParen `(`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolatedStringText `b `
+2:25 InterpolationStart `{`
+2:26 Identifier `c`
+2:27 InterpolationEnd `}`
+2:28 InterpolatedStringEnd `"`
+2:29 CloseParen `)`
+2:30 InterpolationEnd `}`
+2:31 InterpolatedStringText ` d`
+2:33 InterpolatedStringEnd `"`
+2:35 InterpolatedStringStart `$"`
+2:37 InterpolatedStringText `{{literal}}`
+2:48 InterpolatedStringEnd `"`
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 Identifier `Point`
+2:59 OpenBrace `{`
+2:61 Identifier `x`
+2:63 Equals `=`
+2:65 IntegerLiteral `1`
+2:67 CloseBrace `}`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringText `!`
+2:70 InterpolatedStringEnd `"`
+2:72 InterpolatedStringStart `$"`
+2:74 InterpolatedStringEnd `"`
+3:1 PlusEquals `+=`
+3:4 MinusEquals `-=`
+3:7 StarEquals `*=`
+3:10 SlashEquals `/=`
+3:13 PercentEquals `%=`
+3:16 AmpEquals `&=`
+3:19 BarEquals `|=`
+3:22 CaretEquals `^=`
+3:25 LessLessEquals `<<=`
+5:1 CharLiteral `'\q'`
+6:2 CharLiteral `'ab'`
+9:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  5 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  6 │  'ab'
+    │  ^^^^
+    │
+  help: use a string literal ("…") for text
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  8 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  8 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  8 │ ����
+    │    ^

@@ -1,0 +1,70 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolationStart `{`
+1:4 Identifier `a`
+2:1 Plus `+`
+2:3 Minus `-`
+2:5 Star `*`
+2:7 Slash `/`
+2:9 Percent `%`
+2:11 PlusPercent `+%`
+2:14 MinusPercent `-%`
+2:17 StarPercent `*%`
+2:20 PlusBar `+|`
+2:23 MinusBar `-|`
+2:26 StarBar `*|`
+2:29 PlusPlus `++`
+2:32 MinusMinus `--`
+3:2 Identifier `ms`
+3:5 IntegerLiteral `4`
+3:6 NumericSuffix `KiB`
+3:10 IntegerLiteral `1`
+3:11 NumericSuffix `u`
+3:13 IntegerLiteral `0`
+3:15 StructKeyword `struct`
+3:22 UniqueKeyword `unique`
+3:29 UnionKeyword `union`
+3:35 EnumKeyword `enum`
+3:40 FlagsKeyword `flags`
+3:46 OpenKeyword `open`
+3:51 ExtensibleKeyword `extensible`
+3:62 InterfaceKeyword `interface`
+3:72 DelegateKeyword `delegate`
+3:82 ExtensionKeyword `extension`
+3:92 DerivationKeyword `derivation`
+3:103 AttributeKeyword `attribute`
+5:1 InterpolationEnd `}`
+5:2 InterpolatedStringText ` 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'`
+5:42 InterpolatedStringEnd
+6:2 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ $"{a
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │  ms 4KiB 1u 0����struct unique union enum flags open extensible interface delegate �extension derivation attribute
+    │              ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │  ms 4KiB 1u 0����struct unique union enum flags open extensible interface delegate �extension derivation attribute
+    │               ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ms 4KiB 1u 0����struct unique union enum flags open extensible interface delegate �extension derivation attribute
+    │                ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │  ms 4KiB 1u 0����struct unique union enum flags open extensible interface delegate �extension derivation attribute
+    │                 ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF6)
+
+  3 │  ms 4KiB 1u 0����struct unique union enum flags open extensible interface delegate �extension derivation attribute
+    │                                                                                    ^

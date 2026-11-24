@@ -1,0 +1,7 @@
+== cases
+0 ((bynt_span_u8){l0_data.v, 1})
+1 (l2_t.nanos > INT64_C(978307200000000000))
+2 l2_t.nanos
+3 (l5_missing.nanos == INT64_C(-1))
+4 l5_missing.nanos
+count 5

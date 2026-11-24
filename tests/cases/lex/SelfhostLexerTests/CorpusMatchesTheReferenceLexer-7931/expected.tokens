@@ -1,0 +1,27 @@
+1:1 LetKeyword `let`
+1:5 Identifier `c`
+1:7 Equals `=`
+1:11 IntegerLiteral `3`
+2:1 Identifier `b`
+    doc `/// Doc lie two.`
+5:1 Identifier `ạ̇b`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{7}`
+
+  1 │ let c = �� 3
+    │         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  1 │ let c = �� 3
+    │          ^
+
+error BYN0005: identifier `ạ̇b` is not in Unicode normalization form C
+
+  5 │ ạ̇b
+    │ ^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 5 │ ạ̇b
+    │   │ +

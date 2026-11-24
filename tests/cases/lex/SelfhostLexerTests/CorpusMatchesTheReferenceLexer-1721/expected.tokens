@@ -1,0 +1,27 @@
+1:1 Identifier `b`
+1:3 Equals `=`
+1:5 StringLiteral `"bad \q escape"`
+2:1 LetKeyword `let`
+2:5 Identifier `c`
+2:7 Equals `=`
+2:9 RawStringLiteral `"""\n0xF__\n\n'\u{D800}'\n�\nlet café = 2\n$"{{"// line comment\n`
+9:1 EndOfFile
+
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ b = "bad \q escape"
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  2 │ let c = """
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  6 │ �
+    │ ^

@@ -1,0 +1,4 @@
+unsafe void poke() {
+}
+let a = true
+unless !a { print("y") }

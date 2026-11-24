@@ -1,6 +1,6 @@
 # Bayan: terminal style
 
-Version: 0.3.2 (matches `bayan --version`)
+Version: 0.4.0 (matches `bayan --version`)
 
 Most people meet Bayan in a terminal, not on a website. This guide defines how `bayan` output looks and behaves. It applies to every command and complements the diagnostic format in the spec (§21.1) and `docs/bayan-contributing.md` (Diagnostics).
 
@@ -195,3 +195,5 @@ A check that cannot pass starts with `✗` and gets a `help:` line; an optional 
 | `COLORTERM`, `BAYAN_THEME`, `COLORFGBG` | Truecolour or 16 colours, and the light or dark column (§2). |
 | `LC_ALL`, `LC_CTYPE`, `LANG` | Locale check for the ASCII fallback (§3). |
 | `CI` | Non-empty: no progress line (§6). |
+| `BAYAN_TERMINAL` | A positive integer: stdout and stderr are treated as a terminal of that width, as when a test runs `bayan` as a child with its output piped. Colour is still decided by `--color` and the variables above. Unset, empty, `0`, negative or non-numeric: ignored. |
+| `BAYAN_EXE` | The path of the `bayan` driver the golden runner (`bayan test` over `tests/cases`) starts as a child, and whose `version` line it prints in its report. Unset, empty or not an executable driver: each case that needs it fails, naming `BAYAN_EXE`; never skipped. |

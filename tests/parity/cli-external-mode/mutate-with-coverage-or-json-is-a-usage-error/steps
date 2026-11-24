@@ -1,0 +1,1 @@
+$ for f in --coverage --json; do $BAYAN test --mutate $f $WORK/p > /dev/null 2> err.txt; echo "$f: $? $(grep -c "unexpected argument \`$f\`" err.txt)"; done

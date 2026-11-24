@@ -1,0 +1,39 @@
+1:1 StarEquals `*=`
+1:4 SlashEquals `/=`
+1:7 PercentEquals `%=`
+1:10 AmpEquals `&=`
+1:13 BarEquals `|=`
+1:16 CaretEquals `^=`
+1:19 LessLessEquals `<<=`
+    doc `/// Doc line one.\r`
+3:2 CloseBrace `}`
+4:1 CloseBrace `}`
+4:3 TestKeyword `test`
+4:8 AssertKeyword `assert`
+4:15 PropertyKeyword `property`
+4:24 FuzzKeyword `fuzz`
+4:29 ModelKeyword `model`
+4:35 ForeachKeyword `foreach`
+4:43 NewKeyword `new`
+4:47 Identifier `gotoL`
+6:1 LetKeyword `let`
+6:5 Identifier `x`
+6:9 IntegerLiteral `1`
+7:2 InterpolatedStringStart `$"`
+7:4 InterpolatedStringEnd `"`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  4 │ } test assert property fuzz �model foreach new gotoL
+    │                             ^
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  6 │ let x�  1
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │ let x�  1
+    │   │      -

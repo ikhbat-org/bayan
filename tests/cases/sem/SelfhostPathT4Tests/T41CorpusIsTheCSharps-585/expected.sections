@@ -1,0 +1,10 @@
+== diags.diag/strbuf-grow-escapes-context
+BYN3002 10:20 arena `arena` does not live as long as `text`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 11:21 arena `arena` does not live as long as `outer`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+BYN3002 15:12 arena `arena` does not live as long as `text`, which borrows it
+  label arena `arena` is freed at the end of its block
+  help copy the data with `.copy(to: alloc)` into an allocator that lives long enough

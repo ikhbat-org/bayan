@@ -1,0 +1,9 @@
+/// Doc line one.
+let b = "bad \q escae"
+/// Doc line one.
+Å
+// ‮x
+& && | ||  ~ ! = == != < <= > >= << >> >>=
+/* block
+'a' '\n' '\u�1F600}' '\'' 'é' '\\' '\0'
+

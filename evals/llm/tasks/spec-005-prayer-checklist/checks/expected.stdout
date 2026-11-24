@@ -1,0 +1,14 @@
+salah fajr: 2
+salah dhuhr: 4
+salah asr: 4
+salah maghrib: 3
+salah isha: 4
+salah total: 17
+gifts after until: 3, 10, 40, 50
+gifts after through: 2, 40, 50
+word head: Ḥasan, 7, 5
+word tail: ibn Zaynab, 10, 10
+word position ibn: 8
+word position bint: -1
+pledge before: false, 40
+pledge after: true, 40

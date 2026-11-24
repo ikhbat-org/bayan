@@ -1,0 +1,20 @@
+CompilationUnit
+  Import money
+  Function readonly f() -> void
+    Block
+  Struct static S
+
+error BYN1016: `public` is not allowed here
+
+  1 │ public import money
+    │ ^^^^^^
+
+error BYN1016: `readonly` is not allowed here
+
+  2 │ readonly void f() {}
+    │ ^^^^^^^^
+
+error BYN1016: `static` is not allowed here
+
+  3 │ static struct S {}
+    │ ^^^^^^

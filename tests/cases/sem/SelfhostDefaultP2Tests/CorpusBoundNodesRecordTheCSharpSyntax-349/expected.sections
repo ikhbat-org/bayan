@@ -1,0 +1,11 @@
+== tests/cases/diag/argument-modifier-mismatch.byn
+25..43 blockStmt
+31..41 assignStmt add target 31..36 value 40..41
+31..36 nameExpr
+40..41 literalExpr integer
+45..59 globalStatement
+45..59 localDecl
+58..59 literalExpr integer
+60..67 exprStmt
+60..67 callExpr
+65..66 nameExpr

@@ -1,0 +1,4 @@
+@derive(Json)
+struct Note {
+    @json(name: "note") string text
+}

@@ -1,0 +1,8 @@
+== cases
+0 bynh_add_list_i64(&l0_w.items, INT64_C(3))
+1 bynh_span_list_i64(l0_w.items).len
+2 bynh_span_list_i64(l0_w.items)
+3 bynh_span_list_i64(l0_w.items)
+4 (*bynh_at_span_i64(l1_s, (int64_t)INT64_C(0), false, byn_file_0, 17))
+5 bynh_add_list_i64(&(*self).items, INT64_C(1))
+count 6

@@ -1,0 +1,4 @@
+== target.probes.-.t8
+errorExpr|?|-|-|-|-|-|3668:5|-
+BYN2809 87:120 `dyn IHasArea` is not supported yet |an owned dynamic value|write `dyn ref IHasArea`|
+BYN2720 178:22 `blue` is not a member of `Color` |||

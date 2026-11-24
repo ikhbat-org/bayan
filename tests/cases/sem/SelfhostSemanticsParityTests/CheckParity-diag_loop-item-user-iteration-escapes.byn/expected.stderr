@@ -1,0 +1,18 @@
+error BYN3002: `b` does not live as long as `kept`, which borrows it
+  --> tmp/t26-tests/cli/diag_loop-item-user-iteration-escapes.byn/loop-item-user-iteration-escapes.byn:19:25
+
+  19 │             kept.append(s)
+     │                         ^ `b` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+error BYN3002: `b` does not live as long as `n`, which borrows it
+  --> tmp/t26-tests/cli/diag_loop-item-user-iteration-escapes.byn/loop-item-user-iteration-escapes.byn:22:13
+
+  22 │     let n = kept[0]
+     │             ^^^^^^^ `b` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN3002

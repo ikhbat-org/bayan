@@ -1,0 +1,292 @@
+// 019 T29 (coverage ratchet): calls4.byn paths no golden case reaches: `not null`, `or`, `and` and property patterns,
+// switches over error unions, assignments to a local with states, compound assignments that do not apply, `++` on a
+// string, and writes to constants, pattern variables, `this` and readonly fields. The expected values are the output of
+// the self-hosted checker at the commit that added the test.
+
+test "calls4 t29: patterns on optionals" {
+    let text = """
+        struct P {
+            i64 x
+        }
+
+        i64 a(bool? b) => b switch {
+            not null => 1,
+            null => 0,
+        }
+
+        i64 n(i64? v) => v switch {
+            not null => 1,
+            null => 0,
+        }
+
+        i64 five(i64? v) => v switch {
+            not 5 => 1,
+            null => 0,
+        }
+
+        i64 p(P? q) => q switch {
+            { x: 1 } => 1,
+            null => 0,
+        }
+
+        i64 r(P? q) => q switch {
+            { x: _ } => 1,
+            null => 0,
+        }
+
+        i64 orp(i64 v) => v switch {
+            _ or 1 => 1,
+        }
+
+        i64 andp(i64 v) => v switch {
+            _ and _ => 1,
+        }
+
+        i64 andq(i64 v) => v switch {
+            _ and 1 => 1,
+            _ => 0,
+        }
+
+        i64 notn(i64 v) => v switch {
+            not null => 1,
+            _ => 0,
+        }
+
+        i64 some(i64 v) => v switch {
+            1 => 1,
+        }
+
+        i64 unknownArm(i64 v) => v switch {
+            Nope.x => 1,
+            _ => 0,
+        }
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2410 `switch` does not handle every `i64?`
+        BYN2410 `switch` does not handle every `P?`
+        BYN2411 `null` cannot match `i64`
+        BYN2410 `switch` does not handle every `i64`
+        BYN2001 `Nope` is not defined
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "calls4 t29: assignments with states" {
+    let text = """
+        struct Order {
+            i64 id
+            states {
+                draft
+                paid(i64 payment)
+            }
+        }
+
+        void same(ref Order.draft o, from Order.draft p) {
+            o = p
+        }
+
+        void wide(ref Order.draft o, from Order p) {
+            o = p
+        }
+
+        void local(Order.draft d) {
+            var o = d
+            o = d
+            print($"{o.id}")
+        }
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    assert t29s2bDiags(in c) == "BYN7012 `o` would change state here; a state changes only through `become`\n"
+}
+
+test "calls4 t29: compound assignments that do not apply" {
+    let text = """
+        void main() {
+            var x: i64 = 1
+            x ??= 2
+            var f: f64 = 1.0
+            f <<= 2
+            x <<= 1.5
+            var b = true
+            b -= true
+            var s = "a"
+            s++
+            s--
+            const k: i64 = 1
+            k = 2
+            let o: i64? = 1
+            if o is let y {
+                y = 3
+            }
+            print($"{x}")
+        }
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2210 `??` needs an optional value on the left, found `i64`
+        BYN2208 `<<` cannot be applied to `f64` and `i32`
+        BYN2208 `<<` cannot be applied to `i64` and `f64`
+        BYN2208 `-` cannot be applied to `bool` and `bool`
+        BYN2207 `++` cannot be applied to `string`
+        BYN2207 `--` cannot be applied to `string`
+        BYN2106 cannot modify this value
+        BYN2104 `y` is immutable
+        BYN2311 `s` is never reassigned; declare it with `let`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "calls4 t29: writes through things that cannot change" {
+    let text = """
+        struct Id {
+            readonly i64 value
+        }
+
+        struct Node {
+            i64 item
+        }
+
+        const table: i64[2] = [1, 2]
+
+        void set(ref i64 x) {
+            x = 1
+        }
+
+        void main() {
+            set(ref nope)
+            set(ref table[0])
+            let n = Owned(Node { item: 1 })
+            set(ref n.item)
+            var id = Id { value: 1 }
+            set(ref id.value)
+            let r: ReadOnlySpan<i64> = [1, 2]
+            r[0] = 3
+        }
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2001 `nope` is not defined
+        BYN2106 cannot modify this value
+        BYN2106 cannot modify this value
+        BYN2105 field `value` is readonly
+        BYN2106 cannot modify this value
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "calls4 t29: switches over error unions" {
+    let text = """
+        union error CarrierError {
+            timeout(i64 after)
+            closed
+        }
+
+        union error QuoteError {
+            stale(i64 age)
+        }
+
+        union error Single {
+            only
+            other
+        }
+
+        union error Twice = CarrierError, CarrierError
+
+        i64 send(i64 n) fails CarrierError, QuoteError {
+            fail .closed if n == 0
+            return n
+        }
+
+        i64 one(i64 n) fails Single {
+            fail .only if n == 0
+            return n
+        }
+
+        i64 twice(i64 n) fails Twice {
+            fail .closed if n == 0
+            return n
+        }
+
+        i64 a(i64 n) => send(n) catch switch {
+            CarrierError.timeout(let t) => t,
+        }
+
+        i64 b(i64 n) => one(n) catch switch {
+            Single.only => 1,
+        }
+
+        i64 d(i64 n) => twice(n) catch switch {
+            CarrierError.closed => 1,
+        }
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2410 `switch` does not handle every `CarrierError | QuoteError`
+        BYN2410 `switch` does not handle every `Single`
+        BYN2410 `switch` does not handle every `CarrierError`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}
+
+test "calls4 t29: writes to this and to readonly fields" {
+    let text = """
+        struct Id {
+            readonly i64 value
+
+            Id(i64 v) {
+                value = v
+                var other = Id { value: 2 }
+                other.value = 3
+                print($"{other.value}")
+            }
+        }
+
+        struct Wrap {
+            Id id
+
+            Wrap(i64 v) {
+                id = Id { value: v }
+                id.value = v
+            }
+        }
+
+        struct Counter {
+            i64 n
+
+            void bump() {
+                zero(ref this)
+            }
+
+            static void none() {
+                zero(ref this)
+            }
+        }
+
+        void zero(ref Counter c) {
+            c.n = 0
+        }
+
+        void main() {}
+        """
+    let c = t29s2bCompile(text)
+    let expected = """
+        BYN2105 field `value` is readonly
+        BYN2111 `Id` has a constructor; call it instead of using a struct literal
+        BYN2105 field `value` is readonly
+        BYN2018 `this` is only available inside instance methods
+        BYN2115 `bump` modifies `this` but is not declared `ref this`
+
+        """
+    assert t29s2bDiags(in c) == expected
+}

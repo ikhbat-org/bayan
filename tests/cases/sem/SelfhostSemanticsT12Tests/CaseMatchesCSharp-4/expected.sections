@@ -1,0 +1,32 @@
+== errors
+diag BYN2006 3:5 `a` is declared twice | already declared on line 2 | 
+diag BYN1016 4:5 `@cases` is not allowed here |  | put `@cases(...)` on a test that takes parameters
+diag BYN2770 5:6 unknown attribute `foo` |  | use `@exitCode(n)`; it is the only attribute an error variant takes
+diag BYN1016 6:18 `@exitCode` is not allowed here |  | remove the repeated attribute
+diag BYN1016 7:18 `@cases` is not allowed here |  | put `@cases(...)` on a test that takes parameters
+diag BYN2770 7:29 unknown attribute `bar` |  | use `@exitCode(n)`; it is the only attribute an error variant takes
+diag BYN2009 8:5 `Bad` must be camelCase |  | rename it `bad`; only types are PascalCase
+diag BYN2609 11:13 error enum `E2` has no variants |  | 
+diag BYN3202 20:1 `A1` and `B1` both have a case `shared` | two cases `shared` | rename one case, or compose fewer sets
+diag BYN2002 23:18 unknown type `Missing` |  | 
+diag BYN3202 24:1 `A1` and `B1` both have a case `shared` | two cases `shared` | rename one case, or compose fewer sets
+diag BYN2006 9:21 `x` is declared twice | already declared on line 9 | 
+diag BYN2002 9:24 unknown type `Missing` |  | 
+diag BYN2009 9:39 `Z` must be camelCase |  | rename it `z`; only types are PascalCase
+set E1
+  variant a code=1 at=2:5 ()
+  variant b code=2 at=4:15 ()
+  variant c code=3 at=5:10 ()
+  variant d code=4 at=6:31 ()
+  variant e code=5 at=7:33 ()
+  variant Bad code=6 at=8:5 ()
+  variant p code=7 at=9:5 (x:i64@9:11#0,y:?@9:32#1,Z:i64@9:39#2,w:bool@9:47#3)
+set E2
+set A1
+  variant x code=8 at=13:5 ()
+  variant shared code=9 at=14:5 ()
+set B1
+  variant y code=10 at=17:5 ()
+  variant shared code=11 at=18:5 ()
+exit E1.d 6:5
+exit E1.e 7:5

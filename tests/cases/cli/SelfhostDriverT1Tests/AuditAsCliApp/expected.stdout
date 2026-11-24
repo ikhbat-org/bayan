@@ -1,0 +1,3 @@
+<repo>/tmp/t6-audit/uppercase/A.BYN:1:1  unsafe void a()  no reason given
+<repo>/tmp/t6-audit/uppercase/b.Byn:1:1  unsafe void b()  no reason given
+◆ 2 bypasses in <repo>/tmp/t6-audit/uppercase

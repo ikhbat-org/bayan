@@ -1,0 +1,1 @@
+$ $BAYAN mutate --binary $WORK/prog --sites $WORK/prog.sites.json -- /bin/sh -c 'echo $BAYAN_MUTANT >> $WORK/log.txt; [ "$BAYAN_MUTANT" != 5 ] || exit 1' > /dev/null; echo "mutate $?"; cat log.txt

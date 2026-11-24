@@ -1,0 +1,4 @@
+== const W
+const W i32 value - static false elements 0
+errorExpr 768..770 : ?
+BYN2001 55:16 `zz` is not defined |||

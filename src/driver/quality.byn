@@ -8,6 +8,7 @@
 import emitter
 import lexer
 import semantics
+import std.json
 
 /// `ReportBranch` (QualityReport.cs:18): `status` is hit, missed or unknown.
 struct QualityBranch {
@@ -850,3 +851,431 @@ bool qualityInMark(
 
 /// QualityReport.cs:307 `Where`.
 string qualityWhere(in ExternalSite s) uses alloc => $"{s.file}:{s.line}:{s.column}"
+
+/// GatesTests.cs:12 `Cov`: a coverage report of the one file `a.byn`.
+QualityReport gatesCov(
+    move List<i64> covered,
+    by move List<i64> missed,
+    for move List<i64> unknown,
+    through move List<QualityBranch> branches,
+    from move List<QualityErrorPath> paths
+) uses alloc =>
+    QualityReport {
+        tool: "t",
+        files: [
+            QualityFile {
+                path: "a.byn",
+                coveredLines: move covered,
+                missedLines: move missed,
+                unknownLines: move unknown,
+                branches: move branches,
+                errorPaths: move paths,
+            },
+        ],
+    }
+
+/// GatesTests.cs:16 `Mut`: a mutation report whose `survived` mutants are `a.byn:3+i:5 arithmetic `a + b` -> `a - b``.
+MutationReport gatesMut(i64 killed, by i64 timeout, for i64 survived, through i64 notReached) uses alloc {
+    var mutants = List<ReportMutant>()
+    for i in 0..survived {
+        mutants.append(
+            ReportMutant {
+                site: ExternalSite {
+                    id: i,
+                    file: "a.byn",
+                    line: 3 + i,
+                    column: 5,
+                    op: "arithmetic",
+                    original: "a + b",
+                    mutated: "a - b",
+                },
+                status: "survived",
+            },
+        )
+    }
+    return MutationReport {
+        tool: "t",
+        files: [MutationFile { path: "a.byn", mutants: move mutants }],
+        totals: [killed, survived, timeout, 0, notReached, 0],
+    }
+}
+
+// GatesTests.LinesAreBelowEqualAndAboveTheMinimum.
+test "gates: lines are below, equal to and above the minimum" {
+    let r = gatesCov([1, 2, 3], by: [4], for: [], through: [], from: [])
+    let below = gatesCoverage(r, by: 80, for: null, through: null)
+    assert(below.length == 1)
+    assert(below[0].name == "lines" && below[0].covered == 3 && below[0].total == 4 && below[0].min == 80)
+    assert(gatesFmt(below[0].covered, by: below[0].total) == "75")
+    assert(below[0].missing.length == 1 && below[0].missing[0] == "uncovered line: a.byn:4")
+    assert(gatesCoverage(r, by: 75, for: null, through: null).length == 0)
+    assert(gatesCoverage(r, by: 70, for: null, through: null).length == 0)
+}
+
+// GatesTests.BranchesAreBelowEqualAndAboveTheMinimum.
+test "gates: branches are below, equal to and above the minimum" {
+    let r = gatesCov(
+        [],
+        by: [],
+        for: [],
+        through: [
+            QualityBranch { line: 7, column: 9, outcome: true, status: "hit" },
+            QualityBranch { line: 7, column: 9, outcome: false, status: "missed" },
+        ],
+        from: [],
+    )
+    let below = gatesCoverage(r, by: null, for: 51, through: null)
+    assert(below.length == 1)
+    assert(below[0].missing.length == 1 && below[0].missing[0] == "uncovered branch: a.byn:7:9 never false")
+    assert(gatesCoverage(r, by: null, for: 50, through: null).length == 0)
+    assert(gatesCoverage(r, by: null, for: 49, through: null).length == 0)
+}
+
+// GatesTests.ErrorPathsAreBelowEqualAndAboveTheMinimum.
+test "gates: error paths are below, equal to and above the minimum" {
+    let r = gatesCov(
+        [],
+        by: [],
+        for: [],
+        through: [],
+        from: [
+            QualityErrorPath { function: "f", variant: "E.a", hit: true },
+            QualityErrorPath { function: "f", variant: "E.b" },
+        ],
+    )
+    let below = gatesCoverage(r, by: null, for: null, through: 51)
+    assert(below.length == 1)
+    assert(below[0].missing.length == 1 && below[0].missing[0] == "uncovered error path: f E.b (a.byn)")
+    assert(gatesCoverage(r, by: null, for: null, through: 50).length == 0)
+    assert(gatesCoverage(r, by: null, for: null, through: 10).length == 0)
+}
+
+// GatesTests.AnAbsentMinimumAndAnEmptyMeasureNeverFail.
+test "gates: an absent minimum and an empty measure never fail" {
+    let r = gatesCov(
+        [],
+        by: [1],
+        for: [],
+        through: [QualityBranch { line: 1, column: 1, outcome: true, status: "missed" }],
+        from: [QualityErrorPath { function: "f", variant: "E.a" }],
+    )
+    assert(gatesCoverage(r, by: null, for: null, through: null).length == 0)
+    assert(
+        gatesCoverage(gatesCov([], by: [], for: [], through: [], from: []), by: 100, for: 100, through: 100).length == 0
+    )
+    assert(gatesMutation(gatesMut(0, by: 0, for: 3, through: 0), by: null).length == 0)
+    assert(gatesMutation(gatesMut(0, by: 0, for: 0, through: 0), by: 100).length == 0)
+}
+
+// GatesTests.UnknownCountsAreLeftOutAndNotNamed.
+test "gates: unknown counts are left out and not named" {
+    let r = gatesCov(
+        [1],
+        by: [],
+        for: [2, 3],
+        through: [
+            QualityBranch { line: 1, column: 1, outcome: true, status: "hit" },
+            QualityBranch { line: 1, column: 1, outcome: false, status: "unknown" },
+        ],
+        from: [
+            QualityErrorPath { function: "f", variant: "E.a", hit: true },
+            QualityErrorPath { function: "f", variant: "E.b", unknown: true },
+        ],
+    )
+    assert(gatesCoverage(r, by: 100, for: 100, through: 100).length == 0)
+    let m = gatesCoverage(gatesCov([1], by: [4], for: [2, 3], through: [], from: []), by: 100, for: null, through: null)
+    assert(m.length == 1)
+    assert(m[0].missing.length == 1 && m[0].missing[0] == "uncovered line: a.byn:4")
+}
+
+// GatesTests.TheMutationScoreIsKilledAndTimeoutOverThoseAndSurvivors.
+test "gates: the mutation score is killed and timeout over those and survivors" {
+    let r = gatesMut(2, by: 1, for: 1, through: 100)
+    assert(gatesMutation(r, by: 75).length == 0)
+    let below = gatesMutation(r, by: 76)
+    assert(below.length == 1)
+    assert(gatesFmt(below[0].covered, by: below[0].total) == "75")
+    assert(below[0].missing.length == 1
+        && below[0].missing[0] == "survived mutant: a.byn:3:5 arithmetic `a + b` -> `a - b`")
+}
+
+/// QualityReportTests.cs:31 `Build`: `Fixture` as `lib.test.byn`, compiled as a library, with no errors.
+semantics.Ctx qrBuild(string text) uses alloc, clock, fs {
+    var files = List<lexer.SourceText>()
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    files.append(lexer.SourceText.create("lib.test.byn", from: move bytes))
+    let options = T5CompilationOptions { library: true }
+    let c = semantics.create(from: move files, at: ".", by: in options)
+    assert(!t5HasErrors(in c))
+    return c
+}
+
+/// QualityReportTests.cs:31 `Source`, as `qrBuild` reads it.
+List<lexer.SourceText> qrSources(string text) uses alloc {
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var files = List<lexer.SourceText>()
+    files.append(lexer.SourceText.create("lib.test.byn", from: move bytes))
+    return files
+}
+
+/// QualityReportTests.cs:43 `Outcome` for each site of `schema`; with `killMarked`, an emitted marked site is killed by test 3.
+MutationResult qrResults(in emitter.Schema schema, by bool killMarked) uses alloc {
+    var mutants = List<MutantResult>()
+    for s in schema.sites {
+        let site = externalSiteFrom(in s)
+        if killMarked && s.unobservable is not null && s.emitted {
+            mutants.append(MutantResult { site: site, status: .killed, runs: 1, killedBy: 3 })
+        } else if s.site.op == "boundary" {
+            mutants.append(MutantResult { site: site, status: .survived, runs: 2 })
+        } else if s.site.op == "relational" {
+            mutants.append(MutantResult { site: site, status: .killed, runs: 1, killedBy: 0 })
+        } else if !s.emitted {
+            mutants.append(MutantResult { site: site, status: .notEmitted })
+        } else if s.unobservable is not null {
+            mutants.append(MutantResult { site: site, status: .marked })
+        } else {
+            mutants.append(MutantResult { site: site, status: .notReached })
+        }
+    }
+    return MutationResult { mutants: move mutants }
+}
+
+/// QualityReportTests.cs:52 `Report`: a 20 s build, mutants of 0.5 s and 1.5 s, 25 s in all.
+MutationReport qrReport(in emitter.Schema schema, by in MutationResult result) uses alloc {
+    var seconds = List<f64>()
+    seconds.append(0.5)
+    seconds.append(1.5)
+    return qualityMutationResult(
+        "bayan test --mutate",
+        from: in result,
+        by: in schema,
+        through: 20000000000,
+        for: in seconds,
+        as: 25000000000,
+    )
+}
+
+// QualityReportTests.JsonHasTheSchemaKeys.
+test "quality-report: the json has the schema keys" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let text = qualityMutationJson(in qrReport(in schema, by: in qrResults(in schema, by: false)))
+    let parsed = json.Json.parse(text) catch { panic("the report is not JSON") }
+    let root = (move parsed).trustUnchecked() because "the test reads the keys it checks"
+    switch root {
+        case .object(let members):
+            assert(t13Int(in members[t13Find(in members, for: "version")].value) == 1)
+            assert(t13Str(in members, for: "kind") == "mutation")
+            switch members[t13Find(in members, for: "timing")].value {
+                case .object(let timing):
+                    assert(timing.length == 5)
+                    assert(timing[0].key == "build_s" && timing[1].key == "mean_mutant_s" && timing[2].key == "max_mutant_s")
+                    assert(timing[3].key == "total_s" && timing[4].key == "mutant_share_of_build")
+                default:
+                    panic("timing is not an object")
+            }
+            var found = false
+            switch members[t13Find(in members, for: "files")].value {
+                case .list(let files):
+                    switch files[0] {
+                        case .object(let file):
+                            switch file[t13Find(in file, for: "mutants")].value {
+                                case .list(let mutants):
+                                    for m in mutants {
+                                        switch m {
+                                            case .object(let fields):
+                                                if !found && t13Str(in fields, for: "status") == "survived" {
+                                                    found = true
+                                                    assert(t13Find(in fields, for: "suggestion") >= 0)
+                                                    assert(t13Find(in fields, for: "killedBy") < 0)
+                                                }
+                                            default:
+                                                panic("a mutant is not an object")
+                                        }
+                                    }
+                                default:
+                                    panic("mutants is not a list")
+                            }
+                        default:
+                            panic("a file is not an object")
+                    }
+                default:
+                    panic("files is not a list")
+            }
+            assert(found)
+        default:
+            panic("the report is not an object")
+    }
+}
+
+// QualityReportTests.SummaryNamesEachSurvivorWithSuggestion.
+test "quality-report: the summary names each survivor with its suggestion" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let summary = qualitySummary(in qrReport(in schema, by: in qrResults(in schema, by: false)), by: in none)
+    assert(summary.contains("survived: lib.test.byn:2:8: n > 5 → n >= 5 [boundary]\n  suggestion: add a case at the boundary value\n"))
+}
+
+// QualityReportTests.PerOperatorTotalsAddUp.
+test "quality-report: the per-operator totals add up" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let result = qrResults(in schema, by: false)
+    let report = qrReport(in schema, by: in result)
+    var survived: i64 = 0
+    for op in emitter.mutatorOperators() {
+        var k: i64 = -1
+        for i in 0..report.operators.length {
+            if report.operators[i].op == op {
+                k = i
+            }
+        }
+        assert(k >= 0)
+        var counts = [0, 0, 0, 0, 0, 0]
+        for m in result.mutants {
+            continue if m.site.op != op
+            switch m.status {
+                case .killed:
+                    counts[0] += 1
+                case .survived:
+                    counts[1] += 1
+                case .notReached:
+                    counts[4] += 1
+                default:
+                    continue
+            }
+        }
+        assert(report.operators[k].counts[0] == counts[0])
+        assert(report.operators[k].counts[1] == counts[1])
+        assert(report.operators[k].counts[4] == counts[4])
+        survived += report.operators[k].counts[1]
+    }
+    assert(survived == report.totals[1])
+    assert(report.totals[1] > 0 && report.totals[0] > 0 && report.totals[3] > 0)
+    assert(qualitySummary(in report, by: in none).contains("  boundary: 0 killed, 1 survived,"))
+}
+
+// QualityReportTests.TimingIsMeanMaxTotalAndShareOfBuild.
+test "quality-report: the timing is mean, max, total and share of build" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let report = qrReport(in schema, by: in qrResults(in schema, by: false))
+    assert(report.buildNanos == 20000000000 && report.totalNanos == 25000000000)
+    assert(report.mean == 1.0 && report.max == 1.5 && report.share == 0.05)
+    assert(qualitySummary(in report, by: in none)
+        .contains("timing: build 20 s, mean 1 s and max 1.5 s per mutant, total 25 s, mutant share of build 5%\n"))
+}
+
+// QualityReportTests.AKilledMarkedMutantIsAWarning.
+test "quality-report: a killed marked mutant is a warning" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let sources = qrSources(goldenQualityFixture)
+    var wrong = false
+    for w in qualityWarnings(in qrResults(in schema, by: true), by: in schema, for: in c, from: in sources) {
+        if w.startsWith("warning: lib.test.byn:9:") && w.contains("the mark is wrong: a test sees this") {
+            wrong = true
+        }
+    }
+    assert(wrong)
+    for w in qualityWarnings(in qrResults(in schema, by: false), by: in schema, for: in c, from: in sources) {
+        assert(!w.contains("the mark is wrong"))
+    }
+}
+
+// QualityReportTests.AMarkWithNoMutantIsAWarning.
+test "quality-report: a mark with no mutant is a warning" {
+    var c = qrBuild(goldenQualityFixture)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let result = qrResults(in schema, by: false)
+    let warnings = qualityWarnings(in result, by: in schema, for: in c, from: in qrSources(goldenQualityFixture))
+    assert(warnings.length == 1)
+    assert(warnings[0] == "warning: lib.test.byn:10:5: the mark covers no mutant (`nothing to mutate`)")
+    assert(qualitySummary(in qrReport(in schema, by: in result), by: in warnings).contains(warnings[0]))
+}
+
+// QualityReportTests.MarksAreMatchedBySpanNotByReason.
+test "quality-report: marks are matched by span, not by reason" {
+    let text = "i64 f(i64 n) {\n    @unobservable because \"same\"\n    var a = n\n    var m = n\n    @unobservable because \"same\"\n    m += 1\n    return m\n}\n"
+    var c = qrBuild(text)
+    let none = List<string>()
+    let schema = emitter.buildSchema(ref c, for: in none)
+    let warnings = qualityWarnings(in qrResults(in schema, by: false), by: in schema, for: in c, from: in qrSources(text))
+    assert(warnings.length == 1)
+    assert(warnings[0].startsWith("warning: lib.test.byn:2:5: the mark covers no mutant"))
+}
+
+/// UnobservableBindingTests.cs:9 `Compile`: `text` as `byn-unobservable/main.byn` in the temporary directory.
+semantics.Ctx ubCompile(string text) uses alloc, clock, fs {
+    let dir = Path.combine(Path.fullPath("tmp"), "byn-unobservable")
+    var bytes = List<u8>()
+    for b in text.bytes {
+        bytes.append(b)
+    }
+    var files = List<lexer.SourceText>()
+    files.append(lexer.SourceText.create(Path.combine(dir, "main.byn"), from: move bytes))
+    let options = T5CompilationOptions {}
+    return semantics.create(from: move files, at: dir, by: in options)
+}
+
+/// UnobservableBindingTests.cs:15 `Statement`: the text of the mark's span.
+string ubStatement(string text, by in semantics.UnobservableMark mark) => text[mark.span.start..mark.span.end]
+
+const ubHead: string = "i32 main() {\n    var y = 1\n"
+
+// UnobservableBindingTests.NoArgumentMarksAllOperators.
+test "unobservable: no argument marks all operators" {
+    let text = $"{ubHead}    @unobservable because \"rounding\"\n    y += 1\n    return y\n}}\n"
+    let c = ubCompile(text)
+    assert(!t5HasErrors(in c))
+    assert(c.unobservable.length == 1)
+    assert(c.unobservable[0].op is null)
+    assert(c.unobservable[0].reason == "rounding")
+    assert(ubStatement(text, by: in c.unobservable[0]).endsWith("y += 1"))
+}
+
+// UnobservableBindingTests.OneValidOperatorNarrowsTheMark.
+test "unobservable: one valid operator narrows the mark" {
+    let c = ubCompile($"{ubHead}    @unobservable(boundary) because \"clamped\"\n    y += 1\n    return y\n}}\n")
+    assert(!t5HasErrors(in c))
+    assert(c.unobservable.length == 1)
+    assert(c.unobservable[0].op == "boundary")
+    assert(c.unobservable[0].reason == "clamped")
+}
+
+// UnobservableBindingTests.UnknownOperatorIsBYN3219AndRecordsNothing.
+test "unobservable: an unknown operator is BYN3219 and records nothing" {
+    let c = ubCompile($"{ubHead}    @unobservable(bogus) because \"clamped\"\n    y += 1\n    return y\n}}\n")
+    var found = false
+    for d in c.diagnostics {
+        if d.code == "BYN3219" {
+            found = true
+        }
+    }
+    assert(found)
+    assert(c.unobservable.length == 0)
+}
+
+// UnobservableBindingTests.TwoAttributedStatementsGetOneMarkEachCoveringOnlyTheirOwn.
+test "unobservable: two attributed statements get one mark each, covering only their own" {
+    let text = $"{ubHead}    @unobservable because \"a\"\n    y += 1\n    @unobservable(literal) because \"b\"\n    y += 2\n    return y\n}}\n"
+    let c = ubCompile(text)
+    assert(!t5HasErrors(in c))
+    assert(c.unobservable.length == 2)
+    let first = ubStatement(text, by: in c.unobservable[0])
+    assert(first.endsWith("y += 1") && !first.contains("y += 2"))
+    assert(c.unobservable[1].op == "literal")
+    assert(ubStatement(text, by: in c.unobservable[1]).endsWith("y += 2"))
+}

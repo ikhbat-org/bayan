@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/strbuf-unknown-static-member.byn
+--package
+<repo>/tests/cases/diag

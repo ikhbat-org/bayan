@@ -1,0 +1,18 @@
+== ctype
+byn_str
+int32_t
+bynt_main__Signup
+bynt_list_builtin__Violation__main__Signup
+void
+byn_str
+int32_t
+void
+byn_str
+int32_t
+void
+void
+void
+error byn_err
+order bynt_main__Signup
+order bynt_list_builtin__Violation__main__Signup
+order byn_err

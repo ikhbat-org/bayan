@@ -1,0 +1,8 @@
+error BYN2023: `List` takes 1 type argument(s), not 2
+  --> tmp/t26-tests/cli/diag_wrong-type-argument-count.byn/wrong-type-argument-count.byn:1:9
+
+  1 │ var xs: List<i64, i64>
+    │         ^^^^^^^^^^^^^^
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2023

@@ -1,0 +1,38 @@
+1:1 FailsKeyword `fails`
+1:7 TryKeyword `try`
+1:11 Identifier `catc`
+1:16 NeverKeyword `never`
+1:22 NoallocKeyword `noalloc`
+1:30 NosuspendKeyword `nosuspend`
+1:40 Identifier `sspends`
+1:48 AsyncKeyword `async`
+1:54 AwaitKeyword `await`
+3:10 NeverKeyword `never`
+3:16 Identifier `closed`
+4:1 Identifier `b`
+6:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  3 │ � /* � */never closed
+    │ ^
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  3 │ � /* � */never closed
+    │   ^^^^^^^ block comment
+    │
+  help: write each line with `//`
+    │ 3 │ � // �
+    │   │    +++
+    │ 4 │ never closed
+
+error BYN0001: bidirectional control character U+202D is not allowed outside string literals
+
+  3 │ � /* � */never closed
+    │      ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ � /* � */never closed
+    │   │      -

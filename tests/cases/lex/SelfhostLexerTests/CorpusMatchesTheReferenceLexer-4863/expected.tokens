@@ -1,0 +1,31 @@
+1:1 IntegerLiteral `0xF__`
+3:1 LetKeyword `let`
+3:5 Identifier `ck`
+3:8 Equals `=`
+3:10 RawStringLiteral `"""never closed\r\n\r\n`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0xE9)
+
+  3 │ let�ck� = """never closed
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xB5)
+
+  3 │ let�ck� = """never closed
+    │       ^
+
+error BYN0003: unterminated string literal
+
+  3 │ let�ck� = """never closed
+    │           ^^^ raw string starts here
+    │
+  help: close it with `"""`

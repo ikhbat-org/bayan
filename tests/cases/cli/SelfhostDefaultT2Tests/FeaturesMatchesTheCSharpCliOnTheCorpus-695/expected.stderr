@@ -1,0 +1,19 @@
+error BYN6002: `run` uses `console` but does not declare it
+  --> <repo>/tests/cases/diag/lambda-effects-through-value.byn:3:5
+
+  3 │     h(x => print($"leak {x}"))
+    │     ^^^^^^^^^^^^^^^^^^^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 1 │ public void run() uses console {
+    │   │                  +++++++++++++
+
+error BYN6002: `inner` uses `console` but does not declare it
+  --> <repo>/tests/cases/diag/lambda-effects-through-value.byn:7:5
+
+  7 │     p(x => print($"leak2 {x}"))
+    │     ^^^^^^^^^^^^^^^^^^^^^^^^^^^ uses `console`
+    │
+  help: add `console` to the `uses` clause, or remove the call
+    │ 6 │ public void inner(((i64 -> void) -> void) p) uses console {
+    │   │                                             +++++++++++++

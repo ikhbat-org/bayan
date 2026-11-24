@@ -1,0 +1,4 @@
+== check.quiet
+counts 1 1 0
+mut xs 2143..2148 false -
+loan xs h 2105 0

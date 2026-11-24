@@ -1,0 +1,7 @@
+error BYN3202: `CarrierError` and `StockError` both have a case `rejected`
+  --> <repo>/tests/cases/diag/duplicate-error-case.byn:11:1
+
+  11 │ union error ShipError = CarrierError, StockError
+     │ ^^^^^^^^^^^ two cases `rejected`
+     │
+  help: rename one case, or compose fewer sets

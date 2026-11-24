@@ -1,0 +1,11 @@
+error BYN2781: `owned4` is used after it was moved
+  --> tmp/semantics-corpus/parity/seeds/fault-UseAfterMove-004/main.byn:79:21
+
+  79 │             total = owned4.length + taken4.length
+     │                     ^^^^^^ moved on line 78
+     │
+  help: assign `owned4` a new value before using it again, or move a `.copy(to: alloc)` of it
+        instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2781

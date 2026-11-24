@@ -1,0 +1,22 @@
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:18 condition `n < 7` -> `!(n < 7)`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:18 boundary `n < 7` -> `n <= 7`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:18 relational `n < 7` -> `n >= 7`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:22 literal `7` -> `8`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:22 literal `7` -> `6`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:10 variant `.bad` -> `.worse`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:8:10 variant `.bad` -> `.worst`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:12 emptyReturn `n + 1 + 2` -> `0`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:12 arithmetic `n + 1 + 2` -> `n + 1 - 2`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:12 arithmetic `n + 1` -> `n - 1`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:16 literal `1` -> `2`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:16 literal `1` -> `0`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:20 literal `2` -> `3`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:9:20 literal `2` -> `1`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:17:15 arithmetic `count(1) + count(true)` -> `count(1) - count(true)`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:17:21 literal `1` -> `2`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:17:21 literal `1` -> `0`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:17:32 bool `true` -> `false`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:13:18 literal `7` -> `8`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:13:18 literal `7` -> `6`: not reached
+<repo>/tmp/t27-mutate/IdentitiesAreUniqueAndAGenericTemplateHasItsSitesOnce/lib.byn:14:12 emptyReturn `n` -> `0`: not reached
+0 killed, 0 survived, 0 timeout, 21 not reached, 0 marked, 0 not emitted

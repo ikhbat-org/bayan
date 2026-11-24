@@ -1,0 +1,6 @@
+$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"
+'a' '\n' '\u�1F600}' '\'' 'é' '\\' '\0'
+ fails try catch never noalloc nosuspend suspends async await
+"""
+"wide" "‮ allowed in strings" "" "\u{4$"a{b}cis and or not with move ref out this null true false comptime checked
+ 

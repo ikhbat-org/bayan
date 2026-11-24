@@ -1,0 +1,77 @@
+1:1 IntegerLiteral `0x_`
+2:2 CharLiteral `'x`
+5:1 Identifier `ε`
+5:2 Identifier `ρητής`
+5:8 Identifier `x_1`
+5:12 Identifier `é`
+7:1 Identifier `macro`
+7:7 Identifier `select`
+7:14 BecomeKeyword `become`
+8:1 CharLiteral `'x`
+10:1 CharLiteral `'`
+11:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0008: unterminated char literal
+
+  2 │  'x
+    │  ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xBC)
+
+  5 │ �ε��ρητής x_1 é
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xBA)
+
+  5 │ �ε��ρητής x_1 é
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x84)
+
+  5 │ �ε��ρητής x_1 é
+    │    ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  7 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0008: unterminated char literal
+
+  8 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  9 │ �
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  9 │ �
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  10 │ '
+     │ ^
+     │
+  help: close it with `'`

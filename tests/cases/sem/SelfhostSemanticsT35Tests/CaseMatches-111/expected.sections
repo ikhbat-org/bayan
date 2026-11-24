@@ -1,0 +1,3 @@
+== expr.probes.i24
+interpolated:string[4128:26]=-(v:local:i64[4131:1]=-(n)/0,false,1,32,-1,-1)
+BYN2303 166:31 `width` is passed twice |||

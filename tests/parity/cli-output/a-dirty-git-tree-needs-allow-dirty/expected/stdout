@@ -1,0 +1,8 @@
+== 1 exit 0
+new 0
+git init 0
+== 2 exit 2
+== 3 exit 0
+no dist/
+dist --allow-dirty 0
+commit null, dirty

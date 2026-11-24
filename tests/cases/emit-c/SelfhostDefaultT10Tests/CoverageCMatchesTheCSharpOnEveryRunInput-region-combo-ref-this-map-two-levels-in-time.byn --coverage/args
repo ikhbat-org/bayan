@@ -1,0 +1,6 @@
+--coverage
+--mode
+safe
+--package
+.
+input.byn

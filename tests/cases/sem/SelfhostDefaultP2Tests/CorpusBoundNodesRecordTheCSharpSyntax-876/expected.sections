@@ -1,0 +1,141 @@
+== tests/cases/diag/switch-move-guard-mutate.byn
+339..375 blockStmt
+345..357 exprStmt
+345..357 callExpr
+345..347 nameExpr
+355..356 literalExpr integer
+362..373 returnStmt value 369..373
+369..373 literalExpr trueKeyword
+405..445 blockStmt
+411..427 assignStmt assign target 411..413 value 416..427
+411..413 nameExpr
+416..427 callExpr
+432..443 returnStmt value 439..443
+439..443 literalExpr trueKeyword
+472..476 literalExpr trueKeyword
+472..476 literalExpr trueKeyword
+472..476 literalExpr trueKeyword
+504..1089 blockStmt
+510..1087 switchStmt
+517..521 moveExpr
+522..523 nameExpr
+539..551 variantPattern
+545..548 varPattern
+557..569 binaryExpr gt right 568..569
+557..565 callExpr
+557..558 nameExpr
+568..569 literalExpr integer
+583..596 exprStmt
+583..596 callExpr
+589..595 literalExpr string
+583..596 callExpr
+610..622 variantPattern
+616..619 varPattern
+628..652 binaryExpr gt right 651..652
+628..648 callExpr
+628..635 memberExpr
+628..629 nameExpr
+651..652 literalExpr integer
+666..682 exprStmt
+666..682 callExpr
+672..681 literalExpr string
+666..682 callExpr
+696..708 variantPattern
+702..705 varPattern
+714..739 binaryExpr gt right 738..739
+714..735 memberExpr
+714..728 callExpr
+714..721 memberExpr
+714..715 nameExpr
+738..739 literalExpr integer
+753..766 exprStmt
+753..766 callExpr
+759..765 literalExpr string
+753..766 callExpr
+780..792 variantPattern
+786..789 varPattern
+798..815 callExpr
+807..814 memberExpr
+807..808 nameExpr
+829..841 exprStmt
+829..841 callExpr
+835..840 literalExpr string
+829..841 callExpr
+855..867 variantPattern
+861..864 varPattern
+873..890 callExpr
+882..889 memberExpr
+882..883 nameExpr
+904..916 exprStmt
+904..916 callExpr
+910..915 literalExpr string
+904..916 callExpr
+930..942 variantPattern
+936..939 varPattern
+948..960 callExpr
+953..959 argument
+958..959 nameExpr
+974..987 exprStmt
+974..987 callExpr
+980..986 literalExpr string
+974..987 callExpr
+1001..1013 variantPattern
+1007..1010 varPattern
+1019..1037 binaryExpr gt right 1036..1037
+1019..1033 memberExpr
+1019..1026 memberExpr
+1019..1020 nameExpr
+1036..1037 literalExpr integer
+1051..1064 exprStmt
+1051..1064 callExpr
+1057..1063 literalExpr string
+1051..1064 callExpr
+1122..1386 blockStmt
+1128..1366 localDecl
+1136..1366 switchExpr
+1137..1141 moveExpr
+1142..1143 nameExpr
+1162..1174 variantPattern
+1168..1171 varPattern
+1180..1192 binaryExpr gt right 1191..1192
+1180..1188 callExpr
+1180..1181 nameExpr
+1191..1192 literalExpr integer
+1196..1197 literalExpr integer
+1207..1219 variantPattern
+1213..1216 varPattern
+1225..1242 callExpr
+1234..1241 memberExpr
+1234..1235 nameExpr
+1246..1247 literalExpr integer
+1257..1269 variantPattern
+1263..1266 varPattern
+1275..1287 callExpr
+1280..1286 argument
+1285..1286 nameExpr
+1291..1292 literalExpr integer
+1302..1314 variantPattern
+1308..1311 varPattern
+1320..1338 binaryExpr gt right 1337..1338
+1320..1334 memberExpr
+1320..1327 memberExpr
+1320..1321 nameExpr
+1337..1338 literalExpr integer
+1342..1343 literalExpr integer
+1353..1354 discardPattern
+1358..1359 literalExpr integer
+1371..1384 exprStmt
+1371..1384 callExpr
+1377..1383 interpolatedExpr
+1380..1381 nameExpr
+1371..1384 callExpr
+196..265 blockStmt
+206..226 exprStmt
+206..226 callExpr
+206..216 memberExpr
+206..210 thisExpr
+224..225 literalExpr integer
+235..259 returnStmt value 242..259
+242..259 memberExpr
+242..252 memberExpr
+242..246 thisExpr

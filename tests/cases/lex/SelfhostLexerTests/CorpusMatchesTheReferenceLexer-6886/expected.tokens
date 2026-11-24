@@ -1,0 +1,58 @@
+1:1 Identifier `macro`
+1:7 Identifier `select`
+1:14 BecomeKeyword `become`
+2:2 LetKeyword `let`
+2:6 Identifier `b`
+2:8 Equals `=`
+2:12 IntegerLiteral `2`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `�a  S`
+5:8 InterpolatedStringEnd
+7:1 Identifier `b`
+11:1 EndOfFile
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0002: unexpected character ```
+
+  2 │  let b = ` 2
+    │          ^
+
+error BYN0003: unterminated string literal
+
+  5 │  $"�a  S
+    │  ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0015: source is not valid UTF-8 (byte 0x92)
+
+  5 │  $"�a  S
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  9 │ �// ok � in comment
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  9 │ �// ok � in comment
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  9 │ �// ok � in comment
+    │        ^

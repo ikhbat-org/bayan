@@ -1,0 +1,10 @@
+error BYN2003: `fileExist` is not a member of `Fs`
+  --> tmp/t26-tests/cli/diag_fs-unknown-member.byn/fs-unknown-member.byn:2:16
+
+  2 │ let found = Fs.fileExist("a.txt")
+    │                ^^^^^^^^^
+    │
+  help: did you mean `fileExists`?
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2003

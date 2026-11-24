@@ -1,0 +1,35 @@
+1:1 IntegerLiteral `1_`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolationStart `{`
+2:5 Identifier `a`
+3:1 StringLiteral `"open {x"`
+3:10 Semicolon `;`
+4:1 CharLiteral `'`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0002: unexpected character `‏`
+
+  2 │ ‏$"{a
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ‏$"{a
+    │  ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0008: unterminated char literal
+
+  4 │ '
+    │ ^
+    │
+  help: close it with `'`

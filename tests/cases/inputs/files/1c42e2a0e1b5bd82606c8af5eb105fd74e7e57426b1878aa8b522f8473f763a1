@@ -1,0 +1,7 @@
+}
+
+a >> //// not a doc comment
+//// not a doc comment
+
+$"stray } here"
+

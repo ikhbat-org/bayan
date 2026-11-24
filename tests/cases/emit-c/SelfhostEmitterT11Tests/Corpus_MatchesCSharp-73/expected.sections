@@ -1,0 +1,4 @@
+== cases
+0 ((void)(*(bynt_arr5_str*)&byn_main__names), INT64_C(5))
+1 (*bynh_at_arr5_str(&(*(bynt_arr5_str*)&byn_main__names), (int64_t)INT64_C(1), false, byn_file_0, 3))
+count 2

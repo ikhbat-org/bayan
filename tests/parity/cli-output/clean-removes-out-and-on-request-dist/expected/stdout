@@ -1,0 +1,15 @@
+== 1 exit 0
+new 0
+build 0
+dist 0
+== 2 exit 0
+removed out/
+== 3 exit 0
+no out/
+dist/ kept
+== 4 exit 0
+removed dist/
+== 5 exit 0
+no dist/
+package.byn kept
+== 6 exit 2

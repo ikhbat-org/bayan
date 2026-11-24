@@ -1,0 +1,16 @@
+1:2 Identifier `o`
+1:4 Identifier `select`
+1:11 Identifier `qbeclme`
+1:19 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ �o select qbeclme 
+    │ ^
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ �o select qbeclme 
+    │    ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name

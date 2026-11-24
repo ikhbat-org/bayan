@@ -1,0 +1,36 @@
+1:4 Identifier `comment`
+1:12 Star `*`
+1:13 Slash `/`
+1:15 Identifier `a`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolationStart `{`
+2:7 InterpolationEnd `}`
+2:8 InterpolatedStringEnd `"`
+3:1 LetKeyword `let`
+3:5 EffectKeyword `effect`
+3:12 Equals `=`
+3:14 IntegerLiteral `2`
+5:3 Identifier `foo`
+5:7 Identifier `Bar`
+5:11 Identifier `_x`
+5:14 Identifier `camelCase2`
+5:25 Identifier `بيان`
+5:30 Identifier `μετρητής`
+5:39 Identifier `x_1`
+5:43 Identifier `é`
+6:2 EndOfFile
+
+error BYN0002: unexpected character `\u{0}`
+
+  2 │  � $"{}"
+    │  ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  5 │  �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 5 │  �foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   │  -

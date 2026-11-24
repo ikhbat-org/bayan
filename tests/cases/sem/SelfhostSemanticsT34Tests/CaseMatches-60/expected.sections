@@ -1,0 +1,3 @@
+== t6
+errorExpr|?|966:17
+BYN2230 60:18 `try string(bytes)` is now `try Utf8.decode(bytes)` |the old name|write `Utf8.decode`|fix 970..976 Utf8.decode

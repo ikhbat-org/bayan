@@ -1,0 +1,7 @@
+== main.byn
+struct S {
+    i32 a
+    string bb
+}
+== package.byn
+Package { name: "local/t", version: "0.1.0", style: Style { align: .none } }

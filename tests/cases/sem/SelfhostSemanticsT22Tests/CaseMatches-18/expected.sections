@@ -1,0 +1,4 @@
+== new.probes.-.e10
+errorVariant|timeout|1|1053:24
+BYN2202 51:32 expected `i32`, found `string` |||
+BYN2302 51:37 `timeout` takes 1 argument(s) |||

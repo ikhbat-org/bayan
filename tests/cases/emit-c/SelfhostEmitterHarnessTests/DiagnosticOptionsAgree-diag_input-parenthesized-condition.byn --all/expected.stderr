@@ -1,0 +1,42 @@
+error BYN1017: parentheses around a condition are an input form
+  --> input.byn:3:8
+
+  3 │     if (x > 2) {
+    │        ^^^^^^^ not needed
+    │
+  help: remove the parentheses
+    │ 3 │     if x > 2 {
+    │   │        +++++
+
+error BYN1017: parentheses around a condition are an input form
+  --> input.byn:6:11
+
+  6 │     while (x > 5) {
+    │           ^^^^^^^ not needed
+    │
+  help: remove the parentheses
+    │ 6 │     while x > 5 {
+    │   │           +++++
+
+error BYN1017: parentheses around a condition are an input form
+  --> input.byn:9:12
+
+  9 │     switch (x) {
+    │            ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 9 │     switch x {
+    │   │            +
+
+error BYN1017: parentheses around a condition are an input form
+  --> input.byn:15:13
+
+  15 │     } while (x < 4)
+     │             ^^^^^^^ not needed
+     │
+  help: remove the parentheses
+     │ 15 │     } while x < 4
+     │    │             +++++
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN1017

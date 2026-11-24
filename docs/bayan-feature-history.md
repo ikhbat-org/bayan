@@ -1,7 +1,7 @@
 # Bayān feature history
 
-Version: 0.3.2 (matches `bayan --version`)
-Revisions applied: 0001–0023
+Version: 0.4.0 (matches `bayan --version`)
+Revisions applied: 0001–0024
 
 Where each numbered section of `docs/bayan-spec.md` came from, how it changed, and which release built it.
 Rejected features are under "Not built" at the end.
@@ -70,6 +70,8 @@ Design sources:
     Why: round-4 batch 1 removed the GC tier and did not adopt `ensures`.
   - `0020-versioned-spec-and-audit-fixes.md` items 24 and others: §2.3 status tags, §2.4, the §2.5 note; records the round-4 clause order.
     Why: a reader could not tell which features the 0.2 compiler had.
+  - `0024-numeric-conversions-and-dec.md`: §2.3 `dec` literal suffix row tagged `(not in 0.3, §3.1)`.
+    Why: `dec` is specified in §3.1 and not built in 0.3.
 
 ### §3. Types
 
@@ -103,6 +105,8 @@ Design sources:
     Why: round-4 batch 1.
   - `0020-versioned-spec-and-audit-fixes.md`: §3.1, §3.4, §3.5, §3.6, §3.10, §3.16 status tags and audit fixes.
     Why: version the spec and fix the snapshot audit's findings.
+  - `0024-numeric-conversions-and-dec.md`: §3.1 `dec` representation (96-bit integer and scale 0..=28), scale preservation, rounding, overflow, conversions, `dec.fromF64(x, digits: n)` and `dec.tryParse`.
+    Why: `dec` had only one table row, and .NET 11 changed decimal/float conversions.
 
 ### §4. Declarations and modules
 
@@ -118,6 +122,8 @@ Design sources:
     Why: `@unobservable` had to mark a statement, and attributes had no statement syntax.
   - `0020-versioned-spec-and-audit-fixes.md`: §4.3 status tag.
     Why: version the spec.
+  - `0024-numeric-conversions-and-dec.md`: §4.3 `Duration.fromHours` example marked proposed.
+    Why: `h * 3600s` multiplies an `f64` by an `i64`-backed unit with no conversion rule.
 
 ### §5. Naming and morphology (ishtiqāq)
 
@@ -152,6 +158,8 @@ Design sources:
     Why: version the spec.
   - `0022-contract-hardening-doc-consistency.md` item 9: §6.1, ranges bind looser than arithmetic, as the parser does.
     Why: §6.1 stated one precedence and the parser used another (user: keep the parser, Q1).
+  - `0024-numeric-conversions-and-dec.md`: §6.2 enumerates every numeric conversion pair, single-rounding rule, float-to-integer saturation and `tryFrom`, and `dec` conversions (BYN2206 on `dec(x)` for floats).
+    Why: numeric pairs and rounding were unenumerated, and `dec` conversions were unspecified.
 
 ### §7. Statements
 
@@ -243,6 +251,8 @@ Design sources:
     Why: the text still gave the open answer.
   - `0020-versioned-spec-and-audit-fixes.md`: the `(not in 0.2)` heading tag.
     Why: nothing in `src/Bayan.Semantics` implements it.
+  - `0024-numeric-conversions-and-dec.md`: §12.4, comptime numeric results equal the compiled program's bit for bit, except under `@fastMath` (§17).
+    Why: "deterministic" did not tie comptime numeric evaluation to compiled code.
 
 ### §13. Concurrency (not in 0.x)
 
@@ -316,7 +326,9 @@ Design sources:
 - From: first spec; round 2 §3 (overflow traps in every build mode).
 - Built: source not recorded.
   No status tag.
-- Changes: no revision names §17.
+- Changes:
+  - `0024-numeric-conversions-and-dec.md`: `dec` overflow traps; `@fastMath` is ignored at comptime; derived equality on floats uses `totalOrder` while floats are not `Map` keys (§3.5).
+    Why: §17 mentioned float hashing (ruled out by revision 0013) and left `@fastMath` at comptime unspecified.
 
 ### §18. FFI (not in 0.3)
 
@@ -420,7 +432,9 @@ Design sources:
 - What it says: zero-allocation C# code compiles as Bayan, with naming warnings where casing differs; a table maps each C# form to its Bayan form.
 - Built: input forms with fix-its, 0.1.0 (round 3, `CHANGELOG.md` [0.1.0]). The full rule: source not recorded.
   No status tag.
-- Changes: no revision names §25.
+- Changes:
+  - `0024-numeric-conversions-and-dec.md`: the `m` / `d` suffix row notes `dec(0.1)` is BYN2206 (fix-it `0.1dec`) and runtime `f64` converts via `dec.fromF64(x, digits: n)`.
+    Why: record how C# `(decimal)x` maps to Bayan `dec`.
 
 ## Not built
 

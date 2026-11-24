@@ -1,0 +1,10 @@
+error BYN2803: `Digits` does not bind `type Item` of `IIndexable`
+  --> <repo>/tmp/t2/diag/missing-associated-type/missing-associated-type.byn:1:17
+
+  1 │ struct Digits : IIndexable {
+    │                 ^^^^^^^^^^ needs `type Item`
+    │
+  help: add `type Item = …` to `Digits`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2803

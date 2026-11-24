@@ -1,0 +1,3 @@
+ct = "%bad \q escape"
+let ̈́
+$"{"$"a{b}c 

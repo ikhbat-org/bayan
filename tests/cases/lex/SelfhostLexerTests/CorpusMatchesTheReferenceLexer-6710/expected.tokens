@@ -1,0 +1,53 @@
+1:1 Identifier `c`
+1:3 Greater `>`
+1:4 GreaterEquals `>=`
+1:7 IntegerLiteral `1`
+2:1 IntegerLiteral `0xF__`
+3:1 IntegerLiteral `0`
+3:3 IntegerLiteral `42`
+3:6 IntegerLiteral `1_000_000`
+3:16 IntegerLiteral `0xFF`
+3:21 IntegerLiteral `0x_ff`
+3:27 IntegerLiteral `0b1010`
+3:34 IntegerLiteral `0B11`
+3:39 IntegerLiteral `5`
+3:40 NumericSuffix `s`
+3:42 IntegerLiteral `250`
+3:45 NumericSuffix `ms`
+3:48 IntegerLiteral `4`
+3:49 NumericSuffix `KiB`
+3:53 IntegerLiteral `1`
+3:54 NumericSuffix `u`
+3:56 IntegerLiteral `0xFF`
+3:60 NumericSuffix `u`
+3:62 IntegerLiteral `0b1`
+3:65 NumericSuffix `ul`
+3:68 IntegerLiteral `7`
+3:69 NumericSuffix `l`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+5:2 Identifier `b`
+7:2 StringLiteral `" \\ \n 1_`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0002: unexpected character `\`
+
+  7 │ \" \\ \n 1_
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  7 │ \" \\ \n 1_
+    │  ^^^^^^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

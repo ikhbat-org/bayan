@@ -1,0 +1,6 @@
+== cases
+0 byn_str_trimmed(l0_s, 2)
+1 byn_str_trimmed(l0_s, ((byn_builtin_Edge)0))
+2 byn_str_trimmed(l0_s, ((byn_builtin_Edge)1))
+4 byn_str_trimmed(BYN_STR("   ", 3), 2)
+count 5

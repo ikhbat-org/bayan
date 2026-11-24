@@ -1,0 +1,3 @@
+build
+--emit-c
+panic-handler-binding.byn

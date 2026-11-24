@@ -1,0 +1,79 @@
+== tests/cases/run/struct-field-enum.byn
+147..209 switchExpr
+147..209 switchExpr
+147..209 switchExpr
+147..148 nameExpr
+162..169 constantPattern
+162..169 targetMemberExpr
+173..181 literalExpr string
+187..194 constantPattern
+187..194 targetMemberExpr
+198..206 literalExpr string
+223..390 blockStmt
+229..263 localDecl
+256..263 targetMemberExpr
+268..294 localDecl
+278..294 collectionExpr
+279..284 nameExpr
+286..293 targetMemberExpr
+299..360 forStmt
+308..311 nameExpr
+312..360 blockStmt
+322..354 exprStmt
+322..354 callExpr
+328..353 interpolatedExpr
+331..342 callExpr
+340..341 nameExpr
+345..351 memberExpr
+345..346 nameExpr
+322..354 callExpr
+365..388 assertStmt
+372..388 binaryExpr eq right 381..388
+372..377 nameExpr
+381..388 targetMemberExpr
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+32..47 requiresRule
+32..47 requiresRule
+41..47 binaryExpr gt right 46..47
+41..43 nameExpr
+41..43 nameExpr
+46..47 literalExpr integer
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+32..47 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+76..96 binaryExpr le right 86..96
+76..82 nameExpr
+76..82 nameExpr
+86..96 binaryExpr mul right 95..96
+86..92 nameExpr
+86..92 nameExpr
+95..96 literalExpr integer
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+67..107 requiresRule
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl
+0..109 structDecl

@@ -1,0 +1,41 @@
+== tests/cases/diag/run-untrusted.byn
+26..325 blockStmt
+32..81 localDecl
+65..81 callExpr
+75..80 literalExpr string
+86..130 localDecl
+116..130 callExpr
+126..129 literalExpr string
+135..174 localDecl
+143..174 tryExpr
+147..174 callExpr
+154..161 nameExpr
+163..173 collectionExpr
+164..172 literalExpr string
+147..174 callExpr
+147..174 callExpr
+147..174 callExpr
+147..174 callExpr
+179..219 localDecl
+187..219 tryExpr
+191..219 callExpr
+198..203 literalExpr string
+205..218 collectionExpr
+206..211 literalExpr string
+213..217 nameExpr
+191..219 callExpr
+191..219 callExpr
+191..219 callExpr
+191..219 callExpr
+224..323 localDecl
+232..323 tryExpr
+236..323 callExpr
+243..248 literalExpr string
+250..322 collectionExpr
+251..256 literalExpr string
+258..279 callExpr because
+258..262 nameExpr
+236..323 callExpr
+236..323 callExpr
+236..323 callExpr
+236..323 callExpr

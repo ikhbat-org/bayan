@@ -1,0 +1,43 @@
+== cases
+0 bynh_try_get_map_str_i64((*p_inv).stock, p_item)
+1 (*bynh_slot_map_str_i64(&(*p_inv).stock, p_item, ((int64_t){0})))
+2 byn_add_i64(l0_have, p_n, byn_file_0, 19)
+3 (*bynh_slot_map_str_i64(&l0_prices, BYN_STR("tea", 3), ((int64_t){0})))
+4 (*bynh_slot_map_str_i64(&l0_prices, BYN_STR("cake", 4), ((int64_t){0})))
+5 (*bynh_slot_map_str_i64(&l0_prices, BYN_STR("jam", 3), ((int64_t){0})))
+6 (*bynh_slot_map_str_i64(&l0_prices, BYN_STR("tea", 3), ((int64_t){0})))
+7 l0_prices.h.live
+8 bynh_has_map_str_i64(l0_prices, BYN_STR("cake", 4))
+9 bynh_index_map_str_i64(l0_prices, BYN_STR("cake", 4), byn_file_0, 29)
+10 bynh_try_get_map_str_i64(l0_prices, BYN_STR("scone", 5))
+11 bynh_has_map_str_i64(l0_prices, BYN_STR("jam", 3))
+12 bynh_has_map_str_i64(l0_prices, BYN_STR("milk", 4))
+13 bynh_remove_map_str_i64(&l0_prices, BYN_STR("cake", 4))
+14 bynh_remove_map_str_i64(&l0_prices, BYN_STR("cake", 4))
+15 (*bynh_slot_map_str_i64(&l0_prices, BYN_STR("cake", 4), ((int64_t){0})))
+16 (*bynh_slot_map_main__Suit_i32(&l7_counts, l9_s, ((int32_t){0})))
+18 bynh_try_get_map_main__Suit_i32(l7_counts, l9_s)
+19 (*bynh_slot_map_i64_i64(&l13_squares, ((int64_t)byn_mul_i32(l14_i, l14_i, byn_file_0, 44)), ((int64_t){0})))
+20 ((int64_t)byn_mul_i32(l14_i, l14_i, byn_file_0, 44))
+21 byn_mul_i32(l14_i, l14_i, byn_file_0, 44)
+22 ((int64_t)l14_i)
+23 (*bynh_slot_map_rune_bool(&l18_letters, l19_c, ((bool){0})))
+24 (*bynh_slot_map_bool_str(&l22_answers, true, ((byn_str){0})))
+25 (*bynh_slot_map_bool_str(&l22_answers, false, ((byn_str){0})))
+26 bynh_index_map_bool_str(l22_answers, true, byn_file_0, 52)
+27 bynh_index_map_bool_str(l22_answers, false, byn_file_0, 52)
+28 (*bynh_slot_map_i64_i64(&l26_seen, ((int64_t)byn_rem_i32(l27_i, ((int32_t)7), byn_file_0, 66)), ((int64_t){0})))
+29 ((int64_t)byn_rem_i32(l27_i, ((int32_t)7), byn_file_0, 66))
+30 byn_rem_i32(l27_i, ((int32_t)7), byn_file_0, 66)
+31 ((int64_t)l27_i)
+32 l26_seen.h.live
+33 byn_map_clear(&l0_prices.h)
+34 l0_prices.h.live
+35 (*bynh_slot_map_str_i64(&l0_prices, BYN_STR("bread", 5), ((int64_t){0})))
+37 t5.h.len
+38 (!t5.h.dead[t6])
+39 ((bynt_tup2_str_i64){t5.keys[t6], t5.vals[t6]})
+40 t33.h.len
+41 (!t33.h.dead[t34])
+42 ((bynt_tup2_i64_i64){t33.keys[t34], t33.vals[t34]})
+count 43

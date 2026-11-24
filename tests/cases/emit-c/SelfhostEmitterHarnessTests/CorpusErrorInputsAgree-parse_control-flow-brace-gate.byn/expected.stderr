@@ -1,0 +1,80 @@
+error BYN5004: `g` has 2 unlabeled parameters; give each but one a particle
+  --> input.byn:1:6
+
+  1 │ void g(bool Ready, Shape s, List<i64> Items) {
+    │      ^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN2009: `Ready` must be camelCase
+  --> input.byn:1:13
+
+  1 │ void g(bool Ready, Shape s, List<i64> Items) {
+    │             ^^^^^
+    │
+  help: rename it `ready`; only types are PascalCase
+    │ 1 │ void g(bool ready, Shape s, List<i64> Items) {
+    │   │             +
+
+error BYN2002: unknown type `Shape`
+  --> input.byn:1:20
+
+  1 │ void g(bool Ready, Shape s, List<i64> Items) {
+    │                    ^^^^^
+
+error BYN2009: `Items` must be camelCase
+  --> input.byn:1:39
+
+  1 │ void g(bool Ready, Shape s, List<i64> Items) {
+    │                                       ^^^^^
+    │
+  help: rename it `items`; only types are PascalCase
+    │ 1 │ void g(bool Ready, Shape s, List<i64> items) {
+    │   │                                       +
+
+error BYN5006: `Items` is a required parameter besides the object and needs a particle
+  --> input.byn:1:39
+
+  1 │ void g(bool Ready, Shape s, List<i64> Items) {
+    │                                       ^^^^^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2001: `Circle` is not defined
+  --> input.byn:4:13
+
+  4 │     if s is Circle { draw(s) }
+    │             ^^^^^^
+
+error BYN2001: `draw` is not defined
+  --> input.byn:4:22
+
+  4 │     if s is Circle { draw(s) }
+    │                      ^^^^
+
+error BYN2001: `Circle` is not defined
+  --> input.byn:5:13
+
+  5 │     if s is Circle {}
+    │             ^^^^^^
+
+error BYN2002: unknown type `Circle`
+  --> input.byn:6:14
+
+  6 │     if (s is Circle { radius: 1 }) { draw(s) }
+    │              ^^^^^^
+
+error BYN2001: `draw` is not defined
+  --> input.byn:6:38
+
+  6 │     if (s is Circle { radius: 1 }) { draw(s) }
+    │                                      ^^^^
+
+error BYN2001: `other` is not defined
+  --> input.byn:8:25
+
+  8 │     switch s { default: other() }
+    │                         ^^^^^
+
+✗ build failed: 11 errors, 0 warnings
+  explain: bayan explain BYN5004

@@ -1,8 +1,10 @@
 #!/bin/bash
-# mutate-batch.sh on a tiny fixture with a stub `dotnet` and a stub `bayan` CLI at the repo's build path (no dotnet needed),
-# the way guard.test.sh stubs them, and a fixture tasks file: --list derives each file's filter from the *Tests.cs classes of
+# mutate-batch.sh on a tiny fixture with a stub driver under test (BAYAN_EXE: `bayan test tests/cases --only <selector>...` under
+# BAYAN_SNAPSHOT records), a stub pinned `bayan` CLI and a stub `dotnet` that fails the test when called (spec 019 T48c: no dotnet),
+# the way guard.test.sh stubs them, and a fixture tasks file: --list derives each file's `<kind>/<Class>/` selectors from the *Tests.cs classes of
 # the tasks naming it (sorted union, a glob class skipped, a class of another family dropped, the family default when none is left, a bare basename when unique, a {a,b} path) and falls back to the
-# directory default, an unknown directory fails naming it; a family's files share one group, one union filter and one recording
+# directory default, an unknown directory fails naming it, unless --files leaves its file out, a src/driver file is routed to
+# `bayan test --mutate src/driver` and its group not run; a family's files share one group, one union filter and one recording
 # (Q910); --shard k/n puts each file in exactly one shard, --files then limits the files; the reports land in tmp/mutate-batch/<group>/; an empty baseline is filled, a higher score replaces a lower
 # one, a drop fails naming the file with old and new score and leaves the baseline unchanged; a failed mutant 0, a missing CLI
 # and a manifest-less recording fail naming the group, the other groups still raise the baseline; a failed group's reports are
@@ -11,7 +13,12 @@
 # root or src/ fails the group naming the report; --files keeps the group's union filter; a score drop exits 1, a recording
 # whose tests fail exits 4 naming every failed test, one that fails with none failed (a host crash) 3; a live tmp/mutate-batch.lock stops a second run (exit 3) and leaves it alone, a stale one is taken over, the lock is released; .github/workflows/mutation.yml: read-only permissions, no persisted credentials, a concurrency group, shards upload
 # reports and not the baseline, a final job needing the shards merges all reports in one update, uploads the accepted reports, and documents applying the run.
+# `bayan mutate` sees BAYAN_TEST_TIMEOUT_MS=1800000 when the caller has none and the caller's value when it has one; a mutant 0 that fails
+# while the unmutated replay passes alone (a stub python3) is noted as passing alone under the limit, not as a replay mismatch (T48c).
+# --jobs 1 (the default) passes no --jobs to `bayan mutate`, --jobs 3 passes `--jobs 3` with BAYAN_EXE naming the pinned bayan, --jobs 0 and
+# --jobs x exit 2 naming the value; mutation.yml passes --jobs 4.
 set -e
+unset BAYAN_TEST_TIMEOUT_MS
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 r="$root/tmp/mutate-batch-test"; aux="$root/tmp/mutate-batch-test-aux"
 rm -rf "$r" "$aux" && mkdir -p "$r/src/semantics" "$r/src/parser" "$r/src/emitter/cprint" "$r/tests" "$aux/rep" "$aux/bin" && cd "$r"
@@ -26,13 +33,19 @@ cat > tasks.md <<'T'
 T
 printf '{ "version": 1, "files": {} }\n' > tests/quality-baseline.json
 cp tests/quality-baseline.json "$aux/empty.json"
+# stub dotnet: any call is logged in $AUX/dotnet-calls.txt and fails (T48c: the scripts call no dotnet)
 cat > $aux/dotnet <<'STUB'
 #!/bin/bash
-[ "$1" = test ] || exit 0
-echo "Total tests: 1  Passed: 1"
-echo "$BAYAN_SNAPSHOT_FILES ${@: -3:1}" >> $AUX/record.txt
-[ -f $AUX/testfail ] && { printf '  Failed to start test host\nFailed to start the host\n  Failed Bayan.Tests.D.Format(name: "round3", x: 1) [12 ms]\n  Error Message:\n   two runs differ\n  Failed Bayan.Tests.E.Time [3 s]\nFailed!  - Failed:     2, Passed: 1\n'; exit 1; }
-[ -f $AUX/hostcrash ] && { printf 'The active test run was aborted. Reason: Test host process crashed\n'; exit 1; }
+echo "$*" >> $AUX/dotnet-calls.txt; exit 1
+STUB
+# stub driver under test (BAYAN_EXE): the recording `test tests/cases --only ...` under BAYAN_SNAPSHOT logs the files and selectors
+# and writes a manifest; with $AUX/testfail it prints the golden runner's result lines of two failed cases, with $AUX/hostcrash none
+cat > $aux/rec <<'STUB'
+#!/bin/bash
+[ "$1 $2" = "test tests/cases" ] && [ -n "${BAYAN_SNAPSHOT:-}" ] || { echo "rec: unexpected call: $*" >&2; exit 2; }
+echo "$BAYAN_SNAPSHOT_FILES ${*:3}" >> $AUX/record.txt
+[ -f $AUX/testfail ] && { printf 'passed sem/SelfhostSemanticsATests/ok\nfailed to start one worker\nfailed sem/SelfhostSemanticsDTests/format-round3\n    two runs differ\n  failed sem/x\ntimed out sem/SelfhostSemanticsETests/time\n    timed out after 60 s\n'; exit 1; }
+[ -f $AUX/hostcrash ] && { printf 'bayan: test: the golden worker crashed\n'; exit 1; }
 bn=$(basename "${BAYAN_SNAPSHOT_FILES%%,*}")
 [ -f $AUX/nomanifest ] || { mkdir -p "$BAYAN_SNAPSHOT" $AUX/bin/$bn; b=$(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/$bn/prog $AUX/bin/$bn/prog.sites.json)
   [ -f $AUX/twobuilds ] && b="$b, $(printf '{"binary": "%s", "sites": "%s"}' $AUX/bin/$bn/prog2 $AUX/bin/$bn/prog2.sites.json)"
@@ -42,38 +55,60 @@ STUB
 mkdir -p csharp/Bayan.Cli/bin/Debug/net10.0
 cat > csharp/Bayan.Cli/bin/Debug/net10.0/bayan <<'STUB'
 #!/bin/bash
+# `run` is scripts/bayan-tool.sh running manifest-builds: one `binary<TAB>sites` line per build, a malformed manifest fails;
+# the quality-baseline, report-paths, coverage-missing and mutate-plan tools run on the real pinned bayan ($REAL_BAYAN)
+[ "$1" = run ] && case $2 in */quality-baseline.byn|*/report-paths.byn|*/coverage-missing.byn|*/mutate-plan.byn) exec "$REAL_BAYAN" "$@";; esac
+[ "$1" = run ] && { m=${@: -1}; grep -q ']}$' "$m" || { echo "manifest-builds: $m: malformed" >&2; exit 1; }
+  tr '{' '\n' < "$m" | sed -n 's/^"binary": "\([^"]*\)", "sites": "\([^"]*\)".*/\1 \2/p' | tr ' ' '\t'; exit 0; }
+echo "${BAYAN_TEST_TIMEOUT_MS-unset}" > $AUX/mutate-timeout.txt
+echo "$*" > $AUX/mutate-args.txt; echo "${BAYAN_EXE-unset}" > $AUX/mutate-exe.txt
 bn=$(basename "$(dirname "$3")")
 prog=$(basename "$3")
 [ -f $AUX/rep/$bn-$prog.mismatch ] || [ -f $AUX/rep/$bn.mismatch ] && { echo "bayan: mutant 0 differs" >&2; exit 1; }
 cat $AUX/rep/$bn.txt; cp $AUX/rep/$bn.json "$(dirname "$3")/bayan-quality.json"
 exit 0
 STUB
-chmod +x $aux/dotnet csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan
+# stub python3: with $AUX/replayok the unmutated replay.py rerun passes; any other call runs the real python3
+cat > $aux/python3 <<STUB
+#!/bin/bash
+[ -f \$AUX/replayok ] && case \$2 in */replay.py) exit 0;; esac
+exec $(command -v python3) "\$@"
+STUB
+chmod +x $aux/dotnet $aux/rec $aux/python3 csharp/Bayan.Cli/bin/Debug/net10.0/bayan; export REAL_BAYAN=$(cd "$root" && env -u PINNED_BAYAN bash scripts/pinned-bayan.sh)
+export AUX=$aux PINNED_BAYAN=$PWD/csharp/Bayan.Cli/bin/Debug/net10.0/bayan BAYAN_EXE=$aux/rec
 # rep <file> <killed> <survived> <marked>: the stub report and summary of the build recorded for <file>
 rep() { local bn; bn=$(basename "$1")
   echo "mutation: $2 killed, $3 survived, 0 timeout, $4 marked, 0 not reached, 0 not emitted" > $aux/rep/$bn.txt
-  python3 -I -c 'import json, os, sys
-f, k, s, m = sys.argv[1], *map(int, sys.argv[2:])
-ms = [{"site": {"file": f}, "status": st} for st, n in (("killed", k), ("survived", s), ("marked", m)) for _ in range(n)]
-print(json.dumps({"version": 1, "kind": "mutation", "files": [{"path": os.environ.get("REPPATH", os.getcwd() + "/" + f), "mutants": ms}]}))' "$1" "$2" "$3" "$4" > $aux/rep/$bn.json; }
+  local ms="" st i
+  for st in killed:$2 survived:$3 marked:$4; do
+    for ((i = 0; i < ${st#*:}; i++)); do ms="$ms${ms:+, }{\"site\": {\"file\": \"$1\"}, \"status\": \"${st%%:*}\"}"; done; done
+  printf '{"version": 1, "kind": "mutation", "files": [{"path": "%s", "mutants": [%s]}]}\n' "${REPPATH:-$(pwd -P)/$1}" "$ms" > $aux/rep/$bn.json; }
 rep_all() { rep src/semantics/a.byn "$@"; rep src/semantics/b.byn "$@"; rep src/parser/p.byn "$@"; rep src/emitter/e.byn "$@"; rep src/emitter/cprint/cp.byn "$@"; }
 # a family's group is recorded as one build named after its first recorded file
 b() { PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" 2>&1 || true; }
 # brc: the same, output in $aux/brc.txt, exit code in $BRC
 brc() { set +e; PATH="$aux:$PATH" bash "$root/scripts/selfhost/mutate-batch.sh" --tasks tasks.md "$@" > $aux/brc.txt 2>&1; BRC=$?; set -e; }
-score() { python3 -I -c 'import json, sys; print(json.load(open("tests/quality-baseline.json"))["files"].get(sys.argv[1], {}).get("mutation"))' "$1"; }
+# score <file>: the file's mutation score in the baseline (the indent=2 layout quality-baseline writes), empty for no entry
+score() { awk -v k="    \"$1\": {" '$0 == k { on = 1; next } on && /^    }/ { exit } on && sub(/^ *"mutation": /, "") { sub(/,$/, ""); print }' tests/quality-baseline.json; }
+# path1 <report>: the path of the report's first file (mutate-batch.sh writes it indent=2)
+path1() { sed -n 's/^      "path": "\(.*\)",$/\1/p' "$1" | head -n 1; }
 list=$(b --list)
 all_files=$(echo "$list" | cut -d' ' -f1 | sort)
 sh_files=$(for k in 1 2 3; do b --shard $k/3 --list; done | cut -d' ' -f1 | sort); sh_one=$(b --shard 1/2 --list | cut -d' ' -f1 | tr '\n' ' ')
 sh_two=$(b --shard 2/2 --list | cut -d' ' -f1 | tr '\n' ' '); sh_only=$(b --shard 1/2 --files src/semantics/a.byn,src/semantics/b.byn --list | cut -d' ' -f1 | tr '\n' ' ')
-A='FullyQualifiedName~SelfhostSemanticsATests'; B="$A|FullyQualifiedName~SelfhostSemanticsBTests|FullyQualifiedName~SelfhostSemanticsCTests"
-touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); rm -r src/other src/semantics/z.byn
+A='sem/SelfhostSemanticsATests/'; B="$A|sem/SelfhostSemanticsBTests/|sem/SelfhostSemanticsCTests/"
+# o <filter>: the recording's --only arguments for a `|`-joined filter
+o() { echo "--only ${1//|/ --only }"; }
+touch src/semantics/z.byn; mkdir src/other; echo > src/other/z.byn; badlist=$(b --list); skiplist=$(b --files src/semantics/a.byn --list); rm -r src/other src/semantics/z.byn
 list_one=$(b --files src/semantics/a.byn --list)
 [ -f $aux/record.txt ] && listran=1 || listran=0
+# a src/driver file is routed to `bayan test --mutate src/driver` (T48c C4): its group is not run, records nothing and fails nothing
+mkdir src/driver; echo > src/driver/d.byn; drvlist=$(b --files src/driver/d.byn --list); brc --files src/driver/d.byn; drv=$(cat $aux/brc.txt); drvx=$BRC
+[ -f $aux/record.txt ] && drvran=1 || drvran=0; rm -r src/driver; rm -f $aux/record.txt
 # fill: an empty baseline gets an entry for every file
 rep_all 3 1 1; fill=$(b); rec=$(sort $aux/record.txt); fa=$(score src/semantics/a.byn); fp=$(score src/parser/p.byn)
 [ -f tmp/mutate-batch/semantics/quality-1-prog.json ] && report=1 || report=0
-relpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/semantics/quality-1-prog.json"))["files"][0]["path"])')
+relpath=$(path1 tmp/mutate-batch/semantics/quality-1-prog.json)
 # rise: a higher score replaces a lower one, and a lower one fails
 printf '{ "version": 1, "files": { "src/semantics/a.byn": { "mutation": 0.5, "coverage": null, "branches": null } } }\n' > tests/quality-baseline.json
 rep_all 4 0 0; rm $aux/record.txt; rise=$(b --files src/semantics/a.byn); ra=$(score src/semantics/a.byn); rrec=$(cat $aux/record.txt)
@@ -99,7 +134,7 @@ REPPATH=/elsewhere/p.byn rep src/parser/p.byn 1 0 0; outside=$(b --files src/par
 # an imported module's path is relative to the packageRoot src/ (SelfhostLexerCaseTests' build of `import lexer`)
 REPPATH=parser/nope.byn rep src/parser/p.byn 1 0 0; brc --files src/parser/p.byn; missing=$(cat $aux/brc.txt); missingx=$BRC; rep src/parser/p.byn 1 0 0
 REPPATH=parser/p.byn rep src/parser/p.byn 1 0 0; pkgrel=$(b --files src/parser/p.byn); rep src/parser/p.byn 1 0 0
-pkgpath=$(python3 -I -c 'import json; print(json.load(open("tmp/mutate-batch/parser/quality-1-prog.json"))["files"][0]["path"])')
+pkgpath=$(path1 tmp/mutate-batch/parser/quality-1-prog.json)
 # MUTATE_BASELINE: the scratch baseline is raised, the repo's is not touched
 cp $aux/empty.json tests/quality-baseline.json; cp $aux/empty.json $aux/scratch.json
 MUTATE_BASELINE=$aux/scratch.json b --files src/parser/p.byn > /dev/null
@@ -117,27 +152,34 @@ echo garbage > $aux/bad.json; MUTATE_BASELINE=$aux/bad.json brc --files src/pars
 touch $aux/nomanifest; brc --files src/parser/p.byn; nomanifest=$(cat $aux/brc.txt); nomanifestx=$BRC; rm $aux/nomanifest
 touch $aux/testfail; brc --files src/parser/p.byn; testfail=$(cat $aux/brc.txt); testfailx=$BRC; rm $aux/testfail
 touch $aux/hostcrash; brc --files src/parser/p.byn; hostcrash=$(cat $aux/brc.txt); hostcrashx=$BRC; rm $aux/hostcrash
+brc --files src/parser/p.byn; tdef=$(cat $aux/mutate-timeout.txt); BAYAN_TEST_TIMEOUT_MS=4321 brc --files src/parser/p.byn; tset=$(cat $aux/mutate-timeout.txt)
+jdef=$(cat $aux/mutate-args.txt); brc --files src/parser/p.byn --jobs 3; jset=$(cat $aux/mutate-args.txt); jexe=$(cat $aux/mutate-exe.txt)
+brc --files src/parser/p.byn --jobs 0; j0=$(cat $aux/brc.txt); j0x=$BRC; brc --files src/parser/p.byn --jobs x; jx=$(cat $aux/brc.txt); jxx=$BRC
+touch $aux/rep/p.byn.mismatch $aux/replayok; brc --files src/parser/p.byn; alone=$(cat $aux/brc.txt); alonex=$BRC; rm $aux/rep/p.byn.mismatch $aux/replayok
 mv csharp/Bayan.Cli/bin/Debug/net10.0/bayan $aux/bayan; brc --files src/parser/p.byn; nocli=$(cat $aux/brc.txt); noclix=$BRC; cd "$root"
-wf=$(cat .github/workflows/mutation.yml)
+wf=$(cat .github/workflows/mutation.yml); [ -f $aux/dotnet-calls.txt ] && dotnetcalls=$(cat $aux/dotnet-calls.txt) || dotnetcalls=""
 rm -rf "$r" "$aux"
 fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
-want="src/emitter/cprint/cp.byn -> FullyQualifiedName~SelfhostEmitter|FullyQualifiedName~SelfhostEmitterT9Tests
-src/emitter/e.byn -> FullyQualifiedName~SelfhostEmitter|FullyQualifiedName~SelfhostEmitterT9Tests
-src/parser/p.byn -> FullyQualifiedName~SelfhostParser
+want="src/emitter/cprint/cp.byn -> emit-c/SelfhostEmitter|emit-c/SelfhostEmitterT9Tests/
+src/emitter/e.byn -> emit-c/SelfhostEmitter|emit-c/SelfhostEmitterT9Tests/
+src/parser/p.byn -> parse/SelfhostParser
 src/semantics/a.byn -> $B
 src/semantics/b.byn -> $B
 src/semantics/c.byn -> $B"
 [ "$list" = "$want" ] || fail "--list mapping differs (want a, b, c: the union A|B|C sorted, glob class skipped; p: directory default; emitter/ and emitter/cprint/ one family)" "$list"
 echo "$badlist" | grep -q 'src/other/z.byn' && echo "$badlist" | grep -q 'no test family' || fail "an unknown directory was not a FAIL naming it" "$badlist"
-[ $listran = 0 ] || fail "--list ran dotnet" ""
+[ "$skiplist" = "src/semantics/a.byn -> $A" ] || fail "--files a.byn was stopped by a family-less file it did not choose" "$skiplist"
+[ $listran = 0 ] || fail "--list recorded" ""
+[ "$drvlist" = "src/driver/d.byn -> bayan test --mutate src/driver" ] || fail "a src/driver file was not routed to bayan test --mutate src/driver" "$drvlist"
+[ "$drvx" = 0 ] && [ $drvran = 0 ] && echo "$drv" | grep -qxF '== group driver: not run: src/driver/d.byn mutate under `bayan test --mutate src/driver` (spec 019 T48c C4)' || fail "the driver group ran, recorded or failed (rc=$drvx, recorded=$drvran)" "$drv"
 [ "$(echo "$rec" | wc -l | tr -d ' ')" = 3 ] || fail "a family's files did not share one recording (want 3 recordings)" "$rec"
-echo "$rec" | grep -qxF "src/emitter/cprint/cp.byn,src/emitter/e.byn (FullyQualifiedName~SelfhostEmitter|FullyQualifiedName~SelfhostEmitterT9Tests)&Snapshot!=skip" || fail "emitter/ and emitter/cprint/ were not recorded as one family" "$rec"
-echo "$rec" | grep -qxF "src/semantics/a.byn,src/semantics/b.byn,src/semantics/c.byn ($B)&Snapshot!=skip" || fail "a, b and c were not recorded together with their union filter" "$rec"
+echo "$rec" | grep -qxF "src/emitter/cprint/cp.byn,src/emitter/e.byn --only emit-c/SelfhostEmitter --only emit-c/SelfhostEmitterT9Tests/" || fail "emitter/ and emitter/cprint/ were not recorded as one family" "$rec"
+echo "$rec" | grep -qxF "src/semantics/a.byn,src/semantics/b.byn,src/semantics/c.byn $(o "$B")" || fail "a, b and c were not recorded together with their union filter" "$rec"
 echo "$fill" | grep -q '^mutation: 3 killed, 1 survived, 0 timeout, 1 marked' || fail "bayan mutate's summary was not printed" "$fill"
 [ "$fa" = 0.75 ] && [ "$fp" = 0.75 ] || fail "an empty baseline was not filled (a=$fa p=$fp)" "$fill"
 [ $report = 1 ] || fail "the report was not written to tmp/mutate-batch/semantics/quality-1-prog.json" "$fill"
 [ "$ra" = 1.0 ] || fail "a higher score did not replace the baseline (a=$ra)" "$rise"
-[ "$rrec" = "src/semantics/a.byn ($B)&Snapshot!=skip" ] || fail "--files a.byn did not record a with the union filter of its whole group" "$rrec"
+[ "$rrec" = "src/semantics/a.byn $(o "$A")" ] || fail "--files a.byn did not record a with its own filter only" "$rrec"
 echo "$drop" | grep -q '^baseline: mutation score of src/semantics/a.byn fell from 1.0 to 0.5 ' || fail "a drop did not name the file with old and new score" "$drop"
 [ $dropx = 1 ] && [ $dropsame = 1 ] || fail "a drop exited $dropx or changed the baseline" "$drop"
 [ -z "$dropleft" ] && [ "$droprej" = 3 ] || fail "a refused check left accepted reports ($dropleft) or rejected $droprej, not 3 (one per group)" "$drop"
@@ -146,7 +188,7 @@ echo "$drop" | grep -q '^baseline: mutation score of src/semantics/a.byn fell fr
 [ "$sh_files" = "$all_files" ] || fail "the union of --shard 1..3/3 differs from the unsharded files (a file lost or placed twice)" "$sh_files"
 [ "$sh_one" = "src/emitter/cprint/cp.byn src/parser/p.byn src/semantics/a.byn src/semantics/c.byn " ] && [ "$sh_two" = "src/emitter/e.byn src/semantics/b.byn " ] || fail "--shard i mod n split: '$sh_one' / '$sh_two'" ""
 [ "$sh_only" = "src/semantics/a.byn " ] || fail "--files with --shard did not restrict after sharding ('$sh_only')" ""
-[ "$list_one" = "src/semantics/a.byn -> $B" ] || fail "--files a.byn --list did not show the group's union filter" "$list_one"
+[ "$list_one" = "src/semantics/a.byn -> $A" ] || fail "--files a.byn --list did not narrow the filter to a.byn's own" "$list_one"
 echo "$missing" | grep -q '^group parser: report: .*quality-1-prog.json: path parser/nope.byn is no file under the repo root' || fail "a report path that is no file under the root or src/ did not fail the group" "$missing"
 [ "$lockx" = 3 ] && echo "$lockout" | grep -q "mutate-batch: .*tmp/mutate-batch is in use by another run (lock .*, pid $$)" && [ $lockran = 0 ] && [ $lockkept = 1 ] || fail "a live lock did not stop the run with exit 3 (rc=$lockx, ran=$lockran, kept=$lockkept)" "$lockout"
 echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale lock was not taken over, or the lock outlived the run (released=$released)" "$stale"
@@ -154,17 +196,27 @@ echo "$stale" | grep -q '^== group parser' && [ $released = 1 ] || fail "a stale
 [ "$noclix" = 3 ] && [ "$crashx" = 3 ] || fail "a setup failure (no pinned bayan / unreadable baseline) exited $noclix / $crashx, not 3" "$nocli"
 [ "$pidlessx" = 3 ] && [ "$oldx" = 0 ] || fail "a pid-less lock exited $pidlessx while young (want 3) and $oldx when old (want 0)" "$pidlessout"
 echo "$badshard" | grep -q 'want k/n' || fail "a bad --shard was accepted" "$badshard"
-[ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ "$m0a" = None ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
+[ "$m0x" = 4 ] && [ "$m0p" = 1.0 ] && [ -z "$m0a" ] || fail "a failed mutant 0 exited $m0x (a=$m0a p=$m0p)" "$m0"
 echo "$m0" | grep -q '^group semantics: mutation: the recording does not replay on the unmutated build' || fail "a failed mutant 0 did not name its group" "$m0"
+[ "$tdef" = 1800000 ] || fail "bayan mutate saw BAYAN_TEST_TIMEOUT_MS=$tdef with none from the caller (want 1800000)" ""
+[ "$tset" = 4321 ] || fail "bayan mutate saw BAYAN_TEST_TIMEOUT_MS=$tset with 4321 from the caller" ""
+[ "$alonex" = 4 ] && echo "$alone" | grep -qF "group parser: mutation: mutant 0 of $aux/bin/p.byn/prog failed under bayan mutate's limit BAYAN_TEST_TIMEOUT_MS=1800000 ms, but the unmutated replay passes when run alone (tmp/mutate-batch/parser/mutate-1-prog.txt); raise BAYAN_TEST_TIMEOUT_MS" \
+  && ! echo "$alone" | grep -q 'does not replay' || fail "a mutant 0 whose replay passes alone exited $alonex (want 4) or was not noted as passing alone under the limit" "$alone"
 echo "$nomanifest" | grep -q '^group parser: mutation: the recording wrote no tmp/mutate-batch/parser/snap/manifest.json' || fail "a manifest-less recording did not name its group" "$nomanifest"
-[ "$testfailx" = 4 ] && echo "$testfail" | grep -qF 'group parser: mutation: recording under BAYAN_SNAPSHOT: 2 test(s) failed (tmp/mutate-batch/parser/record.txt): Bayan.Tests.D.Format(name: "round3", x: 1); Bayan.Tests.E.Time — first: two runs differ' || fail "failed tests in the recording exited $testfailx (want 4) or did not name both" "$testfail"
+[ "$testfailx" = 4 ] && echo "$testfail" | grep -qF 'group parser: mutation: recording under BAYAN_SNAPSHOT: 2 test(s) failed (tmp/mutate-batch/parser/record.txt): sem/SelfhostSemanticsDTests/format-round3; sem/SelfhostSemanticsETests/time — first: two runs differ' || fail "failed tests in the recording exited $testfailx (want 4) or did not name both" "$testfail"
 [ "$hostcrashx" = 3 ] && echo "$hostcrash" | grep -q '^group parser: mutation: recording the tests under BAYAN_SNAPSHOT failed (tmp/mutate-batch/parser/record.txt)' || fail "a recording with no failed test (host crash) exited $hostcrashx, not 3" "$hostcrash"
-echo "$nocli" | grep -q '^group parser: mutation: no pinned bayan — pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name its group" "$nocli"
+echo "$nocli" | grep -q 'pinned-bayan: PINNED_BAYAN=.*/csharp/Bayan.Cli/bin/Debug/net10.0/bayan is not an executable' || fail "a missing CLI did not name the pinned bayan" "$nocli"
 [ "$relpath" = src/semantics/a.byn ] || fail "the copied report's path was not rewritten repo-root-relative (got $relpath)" "$fill"
 echo "$outside" | grep -q '^group parser: report: .*quality-1-prog.json: path /elsewhere/p.byn is not under the repo root' || fail "a report path outside the repo root did not fail the group naming the report" "$outside"
 [ "$pkgpath" = src/parser/p.byn ] || fail "a path relative to the packageRoot src/ was not resolved there (got $pkgpath)" "$pkgrel"
 [ $scratch = 1 ] || fail "MUTATE_BASELINE did not take the place of tests/quality-baseline.json" ""
 [ "$m0_2x" != 0 ] && [ -z "$fail_matches" ] && [ -n "$fail_rej" ] || fail "a failed group's report was matched by the merge job's glob ($fail_matches)" "$m0_2"
+[ -z "$dotnetcalls" ] || fail "mutate-batch.sh called dotnet" "$dotnetcalls"
+case " $jdef " in *" --jobs "*) fail "--jobs 1 (the default) passed --jobs to bayan mutate" "$jdef";; esac
+case " $jset " in *" --jobs 3 -- python3 "*) ;; *) fail "--jobs 3 did not reach bayan mutate as --jobs 3" "$jset";; esac
+[ "$jexe" = "$PINNED_BAYAN" ] || fail "bayan mutate under --jobs 3 did not get BAYAN_EXE naming the pinned bayan (got $jexe)" ""
+[ "$j0x" = 2 ] && echo "$j0" | grep -qF "mutate-batch: --jobs expects a whole number from 1, got '0'" || fail "--jobs 0 exited $j0x (want 2) or did not name the value" "$j0"
+[ "$jxx" = 2 ] && echo "$jx" | grep -qF "mutate-batch: --jobs expects a whole number from 1, got 'x'" || fail "--jobs x exited $jxx (want 2) or did not name the value" "$jx"
 has() { echo "$wf" | grep -qE "$1" || fail "mutation.yml: $2" ""; }
 has '^permissions:' "no workflow-level permissions"; has '^  contents: read$' "permissions are not contents: read"
 [ "$(echo "$wf" | grep -c 'git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$GITHUB_SHA"')" = 2 ] || fail "mutation.yml: both jobs need the tokenless shell checkout" ""
@@ -174,6 +226,7 @@ has '^          MUTATE_FILES: \$\{\{ inputs\.files \}\}$' "the files input does 
 has '^          MUTATE_TASKS: \$\{\{ inputs\.tasks ' "the tasks input does not reach the Mutate step through env: MUTATE_TASKS"
 echo "$wf" | grep 'inputs\.' | grep -qvE '^          MUTATE_(FILES|TASKS): ' && fail "mutation.yml: \${{ inputs. outside the Mutate step's env:" ""
 has '[-]-tasks "\$MUTATE_TASKS"' "the run does not pass --tasks \"\$MUTATE_TASKS\""
+has 'args=\(--shard "\$SHARD/4" --jobs 4 ' "the run does not pass --jobs 4"
 has 'if \[ -n "\$MUTATE_FILES" \]; then args\+=\(--files "\$MUTATE_FILES"\); fi' "--files \"\$MUTATE_FILES\" is not added only when non-empty"
 echo "$wf" | grep -qE '^  schedule:' && fail "mutation.yml: the nightly schedule is on before a shared-recording run fits under 6h (Q910)" ""
 has '^concurrency:' "no concurrency group"; has 'group: mutation-\$\{\{ github.ref \}\}' "the concurrency group is not mutation-\${{ github.ref }}"
@@ -181,9 +234,9 @@ has 'cancel-in-progress: false' "concurrency cancels runs in progress"
 [ "$(echo "$wf" | grep -c 'name: quality-baseline-')" = 0 ] || fail "mutation.yml: a shard uploads its own tests/quality-baseline.json" ""
 has '^    needs: mutate$' "no merge job needing the shard job"
 has 'mapfile -t reports < <\(find reports' "the merge job collects no reports"
-has 'quality-baseline.py check tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job does not check the reports before updating"
-has 'quality-baseline.py update tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job runs no single update over all reports"
-has 'Apply the run by `python3 -I scripts/selfhost/quality-baseline.py update tests/quality-baseline\.json \. <reports\.\.\.>`' "the header does not document applying the run by updating from the reports"
+has 'scripts/bayan-tool.sh quality-baseline check tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job does not check the reports before updating"
+has 'scripts/bayan-tool.sh quality-baseline update tests/quality-baseline.json \. "\$\{reports\[@\]\}"' "the merge job runs no single update over all reports"
+has 'Apply the run by `bash scripts/bayan-tool.sh quality-baseline update tests/quality-baseline\.json \. <reports\.\.\.>`' "the header does not document applying the run by updating from the reports"
 has 'on a chore/ branch off current dev, never by copying the baseline file' "the header does not warn against copying the baseline file"
 has 'name: accepted-reports' "the merge job does not upload the accepted reports artifact"
 has 'path: reports/\*\*/quality-\[0-9\]\*\.json' "the merge job reports upload path is not the accepted reports"

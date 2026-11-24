@@ -1,0 +1,43 @@
+1:1 CharLiteral `'x`
+2:1 IntegerLiteral `1_`
+3:3 Identifier `escape`
+3:9 StringLiteral `"`
+4:1 LetKeyword `let`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:9 RawStringLiteral `"""never closed\n+ - * /� % +% -% *% +| -| *| ++ --\n $"{a\nlet law = 3\n let x\u{2067} = 1\n `
+9:2 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 1_
+    │  ^
+    │
+    │ 2 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  3 │   escape"
+    │         ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  4 │ let c = """never closed
+    │         ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ + - * /� % +% -% *% +| -| *| ++ --
+    │        ^

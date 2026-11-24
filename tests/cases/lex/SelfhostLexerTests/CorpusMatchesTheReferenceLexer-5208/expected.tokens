@@ -1,0 +1,34 @@
+1:1 Identifier `el`
+1:6 Identifier `a`
+1:8 Greater `>`
+1:9 Greater `>`
+1:11 Identifier `b`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `{{`
+2:6 InterpolatedStringEnd `"`
+3:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xED)
+
+  1 │ el���∀� a >> b
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ el���∀� a >> b
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ el���∀� a >> b
+    │     ^
+
+error BYN0002: unexpected character `∀`
+
+  1 │ el���∀� a >> b
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8F)
+
+  1 │ el���∀� a >> b
+    │       ^

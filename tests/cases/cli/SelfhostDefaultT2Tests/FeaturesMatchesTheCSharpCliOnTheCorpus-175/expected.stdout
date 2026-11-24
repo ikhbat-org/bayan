@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "nodes": [
+    "BlockStmt",
+    "CallExpr",
+    "ConditionalExpr",
+    "ExprStmt",
+    "FunctionDecl",
+    "InterpolatedExpr",
+    "LiteralExpr",
+    "ReturnStmt",
+    "TargetMemberExpr"
+  ],
+  "builtins": [
+    "Log",
+    "Print"
+  ],
+  "diagnostics": []
+}

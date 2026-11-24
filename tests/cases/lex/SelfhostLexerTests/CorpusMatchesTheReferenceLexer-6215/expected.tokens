@@ -1,0 +1,27 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 Identifier `constlet`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+2:2 Identifier `d`
+2:3 StringLiteral `" $"`
+2:7 OpenBrace `{`
+2:8 OpenBrace `{`
+2:9 Identifier `lit`
+2:16 Identifier `comment`
+2:24 Star `*`
+2:25 Slash `/`
+2:27 Identifier `a`
+4:1 EndOfFile

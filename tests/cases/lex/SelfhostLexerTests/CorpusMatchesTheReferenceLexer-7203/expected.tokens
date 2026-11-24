@@ -1,0 +1,55 @@
+1:1 IntegerLiteral `0x_`
+2:1 Identifier `a`
+2:3 Greater `>`
+2:4 Greater `>`
+2:6 Identifier `b`
+3:1 CharLiteral `'\q'`
+4:2 IntegerLiteral `1`
+4:3 Dot `.`
+5:1 InterpolatedStringStart `$"`
+5:3 InterpolatedStringText `a`
+5:4 InterpolationStart `{`
+5:5 Identifier `b`
+5:6 InterpolationEnd `}`
+5:7 InterpolatedStringText `c`
+5:8 InterpolatedStringEnd
+6:1 StructKeyword `struct`
+6:8 UniqueKeyword `unique`
+6:15 UnionKeyword `union`
+6:21 EnumKeyword `enum`
+6:26 FlagsKeyword `flags`
+6:32 OpenKeyword `open`
+6:37 ExtensibleKeyword `extensible`
+6:48 InterfaceKeyword `interface`
+6:58 DelegateKeyword `delegate`
+6:67 ExtensionKeyword `extension`
+6:77 DerivationKeyword `derivation`
+6:88 Identifier `attrbute`
+8:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n`
+9:1 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x_
+    │ ^^^
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │ '\q'
+    │  ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0003: unterminated string literal
+
+  5 │ $"a{b}c
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  8 │   """ c"text" u16"wide" "� allowed in strings" "" "\u{48}i"
+    │   ^^^ raw string starts here
+    │
+  help: close it with `"""`

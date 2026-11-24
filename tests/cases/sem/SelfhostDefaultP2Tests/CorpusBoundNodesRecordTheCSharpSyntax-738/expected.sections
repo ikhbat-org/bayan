@@ -1,0 +1,52 @@
+== tests/cases/diag/particle-exemptions.byn
+287..324 conditionalExpr
+287..324 conditionalExpr
+287..324 conditionalExpr
+287..294 nameExpr
+297..311 binaryExpr mul right 310..311
+297..307 binaryExpr mul right 301..307
+297..298 nameExpr
+301..307 nameExpr
+310..311 literalExpr integer
+314..324 binaryExpr mul right 318..324
+314..315 nameExpr
+318..324 nameExpr
+326..350 globalStatement
+326..350 localDecl
+334..350 structLiteralExpr
+347..348 literalExpr integer
+351..369 exprStmt
+351..369 callExpr
+351..352 nameExpr
+357..358 literalExpr integer
+367..368 literalExpr integer
+370..451 exprStmt
+370..451 callExpr
+376..450 interpolatedExpr
+379..382 memberExpr
+379..380 nameExpr
+385..409 callExpr
+392..393 literalExpr integer
+404..408 literalExpr trueKeyword
+281..282 literalExpr integer
+412..448 callExpr
+419..420 literalExpr integer
+431..436 literalExpr falseKeyword
+446..447 literalExpr integer
+370..451 callExpr
+173..232 blockStmt
+183..226 assignStmt assign target 183..184 value 187..226
+183..184 nameExpr
+183..184 nameExpr
+187..226 conditionalExpr
+187..205 binaryExpr lt right 200..205
+187..197 binaryExpr add right 191..197
+187..188 nameExpr
+187..188 nameExpr
+191..197 nameExpr
+200..205 nameExpr
+208..218 binaryExpr add right 212..218
+208..209 nameExpr
+208..209 nameExpr
+212..218 nameExpr
+221..226 nameExpr

@@ -1,0 +1,6 @@
+--coverage
+--mode
+fast
+--package
+.
+input.byn

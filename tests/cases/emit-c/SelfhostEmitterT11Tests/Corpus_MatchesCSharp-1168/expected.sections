@@ -1,0 +1,20 @@
+== locals
+digit:
+small:
+additive: yes
+mixed:
+named:
+field:
+indexed: t
+control:
+flipped:
+lone:
+between:
+size:
+calls:
+partial:
+single:
+reversed:
+floats:
+optional:
+main: xs t b t t t t t t t t t t t t t t t t t t t

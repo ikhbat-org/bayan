@@ -1,0 +1,4 @@
+check
+<repo>/tmp/t2/clean/main.byn
+--diagnostics
+json

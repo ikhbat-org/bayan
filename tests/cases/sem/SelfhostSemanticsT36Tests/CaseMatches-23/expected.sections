@@ -1,0 +1,2 @@
+== not-iterable
+BYN2221 1:10 `i32` cannot be iterated ||use `for` over ranges (`0..n`), spans, lists, arrays, strings, or a type conforming to `IIndexable` or `IEnumerator`|

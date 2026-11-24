@@ -1,0 +1,63 @@
+// 019 T29 (coverage ratchet): builtins.byn paths no golden case reaches: names a builtin type does not have, the
+// uniqueness of wrapped types, declaration names of non-enum sources and look-alike builtin modules. The expected
+// values are the output of the self-hosted checker at the commit that added the test.
+
+test "builtins t29: properties and methods a builtin type does not have" {
+    var c = t29s2bCompile("void main() {}\n")
+    assert builtinProperty(ref c, for: builtinType(.panic), by: "nope") is null
+    assert builtinProperty(ref c, for: builtinType(.time), by: "nope") is null
+    assert builtinProperty(ref c, for: prim(.char), by: "nope") is null
+    assert builtinProperty(ref c, for: prim(.i64), by: "value") is null
+    assert builtinProperty(ref c, for: internOwned(ref c, by: prim(.i64)), by: "nope") is null
+    assert method(ref c, for: textViewType(.utf16), by: "nope") is null
+    assert method(ref c, for: internSpan(ref c, by: prim(.i64), readOnly: false), by: "joined") is null
+    assert method(ref c, for: internList(ref c, by: prim(.i64)), by: "joined") is null
+    assert method(ref c, for: internList(ref c, by: prim(.bool)), by: "sort") is null
+    assert method(ref c, for: internList(ref c, by: internList(ref c, by: prim(.i64))), by: "replace") is null
+    assert method(ref c, for: builtinType(.arena), by: "nope") is null
+    assert method(ref c, for: builtinType(.ioStream), by: "nope") is null
+    assert method(ref c, for: internOptional(ref c, by: prim(.i64)), by: "nope") is null
+    assert hasMethod(ref c, for: builtinType(.ioInput), by: "read")
+    assert !hasMethod(ref c, for: builtinType(.ioInput), by: "nope")
+}
+
+test "builtins t29: static members a builtin does not have" {
+    var c = t29s2bCompile("void main() {}\n")
+    assert findTime(ref c, for: "nope") == -1
+    assert findUtf8(ref c, for: "nope") == -1
+}
+
+test "builtins t29: the uniqueness of wrapped types" {
+    var c = t29s2bCompile("void main() {}\n")
+    let list = internList(ref c, by: prim(.i64))
+    assert t9IsUnique(ref c, for: builtinType(.strBuf))
+    assert !t9IsUnique(ref c, for: builtinType(.arena))
+    assert t9IsUnique(ref c, for: internUntrusted(ref c, by: list))
+    assert t9IsUnique(ref c, for: internOptional(ref c, by: list))
+    assert !t9IsUnique(ref c, for: internOptional(ref c, by: prim(.i64)))
+    assert t9IsUnique(ref c, for: internResult(ref c, by: list, to: t8BuiltinSet(in c, for: "IoError")))
+    assert t9IsUnique(ref c, for: internArray(ref c, by: list, at: 2))
+    assert !t9IsUnique(ref c, for: internArray(ref c, by: prim(.i64), at: 2))
+}
+
+test "builtins t29: declaration names of non-enum sources" {
+    var c = t29s2bCompile("void main() {}\n")
+    let m = t9Module(ref c)
+    let s = t9Parse(ref c, for: "struct Point {\n    i64 x\n}\n", by: m)
+    assert t9Text(ref c, for: s, at: t9DeclName(ref c, for: s, at: 0)) == "Point"
+    let f = t9Parse(ref c, for: "i64 one() => 1\n", by: m)
+    assert t9DeclName(ref c, for: f, at: 0).length == 0
+    let before = c.enumMembers.length
+    let e = t9Enum(ref c, from: "struct Other {\n    i64 y\n}\n", by: m)
+    assert c.enums[e].name == "Other"
+    assert c.enumMembers.length == before
+}
+
+test "builtins t29: a module named builtin is the builtin module only with its C name and no directory" {
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    c.modules.append(Mod { name: "builtin", files: List<FileId>(), cName: "other" })
+    c.modules.append(Mod { name: "builtin", files: List<FileId>(), cName: "builtin", directory: "d" })
+    let m = t9Module(ref c)
+    assert m == 2
+    assert c.modules[m].cName == "builtin" && c.modules[m].directory == ""
+}

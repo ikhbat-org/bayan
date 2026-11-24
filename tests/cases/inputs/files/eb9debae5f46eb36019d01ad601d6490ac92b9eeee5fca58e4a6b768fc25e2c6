@@ -1,0 +1,1 @@
+let empty = c.variants[i].payload.length == 0 && c.errors[c.variants[i].variant].fields.length > 0

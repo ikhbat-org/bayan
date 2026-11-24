@@ -1,0 +1,4 @@
+$"toal {x}" $"a {f($"b {c}")} d" $"{{liteáal}}" $"{Point { x = 1 }}!" $""
+ fails try catch never oalloc nosuspend suspends async await
+ let x‚Åß = 1
+

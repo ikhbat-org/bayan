@@ -1,0 +1,33 @@
+1:1 Identifier `Å̈́`
+1:4 Identifier `macro`
+1:10 Identifier `select`
+1:17 Identifier `ecome`
+2:1 EndOfFile
+
+error BYN0005: identifier `Å̈́` is not in Unicode normalization form C
+
+  1 │ Å̈́ macro select �ecome
+    │ ^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ Å̈́ macro select �ecome
+    │   │ +++
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  1 │ Å̈́ macro select �ecome
+    │    ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  1 │ Å̈́ macro select �ecome
+    │          ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xA0)
+
+  1 │ Å̈́ macro select �ecome
+    │                 ^

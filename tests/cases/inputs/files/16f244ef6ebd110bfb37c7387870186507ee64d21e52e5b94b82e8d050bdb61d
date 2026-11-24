@@ -1,0 +1,11 @@
+{
+  "package": "local/tally",
+  "version": "1.0.1",
+  "compiler": "bayan 0.3.2",
+  "mode": "safe",
+  "targets": [
+    "macos-arm64"
+  ],
+  "source": null,
+  "inputs": "sha256:bfc2a8a035a8e1fa3eeb9a1f08442889a6e3b3d9c18b7e2b65c720d5ea4d82d4"
+}

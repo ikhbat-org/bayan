@@ -1,0 +1,6 @@
+== tests/cases/diag/variant-needs-payload.byn
+56..111 blockStmt
+62..82 localDecl
+70..82 memberExpr
+87..109 localDecl
+102..109 targetMemberExpr

@@ -1,0 +1,20 @@
+== tests/cases/diag/string-member-renames.byn
+149..356 blockStmt
+155..168 localDecl
+163..168 literalExpr string
+173..194 localDecl
+181..194 callExpr
+199..218 localDecl
+207..218 callExpr
+223..243 localDecl
+232..243 callExpr
+248..267 localDecl
+256..267 callExpr
+272..296 localDecl
+280..296 callExpr
+301..327 localDecl
+321..327 collectionExpr
+322..323 literalExpr integer
+325..326 literalExpr integer
+332..354 localDecl
+340..354 callExpr

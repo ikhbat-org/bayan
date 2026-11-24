@@ -1,0 +1,2 @@
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":88,"end":89,"line":7,"column":22,"endLine":7,"endColumn":23},"message":"`switch` does not handle every `Shape`","label":"not covered: .circle","help":"add the missing arms: .circle","fixes":[]}
+{"code":"BYN2410","severity":"error","file":"input.byn","span":{"start":223,"end":224,"line":14,"column":12,"endLine":14,"endColumn":13},"message":"`switch` does not handle every `Shape`","label":"not covered: .circle","help":"add the missing cases or a `default:` section","fixes":[]}

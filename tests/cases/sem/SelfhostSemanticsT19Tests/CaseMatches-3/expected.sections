@@ -1,0 +1,4 @@
+== bind.probes.i7
+flags 0
+errorExpr:?[3475:9]=-()
+BYN2001 185:19 `nope` is not defined ||did you mean `Node`?|fix 3480..3484 Node

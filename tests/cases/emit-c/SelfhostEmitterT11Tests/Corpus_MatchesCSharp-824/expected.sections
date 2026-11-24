@@ -1,0 +1,12 @@
+== locals
+find:
+box:
+inc:
+tenfold:
+add:
+lookup: v t t t
+quiet: v t t
+untilMissing: total i t t v t t
+skipMissing: total i t t v t t
+show: v t t
+main: b t t t t t t t t t t t

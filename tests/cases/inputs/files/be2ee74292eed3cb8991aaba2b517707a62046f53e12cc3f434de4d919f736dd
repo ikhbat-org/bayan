@@ -1,0 +1,6 @@
+fails try catch never noalloc nosuspend suspends async await
+ok $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"/* block
+﻿ let a = 1
+
+⁩
+0b1ms

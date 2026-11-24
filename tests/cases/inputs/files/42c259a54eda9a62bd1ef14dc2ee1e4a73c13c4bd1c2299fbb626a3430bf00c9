@@ -1,0 +1,5 @@
+const Log: i32 = 1
+
+void main() {
+    Log.debug("x")
+}

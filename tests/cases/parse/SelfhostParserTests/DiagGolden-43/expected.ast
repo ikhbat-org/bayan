@@ -1,0 +1,15 @@
+CompilationUnit
+  Function f(i64 n) -> void
+    Block
+      Switch n
+        Case 1
+          <error>
+          Break
+
+error BYN1010: `goto` does not exist in Bayan
+
+  4 │             goto case 2
+    │             ^^^^ `goto case` does not exist
+    │
+  help: combine patterns with `or`, or move shared code into a function; switch sections never fall
+        through

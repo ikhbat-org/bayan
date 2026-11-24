@@ -1,0 +1,4 @@
+void main() uses alloc {
+    print(Path.combine("a", "b", "c"))
+    print(Path.combine())
+}

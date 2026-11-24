@@ -1,0 +1,6 @@
+== tests/cases/diag/state-literal-needs-state.byn
+88..115 globalStatement
+88..115 localDecl
+100..115 structLiteralExpr
+116..135 localDecl
+128..135 callExpr

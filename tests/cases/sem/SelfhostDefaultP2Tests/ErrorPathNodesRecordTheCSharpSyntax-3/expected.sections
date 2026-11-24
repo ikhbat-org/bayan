@@ -1,0 +1,17 @@
+== /var/folders/nn/bj_f92fd4dq9k0dqr82y_hfw0000gn/T/p2-errors-DmmoWm/fail/fail.byn
+86..100 blockStmt
+92..96 failStmt
+119..141 blockStmt
+125..129 failStmt
+160..183 blockStmt
+166..170 failStmt
+202..248 blockStmt
+208..227 deferStmt
+228..232 failStmt
+243..246 exprStmt
+243..246 callExpr
+259..284 blockStmt
+265..282 returnStmt value 272..282
+272..282 callExpr
+278..281 literalExpr string
+298..300 blockStmt

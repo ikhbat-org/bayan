@@ -1,0 +1,17 @@
+2:1 Identifier `c`
+2:3 IntegerLiteral `1`
+2:4 Dot `.`
+2:6 Comma `,`
+2:8 Dot `.`
+2:10 DotDot `..`
+2:13 DotDotEquals `..=`
+2:17 Colon `:`
+2:19 Question `?`
+2:21 QuestionQuestion `??`
+2:24 QuestionQuestionEquals `??=`
+2:28 QuestionDot `?.`
+2:31 FatArrow `=>`
+2:34 Arrow `->`
+2:37 At `@`
+2:39 Hash `#`
+3:1 EndOfFile

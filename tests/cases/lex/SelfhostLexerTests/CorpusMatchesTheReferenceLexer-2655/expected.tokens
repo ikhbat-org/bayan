@@ -1,0 +1,51 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 Identifier `swit`
+1:21 Identifier `h`
+1:23 Identifier `ase`
+1:27 DefaultKeyword `default`
+1:35 ForKeyword `for`
+1:39 InKeyword `in`
+1:42 WhileKeyword `while`
+1:48 DoKeyword `do`
+1:51 BreakKeyword `break`
+1:57 ContinueKeyword `continue`
+1:66 ReturnKeyword `return`
+1:73 YieldKeyword `yield`
+1:79 DeferKeyword `defer`
+1:85 ErrdeferKeyword `errdefer`
+1:94 UsingKeyword `using`
+1:100 ContextKeyword `context`
+2:1 StringLiteral `"a\u{2067}b"`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDA)
+
+  1 │ if else unless swit�h ase default for in while do break continue return yield defer errdefer using context
+    │                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │ "a�b" �
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF4)
+
+  3 │ ����
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  3 │ ����
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ ����
+    │    ^

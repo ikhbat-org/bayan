@@ -1,0 +1,131 @@
+1:2 SlashEquals `/=`
+1:5 PercentEquals `%=`
+1:8 AmpEquals `&=`
+1:11 BarEquals `|=`
+1:14 CaretEquals `^=`
+1:17 Less `<`
+2:1 Identifier `ᄀ`
+2:3 Identifier `i`
+2:4 Identifier `ᆨ`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolationStart `{`
+2:9 Identifier `alet`
+2:14 Identifier `s`
+2:16 Equals `=`
+2:18 InterpolatedStringStart `$"`
+2:20 InterpolationStart `{`
+2:21 InterpolatedStringStart `$"`
+2:23 InterpolationStart `{`
+2:24 InterpolatedStringStart `$"`
+2:26 InterpolationStart `{`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolationStart `{`
+2:30 InterpolatedStringStart `$"`
+2:32 InterpolationStart `{`
+2:33 InterpolatedStringStart `$"`
+2:35 InterpolationStart `{`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolationStart `{`
+2:39 InterpolatedStringStart `$"`
+2:41 InterpolationStart `{`
+2:42 InterpolatedStringStart `$"`
+2:44 InterpolationStart `{`
+2:45 InterpolatedStringStart `$"`
+2:47 InterpolationStart `{`
+2:48 InterpolatedStringStart `$"`
+2:50 InterpolationStart `{`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 InterpolatedStringStart `$"`
+2:56 InterpolationStart `{`
+2:57 InterpolatedStringStart `$"`
+2:59 InterpolationStart `{`
+2:60 InterpolatedStringStart `$"`
+2:62 InterpolatedStringText `$`
+2:63 InterpolatedStringEnd `"`
+2:64 OpenBrace `{`
+2:65 InterpolatedStringStart `$"`
+2:67 InterpolationStart `{`
+2:68 StringLiteral `$"{$"`
+2:73 OpenBrace `{`
+2:74 StringLiteral `$"{x}"`
+2:80 CloseBrace `}`
+2:81 StringLiteral `"}"`
+2:84 InterpolationEnd `}`
+2:85 InterpolatedStringEnd `"`
+2:86 CloseBrace `}`
+2:87 StringLiteral `"}"`
+2:90 InterpolationEnd `}`
+2:91 InterpolatedStringEnd `"`
+2:92 InterpolationEnd `}`
+2:93 InterpolatedStringEnd `"`
+2:94 InterpolationEnd `}`
+2:95 InterpolatedStringEnd `"`
+2:96 InterpolationEnd `}`
+2:97 InterpolatedStringEnd `"`
+2:98 InterpolationEnd `}`
+2:99 InterpolatedStringEnd `"`
+2:100 InterpolationEnd `}`
+2:101 InterpolatedStringEnd `"`
+2:102 InterpolationEnd `}`
+2:103 InterpolatedStringEnd `"`
+2:104 InterpolationEnd `}`
+2:105 InterpolatedStringEnd `"`
+2:106 InterpolationEnd `}`
+2:107 InterpolatedStringEnd `"`
+2:108 InterpolationEnd `}`
+2:109 InterpolatedStringEnd `"`
+2:110 InterpolationEnd `}`
+2:111 InterpolatedStringEnd `"`
+2:112 InterpolationEnd `}`
+2:113 InterpolatedStringEnd `"`
+2:114 InterpolationEnd `}`
+2:115 InterpolatedStringEnd `"`
+2:116 InterpolationEnd `}`
+2:117 InterpolatedStringEnd `"`
+4:1 Equals `=`
+4:3 Greater `>`
+4:5 GreaterEquals `>=`
+4:8 LessLess `<<`
+4:11 Greater `>`
+4:12 Greater `>`
+4:14 Greater `>`
+4:15 GreaterEquals `>=`
+5:1 PlusEquals `+=`
+5:4 MinusEquals `-=`
+5:7 StarEquals `*=`
+5:10 SlashEquals `/=`
+5:13 PercentEquals `%=`
+5:16 AmpEquals `&=`
+5:19 BarEquals `|=`
+5:22 CaretEquals `^=`
+5:25 LessLessEquals `<<=`
+    doc `/// Doc line one.`
+7:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE1)
+
+  2 │ ᄀ�i�ᆨ $"{alet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x85)
+
+  2 │ ᄀ�i�ᆨ $"{alet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA1)
+
+  2 │ ᄀ�i�ᆨ $"{alet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │    ^
+
+error BYN0003: unterminated string literal
+
+  2 │ ᄀ�i�ᆨ $"{alet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  2 │ ᄀ�i�ᆨ $"{alet s = $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"
+    │                                                                     ^^

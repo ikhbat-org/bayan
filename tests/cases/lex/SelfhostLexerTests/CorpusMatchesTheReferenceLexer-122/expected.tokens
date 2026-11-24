@@ -1,0 +1,76 @@
+1:1 CharLiteral `'\u{D800}'`
+3:1 Identifier `foo`
+3:5 Identifier `Bar`
+3:9 Identifier `_x`
+3:12 Identifier `camelCase2`
+3:23 Identifier `بيان`
+3:28 Identifier `μετρητής`
+3:37 Identifier `x_1`
+3:41 Identifier `é`
+5:1 Comma `,`
+5:3 Dot `.`
+5:5 DotDot `..`
+5:8 DotDotEquals `..=`
+5:12 Colon `:`
+5:14 Question `?`
+5:16 QuestionQuestion `??`
+5:19 QuestionQuestionEquals `??=`
+5:23 QuestionDot `?.`
+5:26 FatArrow `=>`
+5:29 Arrow `->`
+5:32 At `@`
+5:34 Hash `#`
+7:3 InterpolatedStringStart `$"`
+7:5 InterpolatedStringText `x`
+7:6 InterpolationStart `{`
+7:8 InterpolatedStringStart `$"`
+7:10 InterpolationStart `{`
+7:12 Plus `+`
+7:14 Minus `-`
+7:16 Star `*`
+7:18 Slash `/`
+7:20 Percent `%`
+7:22 PlusPercent `+%`
+7:25 MinusPercent `-%`
+7:28 StarPercent `*%`
+7:31 PlusBar `+|`
+7:34 MinusBar `-|`
+7:37 StarBar `*|`
+7:40 Percent `%`
+7:41 Plus `+`
+7:43 MinusMinus `--`
+9:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  1 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  6 │  �
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 6 │  �
+    │   │  -
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  7 │ � $"x{ $"{ + - * / % +% -% *% +| -| *| %+ --
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ � $"x{ $"{ + - * / % +% -% *% +| -| *| %+ --
+    │   │ -
+
+error BYN0003: unterminated string literal
+
+  7 │ � $"x{ $"{ + - * / % +% -% *% +| -| *| %+ --
+    │        ^^ this string never ends
+    │
+  help: close the `{` and the string

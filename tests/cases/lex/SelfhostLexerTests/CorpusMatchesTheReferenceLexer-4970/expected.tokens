@@ -1,0 +1,49 @@
+2:2 Amp `&`
+2:4 Amp `&`
+2:6 Amp `&`
+2:8 Bar `|`
+2:10 BarBar `||`
+2:13 Caret `^`
+2:15 Tilde `~`
+2:17 Bang `!`
+2:19 Equals `=`
+2:21 EqualsEquals `==`
+2:24 BangEquals `!=`
+2:27 Less `<`
+2:29 LessEquals `<=`
+2:32 Greater `>`
+2:34 GreaterEquals `>=`
+2:37 LessLess `<<`
+2:40 Greater `>`
+2:41 Greater `>`
+2:43 Greater `>`
+2:44 GreaterEquals `>=`
+4:1 RawStringLiteral `"""\n‏\n/// Doc line one.\n\n� \u{FEFF}\n/\u{1E} comment \u{202E} hidden\n `
+10:2 EndOfFile
+
+error BYN0002: unexpected character `\u{1F}`
+
+  2 │  & &�& | || ^ ~ ! = == != < <= > >= << >> >>=
+    │     ^
+
+error BYN0003: unterminated string literal
+
+  4 │ """
+    │ ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  8 │ � ﻿
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  8 │ � ﻿
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  8 │ � ﻿
+    │  ^

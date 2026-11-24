@@ -1,0 +1,21 @@
+== tests/cases/diag/with-unique-copy.byn
+68..252 blockStmt
+74..132 localDecl
+87..132 structLiteralExpr
+103..110 literalExpr string
+119..130 callExpr
+137..178 assignStmt assign target 137..143 value 146..178
+137..143 nameExpr
+146..178 withExpr
+146..152 nameExpr
+167..176 literalExpr string
+183..223 localDecl
+194..223 withExpr
+194..200 nameExpr
+215..221 literalExpr string
+228..250 exprStmt
+228..250 callExpr
+234..249 interpolatedExpr
+237..247 memberExpr
+237..241 nameExpr
+228..250 callExpr

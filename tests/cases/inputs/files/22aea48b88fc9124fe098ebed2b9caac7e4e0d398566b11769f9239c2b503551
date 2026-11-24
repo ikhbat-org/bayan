@@ -1,0 +1,10 @@
+me
+let law = 3
+3.14 1e5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+ Å
+0xFFs
+let b = "bad \q escape"
+/// c >>= 1
+= ` 2
+let c =  3
+ 

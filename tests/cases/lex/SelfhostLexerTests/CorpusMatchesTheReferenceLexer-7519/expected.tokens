@@ -1,0 +1,33 @@
+1:1 CharLiteral `'\u{202E}'`
+1:5 Identifier `foo`
+1:9 Identifier `Bar`
+1:13 Identifier `_x`
+1:16 Identifier `camelCase2`
+1:27 Identifier `بيان`
+1:32 Identifier `μετρητής`
+1:41 Identifier `x_1`
+1:45 Identifier `é`
+2:2 Identifier `b`
+3:2 LetKeyword `let`
+3:6 Identifier `b`
+3:8 Equals `=`
+3:10 StringLiteral `"bad \q escape"`
+5:1 Identifier `_`
+6:1 EndOfFile
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  1 │ '�' foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 1 │ '�' foo Bar _x camelCase2 بيان μετρητής x_1 é
+    │   │  -
+
+error BYN0006: invalid escape sequence `\q`
+
+  3 │  let b = "bad \q escape"
+    │               ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

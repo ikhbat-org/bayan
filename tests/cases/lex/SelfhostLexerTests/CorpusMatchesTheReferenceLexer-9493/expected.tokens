@@ -1,0 +1,52 @@
+1:2 OpenParen `(`
+1:4 CloseParen `)`
+1:6 OpenBracket `[`
+1:8 CloseBracket `]`
+1:10 OpenBrace `{`
+1:12 CloseBrace `}`
+2:2 IfKeyword `if`
+2:5 ElseKeyword `else`
+2:10 Identifier `u`
+2:11 Identifier `nless`
+2:17 Identifier `sitch`
+2:23 CaseKeyword `case`
+2:28 DefaultKeyword `default`
+2:36 ForKeyword `for`
+2:40 InKeyword `in`
+2:43 WhileKeyword `while`
+2:49 DoKeyword `do`
+2:52 BreakKeyword `break`
+2:58 Identifier `co`
+2:61 Identifier `ntinue`
+2:68 ReturnKeyword `return`
+2:75 YieldKeyword `yield`
+2:81 DeferKeyword `defer`
+2:87 ErrdeferKeyword `errdefer`
+2:96 UsingKeyword `using`
+2:102 ContextKeyword `context`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �( ) [ ] { }
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �( ) [ ] { }
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x8D)
+
+  2 │  if else u�nless sitch case default for in while do break co\ntinue return yield defer errdefer using context
+    │           ^
+
+error BYN0002: unexpected character `\`
+
+  2 │  if else u�nless sitch case default for in while do break co\ntinue return yield defer errdefer using context
+    │                                                             ^

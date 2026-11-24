@@ -1,0 +1,42 @@
+1:1 IntegerLiteral `250`
+1:4 NumericSuffix `ms`
+1:7 IntegerLiteral `4`
+1:8 NumericSuffix `Ki`
+1:11 Identifier `va`
+1:13 Plus `+`
+1:14 Identifier `r`
+1:16 Identifier `xs`
+1:18 Colon `:`
+1:19 Identifier `List`
+1:23 Less `<`
+1:24 Percent `%`
+1:25 Identifier `List`
+1:29 Less `<`
+1:30 Identifier `i64`
+1:33 Greater `>`
+1:34 Greater `>`
+2:2 IntegerLiteral `0b1`
+2:5 NumericSuffix `ms`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  1 │ 250ms 4Ki��va+r xs:�List<%List<i64>>
+    │          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ 250ms 4Ki��va+r xs:�List<%List<i64>>
+    │           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  1 │ 250ms 4Ki��va+r xs:�List<%List<i64>>
+    │                    ^
+
+error BYN0011: unit suffix `ms` is not allowed on a binary literal
+
+  2 │  0b1ms
+    │     ^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type

@@ -1,0 +1,93 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
+2:4 LetKeyword `let`
+2:10 Equals `=`
+2:12 IntegerLiteral `2`
+3:2 LetKeyword `let`
+3:6 Identifier `actor`
+3:12 Equals `=`
+3:14 IntegerLiteral `1`
+4:4 Identifier `각`
+4:8 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  2 │  �� let � = 2
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │  �� let � = 2
+    │   ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  2 │  �� let � = 2
+    │         ^
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  3 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  4 │ �� �����각 
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �� �����각 
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  4 │ �� �����각 
+    │    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  4 │ �� �����각 
+    │     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �� �����각 
+    │      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �� �����각 
+    │       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  4 │ �� �����각 
+    │        ^
+
+error BYN0005: identifier `각` is not in Unicode normalization form C
+
+  4 │ �� �����각 
+    │         ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ �� �����각 
+    │   │         +

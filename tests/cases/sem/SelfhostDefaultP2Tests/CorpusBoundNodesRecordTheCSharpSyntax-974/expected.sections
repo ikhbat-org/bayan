@@ -1,0 +1,9 @@
+== tests/cases/diag/value-casing.byn
+0..13 globalStatement
+0..13 localDecl
+12..13 literalExpr integer
+14..31 exprStmt
+14..31 callExpr
+20..30 interpolatedExpr
+23..28 nameExpr
+14..31 callExpr

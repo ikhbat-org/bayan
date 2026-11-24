@@ -1,0 +1,4 @@
+== expr
+a: failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(returnError(local t#0:E))) => local t#1:i64 locals=2
+b: failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(assign(local t#1:i64 literal 0:0:i64=0:0))) => local t#1:i64 locals=2
+c: failingCall t#0 t#1(call g:i64) ifStmt(binary op18:bool(errorCode:u32(local t#0:E) literal 0:0:u32) block(ifStmt(binary op18:bool(local t#0:E errorVariant:E) block(returnError(local t#0:E))) assign(local t#1:i64 literal 0:7:i64=0:7))) => local t#1:i64 locals=2

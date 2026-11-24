@@ -1,0 +1,5 @@
+== 1 exit 0
+$WORK/d/main.byn:1:1  unsafe void poke()  no reason given
+◆ 1 bypass in $WORK/d
+audit 1
+== 2 exit 0

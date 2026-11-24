@@ -1,0 +1,52 @@
+1:1 Greater `>`
+1:2 Greater `>`
+1:4 Identifier `b`
+2:1 Identifier `c`
+2:3 Greater `>`
+2:4 GreaterEquals `>=`
+2:7 IntegerLiteral `1`
+3:1 Amp `&`
+3:3 AmpAmp `&&`
+3:6 Bar `|`
+3:8 BarBar `||`
+3:11 Caret `^`
+3:13 Tilde `~`
+3:15 Bang `!`
+3:17 Equals `=`
+3:19 EqualsEquals `==`
+3:22 BangEquals `!=`
+3:25 Less `<`
+3:27 LessEquals `<=`
+3:30 Greater `>`
+3:32 GreaterEquals `>=`
+3:35 LessLess `<<`
+3:38 Greater `>`
+3:39 Greater `>`
+3:41 Greater `>`
+3:42 GreaterEquals `>=`
+4:1 Identifier `_`
+    doc `/// Dc line two.`
+6:1 Identifier `ạ̇`
+7:1 Identifier `b`
+8:2 CharLiteral `'a'`
+8:6 CharLiteral `'\n'`
+8:11 CharLiteral `'\u{1F600}'`
+8:23 CharLiteral `'\''`
+8:28 CharLiteral `'é'`
+8:32 CharLiteral `'\\'`
+8:37 CharLiteral `'\0'`
+9:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  6 │ ạ̇ ̈́
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │ ạ̇ ̈́
+    │   │ +
+
+error BYN0002: unexpected character `̈́`
+
+  6 │ ạ̇ ̈́
+    │     ^

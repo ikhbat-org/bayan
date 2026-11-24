@@ -1,0 +1,67 @@
+2:2 LetKeyword `let`
+2:6 Identifier `actor`
+2:12 Equals `=`
+2:14 IntegerLiteral `1`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `{{`
+5:6 InterpolatedStringEnd `"`
+5:7 TestKeyword `test`
+5:12 AssertKeyword `assert`
+5:20 Identifier `roperty`
+5:28 FuzzKeyword `fuzz`
+5:33 ModelKeyword `model`
+5:39 ForeachKeyword `foreach`
+5:47 NewKeyword `new`
+5:51 GotoKeyword `goto`
+7:1 Identifier `l2et`
+7:6 Identifier `café`
+7:12 Equals `=`
+7:14 IntegerLiteral `1`
+7:15 Semicolon `;`
+8:1 EndOfFile
+
+error BYN0012: `actor` is reserved and cannot be used as an identifier
+
+  2 │  let actor = 1
+    │      ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0015: source is not valid UTF-8 (byte 0xB6)
+
+  3 │ �
+    │ ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  4 │ // �x
+    │    ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │ // �x
+    │   │    -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  5 │ �$"{{"test assert �roperty fuzz model foreach new goto
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  5 │ �$"{{"test assert �roperty fuzz model foreach new goto
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xE3)
+
+  5 │ �$"{{"test assert �roperty fuzz model foreach new goto
+    │                   ^
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  7 │ l2et café = 1;
+    │      ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 7 │ l2et café = 1;
+    │   │         +

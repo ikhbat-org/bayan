@@ -1,0 +1,1 @@
+$ $BAYAN test p > /dev/null 2>&1; echo "test $?"; grep -F -e 'byn_hash_seed_init' -e 'byn_args(&argc' -e 'switch (atoi(argv[2]))' p/out/safe/*/c/main.c

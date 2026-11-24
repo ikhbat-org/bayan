@@ -1,0 +1,25 @@
+2:1 IntegerLiteral `0xF__`
+4:1 LetKeyword `let`
+4:5 Identifier `a`
+4:7 Equals `=`
+4:9 IntegerLiteral `1`
+5:2 StringLiteral `"text"`
+5:9 StringLiteral `"esc \"q\" \\ \n\u{C} "`
+5:28 StringLiteral `""`
+6:1 Identifier `ς`
+6:3 Identifier `x_1`
+6:7 Identifier `éx́́`
+7:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 0xF__
+    │    ^^
+    │
+    │ 2 │ 0xF__
+    │   │    --
+
+error BYN0015: source is not valid UTF-8 (byte 0x94)
+
+  4 │ let a =� 1
+    │        ^

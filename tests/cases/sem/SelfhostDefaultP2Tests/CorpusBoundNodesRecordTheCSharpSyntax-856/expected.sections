@@ -1,0 +1,23 @@
+== tests/cases/diag/string-member-arguments.byn
+102..276 blockStmt
+108..121 localDecl
+116..121 literalExpr string
+126..158 localDecl
+134..158 callExpr
+134..135 nameExpr
+150..157 targetMemberExpr
+163..196 localDecl
+171..196 callExpr
+171..172 nameExpr
+180..183 literalExpr string
+189..195 targetMemberExpr
+201..222 localDecl
+209..222 callExpr
+209..210 nameExpr
+220..221 literalExpr integer
+227..274 forStmt
+236..243 memberExpr
+236..237 nameExpr
+244..274 blockStmt
+254..268 localDecl
+267..268 nameExpr

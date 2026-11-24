@@ -1,0 +1,102 @@
+1:1 CharLiteral `'ạ̇here"`
+2:1 InterpolatedStringStart `$"`
+2:3 InterpolatedStringText `open `
+2:8 InterpolationStart `{`
+2:9 Identifier `x`
+2:10 StringLiteral `";`
+3:1 FloatLiteral `3.14`
+3:6 FloatLiteral `1e5`
+3:10 FloatLiteral `2.5e-3`
+3:17 FloatLiteral `6E+2`
+3:22 FloatLiteral `1.50`
+3:26 NumericSuffix `dec`
+3:30 IntegerLiteral `1`
+3:31 DotDot `..`
+3:33 IntegerLiteral `2`
+3:35 IntegerLiteral `1`
+3:36 DotDotEquals `..=`
+3:39 IntegerLiteral `3`
+3:41 IntegerLiteral `5`
+3:42 NumericSuffix `e`
+3:44 Identifier `x`
+3:45 Dot `.`
+3:46 Identifier `y`
+3:48 FloatLiteral `2.5`
+3:51 NumericSuffix `f`
+5:1 InterpolationEnd `}`
+5:2 InterpolatedStringText ` += -= *= /= %= &= |= ^= <<=`
+5:30 InterpolatedStringEnd
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 InterpolatedStringStart `$"`
+6:7 InterpolationStart `{`
+6:8 InterpolatedStringStart `$"`
+6:10 InterpolationStart `{`
+6:11 InterpolatedStringStart `$"`
+6:13 InterpolationStart `{`
+6:14 InterpolatedStringStart `$"`
+6:16 InterpolationStart `{`
+6:17 InterpolatedStringStart `$"`
+6:19 InterpolationStart `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolatedStringText `$`
+6:32 InterpolatedStringEnd `"`
+6:33 OpenBrace `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 InterpolatedStringStart `$"`
+6:45 InterpolationStart `{`
+6:46 InterpolatedStringStart `$"`
+6:48 InterpolationStart `{`
+6:49 Identifier `x`
+6:50 InterpolationEnd `}`
+6:51 InterpolatedStringEnd `"`
+6:52 InterpolationEnd `}`
+6:53 InterpolatedStringEnd `"`
+6:54 InterpolationEnd `}`
+6:55 InterpolatedStringEnd `"`
+6:56 InterpolationEnd `}`
+6:57 InterpolatedStringEnd `"`
+6:58 InterpolationEnd `}`
+6:59 InterpolatedStringEnd `"`
+6:60 CloseBrace `}`
+6:61 StringLiteral `"}"`
+6:64 EndOfFile
+
+error BYN0008: unterminated char literal
+
+  1 │ 'ạ̇here"
+    │ ^^^^^^^^^
+    │
+  help: close it with `'`
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │ ^^ this string never ends
+    │
+  help: close it with `"`
+
+error BYN0003: unterminated string literal
+
+  2 │ $"open {x";
+    │          ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  6 │  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"
+    │                          ^^ this string never ends
+    │
+  help: close the `{` and the string

@@ -1,0 +1,2 @@
+== case conv-int-float
+literal 668..670 : f64 = 42

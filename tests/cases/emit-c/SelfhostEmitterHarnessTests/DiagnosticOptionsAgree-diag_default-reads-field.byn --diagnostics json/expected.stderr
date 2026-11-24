@@ -1,0 +1,1 @@
+{"code":"BYN2001","severity":"error","file":"input.byn","span":{"start":53,"end":57,"line":3,"column":20,"endLine":3,"endColumn":24},"message":"`side` is not defined","label":null,"help":null,"fixes":[]}

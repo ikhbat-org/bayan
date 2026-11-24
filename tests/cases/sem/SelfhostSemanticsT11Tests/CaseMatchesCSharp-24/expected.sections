@@ -1,0 +1,7 @@
+== path clean
+module util tmp/t11-cases/clean/util util
+file util/u.byn source
+module main tmp/t11-cases/clean main
+file tmp/t11-cases/clean/lib.byn source
+import util util
+diag BYN2006 tmp/t11-cases/clean/lib.byn 5:8 `A` is declared twice | already declared on line 2 | 

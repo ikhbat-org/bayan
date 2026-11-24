@@ -1,0 +1,21 @@
+1:1 StringLiteral `"e`
+2:1 IntegerLiteral `0x`
+3:1 Identifier `g`
+3:3 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "e
+    │ ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │ 0x
+    │ ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  3 │ g �
+    │   ^

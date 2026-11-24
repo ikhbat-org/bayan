@@ -1,0 +1,14 @@
+error BYN2208: `==` cannot be applied to `i32` and `null`
+  --> tmp/t26-tests/cli/diag_null-equality-no-fix.byn/null-equality-no-fix.byn:3:13
+
+  3 │     let c = n == null
+    │             ^^^^^^^^^
+
+error BYN2208: `==` cannot be applied to `null` and `null`
+  --> tmp/t26-tests/cli/diag_null-equality-no-fix.byn/null-equality-no-fix.byn:4:13
+
+  4 │     let d = null == null
+    │             ^^^^^^^^^^^^
+
+✗ build failed: 2 errors, 0 warnings
+  explain: bayan explain BYN2208

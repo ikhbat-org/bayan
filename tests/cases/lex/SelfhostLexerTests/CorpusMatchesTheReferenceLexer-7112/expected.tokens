@@ -1,0 +1,98 @@
+1:1 InterpolatedStringStart `$"`
+1:3 InterpolatedStringText `x`
+1:4 InterpolationStart `{`
+1:6 InterpolatedStringStart `$"`
+1:8 InterpolationStart `{`
+1:10 LetKeyword `let`
+1:14 Identifier `café`
+1:20 Equals `=`
+1:22 IntegerLiteral `1`
+1:23 Semicolon `;`
+1:27 FloatLiteral `3.14`
+1:32 IntegerLiteral `1`
+1:33 NumericSuffix `M5`
+1:36 FloatLiteral `2.5e-3`
+1:43 FloatLiteral `6E+2`
+1:48 FloatLiteral `1.50`
+1:52 NumericSuffix `dec`
+1:56 IntegerLiteral `1`
+1:57 DotDot `..`
+1:59 IntegerLiteral `2`
+1:61 IntegerLiteral `1`
+1:62 DotDotEquals `..=`
+1:65 IntegerLiteral `3`
+1:67 IntegerLiteral `5`
+1:68 NumericSuffix `e`
+1:70 Identifier `x`
+1:71 Dot `.`
+1:72 Identifier `y`
+1:74 FloatLiteral `2.5`
+1:77 NumericSuffix `f`
+4:1 StringLiteral `"}"`
+4:4 InterpolationEnd `}`
+4:5 InterpolatedStringEnd `"`
+4:6 InterpolationEnd `}`
+4:7 InterpolatedStringEnd `"`
+4:8 CloseBrace `}`
+4:9 StringLiteral `"}"`
+4:12 CloseBrace `}`
+4:13 StringLiteral `"`
+5:2 FloatLiteral `3.14`
+5:7 FloatLiteral `1e5`
+5:11 FloatLiteral `2.5e-3`
+5:18 FloatLiteral `6E+2`
+5:23 FloatLiteral `1.50`
+5:27 NumericSuffix `dec`
+5:31 IntegerLiteral `1`
+5:32 DotDot `..`
+5:34 IntegerLiteral `2`
+5:36 IntegerLiteral `1`
+5:37 DotDotEquals `..=`
+5:40 IntegerLiteral `3`
+5:42 IntegerLiteral `5`
+5:43 NumericSuffix `ei`
+5:46 Identifier `x`
+5:47 Dot `.`
+5:48 Identifier `y`
+5:50 FloatLiteral `2.5`
+5:53 NumericSuffix `f`
+7:1 CharLiteral `'x�`
+7:3 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ $"x{ $"{ let café = 1; � 3.14 1M5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │              ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ $"x{ $"{ let café = 1; � 3.14 1M5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │   │                 +
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ $"x{ $"{ let café = 1; � 3.14 1M5 2.5e-3 6E+2 1.50dec 1..2 1..=3 5e x.y 2.5f
+    │                         ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFE)
+
+  2 │  // ok � in comment
+    │        ^
+
+error BYN0003: unterminated string literal
+
+  4 │ "}"}"}"}"}"}"
+    │             ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0008: unterminated char literal
+
+  7 │ 'x�
+    │ ^^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0x8C)
+
+  7 │ 'x�
+    │   ^

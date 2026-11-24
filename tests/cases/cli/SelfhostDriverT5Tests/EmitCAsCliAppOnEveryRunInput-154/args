@@ -1,0 +1,3 @@
+build
+--emit-c
+lambda-nested-function-types.byn

@@ -1,0 +1,20 @@
+== tests/cases/diag/env-get-needs-env.byn
+163..193 blockStmt
+169..191 returnStmt value 176..191
+176..191 callExpr
+184..190 literalExpr string
+241..271 blockStmt
+247..269 returnStmt value 254..269
+254..269 callExpr
+262..268 literalExpr string
+285..352 blockStmt
+291..350 exprStmt
+291..350 callExpr
+297..349 interpolatedExpr
+300..323 binaryExpr coalesce right 320..323
+300..316 callExpr
+320..323 literalExpr string
+326..347 binaryExpr coalesce right 344..347
+326..340 callExpr
+344..347 literalExpr string
+291..350 callExpr

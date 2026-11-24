@@ -1,0 +1,149 @@
+1:1 Identifier `d`
+1:2 StringLiteral `" $"`
+1:6 OpenBrace `{`
+1:7 OpenBrace `{`
+1:8 Identifier `literal`
+1:15 CloseBrace `}`
+1:16 CloseBrace `}`
+1:17 StringLiteral `" $"`
+1:21 OpenBrace `{`
+1:22 Identifier `Point`
+1:28 OpenBrace `{`
+1:30 Identifier `x`
+1:32 Equals `=`
+1:34 IntegerLiteral `1`
+1:36 CloseBrace `}`
+1:37 CloseBrace `}`
+1:38 Bang `!`
+1:39 StringLiteral `" $"`
+1:43 StringLiteral `"`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 Identifier `x`
+3:47 InterpolationEnd `}`
+3:48 InterpolatedStringEnd `"`
+3:49 InterpolationEnd `}`
+3:50 InterpolatedStringEnd `"`
+3:51 InterpolationEnd `}`
+3:52 InterpolatedStringEnd `"`
+3:53 InterpolationEnd `}`
+3:54 InterpolatedStringEnd `"`
+3:55 InterpolationEnd `}`
+3:56 InterpolatedStringEnd `"`
+3:57 InterpolationEnd `}`
+3:58 InterpolatedStringEnd `"`
+3:59 InterpolationEnd `}`
+3:60 InterpolatedStringEnd `"`
+3:62 ErrorKeyword `error`
+3:68 SetKeyword `set`
+3:72 UnitKeyword `unit`
+3:77 DistinctKeyword `distinct`
+3:86 TypeKeyword `type`
+3:91 ImportKeyword `import`
+3:98 AsKeyword `as`
+3:101 Identifier `publ`
+3:106 Identifier `c`
+3:108 PrivateKeyword `private`
+3:116 StaticKeyword `static`
+3:123 ReadonlyKeyword `readonly`
+3:132 RequiredKeyword `required`
+3:141 Identifier `cont`
+3:146 LetKeyword `let`
+3:150 VarKeyword `var`
+3:154 EmbedKeyword `embed`
+3:160 ExternKeyword `extern`
+3:167 UnsafeKeyword `unsafe`
+4:1 Identifier `ạ̇`
+4:4 Amp `&`
+4:6 AmpAmp `&&`
+4:9 Bar `|`
+4:11 BarBar `||`
+4:14 Caret `^`
+4:16 Tilde `~`
+4:18 Bang `!`
+4:20 Equals `=`
+4:22 EqualsEquals `==`
+4:25 BangEquals `!=`
+4:28 Less `<`
+4:30 LessEquals `<=`
+4:33 Greater `>`
+4:35 GreaterEquals `>=`
+4:38 LessLess `<<`
+4:41 Greater `>`
+4:42 Greater `>`
+4:44 Greater `>`
+4:45 GreaterEquals `>=`
+5:4 Identifier `raw`
+5:8 StringLiteral `"quoted"`
+8:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ d" $"{{literal}}" $"{Point { x = 1 }}!" $""
+    │                                           ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  2 │ �
+    │ ^
+
+error BYN0003: unterminated string literal
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" error set unit distinct type import as publ�c private static readonly required cont let var embed extern unsafe
+    │                      ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0002: unexpected character `\u{11}`
+
+  3 │ $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" error set unit distinct type import as publ�c private static readonly required cont let var embed extern unsafe
+    │                                                                                                         ^
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  4 │ ạ̇& && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 4 │ ạ̇& && | || ^ ~ ! = == != < <= > >= << >> >>=
+    │   │ ++
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  7 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 7 │ �
+    │   │ -

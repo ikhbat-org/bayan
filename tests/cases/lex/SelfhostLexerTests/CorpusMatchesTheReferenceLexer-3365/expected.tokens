@@ -1,0 +1,27 @@
+1:1 Identifier `b`
+3:1 CharLiteral `'\u{D800}'`
+4:1 Identifier `Case2`
+4:7 Identifier `بيان`
+4:12 Identifier `μετρητής`
+4:21 Identifier `x_1`
+4:25 Identifier `é`
+5:1 StringLiteral `"}"`
+5:4 CloseBrace `}`
+5:5 StringLiteral `"}"`
+5:8 CloseBrace `}`
+5:9 StringLiteral `"}"`
+5:12 CloseBrace `}`
+5:13 StringLiteral `"}"`
+7:1 EndOfFile
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │ '\u{D800}'
+    │  ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0015: source is not valid UTF-8 (byte 0xA9)
+
+  5 │ "}"�}"}"}"}"}"}"
+    │    ^

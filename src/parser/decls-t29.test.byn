@@ -1,0 +1,182 @@
+// 019 T29 (coverage ratchet): decls.byn paths no golden case reaches: stray top-level tokens, repeated and misplaced
+// modifiers, declarations a struct body cannot hold, type alias keyword pairs, C# `delegate` signatures of every shape,
+// `because` without a string or on the next line, repeated `states`, `;` after enum cases, `params` without an array
+// and clauses that are not what they start like. The helper `t29Brief` is dump-t29.test.byn's. The expected text is the
+// output of the self-hosted parser at the commit that added the test.
+
+test "parser t29: rare declarations" {
+    let sources = [
+        "}\n",
+        "const int X { }\n",
+        "const const int X { }\n",
+        "public public void f() { }\n",
+        "public x\n",
+        "public\n",
+        "struct S {\n    enum E { a }\n    union U { a }\n    interface I { }\n    extension T { }\n    effect E = a\n    public test \"t\" { }\n    import x\n}\n",
+        "type distinct X = int\n",
+        "distinct type X = int\n",
+        "type type X = int\n",
+        "distinct distinct X = int\n",
+        "delegate int F<T>(T x)\n",
+        "delegate void F()\n",
+        "delegate void F(int a, int b)\n",
+        "delegate int F(ref int a)\n",
+        "delegate void F(int)\n",
+        "delegate )\n",
+        "delegate int (\n",
+        "delegate int F x\n",
+        "delegate int F(int a\n",
+        "delegate int F(int a) x\n",
+        "delegate int F(int a);\n",
+        "delegate void F((int, int) a)\n",
+        "@a because 1\nvoid f() { }\n",
+        "@a\nbecause \"x\"\nvoid f() { }\n",
+        "struct S {\n    states { a }\n    states { b }\n}\n",
+        "struct S {\n    )\n}\n",
+        "enum E {\n    a;\n}\n",
+        "enum E { a, b; }\n",
+        "void f(params int) { }\n",
+        "void f(params int[ ] ) { }\n",
+        "void f(params int[] ) { }\n",
+        "interface I {\n    void f() x\n}\n",
+        "void f() becomes x { }\n",
+        "void f(ref this, int a) { }\n",
+        "void f(move this) { }\n",
+        "void f(this) { }\n",
+        "void f(rest int a) { }\n",
+    ]
+    var sb = StrBuf()
+    for i in 0..sources.length {
+        sb.append($"== {i}\n{t29Brief(sources[i])}")
+    }
+    let expected = """
+            == 0
+            [BYN1001 0+1]
+            == 1
+            [BYN1001 6+3]
+            == 2
+            Const <missing>
+            [BYN1001 6+5]
+            == 3
+            Function public f() -> void
+              Block
+            [BYN1016 7+6]
+            == 4
+            [BYN1001 7+1]
+            == 5
+            [BYN1001 7+0]
+            == 6
+            Struct S
+              <error>
+              <error>
+              <error>
+              <error>
+              <error>
+            [BYN1004 15+4]
+            [BYN1004 32+5]
+            [BYN1004 70+9]
+            [BYN1004 114+4]
+            [BYN1004 131+6]
+            == 7
+            TypeAlias distinct X = i32
+            == 8
+            TypeAlias distinct X = i32
+            [BYN1044 0+13]
+            == 9
+            Expr type
+            [BYN1012 0+4]
+            [BYN1005 4+0]
+            == 10
+            Expr distinct
+            [BYN1012 0+8]
+            [BYN1005 8+0]
+            == 11
+            [BYN1028 0+22]
+            == 12
+            [BYN1028 0+17]
+            == 13
+            [BYN1028 0+29]
+            == 14
+            [BYN1028 0+25]
+            == 15
+            [BYN1028 0+20]
+            == 16
+            [BYN1028 0+10]
+            == 17
+            [BYN1028 0+14]
+            == 18
+            [BYN1028 0+16]
+            == 19
+            [BYN1028 0+20]
+            == 20
+            [BYN1028 0+23]
+            == 21
+            [BYN1028 0+22]
+            == 22
+            [BYN1028 0+29]
+            == 23
+            Attribute @a
+            Expr 1
+            Function f() -> void
+              Block
+            [BYN1001 11+1]
+            == 24
+            Attribute @a
+            Expr <error>
+            Function f() -> void
+              Block
+            [BYN1002 3+7]
+            == 25
+            Struct S
+              State a
+            [BYN2006 32+6]
+            == 26
+            Struct S
+              <error>
+            [BYN1004 15+1]
+            == 27
+            Enum E
+              Member a
+            [BYN1040 14+1]
+            == 28
+            Enum E
+              Member a
+              Member b
+            [BYN1040 13+1]
+            [BYN1053 10+1]
+            == 29
+            Function f(params int) -> void
+              Block
+            [BYN0012 14+3]
+            == 30
+            Function f(params int) -> void
+            [BYN0012 14+3]
+            [BYN1001 17+1]
+            == 31
+            Function f(params int) -> void
+            [BYN0012 14+3]
+            [BYN1001 17+1]
+            == 32
+            Interface I
+              Function f() -> void
+            [BYN1001 27+1]
+            == 33
+            Function f() -> void
+            [BYN1001 9+7]
+            == 34
+            Function f(ref this, i32 a) -> void
+              Block
+            == 35
+            Function f(move this) -> void
+              Block
+            == 36
+            Function f() -> void
+              Block
+            [BYN1061 7+4]
+            == 37
+            Function f(rest i32 a) -> void
+              Block
+
+            """
+    assert sb.finish() == expected
+}

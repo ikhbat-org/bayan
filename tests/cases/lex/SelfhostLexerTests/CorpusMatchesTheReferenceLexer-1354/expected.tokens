@@ -1,0 +1,41 @@
+1:1 Identifier `b`
+4:3 Identifier `camel`
+5:1 ErrorKeyword `error`
+5:7 SetKeyword `set`
+5:11 UnitKeyword `unit`
+5:16 DistinctKeyword `distinct`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 PrivateKeyword `private`
+5:55 StaticKeyword `static`
+5:62 ReadonlyKeyword `readonly`
+5:71 RequiredKeyword `required`
+5:80 ConstKeyword `const`
+5:86 LetKeyword `let`
+5:90 VarKeyword `var`
+5:94 EmbedKeyword `embed`
+5:100 ExternKeyword `extern`
+5:107 UnsafeKeyword `unsafe`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xA6)
+
+  3 │ // �comment � hidden
+    │    ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ // �comment � hidden
+    │             ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ // �comment � hidden
+    │   │             -
+
+error BYN0015: source is not valid UTF-8 (byte 0xE8)
+
+  4 │  �camel
+    │  ^

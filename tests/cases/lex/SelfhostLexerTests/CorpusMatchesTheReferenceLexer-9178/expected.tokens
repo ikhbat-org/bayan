@@ -1,0 +1,37 @@
+1:2 Identifier `allowed`
+1:10 InKeyword `in`
+1:13 Identifier `strings`
+1:20 StringLiteral `" "`
+1:23 StringLiteral `" "`
+1:27 Identifier `u`
+1:28 OpenBrace `{`
+1:29 IntegerLiteral `48`
+1:31 CloseBrace `}`
+1:32 Identifier `i`
+1:33 StringLiteral `"`
+3:1 Identifier `café`
+3:6 Equals `=`
+3:8 IntegerLiteral `2`
+5:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ �� allowed in strings" "" "\u{48}i"
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xAE)
+
+  1 │ �� allowed in strings" "" "\u{48}i"
+    │  ^
+
+error BYN0002: unexpected character `\`
+
+  1 │ �� allowed in strings" "" "\u{48}i"
+    │                            ^
+
+error BYN0003: unterminated string literal
+
+  1 │ �� allowed in strings" "" "\u{48}i"
+    │                                   ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

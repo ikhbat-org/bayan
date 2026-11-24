@@ -1,0 +1,15 @@
+== helpers
+bynh_add_list_str static void bynh_add_list_str(bynt_list_str* l, byn_str v) | static void bynh_add_list_str(bynt_list_str* l, byn_str v) {
+    if (!l->alloc) l->alloc = byn_context;
+    byn_list_reserve((void**)&l->ptr, &l->cap, l->len + 1, (int64_t)sizeof(byn_str), l->alloc);
+    l->ptr[l->len++] = v;
+}
+bynh_joined_list_str static byn_str bynh_joined_list_str(bynt_list_str xs, byn_str sep) | static byn_str bynh_joined_list_str(bynt_list_str xs, byn_str sep) {
+    return byn_str_joined(xs.ptr, xs.len, sep, byn_context);
+}
+bynh_joined_span_str static byn_str bynh_joined_span_str(bynt_span_str xs, byn_str sep) | static byn_str bynh_joined_span_str(bynt_span_str xs, byn_str sep) {
+    return byn_str_joined(xs.ptr, xs.len, sep, byn_context);
+}
+bynh_span_list_str static bynt_span_str bynh_span_list_str(bynt_list_str l) | static bynt_span_str bynh_span_list_str(bynt_list_str l) {
+    return (bynt_span_str){l.ptr, l.len};
+}

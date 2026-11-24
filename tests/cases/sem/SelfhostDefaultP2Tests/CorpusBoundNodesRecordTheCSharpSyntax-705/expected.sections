@@ -1,0 +1,21 @@
+== tests/cases/diag/noun-on-mutator.byn
+301..312 globalStatement
+301..312 exprStmt
+301..312 callExpr
+307..311 literalExpr string
+301..312 callExpr
+75..98 blockStmt
+85..92 assignStmt add target 85..86 value 90..92
+85..86 nameExpr
+85..86 nameExpr
+90..92 nameExpr
+133..155 blockStmt
+143..149 assignStmt mul target 143..144 value 148..149
+143..144 nameExpr
+143..144 nameExpr
+148..149 literalExpr integer
+275..297 blockStmt
+285..291 assignStmt div target 285..286 value 290..291
+285..286 nameExpr
+285..286 nameExpr
+290..291 literalExpr integer

@@ -1,0 +1,94 @@
+1:1 CharLiteral `'a'`
+1:5 CharLiteral `'\n'`
+1:10 CharLiteral `'\u{1F600}'`
+1:22 CharLiteral `'\''`
+1:27 CharLiteral `'é'`
+1:31 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
+2:4 IntegerLiteral `0x`
+4:1 Identifier `ec`
+4:4 IntegerLiteral `1`
+4:5 DotDot `..`
+4:7 IntegerLiteral `2`
+4:9 IntegerLiteral `1`
+4:10 DotDotEquals `..=`
+4:13 IntegerLiteral `3`
+4:15 IntegerLiteral `5`
+4:16 NumericSuffix `e`
+4:18 Identifier `x`
+4:19 Dot `.`
+4:20 Identifier `y`
+4:22 FloatLiteral `2.5`
+4:25 NumericSuffix `f`
+5:2 LetKeyword `let`
+5:6 EffectKeyword `effect`
+5:13 Equals `=`
+5:15 IntegerLiteral `2`
+7:1 InterpolatedStringStart `$"`
+7:3 InterpolationStart `{`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolationStart `{`
+7:7 InterpolatedStringStart `$"`
+7:9 InterpolationStart `{`
+7:10 InterpolatedStringStart `$"`
+7:12 InterpolationStart `{`
+7:13 InterpolatedStringStart `$"`
+7:15 InterpolationStart `{`
+7:16 InterpolatedStringStart `$"`
+7:18 InterpolationStart `{`
+7:19 InterpolatedStringStart `$"`
+7:21 InterpolationStart `{`
+7:22 InterpolatedStringStart `$"`
+7:24 InterpolationStart `{`
+7:25 InterpolatedStringStart `$"`
+7:27 InterpolatedStringText `�`
+7:28 InterpolationStart `{`
+7:29 InterpolatedStringStart `$"`
+7:31 InterpolationStart `{`
+7:32 InterpolatedStringStart `$"`
+7:34 InterpolationStart `{`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolationStart `{`
+7:38 InterpolatedStringStart `$"`
+7:40 InterpolationStart `{`
+7:41 InterpolatedStringStart `$"`
+7:43 InterpolationStart `{`
+7:44 InterpolatedStringStart `$"`
+7:46 InterpolationStart `{`
+7:47 InterpolatedStringStart `$"`
+7:49 InterpolationStart `{`
+8:1 StringLiteral `$"{$"`
+8:6 OpenBrace `{`
+8:7 StringLiteral `$"{$"`
+8:12 OpenBrace `{`
+8:13 StringLiteral `$"{x`
+8:17 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  2 │  � 0x
+    │    ^^
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{
+    │                           ^
+
+error BYN0003: unterminated string literal
+
+  7 │ $"{$"{$"{$"{$"{$"{$"{$"{$"�{$"{$"{$"{$"{$"{$"{$"{
+    │                                               ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0016: interpolated strings are nested too deeply
+
+  8 │ $"{$"{$"{$"{$"{x
+    │ ^^
+
+error BYN0003: unterminated string literal
+
+  8 │ $"{$"{$"{$"{$"{x
+    │             ^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

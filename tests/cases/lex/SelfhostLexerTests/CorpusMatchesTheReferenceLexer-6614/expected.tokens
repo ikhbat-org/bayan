@@ -1,0 +1,42 @@
+1:1 IfKeyword `if`
+1:4 ElseKeyword `else`
+1:9 UnlessKeyword `unless`
+1:16 SwitchKeyword `switch`
+1:23 CaseKeyword `case`
+1:28 DefaultKeyword `default`
+1:36 ForKeyword `for`
+1:40 InKeyword `in`
+1:43 WhileKeyword `while`
+1:49 DoKeyword `do`
+1:52 BreakKeyword `break`
+1:58 ContinueKeyword `continue`
+1:67 Identifier `eturn`
+1:73 YieldKeyword `yield`
+1:79 Identifier `defererrZefer`
+1:93 UsingKeyword `using`
+1:99 ContextKeyword `context`
+2:1 Identifier `foo`
+2:5 Identifier `Bar`
+2:9 Identifier `_x`
+2:12 Identifier `camelCase2`
+2:23 Identifier `بيان`
+2:28 Identifier `μετρητής`
+2:37 Identifier `x_1`
+2:41 Identifier `é`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `stray } here`
+3:17 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  3 │  �$"stray } here"
+    │  ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  �$"stray } here"
+    │           ^
+    │
+    │ 3 │  �$"stray }} here"
+    │   │            +

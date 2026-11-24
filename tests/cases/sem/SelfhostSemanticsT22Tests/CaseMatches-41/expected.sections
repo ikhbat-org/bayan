@@ -1,0 +1,3 @@
+== wrong.probes.-.w4
+true
+BYN7001 76:14 `pay` needs `o` to be `.paid`, but it is `Order.shipped` ||check the state with `is` or `switch` first|

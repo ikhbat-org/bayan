@@ -1,0 +1,14 @@
+# BYN2102: use before assignment
+
+**Why.** A local declared without a value has none until it is assigned. Bayan checks every path, so reading it early is a compile error rather than garbage at run time.
+
+**Example.**
+
+```
+let ok = true
+var total: i64
+if ok { total = 1 }
+print($"{total}")
+```
+
+**Fix.** Assign it on every path before the read, or give the declaration a value.

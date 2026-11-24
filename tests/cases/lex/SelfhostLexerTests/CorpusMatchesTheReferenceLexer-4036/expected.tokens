@@ -1,0 +1,55 @@
+1:2 IntegerLiteral `0b102`
+2:4 Identifier `raw`
+2:8 StringLiteral `"quoted"`
+4:1 LetKeyword `let`
+4:5 LawKeyword `law`
+4:9 Equals `=`
+4:11 IntegerLiteral `3`
+6:1 Identifier `a`
+6:3 Greater `>`
+6:4 Greater `>`
+6:6 Identifier `b`
+7:2 Identifier `struSct`
+7:10 UniqueKeyword `unique`
+7:17 UnionKeyword `union`
+7:23 EnumKeyword `enum`
+7:28 FlagsKeyword `flags`
+7:34 OpenKeyword `open`
+7:39 ExtensibleKeyword `extensible`
+7:50 InterfaceKeyword `interface`
+7:60 DelegateKeyword `delegate`
+7:69 ExtensionKeyword `extension`
+7:79 DerivationKeyword `derivation`
+7:90 AttributeKeyword `attribute`
+8:2 InterpolatedStringStart `$"`
+8:4 InterpolatedStringText `stray } here`
+8:16 InterpolatedStringEnd `"`
+9:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  1 │ �0b102
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x9F)
+
+  1 │ �0b102
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x98)
+
+  1 │ �0b102
+    │  ^
+
+error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
+
+  1 │ �0b102
+    │      ^
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  8 │  $"stray } here"
+    │          ^
+    │
+    │ 8 │  $"stray }} here"
+    │   │           +

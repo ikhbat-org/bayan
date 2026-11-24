@@ -1,0 +1,3 @@
+build
+--emit-c
+list-remove-range.byn

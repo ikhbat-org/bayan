@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/style-nesting-depth.byn
+--package
+<repo>/tests/cases/diag

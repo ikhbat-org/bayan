@@ -1,0 +1,10 @@
+1:1 IntegerLiteral `0xFF`
+3:2 IntegerLiteral `5`
+3:3 StringLiteral `"x{ $"`
+3:9 OpenBrace `{`
+4:1 EndOfFile
+
+error BYN0002: unexpected character `$`
+
+  3 │ $5"x{ $"{
+    │ ^

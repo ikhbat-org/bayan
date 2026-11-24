@@ -1,0 +1,1 @@
+{"version": 1, "kind": "mutation", "tool": "stryker", "timing": {"build_s": 1.0, "total_s": 2.5}, "files": [{"path": "src/é.byn", "mutants": [{"site": {"original": "a \"q\" \\ ā é 😀", "mutated": "b"}, "status": "survived"}]}], "totals": {"killed": 1}}

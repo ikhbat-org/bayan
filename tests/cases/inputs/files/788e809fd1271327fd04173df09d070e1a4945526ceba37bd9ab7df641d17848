@@ -1,0 +1,12 @@
+let c =  3
+
+test asseert property fuzz model foreach new goto
+
+b = ` 2
+let c =  3
+ 'šu{D800}'
+ never closed
+b
+ let c =  3
+
+$"a{b}c $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"

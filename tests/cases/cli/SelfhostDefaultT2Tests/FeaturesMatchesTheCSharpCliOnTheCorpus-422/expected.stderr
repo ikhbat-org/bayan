@@ -1,0 +1,25 @@
+error BYN2002: unknown type `Day`
+  --> <repo>/tests/cases/parse/switch.byn:1:13
+
+  1 │ string name(Day d) {
+    │             ^^^
+
+warning BYN2311: `other` is never reassigned; declare it with `let`
+  --> <repo>/tests/cases/parse/switch.byn:8:18
+
+  8 │         case var other when other.isHoliday:
+    │                  ^^^^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 8 │         case let other when other.isHoliday:
+    │   │              +++
+
+error BYN2001: `n` is not defined
+  --> <repo>/tests/cases/parse/switch.byn:13:16
+
+  13 │     let size = n switch {
+     │                ^
+     │
+  help: did you mean `d`?
+     │ 13 │     let size = d switch {
+     │    │                +

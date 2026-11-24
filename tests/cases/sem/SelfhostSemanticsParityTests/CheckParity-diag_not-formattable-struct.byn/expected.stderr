@@ -1,0 +1,10 @@
+error BYN2225: `Point` cannot be formatted
+  --> tmp/t26-tests/cli/diag_not-formattable-struct.byn/not-formattable-struct.byn:7:10
+
+  7 │ print($"{p}")
+    │          ^
+    │
+  help: add `formatInto(ref StrBuf)` to `Point`, or use `{x, as: .debug}`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2225

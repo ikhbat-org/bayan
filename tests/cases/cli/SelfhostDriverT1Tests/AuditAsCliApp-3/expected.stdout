@@ -1,0 +1,6 @@
+<repo>/tmp/t6-audit/tree/a.byn:1:1  unsafe void a()  no reason given
+<repo>/tmp/t6-audit/tree/b.byn:1:1  unsafe void b()  no reason given
+<repo>/tmp/t6-audit/tree/src/bin/x.byn:1:1  unsafe void x()  no reason given
+<repo>/tmp/t6-audit/tree/src/deep/q.byn:1:1  unsafe void q()  no reason given
+<repo>/tmp/t6-audit/tree/weird.byn/inner.byn:1:1  unsafe void inner()  no reason given
+◆ 5 bypasses in <repo>/tmp/t6-audit/tree

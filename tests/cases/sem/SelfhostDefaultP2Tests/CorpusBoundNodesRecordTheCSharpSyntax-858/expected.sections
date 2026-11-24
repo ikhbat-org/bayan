@@ -1,0 +1,32 @@
+== tests/cases/diag/style-conditions-named.byn
+84..238 blockStmt
+90..99 localDecl
+98..99 literalExpr integer
+104..113 localDecl
+112..113 literalExpr integer
+118..177 ifStmt
+121..147 binaryExpr logicalAnd right 142..147
+121..126 binaryExpr gt right 125..126
+121..122 nameExpr
+125..126 literalExpr integer
+142..147 binaryExpr gt right 146..147
+142..143 nameExpr
+146..147 literalExpr integer
+148..177 blockStmt
+158..171 exprStmt
+158..171 callExpr
+164..170 literalExpr string
+158..171 callExpr
+182..215 localDecl
+193..215 binaryExpr logicalAnd right 210..215
+193..198 binaryExpr gt right 197..198
+193..194 nameExpr
+197..198 literalExpr integer
+210..215 binaryExpr gt right 214..215
+210..211 nameExpr
+214..215 literalExpr integer
+220..236 exprStmt
+220..236 callExpr
+226..235 interpolatedExpr
+229..233 nameExpr
+220..236 callExpr

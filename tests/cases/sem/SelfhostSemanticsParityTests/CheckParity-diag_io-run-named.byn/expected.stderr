@@ -1,0 +1,36 @@
+error BYN2305: argument for `directory` must be named
+  --> tmp/t26-tests/cli/diag_io-run-named.byn/io-run-named.byn:4:38
+
+  4 │     let _ = try Io.run("sh", a.span, "/tmp")
+    │                                      ^^^^^^
+    │
+  help: write `directory: …`; `Io.run`'s options are named
+    │ 4 │     let _ = try Io.run("sh", a.span, directory: "/tmp")
+    │   │                                      +++++++++++
+
+error BYN2021: `run` has no parameter `dir`
+  --> tmp/t26-tests/cli/diag_io-run-named.byn/io-run-named.byn:5:38
+
+  5 │     let _ = try Io.run("sh", a.span, dir: "/tmp")
+    │                                      ^^^
+
+error BYN2202: expected `string?`, found `i32`
+  --> tmp/t26-tests/cli/diag_io-run-named.byn/io-run-named.byn:6:49
+
+  6 │     let _ = try Io.run("sh", a.span, directory: 3)
+    │                                                 ^
+
+error BYN2202: expected `ReadOnlySpan<u8>?`, found `string`
+  --> tmp/t26-tests/cli/diag_io-run-named.byn/io-run-named.byn:7:45
+
+  7 │     let _ = try Io.run("sh", a.span, input: "x")
+    │                                             ^^^
+
+error BYN2202: expected `string?`, found `i32`
+  --> tmp/t26-tests/cli/diag_io-run-named.byn/io-run-named.byn:8:49
+
+  8 │     let _ = try Io.run("sh", a.span, env: ["A": 1])
+    │                                                 ^
+
+✗ build failed: 5 errors, 0 warnings
+  explain: bayan explain BYN2305

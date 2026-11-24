@@ -1,0 +1,26 @@
+error BYN2106: cannot modify this value
+  --> <repo>/tmp/t2/diag/string-bytes-read-only/string-bytes-read-only.byn:9:1
+
+  9 │ b[0] = 65
+    │ ^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2106: cannot modify this value
+  --> <repo>/tmp/t2/diag/string-bytes-read-only/string-bytes-read-only.byn:11:1
+
+  11 │ tail[0] = 66
+     │ ^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2202: expected `Span<u8>`, found `ReadOnlySpan<u8>`
+  --> <repo>/tmp/t2/diag/string-bytes-read-only/string-bytes-read-only.byn:12:21
+
+  12 │ let buffer = StrBuf(s.bytes)
+     │                     ^^^^^^^
+
+error BYN2202: expected `Span<u8>`, found `ReadOnlySpan<u8>`
+  --> <repo>/tmp/t2/diag/string-bytes-read-only/string-bytes-read-only.byn:13:7
+
+  13 │ clear(s.bytes)
+     │       ^^^^^^^
+
+✗ build failed: 4 errors, 0 warnings
+  explain: bayan explain BYN2106

@@ -1,0 +1,30 @@
+== cases
+1 byn_strbuf_str(l1_buf)
+2 p_spec.digits
+3 (l0_digits < INT64_C(0))
+4 p_spec.debug
+5 byn_w_str(&l1_text, BYN_STR("Money ", 6))
+6 (p_spec.radix == ((byn_builtin_Radix)3))
+7 p_spec.radix
+10 byn_div_i64((*self).cents, INT64_C(100), byn_file_0, 16)
+11 (l0_digits > INT64_C(0))
+12 byn_w_str(&l1_text, BYN_STR(".", 1))
+14 byn_rem_i64((*self).cents, INT64_C(100), byn_file_0, 19)
+15 byn_sub_i64(p_spec.width, l1_text.len, byn_file_0, 22)
+16 p_spec.width
+17 l1_text.len
+18 ((l3_gap > INT64_C(0)) && (!(p_spec.align == ((byn_builtin_Align)0))))
+19 (l3_gap > INT64_C(0))
+20 (!(p_spec.align == ((byn_builtin_Align)0)))
+21 p_spec.align
+22 bynh_strbuf_repeat(&(*p_output), p_spec.fill, l3_gap, byn_file_0, 24)
+23 p_spec.fill
+24 byn_w_str(&(*p_output), byn_strbuf_str(l1_text))
+25 byn_strbuf_str(l1_text)
+26 ((l3_gap > INT64_C(0)) && (p_spec.align == ((byn_builtin_Align)0)))
+27 (l3_gap > INT64_C(0))
+28 (p_spec.align == ((byn_builtin_Align)0))
+29 p_spec.align
+30 bynh_strbuf_repeat(&(*p_output), p_spec.fill, l3_gap, byn_file_0, 28)
+31 p_spec.fill
+count 33

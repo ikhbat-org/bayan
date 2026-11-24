@@ -1,0 +1,11 @@
+== diags.diag/requires-violated
+BYN5011 2:5 this `expects` reads only `percent`; a type with `requires` checks it once
+  help declare a type with `requires` for `percent`
+BYN5011 5:21 this `expects` reads only `n`; a type with `requires` checks it once
+  help declare a type with `requires` for `n`
+BYN2321 8:29 `150` violates `requires percent in 0..=100` of `discount`
+  label fails the contract
+  help pass a value that meets `requires percent in 0..=100`
+BYN2321 10:40 `0` violates `requires n > 0 && n < 1000` of `positive`
+  label fails the contract
+  help pass a value that meets `requires n > 0 && n < 1000`

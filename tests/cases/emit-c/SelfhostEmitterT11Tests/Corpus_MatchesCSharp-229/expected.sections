@@ -1,0 +1,8 @@
+== cases
+0 (p_n < INT64_C(0))
+1 (p_n > INT64_C(10))
+2 (p_n > INT64_C(0))
+3 ((bynt_opt_i64){true, p_n})
+4 (p_n > INT64_C(10))
+5 (p_n < INT64_C(5))
+count 6

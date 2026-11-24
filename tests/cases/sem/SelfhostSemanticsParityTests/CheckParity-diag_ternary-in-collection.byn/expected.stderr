@@ -1,0 +1,12 @@
+error BYN1013: a conditional expression inside a collection literal must be parenthesized
+  --> tmp/t26-tests/cli/diag_ternary-in-collection.byn/ternary-in-collection.byn:1:11
+
+  1 │ let xs = [a ? 1 : 2, 3]
+    │           ^^^^^^^^^
+    │
+  help: wrap it in parentheses
+    │ 1 │ let xs = [(a ? 1 : 2), 3]
+    │   │           +++++++++++
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN1013

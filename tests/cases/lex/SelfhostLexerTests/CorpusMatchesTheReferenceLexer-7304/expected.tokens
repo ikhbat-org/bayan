@@ -1,0 +1,41 @@
+1:1 ErrorKeyword `error`
+1:7 SetKeyword `set`
+1:11 UnitKeyword `unit`
+1:16 DistinctKeyword `distinct`
+1:25 TypeKeyword `type`
+1:30 ImportKeyword `import`
+1:37 AsKeyword `as`
+1:40 PublicKeyword `public`
+1:47 PrivateKeyword `private`
+1:55 StaticKeyword `static`
+1:62 ReadonlyKeyword `readonly`
+1:71 Identifier `r`
+1:73 Identifier `quired`
+1:80 ConstKeyword `const`
+1:86 Identifier `le`
+1:89 VarKeyword `var`
+1:93 EmbedKeyword `embed`
+1:99 ExternKeyword `extern`
+1:106 UnsafeKeyword `unsafe`
+2:1 IntegerLiteral `71__`
+7:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFD)
+
+  1 │ error set unit distinct type import as public private static readonly r�quired const le var embed extern unsafe
+    │                                                                        ^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  2 │ 71__
+    │   ^^
+    │
+    │ 2 │ 71__
+    │   │   --
+
+error BYN0004: unterminated block comment
+
+  5 │ /* bl
+    │ ^^ comment starts here
+    │
+  help: close it with `*/`

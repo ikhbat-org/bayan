@@ -1,0 +1,5 @@
+== diags.diag/missing-line-break
+BYN1005 1:10 expected a line break after the statement
+  label found keyword `let`
+  help put the next statement on its own line
+  fix 1:10-1:11 

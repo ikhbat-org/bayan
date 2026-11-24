@@ -1,0 +1,3 @@
+ln -s main.byn d/alias.byn && ln -s main.byn d/zz.byn && ln -s m.byn d/c.byn
+printf 'unsafe void peek() {\n}\n' > d/m.byn
+ln -s m.byn d/y.byn

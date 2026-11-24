@@ -1,0 +1,1 @@
+$ $BAYAN build --emit-c --target wasm32 main.byn > c.txt; echo "build $?"; grep -F -e BYN_HOST_OS -e BYN_HOST_ARCH -e '"windows"' -e '"macos"' -e '"linux"' -e '"wasi"' -e '"x64"' -e '"arm64"' -e '"wasm32"' c.txt; rm c.txt

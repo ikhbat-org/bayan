@@ -1,0 +1,90 @@
+== tests/cases/diag/borrow-own-field.byn
+336..735 blockStmt
+342..404 localDecl
+354..404 structLiteralExpr
+368..381 callExpr
+390..402 collectionExpr
+391..392 literalExpr integer
+394..395 literalExpr integer
+397..398 literalExpr integer
+400..401 literalExpr integer
+409..445 exprStmt
+409..445 callExpr
+409..419 memberExpr
+409..414 nameExpr
+427..444 structLiteralExpr
+441..442 literalExpr integer
+450..486 exprStmt
+450..486 callExpr
+450..460 memberExpr
+450..455 nameExpr
+468..485 structLiteralExpr
+482..483 literalExpr integer
+491..515 localDecl
+501..515 callExpr
+501..506 nameExpr
+520..541 localDecl
+528..541 callExpr
+528..533 nameExpr
+546..586 exprStmt
+546..586 callExpr
+552..585 interpolatedExpr
+555..565 memberExpr
+555..558 nameExpr
+568..579 memberExpr
+568..574 indexExpr
+568..571 nameExpr
+572..573 literalExpr integer
+582..583 nameExpr
+546..586 callExpr
+591..621 localDecl
+602..621 callExpr
+602..607 nameExpr
+619..620 literalExpr integer
+626..650 exprStmt
+626..650 callExpr
+632..649 interpolatedExpr
+635..647 memberExpr
+635..642 indexExpr
+635..639 nameExpr
+640..641 literalExpr integer
+626..650 callExpr
+655..691 exprStmt
+655..691 callExpr
+655..665 memberExpr
+655..660 nameExpr
+673..690 structLiteralExpr
+687..688 literalExpr integer
+696..733 exprStmt
+696..733 callExpr
+702..732 interpolatedExpr
+705..730 memberExpr
+705..723 callExpr
+705..710 nameExpr
+696..733 callExpr
+121..130 memberExpr
+121..130 memberExpr
+121..130 memberExpr
+121..125 nameExpr
+121..125 nameExpr
+151..162 memberExpr
+151..162 memberExpr
+151..162 memberExpr
+151..155 nameExpr
+151..155 nameExpr
+206..223 indexExpr
+206..223 indexExpr
+206..223 indexExpr
+206..215 memberExpr
+206..210 nameExpr
+206..210 nameExpr
+216..220 nameExpr
+260..320 blockStmt
+270..290 localDecl
+280..290 memberExpr
+280..285 nameExpr
+280..285 nameExpr
+299..314 returnStmt value 306..314
+306..314 indexExpr
+306..309 nameExpr
+312..313 literalExpr integer

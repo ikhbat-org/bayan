@@ -1,0 +1,44 @@
+1:1 IntegerLiteral `1_`
+2:2 CharLiteral `'a'`
+2:6 CharLiteral `'\n'`
+2:11 CharLiteral `'\u{1F600}'`
+2:23 CharLiteral `'\''`
+2:28 CharLiteral `'é'`
+2:32 CharLiteral `'\\'`
+2:37 CharLiteral `'\0'`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `x`
+3:5 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 FailsKeyword `fails`
+3:16 TryKeyword `try`
+3:20 CatchKeyword `catch`
+3:26 NeverKeyword `never`
+3:32 NoallocKeyword `noalloc`
+3:40 NosuspendKeyword `nosuspend`
+3:50 SuspendsKeyword `suspends`
+3:59 Identifier `asyn`
+3:63 Identifier `c`
+3:65 AwaitKeyword `await`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1_
+    │  ^
+    │
+    │ 1 │ 1_
+    │   │  -
+
+error BYN0003: unterminated string literal
+
+  3 │  $"x{ $"{fails try catch never noalloc nosuspend suspends asyn�c await
+    │       ^^ this string never ends
+    │
+  help: close the `{` and the string
+
+error BYN0015: source is not valid UTF-8 (byte 0xAD)
+
+  3 │  $"x{ $"{fails try catch never noalloc nosuspend suspends asyn�c await
+    │                                                               ^

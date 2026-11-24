@@ -1,0 +1,77 @@
+1:1 IntegerLiteral `0`
+1:3 IntegerLiteral `42`
+1:6 IntegerLiteral `1_000_000`
+1:16 IntegerLiteral `0xFF`
+1:21 IntegerLiteral `0x_ff`
+1:27 IntegerLiteral `0b1010`
+1:34 IntegerLiteral `0B11`
+1:39 IntegerLiteral `5`
+1:40 NumericSuffix `s`
+1:42 IntegerLiteral `250`
+1:45 NumericSuffix `ms`
+1:48 IntegerLiteral `4`
+1:49 NumericSuffix `KiB`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
+3:2 IntegerLiteral `1`
+4:2 LetKeyword `let`
+4:6 Identifier `x`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
+6:1 IntegerLiteral `1`
+8:1 Identifier `come`
+9:1 LetKeyword `let`
+9:5 LawKeyword `law`
+9:9 Equals `=`
+9:11 IntegerLiteral `3`
+10:1 CharLiteral `'a'`
+10:5 CharLiteral `'\n'`
+10:10 CharLiteral `'\u{1F600}'`
+10:22 CharLiteral `'\''`
+10:27 CharLiteral `'é'`
+10:31 CharLiteral `'\\'`
+10:36 CharLiteral `'\0'`
+12:1 Identifier `macro`
+12:7 Identifier `select`
+12:14 BecomeKeyword `become`
+13:2 EndOfFile
+
+error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
+
+  2 │ �
+    │ ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ �
+    │   │ -
+
+error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
+
+  4 │  let x� = 1
+    │       ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 4 │  let x� = 1
+    │   │       -
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  12 │ macro select become
+     │ ^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  12 │ macro select become
+     │       ^^^^^^ reserved for a future version of Bayan
+     │
+  help: choose another name

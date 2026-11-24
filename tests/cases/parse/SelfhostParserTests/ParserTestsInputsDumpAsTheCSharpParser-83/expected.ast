@@ -1,0 +1,17 @@
+CompilationUnit
+  Union U
+    Variant A(i64 x)
+    Variant B
+
+error BYN1053: `U` declares its cases on one line; write one per line
+
+  1 │ union U { A(i64 x), B }
+    │                   ^ the first `,`
+    │
+  help: write each case on its own line
+    │ 1 │ union U {
+    │ 2 │     A(i64 x)
+    │   │ ++++++++++++
+    │ 3 │     B
+    │   │ +++++
+    │ 4 │ }

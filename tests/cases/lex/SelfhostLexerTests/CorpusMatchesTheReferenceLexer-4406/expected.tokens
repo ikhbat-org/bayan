@@ -1,0 +1,20 @@
+1:1 IntegerLiteral `0`
+1:2 CharLiteral `'W`
+2:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0x90)
+
+  1 │ ��0'W
+    │ ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  1 │ ��0'W
+    │  ^
+
+error BYN0008: unterminated char literal
+
+  1 │ ��0'W
+    │    ^^
+    │
+  help: close it with `'`

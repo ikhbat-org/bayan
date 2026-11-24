@@ -1,0 +1,287 @@
+#!/usr/bin/env bayan
+// The plan of one mutate-batch run (spec 015 T13): which src/**/*.byn files are mutated, in which group, with which test
+// filter. Port of the inline Python block of scripts/selfhost/mutate-batch.sh. Prints one `group<TAB>file<TAB>filter`
+// line per file, in file order, after --files and --shard; a filter is `|`-joined `bayan test tests/cases --only` selectors
+// (`<kind>/<Class>/`, a family default `<kind>/<Family>`; spec 019 T48c), or `bayan test --mutate src/driver` for the driver
+// family (T48c decision C4: it has no golden program to record); a plan error prints `mutate-batch: <reason>` on stderr and
+// exits 1. Divergences from the Python: a task line's status mark must be one byte (`[x]`, `[ ]`), and a line break is
+// `\n`, `\r\n` or `\r` only (not the other Unicode ones `str.splitlines` knows).
+// Usage: bash scripts/bayan-tool.sh mutate-plan <files a.byn,b.byn or ""> <shard k/n or ""> <tasks.md>...
+
+import std.fs
+import std.path
+
+type Glob = path.Glob
+
+union error PlanError {
+    failed(string message)
+}
+
+struct Entry {
+    List<string> patterns
+    List<string> classes
+}
+
+struct Row {
+    string file
+    string filter
+}
+
+/// The family of `dir`, or null for a directory with none.
+string? family(string dir) {
+    if dir == "src/emitter" || dir.startsWith("src/emitter/") { return "SelfhostEmitter" }
+    if dir == "src/semantics" { return "SelfhostSemantics" }
+    if dir == "src/parser" { return "SelfhostParser" }
+    if dir == "src/lexer" { return "SelfhostLexer" }
+    if dir == "src/driver" { return "SelfhostDriver" }
+    return null
+}
+
+/// Whether test class `c` belongs to family `fam`: starts with its name.
+bool kept(string c, for string fam) {
+    return c.startsWith(fam)
+}
+
+/// The tests/cases kind holding the exported cases of family `fam` (tests/cases/EXPORT.tsv).
+string kind(string fam) {
+    if fam == "SelfhostEmitter" { return "emit-c" }
+    if fam == "SelfhostSemantics" { return "sem" }
+    if fam == "SelfhostParser" { return "parse" }
+    return "lex"
+}
+
+/// `re.findall(r'`([^`]+)`', text)`.
+List<string> backticked(string text) uses alloc {
+    var found = List<string>()
+    var i = 0
+    while i < text.length {
+        if text.bytes[i] == '`' {
+            let k = text.position("`", from: i + 1) ?? -1
+            if k < 0 { break }
+            if k > i + 1 {
+                found.append(text[i + 1..k])
+                i = k + 1
+                continue
+            }
+        }
+        i += 1
+    }
+    return found
+}
+
+/// The patterns and test classes of a task line; both empty when it is no task line naming files.
+Entry taskEntry(string line) uses alloc {
+    // `- \[.\] .*?files:(.*?)(?: — covers:|$)`
+    var entry = Entry { patterns: List<string>(), classes: List<string>() }
+    if !line.startsWith("- [") || line.length < 6 || line.bytes[4] != ']' || line.bytes[5] != ' ' { return entry }
+    let at = line.position("files:", from: 6) ?? -1
+    if at < 0 { return entry }
+    let rest = line[at + 6..line.length]
+    let end = rest.position(" — covers:") ?? rest.length
+    for t in backticked(rest[0..end]) {
+        if t.endsWith(".byn") { entry.patterns.append(t) }
+        if t.endsWith("Tests.cs") && !t.contains("*") {
+            let base = Path.fileName(t)
+            entry.classes.append(base[0..base.length - 3])
+        }
+    }
+    return entry
+}
+
+/// `text` split into lines as Python's text-mode read and `splitlines` do.
+List<string> lines(string text) uses alloc {
+    var result = List<string>()
+    for p in text.replaced("\r\n", by: "\n").replaced("\r", by: "\n").parts(by: "\n") { result.append(p) }
+    if result[result.length - 1].isEmpty { let _ = result.removeLast() }
+    return result
+}
+
+/// `strings` sorted by byte order, equal ones once.
+List<string> sortedSet(List<string> strings) uses alloc {
+    var result = List<string>()
+    for s in strings {
+        var has = false
+        for r in result {
+            if r == s { has = true }
+        }
+        if has { continue }
+        var j = result.length
+        result.append(s)
+        while j > 0 && result[j] < result[j - 1] {
+            let t = result[j]
+            result[j] = result[j - 1]
+            result[j - 1] = t
+            j -= 1
+        }
+    }
+    return result
+}
+
+/// Whether task-file pattern `p` names `f`: a pattern with a `/` is matched against the path, any other against the
+/// file name, and only when no other file has that name.
+bool names(string f, for string p, from List<string> files) uses alloc {
+    if p.contains("/") { return Glob.matches(p, for: f) }
+    let base = Path.fileName(f)
+    if !Glob.matches(p, for: base) { return false }
+    var same = 0
+    for g in files {
+        if Path.fileName(g) == base { same += 1 }
+    }
+    return same == 1
+}
+
+/// The first `/`-separated two segments of `f`.
+string familyDir(string f) uses alloc {
+    var parts = List<string>()
+    for p in f.parts(by: "/") { parts.append(p) }
+    return parts.length < 2 ? $"{f}" : $"{parts[0]}/{parts[1]}"
+}
+
+/// `s` as a decimal number, or -1.
+i64 number(string s) {
+    if s.isEmpty || s.length > 15 { return -1 }
+    var n = 0
+    for b in s.bytes {
+        if b < '0' || b > '9' { return -1 }
+        n = n * 10 + i64(b - '0')
+    }
+    return n
+}
+
+/// `strings` joined by `|`.
+string join(List<string> strings) uses alloc {
+    var sb = StrBuf()
+    for i in 0..strings.length {
+        if i > 0 { sb.append("|") }
+        sb.append(strings[i])
+    }
+    return sb.finish()
+}
+
+string plan(string only, for string shard, from List<string> tasks) uses fs, alloc fails PlanError {
+    let files = fs.glob("src/**/*.byn")
+    var entries = List<Entry>()
+    var all = List<string>()
+    for t in tasks {
+        let text = Io.readText(t) catch {
+            fail .failed(message: $"cannot read the tasks file: [Errno 2] No such file or directory: '{t}'")
+        }
+        for l in lines(text) { all.append(l) }
+    }
+    for l in all {
+        entries.append(taskEntry(l))
+    }
+    var rows = List<Row>()
+    for f in files {
+        let dir = Path.directoryName(f) ?? ""
+        let fam = family(dir) ?? ""
+        if fam.isEmpty {
+            // A file --files leaves out is never planned, so its directory needing a family does not stop the run.
+            var picked = only.isEmpty
+            for w in only.parts(by: ",") {
+                if w == f { picked = true }
+            }
+            if !picked { continue }
+            fail .failed(message: $"{f}: the directory {dir}/ has no test family (src/semantics, parser, lexer, emitter, driver)")
+        }
+        if fam == "SelfhostDriver" {
+            rows.append(Row { file: $"{f}", filter: "bayan test --mutate src/driver" })
+            continue
+        }
+        var cls = List<string>()
+        for e in entries {
+            var hit = false
+            for p in e.patterns {
+                if names(f, for: p, from: files) { hit = true }
+            }
+            if !hit { continue }
+            for c in e.classes {
+                if kept(c, for: fam) { cls.append(c) }
+            }
+        }
+        var parts = List<string>()
+        if cls.length == 0 { parts.append($"{kind(fam)}/{fam}") }
+        for c in sortedSet(cls) { parts.append($"{kind(fam)}/{c}/") }
+        rows.append(Row { file: $"{f}", filter: join(parts) })
+    }
+    var famDirs = List<string>()
+    for r in rows {
+        let d = familyDir(r.file)
+        var has = false
+        for x in famDirs {
+            if x == d { has = true }
+        }
+        if !has { famDirs.append(d) }
+    }
+    var k = 1
+    var n = 1
+    if !shard.isEmpty {
+        let slash = shard.position("/") ?? -1
+        let a = slash < 0 ? -1 : number(shard[0..slash])
+        let b = slash < 0 ? -1 : number(shard[slash + 1..shard.length])
+        if a < 0 || b < 0 || a < 1 || a > b {
+            fail .failed(message: $"--shard {shard}: want k/n with 1 <= k <= n")
+        }
+        k = a
+        n = b
+    }
+    var want = List<string>()
+    if !only.isEmpty {
+        for w in only.parts(by: ",") { want.append(w) }
+        for w in want {
+            var has = false
+            for f in files {
+                if f == w { has = true }
+            }
+            if !has { fail .failed(message: $"--files {w}: not a selfhost .byn file") }
+        }
+    }
+    var lines2 = StrBuf()
+    for d in famDirs {
+        var mine = List<Row>()
+        var idx = 0
+        for r in rows {
+            if familyDir(r.file) != d { continue }
+            if !shard.isEmpty ? (idx % n == k - 1) : true { mine.append(Row { file: $"{r.file}", filter: $"{r.filter}" }) }
+            idx += 1
+        }
+        // The group's filter is the union over the files this run mutates: with --files, only theirs,
+        // so a narrowed run does not replay tests that never reach its files.
+        var picked = List<Row>()
+        for r in mine {
+            var chosen = want.length == 0
+            for w in want {
+                if w == r.file { chosen = true }
+            }
+            if chosen { picked.append(Row { file: $"{r.file}", filter: $"{r.filter}" }) }
+        }
+        var parts = List<string>()
+        for r in picked {
+            for p in r.filter.parts(by: "|") { parts.append(p) }
+        }
+        let flt = join(sortedSet(parts))
+        var dirParts = List<string>()
+        for p in d.parts(by: "/") { dirParts.append(p) }
+        let suffix = shard.isEmpty ? "" : $"-shard{k}of{n}"
+        let name = $"{dirParts[dirParts.length - 1]}{suffix}"
+        for r in picked { lines2.append($"{name}\t{r.file}\t{flt}\n") }
+    }
+    return lines2.finish()
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length < 3 {
+        print("usage: mutate-plan <files> <shard> <tasks.md>...", to: .stderr)
+        return 2
+    }
+    var tasks = List<string>()
+    for i in 2..argv.length { tasks.append(argv[i]) }
+    let text = plan(argv[0], for: argv[1], from: tasks) catch switch {
+        .failed(let msg) => {
+            print($"mutate-batch: {msg}", to: .stderr)
+            return 1
+        },
+    }
+    print(text)
+    return 0
+}

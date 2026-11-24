@@ -1,0 +1,180 @@
+1:1 PlusEquals `+=`
+1:4 MinusEquals `-=`
+1:7 StarEquals `*=`
+1:10 SlashEquals `/=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
+2:2 Identifier `ạ̇`
+2:6 IntegerLiteral `1`
+2:7 NumericSuffix `e`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolationStart `{`
+3:10 InterpolatedStringStart `$"`
+3:12 InterpolationStart `{`
+3:13 InterpolatedStringStart `$"`
+3:15 InterpolationStart `{`
+3:16 InterpolatedStringStart `$"`
+3:18 InterpolationStart `{`
+3:19 InterpolatedStringStart `$"`
+3:21 InterpolationStart `{`
+3:22 InterpolatedStringStart `$"`
+3:24 InterpolationStart `{`
+3:25 InterpolatedStringStart `$"`
+3:27 InterpolationStart `{`
+3:28 InterpolatedStringStart `$"`
+3:30 InterpolationStart `{`
+3:31 InterpolatedStringStart `$"`
+3:33 InterpolationStart `{`
+3:34 InterpolatedStringStart `$"`
+3:36 InterpolationStart `{`
+3:37 InterpolatedStringStart `$"`
+3:39 InterpolationStart `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 InterpolatedStringStart `$"`
+3:45 InterpolationStart `{`
+3:46 InterpolatedStringStart `$"`
+3:48 InterpolationStart `{`
+3:49 Identifier `x`
+3:50 InterpolationEnd `}`
+3:51 InterpolatedStringEnd `"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 InterpolationEnd `}`
+3:59 InterpolatedStringEnd `"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:68 InterpolationEnd `}`
+3:69 InterpolatedStringEnd `"`
+3:70 InterpolationEnd `}`
+3:71 InterpolatedStringEnd `"`
+3:72 InterpolationEnd `}`
+3:73 InterpolatedStringEnd `"`
+3:74 InterpolationEnd `}`
+3:75 InterpolatedStringEnd `"`
+3:76 InterpolationEnd `}`
+3:77 InterpolatedStringEnd `"`
+3:78 InterpolationEnd `}`
+3:79 InterpolatedStringEnd `"`
+3:80 InterpolationEnd `}`
+3:81 InterpolatedStringEnd `"`
+4:1 Equals `=`
+4:3 Colon `:`
+4:5 Question `?`
+4:7 QuestionQuestion `??`
+4:10 QuestionQuestionEquals `??=`
+4:14 QuestionDot `?.`
+4:17 FatArrow `=>`
+4:20 Arrow `->`
+4:23 At `@`
+4:25 Hash `#`
+5:1 Plus `+`
+5:3 Minus `-`
+5:5 Star `*`
+5:7 Slash `/`
+5:9 Percent `%`
+5:11 PlusPercent `+%`
+5:14 MinusPercent `-%`
+5:17 StarPercent `*%`
+5:20 PlusBar `+|`
+5:23 MinusBar `-|`
+5:27 StarBar `*|`
+5:29 Identifier `e`
+5:31 PlusPlus `++`
+5:34 Minus `-`
+5:40 CharLiteral `'a'`
+5:44 CharLiteral `'\n'`
+5:49 CharLiteral `'\u{1F600}'`
+5:61 CharLiteral `'\''`
+5:66 CharLiteral `'é'`
+5:70 CharLiteral `'\\'`
+5:75 CharLiteral `'\0B'`
+6:2 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  2 │  ạ̇ 1e
+    │  ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 2 │  ạ̇ 1e
+    │   │  +
+
+error BYN0002: unexpected character `\u{10}`
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                    ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                     ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                      ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                       ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                        ^
+
+error BYN0015: source is not valid UTF-8 (byte 0xF8)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                          ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x88)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                           ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                            ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                             ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                              ^
+
+error BYN0009: a char literal holds exactly one Unicode scalar
+
+  5 │ + - * / % +% -% *% +| -| �*|e ++ - ����� ����� 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0B'
+    │                                                                                   ^^^^^
+    │
+  help: use a string literal ("…") for text

@@ -1,0 +1,5 @@
+== locals
+from:
+main: n enumerator_0 n enumerator_2
+moveNext:
+current:

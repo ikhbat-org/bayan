@@ -1,0 +1,7 @@
+error BYN2003: `removeDirector` is not a member of `Io`
+  --> <repo>/tests/cases/diag/io-unknown-member-suggests-directory.byn:3:12
+
+  3 │     try Io.removeDirector(p)
+    │            ^^^^^^^^^^^^^^
+    │
+  help: did you mean `removeDirectory`?

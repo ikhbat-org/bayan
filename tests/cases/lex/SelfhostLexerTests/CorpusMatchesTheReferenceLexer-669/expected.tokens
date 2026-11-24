@@ -1,0 +1,22 @@
+1:1 Identifier `ạ̇`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolatedStringText `stray } h\u{19}re`
+1:18 InterpolatedStringEnd `"`
+4:1 EndOfFile
+
+error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
+
+  1 │ ạ̇$"stray } h�re"
+    │ ^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ ạ̇$"stray } h�re"
+    │   │ ++
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  1 │ ạ̇$"stray } h�re"
+    │            ^
+    │
+    │ 1 │ ạ̇$"stray }} h�re"
+    │   │             +

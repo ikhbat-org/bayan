@@ -1,0 +1,3 @@
+== into.span
+counts 0 0 1
+BYN3002 103:5 `u` does not live as long as `sp`, which borrows it |`u` is freed at the end of its block|copy the data with `.copy(to: alloc)` into an allocator that lives long enough|

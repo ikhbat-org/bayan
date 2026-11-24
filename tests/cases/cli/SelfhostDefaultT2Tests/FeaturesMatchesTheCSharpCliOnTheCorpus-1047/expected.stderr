@@ -1,0 +1,5 @@
+error BYN2023: `List` takes 1 type argument(s), not 2
+  --> <repo>/tests/cases/diag/wrong-type-argument-count.byn:1:9
+
+  1 │ var xs: List<i64, i64>
+    │         ^^^^^^^^^^^^^^

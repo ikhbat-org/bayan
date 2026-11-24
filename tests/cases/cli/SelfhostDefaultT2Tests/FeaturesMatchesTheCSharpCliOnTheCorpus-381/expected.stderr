@@ -1,0 +1,89 @@
+error BYN5004: `show` has 2 unlabeled parameters; give each but one a particle
+  --> <repo>/tests/cases/parse/dyn-types.byn:1:6
+
+  1 │ void show(dyn ref IShape s, dyn ref readonly ICounter c) {
+    │      ^^^^ 2 unlabeled parameters
+    │
+  help: keep one unlabeled parameter, the object
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/dyn-types.byn:1:19
+
+  1 │ void show(dyn ref IShape s, dyn ref readonly ICounter c) {
+    │                   ^^^^^^
+
+error BYN2002: unknown type `ICounter`
+  --> <repo>/tests/cases/parse/dyn-types.byn:1:46
+
+  1 │ void show(dyn ref IShape s, dyn ref readonly ICounter c) {
+    │                                              ^^^^^^^^
+
+error BYN5006: `c` is a required parameter besides the object and needs a particle
+  --> <repo>/tests/cases/parse/dyn-types.byn:1:55
+
+  1 │ void show(dyn ref IShape s, dyn ref readonly ICounter c) {
+    │                                                       ^ needs a particle
+    │
+  help: label it with `from`, `to`, `until`, `through`, `at`, `by`, `for` or `as`
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/dyn-types.byn:2:20
+
+  2 │     let t: dyn ref IShape = s
+    │                    ^^^^^^
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/dyn-types.byn:3:29
+
+  3 │     let u: dyn ref readonly IShape = s
+    │                             ^^^^^^
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/dyn-types.byn:4:20
+
+  4 │     for x: dyn ref IShape in shapes {
+    │                    ^^^^^^
+
+error BYN2001: `shapes` is not defined
+  --> <repo>/tests/cases/parse/dyn-types.byn:4:30
+
+  4 │     for x: dyn ref IShape in shapes {
+    │                              ^^^^^^
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/dyn-types.byn:7:29
+
+  7 │     for y: dyn ref readonly IShape in shapes {
+    │                             ^^^^^^
+
+error BYN2001: `shapes` is not defined
+  --> <repo>/tests/cases/parse/dyn-types.byn:7:39
+
+  7 │     for y: dyn ref readonly IShape in shapes {
+    │                                       ^^^^^^
+
+error BYN2002: unknown type `IShape`
+  --> <repo>/tests/cases/parse/dyn-types.byn:12:5
+
+  12 │ dyn IShape make() => circle
+     │     ^^^^^^
+
+error BYN2001: `circle` is not defined
+  --> <repo>/tests/cases/parse/dyn-types.byn:12:22
+
+  12 │ dyn IShape make() => circle
+     │                      ^^^^^^
+
+error BYN2007: `dyn` is already a local here
+  --> <repo>/tests/cases/parse/dyn-types.byn:16:5
+
+  16 │ for dyn in xs {
+     │     ^^^ already declared on line 14
+     │
+  help: pick a different name; Bayan does not let a local hide another one
+
+error BYN2001: `xs` is not defined
+  --> <repo>/tests/cases/parse/dyn-types.byn:16:12
+
+  16 │ for dyn in xs {
+     │            ^^

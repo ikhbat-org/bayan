@@ -1,0 +1,15 @@
+1:1 OpenParen `(`
+1:3 CloseParen `)`
+1:5 OpenBracket `[`
+1:7 CloseBracket `]`
+1:10 CloseBrace `}`
+    doc `/// Doc line one.`
+3:1 Identifier `C`
+8:1 EndOfFile
+
+error BYN0004: unterminated block comment
+
+  3 │ C/* block
+    │  ^^ comment starts here
+    │
+  help: close it with `*/`

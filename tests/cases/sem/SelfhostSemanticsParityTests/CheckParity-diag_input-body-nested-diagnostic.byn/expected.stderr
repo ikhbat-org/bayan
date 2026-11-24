@@ -1,0 +1,28 @@
+error BYN1017: parentheses around a condition are an input form
+  --> tmp/t26-tests/cli/diag_input-body-nested-diagnostic.byn/input-body-nested-diagnostic.byn:4:8
+
+  4 │     if (a) unless b { print("s") } else { print("t") }
+    │        ^^^ not needed
+    │
+  help: remove the parentheses
+    │ 4 │     if a { unless b { print("s") } else { print("t") } }
+    │   │        +++++++++++++++++++++++++++++++++++++++++++++++
+
+error BYN1018: the body of `if` must be a block
+  --> tmp/t26-tests/cli/diag_input-body-nested-diagnostic.byn/input-body-nested-diagnostic.byn:4:12
+
+  4 │     if (a) unless b { print("s") } else { print("t") }
+    │            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ a single statement
+    │
+  help: wrap the statement in `{ }`
+
+error BYN1006: `unless` cannot have an `else` branch
+  --> tmp/t26-tests/cli/diag_input-body-nested-diagnostic.byn/input-body-nested-diagnostic.byn:4:36
+
+  4 │     if (a) unless b { print("s") } else { print("t") }
+    │                                    ^^^^ `else` after `unless`
+    │
+  help: use `if` with the opposite condition, so both branches read positively
+
+✗ build failed: 3 errors, 0 warnings
+  explain: bayan explain BYN1017

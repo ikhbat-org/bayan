@@ -1,0 +1,7 @@
+== cases
+0 (l4_a + l5_b)
+1 (l6_zero / l6_zero)
+2 ((1.0) / l6_zero)
+3 ((-1.0) / l6_zero)
+4 ((float)(0.1))
+count 5

@@ -1,0 +1,8 @@
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+/// Doc line one.
+ Ået café = 1
+let c
+  """ c"text" u16"wide" "‮ allowed in strings" "" "\u{48}i"
+
+⁩

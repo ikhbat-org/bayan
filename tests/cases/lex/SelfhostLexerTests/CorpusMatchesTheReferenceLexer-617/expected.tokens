@@ -1,0 +1,24 @@
+1:1 Identifier `café`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
+2:1 Identifier `letcafé`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
+3:2 StringLiteral `" `
+3:4 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ café = 1
+    │ ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ café = 1
+    │   │    +
+
+error BYN0003: unterminated string literal
+
+  3 │  " 
+    │  ^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string

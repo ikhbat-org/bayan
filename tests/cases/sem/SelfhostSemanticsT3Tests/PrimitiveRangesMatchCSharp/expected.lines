@@ -1,0 +1,74 @@
+ri8 -128 127
+ri16 -32768 32767
+ri32 -2147483648 2147483647
+ri64 -9223372036854775808 9223372036854775807
+risize -9223372036854775808 9223372036854775807
+ru8 0 255
+ru16 0 65535
+ru32 0 4294967295
+ru64 0 18446744073709551615
+rusize 0 18446744073709551615
+ni8 i8
+ni16 i16
+ni32 i32
+ni64 i64
+nu8 u8
+nu16 u16
+nu32 u32
+nu64 u64
+nisize isize
+nusize usize
+nf32 f32
+nf64 f64
+nbool bool
+nrune rune
+nstring string
+nvoid void
+nnever never
+nsbyte i8
+nshort i16
+nint i32
+nlong i64
+nbyte u8
+nushort u16
+nuint u32
+nulong u64
+nnint isize
+nnuint usize
+nfloat f32
+ndouble f64
+nzz null
+bi8 8
+pi8 true true false false true
+bi16 16
+pi16 true true false false true
+bi32 32
+pi32 true true false false true
+bi64 64
+pi64 true true false false true
+bu8 8
+pu8 true false true false true
+bu16 16
+pu16 true false true false true
+bu32 32
+pu32 true false true false true
+bu64 64
+pu64 true false true false true
+bisize 64
+pisize true true false false true
+busize 64
+pusize true false true false true
+bf32 32
+pf32 false false false true true
+bf64 64
+pf64 false false false true true
+bbool 0
+pbool false false false false false
+bchar 32
+pchar false false false false false
+bstring 0
+pstring false false false false false
+bvoid 0
+pvoid false false false false false
+bneverKind 0
+pneverKind false false false false false

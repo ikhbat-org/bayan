@@ -1,0 +1,78 @@
+import semantics
+import emitter.ltree
+
+i32 main(ReadOnlySpan<string> args) {
+    let shapes = args[0] == "shapes"
+    var rest = List<string>()
+    for i in (shapes ? 1 : 0)..args.length { rest.append(args[i]) }
+    let symbols = semantics.t26Symbols(ascii: false)
+    let o = semantics.t26ParseBuildOptions(in rest, allowSpans: false) ?? return 2
+    var reported = List<semantics.T26Reported>()
+    var ok = false
+    var c = semantics.t26Compile(in o, by: in symbols, to: ref reported, through: ref ok)
+    // The `shapes` fixture's `shut` state gets tag -1 by hand on both sides: a `states` block declares no tags.
+    if shapes {
+        for v in 0..c.unionVariants.length {
+            if c.unionVariants[v].name == "shut" { c.unionVariants[v].tag = -1 }
+        }
+    }
+    var l = LCtx {}
+    let p = lower(ref c, to: ref l)
+    var sb = StrBuf()
+    if shapes {
+        for i in 0..p.functions.length { t22Shapes(ref sb, from: ref c, through: in l.tree, for: in p.functions[i]) }
+        Io.stdout.write(sb.finish())
+        return 0
+    }
+    for i in 0..p.functions.length { t22Locals(ref sb, from: in c, for: in p.functions[i]) }
+    for i in 0..p.testFunctions.length { t22Locals(ref sb, from: in c, for: in p.testFunctions[i]) }
+    Io.stdout.write(sb.finish())
+    return 0
+}
+
+void t22Locals(ref StrBuf sb, from in Ctx c, for in LoweredFunction lf) uses alloc {
+    sb.append($"{c.functions[lf.symbol].name}:")
+    for x in lf.locals {
+        sb.append($" {c.locals[x].kind.ordinal}:{c.locals[x].name}")
+        if c.locals[x].kind != .temp { sb.append($"@{c.locals[x].span.start}") }
+    }
+    sb.append("\n")
+}
+
+/// The lowered body's error variants (their type) and union tag stores (the stored constant's two words).
+void t22Shapes(ref StrBuf sb, from ref Ctx c, through in ltree.LTree t, for in LoweredFunction lf) uses alloc {
+    let name = c.functions[lf.symbol].name
+    for n in t22Lowered(in c, through: in t, for: lf.body) {
+        if ltree.isLowered(n) { continue }
+        let i = i64(n & 0xFFFFFFFF)
+        if semantics.boundKind(n) == .errorVariant { sb.append($"{name} ev {semantics.typeDisplay(ref c, by: c.bErrorVariants[i].type)}\n") }
+        if semantics.boundKind(n) == .assign && ltree.isLowered(c.bAssigns[i].target) && ltree.lKindOf(c.bAssigns[i].target) == .unionTag {
+            let k = semantics.exprConstant(in c, for: c.bAssigns[i].value) ?? return
+            sb.append($"{name} tag {k.integer.lo} {k.integer.hi}\n")
+        }
+    }
+}
+
+/// `BoundTree.Descendants`, also into an `LLoop`'s and an `LPushPanicHandler`'s body (T11's `t11Lowered`).
+List<semantics.BNode> t22Lowered(in Ctx c, through in ltree.LTree t, for semantics.BNode n) uses alloc {
+    var result = List<semantics.BNode>()
+    var stack = List<semantics.BNode>()
+    stack.append(n)
+    while stack.length > 0 {
+        let m = stack.removeLast()
+        result.append(m)
+        if ltree.isLowered(m) {
+            let i = ltree.lIndexOf(m)
+            if ltree.lKindOf(m) == .loop { stack.append(t.loops[i].body) }
+            if ltree.lKindOf(m) == .pushPanicHandler { stack.append(t.pushPanicHandlers[i].body) }
+            continue
+        }
+        let ch = semantics.children(in c, for: m)
+        var j = ch.length - 1
+        while j >= 0 {
+            stack.append(ch[j])
+            j -= 1
+        }
+    }
+    return result
+}

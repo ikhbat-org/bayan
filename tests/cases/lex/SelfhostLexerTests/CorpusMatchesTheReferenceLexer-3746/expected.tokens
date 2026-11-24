@@ -1,0 +1,58 @@
+1:1 LetKeyword `let`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
+2:1 FloatLiteral `3.14`
+2:6 FloatLiteral `1e5`
+2:10 IntegerLiteral `2`
+2:11 Dot `.`
+2:12 Identifier `J5e`
+2:15 Minus `-`
+2:16 IntegerLiteral `3`
+2:18 FloatLiteral `6E+2`
+2:23 FloatLiteral `1.507`
+2:28 NumericSuffix `dec`
+2:32 IntegerLiteral `1`
+2:33 DotDot `..`
+2:35 IntegerLiteral `2`
+2:37 IntegerLiteral `1`
+2:38 DotDotEquals `..=`
+2:41 IntegerLiteral `3`
+2:43 IntegerLiteral `5`
+2:44 NumericSuffix `e`
+2:46 Identifier `x`
+2:47 Dot `.`
+2:48 Identifier `y`
+2:50 FloatLiteral `2.5`
+2:53 NumericSuffix `f`
+3:2 CharLiteral `'\u{D800}'`
+5:1 CharLiteral `'x`
+6:3 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xFF)
+
+  1 │ let � = 2
+    │     ^
+
+error BYN0013: `\u{D800}` is not a Unicode scalar value
+
+  3 │  '\u{D800}'
+    │   ^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF
+
+error BYN0008: unterminated char literal
+
+  5 │ 'x
+    │ ^^
+    │
+  help: close it with `'`
+
+error BYN0015: source is not valid UTF-8 (byte 0xC0)
+
+  6 │  ��
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x80)
+
+  6 │  ��
+    │   ^

@@ -1,0 +1,3 @@
+== diags.diag/fs-unknown-member
+BYN2003 2:16 `fileExist` is not a member of `Fs`
+  help did you mean `fileExists`?

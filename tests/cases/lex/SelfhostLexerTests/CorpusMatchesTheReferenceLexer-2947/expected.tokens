@@ -1,0 +1,31 @@
+1:1 LetKeyword `let`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:17 LetKeyword `let`
+1:21 Identifier `c`
+1:23 Equals `=`
+1:25 RawStringLiteral `"""never closed\nBar _x cmelCase2 بيا\n`
+3:1 EndOfFile
+
+error BYN0005: identifier `café` is not in Unicode normalization form C
+
+  1 │ let café = 1; ‏let c = """never closed
+    │     ^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 1 │ let café = 1; ‏let c = """never closed
+    │   │        +
+
+error BYN0002: unexpected character `‏`
+
+  1 │ let café = 1; ‏let c = """never closed
+    │                ^
+
+error BYN0003: unterminated string literal
+
+  1 │ let café = 1; ‏let c = """never closed
+    │                         ^^^ raw string starts here
+    │
+  help: close it with `"""`

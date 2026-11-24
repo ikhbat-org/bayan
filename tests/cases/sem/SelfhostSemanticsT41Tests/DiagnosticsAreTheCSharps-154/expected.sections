@@ -1,0 +1,4 @@
+== diags.diag/strbuf-finish-then-clear
+BYN3004 5:5 `sb` is modified while `s` still borrows it
+  label `s` is used again on line 6
+  help finish using `s` first, or copy what it needs before changing `sb`

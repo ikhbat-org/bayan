@@ -1,0 +1,10 @@
+error BYN3218: this `requires` reads `it` and other fields
+  --> <repo>/tmp/t2/diag/requires-mixes-fields/requires-mixes-fields.byn:3:14
+
+  3 │     i64 high requires it > 0 && it >= low
+    │              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    │
+  help: split it: an `it` rule under the field, and a struct-level rule with `at .field`
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN3218

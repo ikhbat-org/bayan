@@ -1,0 +1,3 @@
+== expr.probes.m8
+errorExpr:?[1930:6]=-()
+BYN2760 97:15 `f64` cannot be a `Map` key ||use an integer type, `rune`, `bool`, `string`, `Symbol`, a plain enum, or a tuple or struct of those as the key|

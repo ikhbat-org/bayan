@@ -1,0 +1,8 @@
+app/
+app/dist/
+app/dist/demo.tar 30
+app/other/
+app/other/keep 1
+app/package.byn 13
+cache/
+cache/keep.txt 3

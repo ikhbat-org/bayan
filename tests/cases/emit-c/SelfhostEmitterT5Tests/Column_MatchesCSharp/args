@@ -1,0 +1,13 @@
+col
+-
+-
+
+assert x == 1
+assert a\n    && b
+a  	\n	  b\r\n   c
+  lead\n   trail  \n
+assert f("日本") == é
+assert s == "😀😀"\n  && x
+\n
+a\n\nb
+tab	\n	after

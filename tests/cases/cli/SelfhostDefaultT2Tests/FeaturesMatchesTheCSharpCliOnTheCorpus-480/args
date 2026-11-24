@@ -1,0 +1,5 @@
+features
+--used
+<repo>/tests/cases/diag/clause-order.byn
+--package
+<repo>/tests/cases/diag

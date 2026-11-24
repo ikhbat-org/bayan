@@ -1,0 +1,11 @@
+error BYN2780: implicit copy of a unique value: `Bag` is unique because field `items` is a
+`List<i64>`
+  --> tmp/t26-tests/cli/diag_unique-state-copy.byn/unique-state-copy.byn:10:16
+
+  10 │     let copy = bag
+     │                ^^^
+     │
+  help: declare the parameter `move bag` to take ownership; pass it by `ref` to share it instead
+
+✗ build failed: 1 error, 0 warnings
+  explain: bayan explain BYN2780

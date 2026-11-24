@@ -1,0 +1,12 @@
+CompilationUnit
+  Function f() -> void
+    Block
+  Function int() -> void
+    Block
+
+error BYN0012: `int` is reserved and cannot be used as an identifier
+
+  2 │ void int() {}
+    │      ^^^ a C# primitive type name
+    │
+  help: choose another name

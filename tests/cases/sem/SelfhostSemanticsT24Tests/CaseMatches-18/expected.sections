@@ -1,0 +1,2 @@
+== checkPanicHandler.handlers
+BYN2613 182:67 a panic handler reads only `let` bindings and parameters |`count` is not a `let` or a parameter|copy the value into a `let` before the handler and read that|

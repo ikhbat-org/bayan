@@ -1,0 +1,3 @@
+$ $BAYAN new tally --vcs none > /dev/null; echo "new $?"; $BAYAN dist tally > /dev/null; echo "dist $?"; touch tally/dist/0.1.0/marker
+dist	tally
+$ test -f tally/dist/0.1.0/marker && echo "marker kept"; $BAYAN dist tally --force > /dev/null; echo "dist --force $?"; test -f tally/dist/0.1.0/marker || echo "marker gone"

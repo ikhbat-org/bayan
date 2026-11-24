@@ -1,0 +1,8 @@
+"text" "esc \"q\" \\ \n" """
+` 2
+let c =  3
+ ï»¿
+// ok þ in comment
+
+Ã let  =  3L
+0xFFs

@@ -1,0 +1,3 @@
+== diags.diag/unknown-module
+BYN2004 1:8 no module `mony`
+  help put the module's `.byn` files in `mony/` next to the entry file; a module is a directory

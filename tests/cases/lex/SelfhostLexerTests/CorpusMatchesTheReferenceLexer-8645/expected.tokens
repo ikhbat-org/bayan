@@ -1,0 +1,48 @@
+1:1 LetKeyword `let`
+1:5 LawKeyword `law`
+1:9 Equals `=`
+1:11 IntegerLiteral `3`
+3:1 InterpolatedStringStart `$"`
+3:3 InterpolatedStringText `stray } here`
+3:15 InterpolatedStringEnd `"`
+5:2 SuspendsKeyword `suspends`
+5:11 AsyncKeyword `async`
+5:17 AwaitKeyword `await`
+6:1 IsKeyword `is`
+6:4 AndKeyword `and`
+6:8 OrKeyword `or`
+6:11 NotKeyword `not`
+6:15 WithKeyword `with`
+6:20 MoveKeyword `move`
+6:25 RefKeyword `ref`
+6:29 Identifier `ou`
+6:34 StringLiteral `"`
+7:3 CharLiteral `'\u{110000}'`
+9:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │ $"stray } here"
+    │         ^
+    │
+    │ 3 │ $"stray }} here"
+    │   │          +
+
+error BYN0015: source is not valid UTF-8 (byte 0xC3)
+
+  6 │ is and or not with move ref ou � "
+    │                                ^
+
+error BYN0003: unterminated string literal
+
+  6 │ is and or not with move ref ou � "
+    │                                  ^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0013: `\u{110000}` is not a Unicode scalar value
+
+  7 │   '\u{110000}'
+    │    ^^^^^^^^^^
+    │
+  help: use a scalar value in U+0000–U+D7FF or U+E000–U+10FFFF

@@ -1,0 +1,73 @@
+== tests/cases/run/fs-rename.byn
+147..833 blockStmt
+153..174 localDecl
+168..174 collectionExpr
+169..173 literalExpr integer
+179..200 localDecl
+194..200 collectionExpr
+195..199 literalExpr integer
+205..248 exprStmt
+205..248 tryExpr
+209..248 callExpr
+222..239 literalExpr string
+241..247 memberExpr
+241..242 nameExpr
+253..296 exprStmt
+253..296 tryExpr
+257..296 callExpr
+270..287 literalExpr string
+289..295 memberExpr
+289..290 nameExpr
+301..356 exprStmt
+301..356 tryExpr
+305..356 callExpr
+315..332 literalExpr string
+338..355 literalExpr string
+361..418 exprStmt
+361..418 callExpr
+367..417 interpolatedExpr
+383..415 callExpr
+397..414 literalExpr string
+361..418 callExpr
+423..464 exprStmt
+423..464 callExpr
+429..463 tryExpr
+433..463 callExpr
+445..462 literalExpr string
+423..464 callExpr
+469..629 exprStmt
+469..629 catchExpr
+469..520 callExpr
+479..496 literalExpr string
+502..519 literalExpr string
+527..629 switchExpr
+527..533 caughtErrorExpr
+544..553 constantPattern
+544..553 targetMemberExpr
+557..584 callExpr
+563..583 literalExpr string
+557..584 callExpr
+594..595 discardPattern
+599..622 callExpr
+605..621 literalExpr string
+599..622 callExpr
+634..794 exprStmt
+634..794 catchExpr
+634..685 callExpr
+644..661 literalExpr string
+667..684 literalExpr string
+692..794 switchExpr
+692..698 caughtErrorExpr
+709..722 constantPattern
+709..722 targetMemberExpr
+726..753 callExpr
+732..752 literalExpr string
+726..753 callExpr
+763..764 discardPattern
+768..787 callExpr
+774..786 literalExpr string
+768..787 callExpr
+799..831 exprStmt
+799..831 tryExpr
+803..831 callExpr
+813..830 literalExpr string

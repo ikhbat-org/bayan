@@ -1,0 +1,5 @@
+== helpers
+bynh_error_res_i64 static byn_err bynh_error_res_i64(bynt_res_i64 r, const char* file, int line) | static byn_err bynh_error_res_i64(bynt_res_i64 r, const char* file, int line) {
+    if (!r.err.code) byn_panic("result holds a value", file, line);
+    return r.err;
+}

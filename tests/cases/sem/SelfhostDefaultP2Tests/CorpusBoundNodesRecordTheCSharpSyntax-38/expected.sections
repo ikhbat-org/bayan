@@ -1,0 +1,31 @@
+== tests/cases/run/dyn-ref-this-list-field.byn
+183..316 blockStmt
+189..221 localDecl
+197..221 structLiteralExpr
+210..219 callExpr
+226..252 exprStmt
+226..252 callExpr
+226..233 memberExpr
+226..227 nameExpr
+241..251 structLiteralExpr
+248..249 literalExpr integer
+257..290 localDecl
+281..290 callExpr
+281..282 nameExpr
+295..314 exprStmt
+295..314 callExpr
+301..313 interpolatedExpr
+304..311 callExpr
+304..305 nameExpr
+295..314 callExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+84..85 nameExpr
+159..167 indexExpr
+159..167 indexExpr
+159..167 indexExpr
+159..167 indexExpr
+159..164 nameExpr
+159..164 nameExpr
+165..166 literalExpr integer

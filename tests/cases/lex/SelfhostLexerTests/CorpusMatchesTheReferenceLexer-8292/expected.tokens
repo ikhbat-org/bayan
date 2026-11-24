@@ -1,0 +1,33 @@
+1:1 Identifier `_`
+2:4 Identifier `comment`
+2:12 Star `*`
+2:13 Slash `/`
+2:15 Identifier `a`
+3:2 InterpolatedStringStart `$"`
+3:4 InterpolatedStringText `stray } here`
+3:16 InterpolatedStringEnd `"`
+5:1 Star `*`
+5:2 Slash `/`
+5:4 TestKeyword `test`
+5:9 AssertKeyword `assert`
+5:16 PropertyKeyword `property`
+5:25 FuzzKeyword `fuzz`
+5:30 ModelKeyword `model`
+5:36 ForeachKeyword `foreach`
+5:44 NewKeyword `new`
+5:48 GotoKeyword `goto`
+6:2 IntegerLiteral `0x_`
+7:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  3 │  $"stray } here"
+    │          ^
+    │
+    │ 3 │  $"stray }} here"
+    │   │           +
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  6 │  0x_
+    │  ^^^

@@ -1,0 +1,3 @@
+== diags.diag/duplicate-enum-member
+BYN2721 4:5 enum `Color` already has a member `red`
+  label already declared on line 2

@@ -1,0 +1,7 @@
+error BYN2804: `i32` is not an interface
+  --> <repo>/tests/cases/diag/input-csharp-type-name-base.byn:1:12
+
+  1 │ struct S : int {
+    │            ^^^ a type
+    │
+  help: list an `interface` here

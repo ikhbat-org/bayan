@@ -19,7 +19,7 @@ Standing rule: a C# private helper needed outside its owner task is ported early
 
 Never: edit files outside the brief's list (record the need as a Question instead); leave output files in the repo root; use tuple destructuring or `.0` fields; run commands in the background; run `git commit/merge/checkout <branch>/reset`.
 
-Fast check: `dotnet build -v q 2>&1 | grep -E " error | warning " | head -20; dotnet test -v q --no-build --filter "FullyQualifiedName~SelfhostSemanticsT10Tests" 2>&1 | tail -3` (~15 s).
+Fast check: `export BAYAN_EXE="$(bash scripts/bootstrap-build.sh --out tmp/bb)"`, then one part at a time: `bash scripts/test.sh --only golden` (or `--only bayan`, `--only parity`, `--only runtime`); each part's log is under `tmp/test.XXXXXX/`.
 
 
 

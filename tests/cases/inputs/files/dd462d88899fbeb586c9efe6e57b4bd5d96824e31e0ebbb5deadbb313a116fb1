@@ -1,0 +1,9 @@
+$"x{ $"{ 1__
+ "text" "ec \"q\" \\ \n" """
+$"open {x";
+
+  raw "quoted"
+ is and or not with move ref out this null true false comptime checked
+
+''
+

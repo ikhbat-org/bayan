@@ -1,0 +1,27 @@
+1:1 Identifier `struUct`
+1:9 UniqueKeyword `unique`
+1:16 UnionKeyword `union`
+1:22 EnumKeyword `enum`
+1:27 FlagsKeyword `flags`
+1:33 OpenKeyword `open`
+1:38 ExtensibleKeyword `extensible`
+1:49 Identifier `interfa`
+1:57 Identifier `ce`
+1:60 DelegateKeyword `delegate`
+1:69 ExtensionKeyword `extension`
+1:79 DerivationKeyword `derivation`
+1:90 AttributeKeyword `attribute`
+2:1 TestKeyword `test`
+2:6 AssertKeyword `assert`
+2:13 PropertyKeyword `property`
+2:22 FuzzKeyword `fuzz`
+2:27 ModelKeyword `model`
+2:33 ForeachKeyword `foreach`
+2:41 NewKeyword `new`
+2:45 GotoKeyword `goto`
+3:2 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xDE)
+
+  1 │ struUct unique union enum flags open extensible interfa�ce delegate extension derivation attribute
+    │                                                        ^

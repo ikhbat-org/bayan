@@ -1,0 +1,13 @@
+== tests/cases/diag/duplicate-argument.byn
+20..25 binaryExpr mul right 24..25
+20..25 binaryExpr mul right 24..25
+20..25 binaryExpr mul right 24..25
+20..21 nameExpr
+24..25 literalExpr integer
+26..55 globalStatement
+26..55 exprStmt
+26..55 callExpr
+32..54 interpolatedExpr
+35..52 callExpr
+44..45 literalExpr integer
+26..55 callExpr

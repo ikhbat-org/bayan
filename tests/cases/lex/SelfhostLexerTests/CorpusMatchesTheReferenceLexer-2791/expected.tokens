@@ -1,0 +1,8 @@
+1:1 IntegerLiteral `0x`
+    doc `/// Doc line two.`
+2:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  1 │ 0x /// Doc line two.
+    │ ^^

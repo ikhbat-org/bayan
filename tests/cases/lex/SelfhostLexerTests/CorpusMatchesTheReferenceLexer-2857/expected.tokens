@@ -1,0 +1,16 @@
+1:1 CloseBrace `}`
+3:1 Identifier `a`
+3:3 Greater `>`
+3:4 Greater `>`
+6:1 InterpolatedStringStart `$"`
+6:3 InterpolatedStringText `stray } here`
+6:15 InterpolatedStringEnd `"`
+8:1 EndOfFile
+
+error BYN0014: `}` in an interpolated string must be doubled
+
+  6 │ $"stray } here"
+    │         ^
+    │
+    │ 6 │ $"stray }} here"
+    │   │          +

@@ -1,0 +1,1 @@
+{"code":"BYN2006","severity":"error","file":"input.byn","span":{"start":48,"end":52,"line":3,"column":5,"endLine":3,"endColumn":9},"message":"`area` is declared twice","label":"already declared on line 1","help":null,"fixes":[]}

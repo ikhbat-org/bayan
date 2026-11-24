@@ -1,3 +1,0 @@
-# comment
-Bayan.Tests.A.One
-Bayan.Tests.P.Check(name: "diag/x/main.byn")

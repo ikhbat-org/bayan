@@ -1,0 +1,81 @@
+1:1 IntegerLiteral `0102`
+2:3 Identifier `Fs`
+3:1 IntegerLiteral `0b1`
+3:4 NumericSuffix `ms0x_`
+4:1 IntegerLiteral `0b__`
+5:1 IntegerLiteral `1__`
+6:1 IntegerLiteral `0xF__`
+    doc `/// Doc line two.`
+9:1 Amp `&`
+9:3 AmpAmp `&&`
+9:6 Bar `|`
+9:8 BarBar `||`
+9:11 Caret `^`
+9:13 Tilde `~`
+9:15 Bang `!`
+9:17 Equals `=`
+9:19 EqualsEquals `==`
+9:22 BangEquals `!=`
+9:25 Less `<`
+9:27 LessEquals `<=`
+9:30 Greater `>`
+9:32 GreaterEquals `>=`
+9:35 LessLess `<<`
+9:38 Greater `>`
+9:39 Greater `>`
+9:41 Greater `>`
+9:42 GreaterEquals `>=`
+10:2 Identifier `ent`
+12:15 Identifier `a`
+    doc `/// Doc line one.\n/// Do a >> b`
+16:1 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xE2)
+
+  2 │  �Fs
+    │  ^
+
+error BYN0015: source is not valid UTF-8 (byte 0x82)
+
+  2 │  �Fs
+    │   ^
+
+error BYN0011: unit suffix `ms0x_` is not allowed on a binary literal
+
+  3 │ 0b1ms0x_
+    │    ^^^^^
+    │
+  help: write the value in decimal, or convert it with T(x), where T is the unit type
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  4 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  5 │ 1__
+    │  ^^
+    │
+    │ 5 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 0xF__
+    │    ^^
+    │
+    │ 6 │ 0xF__
+    │   │    --
+
+error BYN1047: `/* */` is an input form; write `//` lines
+
+  11 │ /* block
+     │ ^^^^^^^^ block comment
+     │
+  help: write each line with `//`
+     │ 11 │ // block
+     │    │  +++++++
+     │ 12 │ // comment
+     │    │ ++++++++++
+     │ 13 │  a

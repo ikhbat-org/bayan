@@ -1,0 +1,22 @@
+1:1 IntegerLiteral `0xF__`
+3:1 StructKeyword `struct`
+3:8 UniqueKeyword `unique`
+3:15 UnionKeyword `union`
+3:21 EnumKeyword `enum`
+3:26 FlagsKeyword `flags`
+3:32 OpenKeyword `open`
+3:37 ExtensibleKeyword `extensible`
+3:48 InterfaceKeyword `interface`
+3:58 DelegateKeyword `delegate`
+3:67 ExtensionKeyword `extension`
+3:77 DerivationKeyword `derivation`
+3:88 AttributeKeyword `attribute`
+5:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 0xF__
+    │    ^^
+    │
+    │ 1 │ 0xF__
+    │   │    --

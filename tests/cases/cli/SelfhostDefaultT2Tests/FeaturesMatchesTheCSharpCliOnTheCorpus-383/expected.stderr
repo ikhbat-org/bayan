@@ -1,0 +1,7 @@
+error BYN2722: enum `Empty` has no members
+  --> <repo>/tests/cases/parse/enums.byn:21:14
+
+  21 │ private enum Empty { }
+     │              ^^^^^
+     │
+  help: add the members, or remove the enum

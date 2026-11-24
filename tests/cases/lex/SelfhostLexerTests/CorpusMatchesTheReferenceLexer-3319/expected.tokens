@@ -1,0 +1,21 @@
+1:1 CloseBrace `}`
+2:2 IsKeyword `is`
+2:5 AndKeyword `and`
+2:9 OrKeyword `or`
+2:12 NotKeyword `not`
+2:16 WithKeyword `with`
+2:21 MoveKeyword `move`
+2:26 RefKeyword `ref`
+2:30 OutKeyword `out`
+2:35 ThisKeyword `this`
+2:40 NullKeyword `null`
+2:45 TrueKeyword `true`
+2:50 FalseKeyword `false`
+2:56 ComptimeKeyword `comptime`
+2:65 CheckedKeyword `checked`
+3:2 EndOfFile
+
+error BYN0002: unexpected character `\u{15}`
+
+  2 │  is and or not with move ref out �this null true false comptime checked
+    │                                  ^

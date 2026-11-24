@@ -1,0 +1,9 @@
+$"open {x";
+let c =  3
+  """c"text" u16"wide" "‮ allowed in sutrings" "" "\u{48}i"
+
+a = "open
+let b = "bad \q escape"
+let c = """nev
+& && | || ^ ~ ! = == != < <= > >= << >> >>=
+ est 

@@ -1,0 +1,77 @@
+1:1 IntegerLiteral `1__`
+3:2 Identifier `café`
+3:7 Equals `=`
+3:9 IntegerLiteral `2`
+4:1 IntegerLiteral `2`
+4:3 IntegerLiteral `1_000_000`
+4:13 IntegerLiteral `0xFF`
+4:18 IntegerLiteral `0x_ff`
+4:24 IntegerLiteral `0b1010`
+4:31 IntegerLiteral `0B11`
+4:36 IntegerLiteral `5`
+4:37 NumericSuffix `s`
+4:39 IntegerLiteral `2`
+4:41 IntegerLiteral `50`
+4:43 NumericSuffix `ms`
+5:1 Identifier `macro`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
+6:2 Identifier `각let`
+6:9 Identifier `a`
+6:11 Equals `=`
+6:13 StringLiteral `"open`
+7:2 LetKeyword `let`
+7:6 Identifier `c`
+7:8 Equals `=`
+7:10 RawStringLiteral `"""never closed\n`
+8:1 EndOfFile
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  1 │ 1__
+    │  ^^
+    │
+    │ 1 │ 1__
+    │   │  --
+
+error BYN0015: source is not valid UTF-8 (byte 0xF2)
+
+  4 │ 2 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 2�50ms
+    │                                        ^
+
+error BYN0012: `macro` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │ ^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0012: `select` is reserved and cannot be used as an identifier
+
+  5 │ macro select become
+    │       ^^^^^^ reserved for a future version of Bayan
+    │
+  help: choose another name
+
+error BYN0005: identifier `각let` is not in Unicode normalization form C
+
+  6 │  각let a = "open
+    │  ^^^^^^ same letters, different encoding
+    │
+  help: use the composed (NFC) form; identifiers that look the same must be byte-identical
+    │ 6 │  각let a = "open
+    │   │  +
+
+error BYN0003: unterminated string literal
+
+  6 │  각let a = "open
+    │             ^^^^^ string ends at the end of the line
+    │
+  help: close it with `"`; for text spanning lines use a raw `"""` string
+
+error BYN0003: unterminated string literal
+
+  7 │  let c = """never closed
+    │          ^^^ raw string starts here
+    │
+  help: close it with `"""`

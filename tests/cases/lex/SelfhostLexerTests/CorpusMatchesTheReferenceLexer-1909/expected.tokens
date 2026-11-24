@@ -1,0 +1,29 @@
+1:1 StructKeyword `struct`
+1:8 Identifier `uniq`
+1:13 UnionKeyword `union`
+1:19 EnumKeyword `enum`
+1:24 FlagsKeyword `flags`
+1:30 OpenKeyword `open`
+1:35 ExtensibleKeyword `extensible`
+1:46 InterfaceKeyword `interface`
+1:56 DelegateKeyword `delegate`
+1:65 Identifier `exKtension`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
+2:1 CharLiteral `'\u{202E}'`
+2:4 EndOfFile
+
+error BYN0015: source is not valid UTF-8 (byte 0xAA)
+
+  1 │ struct uniq� union enum flags open extensible interface delegate exKtension derivation attribute
+    │            ^
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  2 │ '�'
+    │  ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 2 │ '�'
+    │   │  -

@@ -1,0 +1,4 @@
+error BYN2003: `exists` is not a member of `Fs`
+
+  3 │     let x = Fs.exists("A")
+    │                ^^^^^^

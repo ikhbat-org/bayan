@@ -1,0 +1,37 @@
+1:1 Identifier `et`
+1:4 Identifier `c`
+1:6 Equals `=`
+1:8 RawStringLiteral `"""never closed\n"\nlet c = """`
+3:12 NeverKeyword `never`
+3:18 Identifier `closed`
+4:2 IntegerLiteral `0x_`
+5:1 IntegerLiteral `0b__`
+6:1 IntegerLiteral `1__`
+7:1 IntegerLiteral `0xF__`
+8:2 EndOfFile
+
+error BYN0010: invalid numeric literal: expected digits after `0x`
+
+  4 │  0x_
+    │  ^^^
+
+error BYN0010: invalid numeric literal: expected digits after `0b`
+
+  5 │ 0b__
+    │ ^^^^
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  6 │ 1__
+    │  ^^
+    │
+    │ 6 │ 1__
+    │   │  --
+
+error BYN0010: invalid numeric literal: `_` must sit between digits
+
+  7 │ 0xF__
+    │    ^^
+    │
+    │ 7 │ 0xF__
+    │   │    --

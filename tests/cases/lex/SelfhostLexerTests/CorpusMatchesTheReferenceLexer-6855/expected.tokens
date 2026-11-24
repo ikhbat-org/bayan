@@ -1,0 +1,16 @@
+1:1 StringLiteral `"text"`
+1:8 StringLiteral `"esc \"q\" \\ \n"`
+1:26 RawStringLiteral `"""\n here"\n$"open {x";\n\n  raw "quoted"\n\nlet café = 1\n 0x\n b raw "quoted"\n$"{$"{$"{$"\u{1}$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{x}"}"}"}"\n// \u{202E}x\n\n`
+13:1 EndOfFile
+
+error BYN0003: unterminated string literal
+
+  1 │ "text" "esc \"q\" \\ \n" """
+    │                          ^^^ raw string starts here
+    │
+  help: close it with `"""`
+
+error BYN0015: source is not valid UTF-8 (byte 0xFC)
+
+  10 │ $"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�$"{x}"}"}"}"
+     │                                                             ^

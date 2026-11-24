@@ -1,0 +1,12 @@
+== all
+pathof tmp/t8-path/work/proj proj
+pathof tmp/t8-path/work/proj/tool.v2.byn proj/tool.v2.byn
+pathof tmp/t8-path/work/proj/ proj/
+pathof tmp/t8-path/work/proj// proj/
+pathof tmp/t8-path/work/proj/main.byn proj/main.byn
+pathof tmp/t8-path/work/app.d app.d
+pathof tmp/t8-path/work/missing/x.byn missing/x.byn
+pathof rel/x.byn rel/x.byn
+pathof tmp/t8-path/work .
+pathof rel\x.byn rel/x.byn
+pathof a\b\c.byn a/b/c.byn

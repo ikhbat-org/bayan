@@ -1,0 +1,61 @@
+// 019 T29 (coverage ratchet): effects.byn's alias, propagation and declaration paths no golden case reaches. Each program
+// is compiled as `a.byn` and its diagnostics compared; the expected text is the output of the self-hosted checker at the
+// commit that added the test.
+
+test "effects t29: an alias named like an effect or declared twice, and a nested alias" {
+    let text = "effect net = fs\neffect outer = inner\neffect inner = fs\neffect outer = console\n\nvoid main() uses outer {\n    print(\"x\")\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2006 7+3 `net` is declared twice;BYN2006 62+5 `outer` is declared twice;",
+    )
+}
+
+test "effects t29: a partial catch at the top level and an interface member's effects" {
+    let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    gone\n}\n\ni64 two(i64 n) fails E, F {\n    fail .bad if n == 0\n    fail .gone if n == 1\n    return n\n}\n\ninterface IShape {\n    i64 area() uses console {\n        print(\"a\")\n        return 0\n    }\n}\n\nstruct Money : IShape {\n    i64 cents\n}\n\ni64 apply(i64 x, by ((i64) -> i64) f) => f(x)\n\nlet x = two(3) catch (E.bad) 0\nlet m = Money { cents: 1 }\nprint($\"{x} {m.area()}\")\nlet g: (i64) -> i64 = (v) => v + 1\nprint($\"{apply(1, by: g)} {apply(2, by: (v) => v * 2)}\")\n"
+    assert t29s0Same(t29s0Diags(text), as: "")
+}
+
+test "effects t29: a caught variant, a failed union value and a call through a function-typed local" {
+    let text = "union error E {\n    bad\n    worse\n}\n\nunion error F {\n    gone\n}\n\ni64 two(i64 n) fails E, F {\n    fail .bad if n == 0\n    fail .gone if n == 1\n    return n\n}\n\ni64 one(i64 n) fails E, F {\n    let a = two(n) catch (E.bad) 0\n    let b = try two(a)\n    return b\n}\n\ni64 three(i64 n) fails E {\n    let u = two(n) catch (F.gone) 0\n    return u\n}\n\ni64 four(E e) fails E {\n    fail e\n}\n\nvoid main() {\n    let f: () -> i64 = () => 1\n    let g: (i64) -> i64 = x => x + 1\n    print($\"{f()}{g(2)}\")\n    var sb = StrBuf()\n    sb.append($\"{f()}\")\n    log($\"{g(1)}\")\n}\n"
+    assert t29s0Same(t29s0Diags(text), as: "")
+}
+
+test "effects t29: an empty `print`, a call through a function-typed field and an undeclared effect in a lambda" {
+    let text = "struct H {\n    (i64) -> i64 f\n}\n\ni64 twice(H h, (i64) -> i64 g) => h.f(1) + g(2)\n\nvoid main() uses fs {\n    print()\n    let h = H { f: x => x + 1 }\n    let a = h.f(1)\n    let b = twice(h, x => x)\n    let r: () -> string = () => Io.readText(\"x.txt\") catch \"\"\n    var sb = StrBuf()\n    sb.append($\"{a}{b}\")\n    print(sb.finish())\n    print(r())\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN5004 37+5 `twice` has 2 unlabeled parameters; give each but one a particle;BYN5006 61+1 `g` is a required parameter besides the object and needs a particle;BYN2822 15+12 a function type is not supported as a field yet;BYN2301 108+7 missing argument `text` for `print`;BYN6005 222+35 `main$lambda3` uses `alloc`, beyond the bound `pure` declared by `() -> string`;BYN6005 222+35 `main$lambda3` uses `fs`, beyond the bound `pure` declared by `() -> string`;",
+    )
+}
+
+/// The diagnostics of `text` compiled as `a.byn`, each as `code start+length message fix;`, the fix as `start+length text`.
+string t29s0EffFixes(string text) uses alloc, clock, fs {
+    let c = t29s0Compile(text)
+    var sb = StrBuf()
+    for d in c.diagnostics {
+        if d.hasFix {
+            sb.append(
+                $"{d.code} {d.span.start}+{d.span.length} {d.message} fix {d.fixSpan.start}+{d.fixSpan.length} {d.fixReplacement};",
+            )
+        } else {
+            sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message};")
+        }
+    }
+    return $"{sb.finish()}"
+}
+
+test "effects t29: inferred error sets from `fail` of a union value, of a non-error value and `try` of a non-call" {
+    let text = "union error E {\n    bad\n}\n\nunion error F {\n    gone\n}\n\nunion error EF = E, F\n\nvoid failUnion(EF e) fails {\n    fail e\n}\n\nvoid failNumber(i64 x) fails {\n    fail x\n}\n\ni64 tryValue(i64 x) fails {\n    return try x\n}\n\nvoid failUnknown() fails {\n    fail nothing\n}\n"
+    assert t29s0Same(
+        t29s0Diags(text),
+        as: "BYN2202 161+1 expected `an error`, found `i64`;BYN2605 209+1 `try` needs a call that can fail;BYN2001 250+7 `nothing` is not defined;",
+    )
+}
+
+test "effects t29: the fix for an undeclared effect of a public function without `uses`, after its `where` clause" {
+    let text = "interface IShape {\n    i64 area()\n}\n\npublic void show<T>(T x) where T : IShape {\n    print(\"x\")\n}\n\npublic void plain(i64 x) {\n    print(\"y\")\n}\n\npublic void spaced(i64 x  ) {\n    print(\"z\")\n}\n"
+    assert t29s0Same(
+        t29s0EffFixes(text),
+        as: "BYN6002 85+10 `show` uses `console` but does not declare it fix 78+0  uses console;BYN6002 130+10 `plain` uses `console` but does not declare it fix 123+0  uses console;BYN6002 178+10 `spaced` uses `console` but does not declare it fix 171+0  uses console;",
+    )
+}

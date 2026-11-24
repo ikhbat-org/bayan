@@ -1,0 +1,7 @@
+dir sub
+=== sub/tool.byn
+mode x
+#!/usr/bin/env bayan
+#:io threaded
+
+print("Salam, world!")
