@@ -10,17 +10,21 @@
 # Each branch is checked at run time: it must still point at the sha recorded here (a moved branch is left alone).
 # Before a branch is deleted its tip is saved as refs/archive/<branch> (not pushed by default), so
 #   git branch <branch> refs/archive/<branch>
-# restores it. A worktree holding a target branch is removed first with `git worktree remove` (refuses a dirty tree; then
-# the branch stays too). The branch the main checkout is on is never deleted.
-# Dry run by default. --execute / -e removes the worktrees; --delete-unmerged-branches also deletes the branches
-# (git branch -D: they are not merged into dev, which is the point).
+# restores it; an existing refs/archive/<branch> at another sha is never overwritten (that branch is kept). A worktree
+# holding a target branch is removed first with `git worktree remove`; one with modified or untracked files, or whose
+# status cannot be read, is kept (its branch too), and so is one with ignored files (a tmp/ of eval runs, say, which
+# `git worktree remove` deletes) unless --delete-worktree-scratch is given. The branch the main checkout is on is never
+# deleted.
+# Dry run by default. --execute / -e removes the worktrees; --delete-unmerged-branches also deletes the branches (they
+# are not merged into dev, which is the point), each only while it still points at the recorded sha.
 set -euo pipefail
 
-execute=0; delete=0
+execute=0; delete=0; scratch=0
 for a in "$@"; do
   case "$a" in
     --execute|-e) execute=1 ;;
     --delete-unmerged-branches) delete=1 ;;
+    --delete-worktree-scratch) scratch=1 ;;
     *) printf 'unknown flag: %s\n' "$a"; exit 2 ;;
   esac
 done
@@ -53,8 +57,15 @@ while read -r b sha; do
   fi
   wt="$(worktree_of "$b")"
   if [ -n "$wt" ]; then
-    if [ -n "$(git -C "$wt" status --porcelain 2>/dev/null)" ]; then
+    if ! st="$(git -C "$wt" status --porcelain --ignored=matching)"; then
+      printf 'keep:  %s (worktree %s: git status failed)\n' "$b" "${wt#"$main"/}"; kept=$((kept+1)); continue
+    fi
+    if [ -n "$(grep -v '^!! ' <<<"$st" || true)" ]; then
       printf 'keep:  %s (worktree %s has changes)\n' "$b" "${wt#"$main"/}"; kept=$((kept+1)); continue
+    fi
+    if [ -n "$st" ] && [ $scratch = 0 ]; then
+      printf 'keep:  %s (worktree %s has ignored files, first %s; --delete-worktree-scratch removes them)\n' \
+        "$b" "${wt#"$main"/}" "$(head -1 <<<"$st" | cut -c4-)"; kept=$((kept+1)); continue
     fi
     if [ $execute = 1 ]; then
       if git worktree remove "$wt"; then printf 'done:  worktree %s removed\n' "${wt#"$main"/}"
@@ -64,8 +75,11 @@ while read -r b sha; do
     fi
   fi
   if [ $delete = 1 ] && [ $execute = 1 ]; then
-    git update-ref "refs/archive/$b" "$sha"
-    if git branch -D "$b" > /dev/null; then printf 'done:  %s deleted (refs/archive/%s)\n' "$b" "$b"; done_n=$((done_n+1))
+    if ! old="$(git rev-parse --verify --quiet "refs/archive/$b")"; then git update-ref "refs/archive/$b" "$sha" ""
+    elif [ "$old" != "$sha" ]; then
+      printf 'keep:  %s (refs/archive/%s already holds %s)\n' "$b" "$b" "${old:0:9}"; kept=$((kept+1)); continue
+    fi
+    if git update-ref -d "refs/heads/$b" "$sha"; then printf 'done:  %s deleted (refs/archive/%s)\n' "$b" "$b"; done_n=$((done_n+1))
     else printf '  refused: %s not deleted.\n' "$b"; failed=1; fi
   else
     printf 'would: archive and delete %s (%s)\n' "$b" "${sha:0:9}"
