@@ -721,7 +721,7 @@ BStmt narrowAfter(ref Binder b, through ref Ctx c, for BStmt i) {
 
 bool exits(in Ctx c, for BStmt s) {
     switch boundKind(s) {
-        case .returnStmt or .breakStmt or .continueStmt:
+        case .returnStmt or .breakStmt or .continueStmt or .failStmt:
             return true
         case .block:
             let n = c.bBlocks[boundIndex(s)].statements.length
