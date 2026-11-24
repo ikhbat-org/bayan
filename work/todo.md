@@ -1370,3 +1370,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - tools/llm-eval.byn `run` (~:1219-1246): with `--retry-diagnostics` the retry request's wallMs and tokens are not added to `speed.wallMs`/`tokens` nor recorded; retry runs under-report cost (review b76405c4ec96..83cce96471fa, LOW).
 - scripts/evals/llm-eval.test.sh no-flag block: compares against the tool at hard-coded base 52b9b1ce; a later intended format change fails it, and a shallow clone without that commit fails instead of skipping (review b76405c4ec96..83cce96471fa, LOW).
 - scripts/ci/pre-push.sh:29: detects ref support by grepping the golden script's usage comment; rewording it silently drops the published-ref exclusion (fails closed). A `--supports-refs` probe would not depend on comment text (review b76405c4ec96..83cce96471fa, LOW).
+
