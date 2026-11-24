@@ -802,9 +802,11 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
     var used = List<i64>()
     for name in names {
         let path = Path.combine(dir, name)
+        continue if t9DirectoryExists(path) && !zigDriverObject(path)
         paths.append(path)
         used.append((try Fs.modified(path)).nanos)
     }
+    return if paths.length <= limit
     // Oldest first: an insertion sort of the indices, as `t9Evict`.
     var order = List<i64>()
     for i in 0..paths.length {
@@ -823,7 +825,6 @@ void zigTrimEntries(string dir, by i64 limit, until i64 minAgeNanos) uses alloc,
     for i in order {
         break if count <= keep
         continue if used[i] > cutoff
-        continue if t9DirectoryExists(paths[i]) && !zigDriverObject(paths[i])
         count -= 1
         gone.append(i)
     }
@@ -1271,15 +1272,37 @@ test "zig-cache-toolchain: past the limit an entry holding anything but main or 
     for name in ["e0", "e1", "e2", "e3"] {
         Fs.setModified(Path.combine(o, name), to: Time.fromNanos((1609459200 + 3600) * 1000000000)) catch { panic($"cannot stamp {name}") }
     }
-    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 4, until: 0)
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 1, until: 0)
     assert(env.length == 1)
     assert(Fs.fileExists(Path.combine(rt, "libcompiler_rt.a")))
     assert(!t9DirectoryExists(win))
     assert(Fs.fileExists(Path.combine(crt, "Scrt1.o")))
     assert(t9DirectoryExists(empty))
-    // past the limit of 4 the trim goes down to 3 (`limit - limit / 4`), so the newest driver object goes too
-    assert(!t9DirectoryExists(Path.combine(o, "e4")))
-    assert((Io.listDir(o) catch List<string>()).length == 3)
+    assert(Fs.fileExists(Path.combine(Path.combine(o, "e4"), "main.o")))
+    assert((Io.listDir(o) catch List<string>()).length == 4)
+}
+
+test "zig-cache-toolchain-over-limit: toolchain entries do not count toward keep so newest driver objects survive" {
+    let root = t9TestRoot("zig-toolchain-over-limit")
+    let o = zigTestCache(root, at: 5)
+    for i in 0..5 {
+        let tc = Path.combine(o, $"t{i}")
+        Io.createDirectory(tc) catch { panic($"cannot create {tc}") }
+        Io.writeFile(Path.combine(tc, "libcompiler_rt.a"), "x".bytes) catch { panic($"cannot write in {tc}") }
+        let secs: i64 = 1609459200 - (5 - i64(i)) * 3600
+        Fs.setModified(tc, to: Time.fromNanos(secs * 1000000000)) catch { panic($"cannot stamp {tc}") }
+    }
+    let env = zigCacheEnvFor(boundList(["zig", "cc"]), from: null, at: root, by: 4, until: 0)
+    assert(env.length == 1)
+    for i in 0..5 {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, $"t{i}"), "libcompiler_rt.a")))
+    }
+    assert(!t9DirectoryExists(Path.combine(o, "e0")))
+    assert(!t9DirectoryExists(Path.combine(o, "e1")))
+    for name in ["e2", "e3", "e4"] {
+        assert(Fs.fileExists(Path.combine(Path.combine(o, name), "main.o")))
+    }
+    assert((Io.listDir(o) catch List<string>()).length == 8)
 }
 
 test "zig-cache-set: a set ZIG_GLOBAL_CACHE_DIR is passed through unchanged and nothing is trimmed" {
