@@ -1419,3 +1419,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - tools/llm-eval.byn:122, :367, :1165: `Path.fullPath` keeps a trailing `/`, so `fileName` returns `""` and `directoryName` returns the task directory itself. (0.4.0 audit 16-evals-sandbox #6, LOW; docs/misc/2026-11-25-v0.4.0-audit.md)
 - CI: the win-x64 golden shard 8/12 runs close to its 55-minute bound; rebalance the shard split or raise the bound before it goes red (2026-11-25, 0.4.0 CI runs).
 - Laws: in a full `laws-check.js --run` on a loaded mb1, L028 (1200 s) and L048 (600 s) time out and pass alone (2026-11-25: full tree 41,098 passed in 3,521 s; L048 80/80). Run them on wp1, or shard L028, instead of raising the timeouts.
+- scripts/cleanup/session-2026-11-25.sh: keeping a worktree for its ignored scratch leaves exit 0, and the origin/dev push gate reads the local tracking ref without a fetch (review 91b998b80..0bb9e93c9, LOW x2).
