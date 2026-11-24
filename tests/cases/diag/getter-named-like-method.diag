@@ -1,0 +1,4 @@
+error BYN2006: `count` is declared twice
+
+  10 │     i64 count => left
+     │         ^^^^^ already declared on line 5
