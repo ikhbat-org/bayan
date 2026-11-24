@@ -44856,7 +44856,7 @@ byn_str byn_parser__decodeRawString(bynt_span_u8 p_token) {
 #line 33 "parser/literals.byn"
     l8_lastBreak = byn_parser__lastIndexOf(l6_rest, UINT32_C(10));
 #line 34 "parser/literals.byn"
-    l9_indent = ((l8_lastBreak >= INT64_C(0)) ? bynh_slice_span_rune(l6_rest, (int64_t)byn_add_i64(l8_lastBreak, INT64_C(1), byn_file_14, 34), 0, (int64_t)l6_rest.len, 0, false, byn_file_14, 34) : bynh_slice_span_rune(l6_rest, (int64_t)INT64_C(0), 0, (int64_t)INT64_C(0), 0, false, byn_file_14, 34));
+    l9_indent = ((l8_lastBreak >= INT64_C(0)) ? bynh_slice_span_rune(l6_rest, (int64_t)byn_add_i64(l8_lastBreak, INT64_C(1), byn_file_14, 34), 0, (int64_t)l6_rest.len, 0, false, byn_file_14, 34) : l6_rest);
 #line 35 "parser/literals.byn"
     t11 = l9_indent;
 #line 35 "parser/literals.byn"

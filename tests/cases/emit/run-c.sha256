@@ -248,6 +248,7 @@ d7f766f24b38021d77135c6430bdec05c941e882aeec26de19971be4b1502d10  run/postfix-mo
 f6e1f4c91590cef353aee2830ec0b0d17c56b558775045f740c742f096794f99  run/property-block.byn
 8c5f450cb92b1614a2c60c058cdbe1e0e8f775a59c94174f8d81c8b57442cc2e  run/provide-alloc.byn
 77d764c65a93422e7a46ab937f2ee6fa1589f81a4e49d10d92027144770ec77a  run/range-binds-looser-than-arithmetic.byn
+1ae65354befba81d4d66ef03358b42a0345d523cb7096d458ec154361409c54c  run/raw-string-closing-line.byn
 0550e0e30bf7036e3ba7075ed185456a0eae13b4cb989882417387e65debb7d6  run/ref-and-value-element-copy.byn
 0dd09c4cdfcd7ef2aca99a11532970cffd014d132753ce4bd449db6b6cab6dff  run/ref-list-element-in-loop.byn
 ca9cf98c89e0d609dec7a2c9736e7cc99d117a612cef5c2c5d7548b7cb8a45dd  run/ref-out-copy-only.byn
