@@ -1,6 +1,6 @@
 # Bayān — Markup and views
 
-Version: 0.4.0 (matches `bayan --version`)
+Version: 0.4.1-dev (matches `bayan --version`)
 
 Nov 1, 2026 · Accepted as a provisional design. The mechanism is fixed in principle; details are expected to change once a real product is built with it. Syntax follows round 3 plus the proposed round-4 clause order (`where → expects → uses → becomes → fails`). Library names under `kit.*` are illustrative.
 
