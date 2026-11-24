@@ -24,3 +24,6 @@ Ported off .NET (spec 019, 2026-11-23): `scripts/sabk/l046.sh` writes the same s
 Earlier notes: number reserved after spec 019's L040–L045. Bytes are never typed by hand (R3): `/prove` (task T16) checks the recorded TSV (`src/sabk/testdata/encodings.tsv`, written by `scripts/sabk/record-encodings.sh`) plus a sweep whose bytes come from running the pinned `zig cc` at prove time; the sweep's sampling (range edges plus random interior values per form) is a proof choice, not part of the statement. Tagged `Law=L046`. At zig 0.17.0 the bytes are read back with `otool -t`; where `otool` is absent the proof checks the recorded TSV only, so it never runs zero tests.
 
 Out-of-range refusal (an operand outside the form's range returns `EncodeError` naming the mnemonic and operand, and writes no bytes; R2, R11) is a separate property, tested by T4's tests in `src/sabk/enc/encode.test.byn`, not by this law.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `src/tests/SabkLawTests.cs` this law cited before is at the tag `csharp-final`.

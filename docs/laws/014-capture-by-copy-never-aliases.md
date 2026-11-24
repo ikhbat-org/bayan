@@ -6,7 +6,7 @@ release: 0.1.0
 sources: Q370
 kind: guard
 scope: csharp/Bayan.Semantics/Binding/BinderExpressions.cs
-proof: csharp/tests/Bayan.Tests/L014CaptureByCopyTests.cs
+proof: scripts/ci/bootstrap-check.sh
 check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases --only 'diag/lambda-capture' --only 'run/lambda-capture'
 enacted: 2026-10-25
 ---
@@ -32,3 +32,6 @@ Mutations:
 Reverted, the test passes. No flag narrowing: `-Wall -Werror` holds in full on `out.c`.
 
 Measured 2026-10-25 on macOS arm64: 12 tests, about 25 s.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `csharp/tests/Bayan.Tests/L014CaptureByCopyTests.cs` this law cited before is at the tag `csharp-final`.

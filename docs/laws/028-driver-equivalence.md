@@ -6,7 +6,7 @@ release: 0.2.0
 sources: Q3, Q1223, Q1225, Q1270
 kind: property
 scope: src/driver/**, csharp/Bayan.Cli/CliApp.cs
-proof: src/tests/SelfhostDriverGoldenTests.cs
+proof: scripts/ci/bootstrap-check.sh
 check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test tests/cases
 timeout: 1200
 ---
@@ -49,3 +49,6 @@ A corpus case (its argv, cwd and input files) and the first differing stream or 
 
 ### Tier and timeout (proposed, Q1270 (b))
 The full tier measured 37 min on wp1. It is a required job of the release workflow (`release.yml` calls `laws-nightly.yml`, which keeps its nightly schedule), and that job allows 180 min. The merge gate stays on the seeded subset, so the front matter's `timeout` is unchanged by this note: `timeout: 1200` for the subset (the `timeout: 1800` above is the draft's value, for the user to enact).
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `src/tests/SelfhostDriverGoldenTests.cs` this law cited before is at the tag `csharp-final`.

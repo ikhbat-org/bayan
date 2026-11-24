@@ -28,3 +28,6 @@ Proven 2026-11-17 by `SabkAllocationLawTests` (`src/tests/SabkLawTests.cs`), whi
 Ported off .NET (spec 019, 2026-11-23): `scripts/sabk/l047.sh` runs "L047:" as `SabkAllocationLawTests` did and requires exactly `◆ 2 passed`. Break test: expecting `◆ 3 passed` failed it naming the run's output; reverted.
 
 Plan before the proof: `/prove` (task T18) runs `checkAllocation` (`src/sabk/check/sound.byn`), a forward dataflow that shares no code with `ra/`, over every SIR test function and a generated set (straight-line, loop and call shapes, 0–40 live values), tagged `Law=L047`. The proof asserts that the generated set is accepted (a law over accepted functions holds vacuously if every one is refused). The `Allocation` to `Segment` translation (`segmentsOf` in `sound.test.byn`) is trusted test code.
+
+## Proof since 019b
+Since spec 019b (2026-11-24) the proof is the `check:` command, which runs with no .NET (spec 019 R18). The C# test `src/tests/SabkLawTests.cs` this law cited before is at the tag `csharp-final`.

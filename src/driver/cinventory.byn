@@ -237,10 +237,6 @@ List<string> ciHits() uses alloc, fs {
         files.append(f)
         texts.append(ciRead(f))
     }
-    for f in ["csharp/Bayan.Backend.C/CEmitter.cs"] {
-        files.append(f)
-        texts.append(ciLiterals(ciRead(f)))
-    }
     var cprint = List<string>()
     for name in Io.listDir(Path.fullPath("src/emitter/cprint")) catch List<string>() {
         cprint.append(name) if name.endsWith(".byn")

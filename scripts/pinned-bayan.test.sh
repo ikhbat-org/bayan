@@ -73,22 +73,6 @@ if out=$("$script" 2> "$tmp/err"); then fail "a failed build succeeded: $out"; f
 grep -q "building bayan at $badsha (dev) failed; log: .*build.log" "$tmp/err" || fail "no failure message: $(cat "$tmp/err")"
 grep -q "stub failure" "$(sed -E 's/.*log: //' "$tmp/err")" || fail "the log does not hold the build output"
 
-# No dotnet on PATH: $HOME/.dotnet/dotnet is used, with DOTNET_ROOT set; without it the message names dotnet.
-nodot=$(printf %s "$PATH" | tr : '\n' | while IFS= read -r d; do [ -n "$d" ] && [ ! -x "$d/dotnet" ] && printf %s: "$d"; done)
-if PATH="$nodot" command -v git >/dev/null 2>&1 && ! PATH="$nodot" command -v dotnet >/dev/null 2>&1; then
-  git checkout -q -- csharp/Bayan.Cli/stamp 2>/dev/null || true; git checkout -q -b homedot feat/x; echo homedot > csharp/Bayan.Cli/stamp; git commit -qam homedot
-  mkdir -p "$tmp/home/.dotnet"; { echo '#!/bin/bash'; echo 'echo "$DOTNET_ROOT" > "$AUX/root.txt"'; echo "exec \"$AUX/dotnet\" \"\$@\""; } > "$tmp/home/.dotnet/dotnet"; chmod +x "$tmp/home/.dotnet/dotnet"
-  out=$(HOME="$tmp/home" PATH="$nodot" DOTNET_ROOT= PINNED_BAYAN_REF=homedot "$BASH" "$script") || fail "the \$HOME/.dotnet fallback failed"
-  [ "$("$out")" = homedot ] || fail "the fallback build printed '$out'"
-  [ "$(cat "$AUX/root.txt")" = "$tmp/home/.dotnet" ] || fail "DOTNET_ROOT was '$(cat "$AUX/root.txt")'"
-  git checkout -q -b nodot homedot; echo nodot > csharp/Bayan.Cli/stamp; git commit -qam nodot
-  if HOME="$tmp/nohome" PATH="$nodot" PINNED_BAYAN_REF=nodot "$BASH" "$script" > "$tmp/out" 2> "$tmp/err"; then fail "a build without dotnet succeeded"; fi
-  grep -q "dotnet not found" "$tmp/err" || fail "no dotnet-not-found message: $(cat "$tmp/err")"
-  git checkout -q dev
-else
-  echo "pinned-bayan.test: skipped the no-dotnet rows (git shares a PATH directory with dotnet here)"
-fi
-
 # An unknown ref is refused.
 if PINNED_BAYAN_REF=nope "$script" 2> "$tmp/err"; then fail "an unknown ref was accepted"; fi
 grep -q "no commit for 'nope'" "$tmp/err" || fail "no unknown-ref message: $(cat "$tmp/err")"
