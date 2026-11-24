@@ -4,6 +4,9 @@
 #   bash scripts/evals/llm-eval.test.sh [<law id>]
 set -uo pipefail
 cd "$(dirname "$0")/../.."
+# One pin for the whole run: the stamp checks compare commits read at different times, and `dev` can move in between.
+PINNED_BAYAN_REF=$(git rev-parse --verify "${PINNED_BAYAN_REF:-dev}^{commit}") || exit 2
+export PINNED_BAYAN_REF
 only=${1:-}
 case "$only" in ''|L048|L049|L050) ;; *) echo "llm-eval.test: unknown law id '$only' (L048, L049, L050)" >&2; exit 2 ;; esac
 seed=evals/llm/tasks
@@ -223,7 +226,10 @@ check "tests candidate with a main" "$code $(get with-main compiles) $(get with-
 # A candidate that loops reaches the run limit, not the build limit (R14).
 score loop "$exit3" "$root/cand/loop.byn"
 check "loop gives limit" "$code $(get loop compiles) $(get loop passes) $(get loop outcome)" '0 true false "limit"'
-check "loop is stopped at the run limit" "$([ $((secs - secsRight)) -ge 8 ] && [ $((secs - secsRight)) -le 30 ] && echo yes)" "yes"
+# Times the run step alone (prime's status file to format's stdout), so build and check times under load do not count.
+l=$root/out/loop/work/small-900-exit-code/1
+check "loop is stopped at the run limit" "$(awk -v a="$(mtime "$l/prime.stdout.status")" -v b="$(mtime "$l/format.stdout")" \
+  'BEGIN { d = b - a; print (a != "none" && b != "none" && d >= 8 && d <= 30) ? "yes" : "no" }')" "yes"
 # The time limit reaches the launcher as TERM; its sweep kills the candidate, which runs in a process group of its own (M3).
 # Each later launch on the sample sweeps it too, so llm-sandbox.test.sh tests the TERM sweep alone.
 if $mac; then
