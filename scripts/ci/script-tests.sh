@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # The ci job's script tests, one list for .github/workflows/ci.yml and for the run before a push, so the two cannot drift.
-#   bash scripts/ci/script-tests.sh [unix] [docs] [quick]   (no group: unix and docs; quick: both without the slow evals, for pre-push; `list`/`list-quick` print the files)
-# unix: every non-Windows job runs it; docs: the Linux job. Each test runs under the bash running this script, so
+#   bash scripts/ci/script-tests.sh [unix] [fast] [slow] [docs] [quick]   (no group: unix and docs; quick: both without the slow evals, for pre-push; `list`/`list-quick` print the files)
+# unix: fast and slow, a local run; ci.yml splits it into the other-parts job (fast) and the slow job (R17: no job past 45 min);
+# docs: the Linux job. Each test runs under the bash running this script, so
 # `/bin/bash scripts/ci/script-tests.sh` on macOS is the macOS job's bash 3.2. Every test runs; exit 1 names the failures.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
@@ -28,15 +29,17 @@ run=()
 for g in "${groups[@]}"; do
   case "$g" in
     (unix) run+=("${unix[@]}" ${slow[@]+"${slow[@]}"}) ;;  # bash 3.2 with set -u refuses an empty "${a[@]}"
+    (fast) run+=("${unix[@]}") ;;
+    (slow) run+=(${slow[@]+"${slow[@]}"}) ;;
     (quick) run+=("${unix[@]}" "${docs[@]}") ;;
     (docs) run+=("${docs[@]}") ;;
     (list) printf '%s\n' "${unix[@]}" ${slow[@]+"${slow[@]}"} "${docs[@]}"; exit 0 ;;
     (list-quick) printf '%s\n' "${unix[@]}" "${docs[@]}"; exit 0 ;;
-    (*) echo "script-tests: unknown group '$g' (unix, docs, quick)" >&2; exit 2 ;;
+    (*) echo "script-tests: unknown group '$g' (unix, fast, slow, docs, quick)" >&2; exit 2 ;;
   esac
 done
 failed=()
-for t in "${run[@]}"; do
+for t in ${run[@]+"${run[@]}"}; do
   echo "== $t"
   "$BASH" "$t" || failed+=("$t")
 done

@@ -6,7 +6,8 @@
 #   golden   $BAYAN_EXE test tests/cases --jobs N (the self-hosted golden runner, src/driver/golden.byn)
 #   bayan    $BAYAN_EXE test --package src src/<m> for each src/<m> with a test block, then test lib/std/<m> for each module
 #   parity   scripts/parity/run.sh <tool> --impl $BAYAN_EXE for each tests/parity/cli-<tool> (spec 019 T25); skipped on Windows
-#   scripts  scripts/ci/script-tests.sh: unix on macOS, unix and docs on Linux (ci.yml's split); skipped on Windows
+#   scripts  scripts/ci/script-tests.sh: unix on macOS, unix and docs on Linux; SCRIPT_TESTS_GROUPS replaces the groups
+#            (ci.yml: `fast` or `fast docs` in the other-parts job, `slow` in the slow job); skipped on Windows
 #   runtime  runtime/tests/run.sh; skipped with no C compiler (no $CC, cc or zig)
 # --jobs (default: the CPU count) goes to the golden runner, the one part that runs in parallel.
 # --skip <part> (repeatable) leaves that part out, as --only leaves out the others (ci.yml: `--skip golden` beside the golden shards).
@@ -207,6 +208,7 @@ elif [ $os = windows ]; then skip parity "the CLI parity cases run on Linux and 
 else part parity "" "scripts/parity/run.sh cli-* against the driver" parity_run; fi
 
 groups="unix"; [ $os = linux ] && groups="unix docs"
+[ -z "${SCRIPT_TESTS_GROUPS:-}" ] || groups=$SCRIPT_TESTS_GROUPS
 if [ -n "${TEST_SH_SCRIPTS:-}" ]; then part scripts "$TEST_SH_SCRIPTS" "script tests" "$TEST_SH_SCRIPTS"
 elif [ $os = windows ]; then skip scripts "the script tests run on the Linux and macOS jobs only (ci.yml)"
 else part scripts "" "scripts/ci/script-tests.sh $groups" "$BASH" scripts/ci/script-tests.sh $groups; fi
