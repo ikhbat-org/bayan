@@ -69,14 +69,25 @@ List<string> names(ref workspace.Workspace ws) uses alloc {
     return all
 }
 
-/// The resident set of this process in KB, from `ps` run by a `sh` whose parent it is.
+/// The live memory of this process in KB. On Linux (and other Unix), `ps -o rss`; on macOS, `vmmap --summary`'s
+/// `Physical footprint` (which counts compressed pages, unlike `ps -o rss`) minus freed allocator caches
+/// (`MALLOC_LARGE (empty)` dirty+swapped and `MALLOC ZONE` `FRAG SIZE`, which `libmalloc` retains instead of unmapping).
 i64 residentKb() uses alloc, process {
     var args = List<string>()
     args.append("-c")
-    args.append("ps -o rss= -p $PPID")
+    if Target.os == "macos" {
+        args.append(
+            "vmmap --summary $PPID | awk 'function kb(s,u,v){u=substr(s,length(s),1);v=substr(s,1,length(s)-1)+0;if(u==\"B\")return v/1024;if(u==\"K\")return v;if(u==\"M\")return v*1024;if(u==\"G\")return v*1024*1024;return 0}/^Physical footprint:[ \\t]/{fp=kb($3);seen=1}/^MALLOC_LARGE \\(empty\\)[ \\t]/{empty+=kb($5)+kb($6)}/^MALLOC ZONE[ \\t]/{zones=1;next}zones&&NF>=8&&$(NF-1)~/%$/{frag+=kb($(NF-2))}END{if(!seen)exit 1;v=int(fp-empty-frag+0.5);if(v<0)v=0;printf \"%d\\n\",v}'",
+        )
+    } else {
+        args.append("ps -o rss= -p $PPID")
+    }
     let r = Io.run("sh", args.span) catch { panic("cannot run sh to read the resident set") }
+    assert(r.exitCode == 0)
+    let text = r.stdout.trimmed()
+    assert(text.length > 0)
     var kb: i64 = 0
-    for b in r.stdout.trimmed().bytes {
+    for b in text.bytes {
         assert(b >= '0' && b <= '9')
         kb = kb * 10 + i64(b - '0')
     }
@@ -495,7 +506,10 @@ test "16 messages of 2 MiB read and 16 written grow the resident set by less tha
     var s = server.Server.create()
     // One message read and one written first: the allocator keeps the pages of the first message's arena for the next, as the edit
     // block's warm-up.
-    var warm = transport.Transport.reading(framed($"{{\"jsonrpc\":\"2.0\",\"method\":\"x/big\",\"params\":{{\"big\":\"{big}\"}}}}"), at: 64 << 20)
+    var warm = transport.Transport.reading(
+        framed($"{{\"jsonrpc\":\"2.0\",\"method\":\"x/big\",\"params\":{{\"big\":\"{big}\"}}}}"),
+        at: 64 << 20,
+    )
     assert(s.run(ref warm) == 0)
     sendBig(big)
     let before = residentKb()
