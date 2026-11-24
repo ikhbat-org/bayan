@@ -16,14 +16,18 @@ unset $(git rev-parse --local-env-vars)
 state="$root/tmp/pre-push"
 mkdir -p "$state"
 # golden-update commits (spec 019 R14): the commits not yet on origin/dev or origin/main, with the script as in the pushed commit
-base=""
+base=""; published=()
 for r in origin/dev origin/main; do
   b="$(git -C "$root" merge-base "$sha" "$r" 2>/dev/null)" || continue
+  published+=("$r")
   if [ -z "$base" ] || [ "$(git -C "$root" rev-list --count "$b..$sha")" -lt "$(git -C "$root" rev-list --count "$base..$sha")" ]; then base="$b"; fi
 done
 if [ -n "$base" ] && git -C "$root" cat-file -e "$sha:scripts/ci/golden-commit-check.sh" 2>/dev/null; then
   git -C "$root" show "$sha:scripts/ci/golden-commit-check.sh" > "$state/golden-$$.sh"
-  rc=0; (cd "$root" && bash "$state/golden-$$.sh" "$base..$sha") || rc=$?
+  # the commits on origin/dev or origin/main are left out (a release merge into main reaches main's published history), when
+  # the pushed script takes refs after the range
+  grep -q '<head> \[<ref>\.\.\.\]' "$state/golden-$$.sh" || published=()
+  rc=0; (cd "$root" && bash "$state/golden-$$.sh" "$base..$sha" ${published[@]+"${published[@]}"}) || rc=$?
   rm -f "$state/golden-$$.sh"
   [ "$rc" = 0 ] || { echo "pre-push: FAILED golden-commit-check on ${sha:0:10}" >&2; exit "$rc"; }
 fi

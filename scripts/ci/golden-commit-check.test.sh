@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/golden-commit-check.sh in a scratch repo under tmp/: a mixed commit is refused, a golden-only commit with
 # no cause is refused, with a sha or a task id (T30, T41b, T123) cause it passes and with "Txyz" it is refused, manifest plus golden passes, an unrelated commit passes, merges are skipped,
-# a mixed commit in scripts/ci/golden-commit-allow.txt passes and one not in it is refused.
+# a mixed commit in scripts/ci/golden-commit-allow.txt passes and one not in it is refused, a mixed commit reachable from a ref
+# given after the range passes.
 set -euo pipefail
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 fail() { echo "FAIL $1"; exit 1; }
@@ -54,4 +55,13 @@ run_check "$start"; [ "$rc" = 0 ] || fail "a listed mixed commit was refused: $o
 echo m > tests/cases/diag/a.diag; echo m > src/a.txt; git commit -qam "unlisted mixed commit"
 run_check "$start"; [ "$rc" = 1 ] || fail "an unlisted mixed commit after a listed one exit $rc"
 [ "$(grep -c 'together with a file' <<<"$out")" = 1 ] && grep -q 'unlisted mixed commit' <<<"$out" || fail "only the unlisted commit should be refused: $out"
+# commits reachable from a ref given after the range are left out (pre-push passes origin/dev and origin/main)
+start="$(git rev-parse HEAD)"
+git checkout -q -b pub; echo o > tests/cases/diag/a.diag; echo o > src/a.txt; git commit -qam "published mixed commit"
+git checkout -q main; git merge -q --no-ff pub -m "merge pub" 2>/dev/null
+run_check "$start"; [ "$rc" = 1 ] || fail "a published mixed commit without the ref exit $rc"
+rc=0; out="$(bash "$gc" "$start..HEAD" pub 2>&1)" || rc=$?; [ "$rc" = 0 ] || fail "a mixed commit reachable from the ref was refused: $out"
+echo p > tests/cases/diag/a.diag; echo p > src/a.txt; git commit -qam "unpublished mixed commit"
+rc=0; out="$(bash "$gc" "$start..HEAD" pub 2>&1)" || rc=$?; [ "$rc" = 1 ] || fail "an unpublished mixed commit with the ref exit $rc"
+[ "$(grep -c 'together with a file' <<<"$out")" = 1 ] && grep -q 'unpublished mixed commit' <<<"$out" || fail "only the unpublished commit should be refused: $out"
 echo "golden-commit-check.test: ok"
