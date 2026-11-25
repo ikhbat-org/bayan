@@ -3,7 +3,8 @@
 #   scripts/ci/pre-push.sh <sha>
 # The git pre-push hook calls it when a push updates dev or main; a non-zero exit refuses the push (bypass once: git push --no-verify).
 # A passing tree is recorded in tmp/pre-push/passed, so the same tree is not tested twice.
-# Before the tests it runs scripts/ci/golden-commit-check.sh over the commits not yet on origin/dev or origin/main (skipped with neither).
+# Before the tests it runs scripts/ci/golden-commit-check.sh over the commits not yet on origin/dev or origin/main (skipped with neither),
+# then scripts/ci/freeze-check.sh on <sha> when the commit has it and tests/cases/FREEZE.tsv.
 # PRE_PUSH_TEST_CMD names the test command, run in the checkout (default: /bin/bash scripts/ci/script-tests.sh quick, or bash if there is no /bin/bash).
 set -uo pipefail
 root="$(git rev-parse --show-toplevel)" || { echo "pre-push: not in a git repo" >&2; exit 2; }
@@ -30,6 +31,13 @@ if [ -n "$base" ] && git -C "$root" cat-file -e "$sha:scripts/ci/golden-commit-c
   rc=0; (cd "$root" && bash "$state/golden-$$.sh" "$base..$sha" ${published[@]+"${published[@]}"}) || rc=$?
   rm -f "$state/golden-$$.sh"
   [ "$rc" = 0 ] || { echo "pre-push: FAILED golden-commit-check on ${sha:0:10}" >&2; exit "$rc"; }
+fi
+# ci's Freeze check, on the commit's own manifest and script (0.4.0: 051d36320 pushed with three cases missing from FREEZE.tsv)
+if git -C "$root" cat-file -e "$sha:scripts/ci/freeze-check.sh" 2>/dev/null && git -C "$root" cat-file -e "$sha:tests/cases/FREEZE.tsv" 2>/dev/null; then
+  git -C "$root" show "$sha:scripts/ci/freeze-check.sh" > "$state/freeze-$$.sh"
+  rc=0; (cd "$root" && bash "$state/freeze-$$.sh" "$sha") || rc=$?
+  rm -f "$state/freeze-$$.sh"
+  [ "$rc" = 0 ] || { echo "pre-push: FAILED freeze-check on ${sha:0:10}" >&2; exit "$rc"; }
 fi
 if grep -qx "$tree" "$state/passed" 2>/dev/null; then
   echo "pre-push: tree ${tree:0:10} of ${sha:0:10} already passed, skipping"; exit 0

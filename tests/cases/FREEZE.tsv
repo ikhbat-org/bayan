@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	677
+cases	diag	678
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	354
+cases	run	356
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -14354,6 +14354,7 @@ file	eb9ced46dde98cef9627ea1afcc9d4cd2550cd02	tests/cases/diag/generic-method.di
 file	9623e2e50ec3475027dfdd2a35e0f4f20bec73f8	tests/cases/diag/generic-ref-changes-state.diag
 file	45c10eb52762d7e099a4144f1c843db8e4db5e08	tests/cases/diag/generic-unsupported-once.diag
 file	5f325d7f26b2936d9ba816c91f38e1b2184089d1	tests/cases/diag/getter-mutates.diag
+file	31addfefc3fd04e4f72330a057b9feeb7690dbc1	tests/cases/diag/getter-named-like-method.diag
 file	221152aebd5c4d67a7919f1cc1c4f439756340d4	tests/cases/diag/goto-case.diag
 file	2cdeaa0cce22c80925acf31c247a57b617d401bb	tests/cases/diag/goto.diag
 file	daced51d2039b987d55a3780882e215f84f81886	tests/cases/diag/grammar-dictionary/main.diag
@@ -26904,7 +26905,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	2bd6d91edb2750279b1c80fd09b61668c294e26a	tests/cases/emit/run-c.sha256
+file	002f4d779ff25dd087f965575816246ade33b78c	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -47078,7 +47079,7 @@ file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/parse/SelfhostParserO3
 file	35401e1daceb75983e09e759fb10e4af47053978	tests/cases/parse/SelfhostParserT4Tests/DeclarationsMatchTheCSharpParser/expected.stdout
 file	9bda978d0e71083ccf3bb82a146b1477a1c5d601	tests/cases/parse/SelfhostParserT5Tests/DeclarationsMatchTheCSharpParser/expected.stdout
 file	f3c44a99d176efb85b291a36e25d751af106ddbc	tests/cases/parse/SelfhostParserT6Tests/InvalidUtf8AndUnicodeWhiteSpaceDecodeAsCSharpDoes/expected.literals
-file	16b9d46ca2ab51e9b5f8a9e5ba31f3ef5a906ab6	tests/cases/parse/SelfhostParserT6Tests/LiteralsMatchTheCSharpDecoder-10/expected.literals
+file	ab0abcd6635d626c3daaf991dd3a6e8d9a700ad7	tests/cases/parse/SelfhostParserT6Tests/LiteralsMatchTheCSharpDecoder-10/expected.literals
 file	5f0649cd4f2c7b50f3744e7a00efdff8cec5d75d	tests/cases/parse/SelfhostParserT6Tests/LiteralsMatchTheCSharpDecoder-11/expected.literals
 file	ebc0a873a9ab043f3566b5fd3a439956a23a7595	tests/cases/parse/SelfhostParserT6Tests/LiteralsMatchTheCSharpDecoder-12/expected.literals
 file	ad15281bb82bae95354caa42e29e7d0475b99613	tests/cases/parse/SelfhostParserT6Tests/LiteralsMatchTheCSharpDecoder-13/expected.literals
@@ -48424,6 +48425,7 @@ file	c1bc2f969c8d3c3c6ef9261d8bac3df754722d7e	tests/cases/run/errors-payload.std
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/errors-result.exitcode
 file	18d19083b6f7058686fe1e68602b007ce34b7c0d	tests/cases/run/errors-result.stderr
 file	702955f6f7c0161f19c8fd57943379375db37297	tests/cases/run/errors-result.stdout
+file	9fc243e087eb418a0589926053ecfb6e99eb0828	tests/cases/run/fail-narrows.stdout
 file	9073b2f808f96cde37c525ed51fa9085672f1135	tests/cases/run/fail-statement.stdout
 file	06871cf6593b5e66f49c478892160547cb73b477	tests/cases/run/float-format.stdout
 file	b1258bb27d396648eb5082f27c451f785557fd37	tests/cases/run/float-try-parse.stdout
@@ -48688,6 +48690,7 @@ file	7b46182c8cd500214f6cb4a6cf68c77ed96a13ce	tests/cases/run/print-stderr.stdou
 file	5d737c73be4cb3412b0523fe3eb1e51236019e56	tests/cases/run/property-block.stdout
 file	9290688fa7995d643a841e69083fc3f1316a0ef8	tests/cases/run/provide-alloc.stdout
 file	5b366e494ad1988f2c827479d10f71d04838566b	tests/cases/run/range-binds-looser-than-arithmetic.stdout
+file	4cc014ec3b882d454abc1b83663ea2c16d664770	tests/cases/run/raw-string-closing-line.stdout
 file	73f5d26427b5b6b8488ff670815f81cd10530e93	tests/cases/run/ref-and-value-element-copy.stdout
 file	ac81dc6c529dd3ba045aa25a75933ff6b8539a39	tests/cases/run/ref-list-element-in-loop.stdout
 file	24685b63e13ff871dc492d351073c83a1cab36bf	tests/cases/run/ref-out-copy-only.stdout
