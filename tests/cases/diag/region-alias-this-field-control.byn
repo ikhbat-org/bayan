@@ -1,0 +1,16 @@
+void g(ref List<i64> xs, from ReadOnlySpan<i64> s) {
+    for i in 0..100 { xs.append(i) }
+    print($"{s[0]}")
+}
+struct S {
+    List<i64> xs
+    List<i64> ys
+    void f(ref this) {
+        g(ref this.xs, from: this.ys.span)
+    }
+}
+void main() {
+    var obj = S { xs: List<i64>(), ys: List<i64>() }
+    obj.ys.append(5)
+    obj.f()
+}

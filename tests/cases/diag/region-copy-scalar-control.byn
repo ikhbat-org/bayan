@@ -1,0 +1,12 @@
+List<i64> f() {
+    let buf = stackalloc u8[16]
+    var sb = StrBuf(buf)
+    sb.append("hi")
+    var xs = List<i64>()
+    xs.append(sb.view.length)
+    return xs.copy()
+}
+void main() {
+    let xs = f()
+    print($"{xs[0]}")
+}

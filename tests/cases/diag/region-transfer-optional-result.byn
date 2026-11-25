@@ -1,0 +1,9 @@
+ReadOnlySpan<i64>? view(ref List<i64> xs) => xs.span
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    let s = view(ref xs)
+    for i in 0..100 { xs.append(i) }
+    let v = s ?? return
+    print($"{v[0]}")
+}

@@ -62,9 +62,22 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
     if recv != -1 {
         receiver = exprRegions(ref r, through: ref c, for: recv)
     }
+    // Where each argument's mutations start in `r.mutations`: a nested call appends them while its argument is evaluated.
+    var starts = List<i64>()
     var args = List<Borrow>()
     for a in arguments {
+        starts.append(r.mutations.length)
         args.append(exprRegions(ref r, through: ref c, for: a))
+    }
+    starts.append(r.mutations.length)
+    // A later argument that changes what the receiver or an earlier argument borrows changes it before the callee reads it.
+    if r.reporting {
+        for k in -1..args.length {
+            let owners = k == -1 ? copyIds(receiver.owners) : copyIds(args[k].owners)
+            continue if owners.length == 0
+            let holder = k == -1 ? recv : arguments[k]
+            t41LaterMutations(ref r, through: ref c, for: holder, by: owners, from: starts[k + 1], to: starts[args.length], as: ($"is still passed to `{c.functions[fn].name}`", "argument"))
+        }
     }
     let mutating = c.functions[fn].isMutating
     // A method that writes `this` modifies its receiver, like a write to one of its fields (Q78).
@@ -111,30 +124,77 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                 && mayBorrow(ref c, for: exprType(in c, for: written), by: ref seenThis)
                 && r.reporting
                 && c.functions[r.fn].owner != -1 {
-            let ownerFields = copyIds(in c.structs[c.functions[r.fn].owner].fields)
+            let ownerFields = copyIds(c.structs[c.functions[r.fn].owner].fields)
             for field in ownerFields {
                 let local = fieldLocal(ref r, through: ref c, for: field)
                 r.mutations.append(Mutation { target: local, span: argSpan })
             }
         }
-        // Only a `ref` or `out` argument is passed by `ref` (BYN3005).
-        let root = written != argument ? -1 : rootLocal(ref c, for: written)
-        if root == -1 {
-            i += 1
-            continue
+        i += 1
+    }
+    // Only a `ref` or `out` argument, or the receiver of a `ref this` method (index -1), is passed by `ref` (BYN3005).
+    for k in -1..arguments.length {
+        var root: LocalId = -1
+        // `this` itself has no local: it stands for the fields of `this` the callee may change.
+        var whole = false
+        var hit = List<LocalId>()
+        // For a local receiver (`obj.f(…)`), the fields of `obj` the callee changes structurally.
+        var receiverFields = List<FieldId>()
+        if k == -1 {
+            if recv != -1 && mutating {
+                whole = boundKind(recv) == .thisRef
+                root = t41Root(ref r, through: ref c, for: recv)
+                let fields = changedFields(ref r, through: ref c, for: fn)
+                if whole {
+                    for field in fields {
+                        hit.append(fieldLocal(ref r, through: ref c, for: field))
+                    }
+                } else {
+                    receiverFields = copyIds(fields)
+                }
+            }
+        } else if k < parameters.length {
+            let written = writtenArgument(in c, for: parameters[k], by: arguments[k])
+            if written == arguments[k] {
+                whole = boundKind(written) == .thisRef
+                root = t41Root(ref r, through: ref c, for: written)
+                if whole && c.functions[r.fn].owner != -1 {
+                    let ownerFields = copyIds(c.structs[c.functions[r.fn].owner].fields)
+                    for field in ownerFields {
+                        hit.append(fieldLocal(ref r, through: ref c, for: field))
+                    }
+                }
+            }
         }
+        continue if root == -1 && hit.length == 0
         for j in 0..arguments.length {
             // A by-value copy of an element (`xs[0]` as an `i64`) cannot alias what the callee changes.
             // coverage-exempt: Q746
             let byRef = j < parameters.length && t37RefOrOut(in c, for: parameters[j])
+            // An `out` argument's old value is never read: what it borrows cannot alias.
+            let byOut = j < parameters.length && c.locals[parameters[j]].modifier == .outKeyword
             var seenJ = List<Type>()
-            continue if j == i
-                || !(rootLocal(
-                    ref c,
-                    for: arguments[j],
-                ) == root && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
-                    || t37HasId(in args[j].owners, for: root))
-            let name = c.locals[root].name
+            let rootJ = t41Root(ref r, through: ref c, for: arguments[j])
+            var same = rootJ == root
+            var owned = t37HasId(in args[j].owners, for: root)
+            if whole {
+                same = boundKind(arguments[j]) == .thisRef || t37HasId(hit, for: rootJ)
+                owned = false
+                for owner in args[j].owners {
+                    if t37HasId(hit, for: owner) {
+                        owned = true
+                    }
+                }
+            }
+            // A local receiver: an argument through a field the callee leaves alone cannot alias.
+            if k == -1 && boundKind(recv) == .local {
+                let fieldJ = t41LocalField(c, for: arguments[j])
+                continue if fieldJ != -1 && !t37HasId(receiverFields, for: fieldJ)
+            }
+            continue if j == k
+                || !(same && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
+                    || !byOut && owned)
+            let name = whole ? "this" : t41RootName(r, through: c, for: root)
             regionReport(
                 ref r,
                 through: ref c,
@@ -146,12 +206,12 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             )
             break
         }
-        i += 1
     }
     // What the callee may store from one argument (or its receiver) into another, by its summary.
     let template = templateOf(ref c, for: fn) ?? fn
     let stores = t41Stores(ref c, for: fn, by: call)
     for pair in stores {
+        continue if pair.target == regionResult
         var target: BExpr = -1
         if pair.target == regionThis {
             // coverage-exempt: Q746
@@ -168,9 +228,16 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
         var source = Borrow { regions: [], owners: [] }
         if pair.source == regionThis {
             source = t37CopyBorrow(receiver)
+            if pair.lends && recv != -1 {
+                source = unionBorrow(source, by: lendBorrow(ref r, through: ref c, for: recv, by: receiver, at: span.end))
+            }
             // coverage-exempt: Q746
         } else if pair.source < args.length {
             source = t37CopyBorrow(args[pair.source])
+            // The callee stores a borrow of this argument's own storage (`s = a.span`): lend it, as a returned span does below.
+            if pair.lends && pair.source < arguments.length {
+                source = unionBorrow(source, by: t41LentArgument(ref r, through: ref c, for: arguments[pair.source], by: args[pair.source], at: span.end))
+            }
         }
         var note: Related? = null
         // coverage-exempt: Q746
@@ -254,14 +321,32 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             k += 1
         }
     }
+    // And one whose body returns a borrow of a `ref` argument's own storage, whatever the result's type (`string`, an optional).
+    for pair in stores {
+        if pair.target == regionResult && pair.source >= 0 && pair.source < arguments.length {
+            result = unionBorrow(result, by: t41LentArgument(ref r, through: ref c, for: arguments[pair.source], by: args[pair.source], at: span.end))
+        }
+    }
     // Allocated from `context.allocator`: a list, an `Owned`, a growable `StrBuf`, or the text `Io.readText`, `Io.run` and `Utf8.decode` return (Q29).
+    // A user function with a body allocates there only if it uses `alloc` (declared or inferred), and then any heap
+    // data it returns, text too, may come from it; a callee with no body to judge keeps the list rule.
+    // A function value passed in is charged to this caller, not the callee (R16): it may allocate whatever the callee returns.
+    // A broad callee keeps the list rule, and its declared `alloc` (function type or `uses`) covers any heap data too.
     var seenList = List<Type>()
+    var allocated = false
+    if r.contexts.length > 0 && builtin == .none && !t41IsBroad(c, for: fn) && c.functions[template].body != -1 {
+        var seenHeap = List<Type>()
+        allocated = (fn >= c.allocates.length || c.allocates[fn] || t41PassesAllocating(ref c, for: fn, from: arguments))
+            && (containsList(ref c, for: callType, by: ref seenList) || mayBorrow(ref c, for: callType, by: ref seenHeap))
+    } else if r.contexts.length > 0 && builtin == .none {
+        var seenHeap = List<Type>()
+        allocated = containsList(ref c, for: callType, by: ref seenList)
+            || t41BroadAllocates(ref c, for: fn, by: recv, from: arguments) && mayBorrow(ref c, for: callType, by: ref seenHeap)
+    } else if r.contexts.length > 0 {
+        allocated = containsList(ref c, for: callType, by: ref seenList)
+    }
     if r.contexts.length > 0
-            && (containsList(
-                ref c,
-                for: callType,
-                by: ref seenList,
-            )
+            && (allocated
             || builtin == .ioReadText
             || builtin == .ioRun
             || builtin == .ioRunBatch
@@ -339,6 +424,69 @@ List<StorePair> t41Stores(ref Ctx c, for FuncId fn, by BExpr call) {
         result[at] = p
     }
     return result
+}
+
+/// Reports each mutation in `r.mutations[from..to]` whose target is one of `owners`: it ran while `holder`'s borrow
+/// was already taken and not yet used (a later call argument, a span's index), so the use reads what it changed.
+void t41LaterMutations(ref Regions r, through ref Ctx c, for BExpr holder, by List<i64> owners, from i64 start, to i64 end, as (string use, string changer) words) {
+    return if !r.reporting || owners.length == 0
+    let text = $"{getText(c.files[r.source].text.span, at: nodeSpan(c, for: holder))}"
+    for mi in start..end {
+        let target = r.mutations[mi].target
+        continue if !t37HasId(owners, for: target)
+        let targetName = c.locals[target].name
+        regionReport(
+            ref r,
+            through: ref c,
+            for: r.mutations[mi].moved ? .movedWhileBorrowed : .modifiedWhileBorrowed,
+            at: r.mutations[mi].span,
+            by: (targetName, $"`{text}`", "", "", ""),
+            label: $"`{text}` {words.use}",
+            help: $"store the {words.changer} that changes `{targetName}` in a local {words.changer == "argument" ? "before the call" : "first"}",
+        )
+    }
+}
+
+/// Whether a value of function type `type` may allocate: its type uses `alloc`.
+bool t41FunctionAllocates(ref Ctx c, for Type type) {
+    return false if kindOf(type) != .function
+    for effect in c.functionTypes[typeIndex(type)].effects {
+        return true if effect == "alloc"
+    }
+    return false
+}
+
+/// Whether an argument is a function value that may allocate: its effects are charged to the caller, not the callee (R16).
+/// A lambda or function passed by name is judged by its own body, since a pure parameter type does not stop it allocating.
+bool t41PassesAllocating(ref Ctx c, for FuncId fn, from List<BExpr> arguments) {
+    let parameters = copyIds(c.functions[fn].parameters)
+    for j in 0..arguments.length {
+        var value = arguments[j]
+        while boundKind(value) == .conversion {
+            value = c.bConversions[boundIndex(value)].operand
+        }
+        var passed: FuncId = -1
+        if boundKind(value) == .lambda {
+            passed = c.bLambdas[boundIndex(value)].lambda
+        } else if boundKind(value) == .functionRef {
+            passed = c.bFunctionRefs[boundIndex(value)].function
+        }
+        return true if passed >= 0 && (passed >= c.allocates.length || c.allocates[passed])
+        return true if t41FunctionAllocates(ref c, for: exprType(c, for: arguments[j]))
+        return true if j < parameters.length && t41FunctionAllocates(ref c, for: c.locals[parameters[j]].type)
+    }
+    return false
+}
+
+/// Whether a broad callee may allocate from `context.allocator`: a function value whose type uses `alloc`, or an
+/// interface method or `extern` function (no body to judge); an allocating function value passed to it counts too.
+bool t41BroadAllocates(ref Ctx c, for FuncId fn, by BExpr recv, from List<BExpr> arguments) {
+    return true if t41PassesAllocating(ref c, for: fn, from: arguments)
+    if recv != -1 && kindOf(exprType(c, for: recv)) == .function {
+        return t41FunctionAllocates(ref c, for: exprType(c, for: recv))
+    }
+    // An interface method or `extern` function has no body for the effects pass to fill `allocates` from: assume it allocates.
+    return true
 }
 
 /// A function value, an interface method or an `extern` function: no body to summarise.
@@ -444,7 +592,7 @@ Borrow allocatedFrom(ref Regions r, through ref Ctx c, for BExpr allocator) {
 }
 
 Borrow t41AllocatedFrom(ref Regions r, through ref Ctx c, for BExpr allocator, by Borrow borrow) {
-    let root = rootLocal(ref c, for: allocator)
+    let root = t41Root(ref r, through: ref c, for: allocator)
     return t37CopyBorrow(borrow) if root == -1
     let depth = r.depthOf.tryGet(at: root) ?? 0
     var regions = List<Region>()
@@ -521,13 +669,17 @@ void t41StoreBorrow(
     var merged = Borrow { regions: [], owners: [] }
     if r.locals.contains(local) {
         merged = unionBorrow(in r.locals[local], by: in value)
+        if t25Totals(merged) != t25Totals(r.locals[local]) {
+            t25Changed(ref r, for: local)
+        }
     } else {
         let none = Borrow { regions: [], owners: [] }
         merged = unionBorrow(in none, by: in value)
+        t25Changed(ref r, for: local)
     }
     r.locals[local] = move merged
     if r.summary && r.targets.contains(local) {
-        t41Record(ref r, for: r.targets[local], by: value, at: span)
+        t41Record(ref r, through: ref c, for: r.targets[local], by: value, at: span)
     }
     return if !r.reporting
     // The loan starts where the stored value's borrow of the owner was lent (`first(w.items.asSpan(), w.grow())`
@@ -558,12 +710,13 @@ void t41StoreBorrow(
 }
 
 /// Adds a pair to the summary for each parameter (or `this`) whose data `value` may hold.
-void t41Record(ref Regions r, for i64 target, by Borrow value, at TextSpan span) {
+void t41Record(ref Regions r, through ref Ctx c, for i64 target, by Borrow value, at TextSpan span) {
+    t41RecordLends(ref r, through: ref c, for: target, by: value, at: span)
     for region in value.regions {
         continue if region.source == regionNoSource || region.source == target
         var known = false
         for p in r.pairs {
-            if p.source == region.source && p.target == target {
+            if p.source == region.source && p.target == target && !p.lends {
                 known = true
                 break
             }
@@ -572,6 +725,47 @@ void t41Record(ref Regions r, for i64 target, by Borrow value, at TextSpan span)
             r.pairs.append(StorePair { source: region.source, target: target, site: span })
         }
     }
+}
+
+/// Adds a lending pair for each `ref` or `out` parameter (or field of `this`) whose own storage `value` borrows.
+void t41RecordLends(ref Regions r, through ref Ctx c, for i64 target, by Borrow value, at TextSpan span) {
+    let ps = copyIds(c.functions[r.fn].parameters)
+    for owner in value.owners {
+        var source = regionNoSource
+        for index in 0..ps.length {
+            if ps[index] == owner && t37RefOrOut(c, for: owner) {
+                source = index
+            }
+        }
+        for (_, local) in r.thisFields {
+            if local == owner {
+                source = regionThis
+            }
+        }
+        continue if source == regionNoSource || source == target
+        var known = false
+        for p in r.pairs {
+            if p.source == source && p.target == target && p.lends {
+                known = true
+                break
+            }
+        }
+        if !known {
+            r.pairs.append(StorePair { source: source, target: target, site: span, lends: true })
+        }
+    }
+}
+
+/// What a callee that keeps a borrow of its `ref` argument's (or receiver's) own storage gives: the argument, lent.
+Borrow t41LentArgument(ref Regions r, through ref Ctx c, for BExpr argument, by Borrow borrow, at i64 at) {
+    let lentArg = lendBorrow(ref r, through: ref c, for: argument, by: borrow, at: at)
+    var seen = List<Type>()
+    return lentArg if mayLend(ref c, for: exprType(c, for: argument), by: ref seen)
+    var regions = List<Region>()
+    for x in lentArg.regions {
+        regions.append(Region { depth: x.depth, name: x.name, source: x.source })
+    }
+    return Borrow { regions: move regions, owners: [] }
 }
 
 /// A store into a local or a part of one; through `this` or a `ref` parameter it outlives the function.
@@ -594,7 +788,7 @@ void t41StoreIntoBorrow(
         return
     }
     if r.summary && c.functions[r.fn].isMutating && isThisRooted(c, for: target) {
-        t41Record(ref r, for: regionThis, by: value, at: span)
+        t41Record(ref r, through: ref c, for: regionThis, by: value, at: span)
     }
     return if !r.reporting
     // A store through a span lands where the span points: it must live as long as the
@@ -602,6 +796,20 @@ void t41StoreIntoBorrow(
     if boundKind(target) == .index && kindOf(exprType(in c, for: c.bIndexes[boundIndex(target)].target)) == .span {
         let view = rootLocal(ref c, for: c.bIndexes[boundIndex(target)].target)
         if view != -1 {
+            // The span holds what is stored through it: a later change to the stored value's owner conflicts with a later read.
+            for owner in value.owners {
+                continue if owner == view
+                var created = span.end
+                if (value.lends is { } lends) {
+                    if lends.contains(owner) {
+                        let at = lends[owner]
+                        if span.start <= at && at < created {
+                            created = at
+                        }
+                    }
+                }
+                r.loans.append(Loan { owner: owner, holder: view, created: created, loopEnd: 0 })
+            }
             var depth: i64 = 0
             if r.locals.contains(view) {
                 var first = true
@@ -661,6 +869,7 @@ void t41CheckOutlives(
 
 void checkReturn(ref Regions r, through ref Ctx c, for in Borrow value, at TextSpan span) {
     if r.summary {
+        t41RecordLends(ref r, through: ref c, for: regionResult, by: value, at: span)
         for region in value.regions {
             if region.source != regionNoSource && !t37HasId(r.returns, for: region.source) {
                 r.returns.append(region.source)
@@ -743,27 +952,57 @@ void referBorrow(ref Regions r, through ref Ctx c, for LocalId local, by BExpr v
                 may = mayBorrow(ref c, for: exprType(in c, for: c.bConversions[ci].operand), by: ref seen)
             }
         case .local:
-            may = r.referentMayBorrow.tryGet(at: c.bLocals[boundIndex(value)].local) ?? true
+            let source = c.bLocals[boundIndex(value)].local
+            t25Read(ref r, for: source)
+            may = r.referentMayBorrow.tryGet(at: source) ?? true
         default: {}
     }
-    r.referentMayBorrow[local] = (r.referentMayBorrow.tryGet(at: local) ?? false) || may
+    let before = r.referentMayBorrow.tryGet(at: local)
+    let after = (before ?? false) || may
+    r.referentMayBorrow[local] = after
+    // A reader of an unset entry sees `true`.
+    if (before ?? true) != after {
+        t25Changed(ref r, for: local)
+    }
 }
 
 /// C# `LastUse`, the local function of `CheckMutations`: `useLists` holds each local's use positions at `useOf[local]`.
+/// A use inside a deferred body counts where the body runs, `deferEnds[d]` (the end of the block around `defers[d]`),
+/// unless that deferred statement also holds the mutation or the loan's creation.
 i64 lastUse(
     in Regions r,
     for LocalId holder,
     by in Map<LocalId,
     i64> useOf,
     as in List<List<i64>> useLists,
-    at in List<TextSpan> loops
+    at in List<TextSpan> loops,
+    through List<TextSpan> defers,
+    to List<i64> deferEnds,
+    until TextSpan mutation,
+    from i64 created
 ) {
     let declared = r.declaredAt.tryGet(at: holder) ?? -1
     var end: i64 = -1
     return end if !useOf.contains(holder)
     for use in useLists[useOf[holder]] {
-        if use > end {
-            end = use
+        var pos = use
+        var inner = -1
+        for d in 0..defers.length {
+            let inside = defers[d].start <= use && use < defers[d].end
+            if inside && (inner == -1 || defers[d].length < defers[inner].length) {
+                inner = d
+            }
+        }
+        if inner != -1 {
+            let span = defers[inner]
+            let holdsMutation = span.start <= mutation.start && mutation.end <= span.end
+            let holdsLoan = span.start <= created && created < span.end
+            if !holdsMutation && !holdsLoan {
+                pos = deferEnds[inner]
+            }
+        }
+        if pos > end {
+            end = pos
         }
         for loop in loops {
             if loop.start <= use && use < loop.end && !(loop.start <= declared && declared < loop.end) {
@@ -776,11 +1015,129 @@ i64 lastUse(
     return end
 }
 
+/// The smallest of `scopes` around `span`, or `span` itself.
+TextSpan innermostScope(List<TextSpan> scopes, for TextSpan span) {
+    var inner = span
+    var size: i64 = -1
+    for s in scopes {
+        if s.start <= span.start && span.end <= s.end && (size == -1 || s.length < size) {
+            inner = s
+            size = s.length
+        }
+    }
+    return inner
+}
+
+/// The first use of `holder` that a loan made later in `within` than `mutation` leaves stale, or -1: one from the
+/// window's start up to its end when the loan `closes` the mutation, otherwise one from its start on, one in a deferred
+/// body before the loop that runs after it, and one in a deferred body that runs in the window and does not hold the
+/// mutation. A use is safe when a whole store of `holder` from the loop on runs before it in the same scope.
+i64 backEdgeUse(
+    LocalId holder,
+    at TextSpan within,
+    through bool closes,
+    until TextSpan window,
+    from List<i64> reads,
+    as List<WholeStore> stores,
+    by List<TextSpan> defers,
+    to List<i64> deferEnds,
+    for TextSpan mutation
+) {
+    let lower = window.start
+    let upper = window.end
+    var first: i64 = -1
+    for u in reads {
+        var deferred = false
+        var inner = -1
+        for d in 0..defers.length {
+            let inside = defers[d].start <= u && u < defers[d].end
+            deferred = deferred || inside && defers[d].end <= within.start && deferEnds[d] >= within.end
+            if inside && (inner == -1 || defers[d].length < defers[inner].length) {
+                inner = d
+            }
+        }
+        var runs = false
+        if inner != -1 {
+            let span = defers[inner]
+            let holdsMutation = span.start <= mutation.start && mutation.end <= span.end
+            runs = !holdsMutation && lower <= deferEnds[inner] && (!closes || deferEnds[inner] < upper)
+        }
+        continue if !deferred && !runs && (u < lower || closes && u >= upper)
+        var safe = false
+        for s in stores {
+            continue if s.holder != holder
+            // Writing the holder is not a use of it.
+            safe = safe || s.target == u
+            if s.span.start >= within.start && s.span.end <= u && u < s.scopeEnd {
+                safe = true
+            }
+        }
+        if !safe && (first == -1 || u < first) {
+            first = u
+        }
+    }
+    return first
+}
+
+/// Whether every way through `stmt` stores the whole of `holder`: an assignment of it, a block with one, an `if` and
+/// `else` that both do, or an exhaustive switch whose every case does and that no `break` leaves early. A synthesized
+/// `if` can sit outside its branches.
+bool storesWhole(Ctx c, for BNode stmt, as LocalId holder, at List<i64> jumps, by List<i64> jumpTargets) {
+    let i = boundIndex(stmt)
+    switch boundKind(stmt) {
+        case .assign:
+            let target = c.bAssigns[i].target
+            return boundKind(target) == .local && c.bLocals[boundIndex(target)].local == holder && c.bAssigns[i].op is null
+        case .block:
+            for s in c.bBlocks[i].statements {
+                return true if storesWhole(c, for: s, as: holder, at: jumps, by: jumpTargets)
+            }
+            return false
+        case .ifStmt:
+            return false if c.bIfs[i].elseBranch == -1
+            let span = c.bIfs[i].span
+            let then = nodeSpan(c, for: c.bIfs[i].then)
+            let other = nodeSpan(c, for: c.bIfs[i].elseBranch)
+            return false if then.start < span.start || then.end > span.end || other.start < span.start || other.end > span.end
+            return storesWhole(c, for: c.bIfs[i].then, as: holder, at: jumps, by: jumpTargets)
+                && storesWhole(c, for: c.bIfs[i].elseBranch, as: holder, at: jumps, by: jumpTargets)
+        case .switchStmt:
+            return false if !c.bSwitches[i].exhaustive
+            let span = c.bSwitches[i].span
+            for j in 0..jumps.length {
+                return false if jumpTargets[j] == c.bSwitches[i].target && span.start <= jumps[j] && jumps[j] < span.end
+            }
+            for section in c.bSwitches[i].sections {
+                var stores = false
+                for s in section.body {
+                    stores = stores || storesWhole(c, for: s, as: holder, at: jumps, by: jumpTargets)
+                }
+                return false if !stores
+            }
+            return true
+        default:
+            return false
+    }
+}
+
 void checkMutations(ref Regions r, through ref Ctx c) {
     return if r.mutations.length == 0 || r.loans.length == 0
     var useOf: Map<LocalId, i64> = []
     var useLists = List<List<i64>>()
     var loops = List<TextSpan>()
+    var defers = List<TextSpan>()
+    var blocks = List<TextSpan>()
+    // For the back edge: each loop's body, the conditional children a store's effect ends with, the whole stores,
+    // where each `break` or `continue` is and what it leaves, each loop's and switch's id and span, and the `if`/`else`
+    // and exhaustive switches whose paths merge.
+    var bodies = List<TextSpan>()
+    var scopes = List<TextSpan>()
+    var stores = List<WholeStore>()
+    var jumps = List<i64>()
+    var jumpTargets = List<i64>()
+    var targetIds = List<i64>()
+    var targetSpans = List<TextSpan>()
+    var merges = List<BNode>()
     let nodes = descendants(in c, for: c.functions[r.fn].body)
     for node in nodes {
         let k = boundKind(node)
@@ -793,7 +1150,95 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             useLists[useOf[l]].append(nodeSpan(in c, for: node).start)
         } else if k is .whileStmt or .doWhile or .forStmt {
             loops.append(nodeSpan(in c, for: node))
+            let i = boundIndex(node)
+            let body = k == .whileStmt ? c.bWhiles[i].body : k == .doWhile ? c.bDoWhiles[i].body : c.bFors[i].body
+            bodies.append(nodeSpan(c, for: body))
+            scopes.append(nodeSpan(c, for: body))
+            targetIds.append(k == .whileStmt ? c.bWhiles[i].target : k == .doWhile ? c.bDoWhiles[i].target : c.bFors[i].target)
+            targetSpans.append(nodeSpan(in c, for: node))
+        } else if k is .deferStmt or .errdeferStmt or .panicDefer {
+            // The statement's own span is the `defer` keyword; the body ends it.
+            let i = boundIndex(node)
+            let body = k == .deferStmt ? c.bDefers[i].body
+                : k == .errdeferStmt ? c.bErrdefers[i].body : c.bPanicDefers[i].body
+            let start = nodeSpan(in c, for: node).start
+            defers.append(TextSpan.fromBounds(start, until: nodeSpan(in c, for: body).end))
+            scopes.append(nodeSpan(c, for: body))
+        } else if k == .block {
+            blocks.append(nodeSpan(in c, for: node))
+            scopes.append(nodeSpan(c, for: node))
+        } else if k == .switchStmt {
+            targetIds.append(c.bSwitches[boundIndex(node)].target)
+            targetSpans.append(nodeSpan(in c, for: node))
+            if c.bSwitches[boundIndex(node)].exhaustive {
+                merges.append(node)
+            }
+            // A case body is a statement list, not a block, and a defer in it runs at the case's end.
+            for section in c.bSwitches[boundIndex(node)].sections {
+                blocks.append(section.span)
+                if section.body.length > 0 {
+                    let last = nodeSpan(c, for: section.body[section.body.length - 1]).end
+                    scopes.append(TextSpan.fromBounds(section.span.start, until: last))
+                }
+            }
+        } else if k == .ifStmt {
+            // A branch is conditional even when it is a bare statement (`s = xs.span if i > 3`).
+            let i = boundIndex(node)
+            scopes.append(nodeSpan(c, for: c.bIfs[i].then))
+            if c.bIfs[i].elseBranch != -1 {
+                scopes.append(nodeSpan(c, for: c.bIfs[i].elseBranch))
+                merges.append(node)
+            }
+        } else if k == .assign {
+            let i = boundIndex(node)
+            let target = c.bAssigns[i].target
+            if boundKind(target) == .local && c.bAssigns[i].op is null {
+                stores.append(WholeStore {
+                    holder: c.bLocals[boundIndex(target)].local,
+                    span: c.bAssigns[i].span,
+                    target: nodeSpan(c, for: target).start,
+                })
+            }
+        } else if k == .breakStmt {
+            jumps.append(nodeSpan(c, for: node).start)
+            jumpTargets.append(c.bBreaks[boundIndex(node)].target)
+        } else if k == .continueStmt {
+            jumps.append(nodeSpan(c, for: node).start)
+            jumpTargets.append(c.bContinues[boundIndex(node)].target)
         }
+    }
+    // A merging node every path of which stores a holder whole is itself a whole store of it.
+    let real = stores.length
+    for n in merges {
+        let span = nodeSpan(c, for: n)
+        for si in 0..real {
+            let h = stores[si].holder
+            continue if stores[si].span.start < span.start || stores[si].span.end > span.end
+            var tried = false
+            for sj in 0..si {
+                let inside = stores[sj].span.start >= span.start && stores[sj].span.end <= span.end
+                tried = tried || inside && stores[sj].holder == h
+            }
+            if !tried && storesWhole(c, for: n, as: h, at: jumps, by: jumpTargets) {
+                stores.append(WholeStore { holder: h, span: span, target: -1 })
+            }
+        }
+    }
+    for si in 0..stores.length {
+        stores[si].scopeEnd = innermostScope(scopes, for: stores[si].span).end
+    }
+    // A deferred body runs at the end of the smallest block or switch case around its statement.
+    var deferEnds = List<i64>()
+    for d in defers {
+        var runs = d.end
+        var size: i64 = -1
+        for b in blocks {
+            if b.start <= d.start && d.end <= b.end && (size == -1 || b.length < size) {
+                runs = b.end
+                size = b.length
+            }
+        }
+        deferEnds.append(runs)
     }
     for mi in 0..r.mutations.length {
         let target = r.mutations[mi].target
@@ -803,17 +1248,131 @@ void checkMutations(ref Regions r, through ref Ctx c) {
         for li in 0..r.loans.length {
             let holder = r.loans[li].holder
             let created = r.loans[li].created
-            continue if r.loans[li].owner != target || created >= mSpan.end
-            // Writing an element in place through the loop's own `dyn ref` variable leaves the loop's collection as it is.
-            continue if holder == -1 && through != -1 && (r.declaredAt.tryGet(at: through) ?? -1) == created
-            let end = holder == -1 ? r.loans[li].loopEnd : lastUse(
-                in r,
-                for: holder,
-                by: in useOf,
-                as: in useLists,
-                at: in loops,
-            )
-            continue if end <= mSpan.end
+            continue if r.loans[li].owner != target
+            var end: i64 = -1
+            if created >= mSpan.end {
+                // A loan made after the mutation in the same loop is still held when the next iteration mutates.
+                continue if holder == -1 || !useOf.contains(holder)
+                var p = -1
+                for li2 in 0..loops.length {
+                    let loop = loops[li2]
+                    if loop.start <= mSpan.start && created < loop.end && (p == -1 || loop.length < loops[p].length) {
+                        p = li2
+                    }
+                }
+                continue if p == -1
+                let declared = r.declaredAt.tryGet(at: holder) ?? -1
+                continue if loops[p].start <= declared && declared < loops[p].end
+                // The loan "closes" the mutation when every iteration that ran the mutation goes on to store the holder
+                // whole: the first such store in the mutation's own scope, else in the loop body's, with no counted
+                // jump before it. Only uses before that store's end can then be stale.
+                let own = innermostScope(scopes, for: mSpan)
+                var closes = false
+                var w = -1
+                var scope = bodies[p]
+                for candidate in [own, bodies[p]] {
+                    w = -1
+                    for si in 0..stores.length {
+                        let s = stores[si]
+                        continue if s.holder != holder || s.span.start < mSpan.end || s.span.start < candidate.start
+                        continue if s.span.end > candidate.end
+                        let home = innermostScope(scopes, for: s.span)
+                        continue if home.start != candidate.start || home.end != candidate.end
+                        if w == -1 || s.span.start < stores[w].span.start {
+                            w = si
+                        }
+                    }
+                    closes = w != -1
+                    // A jump before the mutation in a loop around it inside the scope runs after it on that loop's next turn.
+                    var from = mSpan.end
+                    var fromSize: i64 = -1
+                    for loop in loops {
+                        let around = loop.start <= mSpan.start && mSpan.end <= loop.end
+                        let inside = candidate.start <= loop.start && loop.end <= candidate.end
+                        if around && inside && loop.length > fromSize {
+                            from = loop.start
+                            fromSize = loop.length
+                        }
+                    }
+                    for ji in 0..jumps.length {
+                        let j = jumps[ji]
+                        continue if !closes || j < from || j >= stores[w].span.end
+                        // A jump to a loop or switch inside the scope resumes inside it.
+                        var inner = false
+                        for ti in 0..targetIds.length {
+                            if targetIds[ti] == jumpTargets[ji] {
+                                let t = targetSpans[ti]
+                                inner = candidate.start <= t.start && t.end <= candidate.end
+                            }
+                        }
+                        // So does one after a whole store of the holder in its scope; before the mutation, the store runs after it on the next turn too.
+                        var after = mSpan.end
+                        after = from if j < mSpan.start
+                        var dominated = false
+                        for s in stores {
+                            if s.holder == holder && s.span.start >= after && s.span.end <= j && j < s.scopeEnd {
+                                dominated = true
+                            }
+                        }
+                        closes = inner || dominated
+                    }
+                    if closes {
+                        scope = candidate
+                        break
+                    }
+                }
+                // Uses from the mutation's outermost loop inside the closing scope, otherwise from the outermost loop
+                // around this one that the holder outlives.
+                var lower = mSpan.end
+                var upper = loops[p].end
+                var size: i64 = -1
+                for loop in loops {
+                    let around = loop.start <= mSpan.start && mSpan.end <= loop.end
+                    let inside = scope.start <= loop.start && loop.end <= scope.end
+                    if closes && around && inside && loop.length > size {
+                        lower = loop.start
+                        size = loop.length
+                    }
+                }
+                if closes {
+                    upper = stores[w].span.end
+                } else {
+                    lower = loops[p].start
+                    for loop in loops {
+                        let around = loop.start <= loops[p].start && loops[p].end <= loop.end
+                        if around && !(loop.start <= declared && declared < loop.end) && loop.start < lower {
+                            lower = loop.start
+                        }
+                    }
+                }
+                end = backEdgeUse(
+                    holder,
+                    at: loops[p],
+                    through: closes,
+                    until: TextSpan.fromBounds(lower, until: upper),
+                    from: useLists[useOf[holder]],
+                    as: stores,
+                    by: defers,
+                    to: deferEnds,
+                    for: mSpan,
+                )
+                continue if end == -1
+            } else {
+                // Writing an element in place through the loop's own `dyn ref` variable leaves the loop's collection as it is.
+                continue if holder == -1 && through != -1 && (r.declaredAt.tryGet(at: through) ?? -1) == created
+                end = holder == -1 ? r.loans[li].loopEnd : lastUse(
+                    in r,
+                    for: holder,
+                    by: in useOf,
+                    as: in useLists,
+                    at: in loops,
+                    through: defers,
+                    to: deferEnds,
+                    until: mSpan,
+                    from: created,
+                )
+                continue if end <= mSpan.end
+            }
             let targetName = c.locals[target].name
             let who = holder == -1 ? "the `for` loop" : $"`{c.locals[holder].name}`"
             var label = $"the loop over `{targetName}` is still running"
@@ -890,12 +1449,46 @@ LocalId thisField(ref Regions r, through ref Ctx c, for BExpr e) {
     return field != -1 ? fieldLocal(ref r, through: ref c, for: field) : -1
 }
 
+/// `rootLocal`, or the stand-in for the field of `this` whose storage `e` names.
+LocalId t41Root(ref Regions r, through ref Ctx c, for BExpr e) {
+    let field = thisField(ref r, through: ref c, for: e)
+    return field != -1 ? field : rootLocal(ref c, for: e)
+}
+
+/// The name a report gives `root`: `this.f` for the stand-in for a field of `this`.
+string t41RootName(Regions r, through Ctx c, for LocalId root) {
+    for (_, local) in r.thisFields {
+        return $"this.{c.locals[root].name}" if local == root
+    }
+    return c.locals[root].name
+}
+
 LocalId fieldLocal(ref Regions r, through ref Ctx c, for FieldId field) {
     return r.thisFields[field] if r.thisFields.contains(field)
     c.locals.append(LocalSymbol { name: c.fields[field].name, type: c.fields[field].type, kind: .parameter })
     let local = c.locals.length - 1
     r.thisFields[field] = local
     return local
+}
+
+/// The field directly under a local that `e` reads through (`obj.f`, `obj.f.g`, `obj.f[i]`, `obj.f.span`), or -1.
+FieldId t41LocalField(Ctx c, for BExpr e) {
+    let i = boundIndex(e)
+    switch boundKind(e) {
+        case .field:
+            return c.bFields[i].field if boundKind(c.bFields[i].receiver) == .local
+            return t41LocalField(c, for: c.bFields[i].receiver)
+        case .tupleElement:
+            return t41LocalField(c, for: c.bTupleElements[i].receiver)
+        case .index:
+            return t41LocalField(c, for: c.bIndexes[i].target)
+        case .builtinCall:
+            let m = c.bBuiltinCalls[i].member
+            return t41LocalField(c, for: c.bBuiltinCalls[i].receiver) if m is .listAsSpan or .arrayAsSpan or .listMutableSpan or .arrayMutableSpan
+            return -1
+        default:
+            return -1
+    }
 }
 
 FieldId thisFieldSymbol(in Ctx c, for BExpr e) {

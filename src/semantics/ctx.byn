@@ -611,6 +611,9 @@ public struct Ctx {
     public Map<FuncId, List<StorePair>> storeSummaries  = []
     /// C# `Compilation.ReturnSummaries`: for each template with a body, the parameters (or `this`, -1) its result may borrow.
     public Map<FuncId, List<i64>>       returnSummaries = []
+    /// Whether each function uses `alloc`, declared or inferred, by FuncId: filled by `analyzeEffects` into a list
+    /// allocated in `General` before its arena (only bools are written there), read by the regions (0.4.0 audit 05 #3).
+    public List<bool>                   allocates       = []
     // ── T4 state (spec 018, revision 0021 word classes)
     /// C# `Lexicon.Collectives` and `Lexicon.IrregularPlurals`, filled by `buildLexicon`.
     public List<string> lexiconCollectives      = []

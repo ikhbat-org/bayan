@@ -1,0 +1,15 @@
+warning BYN2310: `sp` is never written through; use `ReadOnlySpan<S>`
+
+  8 │ void walk(Span<S> sp, by dyn ref IThing p) {
+    │           ^^^^^^^
+    │
+  help: take a `ReadOnlySpan`; it also accepts strings and read-only views
+    │ 8 │ void walk(ReadOnlySpan<S> sp, by dyn ref IThing p) {
+    │   │           ++++++++
+
+error BYN2104: `x` is immutable
+
+  13 │             x = p
+     │             ^ loop variables are immutable
+     │
+  help: copy it into a local `var` to change it

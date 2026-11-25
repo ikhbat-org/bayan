@@ -1,0 +1,7 @@
+void main() {
+    var xs = List<string>()
+    xs.append("a")
+    let zs = xs.span.copy()
+    xs.append("b")
+    print(zs[0])
+}

@@ -1,0 +1,10 @@
+void fill(ref List<i64> xs, from ReadOnlySpan<i64> s) {
+    for i in 0..100 { xs.append(i) }
+    xs.append(s[0])
+}
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    fill(ref xs, from: xs.span)
+    print($"{xs.length}")
+}

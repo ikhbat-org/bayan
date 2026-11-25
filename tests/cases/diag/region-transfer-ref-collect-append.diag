@@ -1,0 +1,13 @@
+error BYN3005: `xs` is passed by `ref` and again in the same call
+
+  6 │     collect(ref xs, to: ref v)
+    │                             ^ `xs` is also passed by `ref`
+    │
+  help: copy the value into a local first, or make two calls
+
+error BYN3004: `xs` is modified while `v` still borrows it
+
+  7 │     for i in 0..100 { xs.append(i) }
+    │                       ^^^^^^^^^^^^ `v` is used again on line 8
+    │
+  help: finish using `v` first, or copy what it needs before changing `xs`

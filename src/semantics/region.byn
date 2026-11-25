@@ -13,11 +13,16 @@ const regionNoSource: i64 = -9223372036854775807
 /// C# `This`: the index standing for `this` in a store summary.
 const regionThis: i64 = -1
 
+/// The index standing for the call's result as a store summary's target.
+const regionResult: i64 = -2
+
 /// One entry of a C# store summary: `(Source, Target)` and the first place the body stores it (none for a broad callee).
 struct StorePair {
     i64       source
     i64       target
     TextSpan? site = null
+    /// The stored value may point into the source's own storage, not only where the source points.
+    bool      lends = false
 }
 
 /// One entry of the C# `_loopItems` map: the iterable and its borrow.
@@ -45,6 +50,15 @@ struct Mutation {
     TextSpan span
     bool     moved   = false
     LocalId  through = -1
+}
+
+/// `holder = value` with no operator: from `span.end` to `scopeEnd` the holder no longer holds what it held before.
+struct WholeStore {
+    LocalId  holder
+    TextSpan span
+    /// Where the target `holder` is written: not a use.
+    i64      target
+    i64      scopeEnd = 0
 }
 
 // One entry of the C# `_restTails` map: a region and the tail its rest parameter names.
@@ -80,6 +94,12 @@ struct Regions {
     List<i64>              returns           = []
     /// The summary's target parameters, with their index.
     Map<LocalId, i64>      targets           = []
+    /// The locals whose borrow (or `referentMayBorrow`) a collecting pass has read so far.
+    Map<LocalId, bool>     read              = []
+    /// Set when a collecting pass changes a local it has already read: a later pass must run.
+    bool                   dirty             = false
+    /// A span view of a list or array (`xs.span`), with the borrow of the list itself: what a copy of the view's elements holds.
+    Map<BExpr, Borrow>     viewBases         = []
 }
 
 // ── The C# immutable sets (Q640): a `List` with no duplicates stands for `ImmutableHashSet`, copied on every change ──
@@ -441,9 +461,11 @@ void runRegions(ref Regions r, through ref Ctx c) {
             r.locals[p] = t25Region(1, as: $"`{c.locals[p].name}`")
         }
     }
-    // The first pass collects what each local may borrow (a loop can store into a local
-    // after its first use); the second reports against the complete picture.
+    // The first pass collects what each local may borrow (each loop body runs to a fixed point, `iterateRegions`);
+    // the second reports against the complete picture.
     let body = c.functions[r.fn].body
+    r.read.clear()
+    r.dirty = false
     stmtRegions(ref r, through: ref c, for: body)
     r.reporting = true
     stmtRegions(ref r, through: ref c, for: body)
@@ -451,6 +473,41 @@ void runRegions(ref Regions r, through ref Ctx c) {
         checkMutations(ref r, through: ref c)
     }
 }
+
+/// What a borrow holds, counted: a union only grows `regions`, `owners` and `lends`, and with `lends` the same only
+/// lowers `lendsAt`, so a union that changes a borrow changes these.
+struct RegionTotals {
+    i64 regions = 0
+    i64 owners  = 0
+    i64 lends   = 0
+    i64 lendsAt = 0
+}
+
+RegionTotals t25Totals(Borrow b) {
+    var t = RegionTotals { regions: b.regions.length, owners: b.owners.length }
+    if (b.lends is { } l) {
+        for (_, at) in l {
+            t.lends += 1
+            t.lendsAt += at
+        }
+    }
+    return t
+}
+
+/// Notes that the collecting pass has read `local`'s borrow, so a later change to it in this pass makes the pass dirty.
+void t25Read(ref Regions r, for LocalId local) {
+    if !r.reporting {
+        r.read[local] = true
+    }
+}
+
+/// Marks the pass dirty if `local`, which a store has just changed, was read earlier in it.
+void t25Changed(ref Regions r, for LocalId local) {
+    if !r.reporting && r.read.contains(local) {
+        r.dirty = true
+    }
+}
+
 
 /// C# `_restTails[tail] = name`.
 void t25SetRestTail(ref Regions r, for Region tail, to string name) {
@@ -492,7 +549,10 @@ void stmtRegions(ref Regions r, through ref Ctx c, for BStmt s) {
             let target = c.bAssigns[i].target
             let valueExpr = c.bAssigns[i].value
             let value = exprRegions(ref r, through: ref c, for: valueExpr)
-            let _ = exprRegions(ref r, through: ref c, for: target)
+            // A local target's own borrow is not read: computing it would only mark the pass dirty.
+            if boundKind(target) != .local {
+                let _ = exprRegions(ref r, through: ref c, for: target)
+            }
             storeIntoBorrow(ref r, through: ref c, for: target, by: in value, at: nodeSpan(in c, for: valueExpr))
             if boundKind(target) == .local {
                 referBorrow(ref r, through: ref c, for: c.bLocals[boundIndex(target)].local, by: valueExpr)
@@ -515,12 +575,9 @@ void stmtRegions(ref Regions r, through ref Ctx c, for BStmt s) {
             }
         case .whileStmt:
             let body = c.bWhiles[i].body
-            let _ = exprRegions(ref r, through: ref c, for: c.bWhiles[i].condition)
-            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: body)
+            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: body, from: c.bWhiles[i].condition)
         case .doWhile:
-            let condition = c.bDoWhiles[i].condition
-            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: c.bDoWhiles[i].body)
-            let _ = exprRegions(ref r, through: ref c, for: condition)
+            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: c.bDoWhiles[i].body, to: c.bDoWhiles[i].condition)
         case .forStmt:
             t25For(ref r, through: ref c, for: s)
         case .switchStmt:
@@ -632,17 +689,44 @@ void t25For(ref Regions r, through ref Ctx c, for BStmt s) {
             case .span: may = mayBorrow(ref c, for: c.spanTypes[typeIndex(iterableType)].element, by: ref seen)
             default: may = true
         }
-        r.referentMayBorrow[variable] = may
+        // Unioned, not set: the body may have stored into it on an earlier run, and the facts must only grow.
+        r.referentMayBorrow[variable] = (r.referentMayBorrow.tryGet(at: variable) ?? false) || may
     }
     iterateRegions(ref r, through: ref c, at: r.depth, for: body)
     r.depth -= 1
 }
 
-void iterateRegions(ref Regions r, through ref Ctx c, at i64 depth, for BStmt body) {
+void iterateRegions(ref Regions r, through ref Ctx c, at i64 depth, for BStmt body, from BExpr before = -1, to BExpr after = -1) {
     let outer = r.iteration
-    r.iteration = depth
-    stmtRegions(ref r, through: ref c, for: body)
-    r.iteration = outer
+    // The collecting pass runs a loop body until a run changes no local it has read: a store late in the body reaches
+    // a read early in it on the next iteration, one store per run. Straight-line code runs once, in source order.
+    // The facts only grow, and a chain of stores is at most as long as the function has locals, so a body needs at
+    // most that many runs plus one clean one; the cap is a guard against a bug only. The reporting pass and the
+    // entries a run appends (summary pairs and returns, which `t41Record` and `checkReturn` keep unique) need no
+    // reset: loans and mutations are recorded in the reporting pass only.
+    // A `while` condition runs before the body and a `do` condition after it, inside each run: a store in the condition
+    // can depend on the body. They are seen at the enclosing iteration depth, as the body is not.
+    let outerDirty = r.dirty
+    let cap = 2 * c.functions[r.fn].locals.length + 8
+    var changed = false
+    var runs: i64 = 0
+    while true {
+        r.dirty = false
+        if before != -1 {
+            let _ = exprRegions(ref r, through: ref c, for: before)
+        }
+        r.iteration = depth
+        stmtRegions(ref r, through: ref c, for: body)
+        r.iteration = outer
+        if after != -1 {
+            let _ = exprRegions(ref r, through: ref c, for: after)
+        }
+        runs += 1
+        break if r.reporting || !r.dirty
+        changed = true
+        panic("internal error: region analysis did not converge") if runs >= cap
+    }
+    r.dirty = outerDirty || changed
 }
 
 void declareBorrow(ref Regions r, through ref Ctx c, for LocalId local, at i64 position) {
@@ -665,6 +749,7 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
     switch boundKind(e) {
         case .local:
             let local = c.bLocals[i].local
+            t25Read(ref r, for: local)
             return t25Copy(r.locals[local]) if r.locals.contains(local)
             return t25None()
         case .thisRef:
@@ -721,6 +806,7 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             let end = c.bSlices[i].end
             let span = c.bSlices[i].span
             let target = exprRegions(ref r, through: ref c, for: targetExpr)
+            let before = r.mutations.length
             if start != -1 {
                 let _ = exprRegions(ref r, through: ref c, for: start)
             }
@@ -728,6 +814,9 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
                 let _ = exprRegions(ref r, through: ref c, for: end)
             }
             let kind = kindOf(exprType(in c, for: targetExpr))
+            if kind == .span {
+                t41LaterMutations(ref r, through: ref c, for: targetExpr, by: copyIds(target.owners), from: before, to: r.mutations.length, as: ("is still sliced", "bound"))
+            }
             return lendBorrow(ref r, through: ref c, for: targetExpr, by: in target, at: span.end) if kind is .list
                 or .array
             return move target
@@ -735,7 +824,12 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             // The element is a copy: it may point where the collection's data points, but not into the collection.
             let index = c.bIndexes[i].index
             let target = exprRegions(ref r, through: ref c, for: c.bIndexes[i].target)
+            let before = r.mutations.length
             let _ = exprRegions(ref r, through: ref c, for: index)
+            // A span is read after its index is computed: an index that changes the span's owner reads freed memory.
+            if kindOf(exprType(in c, for: c.bIndexes[i].target)) == .span {
+                t41LaterMutations(ref r, through: ref c, for: c.bIndexes[i].target, by: copyIds(target.owners), from: before, to: r.mutations.length, as: ("is still indexed", "index"))
+            }
             return t25WithoutOwners(target)
         case .spread:
             // Like an index: the elements are copies of what the sequence holds.
@@ -875,14 +969,75 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
     }
     switch member {
         case .listAsSpan or .arrayAsSpan or .strBufAsString or .listMutableSpan or .arrayMutableSpan:
+            r.viewBases[e] = t37CopyBorrow(in receiver) if member != .strBufAsString
             return lendBorrow(ref r, through: ref c, for: receiverExpr, by: in receiver, at: span.end)
         default:
             break
     }
+    // A copy is shallow: elements that borrow still point where the receiver's did.
+    var elements = t25None()
+    if member is .spanCopy or .listCopy or .mapCopy {
+        let receiverType = exprType(in c, for: receiverExpr)
+        let ti = typeIndex(receiverType)
+        var seen = List<Type>()
+        var may = true
+        switch kindOf(receiverType) {
+            case .list: may = mayBorrow(ref c, for: c.listTypes[ti], by: ref seen)
+            case .array: may = mayBorrow(ref c, for: c.arrayTypes[ti].element, by: ref seen)
+            case .span: may = mayBorrow(ref c, for: c.spanTypes[ti].element, by: ref seen)
+            case .map:
+                may = mayBorrow(ref c, for: c.mapTypes[ti].key, by: ref seen)
+                    || mayBorrow(ref c, for: c.mapTypes[ti].value, by: ref seen)
+            default: may = true
+        }
+        if may {
+            // The copy is not a view of the receiver: drop the list or array whose storage the receiver views
+            // (`xs` in `xs.span.copy()`, lent with the receiver's element type), keep what the elements point into.
+            elements = t25Copy(receiver)
+            // A direct view (`xs.span.copy()`, `make().span.copy()`, `this.items.span.copy()`): the elements are the list's.
+            if r.viewBases.contains(receiverExpr) {
+                elements = t25Copy(r.viewBases[receiverExpr])
+            } else if (receiver.lends is { } lent) {
+                var element = errorType()
+                switch kindOf(receiverType) {
+                    case .list: element = c.listTypes[ti]
+                    case .array: element = c.arrayTypes[ti].element
+                    case .span: element = c.spanTypes[ti].element
+                    default: break
+                }
+                var storage = List<LocalId>()
+                for (o, _) in lent {
+                    let ot = c.locals[o].type
+                    let oi = typeIndex(ot)
+                    let same = kindOf(ot) == .list && c.listTypes[oi] == element
+                        || kindOf(ot) == .array && c.arrayTypes[oi].element == element
+                    storage.append(o) if element != errorType() && same
+                }
+                var owners = List<LocalId>()
+                for o in elements.owners {
+                    owners.append(o) if !t37HasId(in storage, for: o)
+                }
+                var regions = List<Region>()
+                for x in elements.regions {
+                    var own = false
+                    for o in storage {
+                        own = own || x.depth == (r.depthOf.tryGet(at: o) ?? 0) && x.name == $"`{c.locals[o].name}`"
+                    }
+                    regions.append(x) if !own
+                }
+                elements.owners = move owners
+                elements.regions = move regions
+            }
+            elements.lends = null
+        }
+    }
     // C# `case … when b.Arguments.Length > 0`: with no argument the member falls to the cases below.
     switch member {
         case .spanCopy or .stringCopy or .listCopy or .mapCopy or .strBufCopy:
-            return allocatedFrom(ref r, through: ref c, for: argExprs[0]) if argExprs.length > 0
+            if argExprs.length > 0 {
+                let into = allocatedFrom(ref r, through: ref c, for: argExprs[0])
+                return unionBorrow(in into, by: in elements)
+            }
         default:
             break
     }
@@ -890,9 +1045,9 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
         case .ioReadAll or .intToString or .stringCopy or .stringLowercased or .stringUppercased
             or .stringReplaced or .stringRepeated or .stringJoined or .utf16Copy
             or .stringPadded or .bytesToString or .spanCopy or .listCopy:
-            // Fresh text from `context.allocator`, like `Io.readText`.
-            return t25Copy(r.contexts[r.contexts.length - 1]) if r.contexts.length > 0
-            return t25None()
+            // Fresh text from `context.allocator`, like `Io.readText`; `elements` is empty but for a collection copy.
+            return unionBorrow(in r.contexts[r.contexts.length - 1], by: in elements) if r.contexts.length > 0
+            return move elements
         case .listReplace or .listAdd:
             mutateBorrow(ref r, through: ref c, for: receiverExpr, at: span)
             return t25None()

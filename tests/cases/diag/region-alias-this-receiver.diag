@@ -1,0 +1,6 @@
+error BYN3005: `this` is passed by `ref` and again in the same call
+
+  8 │         this.f(this.xs.span)
+    │                ^^^^^^^^^^^^ `this` is also passed by `ref`
+    │
+  help: copy the value into a local first, or make two calls

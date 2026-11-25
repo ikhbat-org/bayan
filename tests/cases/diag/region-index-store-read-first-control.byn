@@ -1,0 +1,9 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    var arr: ReadOnlySpan<i64>[1] = [[]]
+    let sp = arr.mutableSpan()
+    sp[0] = xs.span
+    print($"{sp[0][0]}")
+    xs.append(1)
+}

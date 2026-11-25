@@ -1,0 +1,15 @@
+warning BYN2311: `buf` is never reassigned; declare it with `let`
+
+  2 │     var buf = stackalloc u8[16]
+    │         ^^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let buf = stackalloc u8[16]
+    │   │     +++
+
+error BYN3003: cannot return a borrow of `sb`, which is freed when `f` returns
+
+  7 │     return xs.copy()
+    │            ^^^^^^^^^
+    │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that

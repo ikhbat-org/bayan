@@ -1,0 +1,23 @@
+interface IThing {
+    i64 get()
+}
+struct S : IThing {
+    i64 n
+    i64 get() => n
+}
+void walk(Span<S> sp, by dyn ref IThing p) {
+    var j = 0
+    while j < 2 {
+        for x: dyn ref IThing in sp {
+            print($"{x.get()}")
+            x = p
+        }
+        j += 1
+    }
+}
+void main() {
+    var xs = List<S>()
+    xs.append(S { n: 1 })
+    var k = S { n: 2 }
+    walk(xs.mutableSpan(), by: k)
+}

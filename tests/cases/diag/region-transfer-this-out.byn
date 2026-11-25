@@ -1,0 +1,15 @@
+struct B {
+    List<i64> items
+    ReadOnlySpan<i64> both(to out ReadOnlySpan<i64> s) {
+        s = this.items.span
+        return s
+    }
+}
+void main() {
+    var b = B { items: List<i64>() }
+    b.items.append(1)
+    var s: ReadOnlySpan<i64>
+    let r = b.both(to: out s)
+    for i in 0..100 { b.items.append(i) }
+    print($"{s[0]}")
+}

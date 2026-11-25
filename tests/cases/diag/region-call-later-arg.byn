@@ -1,0 +1,10 @@
+i64 use(ReadOnlySpan<i64> s, at i64 n) => s[0] + n
+i64 grow(ref List<i64> xs) {
+    for i in 0..100 { xs.append(i) }
+    return 0
+}
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    print($"{use(xs.span, at: grow(ref xs))}")
+}

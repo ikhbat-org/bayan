@@ -79,10 +79,15 @@ List<string> t23Primitives() => ["alloc", "suspend", "net", "fs", "clock", "rand
 /// The effects that need a package capability; the others are always allowed.
 List<string> t23Capabilities() => ["net", "fs", "process", "env"]
 
-/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics, so the
-/// run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
+/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics and the
+/// elements of `c.allocates` (bools, in a list made here in `General`), so the run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
 /// A run with a bag as the sink stays in `General`: `t42Undo` does not cover bags.
 void t42AnalyzeEffects(ref Ctx c) {
+    // In `General`: the arena run only sets its elements, so a run that is undone leaves it valid and the rerun refills it.
+    c.allocates = List<bool>()
+    for _ in 0..c.functions.length {
+        c.allocates.append(false)
+    }
     if c.sink >= 0 {
         analyzeEffects(ref c)
         return
@@ -206,6 +211,18 @@ void analyzeEffects(ref Ctx c) {
                     changed = true
                 }
             }
+        }
+    }
+
+    // What a caller sees, declared or inferred, as `t23Visible` gives it to a call. A lambda cloned into a generic
+    // instance reads its template twin's effects; an instance with no template to read may allocate.
+    for fn in functions {
+        if fn < c.allocates.length {
+            var source = fn
+            if functionIsInstance(ref c, by: fn) && !(templateOf(ref c, for: fn) is { }) {
+                source = t23LambdaTemplate(ref c, for: fn)
+            }
+            c.allocates[fn] = source == -1 || listContainsString(t23Visible(ref c, by: e, for: source), by: "alloc")
         }
     }
 
@@ -474,6 +491,25 @@ List<string> t23PassedValues(ref Ctx c, for i64 call) {
         k += 1
     }
     return result
+}
+
+/// The lambda a generic template holds for `fn`, a lambda cloned into an instance of it: the same file and start,
+/// enclosed by the template of `fn`'s enclosing function (or by that function's own twin, for a nested lambda); -1 if none.
+FuncId t23LambdaTemplate(ref Ctx c, for FuncId fn) {
+    return -1 if c.functions[fn].kind != .lambda || c.functions[fn].enclosing == -1
+    let outer = c.functions[fn].enclosing
+    var target: FuncId = -1
+    if (templateOf(ref c, for: outer) is { } template) {
+        target = template
+    } else if functionIsInstance(ref c, by: outer) {
+        target = t23LambdaTemplate(ref c, for: outer)
+    }
+    return -1 if target == -1
+    for k in 0..c.functions.length {
+        return k if k != fn && c.functions[k].kind == .lambda && c.functions[k].enclosing == target
+            && c.functions[k].file == c.functions[fn].file && c.functions[k].span.start == c.functions[fn].span.start
+    }
+    return -1
 }
 
 /// C# `Passed(call).SelectMany(p => Visible(p.Function)).Concat(PassedValues(call))`.

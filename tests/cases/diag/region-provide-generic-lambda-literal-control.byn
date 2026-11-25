@@ -1,0 +1,12 @@
+string run(i64 -> string f) => f(1)
+string viaGeneric<T>(T x) uses alloc {
+    var s: string = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = run(n => "lit") }
+    }
+    return s
+}
+void main() uses alloc {
+    print(viaGeneric<i64>(1))
+}

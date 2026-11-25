@@ -1,0 +1,6 @@
+error BYN3002: arena `a` does not live as long as `s`, which borrows it
+
+  6 │         provide allocator: a { s = f(1) }
+    │                                    ^^^^ arena `a` is freed at the end of its block
+    │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough

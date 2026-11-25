@@ -1,0 +1,6 @@
+i64 first(ReadOnlySpan<i64> s, at i64 n) => s[0] + n
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    print($"{first(xs.span, at: xs.length)}")
+}

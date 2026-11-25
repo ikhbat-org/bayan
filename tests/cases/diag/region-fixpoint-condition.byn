@@ -1,0 +1,23 @@
+bool g(ref ReadOnlySpan<i64> o, from ReadOnlySpan<i64> p) {
+    o = p
+    return true
+}
+ReadOnlySpan<i64> f(ReadOnlySpan<i64> e) {
+    let xs: i64[2] = [1, 2]
+    var a = e
+    var b = e
+    var o = e
+    var m = e
+    var i = 0
+    while g(ref o, from: a) && g(ref m, from: b) && i < 3 {
+        b = o
+        a = xs.span
+        i += 1
+    }
+    return m
+}
+void main() {
+    let base: i64[2] = [7, 8]
+    let s = f(base.span)
+    print($"{s[0]}")
+}

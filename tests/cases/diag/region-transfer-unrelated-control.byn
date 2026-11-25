@@ -1,0 +1,13 @@
+void pick(ref List<i64> xs, from ReadOnlySpan<i64> other, to out ReadOnlySpan<i64> s) {
+    xs.append(0)
+    s = other
+}
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    let other: i64[2] = [7, 8]
+    var s: ReadOnlySpan<i64>
+    pick(ref xs, from: other.span, to: out s)
+    for i in 0..100 { xs.append(i) }
+    print($"{s[0]} {xs.length}")
+}

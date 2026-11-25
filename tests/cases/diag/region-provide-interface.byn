@@ -1,0 +1,18 @@
+interface IMake {
+    string make(i64 n) uses alloc
+}
+struct K : IMake {
+    string make(i64 n) uses alloc => $"v={n}"
+}
+void run(dyn ref IMake m) uses alloc, console {
+    var s = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = m.make(1) }
+    }
+    print(s)
+}
+void main() uses alloc {
+    var k = K {}
+    run(k)
+}

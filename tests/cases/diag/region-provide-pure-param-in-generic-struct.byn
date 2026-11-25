@@ -1,0 +1,16 @@
+string run(i64 -> string f) => f(1)
+struct Box<T> {
+    T v
+    string via() uses alloc {
+        var s: string = ""
+        {
+            using let a = Arena()
+            provide allocator: a { s = run(n => $"v={n}") }
+        }
+        return s
+    }
+}
+void main() uses alloc {
+    let b = Box<i64> { v: 1 }
+    print(b.via())
+}

@@ -1,0 +1,9 @@
+string make(i64 n) => $"v={n}"
+void main() uses alloc {
+    var s = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = make(1) }
+    }
+    print(s)
+}
