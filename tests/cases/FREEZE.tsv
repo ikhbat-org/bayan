@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	678
+cases	diag	689
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14224,6 +14224,17 @@ file	223c625c762620309c2db4d9e9aaf5cfb7c58156	tests/cases/diag/coalesce-not-opti
 file	23836c2571cf8e3f6d05c432f73ea6a92f69808e	tests/cases/diag/codec-renames.diag
 file	ef05b67a3fbdc11a57054afa237497cc5070b671	tests/cases/diag/collection-copy-unique-element.diag
 file	a7218cc77c9d466db66a135da859ae63bfa47b6d	tests/cases/diag/compact-format-spec.diag
+file	b587a1020814b7a08aa17aa50fb0326e518f1178	tests/cases/diag/conformance-inferred-excluded.diag
+file	8aea94ed0822ab7d1ed10e41b27248f2abb440b1	tests/cases/diag/conformance-inferred-overflow.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/conformance-inferred-subset.diag
+file	ba6179999e5f6f41c33ccecbab28aa1719f81275	tests/cases/diag/conformance-interface-receiver-state.diag
+file	051b6802c0b3f3e976732d765456c5b1013dfcf5	tests/cases/diag/conformance-move-this-interface.diag
+file	8d8f2ca5cc03d987292ceff8f248c26e219fe84a	tests/cases/diag/conformance-move-this-witness.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/conformance-ref-this-control.diag
+file	f20a20668eac122eed92a78d0a014f79f091ead5	tests/cases/diag/conformance-witness-becomes-only.diag
+file	2b18b959173645693a5429f8a536dd2133068c63	tests/cases/diag/conformance-witness-becomes.diag
+file	f9cdb002a2e929fc3453734ea3b005bf35bea01e	tests/cases/diag/conformance-witness-state-dyn.diag
+file	f9cdb002a2e929fc3453734ea3b005bf35bea01e	tests/cases/diag/conformance-witness-state-generic.diag
 file	ab81813a7c762a23d671e7d8ad1a18acd358171b	tests/cases/diag/constant-overflow.diag
 file	137d04a4a1a14668e830e20dc02f68703cf1c521	tests/cases/diag/constraint-member.diag
 file	6945d950e28cfdc9cedfe3f15ee0d4fdacbf0ce6	tests/cases/diag/constraint-not-satisfied.diag
