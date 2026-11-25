@@ -1,0 +1,6 @@
+error BYN3004: `xs` is modified while `s` still borrows it
+
+  9 │     print($"{s[grow(ref xs)]}")
+    │                         ^^ `s` is still indexed
+    │
+  help: store the index that changes `xs` in a local first

@@ -1,0 +1,11 @@
+i64 grow(ref List<i64> xs) {
+    for i in 0..100 { xs.append(i) }
+    return 0
+}
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    let s = xs.span
+    let t = s[0..grow(ref xs) + 1]
+    print($"{t[0]}")
+}

@@ -786,6 +786,7 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             let end = c.bSlices[i].end
             let span = c.bSlices[i].span
             let target = exprRegions(ref r, through: ref c, for: targetExpr)
+            let before = r.mutations.length
             if start != -1 {
                 let _ = exprRegions(ref r, through: ref c, for: start)
             }
@@ -793,6 +794,9 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
                 let _ = exprRegions(ref r, through: ref c, for: end)
             }
             let kind = kindOf(exprType(in c, for: targetExpr))
+            if kind == .span {
+                t41LaterMutations(ref r, through: ref c, for: targetExpr, by: copyIds(target.owners), from: before, to: r.mutations.length, as: ("is still sliced", "bound"))
+            }
             return lendBorrow(ref r, through: ref c, for: targetExpr, by: in target, at: span.end) if kind is .list
                 or .array
             return move target
@@ -800,7 +804,12 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             // The element is a copy: it may point where the collection's data points, but not into the collection.
             let index = c.bIndexes[i].index
             let target = exprRegions(ref r, through: ref c, for: c.bIndexes[i].target)
+            let before = r.mutations.length
             let _ = exprRegions(ref r, through: ref c, for: index)
+            // A span is read after its index is computed: an index that changes the span's owner reads freed memory.
+            if kindOf(exprType(in c, for: c.bIndexes[i].target)) == .span {
+                t41LaterMutations(ref r, through: ref c, for: c.bIndexes[i].target, by: copyIds(target.owners), from: before, to: r.mutations.length, as: ("is still indexed", "index"))
+            }
             return t25WithoutOwners(target)
         case .spread:
             // Like an index: the elements are copies of what the sequence holds.

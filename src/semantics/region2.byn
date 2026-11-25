@@ -76,22 +76,7 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             let owners = k == -1 ? copyIds(receiver.owners) : copyIds(args[k].owners)
             continue if owners.length == 0
             let holder = k == -1 ? recv : arguments[k]
-            let text = $"{getText(c.files[r.source].text.span, at: nodeSpan(c, for: holder))}"
-            let callee = c.functions[fn].name
-            for mi in starts[k + 1]..starts[args.length] {
-                let target = r.mutations[mi].target
-                continue if !t37HasId(owners, for: target)
-                let targetName = c.locals[target].name
-                regionReport(
-                    ref r,
-                    through: ref c,
-                    for: r.mutations[mi].moved ? .movedWhileBorrowed : .modifiedWhileBorrowed,
-                    at: r.mutations[mi].span,
-                    by: (targetName, $"`{text}`", "", "", ""),
-                    label: $"`{text}` is still passed to `{callee}`",
-                    help: $"store the argument that changes `{targetName}` in a local before the call",
-                )
-            }
+            t41LaterMutations(ref r, through: ref c, for: holder, by: owners, from: starts[k + 1], to: starts[args.length], as: ($"is still passed to `{c.functions[fn].name}`", "argument"))
         }
     }
     let mutating = c.functions[fn].isMutating
@@ -395,6 +380,27 @@ List<StorePair> t41Stores(ref Ctx c, for FuncId fn, by BExpr call) {
         result[at] = p
     }
     return result
+}
+
+/// Reports each mutation in `r.mutations[from..to]` whose target is one of `owners`: it ran while `holder`'s borrow
+/// was already taken and not yet used (a later call argument, a span's index), so the use reads what it changed.
+void t41LaterMutations(ref Regions r, through ref Ctx c, for BExpr holder, by List<i64> owners, from i64 start, to i64 end, as (string use, string changer) words) {
+    return if !r.reporting || owners.length == 0
+    let text = $"{getText(c.files[r.source].text.span, at: nodeSpan(c, for: holder))}"
+    for mi in start..end {
+        let target = r.mutations[mi].target
+        continue if !t37HasId(owners, for: target)
+        let targetName = c.locals[target].name
+        regionReport(
+            ref r,
+            through: ref c,
+            for: r.mutations[mi].moved ? .movedWhileBorrowed : .modifiedWhileBorrowed,
+            at: r.mutations[mi].span,
+            by: (targetName, $"`{text}`", "", "", ""),
+            label: $"`{text}` {words.use}",
+            help: $"store the {words.changer} that changes `{targetName}` in a local {words.changer == "argument" ? "before the call" : "first"}",
+        )
+    }
 }
 
 /// Whether a value of function type `type` may allocate: its type uses `alloc`.
