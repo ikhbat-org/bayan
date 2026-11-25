@@ -380,7 +380,10 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
             let before = b.stateFacts.copy()
             let scope = t16ScopeId(ref b)
             var branches = List<List<(i64, LocalId, Type)>>()
-            let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
+            var sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
+            // A guarded statement opens no scope of its own, so the id `narrowedBegin` reserved goes to the first scope
+            // opened inside it (a switch arm, a catch handler), which is closed by the end: none of its facts survive.
+            sThen.body = -1
             let body = bindStatement(ref b, through: ref c, for: in g.value.statement)
             branches.append(narrowedEnd(ref b, through: ref c, by: move sThen))
             let node = recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
