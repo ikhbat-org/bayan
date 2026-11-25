@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	710
+cases	diag	714
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14700,6 +14700,10 @@ file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/states-branch-thi
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/states-branch-this-swap.diag
 file	aef889ca90356cb705b2ea45209643fd96422d46	tests/cases/diag/states-defer-local.diag
 file	ba999856edc003ab542bf6c9308ccbe7d4752e42	tests/cases/diag/states-defer-this.diag
+file	8486b921a6372e7f7de711cb1873caaa8c2cbd0d	tests/cases/diag/states-join-stale-guarded-switch-arm.diag
+file	ecbb27d47605b0ed95740ea03cae30b5466746b5	tests/cases/diag/states-join-stale-loop-if-no-else.diag
+file	f5ba6995b5a78906b73ebf5878ed6ca495d5e77f	tests/cases/diag/states-join-stale-loop-return-if.diag
+file	d091cea157228b83654d982a0b513e1308b8c9c8	tests/cases/diag/states-join-stale-loop-switch-return.diag
 file	7f0e7b0fec4555f3558862b7acced5f54191016d	tests/cases/diag/static-interface-member.diag
 file	c85526aa83e20fdbbece6934372ae202b3548944	tests/cases/diag/std-env-far-member-has-no-suggestion.diag
 file	4cda9b743c16a61aa258e79d65426cd1cd672fed	tests/cases/diag/std-env-get-declares-env-effect.diag
