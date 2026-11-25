@@ -358,6 +358,9 @@ check "relative --status under --write refused" \
   "$(cd "$root/w" && refused --write . --stdout "$root/out" --status rel/status) $(grep -c 'under --write' "$root/err")" "2 kept 1"
 check "relative --stdout under --write refused" \
   "$(cd "$root/w" && refused --write . --stdout ./out --status "$root/status") $(grep -c 'under --write' "$root/err")" "2 kept 1"
+mkdir -p "$root/other/rel"
+check "relative --status under --write refused with CDPATH exported" \
+  "$(cd "$root/w" && export CDPATH="$root/other" && refused --write . --stdout "$root/out" --status rel/status) $(grep -c 'under --write' "$root/err")" "2 kept 1"
 check "--write / refused" "$(refused --write / --stdout "$root/out" --status "$root/status")" "2 kept"
 check "--status naming a directory refused" \
   "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/") $(grep -c 'name a file' "$root/err")" "2 kept 1"

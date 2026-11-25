@@ -22,6 +22,8 @@
 # The environment is an allowlist; HOME is TMPDIR when set, else the --write directory.
 # Runs under bash 3.2: no associative arrays, no mapfile.
 set -uo pipefail
+# An exported CDPATH would make `cd -P <relative>` search it and print, so a resolved path could be a second directory.
+unset CDPATH
 
 cap=1048576
 usage() { echo "usage: llm-sandbox.sh --write <dir> [--deny-read <dir>]... [--stdin <file>] [--no-fork] [--prime] [--sweep <dir>]... [--tools <dir>] --stdout <file> --status <file> -- <program> [args...]" >&2; exit 2; }

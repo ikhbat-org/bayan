@@ -729,11 +729,13 @@ check "retry: an error caused only by the hidden checks is not sent" \
   "$code $asked $(get rq-hidden outcome) $(grep -c 'shout()\|checks.test\|entry.byn\|BYN' "$root/rq/hidden/prompt.2") $(echo "$said" | wc -l | tr -d ' ')" \
   '0 2 "no-compile" 0 1'
 # Without the flag, records and summary are the base commit's for the same replies (wall times set to 0). The base tool runs
-# from a copy of the files it needs; its llm-eval.byn is commit 52b9b1ce's, kept in fixtures/ (CI checks out depth 2).
+# from a copy of the files it needs; its llm-eval.byn and llm-sandbox.sh are commit 52b9b1ce's, kept in fixtures/ (CI checks out
+# depth 2). The current launcher refuses that tool's outputs inside the sample dir.
 brepo=$root/base-repo
 mkdir -p "$brepo/scripts/evals" "$brepo/tools" "$brepo/evals/llm"
 cp scripts/bayan-tool.sh scripts/pinned-bayan.sh "$brepo/scripts/"
-cp scripts/evals/llm-sandbox.sh scripts/evals/llm-prime.c "$brepo/scripts/evals/"
+cp scripts/evals/llm-prime.c "$brepo/scripts/evals/"
+cp scripts/evals/fixtures/llm-sandbox-52b9b1ce.sh.txt "$brepo/scripts/evals/llm-sandbox.sh"; chmod +x "$brepo/scripts/evals/llm-sandbox.sh"
 cp evals/llm/preamble.md "$brepo/evals/llm/"
 cp scripts/evals/fixtures/llm-eval-52b9b1ce.byn.txt "$brepo/tools/llm-eval.byn"
 mkdir -p "$root/rq/base"
