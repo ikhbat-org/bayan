@@ -1,0 +1,19 @@
+struct Box {
+    i64 id
+    states {
+        idle
+        active(string name)
+    }
+    void start(ref this is .idle) becomes .active {
+        let buf = stackalloc u8[16]
+        var sb = StrBuf(buf)
+        sb.append("hello")
+        become .active(sb.view)
+    }
+    string label(this is .active) => name
+}
+void main() {
+    var b = Box.idle { id: 1 }
+    b.start()
+    print(b.label())
+}

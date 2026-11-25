@@ -1,0 +1,6 @@
+error BYN2781: `xs` is used after it was moved
+
+  11 │         print($"{xs[0]}")
+     │                  ^^ moved on line 10
+     │
+  help: assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead

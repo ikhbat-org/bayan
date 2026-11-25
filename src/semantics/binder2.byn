@@ -5,11 +5,12 @@ import lexer
 
 // What `narrowedBegin` saved for `narrowedEnd`: the C# `Narrowed`'s `Func` split in two around the
 // caller's bind. `mark` is the `nonNullLocals` length to cut back to, `before` the state facts to keep and
-// `learned` what `learnStates` added.
+// `learned` what `learnStates` added; `body` is the scope the branch opens next.
 struct NarrowedScope {
     i64                        mark
     List<(i64, LocalId, Type)> before
     List<(i64, LocalId, Type)> learned
+    i64                        body
 }
 
 /// The C# `labelTarget ?? new JumpTarget(null, isLoop)`; a new target takes the next `c.jumpTargets` id.
@@ -322,59 +323,76 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
                 default: {}
             }
             b.thenOf.append(thenCond)
+            // Each branch starts from the facts after the condition; the code after gets their join.
+            let before = b.stateFacts.copy()
+            let scope = t16ScopeId(ref b)
+            var branches = List<List<(i64, LocalId, Type)>>()
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let thenBranch = bindBody(ref b, through: ref c, for: in i.value.then)
-            narrowedEnd(ref b, through: ref c, by: move sThen)
+            branches.append(narrowedEnd(ref b, through: ref c, by: move sThen))
             let _ = b.thenOf.removeLast()
             var elseBranch: BStmt = -1
             switch i.value.elseKeyword {
                 case .none:
                     let _ = 0
                 default:
+                    b.stateFacts = before.copy()
                     let sElse = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: false)
                     elseBranch = bindBody(ref b, through: ref c, for: in i.value.elseKeyword)
-                    narrowedEnd(ref b, through: ref c, by: move sElse)
+                    branches.append(narrowedEnd(ref b, through: ref c, by: move sElse))
             }
-            return narrowAfter(ref b, through: ref c, for: recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
+            let node = recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
                 span: i.value.span,
                 condition: cond,
                 then: thenBranch,
                 elseBranch: elseBranch,
                 isNever: i.value.likelihood == .neverKeyword,
-            }), as: .ifStmt, at: i.value.span))
+            }), as: .ifStmt, at: i.value.span)
+            joinIf(ref b, through: ref c, for: node, by: branches, from: before, at: scope)
+            return narrowAfter(ref b, through: ref c, for: node)
         case .unlessStmt(let u):
             let cond = negate(
                 ref c,
                 from: in u.value.condition,
                 by: bindCondition(ref b, through: ref c, for: in u.value.condition),
             )
+            let before = b.stateFacts.copy()
+            let scope = t16ScopeId(ref b)
+            var branches = List<List<(i64, LocalId, Type)>>()
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let thenBranch = bindBody(ref b, through: ref c, for: in u.value.body)
-            narrowedEnd(ref b, through: ref c, by: move sThen)
-            return narrowAfter(ref b, through: ref c, for: recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
+            branches.append(narrowedEnd(ref b, through: ref c, by: move sThen))
+            let node = recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
                 span: u.value.span,
                 condition: cond,
                 then: thenBranch,
                 elseBranch: -1,
                 isNever: false,
-            }), as: .unlessStmt, at: u.value.span))
+            }), as: .unlessStmt, at: u.value.span)
+            joinIf(ref b, through: ref c, for: node, by: branches, from: before, at: scope)
+            return narrowAfter(ref b, through: ref c, for: node)
         case .guardedStmt(let g):
             // The condition is evaluated first (spec §7.3); pattern variables it binds stay in scope.
             var cond = bindCondition(ref b, through: ref c, for: in g.value.condition)
             if g.value.unlessKeyword {
                 cond = negate(ref c, from: in g.value.condition, by: cond)
             }
+            let before = b.stateFacts.copy()
+            let scope = t16ScopeId(ref b)
+            var branches = List<List<(i64, LocalId, Type)>>()
             let sThen = narrowedBegin(ref b, through: ref c, for: cond, whenTrue: true)
             let body = bindStatement(ref b, through: ref c, for: in g.value.statement)
-            narrowedEnd(ref b, through: ref c, by: move sThen)
-            return narrowAfter(ref b, through: ref c, for: recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
+            branches.append(narrowedEnd(ref b, through: ref c, by: move sThen))
+            let node = recordNodeSyntax(ref c, for: addIf(ref c, from: BIf {
                 span: g.value.span,
                 condition: cond,
                 then: body,
                 elseBranch: -1,
                 isNever: false,
                 guarded: true,
-            }), as: .guardedStmt, at: g.value.span))
+            }), as: .guardedStmt, at: g.value.span)
+            joinIf(ref b, through: ref c, for: node, by: branches, from: before, at: scope)
+            return narrowAfter(ref b, through: ref c, for: node)
         case .whileStmt(let w):
             let target = t16Target(ref c, to: labelTarget, isLoop: true)
             forgetChangingStates(ref b, through: ref c)
@@ -424,19 +442,27 @@ BStmt bindStatement(ref Binder b, through ref Ctx c, for in parser.Stmt stmt, Ju
                 to: t16Target(ref c, to: labelTarget, isLoop: false),
             )
         case .deferStmt(let d):
+            // The body runs at scope exit, after any later change: it may rely only on facts that cannot change.
+            let saved = b.stateFacts.copy()
+            forgetChangingStates(ref b, through: ref c)
+            var bound: BStmt = -1
             if d.value.kind == .always {
                 b.deferDepth += 1
                 let body = bindBody(ref b, through: ref c, for: in d.value.body)
                 b.deferDepth -= 1
-                return recordNodeSyntax(
+                bound = recordNodeSyntax(
                     ref c,
                     for: addDefer(ref c, from: BDefer { span: d.value.span, body: body }),
                     as: .deferStmt,
                     at: d.value.span,
                 )
+            } else if d.value.kind == .failing {
+                bound = bindErrdefer(ref b, through: ref c, for: in d.value)
+            } else {
+                bound = bindPanicDefer(ref b, through: ref c, for: in d.value)
             }
-            return bindErrdefer(ref b, through: ref c, for: in d.value) if d.value.kind == .failing
-            return bindPanicDefer(ref b, through: ref c, for: in d.value)
+            b.stateFacts = move saved
+            return bound
         case .contextStmt(let cntx):
             return bindContext(ref b, through: ref c, for: in cntx.value)
         case .assertStmt(let a):
@@ -682,11 +708,13 @@ NarrowedScope narrowedBegin(ref Binder b, through ref Ctx c, for BExpr cond, boo
         mark: mark,
         before: move before,
         learned: move learned,
+        body: b.nextScopeId,
     }
 }
 
-/// The C# `Narrowed` after `bind()`.
-void narrowedEnd(ref Binder b, through ref Ctx c, by move NarrowedScope scope) {
+/// The C# `Narrowed` after `bind()`; returns the facts known where the branch ended.
+List<(i64, LocalId, Type)> narrowedEnd(ref Binder b, through ref Ctx c, by move NarrowedScope scope) {
+    let ended = branchFacts(ref b, by: scope.learned, at: scope.body)
     while b.nonNullLocals.length > scope.mark {
         b.nonNullLocals.remove(at: b.nonNullLocals.length - 1)
     }
@@ -702,6 +730,33 @@ void narrowedEnd(ref Binder b, through ref Ctx c, by move NarrowedScope scope) {
     }
     b.stateFacts = move kept
     unlearnStates(ref b, by: in scope.learned)
+    return ended
+}
+
+/// After an `if`: the facts every branch that reaches the code after ends with. `branches` holds the then-branch's
+/// end facts and, with an `else`, the else-branch's; without one, `before` stands for the branch not taken. When
+/// every branch exits, the facts are left as they are.
+void joinIf(
+    ref Binder b,
+    through ref Ctx c,
+    for BStmt i,
+    by List<List<(i64, LocalId, Type)>> branches,
+    from List<(i64, LocalId, Type)> before,
+    at i64 scope
+) {
+    let node = c.bIfs[boundIndex(i)]
+    var ends = List<List<(i64, LocalId, Type)>>()
+    if !exits(in c, for: node.then) {
+        ends.append(branches[0].copy())
+    }
+    if node.elseBranch == -1 {
+        ends.append(before.copy())
+    } else if !exits(in c, for: node.elseBranch) {
+        ends.append(branches[1].copy())
+    }
+    if ends.length > 0 {
+        b.stateFacts = joinBranchFacts(ref b, for: ends, from: before, at: scope)
+    }
 }
 
 /// When one branch always exits, the rest of the block runs only under the other.

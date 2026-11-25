@@ -923,6 +923,9 @@ JumpTarget? findTarget(
 
 BStmt bindBreak(ref Binder b, through ref Ctx c, for in parser.BreakStmt s) {
     if (findTarget(ref b, through: ref c, for: s.label, loopOnly: false, at: s.span, by: "break") is { } t) {
+        if b.switchDepth > 0 {
+            b.broken.append(t.id)
+        }
         return recordNodeSyntax(
             ref c,
             for: addBreak(ref c, from: BBreak { span: s.span, target: t.id }),
@@ -1195,9 +1198,19 @@ BStmt bindSwitchStatement(ref Binder b, through ref Ctx c, for in parser.SwitchS
     let owns = subjectResult.owns
     var sections = List<BSwitchSection>()
     b.targets.append(target)
+    // Each section starts from the facts before the switch; the code after it gets what every section that
+    // reaches it ends with.
+    let before = b.stateFacts.copy()
+    let enclosing = t16ScopeId(ref b)
+    var ends = List<List<(i64, LocalId, Type)>>()
+    let forgottenMark = b.forgotten.length
+    let brokenMark = b.broken.length
+    b.switchDepth += 1
     var sawDefault = false
     for section in s.sections {
+        b.stateFacts = before.copy()
         pushScope(ref b)
+        var learned = List<(i64, LocalId, Type)>()
         var pattern: BPattern = -1
         if section.label.pattern is not .none {
             b.patternOwns = owns
@@ -1210,7 +1223,11 @@ BStmt bindSwitchStatement(ref Binder b, through ref Ctx c, for in parser.SwitchS
                 guardBindings(ref c, for: pattern, at: parser.exprSpan(in section.label.guard))
             }
             if section.label.guard is .none {
+                let mark = b.stateFacts.length
                 learnArmState(ref b, through: ref c, for: value, by: pattern)
+                for i in mark..b.stateFacts.length {
+                    learned.append(b.stateFacts[i])
+                }
             }
         } else {
             if sawDefault {
@@ -1227,10 +1244,15 @@ BStmt bindSwitchStatement(ref Binder b, through ref Ctx c, for in parser.SwitchS
         for st in section.statements {
             body.append(bindStatement(ref b, through: ref c, for: in st))
         }
+        if body.length == 0 || !exits(in c, for: body[body.length - 1]) {
+            ends.append(branchFacts(ref b, by: learned, at: -1))
+        }
         popScope(ref b)
         sections.append(BSwitchSection { span: section.span, pattern: pattern, guard: guard, body: move body })
     }
     b.targets.remove(at: b.targets.length - 1)
+    b.switchDepth -= 1
+    b.stateFacts = before.copy()
     var arms = List<(BPattern, BExpr)>()
     for x in sections {
         arms.append((x.pattern, x.guard))
@@ -1265,6 +1287,27 @@ BStmt bindSwitchStatement(ref Binder b, through ref Ctx c, for in parser.SwitchS
                 statement: true,
             )
         }
+    }
+    if !exhaustive {
+        ends.append(before.copy())
+    }
+    if ends.length > 0 {
+        b.stateFacts = joinBranchFacts(ref b, for: ends, from: before, at: enclosing)
+    }
+    // A `break` out of a section reaches here with what that section changed; `exits` left it out of the join.
+    var broke = false
+    for i in brokenMark..b.broken.length {
+        broke = broke || b.broken[i] == target.id
+    }
+    if broke {
+        let end = b.forgotten.length
+        for i in forgottenMark..end {
+            forgetState(ref b, for: b.forgotten[i])
+        }
+    }
+    if b.switchDepth == 0 {
+        b.forgotten = []
+        b.broken = []
     }
     return recordNodeSyntax(
         ref c,
