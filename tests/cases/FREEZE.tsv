@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	678
+cases	diag	687
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	356
+cases	run	358
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -14305,6 +14305,10 @@ file	b0114bc197ed73f613e76439f887da71f339fa40	tests/cases/diag/fails-shorthand-t
 file	663eef000f53910d70a6b5afb8f43b2947857131	tests/cases/diag/field-write-outside.diag
 file	65d78379fb9825454c29b1917d859c8f5503d34f	tests/cases/diag/field-write-sealed.diag
 file	351fe7a0d151e868350a9d742f3bbc54f8d1e04d	tests/cases/diag/field-write-states.diag
+file	2c03696e8b83f44a81861a793e5cd21cc744a80e	tests/cases/diag/flow-out-failed-call-moved.diag
+file	4ac1bcfa37670c69ae74353bda7d081d20c3a7fc	tests/cases/diag/flow-out-failed-call-unassigned.diag
+file	6e8f0733fe8854f21aa00113fbbd98a8efcbdc9d	tests/cases/diag/flow-out-read-in-handler.diag
+file	4f25294ed6a3452787d69188c831836345d0e7d3	tests/cases/diag/flow-out-try-failing-cleanup.diag
 file	1e519a0130818e4c6b67dbdd9015e4b729bc6b08	tests/cases/diag/for-dyn-ref-coalesce.diag
 file	582f3f8c8a37d54ab111c29943f304211ba9699a	tests/cases/diag/for-dyn-ref-conditional.diag
 file	79b7d3541bd084c7fea38f4e6b29897e7cd21cfd	tests/cases/diag/for-dyn-ref-get-or.diag
@@ -14553,6 +14557,11 @@ file	2b6fbc6818b04d0cd4a3c615ae19e499f753b303	tests/cases/diag/out-not-assigned.
 file	095c365b88e4fa021a0203d6ca677b0428b32edc	tests/cases/diag/overload-overlap.diag
 file	fd84cc48d155a12f61ab5485a545dcbbe10ec6df	tests/cases/diag/owned-escapes-arena.diag
 file	2e8c787f765e0f7fdc2786a72fb4902ab715f0fd	tests/cases/diag/owned-read-only.diag
+file	ff34a7155776792da65ac4d792ec045e3d697b46	tests/cases/diag/ownership-defer-move-after-block.diag
+file	5cab4974d01b7d886bced1131b0b8c807f9dd0e5	tests/cases/diag/ownership-defer-move-break.diag
+file	d4f476d14e7fc93f8c47a9f4f53c925ee39b261b	tests/cases/diag/ownership-defer-move-continue.diag
+file	71da9c5e0cff6cfb0371055b93dee4a664ecc258	tests/cases/diag/ownership-defer-move-in-loop.diag
+file	fdf83b27b68d44516f86a6b97a18ea4a35128fd4	tests/cases/diag/ownership-return-moved-by-defer.diag
 file	723f1fb9a413917efb678d9a187248df3b5009e7	tests/cases/diag/panic-handler-env.diag
 file	e7135ed8bbef385ebe3791bcb2dafb178b67e674	tests/cases/diag/panic-handler-path.diag
 file	3ea4660942e7266d9471ce92efcdddd2a4ab7a63	tests/cases/diag/panic-handler-reads-moved.diag
@@ -48429,6 +48438,7 @@ file	9fc243e087eb418a0589926053ecfb6e99eb0828	tests/cases/run/fail-narrows.stdou
 file	9073b2f808f96cde37c525ed51fa9085672f1135	tests/cases/run/fail-statement.stdout
 file	06871cf6593b5e66f49c478892160547cb73b477	tests/cases/run/float-format.stdout
 file	b1258bb27d396648eb5082f27c451f785557fd37	tests/cases/run/float-try-parse.stdout
+file	a2c3207f7cc7a8af072920b9fb6c7ba129fa8be1	tests/cases/run/flow-out-catch-clean.stdout
 file	348a214a36aa824b170c89f20e8f7eefd5731024	tests/cases/run/for-constraint.stdout
 file	b1bd38b62a0800a4f6a80c34e21c5acffae52c7e	tests/cases/run/for-dyn-ref-array.stdout
 file	7a392d51355a08b6f80b083ad123f4da9b6c9a30	tests/cases/run/for-dyn-ref-list.stdout
@@ -48633,6 +48643,7 @@ file	90be1f3056c4f471f977a28497b8d4b392c55a02	tests/cases/run/overflow-fast.stdo
 file	0077c8cdc0690f41792dfa3483a64d1c1b827a3e	tests/cases/run/overloads.stdout
 file	2836eec4347525769c62932fcfd7f7c097bdd625	tests/cases/run/owned-expr.stdout
 file	8bcfee9cd645213662d7a9e6c7533e47a2ad4c7e	tests/cases/run/owned-list.stdout
+file	fa9b9c93c6d867f5d015db786bbba257d74d27f4	tests/cases/run/ownership-defer-move-clean.stdout
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/panic-handler-binding.exitcode
 file	6f5e37ce77d7ca6b1cbd0c65c3d9cd1b4bc06d14	tests/cases/run/panic-handler-binding.stderr
 file	54c6054c12f91d59ba86a350559b03d7e980dc49	tests/cases/run/panic-handler-binding.stdout
