@@ -1268,18 +1268,30 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 // The loan "closes" the mutation when every iteration that ran the mutation goes on to store the holder
                 // whole: the first such store in the mutation's own scope, else in the loop body's, with no counted
                 // jump before it. Only uses before that store's end can then be stale.
-                // A deferred mutation runs where its outermost deferred statement does, at the end of the block around it,
-                // so a store its text precedes in that block runs before it.
+                // A deferred mutation runs where its outermost deferred statement inside loop p does, at the end of the
+                // block around it, so a store its text precedes in that block runs before it. A defer around the loop
+                // runs the loop in text order, and a store after the mutation in its own deferred block runs right after it.
                 var mAt = mSpan
                 var outerDefer: i64 = -1
                 for d in 0..defers.length {
                     let holds = defers[d].start <= mSpan.start && mSpan.end <= defers[d].end
-                    if holds && (outerDefer == -1 || defers[d].length > defers[outerDefer].length) {
+                    let inLoop = bodies[p].start <= defers[d].start && defers[d].end <= bodies[p].end
+                    if holds && inLoop && (outerDefer == -1 || defers[d].length > defers[outerDefer].length) {
                         outerDefer = d
                     }
                 }
                 if outerDefer != -1 {
-                    mAt = TextSpan.fromBounds(deferEnds[outerDefer], until: deferEnds[outerDefer])
+                    let textScope = innermostScope(scopes, for: mSpan)
+                    var storedAfter = false
+                    for s in stores {
+                        let home = innermostScope(scopes, for: s.span)
+                        let same = home.start == textScope.start && home.end == textScope.end
+                        let deferred = defers[outerDefer].start <= s.span.start && s.span.end <= defers[outerDefer].end
+                        storedAfter = storedAfter || s.holder == holder && s.span.start >= mSpan.end && same && deferred
+                    }
+                    if !storedAfter {
+                        mAt = TextSpan.fromBounds(deferEnds[outerDefer], until: deferEnds[outerDefer])
+                    }
                 }
                 let own = innermostScope(scopes, for: mAt)
                 var closes = false

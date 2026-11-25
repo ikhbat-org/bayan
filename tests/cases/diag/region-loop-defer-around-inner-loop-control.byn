@@ -1,0 +1,14 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(7)
+    var s: ReadOnlySpan<i64> = []
+    for k in 0..3 {
+        defer {
+            for i in 0..100 {
+                print($"{s.length}")
+                xs.append(i)
+                s = xs.span
+            }
+        }
+    }
+}
