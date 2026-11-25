@@ -1,0 +1,8 @@
+error BYN6002: `report` uses `fs` but does not declare it
+
+  5 │     let s = Io.readText("report.txt") catch { return }
+    │             ^^^^^^^^^^^^^^^^^^^^^^^^^ uses `fs`
+    │
+  help: add `fs` to the `uses` clause, or remove the call
+    │ 3 │ void report() uses alloc, console, fs {
+    │   │                                  ++++
