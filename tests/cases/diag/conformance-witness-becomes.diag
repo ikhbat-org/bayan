@@ -1,4 +1,5 @@
-error BYN2802: `Door.close` is `void close(ref this)` but `IDoor` requires `void close(ref this)`
+error BYN2802: `Door.close` is `void close(ref this is .ajar) becomes .shut` but `IDoor` requires
+`void close(ref this)`
 
   11 │     void close(ref this is .ajar) becomes .shut {
      │          ^^^^^ requires a receiver state

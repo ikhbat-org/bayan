@@ -1,4 +1,4 @@
-error BYN2802: `Door.inspect` is `void inspect()` but `IDoor` requires `void inspect()`
+error BYN2802: `Door.inspect` is `void inspect(this is .ajar)` but `IDoor` requires `void inspect()`
 
   11 │     void inspect(this is .ajar) uses console {
      │          ^^^^^^^ requires a receiver state

@@ -350,7 +350,13 @@ void conform(ref Ctx c, for StructId s) {
                     span: span,
                     message: format(
                         messageFormat(.interfaceMemberMismatch),
-                        by: (sName, mName, t14SignatureText(ref c, for: ownView), iName, t14SignatureText(ref c, for: expected)),
+                        by: (
+                            sName,
+                            mName,
+                            t14ReceiverSignatureText(ref c, for: own, as: ownView),
+                            iName,
+                            t14ReceiverSignatureText(ref c, for: member, as: expected)
+                        ),
                     ),
                     label: why.label,
                     help: $"{why.help} on `{sName}.{mName}`",
@@ -687,13 +693,32 @@ bool t14Has(in List<i64> xs, by i64 x) {
 bool t14Same(Type a, as Type b) => isError(a) || isError(b) || a == b
 
 /// Conformance.cs:207 SignatureText: `f32 area()`, `i64 next(ref this)`, `i64 count { get }`.
-string t14SignatureText(ref Ctx c, for in FunctionSymbol f) {
+string t14SignatureText(ref Ctx c, for in FunctionSymbol f) =>
+    t14SignatureWith(ref c, for: f, at: f.isMutating ? "ref this" : "", by: "")
+
+/// A BYN2802 receiver mismatch shows the receiver as declared (`ref this is .ajar`, `move this`) and `becomes`, which
+/// `t14SignatureText` leaves out; without them the two signatures in the message read the same.
+string t14ReceiverSignatureText(ref Ctx c, for FuncId fn, as FunctionSymbol view) {
+    let decl = t22DeclFacts(ref c, for: fn)
+    var receiver = view.isMutating ? "ref this" : c.functions[fn].moveThis is not null ? "move this" : ""
+    if decl.receiverStates.length > 0 {
+        let states = TextSpan.fromBounds(decl.receiverStates[0].start, until: decl.receiverStates[decl.receiverStates.length - 1].end)
+        receiver = $"{receiver.length > 0 ? receiver : "this"} is .{t15Text(c, from: c.functions[fn].file, at: states)}"
+    }
+    var becomes = ""
+    if (decl.becomes is { } b) {
+        becomes = $" becomes .{t15Text(c, from: c.functions[fn].file, at: b)}"
+    }
+    return t14SignatureWith(ref c, for: view, at: receiver, by: becomes)
+}
+
+string t14SignatureWith(ref Ctx c, for FunctionSymbol f, at string receiver, by string becomes) {
     let name = f.name
     return $"{typeDisplay(ref c, by: f.returnType)} {name} {{ get }}" if f.kind == .getter
     var parameters = StrBuf()
     var first = true
-    if f.isMutating {
-        parameters.append("ref this")
+    if receiver.length > 0 {
+        parameters.append(receiver)
         first = false
     }
     for p in f.parameters {
@@ -722,7 +747,7 @@ string t14SignatureText(ref Ctx c, for in FunctionSymbol f) {
         }
     }
     let prefix = f.isStatic ? "static " : ""
-    return $"{prefix}{typeDisplay(ref c, by: f.returnType)} {name}({parameters.finish()}){failsText}"
+    return $"{prefix}{typeDisplay(ref c, by: f.returnType)} {name}({parameters.finish()}){becomes}{failsText}"
 }
 
 /// Conformance.cs:217 InsertMember: the missing member before the struct's closing brace, with a `todo` body.
