@@ -1028,28 +1028,41 @@ TextSpan innermostScope(List<TextSpan> scopes, for TextSpan span) {
     return inner
 }
 
-/// The first use of `holder` that a loan made later in `within` than a mutation leaves stale, or -1: one from `lower`
-/// up to the loop's end when the loan `closes` the mutation, otherwise one from `lower` on, and one in a deferred body
-/// before the loop that runs after it. A use is safe when a whole store of `holder` from the loop on runs before it in
-/// the same scope.
+/// The first use of `holder` that a loan made later in `within` than `mutation` leaves stale, or -1: one from the
+/// window's start up to its end when the loan `closes` the mutation, otherwise one from its start on, one in a deferred
+/// body before the loop that runs after it, and one in a deferred body that runs in the window and does not hold the
+/// mutation. A use is safe when a whole store of `holder` from the loop on runs before it in the same scope.
 i64 backEdgeUse(
     LocalId holder,
     at TextSpan within,
     through bool closes,
-    until i64 lower,
+    until TextSpan window,
     from List<i64> reads,
     as List<WholeStore> stores,
     by List<TextSpan> defers,
-    to List<i64> deferEnds
+    to List<i64> deferEnds,
+    for TextSpan mutation
 ) {
+    let lower = window.start
+    let upper = window.end
     var first: i64 = -1
     for u in reads {
         var deferred = false
+        var inner = -1
         for d in 0..defers.length {
             let inside = defers[d].start <= u && u < defers[d].end
             deferred = deferred || inside && defers[d].end <= within.start && deferEnds[d] >= within.end
+            if inside && (inner == -1 || defers[d].length < defers[inner].length) {
+                inner = d
+            }
         }
-        continue if !deferred && (u < lower || closes && u >= within.end)
+        var runs = false
+        if inner != -1 {
+            let span = defers[inner]
+            let holdsMutation = span.start <= mutation.start && mutation.end <= span.end
+            runs = !holdsMutation && lower <= deferEnds[inner] && (!closes || deferEnds[inner] < upper)
+        }
+        continue if !deferred && !runs && (u < lower || closes && u >= upper)
         var safe = false
         for s in stores {
             continue if s.holder != holder
@@ -1251,51 +1264,66 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 let declared = r.declaredAt.tryGet(at: holder) ?? -1
                 continue if loops[p].start <= declared && declared < loops[p].end
                 // The loan "closes" the mutation when every iteration that ran the mutation goes on to store the holder
-                // whole: the first such store in the loop body's own scope, with no counted jump before it.
+                // whole: the first such store in the mutation's own scope, else in the loop body's, with no counted
+                // jump before it. Only uses before that store's end can then be stale.
+                let own = innermostScope(scopes, for: mSpan)
+                var closes = false
                 var w = -1
-                for si in 0..stores.length {
-                    let s = stores[si]
-                    continue if s.holder != holder || s.span.start < mSpan.end || s.span.start < bodies[p].start
-                    continue if s.span.end > bodies[p].end || s.scopeEnd != bodies[p].end
-                    if w == -1 || s.span.start < stores[w].span.start {
-                        w = si
-                    }
-                }
-                var closes = w != -1
-                for ji in 0..jumps.length {
-                    let j = jumps[ji]
-                    continue if !closes || j < mSpan.end || j >= stores[w].span.end
-                    // A jump to a loop or switch inside the loop resumes inside it.
-                    var inner = false
-                    for ti in 0..targetIds.length {
-                        if targetIds[ti] == jumpTargets[ji] {
-                            let t = targetSpans[ti]
-                            let same = t.start == loops[p].start && t.end == loops[p].end
-                            inner = !same && loops[p].start <= t.start && t.end <= loops[p].end
+                var scope = bodies[p]
+                for candidate in [own, bodies[p]] {
+                    w = -1
+                    for si in 0..stores.length {
+                        let s = stores[si]
+                        continue if s.holder != holder || s.span.start < mSpan.end || s.span.start < candidate.start
+                        continue if s.span.end > candidate.end
+                        let home = innermostScope(scopes, for: s.span)
+                        continue if home.start != candidate.start || home.end != candidate.end
+                        if w == -1 || s.span.start < stores[w].span.start {
+                            w = si
                         }
                     }
-                    // So does one after a whole store of the holder in its scope.
-                    var dominated = false
-                    for s in stores {
-                        if s.holder == holder && s.span.start >= mSpan.end && s.span.end <= j && j < s.scopeEnd {
-                            dominated = true
+                    closes = w != -1
+                    for ji in 0..jumps.length {
+                        let j = jumps[ji]
+                        continue if !closes || j < mSpan.end || j >= stores[w].span.end
+                        // A jump to a loop or switch inside the scope resumes inside it.
+                        var inner = false
+                        for ti in 0..targetIds.length {
+                            if targetIds[ti] == jumpTargets[ji] {
+                                let t = targetSpans[ti]
+                                inner = candidate.start <= t.start && t.end <= candidate.end
+                            }
                         }
+                        // So does one after a whole store of the holder in its scope.
+                        var dominated = false
+                        for s in stores {
+                            if s.holder == holder && s.span.start >= mSpan.end && s.span.end <= j && j < s.scopeEnd {
+                                dominated = true
+                            }
+                        }
+                        closes = inner || dominated
                     }
-                    closes = inner || dominated
+                    if closes {
+                        scope = candidate
+                        break
+                    }
                 }
-                // Uses from the mutation's outermost loop inside this one when it closes, otherwise from the outermost
-                // loop around this one that the holder outlives.
+                // Uses from the mutation's outermost loop inside the closing scope, otherwise from the outermost loop
+                // around this one that the holder outlives.
                 var lower = mSpan.end
+                var upper = loops[p].end
                 var size: i64 = -1
                 for loop in loops {
                     let around = loop.start <= mSpan.start && mSpan.end <= loop.end
-                    let strictly = loop.length < loops[p].length && loops[p].start <= loop.start && loop.end <= loops[p].end
-                    if closes && around && strictly && loop.length > size {
+                    let inside = scope.start <= loop.start && loop.end <= scope.end
+                    if closes && around && inside && loop.length > size {
                         lower = loop.start
                         size = loop.length
                     }
                 }
-                if !closes {
+                if closes {
+                    upper = stores[w].span.end
+                } else {
                     lower = loops[p].start
                     for loop in loops {
                         let around = loop.start <= loops[p].start && loops[p].end <= loop.end
@@ -1308,11 +1336,12 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                     holder,
                     at: loops[p],
                     through: closes,
-                    until: lower,
+                    until: TextSpan.fromBounds(lower, until: upper),
                     from: useLists[useOf[holder]],
                     as: stores,
                     by: defers,
                     to: deferEnds,
+                    for: mSpan,
                 )
                 continue if end == -1
             } else {
