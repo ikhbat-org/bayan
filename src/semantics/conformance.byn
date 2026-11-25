@@ -13,6 +13,27 @@ struct T14Fix {
     string   replacement
 }
 
+/// A witness whose receiver does not match the interface's beyond `ref this`: the label, the note at `at`, the help.
+struct T14ReceiverWhy {
+    string    label
+    TextSpan? at
+    string    note
+    string    help
+}
+
+/// A witness with an inferred `fails` conforming to a member that declares its errors, checked after inference.
+struct T14InferredWitness {
+    FuncId           witness
+    FileId           file
+    TextSpan         span
+    string           sName
+    string           mName
+    string           iName
+    string           sig
+    List<ErrorSetId> sets
+    List<VariantId>  excluded
+}
+
 T14Fix t14NoFix() => T14Fix { hasFix: false, fixSpan: TextSpan { start: 0, length: 0 }, replacement: "" }
 
 string t14Text(in Ctx c, from FileId f, at TextSpan span) => $"{getText(c.files[f].text.span, at: span)}"
@@ -318,6 +339,37 @@ void conform(ref Ctx c, for StructId s) {
                     fixSpan: fix.fixSpan,
                     fixReplacement: fix.replacement,
                 )
+            } else if (t14ReceiverMismatch(ref c, for: own, to: member, by: iName) is { } why) {
+                var related = List<Related>()
+                if (why.at is { } noteAt) {
+                    related.append(Related { span: noteAt, label: why.note })
+                }
+                addDiag(ref c, by: Diag {
+                    code: codeText(.interfaceMemberMismatch),
+                    file: file,
+                    span: span,
+                    message: format(
+                        messageFormat(.interfaceMemberMismatch),
+                        by: (sName, mName, t14SignatureText(ref c, for: ownView), iName, t14SignatureText(ref c, for: expected)),
+                    ),
+                    label: why.label,
+                    help: $"{why.help} on `{sName}.{mName}`",
+                    fixSpan: TextSpan { start: 0, length: 0 },
+                    related: move related,
+                })
+            } else if ownView.infersErrors && expected.hasFails && !expected.infersErrors {
+                // SameShape accepts any inferred `fails`; the sets are known only after inference (t14CheckInferredWitnesses).
+                c.inferredWitnesses.append(T14InferredWitness {
+                    witness: own,
+                    file: file,
+                    span: span,
+                    sName: sName,
+                    mName: mName,
+                    iName: iName,
+                    sig: t14SignatureText(ref c, for: expected),
+                    sets: copyIds(expected.errorSets),
+                    excluded: copyIds(expected.excludedErrors),
+                })
             }
         }
         let id = newConformance(ref c, by: move conf)
@@ -511,6 +563,91 @@ bool t14SameShape(in Ctx c, for in FunctionSymbol own, to in FunctionSymbol expe
     return true if own.infersErrors || expected.infersErrors
     return t14SetEquals(in own.errorSets, to: in expected.errorSets)
         && t14SetEquals(in own.excludedErrors, to: in expected.excludedErrors)
+}
+
+/// A caller through the interface has no state facts and cannot track a transition, so a witness may not require a
+/// receiver state or declare `becomes`; `move this` must be on both sides or neither. Null when the receivers match.
+T14ReceiverWhy? t14ReceiverMismatch(ref Ctx c, for FuncId own, to FuncId member, by string iName) {
+    let mName = c.functions[member].name
+    let decl = t22DeclFacts(ref c, for: own)
+    if decl.receiverStates.length > 0 {
+        return T14ReceiverWhy {
+            label: "requires a receiver state",
+            at: decl.receiverStates[0],
+            note: $"`{iName}.{mName}` cannot require a state",
+            help: "remove the receiver state",
+        }
+    }
+    if (decl.becomes is { } b) {
+        return T14ReceiverWhy {
+            label: "declares `becomes`",
+            at: b,
+            note: $"`{iName}.{mName}` cannot change the state",
+            help: "remove `becomes`",
+        }
+    }
+    let wants = c.functions[member].moveThis is not null
+    if (c.functions[own].moveThis is { } m) && !wants {
+        return T14ReceiverWhy {
+            label: "declared `move this`",
+            at: m,
+            note: $"`{iName}.{mName}` does not take `move this`",
+            help: "remove `move this`",
+        }
+    }
+    if c.functions[own].moveThis is null && wants {
+        return T14ReceiverWhy {
+            label: "not declared `move this`",
+            at: null,
+            note: "",
+            help: "add `move this`",
+        }
+    }
+    return null
+}
+
+/// After `inferErrorSets`: a witness that inferred its `fails` conforms only if every set it inferred is declared by
+/// the member and none of those sets has a case the member excludes (inference adds whole sets).
+void t14CheckInferredWitnesses(ref Ctx c) {
+    for k in 0..c.inferredWitnesses.length {
+        let witness = c.inferredWitnesses[k].witness
+        let inferred = copyIds(c.functions[witness].errorSets)
+        var extra: ErrorSetId = -1
+        for set in inferred {
+            if !listContains(c.inferredWitnesses[k].sets, by: set) {
+                extra = set
+                break
+            }
+        }
+        var excluded: VariantId = -1
+        for v in c.inferredWitnesses[k].excluded {
+            if extra == -1 && excluded == -1 && listContains(inferred, by: c.errorVariants[v].set) {
+                excluded = v
+            }
+        }
+        continue if extra == -1 && excluded == -1
+        let sName = c.inferredWitnesses[k].sName
+        let mName = c.inferredWitnesses[k].mName
+        let iName = c.inferredWitnesses[k].iName
+        let sig = c.inferredWitnesses[k].sig
+        var why = ""
+        if extra != -1 {
+            why = $"infers `{errorSetDisplayName(ref c, by: extra)}`, which `{iName}.{mName}` does not declare"
+        } else {
+            let setName = errorSetDisplayName(ref c, by: c.errorVariants[excluded].set)
+            why = $"infers all of `{setName}`, but `{iName}.{mName}` excludes `.{c.errorVariants[excluded].name}`"
+        }
+        let ownView = t14View(c, for: witness)
+        report(
+            ref c,
+            for: .interfaceMemberMismatch,
+            from: c.inferredWitnesses[k].file,
+            at: c.inferredWitnesses[k].span,
+            by: (sName, mName, t14SignatureText(ref c, for: ownView), iName, sig),
+            label: why,
+            help: $"change the signature to `{sig}` and handle the other errors inside `{sName}.{mName}`",
+        )
+    }
 }
 
 /// What SameShape and SignatureText read of a symbol in the arena, as a value like the throwaway `Expected` (Q722).

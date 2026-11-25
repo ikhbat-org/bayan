@@ -1,0 +1,23 @@
+interface IDoor {
+    void inspect() uses console
+}
+
+struct Door : IDoor {
+    states {
+        shut(i64 code, i64 len)
+        ajar(string label)
+    }
+
+    void inspect(this is .ajar) uses console {
+        print(label)
+    }
+}
+
+void look(dyn ref IDoor d) uses console {
+    d.inspect()
+}
+
+void main() {
+    var d: Door = Door.shut { code: 4096, len: 100 }
+    look(d)
+}

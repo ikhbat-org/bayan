@@ -814,6 +814,9 @@ void declare(ref Ctx c) {
         for s in copyIds(in c.modules[m].structs) {
             checkStateNames(ref c, for: s)
         }
+        for i in copyIds(c.modules[m].interfaces) {
+            checkInterfaceStateNames(ref c, for: i)
+        }
         for s in copyIds(in c.modules[m].structs) {
             checkMembers(ref c, for: s)
         }

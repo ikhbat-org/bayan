@@ -1,0 +1,7 @@
+error BYN2802: `Door.close` is `void close(ref this)` but `IDoor` requires `void close(ref this)`
+
+  11 │     void close(ref this) becomes .shut {
+     │          ^^^^^ declares `becomes`
+     │                                   ---- `IDoor.close` cannot change the state
+     │
+  help: remove `becomes` on `Door.close`

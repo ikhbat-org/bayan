@@ -541,6 +541,8 @@ public struct Ctx {
     // ── T14 state
     /// C# `_conformancesChecked` (Q709).
     public bool checkedConformances = false
+    /// Witnesses that inferred their `fails` against a declared one, checked after `inferErrorSets`.
+    public List<T14InferredWitness> inferredWitnesses = []
     // ── T15 state
     // ── T16 state
     // ── T17 state
