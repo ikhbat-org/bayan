@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	811
+cases	diag	812
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14710,6 +14710,7 @@ file	b9dd6dc03d3ad810156f562f5a9d7efbd909ea7e	tests/cases/diag/region-loop-inner
 file	c45d3d14feac5b9d9baa898ee699b47aaad010e6	tests/cases/diag/region-loop-jump-before-do-while.diag
 file	d5cac4b2d88dff7405b9a1d1702bf647000c1340	tests/cases/diag/region-loop-jump-before-inner.diag
 file	60fd64f33e9657c894b35e48dd55cc9422430844	tests/cases/diag/region-loop-jump-before-own.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-jump-before-store-control.diag
 file	589b4bf86edfcb08c59165d867cbdbb5a45b81c1	tests/cases/diag/region-loop-labelled-break.diag
 file	8c6b498caf8d6f6fa6f3d7ccbb04f93157b694c9	tests/cases/diag/region-loop-outer-read.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-read-after-control.diag
