@@ -1,6 +1,6 @@
 error BYN3004: `xs` is modified while `s` still borrows it
 
-  7 │         xs.append(i)
-    │         ^^^^^^^^^^^^ `s` is used again on line 9
+  8 │         xs.append(i)
+    │         ^^^^^^^^^^^^ `s` is used again on line 7
     │
   help: finish using `s` first, or copy what it needs before changing `xs`
