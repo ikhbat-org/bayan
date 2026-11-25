@@ -73,14 +73,14 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
     // A later argument that changes what the receiver or an earlier argument borrows changes it before the callee reads it.
     if r.reporting {
         for k in -1..args.length {
-            let owners = k == -1 ? copyIds(in receiver.owners) : copyIds(in args[k].owners)
+            let owners = k == -1 ? copyIds(receiver.owners) : copyIds(args[k].owners)
             continue if owners.length == 0
             let holder = k == -1 ? recv : arguments[k]
-            let text = $"{getText(c.files[r.source].text.span, at: nodeSpan(in c, for: holder))}"
+            let text = $"{getText(c.files[r.source].text.span, at: nodeSpan(c, for: holder))}"
             let callee = c.functions[fn].name
             for mi in starts[k + 1]..starts[args.length] {
                 let target = r.mutations[mi].target
-                continue if !t37HasId(in owners, for: target)
+                continue if !t37HasId(owners, for: target)
                 let targetName = c.locals[target].name
                 regionReport(
                     ref r,
