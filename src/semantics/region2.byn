@@ -407,9 +407,21 @@ bool t41FunctionAllocates(ref Ctx c, for Type type) {
 }
 
 /// Whether an argument is a function value that may allocate: its effects are charged to the caller, not the callee (R16).
+/// A lambda or function passed by name is judged by its own body, since a pure parameter type does not stop it allocating.
 bool t41PassesAllocating(ref Ctx c, for FuncId fn, from List<BExpr> arguments) {
     let parameters = copyIds(c.functions[fn].parameters)
     for j in 0..arguments.length {
+        var value = arguments[j]
+        while boundKind(value) == .conversion {
+            value = c.bConversions[boundIndex(value)].operand
+        }
+        var passed: FuncId = -1
+        if boundKind(value) == .lambda {
+            passed = c.bLambdas[boundIndex(value)].lambda
+        } else if boundKind(value) == .functionRef {
+            passed = c.bFunctionRefs[boundIndex(value)].function
+        }
+        return true if passed >= 0 && (passed >= c.allocates.length || c.allocates[passed])
         return true if t41FunctionAllocates(ref c, for: exprType(c, for: arguments[j]))
         return true if j < parameters.length && t41FunctionAllocates(ref c, for: c.locals[parameters[j]].type)
     }
