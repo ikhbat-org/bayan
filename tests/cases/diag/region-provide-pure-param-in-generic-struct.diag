@@ -1,0 +1,22 @@
+warning BYN5014: `via` is not a known verb, noun or adjective
+
+  4 │     string via() uses alloc {
+    │            ^^^
+    │
+  help: add it to `grammar` in package.byn: `nouns: ["via"]`, `verbs: ["via"]` or
+        `adjectives: ["via"]`
+
+error BYN3002: arena `a` does not live as long as `s`, which borrows it
+
+  8 │             provide allocator: a { s = run(n => $"v={n}") }
+    │                                        ^^^^^^^^^^^^^^^^^^ arena `a` is freed at the end of its
+    │                                                           block
+    │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough
+
+error BYN3003: cannot return a borrow of arena `a`, which is freed when `via` returns
+
+  10 │         return s
+     │                ^
+     │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that

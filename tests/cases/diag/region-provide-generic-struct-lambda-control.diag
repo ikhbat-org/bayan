@@ -1,0 +1,7 @@
+warning BYN5014: `via` is not a known verb, noun or adjective
+
+  4 │     string via() uses alloc {
+    │            ^^^
+    │
+  help: add it to `grammar` in package.byn: `nouns: ["via"]`, `verbs: ["via"]` or
+        `adjectives: ["via"]`
