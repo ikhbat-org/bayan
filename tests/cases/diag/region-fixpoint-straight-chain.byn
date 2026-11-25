@@ -1,0 +1,15 @@
+ReadOnlySpan<i64> f(ReadOnlySpan<i64> e) {
+    let xs: i64[2] = [1, 2]
+    var a = e
+    var b = e
+    var c = e
+    c = b
+    b = a
+    a = xs.span
+    return c
+}
+void main() {
+    let base: i64[2] = [7, 8]
+    let s = f(base.span)
+    print($"{s[0]} {s.length}")
+}

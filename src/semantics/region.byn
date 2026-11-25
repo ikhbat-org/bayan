@@ -445,26 +445,17 @@ void runRegions(ref Regions r, through ref Ctx c) {
             r.locals[p] = t25Region(1, as: $"`{c.locals[p].name}`")
         }
     }
-    // The collecting passes find what each local may borrow (a loop can store into a local after its first use, and
-    // each pass carries a chain of stores one step); the last pass reports against the complete picture. A pass is
-    // dirty when it changes a local it read earlier. If no read in pass k saw a value that changed later in pass k,
-    // every read saw its final value for pass k, so pass k+1 would compute the same stores; the facts only grow, so
-    // that is the fixed point. They are finitely many, so the cap is a guard against a bug only.
+    // The first pass collects what each local may borrow (each loop body runs to a fixed point, `iterateRegions`);
+    // the second reports against the complete picture.
     let body = c.functions[r.fn].body
-    var passes: i64 = 0
-    r.dirty = true
-    while r.dirty {
-        panic("internal error: region analysis did not converge") if passes == 64
-        t25ClearPass(ref r)
-        stmtRegions(ref r, through: ref c, for: body)
-        passes += 1
-    }
-    // A summary reports nothing: its pairs and returns are the clean last pass's, which a reporting pass would repeat.
-    return if r.summary
-    t25ClearPass(ref r)
+    r.read.clear()
+    r.dirty = false
+    stmtRegions(ref r, through: ref c, for: body)
     r.reporting = true
     stmtRegions(ref r, through: ref c, for: body)
-    checkMutations(ref r, through: ref c)
+    if !r.summary {
+        checkMutations(ref r, through: ref c)
+    }
 }
 
 /// What a borrow holds, counted: a union only grows `regions`, `owners` and `lends`, and with `lends` the same only
@@ -501,17 +492,6 @@ void t25Changed(ref Regions r, for LocalId local) {
     }
 }
 
-/// Empties what each pass appends, so the passes do not multiply the entries, and starts a pass with nothing read.
-void t25ClearPass(ref Regions r) {
-    r.loans.clear()
-    r.mutations.clear()
-    r.read.clear()
-    r.dirty = false
-    if r.summary {
-        r.pairs.clear()
-        r.returns.clear()
-    }
-}
 
 /// C# `_restTails[tail] = name`.
 void t25SetRestTail(ref Regions r, for Region tail, to string name) {
@@ -696,7 +676,25 @@ void t25For(ref Regions r, through ref Ctx c, for BStmt s) {
 void iterateRegions(ref Regions r, through ref Ctx c, at i64 depth, for BStmt body) {
     let outer = r.iteration
     r.iteration = depth
-    stmtRegions(ref r, through: ref c, for: body)
+    // The collecting pass runs a loop body until a run changes no local it has read: a store late in the body reaches
+    // a read early in it on the next iteration, one store per run. Straight-line code runs once, in source order.
+    // The facts only grow, and a chain of stores is at most as long as the function has locals, so a body needs at
+    // most that many runs plus one clean one; the cap is a guard against a bug only. The reporting pass and the
+    // entries a run appends (summary pairs and returns, which `t41Record` and `checkReturn` keep unique) need no
+    // reset: loans and mutations are recorded in the reporting pass only.
+    let outerDirty = r.dirty
+    let cap = 2 * c.functions[r.fn].locals.length + 8
+    var changed = false
+    var runs: i64 = 0
+    while true {
+        r.dirty = false
+        stmtRegions(ref r, through: ref c, for: body)
+        runs += 1
+        break if r.reporting || !r.dirty
+        changed = true
+        panic("internal error: region analysis did not converge") if runs >= cap
+    }
+    r.dirty = outerDirty || changed
     r.iteration = outer
 }
 
