@@ -1,0 +1,9 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    defer {
+        let s = xs.span
+        print($"{s[0]}")
+    }
+    xs.append(6)
+}
