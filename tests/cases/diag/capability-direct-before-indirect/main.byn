@@ -1,0 +1,11 @@
+void h() uses fs {}
+
+void report() uses fs, alloc, console {
+    let s = Io.readText("report.txt") catch { return }
+    h()
+    print(s)
+}
+
+void main() {
+    report()
+}
