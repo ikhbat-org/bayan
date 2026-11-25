@@ -1,4 +1,4 @@
-List<string> f(Arena a) {
+List<string> f(ref Arena a) {
     let buf = stackalloc u8[16]
     var sb = StrBuf(buf)
     sb.append("hi")
@@ -7,7 +7,7 @@ List<string> f(Arena a) {
     return xs.copy(to: a)
 }
 void main() {
-    let a = Arena()
-    let xs = f(a)
+    var a = Arena()
+    let xs = f(ref a)
     print(xs[0])
 }
