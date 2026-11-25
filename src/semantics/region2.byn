@@ -138,15 +138,19 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
         // `this` itself has no local: it stands for the fields of `this` the callee may change.
         var whole = false
         var hit = List<LocalId>()
+        // For a local receiver (`obj.f(…)`), the fields of `obj` the callee changes structurally.
+        var receiverFields = List<FieldId>()
         if k == -1 {
             if recv != -1 && mutating {
                 whole = boundKind(recv) == .thisRef
                 root = t41Root(ref r, through: ref c, for: recv)
+                let fields = changedFields(ref r, through: ref c, for: fn)
                 if whole {
-                    let fields = changedFields(ref r, through: ref c, for: fn)
                     for field in fields {
                         hit.append(fieldLocal(ref r, through: ref c, for: field))
                     }
+                } else {
+                    receiverFields = copyIds(fields)
                 }
             }
         } else if k < parameters.length {
@@ -181,6 +185,11 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                         owned = true
                     }
                 }
+            }
+            // A local receiver: an argument through a field the callee leaves alone cannot alias.
+            if k == -1 && !whole {
+                let fieldJ = t41LocalField(c, for: arguments[j])
+                continue if fieldJ != -1 && !t37HasId(receiverFields, for: fieldJ)
             }
             continue if j == k
                 || !(same && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
@@ -1173,6 +1182,26 @@ LocalId fieldLocal(ref Regions r, through ref Ctx c, for FieldId field) {
     let local = c.locals.length - 1
     r.thisFields[field] = local
     return local
+}
+
+/// The field directly under a local that `e` reads through (`obj.f`, `obj.f.g`, `obj.f[i]`, `obj.f.span`), or -1.
+FieldId t41LocalField(Ctx c, for BExpr e) {
+    let i = boundIndex(e)
+    switch boundKind(e) {
+        case .field:
+            return c.bFields[i].field if boundKind(c.bFields[i].receiver) == .local
+            return t41LocalField(c, for: c.bFields[i].receiver)
+        case .tupleElement:
+            return t41LocalField(c, for: c.bTupleElements[i].receiver)
+        case .index:
+            return t41LocalField(c, for: c.bIndexes[i].target)
+        case .builtinCall:
+            let m = c.bBuiltinCalls[i].member
+            return t41LocalField(c, for: c.bBuiltinCalls[i].receiver) if m is .listAsSpan or .arrayAsSpan or .listMutableSpan or .arrayMutableSpan
+            return -1
+        default:
+            return -1
+    }
 }
 
 FieldId thisFieldSymbol(in Ctx c, for BExpr e) {
