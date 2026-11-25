@@ -1,0 +1,6 @@
+error BYN3004: `xs` is modified while `xs.span` still borrows it
+
+  9 │     let r = first(xs.span, at: grow(ref xs))
+    │                                         ^^ `xs.span` is still passed to `first`
+    │
+  help: store the argument that changes `xs` in a local before the call

@@ -62,9 +62,37 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
     if recv != -1 {
         receiver = exprRegions(ref r, through: ref c, for: recv)
     }
+    // Where each argument's mutations start in `r.mutations`: a nested call appends them while its argument is evaluated.
+    var starts = List<i64>()
     var args = List<Borrow>()
     for a in arguments {
+        starts.append(r.mutations.length)
         args.append(exprRegions(ref r, through: ref c, for: a))
+    }
+    starts.append(r.mutations.length)
+    // A later argument that changes what the receiver or an earlier argument borrows changes it before the callee reads it.
+    if r.reporting {
+        for k in -1..args.length {
+            let owners = k == -1 ? copyIds(in receiver.owners) : copyIds(in args[k].owners)
+            continue if owners.length == 0
+            let holder = k == -1 ? recv : arguments[k]
+            let text = $"{getText(c.files[r.source].text.span, at: nodeSpan(in c, for: holder))}"
+            let callee = c.functions[fn].name
+            for mi in starts[k + 1]..starts[args.length] {
+                let target = r.mutations[mi].target
+                continue if !t37HasId(in owners, for: target)
+                let targetName = c.locals[target].name
+                regionReport(
+                    ref r,
+                    through: ref c,
+                    for: r.mutations[mi].moved ? .movedWhileBorrowed : .modifiedWhileBorrowed,
+                    at: r.mutations[mi].span,
+                    by: (targetName, $"`{text}`", "", "", ""),
+                    label: $"`{text}` is still passed to `{callee}`",
+                    help: $"store the argument that changes `{targetName}` in a local before the call",
+                )
+            }
+        }
     }
     let mutating = c.functions[fn].isMutating
     // A method that writes `this` modifies its receiver, like a write to one of its fields (Q78).

@@ -1,0 +1,7 @@
+error BYN3004: `boxes` is modified while `view(boxes.span)` still borrows it
+
+  16 │     print($"{view(boxes.span).get(at: grow(ref boxes))}")
+     │                                                ^^^^^ `view(boxes.span)` is still passed to
+     │                                                      `get`
+     │
+  help: store the argument that changes `boxes` in a local before the call
