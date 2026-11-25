@@ -1,0 +1,4 @@
+warning BYN2405: unreachable code
+
+  11 │     print("after")
+     │     ^^^^^^^^^^^^^^

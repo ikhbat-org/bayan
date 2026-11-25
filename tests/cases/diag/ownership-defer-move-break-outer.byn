@@ -1,0 +1,15 @@
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void main() {
+    var xs = List<i64>()
+    outer: for i in 0..2 {
+        for j in 0..2 {
+            defer consume(move xs)
+            xs = List<i64>()
+            break outer if j == 1
+        }
+    }
+    print($"{xs.length}")
+}
