@@ -1028,26 +1028,34 @@ TextSpan innermostScope(List<TextSpan> scopes, for TextSpan span) {
     return inner
 }
 
-/// The first use of `holder` that a loan made later in `within` than `mutation` leaves stale, or -1: one in the loop at
-/// or after the mutation when the loan `closes` it, otherwise one in the loop or after it. A use is safe when a whole
-/// store of `holder` in the loop runs before it in the same scope.
+/// The first use of `holder` that a loan made later in `within` than a mutation leaves stale, or -1: one from `lower`
+/// up to the loop's end when the loan `closes` the mutation, otherwise one from `lower` on, and one in a deferred body
+/// before the loop that runs after it. A use is safe when a whole store of `holder` from the loop on runs before it in
+/// the same scope.
 i64 backEdgeUse(
     LocalId holder,
     at TextSpan within,
     through bool closes,
-    until TextSpan mutation,
+    until i64 lower,
     from List<i64> reads,
-    as List<WholeStore> stores
+    as List<WholeStore> stores,
+    by List<TextSpan> defers,
+    to List<i64> deferEnds
 ) {
     var first: i64 = -1
     for u in reads {
-        continue if u < within.start || closes && (u < mutation.end || u >= within.end)
+        var deferred = false
+        for d in 0..defers.length {
+            let inside = defers[d].start <= u && u < defers[d].end
+            deferred = deferred || inside && defers[d].end <= within.start && deferEnds[d] >= within.end
+        }
+        continue if !deferred && (u < lower || closes && u >= within.end)
         var safe = false
         for s in stores {
             continue if s.holder != holder
             // Writing the holder is not a use of it.
             safe = safe || s.target == u
-            if s.span.start >= within.start && s.span.end <= within.end && s.span.end <= u && u < s.scopeEnd {
+            if s.span.start >= within.start && s.span.end <= u && u < s.scopeEnd {
                 safe = true
             }
         }
@@ -1058,6 +1066,47 @@ i64 backEdgeUse(
     return first
 }
 
+/// Whether every way through `stmt` stores the whole of `holder`: an assignment of it, a block with one, an `if` and
+/// `else` that both do, or an exhaustive switch whose every case does and that no `break` leaves early. A synthesized
+/// `if` can sit outside its branches.
+bool storesWhole(Ctx c, for BNode stmt, as LocalId holder, at List<i64> jumps, by List<i64> jumpTargets) {
+    let i = boundIndex(stmt)
+    switch boundKind(stmt) {
+        case .assign:
+            let target = c.bAssigns[i].target
+            return boundKind(target) == .local && c.bLocals[boundIndex(target)].local == holder && c.bAssigns[i].op is null
+        case .block:
+            for s in c.bBlocks[i].statements {
+                return true if storesWhole(c, for: s, as: holder, at: jumps, by: jumpTargets)
+            }
+            return false
+        case .ifStmt:
+            return false if c.bIfs[i].elseBranch == -1
+            let span = c.bIfs[i].span
+            let then = nodeSpan(c, for: c.bIfs[i].then)
+            let other = nodeSpan(c, for: c.bIfs[i].elseBranch)
+            return false if then.start < span.start || then.end > span.end || other.start < span.start || other.end > span.end
+            return storesWhole(c, for: c.bIfs[i].then, as: holder, at: jumps, by: jumpTargets)
+                && storesWhole(c, for: c.bIfs[i].elseBranch, as: holder, at: jumps, by: jumpTargets)
+        case .switchStmt:
+            return false if !c.bSwitches[i].exhaustive
+            let span = c.bSwitches[i].span
+            for j in 0..jumps.length {
+                return false if jumpTargets[j] == c.bSwitches[i].target && span.start <= jumps[j] && jumps[j] < span.end
+            }
+            for section in c.bSwitches[i].sections {
+                var stores = false
+                for s in section.body {
+                    stores = stores || storesWhole(c, for: s, as: holder, at: jumps, by: jumpTargets)
+                }
+                return false if !stores
+            }
+            return true
+        default:
+            return false
+    }
+}
+
 void checkMutations(ref Regions r, through ref Ctx c) {
     return if r.mutations.length == 0 || r.loans.length == 0
     var useOf: Map<LocalId, i64> = []
@@ -1065,12 +1114,17 @@ void checkMutations(ref Regions r, through ref Ctx c) {
     var loops = List<TextSpan>()
     var defers = List<TextSpan>()
     var blocks = List<TextSpan>()
-    // For the back edge: each loop's body, the conditional children a store's effect ends with, the whole stores and
-    // where each `break` or `continue` is.
+    // For the back edge: each loop's body, the conditional children a store's effect ends with, the whole stores,
+    // where each `break` or `continue` is and what it leaves, each loop's and switch's id and span, and the `if`/`else`
+    // and exhaustive switches whose paths merge.
     var bodies = List<TextSpan>()
     var scopes = List<TextSpan>()
     var stores = List<WholeStore>()
     var jumps = List<i64>()
+    var jumpTargets = List<i64>()
+    var targetIds = List<i64>()
+    var targetSpans = List<TextSpan>()
+    var merges = List<BNode>()
     let nodes = descendants(in c, for: c.functions[r.fn].body)
     for node in nodes {
         let k = boundKind(node)
@@ -1087,6 +1141,8 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             let body = k == .whileStmt ? c.bWhiles[i].body : k == .doWhile ? c.bDoWhiles[i].body : c.bFors[i].body
             bodies.append(nodeSpan(c, for: body))
             scopes.append(nodeSpan(c, for: body))
+            targetIds.append(k == .whileStmt ? c.bWhiles[i].target : k == .doWhile ? c.bDoWhiles[i].target : c.bFors[i].target)
+            targetSpans.append(nodeSpan(in c, for: node))
         } else if k is .deferStmt or .errdeferStmt or .panicDefer {
             // The statement's own span is the `defer` keyword; the body ends it.
             let i = boundIndex(node)
@@ -1099,6 +1155,11 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             blocks.append(nodeSpan(in c, for: node))
             scopes.append(nodeSpan(c, for: node))
         } else if k == .switchStmt {
+            targetIds.append(c.bSwitches[boundIndex(node)].target)
+            targetSpans.append(nodeSpan(in c, for: node))
+            if c.bSwitches[boundIndex(node)].exhaustive {
+                merges.append(node)
+            }
             // A case body is a statement list, not a block, and a defer in it runs at the case's end.
             for section in c.bSwitches[boundIndex(node)].sections {
                 blocks.append(section.span)
@@ -1113,6 +1174,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             scopes.append(nodeSpan(c, for: c.bIfs[i].then))
             if c.bIfs[i].elseBranch != -1 {
                 scopes.append(nodeSpan(c, for: c.bIfs[i].elseBranch))
+                merges.append(node)
             }
         } else if k == .assign {
             let i = boundIndex(node)
@@ -1124,8 +1186,29 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                     target: nodeSpan(c, for: target).start,
                 })
             }
-        } else if k is .breakStmt or .continueStmt {
+        } else if k == .breakStmt {
             jumps.append(nodeSpan(c, for: node).start)
+            jumpTargets.append(c.bBreaks[boundIndex(node)].target)
+        } else if k == .continueStmt {
+            jumps.append(nodeSpan(c, for: node).start)
+            jumpTargets.append(c.bContinues[boundIndex(node)].target)
+        }
+    }
+    // A merging node every path of which stores a holder whole is itself a whole store of it.
+    let real = stores.length
+    for n in merges {
+        let span = nodeSpan(c, for: n)
+        for si in 0..real {
+            let h = stores[si].holder
+            continue if stores[si].span.start < span.start || stores[si].span.end > span.end
+            var tried = false
+            for sj in 0..si {
+                let inside = stores[sj].span.start >= span.start && stores[sj].span.end <= span.end
+                tried = tried || inside && stores[sj].holder == h
+            }
+            if !tried && storesWhole(c, for: n, as: h, at: jumps, by: jumpTargets) {
+                stores.append(WholeStore { holder: h, span: span, target: -1 })
+            }
         }
     }
     for si in 0..stores.length {
@@ -1167,15 +1250,70 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 continue if p == -1
                 let declared = r.declaredAt.tryGet(at: holder) ?? -1
                 continue if loops[p].start <= declared && declared < loops[p].end
-                // The loan "closes" the mutation when every iteration that ran the mutation goes on to make it.
-                let lent = innermostScope(scopes, for: TextSpan { start: created, length: 0 })
-                var closes = lent.start == bodies[p].start && lent.end == bodies[p].end
-                for j in jumps {
-                    if mSpan.end <= j && j < created {
-                        closes = false
+                // The loan "closes" the mutation when every iteration that ran the mutation goes on to store the holder
+                // whole: the first such store in the loop body's own scope, with no counted jump before it.
+                var w = -1
+                for si in 0..stores.length {
+                    let s = stores[si]
+                    continue if s.holder != holder || s.span.start < mSpan.end || s.span.start < bodies[p].start
+                    continue if s.span.end > bodies[p].end || s.scopeEnd != bodies[p].end
+                    if w == -1 || s.span.start < stores[w].span.start {
+                        w = si
                     }
                 }
-                end = backEdgeUse(holder, at: loops[p], through: closes, until: mSpan, from: useLists[useOf[holder]], as: stores)
+                var closes = w != -1
+                for ji in 0..jumps.length {
+                    let j = jumps[ji]
+                    continue if !closes || j < mSpan.end || j >= stores[w].span.end
+                    // A jump to a loop or switch inside the loop resumes inside it.
+                    var inner = false
+                    for ti in 0..targetIds.length {
+                        if targetIds[ti] == jumpTargets[ji] {
+                            let t = targetSpans[ti]
+                            let same = t.start == loops[p].start && t.end == loops[p].end
+                            inner = !same && loops[p].start <= t.start && t.end <= loops[p].end
+                        }
+                    }
+                    // So does one after a whole store of the holder in its scope.
+                    var dominated = false
+                    for s in stores {
+                        if s.holder == holder && s.span.start >= mSpan.end && s.span.end <= j && j < s.scopeEnd {
+                            dominated = true
+                        }
+                    }
+                    closes = inner || dominated
+                }
+                // Uses from the mutation's outermost loop inside this one when it closes, otherwise from the outermost
+                // loop around this one that the holder outlives.
+                var lower = mSpan.end
+                var size: i64 = -1
+                for loop in loops {
+                    let around = loop.start <= mSpan.start && mSpan.end <= loop.end
+                    let strictly = loop.length < loops[p].length && loops[p].start <= loop.start && loop.end <= loops[p].end
+                    if closes && around && strictly && loop.length > size {
+                        lower = loop.start
+                        size = loop.length
+                    }
+                }
+                if !closes {
+                    lower = loops[p].start
+                    for loop in loops {
+                        let around = loop.start <= loops[p].start && loops[p].end <= loop.end
+                        if around && !(loop.start <= declared && declared < loop.end) && loop.start < lower {
+                            lower = loop.start
+                        }
+                    }
+                }
+                end = backEdgeUse(
+                    holder,
+                    at: loops[p],
+                    through: closes,
+                    until: lower,
+                    from: useLists[useOf[holder]],
+                    as: stores,
+                    by: defers,
+                    to: deferEnds,
+                )
                 continue if end == -1
             } else {
                 // Writing an element in place through the loop's own `dyn ref` variable leaves the loop's collection as it is.
