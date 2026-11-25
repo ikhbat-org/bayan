@@ -1,0 +1,13 @@
+void f(i64 v) {
+    var xs = List<i64>()
+    xs.append(5)
+    let s = xs.span
+    switch v {
+        case 1:
+            defer print($"{s[0]}")
+            for i in 0..100 { xs.append(i) }
+        default:
+            print("d")
+    }
+}
+void main() { f(v: 1) }

@@ -985,9 +985,14 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             defers.append(TextSpan.fromBounds(start, until: nodeSpan(in c, for: body).end))
         } else if k == .block {
             blocks.append(nodeSpan(in c, for: node))
+        } else if k == .switchStmt {
+            // A case body is a statement list, not a block, and a defer in it runs at the case's end.
+            for section in c.bSwitches[boundIndex(node)].sections {
+                blocks.append(section.span)
+            }
         }
     }
-    // A deferred body runs at the end of the smallest block around its statement.
+    // A deferred body runs at the end of the smallest block or switch case around its statement.
     var deferEnds = List<i64>()
     for d in defers {
         var runs = d.end
