@@ -25,3 +25,6 @@ c9a8850f9e40fcbd55ebee4ed2d943de460156c9  # 0.4.1 fix: BYN2802 receiver mismatch
 51fd07dc0ea1cbc4f2e8da782113e26d570dd356  # 0.4.1 chore(worker): b-ownership: All three fixes are in
 7e7580bf5e27143340bc2136e01eb81c7d6b8c08  # 0.4.1 fix: a defer's moves are the body's own moves stil
 1bb7de0bc449250e402847f4f55c6ebca722cf76  # 0.4.1 test: pin the never-call failing path (Q1287), div
+9bac9ad93c19af220814fcbf6fcc248868c808cc  # 0.4.1 chore(worker): c-states: All three fixes are in, n
+c75516a6797991d8b8fc28fe399607570cd1f0a5  # 0.4.1 fix: a branch join keeps only the open-scope facts
+6e46809cb5f718d57c1417bf36254e5f95210f37  # 0.4.1 fix: postfix if/unless keeps no facts from scopes 
