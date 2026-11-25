@@ -127,13 +127,15 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             // A by-value copy of an element (`xs[0]` as an `i64`) cannot alias what the callee changes.
             // coverage-exempt: Q746
             let byRef = j < parameters.length && t37RefOrOut(in c, for: parameters[j])
+            // An `out` argument's old value is never read: what it borrows cannot alias.
+            let byOut = j < parameters.length && c.locals[parameters[j]].modifier == .outKeyword
             var seenJ = List<Type>()
             continue if j == i
                 || !(rootLocal(
                     ref c,
                     for: arguments[j],
                 ) == root && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
-                    || t37HasId(in args[j].owners, for: root))
+                    || !byOut && t37HasId(in args[j].owners, for: root))
             let name = c.locals[root].name
             regionReport(
                 ref r,
@@ -152,6 +154,7 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
     let template = templateOf(ref c, for: fn) ?? fn
     let stores = t41Stores(ref c, for: fn, by: call)
     for pair in stores {
+        continue if pair.target == regionResult
         var target: BExpr = -1
         if pair.target == regionThis {
             // coverage-exempt: Q746
@@ -168,9 +171,16 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
         var source = Borrow { regions: [], owners: [] }
         if pair.source == regionThis {
             source = t37CopyBorrow(receiver)
+            if pair.lends && recv != -1 {
+                source = unionBorrow(source, by: lendBorrow(ref r, through: ref c, for: recv, by: receiver, at: span.end))
+            }
             // coverage-exempt: Q746
         } else if pair.source < args.length {
             source = t37CopyBorrow(args[pair.source])
+            // The callee stores a borrow of this argument's own storage (`s = a.span`): lend it, as a returned span does below.
+            if pair.lends && pair.source < arguments.length {
+                source = unionBorrow(source, by: t41LentArgument(ref r, through: ref c, for: arguments[pair.source], by: args[pair.source], at: span.end))
+            }
         }
         var note: Related? = null
         // coverage-exempt: Q746
@@ -252,6 +262,12 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                 }
             }
             k += 1
+        }
+    }
+    // And one whose body returns a borrow of a `ref` argument's own storage, whatever the result's type (`string`, an optional).
+    for pair in stores {
+        if pair.target == regionResult && pair.source >= 0 && pair.source < arguments.length {
+            result = unionBorrow(result, by: t41LentArgument(ref r, through: ref c, for: arguments[pair.source], by: args[pair.source], at: span.end))
         }
     }
     // Allocated from `context.allocator`: a list, an `Owned`, a growable `StrBuf`, or the text `Io.readText`, `Io.run` and `Utf8.decode` return (Q29).
@@ -531,7 +547,7 @@ void t41StoreBorrow(
     }
     r.locals[local] = move merged
     if r.summary && r.targets.contains(local) {
-        t41Record(ref r, for: r.targets[local], by: value, at: span)
+        t41Record(ref r, through: ref c, for: r.targets[local], by: value, at: span)
     }
     return if !r.reporting
     // The loan starts where the stored value's borrow of the owner was lent (`first(w.items.asSpan(), w.grow())`
@@ -562,12 +578,13 @@ void t41StoreBorrow(
 }
 
 /// Adds a pair to the summary for each parameter (or `this`) whose data `value` may hold.
-void t41Record(ref Regions r, for i64 target, by Borrow value, at TextSpan span) {
+void t41Record(ref Regions r, through ref Ctx c, for i64 target, by Borrow value, at TextSpan span) {
+    t41RecordLends(ref r, through: ref c, for: target, by: value, at: span)
     for region in value.regions {
         continue if region.source == regionNoSource || region.source == target
         var known = false
         for p in r.pairs {
-            if p.source == region.source && p.target == target {
+            if p.source == region.source && p.target == target && !p.lends {
                 known = true
                 break
             }
@@ -576,6 +593,47 @@ void t41Record(ref Regions r, for i64 target, by Borrow value, at TextSpan span)
             r.pairs.append(StorePair { source: region.source, target: target, site: span })
         }
     }
+}
+
+/// Adds a lending pair for each `ref` or `out` parameter (or field of `this`) whose own storage `value` borrows.
+void t41RecordLends(ref Regions r, through ref Ctx c, for i64 target, by Borrow value, at TextSpan span) {
+    let ps = copyIds(c.functions[r.fn].parameters)
+    for owner in value.owners {
+        var source = regionNoSource
+        for index in 0..ps.length {
+            if ps[index] == owner && t37RefOrOut(c, for: owner) {
+                source = index
+            }
+        }
+        for (_, local) in r.thisFields {
+            if local == owner {
+                source = regionThis
+            }
+        }
+        continue if source == regionNoSource || source == target
+        var known = false
+        for p in r.pairs {
+            if p.source == source && p.target == target && p.lends {
+                known = true
+                break
+            }
+        }
+        if !known {
+            r.pairs.append(StorePair { source: source, target: target, site: span, lends: true })
+        }
+    }
+}
+
+/// What a callee that keeps a borrow of its `ref` argument's (or receiver's) own storage gives: the argument, lent.
+Borrow t41LentArgument(ref Regions r, through ref Ctx c, for BExpr argument, by Borrow borrow, at i64 at) {
+    let lentArg = lendBorrow(ref r, through: ref c, for: argument, by: borrow, at: at)
+    var seen = List<Type>()
+    return lentArg if mayLend(ref c, for: exprType(c, for: argument), by: ref seen)
+    var regions = List<Region>()
+    for x in lentArg.regions {
+        regions.append(Region { depth: x.depth, name: x.name, source: x.source })
+    }
+    return Borrow { regions: move regions, owners: [] }
 }
 
 /// A store into a local or a part of one; through `this` or a `ref` parameter it outlives the function.
@@ -598,7 +656,7 @@ void t41StoreIntoBorrow(
         return
     }
     if r.summary && c.functions[r.fn].isMutating && isThisRooted(c, for: target) {
-        t41Record(ref r, for: regionThis, by: value, at: span)
+        t41Record(ref r, through: ref c, for: regionThis, by: value, at: span)
     }
     return if !r.reporting
     // A store through a span lands where the span points: it must live as long as the
@@ -665,6 +723,7 @@ void t41CheckOutlives(
 
 void checkReturn(ref Regions r, through ref Ctx c, for in Borrow value, at TextSpan span) {
     if r.summary {
+        t41RecordLends(ref r, through: ref c, for: regionResult, by: value, at: span)
         for region in value.regions {
             if region.source != regionNoSource && !t37HasId(r.returns, for: region.source) {
                 r.returns.append(region.source)

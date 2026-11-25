@@ -5,3 +5,10 @@ warning BYN5014: `both` is not a known verb, noun or adjective
     │
   help: add it to `grammar` in package.byn: `nouns: ["both"]`, `verbs: ["both"]` or
         `adjectives: ["both"]`
+
+error BYN3004: `b` is modified while `s` still borrows it
+
+  13 │     for i in 0..100 { b.items.append(i) }
+     │                       ^^^^^^^^^^^^^^^^^ `s` is used again on line 14
+     │
+  help: finish using `s` first, or copy what it needs before changing `b`

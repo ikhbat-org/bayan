@@ -1,0 +1,6 @@
+error BYN3003: cannot return a borrow of `a`, which is freed when `f` returns
+
+  6 │     return s
+    │            ^
+    │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that

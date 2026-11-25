@@ -13,11 +13,16 @@ const regionNoSource: i64 = -9223372036854775807
 /// C# `This`: the index standing for `this` in a store summary.
 const regionThis: i64 = -1
 
+/// The index standing for the call's result as a store summary's target.
+const regionResult: i64 = -2
+
 /// One entry of a C# store summary: `(Source, Target)` and the first place the body stores it (none for a broad callee).
 struct StorePair {
     i64       source
     i64       target
     TextSpan? site = null
+    /// The stored value may point into the source's own storage, not only where the source points.
+    bool      lends = false
 }
 
 /// One entry of the C# `_loopItems` map: the iterable and its borrow.
