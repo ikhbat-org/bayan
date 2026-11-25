@@ -1,1 +1,3 @@
 == diags.run/dyn-ref-this-region
+store pick -1 -2 277..282
+store take 0 -2 584..591

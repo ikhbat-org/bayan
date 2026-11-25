@@ -6,3 +6,5 @@ BYN3004 23:5 `l` is modified while `s` still borrows it
   label `s` is used again on line 24
   help finish using `s` first, or copy what it needs before changing `l`
 returns all 0
+store all 0 -2 257..263
+store pick 0 -2 213..217
