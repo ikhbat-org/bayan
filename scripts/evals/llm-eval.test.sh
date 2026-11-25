@@ -229,7 +229,7 @@ check "loop gives limit" "$code $(get loop compiles) $(get loop passes) $(get lo
 # Times the run step alone (prime's status file to format's stdout), so build and check times under load do not count.
 l=$root/out/loop/work/small-900-exit-code/1
 check "loop is stopped at the run limit" "$(awk -v a="$(mtime "$l/prime.stdout.status")" -v b="$(mtime "$l/format.stdout")" \
-  'BEGIN { d = b - a; print (a != "none" && b != "none" && d >= 8 && d <= 30) ? "yes" : "no" }')" "yes"
+  'BEGIN { d = b - a; print (a != "none" && b != "none" && d >= 8 && d <= 30) ? "yes" : "no: " a " to " b " is " d " s" }')" "yes"
 # The time limit reaches the launcher as TERM; its sweep kills the candidate, which runs in a process group of its own (M3).
 # Each later launch on the sample sweeps it too, so llm-sandbox.test.sh tests the TERM sweep alone.
 if $mac; then
