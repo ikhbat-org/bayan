@@ -1,0 +1,15 @@
+union error E {
+    bad
+}
+
+never stop() fails E {
+    fail E.bad
+}
+
+i64 f() {
+    stop() catch {}
+}
+
+void main() {
+    print($"{f()}")
+}

@@ -1,0 +1,6 @@
+error BYN2781: `xs` is used after it was moved
+
+  10 │     return xs
+     │            ^^ a `defer` on line 9 uses it at scope exit
+     │
+  help: move `xs` before the `defer`, or move a `.copy(to: alloc)` of it instead

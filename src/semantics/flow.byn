@@ -472,6 +472,7 @@ FlowState t23Expr(ref Flow f, through ref Ctx c, for BExpr e, by move FlowState 
             let variant = c.bCatches[i].variant
             let handlerExpr = c.bCatches[i].handler
             let became = state.became
+            let before = t23Clone(state)
             state = t23Expr(ref f, through: ref c, for: operand, by: move state)
             if variant != -1 && boundKind(operand) == .call {
                 let call = boundIndex(operand)
@@ -492,8 +493,9 @@ FlowState t23Expr(ref Flow f, through ref Ctx c, for BExpr e, by move FlowState 
                     t23CheckPropagation(ref f, through: ref c, at: c.bCatches[i].span, for: operand, by: variant)
                 }
             }
+            // A failed call assigned no `out` argument: the handler starts from before and after the operand.
             // A failed `becomes` call left the state unchanged, so the handler's path has not run `become` (revision 0010 erratum).
-            var failed = t23Clone(in state)
+            var failed = state.reachable ? t23Join(before, by: state) : t23Clone(state)
             failed.became = became
             var handler = t23Expr(ref f, through: ref c, for: handlerExpr, by: move failed)
             if t23IsNeverBlock(in c, for: handlerExpr) && handler.reachable {

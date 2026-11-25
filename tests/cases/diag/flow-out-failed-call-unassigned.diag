@@ -1,0 +1,6 @@
+error BYN2102: `x` is used before it is assigned
+
+  13 │     print($"{x.length}")
+     │              ^ declared without a value on line 11
+     │
+  help: assign it on every path before this, or give the declaration a value

@@ -1,0 +1,16 @@
+// A `break` runs the `defer`s it leaves: a local one moves is moved after the loop (BYN2781).
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    for i in 0..2 {
+        if i == 1 {
+            defer consume(move xs)
+            break
+        }
+    }
+    print($"{xs[0]}")
+}

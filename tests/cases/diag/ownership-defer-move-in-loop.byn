@@ -1,0 +1,12 @@
+// A `defer` in a loop body that moves an outer local runs at the end of each iteration: the next one moves it again (BYN2781).
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    for i in 0..2 {
+        defer consume(move xs)
+    }
+}

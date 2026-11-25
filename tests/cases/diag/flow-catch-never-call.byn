@@ -1,0 +1,12 @@
+union error E {
+    bad
+}
+
+never stop() fails E {
+    fail E.bad
+}
+
+void main() {
+    stop() catch {}
+    print("after")
+}
