@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	689
+cases	diag	701
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14639,6 +14639,18 @@ file	90084009a1842db1376f0e2ed7aca6a96ad49053	tests/cases/diag/region-fixpoint-l
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-fixpoint-straight-chain.diag
 file	5e41a40b9fabe5bae0d091bd2df0cb8a8d673343	tests/cases/diag/region-fixpoint-straight.diag
 file	33759064233ae92d942de4ede56254dea7534c4c	tests/cases/diag/region-fixpoint-summary.diag
+file	c2fae6a80c08ba1743ef208adb0c93a3e1a644b7	tests/cases/diag/region-transfer-alias-control.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-transfer-held-control.diag
+file	8f09b277768089f5eb61cacd81a80a33db35bb52	tests/cases/diag/region-transfer-optional-result.diag
+file	0907619a6bc821144593dad62eee1a287edec0f0	tests/cases/diag/region-transfer-out-append.diag
+file	beea0cbc1f1e2c78b241a24ae5d4631d2101ebd8	tests/cases/diag/region-transfer-out-return.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-transfer-out-twice-control.diag
+file	915000ddc4733d3a007259d5edf7e50474f00248	tests/cases/diag/region-transfer-ref-collect-append.diag
+file	028de997fccb6ae47bfb0010f02f34cc5f4c225b	tests/cases/diag/region-transfer-ref-collect.diag
+file	8f09b277768089f5eb61cacd81a80a33db35bb52	tests/cases/diag/region-transfer-span-result-control.diag
+file	004fdc2ba64697c0b69ebdb51fe8495030479288	tests/cases/diag/region-transfer-this-out.diag
+file	9036d339d88d75494b09edf1d77d067fc39b61f0	tests/cases/diag/region-transfer-transitive.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-transfer-unrelated-control.diag
 file	8c140e3a3ff9727c361c091c313d98fbc9b6100b	tests/cases/diag/renamed-call-shape.diag
 file	b015c78b38713dab3383d8f616c17cb8754351c0	tests/cases/diag/renamed-member.diag
 file	0a0adcb98787e9875e90f5f13cdd06bc75a65eb4	tests/cases/diag/repeated-particle.diag
