@@ -1305,10 +1305,12 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                                 inner = candidate.start <= t.start && t.end <= candidate.end
                             }
                         }
-                        // So does one after a whole store of the holder in its scope.
+                        // So does one after a whole store of the holder in its scope; before the mutation, the store runs after it on the next turn too.
+                        var after = mSpan.end
+                        after = from if j < mSpan.start
                         var dominated = false
                         for s in stores {
-                            if s.holder == holder && s.span.start >= mSpan.end && s.span.end <= j && j < s.scopeEnd {
+                            if s.holder == holder && s.span.start >= after && s.span.end <= j && j < s.scopeEnd {
                                 dominated = true
                             }
                         }
