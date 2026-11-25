@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	732
+cases	diag	740
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14638,6 +14638,14 @@ file	bc508058802a26fcd015a75ef1667d396e41243f	tests/cases/diag/region-combo-ref-
 file	f24850e0845477fa3aa2817b003a70c80f61cde5	tests/cases/diag/region-combo-store-ref-this-map.diag
 file	2c9425ee07991e89b7bbbadf6c1c55a30bee42c3	tests/cases/diag/region-combo-store-through-ref-this-map.diag
 file	5b0302038044dbe2fd44efd0bac6f5f58e62e4d5	tests/cases/diag/region-combo-store-two-levels.diag
+file	e76b77fcbb5244ca34764ed7512c8348179c537c	tests/cases/diag/region-defer-errdefer.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-defer-inner-block-control.diag
+file	8f09b277768089f5eb61cacd81a80a33db35bb52	tests/cases/diag/region-defer-later-mutation.diag
+file	6db45a4f3499b361d3c8edce94a9b71136d5ee83	tests/cases/diag/region-defer-lifo.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-defer-own-loan-control.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-defer-own-mutation-control.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-defer-switch-case-control.diag
+file	224456d9a7b3b9dc35062df4229c1e8c6bafe703	tests/cases/diag/region-defer-switch-case.diag
 file	e5f7a99f0c6fefad0ff9104186be07a137a8741f	tests/cases/diag/region-fixpoint-chain.diag
 file	24ffa272a7e0a378424d559b1e08e2eb0f528311	tests/cases/diag/region-fixpoint-condition.diag
 file	7586dc3ef2908c05aff0ec11ffdcca0bce0ecb75	tests/cases/diag/region-fixpoint-control.diag
