@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	686
+cases	diag	689
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14197,6 +14197,8 @@ file	b2552f1e64ced94314e783d54edada27918365ac	tests/cases/diag/branch-type-misma
 file	07b24ef51e2364bdce450097aebbd1bda206ec88	tests/cases/diag/c-style-for.diag
 file	ac45525db125f89951700a896ec3b280ba785180	tests/cases/diag/call-result-borrows-ref-argument.diag
 file	0a9a399f4dbedb76a1d70dd5b4b7dba6f03bb813	tests/cases/diag/cannot-infer-type.diag
+file	8c7b7c2e87ed49d69617e4b8ba76f7a2e9661141	tests/cases/diag/capability-direct-after-indirect/main.diag
+file	8c7b7c2e87ed49d69617e4b8ba76f7a2e9661141	tests/cases/diag/capability-direct-before-indirect/main.diag
 file	1613053ad9f09680780a30ea065626b548826416	tests/cases/diag/capability-exceeded/main.diag
 file	aa4d4aa876a30b4c6f65c965ca775532798d9d30	tests/cases/diag/cases-arity.diag
 file	85bfb87d2cc793e90ed3aa7f0e4a880d83d5c5e7	tests/cases/diag/cases-misplaced.diag
@@ -14267,6 +14269,7 @@ file	0e6a542fc6212f20ba6a4c05e165e88e2aa38e5b	tests/cases/diag/dyn-ref-this-argu
 file	debeef2a3a13cacddb6c4fe8f643e073626e433f	tests/cases/diag/dyn-ref-this-field-outlived.diag
 file	30da84a55ecb1a1db8efb1d36cb70478cffb3cea	tests/cases/diag/dyn-ref-this-list-field-modified.diag
 file	13a34b52c25f84b7916593df8a366bb68350c08f	tests/cases/diag/effect-bound-exceeded.diag
+file	ec6f364eabbc06c0143b74dbb8ab58111da3656a	tests/cases/diag/effect-direct-after-indirect-span.diag
 file	82fb6d1990e0bf1cce0db031daea7a6340ca51d6	tests/cases/diag/effect-not-declared.diag
 file	51211aa364fb3775fe80b4f630af43cd61d77f17	tests/cases/diag/effect-random-not-declared.diag
 file	0daaa00382f09125dd7c1184e47acbda3c6bfcb3	tests/cases/diag/else-on-new-line.diag

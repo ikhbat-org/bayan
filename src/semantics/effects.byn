@@ -194,7 +194,14 @@ void analyzeEffects(ref Ctx c) {
                     }
                 }
                 for effect in sources {
-                    continue if t23HasUse(in e.used[k], by: effect)
+                    // A direct use replaces an indirect one, so a capability check sees it; otherwise the first use stays.
+                    let at = t23UseIndex(e.used[k], by: effect)
+                    if at >= 0 {
+                        continue if !direct || e.used[k][at].direct
+                        e.used[k][at] = T23Use { effect: effect, span: nodeSpan(in c, for: node), direct: true }
+                        changed = true
+                        continue
+                    }
                     e.used[k].append(T23Use { effect: effect, span: nodeSpan(in c, for: node), direct: direct })
                     changed = true
                 }
@@ -394,10 +401,14 @@ List<string> t23Visible(ref Ctx c, by in T23Effects e, for FuncId f) {
 }
 
 bool t23HasUse(in List<T23Use> list, by string effect) {
-    for u in list {
-        return true if u.effect == effect
+    return t23UseIndex(list, by: effect) >= 0
+}
+
+i64 t23UseIndex(List<T23Use> list, by string effect) {
+    for k in 0..list.length {
+        return k if list[k].effect == effect
     }
-    return false
+    return -1
 }
 
 /// C# `OrderBy(e => e.Value.Span.Start)`, which is stable.

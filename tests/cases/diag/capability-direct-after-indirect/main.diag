@@ -1,0 +1,7 @@
+error BYN6004: `report` uses `fs`, which package `local/report` does not declare in `capabilities`
+  --> main.byn:3:15
+
+  3 │ void report() uses fs, alloc, console {
+    │               ^^^^^^^^^^^^^^^^^^^^^^^ uses `fs`
+    │
+  help: add `.fs` to `capabilities`, or remove the use
