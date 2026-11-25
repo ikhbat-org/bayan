@@ -1,0 +1,6 @@
+interface IDoor {
+    void close(ref this is .ajar) becomes .shut
+}
+
+void main() {
+}

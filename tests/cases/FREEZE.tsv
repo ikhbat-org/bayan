@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	681
+cases	diag	693
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -3849,7 +3849,7 @@ file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDefaultT2T
 file	43254884aa22cd37b8f94c22185d824b537996c1	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-371/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-371/expected.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-372/expected.exitcode
-file	2000f7bfd3b840108efd8050de0a8a0c7910cd62	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-372/expected.stderr
+file	d7fdee3b3f6a43e15f2d2879670f7513df7db968	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-372/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-372/expected.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-373/expected.exitcode
 file	c42c58748e7d2dbcf08d047a0e3292dfe7d6d7be	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-373/expected.stderr
@@ -14226,6 +14226,18 @@ file	223c625c762620309c2db4d9e9aaf5cfb7c58156	tests/cases/diag/coalesce-not-opti
 file	23836c2571cf8e3f6d05c432f73ea6a92f69808e	tests/cases/diag/codec-renames.diag
 file	ef05b67a3fbdc11a57054afa237497cc5070b671	tests/cases/diag/collection-copy-unique-element.diag
 file	a7218cc77c9d466db66a135da859ae63bfa47b6d	tests/cases/diag/compact-format-spec.diag
+file	b587a1020814b7a08aa17aa50fb0326e518f1178	tests/cases/diag/conformance-inferred-excluded.diag
+file	9f5d246737fbf26bf47f19634a1a5bb287b01e70	tests/cases/diag/conformance-inferred-generic.diag
+file	8aea94ed0822ab7d1ed10e41b27248f2abb440b1	tests/cases/diag/conformance-inferred-overflow.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/conformance-inferred-subset.diag
+file	ba6179999e5f6f41c33ccecbab28aa1719f81275	tests/cases/diag/conformance-interface-receiver-state.diag
+file	051b6802c0b3f3e976732d765456c5b1013dfcf5	tests/cases/diag/conformance-move-this-interface.diag
+file	8d8f2ca5cc03d987292ceff8f248c26e219fe84a	tests/cases/diag/conformance-move-this-witness.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/conformance-ref-this-control.diag
+file	f20a20668eac122eed92a78d0a014f79f091ead5	tests/cases/diag/conformance-witness-becomes-only.diag
+file	2b18b959173645693a5429f8a536dd2133068c63	tests/cases/diag/conformance-witness-becomes.diag
+file	f9cdb002a2e929fc3453734ea3b005bf35bea01e	tests/cases/diag/conformance-witness-state-dyn.diag
+file	f9cdb002a2e929fc3453734ea3b005bf35bea01e	tests/cases/diag/conformance-witness-state-generic.diag
 file	ab81813a7c762a23d671e7d8ad1a18acd358171b	tests/cases/diag/constant-overflow.diag
 file	137d04a4a1a14668e830e20dc02f68703cf1c521	tests/cases/diag/constraint-member.diag
 file	6945d950e28cfdc9cedfe3f15ee0d4fdacbf0ce6	tests/cases/diag/constraint-not-satisfied.diag
@@ -15732,7 +15744,7 @@ file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitter
 file	49a33a5199d2448633fd0b3d10908461388c144e	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_catch-switch.byn/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_clauses-line-start.byn/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_clauses-line-start.byn/expected.exitcode
-file	54eb5148a9cdbc24c5d9606ac19da4b3436caa5b	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_clauses-line-start.byn/expected.stderr
+file	7069cafd98b3011f57a8f3a64962c6124bee3645	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_clauses-line-start.byn/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_collection-literals.byn/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_collection-literals.byn/expected.exitcode
 file	85a126ff18e9cac58a5601f7b7d05fb0a380eb49	tests/cases/emit-c/SelfhostEmitterHarnessTests/CorpusErrorInputsAgree-parse_collection-literals.byn/expected.stderr

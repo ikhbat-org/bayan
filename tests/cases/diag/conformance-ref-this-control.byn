@@ -1,0 +1,14 @@
+interface IDoor {
+    void close(ref this)
+}
+
+struct Door : IDoor {
+    i64 closes
+
+    void close(ref this) {
+        closes += 1
+    }
+}
+
+void main() {
+}

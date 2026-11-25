@@ -1,0 +1,18 @@
+union error E { one, }
+union error F { boom, }
+
+interface IRun {
+    void run() fails E
+}
+
+struct S<T> : IRun {
+    T v
+    void run() fails {
+        fail F.boom
+    }
+}
+
+void main() {
+    var a = S<i64> { v: 1 }
+    var b = S<bool> { v: true }
+}

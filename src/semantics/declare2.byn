@@ -296,6 +296,41 @@ void checkStateNames(ref Ctx c, for StructId s) {
     }
 }
 
+/// An interface has no `states` block, so a receiver state or `becomes` on one of its members names no state.
+void checkInterfaceStateNames(ref Ctx c, for InterfaceId i) {
+    let file = c.interfaces[i].file
+    let name = c.interfaces[i].name
+    switch c.files[file].unit.members[c.interfaces[i].declIndex] {
+        case .interfaceDecl(let node):
+            for m in node.value.members {
+                switch m {
+                    case .functionDecl(let f):
+                        var names = List<TextSpan>()
+                        for n in f.value.receiverStates {
+                            names.append(n)
+                        }
+                        if (f.value.becomes is { } b) {
+                            names.append(b)
+                        }
+                        for n in names {
+                            report(
+                                ref c,
+                                for: .unknownState,
+                                from: file,
+                                at: n,
+                                by: (name, t12Text(c, from: file, at: n), "", "", ""),
+                                help: $"remove it: an interface declares no states, so a caller through `{name}` cannot check or track one",
+                            )
+                        }
+                    default:
+                        continue
+                }
+            }
+        default:
+            return
+    }
+}
+
 // ── Compilation.cs:1131 DeclareInterfaceMembers ──────────────────────────────
 
 void declareInterfaceMembers(ref Ctx c, for InterfaceId i) {

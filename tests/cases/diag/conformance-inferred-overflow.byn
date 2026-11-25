@@ -1,0 +1,29 @@
+union error E {
+    one,
+}
+
+union error F {
+    boom,
+}
+
+interface IRun {
+    void run() uses console fails E
+}
+
+struct S : IRun {
+    void run() fails {
+        fail F.boom
+    }
+}
+
+void go(dyn ref IRun x) uses console {
+    x.run() catch switch {
+        .one => print("one"),
+    }
+}
+
+void main() {
+    var s = S {}
+    go(s)
+    print("after")
+}

@@ -76,3 +76,21 @@ error BYN7010: `close` declares `becomes .closed` but takes `move this is .open`
   help: change the receiver of `close` to `ref this`, or return the new state as a value
      │ 25 │     void close(ref this is .open)
      │    │                +++
+
+error BYN7007: `IStore` has no state `.open`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:25:30
+
+  25 │     void close(move this is .open)
+     │                              ^^^^
+     │
+  help: remove it: an interface declares no states, so a caller through `IStore` cannot check or
+        track one
+
+error BYN7007: `IStore` has no state `.closed`
+  --> <repo>/tests/cases/parse/clauses-line-start.byn:26:18
+
+  26 │         becomes .closed
+     │                  ^^^^^^
+     │
+  help: remove it: an interface declares no states, so a caller through `IStore` cannot check or
+        track one

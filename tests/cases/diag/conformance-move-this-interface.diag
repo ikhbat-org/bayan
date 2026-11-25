@@ -1,0 +1,6 @@
+error BYN2802: `S.get` is `i64 get()` but `IRun` requires `i64 get(move this)`
+
+  8 │     i64 get() => n
+    │         ^^^ not declared `move this`
+    │
+  help: add `move this` on `S.get`

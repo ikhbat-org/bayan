@@ -1,0 +1,7 @@
+error BYN2802: `S.get` is `i64 get(move this)` but `IRun` requires `i64 get()`
+
+  8 │     i64 get(move this) => n
+    │         ^^^ declared `move this`
+    │             --------- `IRun.get` does not take `move this`
+    │
+  help: remove `move this` on `S.get`

@@ -1,0 +1,7 @@
+error BYN2802: `S.run` is `void run() fails E` but `IRun` requires `void run() fails E except .two`
+
+  13 │     void run() fails {
+     │          ^^^ infers all of `E`, but `IRun.run` excludes `.two`
+     │
+  help: change the signature to `void run() fails E except .two` and handle the other errors inside
+        `S.run`
