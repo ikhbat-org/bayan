@@ -220,7 +220,7 @@ void analyzeEffects(ref Ctx c) {
         if fn < c.allocates.length {
             var source = fn
             if functionIsInstance(ref c, by: fn) && !(templateOf(ref c, for: fn) is { }) {
-                source = t41LambdaTemplate(ref c, for: fn)
+                source = t23LambdaTemplate(ref c, for: fn)
             }
             c.allocates[fn] = source == -1 || listContainsString(t23Visible(ref c, by: e, for: source), by: "alloc")
         }
@@ -495,14 +495,14 @@ List<string> t23PassedValues(ref Ctx c, for i64 call) {
 
 /// The lambda a generic template holds for `fn`, a lambda cloned into an instance of it: the same file and start,
 /// enclosed by the template of `fn`'s enclosing function (or by that function's own twin, for a nested lambda); -1 if none.
-FuncId t41LambdaTemplate(ref Ctx c, for FuncId fn) {
+FuncId t23LambdaTemplate(ref Ctx c, for FuncId fn) {
     return -1 if c.functions[fn].kind != .lambda || c.functions[fn].enclosing == -1
     let outer = c.functions[fn].enclosing
     var target: FuncId = -1
     if (templateOf(ref c, for: outer) is { } template) {
         target = template
     } else if functionIsInstance(ref c, by: outer) {
-        target = t41LambdaTemplate(ref c, for: outer)
+        target = t23LambdaTemplate(ref c, for: outer)
     }
     return -1 if target == -1
     for k in 0..c.functions.length {
