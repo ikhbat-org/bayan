@@ -214,10 +214,12 @@ void analyzeEffects(ref Ctx c) {
         }
     }
 
-    // What a caller sees, declared or inferred, as `t23Visible` gives it to a call.
+    // What a caller sees, declared or inferred, as `t23Visible` gives it to a call. An instance with no template to
+    // read effects from (a lambda cloned into a generic instance) may allocate: nothing was inferred for it.
     for fn in functions {
         if fn < c.allocates.length {
-            c.allocates[fn] = listContainsString(in t23Visible(ref c, by: in e, for: fn), by: "alloc")
+            let unmapped = functionIsInstance(ref c, by: fn) && !(templateOf(ref c, for: fn) is { })
+            c.allocates[fn] = unmapped || listContainsString(in t23Visible(ref c, by: in e, for: fn), by: "alloc")
         }
     }
 
