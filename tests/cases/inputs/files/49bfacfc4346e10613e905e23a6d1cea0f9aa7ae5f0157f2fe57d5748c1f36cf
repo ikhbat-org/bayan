@@ -1,0 +1,1362 @@
+import lexer
+import parser
+
+Ctx tcCtx(string text) {
+    var bytes = List<u8>()
+    for x in text.bytes { bytes.append(x) }
+    var copy = List<u8>()
+    for x in text.bytes { copy.append(x) }
+    let source = lexer.SourceText.create("t16.byn", from: move bytes)
+    var p = parser.Parser.create(lexer.lex(move source, by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    var c = Ctx { files: List<SourceFile>(), modules: List<Mod>(), diagnostics: List<Diag>(), bags: List<DiagBag>() }
+    c.files.append(SourceFile { path: "t16.byn", displayPath: "t16.byn", text: move copy, unit: move unit, module: 0, isEntry: true, imports: Map<string, ModId>() })
+    var files = List<FileId>()
+    files.append(0)
+    c.modules.append(Mod { name: "t16", files: move files, directory: ".", cName: "t16" })
+    return c
+}
+
+Ctx tcSource() => tcCtx("struct unique U {\n    i32 v\n}\n\nstruct H {\n    U u\n}\n\nvoid decls(i32 p) {\n    let a: i32 = 1\n    var b: i32 = 2\n    const k: i32 = 5\n    const kp: i32 = p\n    let u: i32\n    const v: i32\n    var w\n    var x: i32\n    using let n: i32 = 5\n    using var l: List<i32>\n    using var ar: Arena\n    const ke: i32 = zz\n}\n\nvoid conds(bool p) {\n    if true {\n    }\n    if p {\n        let a: i32 = 1\n    } else {\n    }\n    if p {\n    } else if false {\n    }\n    if never p {\n    }\n    unless false {\n    }\n    unless p {\n    }\n    if 3 {\n    }\n}\n\nvoid loops(bool p) {\n    while p {\n    }\n    do {\n    } while p\n    outer: while p {\n    }\n    inner: do {\n    } while false\n    lab: {\n    }\n    top: while true {\n        top: while p {\n        }\n    }\n    while let x = p {\n    }\n    tag: while let y = p {\n    }\n    while let z = zz {\n    }\n}\n\nvoid misc(bool p) {\n    defer {\n    }\n    assert true\n    assert p\n    assert 3\n    assert zz\n    assert 3 fails E\n    assert zz fails E\n    assert (p) fails E.bad\n}\n\nvoid seeded() {\n    var s\n    var t\n    var w: i32\n}\n\nvoid uq() {\n    const u: U\n    let w: U\n    const h: H\n    const l: List<i32>\n    const n: i32\n}\n\n@exitCode(3)\nvoid x1() {\n}\n\n@exitCode(0)\nvoid x2() {\n}\n\n@exitCode(300)\nvoid x3() {\n}\n\n@exitCode(1, 2)\nvoid x4() {\n}\n\n@exitCode(code: 1)\nvoid x5() {\n}\n\n@exitCode(true)\nvoid x6() {\n}\n\n@exitCode(zz)\nvoid x7() {\n}\n\n@exitCode(255)\nvoid x8() {\n}\n\n@exitCode(\"x\")\nvoid x9() {\n}\n\n@exitCode(256)\nvoid x10() {\n}\n\n@exitCode(1)\nvoid x11() {\n}\n\nvoid fors(List<i32> xs, string s) {\n    for x in xs {\n    }\n    for t in s {\n    }\n    for e in zz {\n    }\n    lab: for z in xs {\n    }\n    for xs in xs {\n    }\n}\n")
+
+Binder tcBinder(FuncId fn) => Binder {
+    file: 0,
+    fn: fn,
+    owner: -1,
+    scopes: [],
+    targets: [],
+    lambdas: [],
+    lambdaCount: [],
+    seeds: [],
+    pending: [],
+    constraints: [],
+    peers: [],
+    nonNullLocals: [],
+    stateFacts: [],
+    errorNarrowed: [],
+}
+
+void tcParam(ref Ctx c, for FuncId f, by string name, at TextSpan span, as Type type) {
+    let ordinal = c.functions[f].parameters.length
+    let p = newLocal(ref c, by: LocalSymbol { name: name, nameSpan: span, span: span, type: type, kind: .parameter, isParameter: true, ordinal: ordinal })
+    c.functions[f].parameters.append(p)
+}
+
+void tcDiags(in Ctx c, from i64 mark) {
+    for i in mark..c.diagnostics.length {
+        let pos = linePosition(c.files[c.diagnostics[i].file].text.span, at: c.diagnostics[i].span.start)
+        var fix = ""
+        if c.diagnostics[i].hasFix { fix = $"fix {c.diagnostics[i].fixSpan.start}..{c.diagnostics[i].fixSpan.end} {c.diagnostics[i].fixReplacement}" }
+        print($"{c.diagnostics[i].code} {pos.line}:{pos.column} {c.diagnostics[i].message} |{c.diagnostics[i].label}|{c.diagnostics[i].help}|{fix}")
+    }
+}
+
+string tcTarget(in Ctx c, for i64 t) {
+    let label = c.jumpTargets[t].label ?? "-"
+    return $" target {label} {c.jumpTargets[t].isLoop}"
+}
+
+void tcDump(ref Ctx c, for BNode n, at i64 depth) {
+    var sb = StrBuf()
+    for i in 0..depth { sb.append("  ") }
+    if n == -1 {
+        sb.append("none")
+        print($"{sb.finish()}")
+        return
+    }
+    let k = boundKind(n)
+    let span = nodeSpan(in c, for: n)
+    sb.append($"{k} {span.start}..{span.end}")
+    if isExprKind(k) {
+        sb.append($" : {typeDisplay(ref c, by: exprType(in c, for: n))}")
+        if (exprConstant(in c, for: n) is { } v) { sb.append($" = {constantText(in v)}") }
+    }
+    if k == .local { sb.append($" {c.locals[c.bLocals[boundIndex(n)].local].name}") }
+    if k == .whileStmt { sb.append(tcTarget(in c, for: c.bWhiles[boundIndex(n)].target)) }
+    if k == .doWhile { sb.append(tcTarget(in c, for: c.bDoWhiles[boundIndex(n)].target)) }
+    if k == .ifStmt && c.bIfs[boundIndex(n)].isNever { sb.append(" never") }
+    print($"{sb.finish()}")
+    var kids = List<BNode>()
+    for ch in children(in c, for: n) { kids.append(ch) }
+    for ch in kids { tcDump(ref c, for: ch, at: depth + 1) }
+}
+
+void tcLocal(ref Ctx c, for LocalId l) {
+    let type = typeDisplay(ref c, by: c.locals[l].type)
+    var keyword = "-"
+    if (c.locals[l].keywordSpan is { } s) { keyword = $"{s.start}..{s.end}" }
+    var constant = "-"
+    if (c.locals[l].constant is { } v) { constant = constantText(in v) }
+    print($"local {c.locals[l].name} {c.locals[l].id} {c.locals[l].kind.ordinal} {type} using {c.locals[l].isUsing} keyword {keyword} const {constant}")
+}
+
+void tcLocals(ref Ctx c, for FuncId f) {
+    var ls = List<LocalId>()
+    for l in c.functions[f].locals { ls.append(l) }
+    for l in ls { tcLocal(ref c, for: l) }
+}
+
+void tcBody(ref Ctx c, for FuncId f) {
+    tcDump(ref c, for: c.functions[f].body, at: 0)
+    tcLocals(ref c, for: f)
+    tcDiags(in c, from: 0)
+}
+
+string tcCheck(ref Binder b, through in Ctx c, for in List<LocalId> ls) {
+    var sb = StrBuf()
+    sb.append("check")
+    for l in ls { sb.append($" {c.locals[l].name}={isNonNull(ref b, for: l)}") }
+    return $"{sb.finish()}"
+}
+void bodyDecls() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "decls", module: 0, kind: .function, file: 0, declIndex: 2, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "p", at: TextSpan { start: 68, length: 1 }, as: prim(.i32))
+    var b = tcBinder(f)
+    print("== body decls")
+    switch c.files[0].unit.members[2] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcBody(ref c, for: f)
+    var handled = "-"
+    if (b.handled is { } h) { handled = $"{h.start}..{h.end}" }
+    print($"handled {handled}")
+}
+void bodyConds() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "conds", module: 0, kind: .function, file: 0, declIndex: 3, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "p", at: TextSpan { start: 329, length: 1 }, as: prim(.bool))
+    var b = tcBinder(f)
+    print("== body conds")
+    switch c.files[0].unit.members[3] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcBody(ref c, for: f)
+    var handled = "-"
+    if (b.handled is { } h) { handled = $"{h.start}..{h.end}" }
+    print($"handled {handled}")
+}
+void bodyLoops() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "loops", module: 0, kind: .function, file: 0, declIndex: 4, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "p", at: TextSpan { start: 551, length: 1 }, as: prim(.bool))
+    var b = tcBinder(f)
+    print("== body loops")
+    switch c.files[0].unit.members[4] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcBody(ref c, for: f)
+    var handled = "-"
+    if (b.handled is { } h) { handled = $"{h.start}..{h.end}" }
+    print($"handled {handled}")
+}
+void bodyMisc() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "misc", module: 0, kind: .function, file: 0, declIndex: 5, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "p", at: TextSpan { start: 846, length: 1 }, as: prim(.bool))
+    var b = tcBinder(f)
+    print("== body misc")
+    switch c.files[0].unit.members[5] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcBody(ref c, for: f)
+    var handled = "-"
+    if (b.handled is { } h) { handled = $"{h.start}..{h.end}" }
+    print($"handled {handled}")
+}
+void bodySeeded() {
+    var c = tcSource()
+    let f = newFunction(ref c, by: FunctionSymbol { name: "seeded", module: 0, kind: .function, file: 0, declIndex: 6, returnType: prim(.void) })
+    var b = tcBinder(f)
+    b.seeds.append((1018, prim(.i64)))
+    b.seeds.append((1028, prim(.string)))
+    print("== body seeded")
+    switch c.files[0].unit.members[6] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    tcBody(ref c, for: f)
+    var handled = "-"
+    if (b.handled is { } h) { handled = $"{h.start}..{h.end}" }
+    print($"handled {handled}")
+}
+void bodiesAll() {
+    bodyDecls()
+    bodyConds()
+    bodyLoops()
+    bodyMisc()
+    bodySeeded()
+}
+void brokenAll() {
+    var c = tcCtx("void misc() {\n    ;\n    let p: bool = true\n    i32 t = 3\n    else\n    p\n    p if p\n    p unless p\n    p if 3\n}\n\nvoid dtsNull() {\n    null\n}\n\nvoid dtsInt() {\n    1\n}\n\nvoid dtsBool() {\n    true\n}\n\nvoid forVar() {\n    for (var y in \"ab\") {\n    }\n}\n")
+    var b = tcBinder(-1)
+    print("== broken")
+    switch c.files[0].unit.members[0] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    let s = bindBlock(ref b, through: ref c, for: in blk.value)
+                    tcDump(ref c, for: s, at: 0)
+                    var decls = List<LocalId>()
+                    for st in c.bBlocks[boundIndex(s)].statements {
+                        if boundKind(st) == .localDecl { decls.append(c.bLocalDecls[boundIndex(st)].local) }
+                    }
+                    for l in decls { tcLocal(ref c, for: l) }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+void exitCodesAll() {
+    var c = tcSource()
+    print("== exit codes")
+    var mark = 0
+    switch c.files[0].unit.members[8] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x1 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[9] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x2 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[10] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x3 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[11] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x4 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[12] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x5 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[13] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x6 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[14] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x7 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[15] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x8 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[16] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x9 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[17] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x10 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+    switch c.files[0].unit.members[18] {
+        case .functionDecl(let d):
+            var b = tcBinder(-1)
+            print($"exit x11 {bindExitCode(ref b, through: ref c, for: in d.value.attributes[0])}")
+            tcDiags(in c, from: mark)
+            mark = c.diagnostics.length
+        default:
+            break
+    }
+}
+void defaultTypesAll() {
+    var c = tcCtx("void misc() {\n    ;\n    let p: bool = true\n    i32 t = 3\n    else\n    p\n    p if p\n    p unless p\n    p if 3\n}\n\nvoid dtsNull() {\n    null\n}\n\nvoid dtsInt() {\n    1\n}\n\nvoid dtsBool() {\n    true\n}\n\nvoid forVar() {\n    for (var y in \"ab\") {\n    }\n}\n")
+    print("== default types")
+    var mark = 0
+    switch c.files[0].unit.members[1] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[0] {
+                        case .exprStmt(let e):
+                            var b = tcBinder(-1)
+                            let init = bindExpr(ref b, through: ref c, for: in e.value.expr)
+                            let t = defaultType(ref b, through: ref c, for: init, from: in e.value.expr)
+                            print($"default {typeDisplay(ref c, by: t)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[2] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[0] {
+                        case .exprStmt(let e):
+                            var b = tcBinder(-1)
+                            let init = bindExpr(ref b, through: ref c, for: in e.value.expr)
+                            let t = defaultType(ref b, through: ref c, for: init, from: in e.value.expr)
+                            print($"default {typeDisplay(ref c, by: t)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[3] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[0] {
+                        case .exprStmt(let e):
+                            var b = tcBinder(-1)
+                            let init = bindExpr(ref b, through: ref c, for: in e.value.expr)
+                            let t = defaultType(ref b, through: ref c, for: init, from: in e.value.expr)
+                            print($"default {typeDisplay(ref c, by: t)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+}
+void uniqueAll() {
+    var c = tcSource()
+    let u = newStruct(ref c, by: StructSymbol { name: "U", module: 0, file: 0, declIndex: 0, modifiers: 64 })
+    c.structs[u].fields.append(newField(ref c, by: FieldSymbol { name: "v", owner: u, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32) }))
+    let h = newStruct(ref c, by: StructSymbol { name: "H", module: 0, file: 0, declIndex: 1 })
+    c.structs[h].fields.append(newField(ref c, by: FieldSymbol { name: "u", owner: h, file: 0, declIndex: 1, memberIndex: 0, type: structTypeOf(u) }))
+    let list = internList(ref c, by: prim(.i32))
+    print("== unique")
+    var mark = 0
+    switch c.files[0].unit.members[7] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[0] {
+                        case .localDecl(let l):
+                            var b = tcBinder(-1)
+                            print($"unique 0 {checkUniqueConst(ref b, through: ref c, for: in l.value, as: structTypeOf(u))}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[7] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[1] {
+                        case .localDecl(let l):
+                            var b = tcBinder(-1)
+                            print($"unique 1 {checkUniqueConst(ref b, through: ref c, for: in l.value, as: structTypeOf(u))}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[7] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[2] {
+                        case .localDecl(let l):
+                            var b = tcBinder(-1)
+                            print($"unique 2 {checkUniqueConst(ref b, through: ref c, for: in l.value, as: structTypeOf(h))}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[7] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[3] {
+                        case .localDecl(let l):
+                            var b = tcBinder(-1)
+                            print($"unique 3 {checkUniqueConst(ref b, through: ref c, for: in l.value, as: list)}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    switch c.files[0].unit.members[7] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    switch blk.value.statements[4] {
+                        case .localDecl(let l):
+                            var b = tcBinder(-1)
+                            print($"unique 4 {checkUniqueConst(ref b, through: ref c, for: in l.value, as: prim(.i32))}")
+                            tcDiags(in c, from: mark)
+                            mark = c.diagnostics.length
+                        default:
+                            break
+                    }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+}
+void narrowPresent() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow present")
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x0t, operand: x0k })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0n })
+    let w1 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w1)
+    let x2t = c.locals[ls[0]].type
+    let x2e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x2t })
+    let x2v = addDefault(ref c, from: BDefault { span: sp, type: x2t })
+    let x2k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x2t, value: x2v })
+    let x2n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x2t, operand: x2k })
+    let x2 = addIs(ref c, from: BIs { span: sp, value: x2e, pattern: x2n })
+    let w3 = narrowedBegin(ref b, through: ref c, for: x2, whenTrue: false)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w3)
+    print(tcCheck(ref b, through: in c, for: in ls))
+}
+void narrowAbsent() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow absent")
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let w1 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w1)
+    let x2t = c.locals[ls[0]].type
+    let x2e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x2t })
+    let x2v = addDefault(ref c, from: BDefault { span: sp, type: x2t })
+    let x2k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x2t, value: x2v })
+    let x2 = addIs(ref c, from: BIs { span: sp, value: x2e, pattern: x2k })
+    let w3 = narrowedBegin(ref b, through: ref c, for: x2, whenTrue: false)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w3)
+    print(tcCheck(ref b, through: in c, for: in ls))
+}
+void narrowKinds() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow kinds")
+    let x1t = c.locals[ls[0]].type
+    let x1e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x1t })
+    let x1v = addDefault(ref c, from: BDefault { span: sp, type: x1t })
+    let x1k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x1t, value: x1v })
+    let x1n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x1t, operand: x1k })
+    let x1 = addIs(ref c, from: BIs { span: sp, value: x1e, pattern: x1n })
+    let x3t = c.locals[ls[1]].type
+    let x3e = addLocal(ref c, from: BLocal { span: sp, local: ls[1], type: x3t })
+    let x3v = addDefault(ref c, from: BDefault { span: sp, type: x3t })
+    let x3k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x3t, value: x3v })
+    let x3n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x3t, operand: x3k })
+    let x3 = addIs(ref c, from: BIs { span: sp, value: x3e, pattern: x3n })
+    let x5t = c.locals[ls[2]].type
+    let x5e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x5t })
+    let x5v = addDefault(ref c, from: BDefault { span: sp, type: x5t })
+    let x5k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x5t, value: x5v })
+    let x5n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x5t, operand: x5k })
+    let x5 = addIs(ref c, from: BIs { span: sp, value: x5e, pattern: x5n })
+    let x7t = c.locals[ls[3]].type
+    let x7e = addLocal(ref c, from: BLocal { span: sp, local: ls[3], type: x7t })
+    let x7v = addDefault(ref c, from: BDefault { span: sp, type: x7t })
+    let x7k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x7t, value: x7v })
+    let x7n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x7t, operand: x7k })
+    let x7 = addIs(ref c, from: BIs { span: sp, value: x7e, pattern: x7n })
+    let x9t = c.locals[ls[4]].type
+    let x9e = addLocal(ref c, from: BLocal { span: sp, local: ls[4], type: x9t })
+    let x9v = addDefault(ref c, from: BDefault { span: sp, type: x9t })
+    let x9k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x9t, value: x9v })
+    let x9n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x9t, operand: x9k })
+    let x9 = addIs(ref c, from: BIs { span: sp, value: x9e, pattern: x9n })
+    let x10t = c.locals[ls[5]].type
+    let x10e = addLocal(ref c, from: BLocal { span: sp, local: ls[5], type: x10t })
+    let x10v = addDefault(ref c, from: BDefault { span: sp, type: x10t })
+    let x10k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x10t, value: x10v })
+    let x10n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x10t, operand: x10k })
+    let x10 = addIs(ref c, from: BIs { span: sp, value: x10e, pattern: x10n })
+    let x8 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x9, right: x10, type: prim(.bool) })
+    let x6 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x7, right: x8, type: prim(.bool) })
+    let x4 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x5, right: x6, type: prim(.bool) })
+    let x2 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x3, right: x4, type: prim(.bool) })
+    let x0 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x1, right: x2, type: prim(.bool) })
+    let w11 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w11)
+}
+void narrowNot() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow not")
+    let x1t = c.locals[ls[0]].type
+    let x1e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x1t })
+    let x1v = addDefault(ref c, from: BDefault { span: sp, type: x1t })
+    let x1k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x1t, value: x1v })
+    let x1 = addIs(ref c, from: BIs { span: sp, value: x1e, pattern: x1k })
+    let x0 = addUnary(ref c, from: BUnary { span: sp, op: .notKeyword, operand: x1, type: prim(.bool) })
+    let w2 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w2)
+    let x4t = c.locals[ls[0]].type
+    let x4e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x4t })
+    let x4v = addDefault(ref c, from: BDefault { span: sp, type: x4t })
+    let x4k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x4t, value: x4v })
+    let x4n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x4t, operand: x4k })
+    let x4 = addIs(ref c, from: BIs { span: sp, value: x4e, pattern: x4n })
+    let x3 = addUnary(ref c, from: BUnary { span: sp, op: .notKeyword, operand: x4, type: prim(.bool) })
+    let w5 = narrowedBegin(ref b, through: ref c, for: x3, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w5)
+    let x8t = c.locals[ls[2]].type
+    let x8e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x8t })
+    let x8v = addDefault(ref c, from: BDefault { span: sp, type: x8t })
+    let x8k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x8t, value: x8v })
+    let x8n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x8t, operand: x8k })
+    let x8 = addIs(ref c, from: BIs { span: sp, value: x8e, pattern: x8n })
+    let x7 = addUnary(ref c, from: BUnary { span: sp, op: .notKeyword, operand: x8, type: prim(.bool) })
+    let x6 = addUnary(ref c, from: BUnary { span: sp, op: .notKeyword, operand: x7, type: prim(.bool) })
+    let w9 = narrowedBegin(ref b, through: ref c, for: x6, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w9)
+}
+void narrowAnd() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow and")
+    let x1t = c.locals[ls[0]].type
+    let x1e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x1t })
+    let x1v = addDefault(ref c, from: BDefault { span: sp, type: x1t })
+    let x1k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x1t, value: x1v })
+    let x1n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x1t, operand: x1k })
+    let x1 = addIs(ref c, from: BIs { span: sp, value: x1e, pattern: x1n })
+    let x2t = c.locals[ls[2]].type
+    let x2e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x2t })
+    let x2v = addDefault(ref c, from: BDefault { span: sp, type: x2t })
+    let x2k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x2t, value: x2v })
+    let x2n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x2t, operand: x2k })
+    let x2 = addIs(ref c, from: BIs { span: sp, value: x2e, pattern: x2n })
+    let x0 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x1, right: x2, type: prim(.bool) })
+    let w3 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w3)
+    let x5t = c.locals[ls[0]].type
+    let x5e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x5t })
+    let x5v = addDefault(ref c, from: BDefault { span: sp, type: x5t })
+    let x5k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x5t, value: x5v })
+    let x5n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x5t, operand: x5k })
+    let x5 = addIs(ref c, from: BIs { span: sp, value: x5e, pattern: x5n })
+    let x6t = c.locals[ls[2]].type
+    let x6e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x6t })
+    let x6v = addDefault(ref c, from: BDefault { span: sp, type: x6t })
+    let x6k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x6t, value: x6v })
+    let x6n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x6t, operand: x6k })
+    let x6 = addIs(ref c, from: BIs { span: sp, value: x6e, pattern: x6n })
+    let x4 = addBinary(ref c, from: BBinary { span: sp, op: .logicalAnd, left: x5, right: x6, type: prim(.bool) })
+    let w7 = narrowedBegin(ref b, through: ref c, for: x4, whenTrue: false)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w7)
+}
+void narrowOr() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow or")
+    let x1t = c.locals[ls[0]].type
+    let x1e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x1t })
+    let x1v = addDefault(ref c, from: BDefault { span: sp, type: x1t })
+    let x1k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x1t, value: x1v })
+    let x1 = addIs(ref c, from: BIs { span: sp, value: x1e, pattern: x1k })
+    let x2t = c.locals[ls[2]].type
+    let x2e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x2t })
+    let x2v = addDefault(ref c, from: BDefault { span: sp, type: x2t })
+    let x2k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x2t, value: x2v })
+    let x2 = addIs(ref c, from: BIs { span: sp, value: x2e, pattern: x2k })
+    let x0 = addBinary(ref c, from: BBinary { span: sp, op: .logicalOr, left: x1, right: x2, type: prim(.bool) })
+    let w3 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: false)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w3)
+    let x5t = c.locals[ls[0]].type
+    let x5e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x5t })
+    let x5v = addDefault(ref c, from: BDefault { span: sp, type: x5t })
+    let x5k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x5t, value: x5v })
+    let x5 = addIs(ref c, from: BIs { span: sp, value: x5e, pattern: x5k })
+    let x6t = c.locals[ls[2]].type
+    let x6e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x6t })
+    let x6v = addDefault(ref c, from: BDefault { span: sp, type: x6t })
+    let x6k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x6t, value: x6v })
+    let x6 = addIs(ref c, from: BIs { span: sp, value: x6e, pattern: x6k })
+    let x4 = addBinary(ref c, from: BBinary { span: sp, op: .logicalOr, left: x5, right: x6, type: prim(.bool) })
+    let w7 = narrowedBegin(ref b, through: ref c, for: x4, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w7)
+}
+void narrowOtherPattern() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow other-pattern")
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: c.locals[ls[2]].type })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x0t, operand: x0k })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0n })
+    let w1 = narrowedBegin(ref b, through: ref c, for: x0, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w1)
+    let x2t = c.locals[ls[0]].type
+    let x2e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x2t })
+    let x2v = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: c.locals[ls[2]].type })
+    let x2k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x2t, value: x2v })
+    let x2 = addIs(ref c, from: BIs { span: sp, value: x2e, pattern: x2k })
+    let w3 = narrowedBegin(ref b, through: ref c, for: x2, whenTrue: false)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w3)
+}
+void narrowAfterThen() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow after-then")
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let s1 = addReturn(ref c, from: BReturn { span: sp })
+    let i2 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i2)
+    print(tcCheck(ref b, through: in c, for: in ls))
+}
+void narrowAfterElse() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow after-else")
+    let x0t = c.locals[ls[2]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x0t, operand: x0k })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0n })
+    let s1 = addBlock(ref c, from: BBlock { span: sp })
+    let s2 = addReturn(ref c, from: BReturn { span: sp })
+    let i3 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: s2, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i3)
+    print(tcCheck(ref b, through: in c, for: in ls))
+}
+void narrowAfterBoth() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow after-both")
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let s1 = addReturn(ref c, from: BReturn { span: sp })
+    let s2 = addReturn(ref c, from: BReturn { span: sp })
+    let i3 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: s2, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i3)
+    let x4t = c.locals[ls[2]].type
+    let x4e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x4t })
+    let x4v = addDefault(ref c, from: BDefault { span: sp, type: x4t })
+    let x4k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x4t, value: x4v })
+    let x4 = addIs(ref c, from: BIs { span: sp, value: x4e, pattern: x4k })
+    let s5 = addBlock(ref c, from: BBlock { span: sp })
+    let s6 = addBlock(ref c, from: BBlock { span: sp })
+    let i7 = addIf(ref c, from: BIf { span: sp, condition: x4, then: s5, elseBranch: s6, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i7)
+    print(tcCheck(ref b, through: in c, for: in ls))
+}
+void narrowExits() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow exits")
+    pushScope(ref b)
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let s1 = addReturn(ref c, from: BReturn { span: sp })
+    let i2 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i2)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x3t = c.locals[ls[0]].type
+    let x3e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x3t })
+    let x3v = addDefault(ref c, from: BDefault { span: sp, type: x3t })
+    let x3k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x3t, value: x3v })
+    let x3 = addIs(ref c, from: BIs { span: sp, value: x3e, pattern: x3k })
+    let s4 = addBreak(ref c, from: BBreak { span: sp, target: 0 })
+    let i5 = addIf(ref c, from: BIf { span: sp, condition: x3, then: s4, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i5)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x6t = c.locals[ls[0]].type
+    let x6e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x6t })
+    let x6v = addDefault(ref c, from: BDefault { span: sp, type: x6t })
+    let x6k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x6t, value: x6v })
+    let x6 = addIs(ref c, from: BIs { span: sp, value: x6e, pattern: x6k })
+    let s7 = addContinue(ref c, from: BContinue { span: sp, target: 0 })
+    let i8 = addIf(ref c, from: BIf { span: sp, condition: x6, then: s7, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i8)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x9t = c.locals[ls[0]].type
+    let x9e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x9t })
+    let x9v = addDefault(ref c, from: BDefault { span: sp, type: x9t })
+    let x9k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x9t, value: x9v })
+    let x9 = addIs(ref c, from: BIs { span: sp, value: x9e, pattern: x9k })
+    let s10 = addBlock(ref c, from: BBlock { span: sp })
+    let i11 = addIf(ref c, from: BIf { span: sp, condition: x9, then: s10, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i11)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x12t = c.locals[ls[0]].type
+    let x12e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x12t })
+    let x12v = addDefault(ref c, from: BDefault { span: sp, type: x12t })
+    let x12k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x12t, value: x12v })
+    let x12 = addIs(ref c, from: BIs { span: sp, value: x12e, pattern: x12k })
+    let s14e = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let s14 = addExprStmt(ref c, from: BExprStmt { span: sp, expr: s14e })
+    let s15 = addReturn(ref c, from: BReturn { span: sp })
+    var s13l = List<BStmt>()
+    s13l.append(s14)
+    s13l.append(s15)
+    let s13 = addBlock(ref c, from: BBlock { span: sp, statements: move s13l })
+    let i16 = addIf(ref c, from: BIf { span: sp, condition: x12, then: s13, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i16)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x17t = c.locals[ls[0]].type
+    let x17e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x17t })
+    let x17v = addDefault(ref c, from: BDefault { span: sp, type: x17t })
+    let x17k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x17t, value: x17v })
+    let x17 = addIs(ref c, from: BIs { span: sp, value: x17e, pattern: x17k })
+    let s19 = addReturn(ref c, from: BReturn { span: sp })
+    let s20e = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let s20 = addExprStmt(ref c, from: BExprStmt { span: sp, expr: s20e })
+    var s18l = List<BStmt>()
+    s18l.append(s19)
+    s18l.append(s20)
+    let s18 = addBlock(ref c, from: BBlock { span: sp, statements: move s18l })
+    let i21 = addIf(ref c, from: BIf { span: sp, condition: x17, then: s18, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i21)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x22t = c.locals[ls[0]].type
+    let x22e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x22t })
+    let x22v = addDefault(ref c, from: BDefault { span: sp, type: x22t })
+    let x22k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x22t, value: x22v })
+    let x22 = addIs(ref c, from: BIs { span: sp, value: x22e, pattern: x22k })
+    let s23e = addDefault(ref c, from: BDefault { span: sp, type: prim(.neverKind) })
+    let s23 = addExprStmt(ref c, from: BExprStmt { span: sp, expr: s23e })
+    let i24 = addIf(ref c, from: BIf { span: sp, condition: x22, then: s23, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i24)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x25t = c.locals[ls[0]].type
+    let x25e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x25t })
+    let x25v = addDefault(ref c, from: BDefault { span: sp, type: x25t })
+    let x25k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x25t, value: x25v })
+    let x25 = addIs(ref c, from: BIs { span: sp, value: x25e, pattern: x25k })
+    let s26e = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let s26 = addExprStmt(ref c, from: BExprStmt { span: sp, expr: s26e })
+    let i27 = addIf(ref c, from: BIf { span: sp, condition: x25, then: s26, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i27)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x28t = c.locals[ls[0]].type
+    let x28e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x28t })
+    let x28v = addDefault(ref c, from: BDefault { span: sp, type: x28t })
+    let x28k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x28t, value: x28v })
+    let x28 = addIs(ref c, from: BIs { span: sp, value: x28e, pattern: x28k })
+    let s30 = addReturn(ref c, from: BReturn { span: sp })
+    let s31 = addReturn(ref c, from: BReturn { span: sp })
+    let s29c = addDefault(ref c, from: BDefault { span: sp, type: prim(.bool) })
+    let s29 = addIf(ref c, from: BIf { span: sp, condition: s29c, then: s30, elseBranch: s31, isNever: false })
+    let i32 = addIf(ref c, from: BIf { span: sp, condition: x28, then: s29, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i32)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x33t = c.locals[ls[0]].type
+    let x33e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x33t })
+    let x33v = addDefault(ref c, from: BDefault { span: sp, type: x33t })
+    let x33k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x33t, value: x33v })
+    let x33 = addIs(ref c, from: BIs { span: sp, value: x33e, pattern: x33k })
+    let s35 = addReturn(ref c, from: BReturn { span: sp })
+    let s34c = addDefault(ref c, from: BDefault { span: sp, type: prim(.bool) })
+    let s34 = addIf(ref c, from: BIf { span: sp, condition: s34c, then: s35, elseBranch: -1, isNever: false })
+    let i36 = addIf(ref c, from: BIf { span: sp, condition: x33, then: s34, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i36)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    pushScope(ref b)
+    let x37t = c.locals[ls[0]].type
+    let x37e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x37t })
+    let x37v = addDefault(ref c, from: BDefault { span: sp, type: x37t })
+    let x37k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x37t, value: x37v })
+    let x37 = addIs(ref c, from: BIs { span: sp, value: x37e, pattern: x37k })
+    let s39 = addReturn(ref c, from: BReturn { span: sp })
+    let s40 = addBlock(ref c, from: BBlock { span: sp })
+    let s38c = addDefault(ref c, from: BDefault { span: sp, type: prim(.bool) })
+    let s38 = addIf(ref c, from: BIf { span: sp, condition: s38c, then: s39, elseBranch: s40, isNever: false })
+    let i41 = addIf(ref c, from: BIf { span: sp, condition: x37, then: s38, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i41)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+}
+void narrowSibling() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow sibling")
+    pushScope(ref b)
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let s1 = addReturn(ref c, from: BReturn { span: sp })
+    let i2 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i2)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    pushScope(ref b)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+}
+void narrowNested() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow nested")
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let s1 = addReturn(ref c, from: BReturn { span: sp })
+    let i2 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i2)
+    pushScope(ref b)
+    pushScope(ref b)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+    popScope(ref b)
+    print(tcCheck(ref b, through: in c, for: in ls))
+}
+void narrowRestore() {
+    var c = tcCtx("void f() {\n}\n")
+    var b = tcBinder(-1)
+    let sp = TextSpan { start: 0, length: 0 }
+    let opt = internOptional(ref c, by: prim(.i32))
+    var ls = List<LocalId>()
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "a", type: opt, kind: .letKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "v", type: opt, kind: .varKeyword }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "p", type: opt, kind: .parameter, isParameter: true, modifier: .none, ordinal: 2 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "r", type: opt, kind: .parameter, isParameter: true, modifier: .refKeyword, ordinal: 3 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "q", type: opt, kind: .parameter, isParameter: true, modifier: .inKeyword, ordinal: 4 }))
+    ls.append(newLocal(ref c, by: LocalSymbol { name: "n", type: prim(.i32), kind: .letKeyword }))
+    print("== narrow restore")
+    pushScope(ref b)
+    let x0t = c.locals[ls[0]].type
+    let x0e = addLocal(ref c, from: BLocal { span: sp, local: ls[0], type: x0t })
+    let x0v = addDefault(ref c, from: BDefault { span: sp, type: x0t })
+    let x0k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x0t, value: x0v })
+    let x0 = addIs(ref c, from: BIs { span: sp, value: x0e, pattern: x0k })
+    let s1 = addReturn(ref c, from: BReturn { span: sp })
+    let i2 = addIf(ref c, from: BIf { span: sp, condition: x0, then: s1, elseBranch: -1, isNever: false })
+    let _ = narrowAfter(ref b, through: ref c, for: i2)
+    let x3t = c.locals[ls[2]].type
+    let x3e = addLocal(ref c, from: BLocal { span: sp, local: ls[2], type: x3t })
+    let x3v = addDefault(ref c, from: BDefault { span: sp, type: x3t })
+    let x3k = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: x3t, value: x3v })
+    let x3n = addNotPattern(ref c, from: BNotPattern { span: sp, inputType: x3t, operand: x3k })
+    let x3 = addIs(ref c, from: BIs { span: sp, value: x3e, pattern: x3n })
+    let w4 = narrowedBegin(ref b, through: ref c, for: x3, whenTrue: true)
+    print($"in {tcCheck(ref b, through: in c, for: in ls)}")
+    let _ = narrowedEnd(ref b, through: ref c, by: move w4)
+    print(tcCheck(ref b, through: in c, for: in ls))
+    popScope(ref b)
+}
+void narrowAll() {
+    narrowPresent()
+    narrowAbsent()
+    narrowKinds()
+    narrowNot()
+    narrowAnd()
+    narrowOr()
+    narrowOtherPattern()
+    narrowAfterThen()
+    narrowAfterElse()
+    narrowAfterBoth()
+    narrowExits()
+    narrowSibling()
+    narrowNested()
+    narrowRestore()
+}
+void borrowedAll() {
+    var c = tcSource()
+    let sp = TextSpan { start: 0, length: 0 }
+    let u = newStruct(ref c, by: StructSymbol { name: "U", module: 0, file: 0, declIndex: 0, modifiers: 64 })
+    c.structs[u].fields.append(newField(ref c, by: FieldSymbol { name: "v", owner: u, file: 0, declIndex: 0, memberIndex: 0, type: prim(.i32) }))
+    let h = newStruct(ref c, by: StructSymbol { name: "H", module: 0, file: 0, declIndex: 1 })
+    let fu = newField(ref c, by: FieldSymbol { name: "u", owner: h, file: 0, declIndex: 1, memberIndex: 0, type: structTypeOf(u) })
+    c.structs[h].fields.append(fu)
+    let l = newLocal(ref c, by: LocalSymbol { name: "l", type: prim(.i32), kind: .letKeyword })
+    let lh = newLocal(ref c, by: LocalSymbol { name: "lh", type: structTypeOf(h), kind: .letKeyword })
+    let lu = newLocal(ref c, by: LocalSymbol { name: "lu", type: structTypeOf(u), kind: .letKeyword })
+    print("== borrowed")
+    let x0 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    print($"borrowed local {isBorrowedPlace(ref c, for: x0)}")
+    let x1 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    print($"borrowed default {isBorrowedPlace(ref c, for: x1)}")
+    let x2 = addThis(ref c, from: BThis { span: sp, type: structTypeOf(h) })
+    print($"borrowed this {isBorrowedPlace(ref c, for: x2)}")
+    let x3 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x4 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .ownedValue, receiver: x3, type: prim(.i32) })
+    print($"borrowed owned {isBorrowedPlace(ref c, for: x4)}")
+    let x5 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x6 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .mapIndex, receiver: x5, type: prim(.i32) })
+    print($"borrowed mapIndex {isBorrowedPlace(ref c, for: x6)}")
+    let x7 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x8 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .mapIndex, receiver: x7, type: prim(.i32) })
+    print($"borrowed mapIndexTemp {isBorrowedPlace(ref c, for: x8)}")
+    let x9 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x10 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .resultValue, receiver: x9, type: prim(.i32) })
+    print($"borrowed resultValue {isBorrowedPlace(ref c, for: x10)}")
+    let x11 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x12 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .mapTryGet, receiver: x11, type: prim(.i32) })
+    print($"borrowed mapTryGet {isBorrowedPlace(ref c, for: x12)}")
+    let x13 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x14 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .listTryGet, receiver: x13, type: prim(.i32) })
+    print($"borrowed listTryGet {isBorrowedPlace(ref c, for: x14)}")
+    let x15 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x16 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .listTryGet, receiver: x15, type: prim(.i32) })
+    print($"borrowed listTryGetTemp {isBorrowedPlace(ref c, for: x16)}")
+    let x17 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x18 = addBuiltinCall(ref c, from: BBuiltinCall { span: sp, member: .stringLength, receiver: x17, type: prim(.i32) })
+    print($"borrowed stringLength {isBorrowedPlace(ref c, for: x18)}")
+    let x19 = addLocal(ref c, from: BLocal { span: sp, local: lh, type: structTypeOf(h) })
+    let x20 = addField(ref c, from: BField { span: sp, receiver: x19, field: fu })
+    print($"borrowed field {isBorrowedPlace(ref c, for: x20)}")
+    let x21 = addDefault(ref c, from: BDefault { span: sp, type: structTypeOf(h) })
+    let x22 = addField(ref c, from: BField { span: sp, receiver: x21, field: fu })
+    print($"borrowed fieldTemp {isBorrowedPlace(ref c, for: x22)}")
+    let x23 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x24 = addTupleElement(ref c, from: BTupleElement { span: sp, receiver: x23, index: 0, type: prim(.i32) })
+    print($"borrowed tuple {isBorrowedPlace(ref c, for: x24)}")
+    let x25 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x26 = addTupleElement(ref c, from: BTupleElement { span: sp, receiver: x25, index: 0, type: prim(.i32) })
+    print($"borrowed tupleTemp {isBorrowedPlace(ref c, for: x26)}")
+    let x27 = addDefault(ref c, from: BDefault { span: sp, type: internSpan(ref c, by: prim(.i32), readOnly: false) })
+    let x28i = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x28 = addIndex(ref c, from: BIndex { span: sp, target: x27, index: x28i, type: prim(.i32) })
+    print($"borrowed indexSpan {isBorrowedPlace(ref c, for: x28)}")
+    let x29 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x30i = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x30 = addIndex(ref c, from: BIndex { span: sp, target: x29, index: x30i, type: prim(.i32) })
+    print($"borrowed index {isBorrowedPlace(ref c, for: x30)}")
+    let x31 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x32i = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x32 = addIndex(ref c, from: BIndex { span: sp, target: x31, index: x32i, type: prim(.i32) })
+    print($"borrowed indexTemp {isBorrowedPlace(ref c, for: x32)}")
+    let x33 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x34 = addConversion(ref c, from: BConversion { span: sp, operand: x33, type: prim(.i32), kind: .identity })
+    print($"borrowed conv {isBorrowedPlace(ref c, for: x34)}")
+    let x35 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x36 = addConversion(ref c, from: BConversion { span: sp, operand: x35, type: prim(.i32), kind: .identity })
+    print($"borrowed convTemp {isBorrowedPlace(ref c, for: x36)}")
+    let x37 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x38 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x39c = addDefault(ref c, from: BDefault { span: sp, type: prim(.bool) })
+    let x39 = addConditional(ref c, from: BConditional { span: sp, condition: x39c, whenTrue: x37, whenFalse: x38, type: prim(.i32) })
+    print($"borrowed condFalse {isBorrowedPlace(ref c, for: x39)}")
+    let x40 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x41 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x42c = addDefault(ref c, from: BDefault { span: sp, type: prim(.bool) })
+    let x42 = addConditional(ref c, from: BConditional { span: sp, condition: x42c, whenTrue: x40, whenFalse: x41, type: prim(.i32) })
+    print($"borrowed condTrue {isBorrowedPlace(ref c, for: x42)}")
+    let x43 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x44 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x45c = addDefault(ref c, from: BDefault { span: sp, type: prim(.bool) })
+    let x45 = addConditional(ref c, from: BConditional { span: sp, condition: x45c, whenTrue: x43, whenFalse: x44, type: prim(.i32) })
+    print($"borrowed condTemp {isBorrowedPlace(ref c, for: x45)}")
+    let x46 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x47 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x48 = addCoalesce(ref c, from: BCoalesce { span: sp, left: x46, right: x47, type: prim(.i32) })
+    print($"borrowed coalRight {isBorrowedPlace(ref c, for: x48)}")
+    let x49 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x50 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x51 = addCoalesce(ref c, from: BCoalesce { span: sp, left: x49, right: x50, type: prim(.i32) })
+    print($"borrowed coalLeft {isBorrowedPlace(ref c, for: x51)}")
+    let x52 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x53 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x54 = addCoalesce(ref c, from: BCoalesce { span: sp, left: x52, right: x53, type: prim(.i32) })
+    print($"borrowed coalTemp {isBorrowedPlace(ref c, for: x54)}")
+    let x55 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x56 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    var x57a = List<BSwitchArm>()
+    let x57v0 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x57p0 = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: prim(.i32), value: x57v0 })
+    x57a.append(BSwitchArm { span: sp, pattern: x57p0, value: x55 })
+    let x57v1 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x57p1 = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: prim(.i32), value: x57v1 })
+    x57a.append(BSwitchArm { span: sp, pattern: x57p1, value: x56 })
+    let x57s = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x57 = addSwitchExpr(ref c, from: BSwitchExpr { span: sp, value: x57s, arms: move x57a, type: prim(.i32) })
+    print($"borrowed switch {isBorrowedPlace(ref c, for: x57)}")
+    let x58 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x59 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    var x60a = List<BSwitchArm>()
+    let x60v0 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x60p0 = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: prim(.i32), value: x60v0 })
+    x60a.append(BSwitchArm { span: sp, pattern: x60p0, value: x58 })
+    let x60v1 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x60p1 = addConstantPattern(ref c, from: BConstantPattern { span: sp, inputType: prim(.i32), value: x60v1 })
+    x60a.append(BSwitchArm { span: sp, pattern: x60p1, value: x59 })
+    let x60s = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x60 = addSwitchExpr(ref c, from: BSwitchExpr { span: sp, value: x60s, arms: move x60a, type: prim(.i32) })
+    print($"borrowed switchTemp {isBorrowedPlace(ref c, for: x60)}")
+    var x61a = List<BSwitchArm>()
+    let x61s = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x61 = addSwitchExpr(ref c, from: BSwitchExpr { span: sp, value: x61s, arms: move x61a, type: prim(.i32) })
+    print($"borrowed switchEmpty {isBorrowedPlace(ref c, for: x61)}")
+    let x62 = addLocal(ref c, from: BLocal { span: sp, local: lh, type: structTypeOf(h) })
+    var x63u = List<BWithUpdate>()
+    let x63 = addWith(ref c, from: BWith { span: sp, target: x62, updates: move x63u })
+    print($"borrowed with {isBorrowedPlace(ref c, for: x63)}")
+    let x64 = addLocal(ref c, from: BLocal { span: sp, local: lh, type: structTypeOf(h) })
+    var x65u = List<BWithUpdate>()
+    let x65v = addDefault(ref c, from: BDefault { span: sp, type: structTypeOf(u) })
+    x65u.append(BWithUpdate { field: fu, value: x65v })
+    let x65 = addWith(ref c, from: BWith { span: sp, target: x64, updates: move x65u })
+    print($"borrowed withReplaced {isBorrowedPlace(ref c, for: x65)}")
+    let x66 = addDefault(ref c, from: BDefault { span: sp, type: structTypeOf(h) })
+    var x67u = List<BWithUpdate>()
+    let x67 = addWith(ref c, from: BWith { span: sp, target: x66, updates: move x67u })
+    print($"borrowed withTemp {isBorrowedPlace(ref c, for: x67)}")
+    let x68 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    var x69u = List<BWithUpdate>()
+    let x69 = addWith(ref c, from: BWith { span: sp, target: x68, updates: move x69u })
+    print($"borrowed withI32 {isBorrowedPlace(ref c, for: x69)}")
+    let x70 = addLocal(ref c, from: BLocal { span: sp, local: lu, type: structTypeOf(u) })
+    var x71u = List<BWithUpdate>()
+    let x71 = addWith(ref c, from: BWith { span: sp, target: x70, updates: move x71u })
+    print($"borrowed withPlain {isBorrowedPlace(ref c, for: x71)}")
+    let x72 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x73 = addTry(ref c, from: BTry { span: sp, operand: x72, type: prim(.i32) })
+    print($"borrowed try {isBorrowedPlace(ref c, for: x73)}")
+    let x74 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x75 = addTry(ref c, from: BTry { span: sp, operand: x74, type: prim(.i32) })
+    print($"borrowed tryTemp {isBorrowedPlace(ref c, for: x75)}")
+    let x76 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x77 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x78 = addCatch(ref c, from: BCatch { span: sp, operand: x76, handler: x77, type: prim(.i32) })
+    print($"borrowed catchHandler {isBorrowedPlace(ref c, for: x78)}")
+    let x79 = addLocal(ref c, from: BLocal { span: sp, local: l, type: prim(.i32) })
+    let x80 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x81 = addCatch(ref c, from: BCatch { span: sp, operand: x79, handler: x80, type: prim(.i32) })
+    print($"borrowed catchOperand {isBorrowedPlace(ref c, for: x81)}")
+    let x82 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x83 = addDefault(ref c, from: BDefault { span: sp, type: prim(.i32) })
+    let x84 = addCatch(ref c, from: BCatch { span: sp, operand: x82, handler: x83, type: prim(.i32) })
+    print($"borrowed catchTemp {isBorrowedPlace(ref c, for: x84)}")
+}
+void forsAll() {
+    var c = tcSource()
+    let listI32 = internList(ref c, by: prim(.i32))
+    let f = newFunction(ref c, by: FunctionSymbol { name: "fors", module: 0, kind: .function, file: 0, declIndex: 19, returnType: prim(.void) })
+    tcParam(ref c, for: f, by: "xs", at: TextSpan { start: 1501, length: 2 }, as: listI32)
+    tcParam(ref c, for: f, by: "s", at: TextSpan { start: 1512, length: 1 }, as: prim(.string))
+    var b = tcBinder(f)
+    print("== fors")
+    switch c.files[0].unit.members[19] {
+        case .functionDecl(let d):
+            bindFunctionBody(ref b, through: ref c, for: in d.value)
+        default:
+            break
+    }
+    let s = c.functions[f].body
+            var ss = List<BStmt>()
+            for st in c.bBlocks[boundIndex(s)].statements { ss.append(st) }
+            for st in ss {
+                let i = boundIndex(st)
+                let v = c.bFors[i].variable
+                print($"for {c.bFors[i].span.start}..{c.bFors[i].span.end} {c.locals[v].name} {c.locals[v].id} {c.locals[v].kind.ordinal} borrows {c.locals[v].borrowsSubject}{tcTarget(in c, for: c.bFors[i].target)}")
+                tcDump(ref c, for: c.bFors[i].iterable, at: 1)
+            }
+    tcDiags(in c, from: 0)
+    forVar()
+}
+void forVar() {
+    var c = tcCtx("void misc() {\n    ;\n    let p: bool = true\n    i32 t = 3\n    else\n    p\n    p if p\n    p unless p\n    p if 3\n}\n\nvoid dtsNull() {\n    null\n}\n\nvoid dtsInt() {\n    1\n}\n\nvoid dtsBool() {\n    true\n}\n\nvoid forVar() {\n    for (var y in \"ab\") {\n    }\n}\n")
+    var b = tcBinder(-1)
+    switch c.files[0].unit.members[4] {
+        case .functionDecl(let d):
+            switch d.value.body {
+                case .blockStmt(let blk):
+                    let s = bindBlock(ref b, through: ref c, for: in blk.value)
+            var ss = List<BStmt>()
+            for st in c.bBlocks[boundIndex(s)].statements { ss.append(st) }
+            for st in ss {
+                let i = boundIndex(st)
+                let v = c.bFors[i].variable
+                print($"for {c.bFors[i].span.start}..{c.bFors[i].span.end} {c.locals[v].name} {c.locals[v].id} {c.locals[v].kind.ordinal} borrows {c.locals[v].borrowsSubject}{tcTarget(in c, for: c.bFors[i].target)}")
+                tcDump(ref c, for: c.bFors[i].iterable, at: 1)
+            }
+                default:
+                    break
+            }
+        default:
+            break
+    }
+    tcDiags(in c, from: 0)
+}
+i32 main() {
+    bodiesAll()
+    brokenAll()
+    exitCodesAll()
+    defaultTypesAll()
+    uniqueAll()
+    narrowAll()
+    borrowedAll()
+    forsAll()
+    return 0
+}

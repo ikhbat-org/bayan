@@ -1,0 +1,6 @@
+error BYN7001: `paidOnly` needs `o` to be `.paid`, but it is `Order`
+
+  27 │     o.paidOnly()
+     │     ^
+     │
+  help: check the state with `is` or `switch` first

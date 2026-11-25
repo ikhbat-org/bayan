@@ -1,0 +1,6 @@
+error BYN3002: `sb` does not live as long as `this`, which borrows it
+
+  11 │         become .active(sb.view)
+     │                        ^^^^^^^ `sb` is freed at the end of its block
+     │
+  help: copy the data with `.copy(to: alloc)` into an allocator that lives long enough

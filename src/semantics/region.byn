@@ -560,6 +560,15 @@ void stmtRegions(ref Regions r, through ref Ctx c, for BStmt s) {
             r.contexts.append(allocatedFrom(ref r, through: ref c, for: c.bContexts[i].allocator))
             stmtRegions(ref r, through: ref c, for: body)
             r.contexts.remove(at: r.contexts.length - 1)
+        case .becomeStmt:
+            // The payload is stored into `this`: it must outlive the call, as a store into a field of `this` must.
+            let payload = copyIds(in c.bBecomes[i].payload)
+            for p in payload {
+                let value = exprRegions(ref r, through: ref c, for: p)
+                if r.reporting {
+                    t41CheckOutlives(ref r, through: ref c, for: value, by: 0, as: "this", at: nodeSpan(in c, for: p))
+                }
+            }
         default:
             return
     }

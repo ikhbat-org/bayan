@@ -1,0 +1,22 @@
+struct Order {
+    states {
+        draft(string msg)
+        paid(i64 code)
+    }
+    void paidOnly(this is .paid) {
+        print($"{code}")
+    }
+}
+void run(bool flag, i64 n) {
+    var o = Order.draft { msg: "hi" }
+    var i: i64 = 0
+    while i < n {
+        o = Order.paid { code: 1 }
+        i += 1
+    }
+    return if flag
+    o.paidOnly()
+}
+void main() {
+    run(flag: false, n: 0)
+}

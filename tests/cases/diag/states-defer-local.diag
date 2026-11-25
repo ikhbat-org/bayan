@@ -1,0 +1,6 @@
+error BYN7002: `msg` is a payload of `.draft`; `o` is not known to be `.draft`
+
+  15 │     defer { print(o.msg) }
+     │                   ^^^^^
+     │
+  help: match `.draft` with `is` or `switch` before reading `msg`

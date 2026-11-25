@@ -720,6 +720,11 @@ public struct Binder {
     public List<i64>          scopeIds           = []
     /// The identity the next opened scope takes.
     public i64                nextScopeId        = 0
+    /// While a `switch` is bound (`switchDepth` > 0): the locals whose state facts were forgotten, and the jump
+    /// targets a `break` named. A `break` out of a switch reaches the code after it with what the arm changed.
+    public i64                switchDepth        = 0
+    public List<LocalId>      forgotten          = []
+    public List<i64>          broken             = []
     /// The C# `_firstStatement`, by its file and full span (Q719); `firstStatementFile` is -1 for none.
     public FileId             firstStatementFile = -1
     public TextSpan           firstStatementSpan = TextSpan { start: 0, length: 0 }

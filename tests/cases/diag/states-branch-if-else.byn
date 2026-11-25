@@ -1,0 +1,22 @@
+struct Order {
+    i64 id
+    states {
+        draft
+        sent
+    }
+    void send(ref this is .draft) becomes .sent {
+        become .sent
+    }
+    void edit(ref this is .draft) {
+        id += 1
+    }
+}
+void run(bool flag) {
+    var o = Order.draft { id: 1 }
+    if flag {
+        o.send()
+    } else {
+        o.edit()
+    }
+}
+run(flag: true)

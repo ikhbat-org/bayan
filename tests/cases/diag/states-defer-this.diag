@@ -1,0 +1,6 @@
+error BYN7002: `msg` is a payload of `.draft`; `this` is not known to be `.draft`
+
+  13 │         defer { print(msg) }
+     │                       ^^^
+     │
+  help: match `.draft` with `is` or `switch` before reading `msg`
