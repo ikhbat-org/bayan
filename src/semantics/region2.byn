@@ -521,11 +521,13 @@ void t41StoreBorrow(
     var merged = Borrow { regions: [], owners: [] }
     if r.locals.contains(local) {
         merged = unionBorrow(in r.locals[local], by: in value)
-        t25Tally(ref r.totals, by: merged, from: r.locals[local])
+        if t25Totals(merged) != t25Totals(r.locals[local]) {
+            t25Changed(ref r, for: local)
+        }
     } else {
         let none = Borrow { regions: [], owners: [] }
         merged = unionBorrow(in none, by: in value)
-        t25Tally(ref r.totals, by: merged, from: none)
+        t25Changed(ref r, for: local)
     }
     r.locals[local] = move merged
     if r.summary && r.targets.contains(local) {
@@ -745,10 +747,18 @@ void referBorrow(ref Regions r, through ref Ctx c, for LocalId local, by BExpr v
                 may = mayBorrow(ref c, for: exprType(in c, for: c.bConversions[ci].operand), by: ref seen)
             }
         case .local:
-            may = r.referentMayBorrow.tryGet(at: c.bLocals[boundIndex(value)].local) ?? true
+            let source = c.bLocals[boundIndex(value)].local
+            t25Read(ref r, for: source)
+            may = r.referentMayBorrow.tryGet(at: source) ?? true
         default: {}
     }
-    r.referentMayBorrow[local] = (r.referentMayBorrow.tryGet(at: local) ?? false) || may
+    let before = r.referentMayBorrow.tryGet(at: local)
+    let after = (before ?? false) || may
+    r.referentMayBorrow[local] = after
+    // A reader of an unset entry sees `true`.
+    if (before ?? true) != after {
+        t25Changed(ref r, for: local)
+    }
 }
 
 /// C# `LastUse`, the local function of `CheckMutations`: `useLists` holds each local's use positions at `useOf[local]`.

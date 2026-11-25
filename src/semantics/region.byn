@@ -80,8 +80,10 @@ struct Regions {
     List<i64>              returns           = []
     /// The summary's target parameters, with their index.
     Map<LocalId, i64>      targets           = []
-    /// What the stores into `locals` add up to: a collecting pass that leaves it unchanged changed no local.
-    RegionTotals           totals            = RegionTotals {}
+    /// The locals whose borrow (or `referentMayBorrow`) a collecting pass has read so far.
+    Map<LocalId, bool>     read              = []
+    /// Set when a collecting pass changes a local it has already read: a later pass must run.
+    bool                   dirty             = false
 }
 
 // ── The C# immutable sets (Q640): a `List` with no duplicates stands for `ImmutableHashSet`, copied on every change ──
@@ -444,45 +446,34 @@ void runRegions(ref Regions r, through ref Ctx c) {
         }
     }
     // The collecting passes find what each local may borrow (a loop can store into a local after its first use, and
-    // each pass carries a chain of stores one step), until the totals stop changing; the last pass reports against the
-    // complete picture. The facts only grow and are finitely many, so the cap is a guard against a bug only.
+    // each pass carries a chain of stores one step); the last pass reports against the complete picture. A pass is
+    // dirty when it changes a local it read earlier. If no read in pass k saw a value that changed later in pass k,
+    // every read saw its final value for pass k, so pass k+1 would compute the same stores; the facts only grow, so
+    // that is the fixed point. They are finitely many, so the cap is a guard against a bug only.
     let body = c.functions[r.fn].body
-    var before = r.totals
     var passes: i64 = 0
-    while true {
+    r.dirty = true
+    while r.dirty {
         panic("internal error: region analysis did not converge") if passes == 64
         t25ClearPass(ref r)
         stmtRegions(ref r, through: ref c, for: body)
         passes += 1
-        let after = r.totals
-        break if after == before
-        before = after
     }
+    // A summary reports nothing: its pairs and returns are the clean last pass's, which a reporting pass would repeat.
+    return if r.summary
     t25ClearPass(ref r)
     r.reporting = true
     stmtRegions(ref r, through: ref c, for: body)
-    if !r.summary {
-        checkMutations(ref r, through: ref c)
-    }
+    checkMutations(ref r, through: ref c)
 }
 
-/// The totals over all stored locals' borrows, kept by `t41StoreBorrow`: they only grow, but for `lendsAt`, which only
-/// falls while `lends` stays the same, so any change a collecting pass makes shows in them.
+/// What a borrow holds, counted: a union only grows `regions`, `owners` and `lends`, and with `lends` the same only
+/// lowers `lendsAt`, so a union that changes a borrow changes these.
 struct RegionTotals {
     i64 regions = 0
     i64 owners  = 0
     i64 lends   = 0
     i64 lendsAt = 0
-}
-
-/// Moves `t` from `old`'s totals to `b`'s, for a local whose borrow `b` replaces `old`.
-void t25Tally(ref RegionTotals t, by Borrow b, from Borrow old) {
-    let added = t25Totals(b)
-    let removed = t25Totals(old)
-    t.regions += added.regions - removed.regions
-    t.owners += added.owners - removed.owners
-    t.lends += added.lends - removed.lends
-    t.lendsAt += added.lendsAt - removed.lendsAt
 }
 
 RegionTotals t25Totals(Borrow b) {
@@ -496,10 +487,26 @@ RegionTotals t25Totals(Borrow b) {
     return t
 }
 
-/// Empties what each pass appends, so the passes do not multiply the entries.
+/// Notes that the collecting pass has read `local`'s borrow, so a later change to it in this pass makes the pass dirty.
+void t25Read(ref Regions r, for LocalId local) {
+    if !r.reporting {
+        r.read[local] = true
+    }
+}
+
+/// Marks the pass dirty if `local`, which a store has just changed, was read earlier in it.
+void t25Changed(ref Regions r, for LocalId local) {
+    if !r.reporting && r.read.contains(local) {
+        r.dirty = true
+    }
+}
+
+/// Empties what each pass appends, so the passes do not multiply the entries, and starts a pass with nothing read.
 void t25ClearPass(ref Regions r) {
     r.loans.clear()
     r.mutations.clear()
+    r.read.clear()
+    r.dirty = false
     if r.summary {
         r.pairs.clear()
         r.returns.clear()
@@ -546,7 +553,10 @@ void stmtRegions(ref Regions r, through ref Ctx c, for BStmt s) {
             let target = c.bAssigns[i].target
             let valueExpr = c.bAssigns[i].value
             let value = exprRegions(ref r, through: ref c, for: valueExpr)
-            let _ = exprRegions(ref r, through: ref c, for: target)
+            // A local target's own borrow is not read: computing it would only mark the pass dirty.
+            if boundKind(target) != .local {
+                let _ = exprRegions(ref r, through: ref c, for: target)
+            }
             storeIntoBorrow(ref r, through: ref c, for: target, by: in value, at: nodeSpan(in c, for: valueExpr))
             if boundKind(target) == .local {
                 referBorrow(ref r, through: ref c, for: c.bLocals[boundIndex(target)].local, by: valueExpr)
@@ -710,6 +720,7 @@ Borrow computeBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
     switch boundKind(e) {
         case .local:
             let local = c.bLocals[i].local
+            t25Read(ref r, for: local)
             return t25Copy(r.locals[local]) if r.locals.contains(local)
             return t25None()
         case .thisRef:
