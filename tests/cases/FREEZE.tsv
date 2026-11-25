@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	684
+cases	diag	686
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14629,7 +14629,9 @@ file	f24850e0845477fa3aa2817b003a70c80f61cde5	tests/cases/diag/region-combo-stor
 file	2c9425ee07991e89b7bbbadf6c1c55a30bee42c3	tests/cases/diag/region-combo-store-through-ref-this-map.diag
 file	5b0302038044dbe2fd44efd0bac6f5f58e62e4d5	tests/cases/diag/region-combo-store-two-levels.diag
 file	e5f7a99f0c6fefad0ff9104186be07a137a8741f	tests/cases/diag/region-fixpoint-chain.diag
+file	24ffa272a7e0a378424d559b1e08e2eb0f528311	tests/cases/diag/region-fixpoint-condition.diag
 file	7586dc3ef2908c05aff0ec11ffdcca0bce0ecb75	tests/cases/diag/region-fixpoint-control.diag
+file	f811ca44528fc792231e629401954d6fd95d5aec	tests/cases/diag/region-fixpoint-for-variable.diag
 file	90084009a1842db1376f0e2ed7aca6a96ad49053	tests/cases/diag/region-fixpoint-long.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-fixpoint-straight-chain.diag
 file	5e41a40b9fabe5bae0d091bd2df0cb8a8d673343	tests/cases/diag/region-fixpoint-straight.diag
