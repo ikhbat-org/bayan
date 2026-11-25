@@ -1,0 +1,10 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    var ys = List<i64>()
+    ys.append(0)
+    let sp = ys.mutableSpan()
+    sp[0] = xs[0]
+    xs.append(1)
+    print($"{sp[0]}")
+}
