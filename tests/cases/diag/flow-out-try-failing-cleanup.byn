@@ -1,0 +1,24 @@
+// A `try` that propagates did not assign its `out` argument: a `defer failing` reading a local moved before it is a use after move (BYN2781).
+union error E {
+    bad
+}
+
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void g(out List<i64> o) fails E {
+    fail E.bad
+}
+
+void f() fails E {
+    var x = List<i64>()
+    defer failing print($"{x.length}")
+    consume(move x)
+    try g(out x)
+    print($"{x.length}")
+}
+
+void main() {
+    f() catch {}
+}

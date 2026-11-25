@@ -1,0 +1,16 @@
+// `return xs` moves `xs` out before the `defer`s run: a `defer` that moves it again is a use after move (BYN2781).
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+List<i64> f() {
+    var xs = List<i64>()
+    xs.append(1)
+    defer consume(move xs)
+    return xs
+}
+
+void main() {
+    let r = f()
+    print($"{r[0]}")
+}

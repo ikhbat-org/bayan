@@ -1,0 +1,6 @@
+error BYN2781: `x` is used after it was moved
+
+  17 │     consume(move x)
+     │             ^^^^^^ a `defer failing` on line 16 uses it at scope exit
+     │
+  help: move `x` before the `defer failing`, or move a `.copy(to: alloc)` of it instead
