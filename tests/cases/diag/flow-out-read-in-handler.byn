@@ -1,0 +1,17 @@
+// The `catch` handler runs after the call failed, so its `out` argument is not assigned there.
+union error E {
+    bad
+}
+
+void g(out List<i64> o) fails E {
+    fail E.bad
+}
+
+void main() {
+    var x: List<i64>
+    g(out x) catch {
+        print($"{x.length}")
+        return
+    }
+    print($"{x.length}")
+}

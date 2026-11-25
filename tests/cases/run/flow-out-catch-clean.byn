@@ -1,0 +1,28 @@
+// Controls for `out` on a failed call: the handler assigns the local or leaves, so it is assigned after.
+union error E {
+    bad
+}
+
+void consume(move List<i64> xs) {
+    print($"consumed {xs.length}")
+}
+
+void g(out List<i64> o, bool failing) fails E {
+    fail E.bad if failing
+    o = List<i64>()
+    o.append(7)
+}
+
+void main() {
+    var x: List<i64>
+    g(out x, failing: false) catch {
+        return
+    }
+    print($"assigned {x[0]}")
+    consume(move x)
+    g(out x, failing: true) catch {
+        x = List<i64>()
+        x.append(9)
+    }
+    print($"reassigned {x[0]}")
+}

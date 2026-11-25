@@ -1,0 +1,13 @@
+// A `defer` that moves an outer local runs at the block's end: the local is moved after the block (BYN2781).
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    {
+        defer consume(move xs)
+    }
+    print($"{xs[0]}")
+}

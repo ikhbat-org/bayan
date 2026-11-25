@@ -1,0 +1,13 @@
+error BYN2781: `xs` is used after it was moved
+
+  11 │             defer consume(move xs)
+     │                                ^^ moved on line 11
+     │
+  help: assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead
+
+error BYN2781: `xs` is used after it was moved
+
+  14 │         print($"{xs[0]}")
+     │                  ^^ moved on line 11
+     │
+  help: assign `xs` a new value before using it again, or move a `.copy(to: alloc)` of it instead
