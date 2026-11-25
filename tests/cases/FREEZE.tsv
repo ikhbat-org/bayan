@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	860
+cases	diag	866
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14721,8 +14721,11 @@ file	4459ebe10855ff32ad682c63b380940668c321ed	tests/cases/diag/region-loop-break
 file	79db67227a6e5bd6d2df3e895f3fc7baa3b1c5eb	tests/cases/diag/region-loop-conditional-store-after.diag
 file	dbaaff14238fc244842f0139d9e4a83b063d5f76	tests/cases/diag/region-loop-conditional-store.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-defer-before-store-control.diag
+file	015104f4a4cb4c6e8791c85aa0f663d6b7e430de	tests/cases/diag/region-loop-defer-mutation-after.diag
+file	80d54f9417eef8da352479324c7c3a2deb20d781	tests/cases/diag/region-loop-defer-mutation-before.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-defer-mutation-control.diag
 file	2c5fe957311e3ddb8fee3f1fba119f1e1b1a7df5	tests/cases/diag/region-loop-defer-read.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-defer-store-read-control.diag
 file	dbaaff14238fc244842f0139d9e4a83b063d5f76	tests/cases/diag/region-loop-defer-store.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-do-while-control.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-else-if-store-control.diag
@@ -14755,6 +14758,9 @@ file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-switc
 file	7b9f396b51a591d8817674bb3ae80c2e5ce2dd0d	tests/cases/diag/region-loop-switch-break.diag
 file	b6944cb634b001792db5a27ab15cc050e00da2f9	tests/cases/diag/region-loop-switch-store.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-while-break-control.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-while-condition-control.diag
+file	9c684114634ab55e52f614f604233315252c2ede	tests/cases/diag/region-loop-while-condition-exit.diag
+file	0a8ed305518916a3289d99d904ca8ff46504c430	tests/cases/diag/region-loop-while-condition-outer.diag
 file	81d8d99e6d0f81708f64562a28341ac71c276c4d	tests/cases/diag/region-provide-declared.diag
 file	fcc476ff9313c88f4381f625416f67f9c14706c0	tests/cases/diag/region-provide-function-value.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-provide-generic-lambda-literal-control.diag
