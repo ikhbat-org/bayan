@@ -559,12 +559,9 @@ void stmtRegions(ref Regions r, through ref Ctx c, for BStmt s) {
             }
         case .whileStmt:
             let body = c.bWhiles[i].body
-            let _ = exprRegions(ref r, through: ref c, for: c.bWhiles[i].condition)
-            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: body)
+            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: body, from: c.bWhiles[i].condition)
         case .doWhile:
-            let condition = c.bDoWhiles[i].condition
-            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: c.bDoWhiles[i].body)
-            let _ = exprRegions(ref r, through: ref c, for: condition)
+            iterateRegions(ref r, through: ref c, at: r.depth + 1, for: c.bDoWhiles[i].body, to: c.bDoWhiles[i].condition)
         case .forStmt:
             t25For(ref r, through: ref c, for: s)
         case .switchStmt:
@@ -667,35 +664,44 @@ void t25For(ref Regions r, through ref Ctx c, for BStmt s) {
             case .span: may = mayBorrow(ref c, for: c.spanTypes[typeIndex(iterableType)].element, by: ref seen)
             default: may = true
         }
-        r.referentMayBorrow[variable] = may
+        // Unioned, not set: the body may have stored into it on an earlier run, and the facts must only grow.
+        r.referentMayBorrow[variable] = (r.referentMayBorrow.tryGet(at: variable) ?? false) || may
     }
     iterateRegions(ref r, through: ref c, at: r.depth, for: body)
     r.depth -= 1
 }
 
-void iterateRegions(ref Regions r, through ref Ctx c, at i64 depth, for BStmt body) {
+void iterateRegions(ref Regions r, through ref Ctx c, at i64 depth, for BStmt body, from BExpr before = -1, to BExpr after = -1) {
     let outer = r.iteration
-    r.iteration = depth
     // The collecting pass runs a loop body until a run changes no local it has read: a store late in the body reaches
     // a read early in it on the next iteration, one store per run. Straight-line code runs once, in source order.
     // The facts only grow, and a chain of stores is at most as long as the function has locals, so a body needs at
     // most that many runs plus one clean one; the cap is a guard against a bug only. The reporting pass and the
     // entries a run appends (summary pairs and returns, which `t41Record` and `checkReturn` keep unique) need no
     // reset: loans and mutations are recorded in the reporting pass only.
+    // A `while` condition runs before the body and a `do` condition after it, inside each run: a store in the condition
+    // can depend on the body. They are seen at the enclosing iteration depth, as the body is not.
     let outerDirty = r.dirty
     let cap = 2 * c.functions[r.fn].locals.length + 8
     var changed = false
     var runs: i64 = 0
     while true {
         r.dirty = false
+        if before != -1 {
+            let _ = exprRegions(ref r, through: ref c, for: before)
+        }
+        r.iteration = depth
         stmtRegions(ref r, through: ref c, for: body)
+        r.iteration = outer
+        if after != -1 {
+            let _ = exprRegions(ref r, through: ref c, for: after)
+        }
         runs += 1
         break if r.reporting || !r.dirty
         changed = true
         panic("internal error: region analysis did not converge") if runs >= cap
     }
     r.dirty = outerDirty || changed
-    r.iteration = outer
 }
 
 void declareBorrow(ref Regions r, through ref Ctx c, for LocalId local, at i64 position) {
