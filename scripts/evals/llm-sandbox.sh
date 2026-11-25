@@ -77,18 +77,30 @@ real() {
   echo "$(abs "$(dirname "$p")")/$(basename "$p")"
 }
 
-wdir=$(cd "$write" 2>/dev/null && pwd -P) || { echo "llm-sandbox: --write is not a directory: $write" >&2; exit 2; }
+wdir=$(cd -P "$write" 2>/dev/null && pwd -P) || { echo "llm-sandbox: --write is not a directory: $write" >&2; exit 2; }
+[ "$wdir" != / ] || { echo "llm-sandbox: --write may not be /" >&2; exit 2; }
 # The launcher writes --stdout and --status and reads --stdout outside the sandbox, following symlinks: either one in a
 # directory the program may write is a path the program could point anywhere (0.4.0 audit 16 #1). The directory must
-# exist now: an unresolved one cannot be compared with wdir, and the program could create it.
+# exist now: an unresolved one cannot be compared with wdir, and the program could create it. Both are then used by
+# their resolved directory (cd -P, so `..` follows the kernel), never by the given text, whose symlinks the program
+# could retarget during its run.
+resolved=()
 for p in "$stdout" "$status"; do
   [ ! -L "$p" ] || { echo "llm-sandbox: --stdout and --status may not be symlinks: $p" >&2; exit 2; }
-  pd=$(cd "$(dirname "$p")" 2>/dev/null && pwd -P) \
+  name=$(basename "$p")
+  case "$p" in (*/) name="" ;; esac
+  case "$name" in
+    (""|.|..) echo "llm-sandbox: --stdout and --status must name a file: $p" >&2; exit 2 ;;
+  esac
+  pd=$(cd -P "$(dirname "$p")" 2>/dev/null && pwd -P) \
     || { echo "llm-sandbox: the directory of --stdout and --status must exist: $p" >&2; exit 2; }
   case "$pd/" in
     ("$wdir"/*) echo "llm-sandbox: --stdout and --status may not be under --write: $p" >&2; exit 2 ;;
   esac
+  resolved+=("${pd%/}/$name")
 done
+stdout=${resolved[0]}
+status=${resolved[1]}
 
 sandbox=none
 runner=(env -i "${envargs[@]}")

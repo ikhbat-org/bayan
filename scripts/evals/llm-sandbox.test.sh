@@ -353,10 +353,30 @@ check "--status in a missing directory under --write named through a symlink ref
   "$(refused --write "$root/wlink" --stdout "$root/out" --status "$root/wlink/new/status")" "2 kept"
 check "--status in a missing directory outside --write refused" \
   "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/new/status")" "2 kept"
+mkdir -p "$root/w/rel"
 check "relative --status under --write refused" \
-  "$(cd "$root/w" && refused --write . --stdout "$root/out" --status rel/status)" "2 kept"
+  "$(cd "$root/w" && refused --write . --stdout "$root/out" --status rel/status) $(grep -c 'under --write' "$root/err")" "2 kept 1"
 check "relative --stdout under --write refused" \
-  "$(cd "$root/w" && refused --write . --stdout ./out --status "$root/status")" "2 kept"
+  "$(cd "$root/w" && refused --write . --stdout ./out --status "$root/status") $(grep -c 'under --write' "$root/err")" "2 kept 1"
+check "--write / refused" "$(refused --write / --stdout "$root/out" --status "$root/status")" "2 kept"
+check "--status naming a directory refused" \
+  "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/") $(grep -c 'name a file' "$root/err")" "2 kept 1"
 rm -f "$root/wlink"
+# `..` after a symlink is resolved as the kernel does: other/l/.. is w, not other.
+mkdir -p "$root/w/deep"
+ln -sfn "$root/w/deep" "$root/other/l"
+check "--status through a symlink and .. into --write refused" \
+  "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/l/../x") $(grep -c 'under --write' "$root/err")" "2 kept 1"
+rm -f "$root/other/l"
+# A symlink in the given path that lies under --write is read once, at the check: the program retargeting it during its
+# run does not move the launcher's writes.
+mkdir -p "$root/w/evil"
+ln -sfn "$root/other" "$root/w/link"
+ln -sfn "$root/other/victim" "$root/w/evil/status"
+"$bash" "$sb" --write "$root/w" --stdout "$root/out" --status "$root/w/link/status" -- /bin/ln -sfn "$root/w/evil" "$root/w/link" \
+  > /dev/null 2> "$root/err"
+check "a symlink retargeted by the program does not move --status" \
+  "$? $(cat "$root/other/victim") $(grep -c '^exit:' "$root/other/status")" "0 kept 1"
+rm -rf "$root/w/link" "$root/w/evil" "$root/other/status"
 echo "llm-sandbox.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]
