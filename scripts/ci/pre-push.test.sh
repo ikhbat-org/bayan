@@ -65,4 +65,10 @@ rc=0; out="$(bash $pp "$(git rev-parse HEAD)" 2>&1)" || rc=$?; [ $rc = 0 ] || fa
 echo c > tests/cases/diag/a.diag; echo c > file; git commit -qam "test: unpublished mixed"
 rc=0; out="$(bash $pp "$(git rev-parse HEAD)" 2>&1)" || rc=$?; [ $rc != 0 ] || fail "an unpublished mixed commit exited 0"
 grep -q 'FAILED golden-commit-check' <<<"$out" || fail "the refusal does not name golden-commit-check: $out"
+# a commit whose FREEZE.tsv does not match its tree is refused (0.4.0: 051d36320)
+git reset -q --hard HEAD~1; rm -f tmp/pre-push/passed
+cp "$root/scripts/ci/freeze-check.sh" scripts/ci/; printf 'cases\tdiag\t0\n' > tests/cases/FREEZE.tsv
+git add scripts/ci tests; git commit -qm "test: freeze manifest"
+rc=0; out="$(bash $pp "$(git rev-parse HEAD)" 2>&1)" || rc=$?; [ $rc != 0 ] || fail "a commit with a stale FREEZE.tsv exited 0"
+grep -q 'FAILED freeze-check' <<<"$out" || fail "the refusal does not name freeze-check: $out"
 echo "pre-push.test: all passed"
