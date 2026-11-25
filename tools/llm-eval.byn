@@ -6,6 +6,7 @@
 // `score` scores one candidate against one task and prints one JSON record: the four results of R11 in order, the outcome,
 // whether the task is passed (R12), the sandbox and the limits (R14). The candidate is scored in a new sample directory,
 // <out>/work/<task>/1/, with `src/` (the scratch directory of R10), `bin/`, `cache/` and `tmp/`; an existing one is refused.
+// Step outputs (`*.stdout`, `*.status`, `test.json`) go to <out>/results/<task>/1/, outside what the candidate may write.
 // --out defaults to tmp/llm-eval/score/ under the repo root. Every compiler call and the candidate's run go through
 // scripts/evals/llm-sandbox.sh (R15), with the pinned compiler (R35). Nothing is written under the tasks directory.
 // Exit 0 when the record is printed (whatever the candidate scored), 1 when scoring could not start, 2 on bad usage.
@@ -26,7 +27,8 @@
 //        [--samples <k>] [--context <file>] [--label <text>] [--settings <text>] [--only <task>] [--out <dir>] [--retry-diagnostics]
 //
 // `run` sends each task's prompt to the model command k times (--samples, default 1) and scores each reply as `score`
-// does, in <out>/<n>/work/<task>/<sample>/ (<n> the first free number; --out defaults to tmp/llm-eval/run/). The prompt is
+// does, in <out>/<n>/work/<task>/<sample>/ with step outputs in <out>/<n>/results/<task>/<sample>/ (<n> the first free number;
+// --out defaults to tmp/llm-eval/run/). The prompt is
 // evals/llm/preamble.md, then the context file when given, then the task's `prompt.md` (R3, R36). The command is run with
 // `sh -c`, the prompt on its standard input; its standard output is the reply and a `tokens: <n>` line on its standard
 // error is read (R33). The code is the contents of the last fenced code block of the reply, or the whole reply when it

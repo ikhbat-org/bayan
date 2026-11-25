@@ -9,7 +9,7 @@
 # helper, and anything under --write, TMPDIR, BAYAN_CACHE and the --sweep and --tools directories, and of the program
 # itself only when there is no --sweep or --tools). Zig is started from a copy under one of them, ZIG_LIB_DIR naming its lib.
 # The launcher exits 0 when it ran the program, 2 on bad usage, a path the profile cannot hold (`"`, `\` or a newline), or a
-# --stdout or --status that is a symlink or lies under --write, 3
+# --stdout or --status that is a symlink, lies under --write or is in a directory that does not exist, 3
 # when the sweep left a process, 4 when --prime cannot build its helper, 143 on TERM or INT.
 # --no-fork denies fork to the program on macOS. --prime does not run the program: on macOS it builds llm-prime.c with zig
 # (into --tools, once, when given) and runs it under the same profile, which starts the program suspended and kills it
@@ -77,12 +77,14 @@ real() {
   echo "$(abs "$(dirname "$p")")/$(basename "$p")"
 }
 
-wdir=$(abs "$write")
+wdir=$(cd "$write" 2>/dev/null && pwd -P) || { echo "llm-sandbox: --write is not a directory: $write" >&2; exit 2; }
 # The launcher writes --stdout and --status and reads --stdout outside the sandbox, following symlinks: either one in a
-# directory the program may write is a path the program could point anywhere (0.4.0 audit 16 #1).
+# directory the program may write is a path the program could point anywhere (0.4.0 audit 16 #1). The directory must
+# exist now: an unresolved one cannot be compared with wdir, and the program could create it.
 for p in "$stdout" "$status"; do
   [ ! -L "$p" ] || { echo "llm-sandbox: --stdout and --status may not be symlinks: $p" >&2; exit 2; }
-  pd=$(abs "$(dirname "$p")")
+  pd=$(cd "$(dirname "$p")" 2>/dev/null && pwd -P) \
+    || { echo "llm-sandbox: the directory of --stdout and --status must exist: $p" >&2; exit 2; }
   case "$pd/" in
     ("$wdir"/*) echo "llm-sandbox: --stdout and --status may not be under --write: $p" >&2; exit 2 ;;
   esac

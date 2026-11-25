@@ -4,7 +4,7 @@
 #   bash scripts/evals/llm-sandbox.test.sh
 set -uo pipefail
 cd "$(dirname "$0")/../.."
-sb=scripts/evals/llm-sandbox.sh
+sb=$PWD/scripts/evals/llm-sandbox.sh
 root=$PWD/tmp/llm-sandbox-test
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/w/pids" "$root/other"
 # At exit, every process the test started that is still alive is killed: the server, the launcher of the TERM case, the
@@ -348,6 +348,15 @@ rm -f "$root/status"
 ln -s "$root/other/victim" "$root/w/big.cut"
 check "--stdout whose .cut is planted under --write refused" \
   "$(refused --write "$root/w" --stdout "$root/w/big" --status "$root/status")" "2 kept"
-rm -f "$root/w/big.cut" "$root/wlink"
+rm -f "$root/w/big.cut"
+check "--status in a missing directory under --write named through a symlink refused" \
+  "$(refused --write "$root/wlink" --stdout "$root/out" --status "$root/wlink/new/status")" "2 kept"
+check "--status in a missing directory outside --write refused" \
+  "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/new/status")" "2 kept"
+check "relative --status under --write refused" \
+  "$(cd "$root/w" && refused --write . --stdout "$root/out" --status rel/status)" "2 kept"
+check "relative --stdout under --write refused" \
+  "$(cd "$root/w" && refused --write . --stdout ./out --status "$root/status")" "2 kept"
+rm -f "$root/wlink"
 echo "llm-sandbox.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]

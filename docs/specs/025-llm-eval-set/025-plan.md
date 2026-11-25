@@ -80,7 +80,7 @@ scripts/evals/llm-sandbox.sh --write <dir> --deny-read <dir>... --stdin <file> -
 ```
 `--out` defaults to `tmp/llm-eval/<subcommand>/`. Nothing is ever written under `<tasks-dir>` (R37). Exit codes: 0 done (for `recheck`: every task passed), 1 a task failed (`recheck`) or a run could not start, 2 usage.
 
-**Sample directory.** `<out>/work/<task>/<sample>/` with `src/`, `bin/`, `cache/`, `tmp/`, made new for each scoring and refused when it already exists.
+**Sample directory.** `<out>/work/<task>/<sample>/` with `src/`, `bin/`, `cache/`, `tmp/`, made new for each scoring and refused when it already exists. Step outputs (`*.stdout`, `*.status`, `test.json`) go to `<out>/results/<task>/<sample>/`, outside the sample (0.4.0 audit 16 #1); records written before 2026-11-25 hold them under `work/`.
 
 **Score record**, one JSON object per task and sample:
 - `task`, `category`, `tier`, `split`, `revision`, `check`
