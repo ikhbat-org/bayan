@@ -970,8 +970,40 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             default: may = true
         }
         if may {
-            // The copy is not a view of the receiver, so it keeps no loan on it.
+            // The copy is not a view of the receiver: drop the list or array whose storage the receiver views
+            // (`xs` in `xs.span.copy()`, lent with the receiver's element type), keep what the elements point into.
             elements = t25Copy(receiver)
+            if (receiver.lends is { } lent) {
+                var element = errorType()
+                switch kindOf(receiverType) {
+                    case .list: element = c.listTypes[ti]
+                    case .array: element = c.arrayTypes[ti].element
+                    case .span: element = c.spanTypes[ti].element
+                    default: break
+                }
+                var storage = List<LocalId>()
+                for (o, _) in lent {
+                    let ot = c.locals[o].type
+                    let oi = typeIndex(ot)
+                    let same = kindOf(ot) == .list && c.listTypes[oi] == element
+                        || kindOf(ot) == .array && c.arrayTypes[oi].element == element
+                    storage.append(o) if element != errorType() && same
+                }
+                var owners = List<LocalId>()
+                for o in elements.owners {
+                    owners.append(o) if !t37HasId(in storage, for: o)
+                }
+                var regions = List<Region>()
+                for x in elements.regions {
+                    var own = false
+                    for o in storage {
+                        own = own || x.depth == (r.depthOf.tryGet(at: o) ?? 0) && x.name == $"`{c.locals[o].name}`"
+                    }
+                    regions.append(x) if !own
+                }
+                elements.owners = move owners
+                elements.regions = move regions
+            }
             elements.lends = null
         }
     }
