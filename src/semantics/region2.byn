@@ -271,13 +271,19 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
         }
     }
     // Allocated from `context.allocator`: a list, an `Owned`, a growable `StrBuf`, or the text `Io.readText`, `Io.run` and `Utf8.decode` return (Q29).
+    // A user function with a body allocates there only if it uses `alloc` (declared or inferred), and then any heap
+    // data it returns, text too, may come from it; a callee with no body to judge keeps the list rule.
     var seenList = List<Type>()
+    var allocated = false
+    if r.contexts.length > 0 && builtin == .none && !t41IsBroad(c, for: fn) && c.functions[template].body != -1 {
+        var seenHeap = List<Type>()
+        allocated = (fn >= c.allocates.length || c.allocates[fn])
+            && (containsList(ref c, for: callType, by: ref seenList) || mayBorrow(ref c, for: callType, by: ref seenHeap))
+    } else if r.contexts.length > 0 {
+        allocated = containsList(ref c, for: callType, by: ref seenList)
+    }
     if r.contexts.length > 0
-            && (containsList(
-                ref c,
-                for: callType,
-                by: ref seenList,
-            )
+            && (allocated
             || builtin == .ioReadText
             || builtin == .ioRun
             || builtin == .ioRunBatch
