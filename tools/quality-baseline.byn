@@ -120,7 +120,7 @@ f64? optNumber(ReadOnlySpan<JsonMember> members, for string key) {
 i64 reqInt(ReadOnlySpan<JsonMember> members, for string key) fails BaselineError {
     let v = optNumber(members, for: key)
     if v is null { fail .failed(message: $"KeyError('{key}')") }
-    return i64(v ?? 0.0)
+    return i64(v)
 }
 
 /// The object `members[key]`'s members, or an empty list when it is absent.
