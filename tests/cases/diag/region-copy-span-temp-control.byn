@@ -1,0 +1,9 @@
+List<string> make() {
+    var xs = List<string>()
+    xs.append("a")
+    return xs
+}
+List<string> f() {
+    return make().span.copy()
+}
+void main() { print(f()[0]) }

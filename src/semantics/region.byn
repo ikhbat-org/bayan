@@ -89,6 +89,8 @@ struct Regions {
     Map<LocalId, bool>     read              = []
     /// Set when a collecting pass changes a local it has already read: a later pass must run.
     bool                   dirty             = false
+    /// A span view of a list or array (`xs.span`), with the borrow of the list itself: what a copy of the view's elements holds.
+    Map<BExpr, Borrow>     viewBases         = []
 }
 
 // ── The C# immutable sets (Q640): a `List` with no duplicates stands for `ImmutableHashSet`, copied on every change ──
@@ -949,6 +951,7 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
     }
     switch member {
         case .listAsSpan or .arrayAsSpan or .strBufAsString or .listMutableSpan or .arrayMutableSpan:
+            r.viewBases[e] = t37CopyBorrow(in receiver) if member != .strBufAsString
             return lendBorrow(ref r, through: ref c, for: receiverExpr, by: in receiver, at: span.end)
         default:
             break
@@ -973,7 +976,10 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
             // The copy is not a view of the receiver: drop the list or array whose storage the receiver views
             // (`xs` in `xs.span.copy()`, lent with the receiver's element type), keep what the elements point into.
             elements = t25Copy(receiver)
-            if (receiver.lends is { } lent) {
+            // A direct view (`xs.span.copy()`, `make().span.copy()`, `this.items.span.copy()`): the elements are the list's.
+            if r.viewBases.contains(receiverExpr) {
+                elements = t25Copy(r.viewBases[receiverExpr])
+            } else if (receiver.lends is { } lent) {
                 var element = errorType()
                 switch kindOf(receiverType) {
                     case .list: element = c.listTypes[ti]

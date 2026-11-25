@@ -1,0 +1,7 @@
+warning BYN5014: `snapshot` is not a known verb, noun or adjective
+
+  3 │     List<string> snapshot() {
+    │                  ^^^^^^^^
+    │
+  help: add it to `grammar` in package.byn: `nouns: ["snapshot"]`, `verbs: ["snapshot"]` or
+        `adjectives: ["snapshot"]`
