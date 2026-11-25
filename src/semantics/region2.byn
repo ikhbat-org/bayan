@@ -135,13 +135,34 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
     // Only a `ref` or `out` argument, or the receiver of a `ref this` method (index -1), is passed by `ref` (BYN3005).
     for k in -1..arguments.length {
         var root: LocalId = -1
+        // `this` itself has no local: it stands for the fields of `this` the callee may change.
+        var whole = false
+        var hit = List<LocalId>()
         if k == -1 {
-            root = recv != -1 && mutating ? t41Root(ref r, through: ref c, for: recv) : -1
+            if recv != -1 && mutating {
+                whole = boundKind(recv) == .thisRef
+                root = t41Root(ref r, through: ref c, for: recv)
+                if whole {
+                    let fields = changedFields(ref r, through: ref c, for: fn)
+                    for field in fields {
+                        hit.append(fieldLocal(ref r, through: ref c, for: field))
+                    }
+                }
+            }
         } else if k < parameters.length {
             let written = writtenArgument(in c, for: parameters[k], by: arguments[k])
-            root = written != arguments[k] ? -1 : t41Root(ref r, through: ref c, for: written)
+            if written == arguments[k] {
+                whole = boundKind(written) == .thisRef
+                root = t41Root(ref r, through: ref c, for: written)
+                if whole && c.functions[r.fn].owner != -1 {
+                    let ownerFields = copyIds(in c.structs[c.functions[r.fn].owner].fields)
+                    for field in ownerFields {
+                        hit.append(fieldLocal(ref r, through: ref c, for: field))
+                    }
+                }
+            }
         }
-        continue if root == -1
+        continue if root == -1 && hit.length == 0
         for j in 0..arguments.length {
             // A by-value copy of an element (`xs[0]` as an `i64`) cannot alias what the callee changes.
             // coverage-exempt: Q746
@@ -149,14 +170,22 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             // An `out` argument's old value is never read: what it borrows cannot alias.
             let byOut = j < parameters.length && c.locals[parameters[j]].modifier == .outKeyword
             var seenJ = List<Type>()
+            let rootJ = t41Root(ref r, through: ref c, for: arguments[j])
+            var same = rootJ == root
+            var owned = t37HasId(in args[j].owners, for: root)
+            if whole {
+                same = boundKind(arguments[j]) == .thisRef || t37HasId(in hit, for: rootJ)
+                owned = false
+                for owner in args[j].owners {
+                    if t37HasId(in hit, for: owner) {
+                        owned = true
+                    }
+                }
+            }
             continue if j == k
-                || !(t41Root(
-                    ref r,
-                    through: ref c,
-                    for: arguments[j],
-                ) == root && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
-                    || !byOut && t37HasId(in args[j].owners, for: root))
-            let name = t41RootName(in r, through: in c, for: root)
+                || !(same && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
+                    || !byOut && owned)
+            let name = whole ? "this" : t41RootName(in r, through: in c, for: root)
             regionReport(
                 ref r,
                 through: ref c,
