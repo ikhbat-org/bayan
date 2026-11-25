@@ -195,7 +195,7 @@ BExpr bindBinary(ref Binder b, through ref Ctx c, for in parser.BinaryExpr e, to
             @unobservable because "Q613: bindPattern is a stub, so narrowing facts never form; add an is-pattern narrowing case when T34 lands"
             let scope = narrowedBegin(ref b, through: ref c, for: l, whenTrue: e.op == .logicalAnd)
             let r = bindConverted(ref b, through: ref c, for: in e.right, to: prim(.bool))
-            narrowedEnd(ref b, through: ref c, by: move scope)
+            let _ = narrowedEnd(ref b, through: ref c, by: move scope)
             let result = recordSyntaxNode(
                 ref c,
                 for: addBinary(ref c, from: BBinary { span: e.span, op: e.op, left: l, right: r, type: prim(.bool) }),

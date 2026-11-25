@@ -363,6 +363,14 @@ OwnState t24Statement(ref Ownership a, through ref Ctx c, for BStmt s, by move O
             let body = c.bContexts[i].body
             state = t24Expr(ref a, through: ref c, for: c.bContexts[i].allocator, by: move state)
             return t24Statement(ref a, through: ref c, for: body, by: move state)
+        case .becomeStmt:
+            // The payload is stored into `this`, as a `.unionNew`'s is.
+            let payload = copyIds(in c.bBecomes[i].payload)
+            for p in payload {
+                state = t24Expr(ref a, through: ref c, for: p, by: move state)
+                t24CheckStore(ref a, through: ref c, for: p)
+            }
+            return move state
         default:
             return move state
     }
