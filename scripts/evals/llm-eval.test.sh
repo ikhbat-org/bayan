@@ -207,7 +207,7 @@ score right "$exit3" "$root/cand/right.byn"; secsRight=$secs
 check "exit code 3 as expected passes" "$code $(four right) $(get right outcome) $(get right passed)" '0 true true true true "pass" true'
 # The program is primed before its timed run (R14): the prime's status file is there, dated no later than run.stdout.
 # Equal counts as before: ext4 stamps files from a coarse clock tick, so two files written within a few ms share one mtime.
-mtime() { stat -f %Fm "$1" 2> /dev/null || stat -c %.9Y "$1" 2> /dev/null || echo none; }
+mtime() { stat -c %.9Y "$1" 2> /dev/null || stat -f %Fm "$1" 2> /dev/null || echo none; }
 s=$root/out/right/results/small-900-exit-code/1
 check "the run is primed first" "$(head -1 "$s/prime.stdout.status" 2> /dev/null) $(awk -v a="$(mtime "$s/prime.stdout.status")" \
   -v b="$(mtime "$s/run.stdout")" 'BEGIN { print (a != "none" && b != "none" && a + 0 <= b + 0) ? "before" : "not before" }')" \
