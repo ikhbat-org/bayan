@@ -1006,6 +1006,49 @@ i64 lastUse(
     return end
 }
 
+/// The smallest of `scopes` around `span`, or `span` itself.
+TextSpan innermostScope(List<TextSpan> scopes, for TextSpan span) {
+    var inner = span
+    var size: i64 = -1
+    for s in scopes {
+        if s.start <= span.start && span.end <= s.end && (size == -1 || s.length < size) {
+            inner = s
+            size = s.length
+        }
+    }
+    return inner
+}
+
+/// The first use of `holder` that a loan made later in `within` than `mutation` leaves stale, or -1: one in the loop at
+/// or after the mutation when the loan `closes` it, otherwise one in the loop or after it. A use is safe when a whole
+/// store of `holder` in the loop runs before it in the same scope.
+i64 backEdgeUse(
+    LocalId holder,
+    at TextSpan within,
+    through bool closes,
+    until TextSpan mutation,
+    from List<i64> reads,
+    as List<WholeStore> stores
+) {
+    var first: i64 = -1
+    for u in reads {
+        continue if u < within.start || closes && (u < mutation.end || u >= within.end)
+        var safe = false
+        for s in stores {
+            continue if s.holder != holder
+            // Writing the holder is not a use of it.
+            safe = safe || s.target == u
+            if s.span.start >= within.start && s.span.end <= within.end && s.span.end <= u && u < s.scopeEnd {
+                safe = true
+            }
+        }
+        if !safe && (first == -1 || u < first) {
+            first = u
+        }
+    }
+    return first
+}
+
 void checkMutations(ref Regions r, through ref Ctx c) {
     return if r.mutations.length == 0 || r.loans.length == 0
     var useOf: Map<LocalId, i64> = []
@@ -1013,6 +1056,12 @@ void checkMutations(ref Regions r, through ref Ctx c) {
     var loops = List<TextSpan>()
     var defers = List<TextSpan>()
     var blocks = List<TextSpan>()
+    // For the back edge: each loop's body, the conditional children a store's effect ends with, the whole stores and
+    // where each `break` or `continue` is.
+    var bodies = List<TextSpan>()
+    var scopes = List<TextSpan>()
+    var stores = List<WholeStore>()
+    var jumps = List<i64>()
     let nodes = descendants(in c, for: c.functions[r.fn].body)
     for node in nodes {
         let k = boundKind(node)
@@ -1025,6 +1074,10 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             useLists[useOf[l]].append(nodeSpan(in c, for: node).start)
         } else if k is .whileStmt or .doWhile or .forStmt {
             loops.append(nodeSpan(in c, for: node))
+            let i = boundIndex(node)
+            let body = k == .whileStmt ? c.bWhiles[i].body : k == .doWhile ? c.bDoWhiles[i].body : c.bFors[i].body
+            bodies.append(nodeSpan(c, for: body))
+            scopes.append(nodeSpan(c, for: body))
         } else if k is .deferStmt or .errdeferStmt or .panicDefer {
             // The statement's own span is the `defer` keyword; the body ends it.
             let i = boundIndex(node)
@@ -1032,14 +1085,42 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 : k == .errdeferStmt ? c.bErrdefers[i].body : c.bPanicDefers[i].body
             let start = nodeSpan(in c, for: node).start
             defers.append(TextSpan.fromBounds(start, until: nodeSpan(in c, for: body).end))
+            scopes.append(nodeSpan(c, for: body))
         } else if k == .block {
             blocks.append(nodeSpan(in c, for: node))
+            scopes.append(nodeSpan(c, for: node))
         } else if k == .switchStmt {
             // A case body is a statement list, not a block, and a defer in it runs at the case's end.
             for section in c.bSwitches[boundIndex(node)].sections {
                 blocks.append(section.span)
+                if section.body.length > 0 {
+                    let last = nodeSpan(c, for: section.body[section.body.length - 1]).end
+                    scopes.append(TextSpan.fromBounds(section.span.start, until: last))
+                }
             }
+        } else if k == .ifStmt {
+            // A branch is conditional even when it is a bare statement (`s = xs.span if i > 3`).
+            let i = boundIndex(node)
+            scopes.append(nodeSpan(c, for: c.bIfs[i].then))
+            if c.bIfs[i].elseBranch != -1 {
+                scopes.append(nodeSpan(c, for: c.bIfs[i].elseBranch))
+            }
+        } else if k == .assign {
+            let i = boundIndex(node)
+            let target = c.bAssigns[i].target
+            if boundKind(target) == .local && c.bAssigns[i].op is null {
+                stores.append(WholeStore {
+                    holder: c.bLocals[boundIndex(target)].local,
+                    span: c.bAssigns[i].span,
+                    target: nodeSpan(c, for: target).start,
+                })
+            }
+        } else if k is .breakStmt or .continueStmt {
+            jumps.append(nodeSpan(c, for: node).start)
         }
+    }
+    for si in 0..stores.length {
+        stores[si].scopeEnd = innermostScope(scopes, for: stores[si].span).end
     }
     // A deferred body runs at the end of the smallest block or switch case around its statement.
     var deferEnds = List<i64>()
@@ -1062,21 +1143,47 @@ void checkMutations(ref Regions r, through ref Ctx c) {
         for li in 0..r.loans.length {
             let holder = r.loans[li].holder
             let created = r.loans[li].created
-            continue if r.loans[li].owner != target || created >= mSpan.end
-            // Writing an element in place through the loop's own `dyn ref` variable leaves the loop's collection as it is.
-            continue if holder == -1 && through != -1 && (r.declaredAt.tryGet(at: through) ?? -1) == created
-            let end = holder == -1 ? r.loans[li].loopEnd : lastUse(
-                in r,
-                for: holder,
-                by: in useOf,
-                as: in useLists,
-                at: in loops,
-                through: defers,
-                to: deferEnds,
-                until: mSpan,
-                from: created,
-            )
-            continue if end <= mSpan.end
+            continue if r.loans[li].owner != target
+            var end: i64 = -1
+            if created >= mSpan.end {
+                // A loan made after the mutation in the same loop is still held when the next iteration mutates.
+                continue if holder == -1 || !useOf.contains(holder)
+                var p = -1
+                for li2 in 0..loops.length {
+                    let loop = loops[li2]
+                    if loop.start <= mSpan.start && created < loop.end && (p == -1 || loop.length < loops[p].length) {
+                        p = li2
+                    }
+                }
+                continue if p == -1
+                let declared = r.declaredAt.tryGet(at: holder) ?? -1
+                continue if loops[p].start <= declared && declared < loops[p].end
+                // The loan "closes" the mutation when every iteration that ran the mutation goes on to make it.
+                let lent = innermostScope(scopes, for: TextSpan { start: created, length: 0 })
+                var closes = lent.start == bodies[p].start && lent.end == bodies[p].end
+                for j in jumps {
+                    if mSpan.end <= j && j < created {
+                        closes = false
+                    }
+                }
+                end = backEdgeUse(holder, at: loops[p], through: closes, until: mSpan, from: useLists[useOf[holder]], as: stores)
+                continue if end == -1
+            } else {
+                // Writing an element in place through the loop's own `dyn ref` variable leaves the loop's collection as it is.
+                continue if holder == -1 && through != -1 && (r.declaredAt.tryGet(at: through) ?? -1) == created
+                end = holder == -1 ? r.loans[li].loopEnd : lastUse(
+                    in r,
+                    for: holder,
+                    by: in useOf,
+                    as: in useLists,
+                    at: in loops,
+                    through: defers,
+                    to: deferEnds,
+                    until: mSpan,
+                    from: created,
+                )
+                continue if end <= mSpan.end
+            }
             let targetName = c.locals[target].name
             let who = holder == -1 ? "the `for` loop" : $"`{c.locals[holder].name}`"
             var label = $"the loop over `{targetName}` is still running"

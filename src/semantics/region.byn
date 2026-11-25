@@ -52,6 +52,15 @@ struct Mutation {
     LocalId  through = -1
 }
 
+/// `holder = value` with no operator: from `span.end` to `scopeEnd` the holder no longer holds what it held before.
+struct WholeStore {
+    LocalId  holder
+    TextSpan span
+    /// Where the target `holder` is written: not a use.
+    i64      target
+    i64      scopeEnd = 0
+}
+
 // One entry of the C# `_restTails` map: a region and the tail its rest parameter names.
 struct RestTail {
     Region region
