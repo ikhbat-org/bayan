@@ -41,6 +41,7 @@ Small, clear, and could be picked up without a design decision.
 - A27: `docs/diagnostics/BYN2006.md`: the example reports BYN5004 and BYN5006; replace it with the same-name, different-type pair from `tests/cases/diag/duplicate-overload-types.byn` and remove the stale skip entry at `csharp/tests/Bayan.Tests/DiagnosticCodesTests.cs:80` in the same change (`:170-171` fails otherwise). From revision 0020.
 - A32: `csharp/Bayan.Semantics/Binding/Binder.cs:1430-1431` accepts `provide allocator:` as a synonym of `alloc:`; make it an input form with a fix-it to `alloc:` and update the goldens `tests/cases/diag/env-get-escapes-context.byn:6`, `interpolation-escapes-context.byn:6`, `io-read-escapes-context.byn:6`. From revision 0020.
 - Manifest style knobs (revision 0020 Open items): `csharp/Bayan.Syntax/Packages/Manifest.cs:35`, `:179-184` accept `braces`, the 100-column line knob and a bool `trailingCommas`; accept `width`, `align`, `trailingCommas: .multiline | .never` and `lints` per SPEC §19.2. From revision 0020.
+- A state named `open` cannot be constructed: `Door.open { … }` is BYN1005 although `open` is only contextual (`Keywords.cs:10`), a parser bug; the conformance cases name their states `ajar`/`shut` (plan 2026-11-25-019 E).
 
 ## Later
 

@@ -1,0 +1,12 @@
+interface IRun {
+    i64 get(move this)
+}
+
+struct S : IRun {
+    i64 n
+
+    i64 get() => n
+}
+
+void main() {
+}

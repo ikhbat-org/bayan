@@ -1,0 +1,17 @@
+interface IDoor {
+    void close(ref this)
+}
+
+struct Door : IDoor {
+    states {
+        ajar
+        shut
+    }
+
+    void close(ref this is .ajar) becomes .shut {
+        become .shut
+    }
+}
+
+void main() {
+}
