@@ -514,10 +514,12 @@ if $mac; then
   # The launcher's own profile cannot hold the tool (it denies reads of the repo and exec of anything but its program), so
   # the denial here is a profile of network and writes only. The scorer's launches cannot apply their profile inside it
   # (sandbox-exec cannot apply a second one), so the probe fails and the run stops there, after the model command ran.
+  # The launcher makes its profile dir under /tmp (never TMPDIR, which lies under --write), so that is allowed too.
   real=$(cd "$root" && pwd -P)
   env -i "HOME=$root/net-tmp" "PATH=$PATH" "TMPDIR=$root/net-tmp" "BAYAN_CACHE=$root/net-cache" "DOTNET_ROOT=${DOTNET_ROOT:-}" \
     "PINNED_BAYAN=$pinned" /usr/bin/sandbox-exec -p "(version 1) (allow default) (deny network*) (deny file-write*)
-      (allow file-write* (literal \"/dev/null\") (literal \"/dev/dtracehelper\") (subpath \"$real\"))" \
+      (allow file-write* (literal \"/dev/null\") (literal \"/dev/dtracehelper\") (subpath \"$real\")
+      (regex #\"^/private/tmp/llm-sandbox\\.\"))" \
     bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" \
     --machine m --out "$root/out/run-net" > "$root/rec/net" 2> "$root/rec/net.err"
   check "run: inside the network denial the model command runs, then the probe stops the scoring" \
