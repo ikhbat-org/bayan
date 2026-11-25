@@ -124,7 +124,7 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                 && mayBorrow(ref c, for: exprType(in c, for: written), by: ref seenThis)
                 && r.reporting
                 && c.functions[r.fn].owner != -1 {
-            let ownerFields = copyIds(in c.structs[c.functions[r.fn].owner].fields)
+            let ownerFields = copyIds(c.structs[c.functions[r.fn].owner].fields)
             for field in ownerFields {
                 let local = fieldLocal(ref r, through: ref c, for: field)
                 r.mutations.append(Mutation { target: local, span: argSpan })
@@ -155,7 +155,7 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                 whole = boundKind(written) == .thisRef
                 root = t41Root(ref r, through: ref c, for: written)
                 if whole && c.functions[r.fn].owner != -1 {
-                    let ownerFields = copyIds(in c.structs[c.functions[r.fn].owner].fields)
+                    let ownerFields = copyIds(c.structs[c.functions[r.fn].owner].fields)
                     for field in ownerFields {
                         hit.append(fieldLocal(ref r, through: ref c, for: field))
                     }
@@ -174,10 +174,10 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             var same = rootJ == root
             var owned = t37HasId(in args[j].owners, for: root)
             if whole {
-                same = boundKind(arguments[j]) == .thisRef || t37HasId(in hit, for: rootJ)
+                same = boundKind(arguments[j]) == .thisRef || t37HasId(hit, for: rootJ)
                 owned = false
                 for owner in args[j].owners {
-                    if t37HasId(in hit, for: owner) {
+                    if t37HasId(hit, for: owner) {
                         owned = true
                     }
                 }
@@ -185,7 +185,7 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             continue if j == k
                 || !(same && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
                     || !byOut && owned)
-            let name = whole ? "this" : t41RootName(in r, through: in c, for: root)
+            let name = whole ? "this" : t41RootName(r, through: c, for: root)
             regionReport(
                 ref r,
                 through: ref c,
@@ -1160,7 +1160,7 @@ LocalId t41Root(ref Regions r, through ref Ctx c, for BExpr e) {
 }
 
 /// The name a report gives `root`: `this.f` for the stand-in for a field of `this`.
-string t41RootName(in Regions r, through in Ctx c, for LocalId root) {
+string t41RootName(Regions r, through Ctx c, for LocalId root) {
     for (_, local) in r.thisFields {
         return $"this.{c.locals[root].name}" if local == root
     }
