@@ -17,3 +17,8 @@ dad3339e3c00426375e2d9ae2296aaa65b33dee9  # 019-t30bb
 3287030240a0e499c17a2f9debe72b23d22bc9d9  # d1-reexport-pairing
 c771916579538b83fbd9b8a1c6d12a291fb4cca0  # fix019-sem
 d11fe2f69d4ab9ba8f7500c7ce3600b43c1bd14c  # fix019-lsp
+1f567c062a3151ec5a4cefcf6355c9ef52c66d72  # 0.4.1 fix: a direct effect use replaces an earlier indir
+d9fb195a0113fe6cc2685382d2834daa792c191b  # 0.4.1 chore(worker): e-conformance: Branch E is implemen
+c9a8850f9e40fcbd55ebee4ed2d943de460156c9  # 0.4.1 fix: BYN2802 receiver mismatch shows the receiver 
+013e0b9b8a9ed62cedd83b3a17e5b9068cc36043  # 0.4.1 fix: inferred-fails conformance check runs on the 
+9645e7a07c8b49c8b6861d010ac412b7e7f593a1  # 0.4.1 test: corpus goldens and DIVERGENCES rows for BYN7
