@@ -130,12 +130,18 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                 r.mutations.append(Mutation { target: local, span: argSpan })
             }
         }
-        // Only a `ref` or `out` argument is passed by `ref` (BYN3005).
-        let root = written != argument ? -1 : rootLocal(ref c, for: written)
-        if root == -1 {
-            i += 1
-            continue
+        i += 1
+    }
+    // Only a `ref` or `out` argument, or the receiver of a `ref this` method (index -1), is passed by `ref` (BYN3005).
+    for k in -1..arguments.length {
+        var root: LocalId = -1
+        if k == -1 {
+            root = recv != -1 && mutating ? t41Root(ref r, through: ref c, for: recv) : -1
+        } else if k < parameters.length {
+            let written = writtenArgument(in c, for: parameters[k], by: arguments[k])
+            root = written != arguments[k] ? -1 : t41Root(ref r, through: ref c, for: written)
         }
+        continue if root == -1
         for j in 0..arguments.length {
             // A by-value copy of an element (`xs[0]` as an `i64`) cannot alias what the callee changes.
             // coverage-exempt: Q746
@@ -143,13 +149,14 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             // An `out` argument's old value is never read: what it borrows cannot alias.
             let byOut = j < parameters.length && c.locals[parameters[j]].modifier == .outKeyword
             var seenJ = List<Type>()
-            continue if j == i
-                || !(rootLocal(
-                    ref c,
+            continue if j == k
+                || !(t41Root(
+                    ref r,
+                    through: ref c,
                     for: arguments[j],
                 ) == root && (byRef || mayBorrow(ref c, for: exprType(in c, for: arguments[j]), by: ref seenJ))
                     || !byOut && t37HasId(in args[j].owners, for: root))
-            let name = c.locals[root].name
+            let name = t41RootName(in r, through: in c, for: root)
             regionReport(
                 ref r,
                 through: ref c,
@@ -161,7 +168,6 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
             )
             break
         }
-        i += 1
     }
     // What the callee may store from one argument (or its receiver) into another, by its summary.
     let template = templateOf(ref c, for: fn) ?? fn
@@ -548,7 +554,7 @@ Borrow allocatedFrom(ref Regions r, through ref Ctx c, for BExpr allocator) {
 }
 
 Borrow t41AllocatedFrom(ref Regions r, through ref Ctx c, for BExpr allocator, by Borrow borrow) {
-    let root = rootLocal(ref c, for: allocator)
+    let root = t41Root(ref r, through: ref c, for: allocator)
     return t37CopyBorrow(borrow) if root == -1
     let depth = r.depthOf.tryGet(at: root) ?? 0
     var regions = List<Region>()
@@ -1116,6 +1122,20 @@ bool isThisRooted(in Ctx c, for BExpr e) {
 LocalId thisField(ref Regions r, through ref Ctx c, for BExpr e) {
     let field = thisFieldSymbol(in c, for: e)
     return field != -1 ? fieldLocal(ref r, through: ref c, for: field) : -1
+}
+
+/// `rootLocal`, or the stand-in for the field of `this` whose storage `e` names.
+LocalId t41Root(ref Regions r, through ref Ctx c, for BExpr e) {
+    let field = thisField(ref r, through: ref c, for: e)
+    return field != -1 ? field : rootLocal(ref c, for: e)
+}
+
+/// The name a report gives `root`: `this.f` for the stand-in for a field of `this`.
+string t41RootName(in Regions r, through in Ctx c, for LocalId root) {
+    for (_, local) in r.thisFields {
+        return $"this.{c.locals[root].name}" if local == root
+    }
+    return c.locals[root].name
 }
 
 LocalId fieldLocal(ref Regions r, through ref Ctx c, for FieldId field) {
