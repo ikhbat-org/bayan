@@ -97638,7 +97638,7 @@ void byn_semantics__conform(bynt_semantics__Ctx* p_c, int64_t p_s) {
                         (void)byn_semantics__addDiag(&(*p_c), ((bynt_semantics__Diag){t109, l0_file, l89_span, t110, l103_why.label, byn_strbuf_str(t108), false, false, false, ((bynt_lexer__TextSpan){INT64_C(0), INT64_C(0)}), BYN_STR("", 0), l104_related}));
                     } else {
 #line 366 "semantics/conformance.byn"
-                        if (((l90_ownView.infersErrors && l34_expected.hasFails) && (!l34_expected.infersErrors))) {
+                        if ((((l90_ownView.infersErrors && l34_expected.hasFails) && (!l34_expected.infersErrors)) && ((*bynh_at_list_semantics__StructSymbol((*p_c).structs, (int64_t)p_s, false, byn_file_36, 366)).template == INT64_C(-1)))) {
 #line 375 "semantics/conformance.byn"
                             t111 = byn_semantics__t14SignatureText(&(*p_c), l34_expected);
 #line 376 "semantics/conformance.byn"

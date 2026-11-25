@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	689
+cases	diag	690
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14225,6 +14225,7 @@ file	23836c2571cf8e3f6d05c432f73ea6a92f69808e	tests/cases/diag/codec-renames.dia
 file	ef05b67a3fbdc11a57054afa237497cc5070b671	tests/cases/diag/collection-copy-unique-element.diag
 file	a7218cc77c9d466db66a135da859ae63bfa47b6d	tests/cases/diag/compact-format-spec.diag
 file	b587a1020814b7a08aa17aa50fb0326e518f1178	tests/cases/diag/conformance-inferred-excluded.diag
+file	9f5d246737fbf26bf47f19634a1a5bb287b01e70	tests/cases/diag/conformance-inferred-generic.diag
 file	8aea94ed0822ab7d1ed10e41b27248f2abb440b1	tests/cases/diag/conformance-inferred-overflow.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/conformance-inferred-subset.diag
 file	ba6179999e5f6f41c33ccecbab28aa1719f81275	tests/cases/diag/conformance-interface-receiver-state.diag

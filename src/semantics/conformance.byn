@@ -363,7 +363,7 @@ void conform(ref Ctx c, for StructId s) {
                     fixSpan: TextSpan { start: 0, length: 0 },
                     related: move related,
                 })
-            } else if ownView.infersErrors && expected.hasFails && !expected.infersErrors {
+            } else if ownView.infersErrors && expected.hasFails && !expected.infersErrors && c.structs[s].template == -1 {
                 // SameShape accepts any inferred `fails`; the sets are known only after inference (t14CheckInferredWitnesses).
                 c.inferredWitnesses.append(T14InferredWitness {
                     witness: own,
