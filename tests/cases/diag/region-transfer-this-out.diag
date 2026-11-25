@@ -1,0 +1,7 @@
+warning BYN5014: `both` is not a known verb, noun or adjective
+
+  3 │     ReadOnlySpan<i64> both(to out ReadOnlySpan<i64> s) {
+    │                       ^^^^
+    │
+  help: add it to `grammar` in package.byn: `nouns: ["both"]`, `verbs: ["both"]` or
+        `adjectives: ["both"]`

@@ -1,0 +1,14 @@
+struct Row { string path }
+string pathOf(List<string> names, at i64 i) => names[i]
+void report(ref List<string> names, to ref List<Row> rows) {
+    rows.append(Row { path: pathOf(names, at: 0) })
+}
+void main() {
+    var names = List<string>()
+    names.append("a")
+    var rows = List<Row>()
+    report(ref names, to: ref rows)
+    names.append("b")
+    report(ref names, to: ref rows)
+    print($"{rows.length}")
+}

@@ -1,0 +1,8 @@
+void stash(ref i64[4] a, to out ReadOnlySpan<i64> s) { s = a.span }
+void main() {
+    var a: i64[4] = [1, 2, 3, 4]
+    var s: ReadOnlySpan<i64>
+    stash(ref a, to: out s)
+    stash(ref a, to: out s)
+    print($"{s[0]}")
+}
