@@ -752,6 +752,20 @@ void t41StoreIntoBorrow(
     if boundKind(target) == .index && kindOf(exprType(in c, for: c.bIndexes[boundIndex(target)].target)) == .span {
         let view = rootLocal(ref c, for: c.bIndexes[boundIndex(target)].target)
         if view != -1 {
+            // The span holds what is stored through it: a later change to the stored value's owner conflicts with a later read.
+            for owner in value.owners {
+                continue if owner == view
+                var created = span.end
+                if (value.lends is { } lends) {
+                    if lends.contains(owner) {
+                        let at = lends[owner]
+                        if span.start <= at && at < created {
+                            created = at
+                        }
+                    }
+                }
+                r.loans.append(Loan { owner: owner, holder: view, created: created, loopEnd: 0 })
+            }
             var depth: i64 = 0
             if r.locals.contains(view) {
                 var first = true
