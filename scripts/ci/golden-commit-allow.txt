@@ -22,3 +22,6 @@ d9fb195a0113fe6cc2685382d2834daa792c191b  # 0.4.1 chore(worker): e-conformance: 
 c9a8850f9e40fcbd55ebee4ed2d943de460156c9  # 0.4.1 fix: BYN2802 receiver mismatch shows the receiver 
 013e0b9b8a9ed62cedd83b3a17e5b9068cc36043  # 0.4.1 fix: inferred-fails conformance check runs on the 
 9645e7a07c8b49c8b6861d010ac412b7e7f593a1  # 0.4.1 test: corpus goldens and DIVERGENCES rows for BYN7
+51fd07dc0ea1cbc4f2e8da782113e26d570dd356  # 0.4.1 chore(worker): b-ownership: All three fixes are in
+7e7580bf5e27143340bc2136e01eb81c7d6b8c08  # 0.4.1 fix: a defer's moves are the body's own moves stil
+1bb7de0bc449250e402847f4f55c6ebca722cf76  # 0.4.1 test: pin the never-call failing path (Q1287), div
