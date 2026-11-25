@@ -1127,6 +1127,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
     var loops = List<TextSpan>()
     var whiles = List<bool>()
     var defers = List<TextSpan>()
+    var plainDefers = List<bool>()
     var blocks = List<TextSpan>()
     // For the back edge: each loop's body, the conditional children a store's effect ends with, the whole stores,
     // where each `break` or `continue` is and what it leaves, each loop's and switch's id and span, and the `if`/`else`
@@ -1165,6 +1166,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 : k == .errdeferStmt ? c.bErrdefers[i].body : c.bPanicDefers[i].body
             let start = nodeSpan(in c, for: node).start
             defers.append(TextSpan.fromBounds(start, until: nodeSpan(in c, for: body).end))
+            plainDefers.append(k == .deferStmt)
             scopes.append(nodeSpan(c, for: body))
         } else if k == .block {
             blocks.append(nodeSpan(in c, for: node))
@@ -1271,12 +1273,13 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 // A deferred mutation runs where its outermost deferred statement inside loop p does, at the end of the
                 // block around it, so a store its text precedes in that block runs before it. A defer around the loop
                 // runs the loop in text order, and a store after the mutation in its own deferred block runs right after it.
+                // A failing or panic defer runs only on an exit that leaves the loop, so it is not moved.
                 var mAt = mSpan
                 var outerDefer: i64 = -1
                 for d in 0..defers.length {
                     let holds = defers[d].start <= mSpan.start && mSpan.end <= defers[d].end
                     let inLoop = bodies[p].start <= defers[d].start && defers[d].end <= bodies[p].end
-                    if holds && inLoop && (outerDefer == -1 || defers[d].length > defers[outerDefer].length) {
+                    if holds && inLoop && plainDefers[d] && (outerDefer == -1 || defers[d].length > defers[outerDefer].length) {
                         outerDefer = d
                     }
                 }

@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4482
-cases	diag	870
+cases	diag	871
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14733,6 +14733,7 @@ file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-defer
 file	dbaaff14238fc244842f0139d9e4a83b063d5f76	tests/cases/diag/region-loop-defer-store.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-do-while-control.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-else-if-store-control.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/region-loop-failing-defer-mutation-control.diag
 file	cc07c454123b5e4d2184c96da2b3d5e450cec0d0	tests/cases/diag/region-loop-header-mutation.diag
 file	c1050cd8f0e3eb316227d47b63ce731896b4bd02	tests/cases/diag/region-loop-if-no-else.diag
 file	be94a28da2196f51b03d13018bd7e0051a1be34d	tests/cases/diag/region-loop-index-store.diag
