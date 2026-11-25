@@ -1,0 +1,11 @@
+List<i64> id(move List<i64> xs) => xs
+void main() uses alloc {
+    var xs = List<i64>()
+    xs.append(1)
+    var s = List<i64>()
+    {
+        using let a = Arena()
+        provide allocator: a { s = id(move xs) }
+    }
+    print($"{s.length}")
+}

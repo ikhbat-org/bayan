@@ -1,0 +1,8 @@
+void main() uses alloc {
+    var s = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = $"v={1}" }
+    }
+    print(s)
+}

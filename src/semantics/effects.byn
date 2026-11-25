@@ -79,10 +79,15 @@ List<string> t23Primitives() => ["alloc", "suspend", "net", "fs", "clock", "rand
 /// The effects that need a package capability; the others are always allowed.
 List<string> t23Capabilities() => ["net", "fs", "process", "env"]
 
-/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics, so the
-/// run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
+/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics and the
+/// elements of `c.allocates` (bools, in a list made here in `General`), so the run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
 /// A run with a bag as the sink stays in `General`: `t42Undo` does not cover bags.
 void t42AnalyzeEffects(ref Ctx c) {
+    // In `General`: the arena run only sets its elements, so a run that is undone leaves it valid and the rerun refills it.
+    c.allocates = List<bool>()
+    for _ in 0..c.functions.length {
+        c.allocates.append(false)
+    }
     if c.sink >= 0 {
         analyzeEffects(ref c)
         return
@@ -206,6 +211,13 @@ void analyzeEffects(ref Ctx c) {
                     changed = true
                 }
             }
+        }
+    }
+
+    // What a caller sees, declared or inferred, as `t23Visible` gives it to a call.
+    for fn in functions {
+        if fn < c.allocates.length {
+            c.allocates[fn] = listContainsString(in t23Visible(ref c, by: in e, for: fn), by: "alloc")
         }
     }
 

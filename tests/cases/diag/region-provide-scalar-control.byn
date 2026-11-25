@@ -1,0 +1,12 @@
+i64 count(i64 n) uses alloc {
+    let t = $"{n}"
+    return t.length
+}
+void main() uses alloc {
+    var s: i64 = 0
+    {
+        using let a = Arena()
+        provide allocator: a { s = count(12) }
+    }
+    print($"{s}")
+}
