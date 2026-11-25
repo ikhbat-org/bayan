@@ -521,9 +521,11 @@ void t41StoreBorrow(
     var merged = Borrow { regions: [], owners: [] }
     if r.locals.contains(local) {
         merged = unionBorrow(in r.locals[local], by: in value)
+        t25Tally(ref r.totals, by: merged, from: r.locals[local])
     } else {
         let none = Borrow { regions: [], owners: [] }
         merged = unionBorrow(in none, by: in value)
+        t25Tally(ref r.totals, by: merged, from: none)
     }
     r.locals[local] = move merged
     if r.summary && r.targets.contains(local) {

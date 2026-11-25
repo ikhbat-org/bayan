@@ -80,6 +80,8 @@ struct Regions {
     List<i64>              returns           = []
     /// The summary's target parameters, with their index.
     Map<LocalId, i64>      targets           = []
+    /// What the stores into `locals` add up to: a collecting pass that leaves it unchanged changed no local.
+    RegionTotals           totals            = RegionTotals {}
 }
 
 // ── The C# immutable sets (Q640): a `List` with no duplicates stands for `ImmutableHashSet`, copied on every change ──
@@ -441,14 +443,66 @@ void runRegions(ref Regions r, through ref Ctx c) {
             r.locals[p] = t25Region(1, as: $"`{c.locals[p].name}`")
         }
     }
-    // The first pass collects what each local may borrow (a loop can store into a local
-    // after its first use); the second reports against the complete picture.
+    // The collecting passes find what each local may borrow (a loop can store into a local after its first use, and
+    // each pass carries a chain of stores one step), until the totals stop changing; the last pass reports against the
+    // complete picture. The facts only grow and are finitely many, so the cap is a guard against a bug only.
     let body = c.functions[r.fn].body
-    stmtRegions(ref r, through: ref c, for: body)
+    var before = r.totals
+    var passes: i64 = 0
+    while true {
+        panic("internal error: region analysis did not converge") if passes == 64
+        t25ClearPass(ref r)
+        stmtRegions(ref r, through: ref c, for: body)
+        passes += 1
+        let after = r.totals
+        break if after == before
+        before = after
+    }
+    t25ClearPass(ref r)
     r.reporting = true
     stmtRegions(ref r, through: ref c, for: body)
     if !r.summary {
         checkMutations(ref r, through: ref c)
+    }
+}
+
+/// The totals over all stored locals' borrows, kept by `t41StoreBorrow`: they only grow, but for `lendsAt`, which only
+/// falls while `lends` stays the same, so any change a collecting pass makes shows in them.
+struct RegionTotals {
+    i64 regions = 0
+    i64 owners  = 0
+    i64 lends   = 0
+    i64 lendsAt = 0
+}
+
+/// Moves `t` from `old`'s totals to `b`'s, for a local whose borrow `b` replaces `old`.
+void t25Tally(ref RegionTotals t, by Borrow b, from Borrow old) {
+    let added = t25Totals(b)
+    let removed = t25Totals(old)
+    t.regions += added.regions - removed.regions
+    t.owners += added.owners - removed.owners
+    t.lends += added.lends - removed.lends
+    t.lendsAt += added.lendsAt - removed.lendsAt
+}
+
+RegionTotals t25Totals(Borrow b) {
+    var t = RegionTotals { regions: b.regions.length, owners: b.owners.length }
+    if (b.lends is { } l) {
+        for (_, at) in l {
+            t.lends += 1
+            t.lendsAt += at
+        }
+    }
+    return t
+}
+
+/// Empties what each pass appends, so the passes do not multiply the entries.
+void t25ClearPass(ref Regions r) {
+    r.loans.clear()
+    r.mutations.clear()
+    if r.summary {
+        r.pairs.clear()
+        r.returns.clear()
     }
 }
 
