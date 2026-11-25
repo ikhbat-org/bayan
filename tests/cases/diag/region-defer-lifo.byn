@@ -1,0 +1,7 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(5)
+    let s = xs.span
+    defer print($"{s[0]}")
+    defer xs.clear()
+}

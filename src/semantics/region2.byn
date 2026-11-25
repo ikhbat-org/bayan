@@ -909,20 +909,42 @@ void referBorrow(ref Regions r, through ref Ctx c, for LocalId local, by BExpr v
 }
 
 /// C# `LastUse`, the local function of `CheckMutations`: `useLists` holds each local's use positions at `useOf[local]`.
+/// A use inside a deferred body counts where the body runs, `deferEnds[d]` (the end of the block around `defers[d]`),
+/// unless that deferred statement also holds the mutation or the loan's creation.
 i64 lastUse(
     in Regions r,
     for LocalId holder,
     by in Map<LocalId,
     i64> useOf,
     as in List<List<i64>> useLists,
-    at in List<TextSpan> loops
+    at in List<TextSpan> loops,
+    through List<TextSpan> defers,
+    to List<i64> deferEnds,
+    until TextSpan mutation,
+    from i64 created
 ) {
     let declared = r.declaredAt.tryGet(at: holder) ?? -1
     var end: i64 = -1
     return end if !useOf.contains(holder)
     for use in useLists[useOf[holder]] {
-        if use > end {
-            end = use
+        var pos = use
+        var inner = -1
+        for d in 0..defers.length {
+            let inside = defers[d].start <= use && use < defers[d].end
+            if inside && (inner == -1 || defers[d].length < defers[inner].length) {
+                inner = d
+            }
+        }
+        if inner != -1 {
+            let span = defers[inner]
+            let holdsMutation = span.start <= mutation.start && mutation.end <= span.end
+            let holdsLoan = span.start <= created && created < span.end
+            if !holdsMutation && !holdsLoan {
+                pos = deferEnds[inner]
+            }
+        }
+        if pos > end {
+            end = pos
         }
         for loop in loops {
             if loop.start <= use && use < loop.end && !(loop.start <= declared && declared < loop.end) {
@@ -940,6 +962,8 @@ void checkMutations(ref Regions r, through ref Ctx c) {
     var useOf: Map<LocalId, i64> = []
     var useLists = List<List<i64>>()
     var loops = List<TextSpan>()
+    var defers = List<TextSpan>()
+    var blocks = List<TextSpan>()
     let nodes = descendants(in c, for: c.functions[r.fn].body)
     for node in nodes {
         let k = boundKind(node)
@@ -952,7 +976,29 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             useLists[useOf[l]].append(nodeSpan(in c, for: node).start)
         } else if k is .whileStmt or .doWhile or .forStmt {
             loops.append(nodeSpan(in c, for: node))
+        } else if k is .deferStmt or .errdeferStmt or .panicDefer {
+            // The statement's own span is the `defer` keyword; the body ends it.
+            let i = boundIndex(node)
+            let body = k == .deferStmt ? c.bDefers[i].body
+                : k == .errdeferStmt ? c.bErrdefers[i].body : c.bPanicDefers[i].body
+            let start = nodeSpan(in c, for: node).start
+            defers.append(TextSpan.fromBounds(start, until: nodeSpan(in c, for: body).end))
+        } else if k == .block {
+            blocks.append(nodeSpan(in c, for: node))
         }
+    }
+    // A deferred body runs at the end of the smallest block around its statement.
+    var deferEnds = List<i64>()
+    for d in defers {
+        var runs = d.end
+        var size: i64 = -1
+        for b in blocks {
+            if b.start <= d.start && d.end <= b.end && (size == -1 || b.length < size) {
+                runs = b.end
+                size = b.length
+            }
+        }
+        deferEnds.append(runs)
     }
     for mi in 0..r.mutations.length {
         let target = r.mutations[mi].target
@@ -971,6 +1017,10 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 by: in useOf,
                 as: in useLists,
                 at: in loops,
+                through: defers,
+                to: deferEnds,
+                until: mSpan,
+                from: created,
             )
             continue if end <= mSpan.end
             let targetName = c.locals[target].name
