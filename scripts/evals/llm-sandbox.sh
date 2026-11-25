@@ -8,7 +8,8 @@
 # write but to --write, and none to --tools; no signal outside the sandbox, no mach lookup; exec only of env, the --prime
 # helper, and anything under --write, TMPDIR, BAYAN_CACHE and the --sweep and --tools directories, and of the program
 # itself only when there is no --sweep or --tools). Zig is started from a copy under one of them, ZIG_LIB_DIR naming its lib.
-# The launcher exits 0 when it ran the program, 2 on bad usage or a path the profile cannot hold (`"`, `\` or a newline), 3
+# The launcher exits 0 when it ran the program, 2 on bad usage, a path the profile cannot hold (`"`, `\` or a newline), or a
+# --stdout or --status that is a symlink or lies under --write, 3
 # when the sweep left a process, 4 when --prime cannot build its helper, 143 on TERM or INT.
 # --no-fork denies fork to the program on macOS. --prime does not run the program: on macOS it builds llm-prime.c with zig
 # (into --tools, once, when given) and runs it under the same profile, which starts the program suspended and kills it
@@ -76,6 +77,17 @@ real() {
   echo "$(abs "$(dirname "$p")")/$(basename "$p")"
 }
 
+wdir=$(abs "$write")
+# The launcher writes --stdout and --status and reads --stdout outside the sandbox, following symlinks: either one in a
+# directory the program may write is a path the program could point anywhere (0.4.0 audit 16 #1).
+for p in "$stdout" "$status"; do
+  [ ! -L "$p" ] || { echo "llm-sandbox: --stdout and --status may not be symlinks: $p" >&2; exit 2; }
+  pd=$(abs "$(dirname "$p")")
+  case "$pd/" in
+    ("$wdir"/*) echo "llm-sandbox: --stdout and --status may not be under --write: $p" >&2; exit 2 ;;
+  esac
+done
+
 sandbox=none
 runner=(env -i "${envargs[@]}")
 profile=""
@@ -86,11 +98,11 @@ if [ "$(uname -s)" = Darwin ] && [ -x /usr/bin/sandbox-exec ]; then
   zlib=""
   if [ -n "${ZIG_LIB_DIR:-}" ]; then zlib=$(abs "$ZIG_LIB_DIR"); fi
   dotnet=$(abs "${DOTNET_ROOT:-/usr/local/share/dotnet}")
-  work=$(mktemp -d "${TMPDIR:-/tmp}/llm-sandbox.XXXXXX") || exit 2
+  # Under /tmp, not TMPDIR: the scorer's TMPDIR is inside --write, where the program could replace the profile.
+  work=$(mktemp -d /tmp/llm-sandbox.XXXXXX) || exit 2
   trap 'rm -rf "$work"' EXIT
   helper=""  # the prime helper, built with --prime here, or once in --tools when given
   if $prime; then helper=$(abs "${tools:-$work}")/llm-prime; fi
-  wdir=$(abs "$write")
   extra=()  # TMPDIR and BAYAN_CACHE, each when set
   if [ -n "${TMPDIR:-}" ]; then extra+=("$(abs "$TMPDIR")"); fi
   if [ -n "${BAYAN_CACHE:-}" ]; then extra+=("$(abs "$BAYAN_CACHE")"); fi

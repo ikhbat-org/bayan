@@ -328,5 +328,26 @@ else
   echo "skip lingerer cases: zig missing"
 fi
 
+
+# --stdout and --status are written and read by the launcher outside the sandbox, so neither may be a symlink nor lie under
+# --write, where the program could plant one (0.4.0 audit 16 #1). Each refusal leaves the outside file as it was.
+printf 'kept\n' > "$root/other/victim"
+refused() { "$bash" "$sb" "$@" -- "$shell" -c 'head -c 1048600 /dev/zero' > /dev/null 2> "$root/err"; echo "$? $(cat "$root/other/victim")"; }
+check "--stdout under --write refused" "$(refused --write "$root/w" --stdout "$root/w/out" --status "$root/status")" "2 kept"
+check "--status under --write refused" "$(refused --write "$root/w" --stdout "$root/out" --status "$root/w/status")" "2 kept"
+ln -sfn "$root/w" "$root/wlink"
+check "--stdout under --write named through a symlink refused" \
+  "$(refused --write "$root/wlink" --stdout "$root/w/out" --status "$root/status")" "2 kept"
+rm -f "$root/out" "$root/status"
+ln -s "$root/other/victim" "$root/out"
+check "--stdout a symlink refused" "$(refused --write "$root/w" --stdout "$root/out" --status "$root/status")" "2 kept"
+rm -f "$root/out"
+ln -s "$root/other/victim" "$root/status"
+check "--status a symlink refused" "$(refused --write "$root/w" --stdout "$root/out" --status "$root/status")" "2 kept"
+rm -f "$root/status"
+ln -s "$root/other/victim" "$root/w/big.cut"
+check "--stdout whose .cut is planted under --write refused" \
+  "$(refused --write "$root/w" --stdout "$root/w/big" --status "$root/status")" "2 kept"
+rm -f "$root/w/big.cut" "$root/wlink"
 echo "llm-sandbox.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]
