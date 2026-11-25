@@ -1283,9 +1283,20 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                         }
                     }
                     closes = w != -1
+                    // A jump before the mutation in a loop around it inside the scope runs after it on that loop's next turn.
+                    var from = mSpan.end
+                    var fromSize: i64 = -1
+                    for loop in loops {
+                        let around = loop.start <= mSpan.start && mSpan.end <= loop.end
+                        let inside = candidate.start <= loop.start && loop.end <= candidate.end
+                        if around && inside && loop.length > fromSize {
+                            from = loop.start
+                            fromSize = loop.length
+                        }
+                    }
                     for ji in 0..jumps.length {
                         let j = jumps[ji]
-                        continue if !closes || j < mSpan.end || j >= stores[w].span.end
+                        continue if !closes || j < from || j >= stores[w].span.end
                         // A jump to a loop or switch inside the scope resumes inside it.
                         var inner = false
                         for ti in 0..targetIds.length {
