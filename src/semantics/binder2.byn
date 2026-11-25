@@ -750,7 +750,7 @@ void joinIf(
         ends.append(branches[0].copy())
     }
     if node.elseBranch == -1 {
-        ends.append(before.copy())
+        ends.append(openFacts(ref b, from: before))
     } else if !exits(in c, for: node.elseBranch) {
         ends.append(branches[1].copy())
     }

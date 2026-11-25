@@ -1289,7 +1289,7 @@ BStmt bindSwitchStatement(ref Binder b, through ref Ctx c, for in parser.SwitchS
         }
     }
     if !exhaustive {
-        ends.append(before.copy())
+        ends.append(openFacts(ref b, from: before))
     }
     if ends.length > 0 {
         b.stateFacts = joinBranchFacts(ref b, for: ends, from: before, at: enclosing)

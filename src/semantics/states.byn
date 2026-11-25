@@ -720,6 +720,16 @@ List<(i64, LocalId, Type)> branchFacts(ref Binder b, by List<(i64, LocalId, Type
     return ended
 }
 
+/// The facts of `facts` whose scope is still open: a loop body or a branch that has ended leaves its facts in
+/// `b.stateFacts`, and a join must not bring them back (0.4.0 review of audit 06 #7).
+List<(i64, LocalId, Type)> openFacts(ref Binder b, from List<(i64, LocalId, Type)> facts) {
+    var open = List<(i64, LocalId, Type)>()
+    for f in facts {
+        open.append(f) if isOpen(ref b, for: f.item1)
+    }
+    return open
+}
+
 bool hasFact(List<(i64, LocalId, Type)> facts, for LocalId local, as Type type) {
     for f in facts {
         return true if f.item2 == local && f.item3 == type
