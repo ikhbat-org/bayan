@@ -187,7 +187,7 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
                 }
             }
             // A local receiver: an argument through a field the callee leaves alone cannot alias.
-            if k == -1 && !whole {
+            if k == -1 && boundKind(recv) == .local {
                 let fieldJ = t41LocalField(c, for: arguments[j])
                 continue if fieldJ != -1 && !t37HasId(receiverFields, for: fieldJ)
             }
