@@ -1,0 +1,19 @@
+union error E {
+    bad
+}
+
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+never stop() fails E {
+    fail E.bad
+}
+
+void main() {
+    var x = List<i64>()
+    consume(move x)
+    stop() catch {
+        print($"{x.length}")
+    }
+}

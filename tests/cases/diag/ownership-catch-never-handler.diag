@@ -1,0 +1,13 @@
+warning BYN2311: `x` is never reassigned; declare it with `let`
+
+  14 │     var x = List<i64>()
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 14 │     let x = List<i64>()
+     │    │     +++
+
+warning BYN2405: unreachable code
+
+  17 │         print($"{x.length}")
+     │         ^^^^^^^^^^^^^^^^^^^^

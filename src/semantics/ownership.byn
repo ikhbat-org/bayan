@@ -337,13 +337,19 @@ OwnState t24Statement(ref Ownership a, through ref Ctx c, for BStmt s, by move O
             return t24Exit(ref a, for: target, by: move after)
         case .deferStmt:
             let body = c.bDefers[i].body
-            let _ = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
+            let end = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
             t24Register(ref a, through: ref c, for: body, at: c.bDefers[i].span, onFailure: false, by: in state)
+            let last = a.cleanups.length - 1
+            var kept = t24BodyMoves(a.cleanups[last].moves, by: end)
+            a.cleanups[last].moves = move kept
             return move state
         case .errdeferStmt:
             let body = c.bErrdefers[i].body
-            let _ = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
+            let end = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
             t24Register(ref a, through: ref c, for: body, at: c.bErrdefers[i].span, onFailure: true, by: in state)
+            let last = a.cleanups.length - 1
+            var kept = t24BodyMoves(a.cleanups[last].moves, by: end)
+            a.cleanups[last].moves = move kept
             return move state
         // A panic handler runs in place of the scope's cleanups, not at its exit: registered only so a later move of what it reads is BYN2615.
         case .panicDefer:
@@ -400,6 +406,19 @@ OwnState t24Bind(in Ctx c, for BPattern pattern, by move OwnState start) {
         }
     }
     return move state
+}
+
+/// The moves a `defer`/`errdefer` body makes that still hold at its end, run from the state at registration: a local
+/// the body moves and then reassigns is not moved (0.4.0 review of audit 05 #6). A move the state already held at
+/// registration (a loop's earlier pass of the same cleanup) still counts when the body makes it.
+List<T24Moved> t24BodyMoves(List<T24Moved> registered, by OwnState end) {
+    var r = List<T24Moved>()
+    for x in registered {
+        if !end.reachable || t24Find(end.moved, by: x.local) >= 0 {
+            r.append(T24Moved { local: x.local, site: x.site })
+        }
+    }
+    return move r
 }
 
 /// Registers a cleanup: the locals `body` reads (not those it only assigns) and moves.
@@ -548,7 +567,7 @@ OwnState t24Expr(ref Ownership a, through ref Ctx c, for BExpr e, by move OwnSta
             // The failing path starts from before and after the operand: a failed call assigned no `out` argument.
             let before = t24Clone(state)
             state = t24Expr(ref a, through: ref c, for: c.bTries[i].operand, by: move state)
-            var failed = t24Join(before, by: state)
+            var failed = state.reachable ? t24Join(before, by: state) : t24Clone(state)
             t24RunCleanups(ref a, through: ref c, for: ref failed, from: 0, failing: true)
             return isNever(c.bTries[i].type) ? t24Unreachable() : move state
         case .binary:
@@ -621,7 +640,7 @@ OwnState t24Expr(ref Ownership a, through ref Ctx c, for BExpr e, by move OwnSta
             let before = t24Clone(state)
             state = t24Expr(ref a, through: ref c, for: c.bCatches[i].operand, by: move state)
             // As `try`: the failing path and the handler start from before and after the operand.
-            let failed = t24Join(before, by: state)
+            let failed = state.reachable ? t24Join(before, by: state) : t24Clone(state)
             if c.bCatches[i].variant != -1 {
                 var propagated = t24Clone(failed)
                 t24RunCleanups(ref a, through: ref c, for: ref propagated, from: 0, failing: true)
