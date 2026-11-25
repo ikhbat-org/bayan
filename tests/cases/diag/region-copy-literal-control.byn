@@ -1,0 +1,10 @@
+List<string> f() {
+    var xs = List<string>()
+    xs.append("hi")
+    xs.append("there")
+    return xs.copy()
+}
+void main() {
+    let xs = f()
+    print(xs[0])
+}

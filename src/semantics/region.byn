@@ -953,10 +953,35 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
         default:
             break
     }
+    // A copy is shallow: elements that borrow still point where the receiver's did.
+    var elements = t25None()
+    if member is .spanCopy or .listCopy or .mapCopy {
+        let receiverType = exprType(in c, for: receiverExpr)
+        let ti = typeIndex(receiverType)
+        var seen = List<Type>()
+        var may = true
+        switch kindOf(receiverType) {
+            case .list: may = mayBorrow(ref c, for: c.listTypes[ti], by: ref seen)
+            case .array: may = mayBorrow(ref c, for: c.arrayTypes[ti].element, by: ref seen)
+            case .span: may = mayBorrow(ref c, for: c.spanTypes[ti].element, by: ref seen)
+            case .map:
+                may = mayBorrow(ref c, for: c.mapTypes[ti].key, by: ref seen)
+                    || mayBorrow(ref c, for: c.mapTypes[ti].value, by: ref seen)
+            default: may = true
+        }
+        if may {
+            // The copy is not a view of the receiver, so it keeps no loan on it.
+            elements = t25Copy(receiver)
+            elements.lends = null
+        }
+    }
     // C# `case … when b.Arguments.Length > 0`: with no argument the member falls to the cases below.
     switch member {
         case .spanCopy or .stringCopy or .listCopy or .mapCopy or .strBufCopy:
-            return allocatedFrom(ref r, through: ref c, for: argExprs[0]) if argExprs.length > 0
+            if argExprs.length > 0 {
+                let into = allocatedFrom(ref r, through: ref c, for: argExprs[0])
+                return unionBorrow(in into, by: in elements)
+            }
         default:
             break
     }
@@ -964,9 +989,9 @@ Borrow builtinBorrow(ref Regions r, through ref Ctx c, for BExpr e) {
         case .ioReadAll or .intToString or .stringCopy or .stringLowercased or .stringUppercased
             or .stringReplaced or .stringRepeated or .stringJoined or .utf16Copy
             or .stringPadded or .bytesToString or .spanCopy or .listCopy:
-            // Fresh text from `context.allocator`, like `Io.readText`.
-            return t25Copy(r.contexts[r.contexts.length - 1]) if r.contexts.length > 0
-            return t25None()
+            // Fresh text from `context.allocator`, like `Io.readText`; `elements` is empty but for a collection copy.
+            return unionBorrow(in r.contexts[r.contexts.length - 1], by: in elements) if r.contexts.length > 0
+            return move elements
         case .listReplace or .listAdd:
             mutateBorrow(ref r, through: ref c, for: receiverExpr, at: span)
             return t25None()
