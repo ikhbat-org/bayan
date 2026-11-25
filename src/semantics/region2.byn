@@ -273,12 +273,18 @@ Borrow callBorrow(ref Regions r, through ref Ctx c, for BExpr call) {
     // Allocated from `context.allocator`: a list, an `Owned`, a growable `StrBuf`, or the text `Io.readText`, `Io.run` and `Utf8.decode` return (Q29).
     // A user function with a body allocates there only if it uses `alloc` (declared or inferred), and then any heap
     // data it returns, text too, may come from it; a callee with no body to judge keeps the list rule.
+    // A function value passed in is charged to this caller, not the callee (R16): it may allocate whatever the callee returns.
+    // A broad callee keeps the list rule, and its declared `alloc` (function type or `uses`) covers any heap data too.
     var seenList = List<Type>()
     var allocated = false
     if r.contexts.length > 0 && builtin == .none && !t41IsBroad(c, for: fn) && c.functions[template].body != -1 {
         var seenHeap = List<Type>()
-        allocated = (fn >= c.allocates.length || c.allocates[fn])
+        allocated = (fn >= c.allocates.length || c.allocates[fn] || t41PassesAllocating(ref c, for: fn, from: arguments))
             && (containsList(ref c, for: callType, by: ref seenList) || mayBorrow(ref c, for: callType, by: ref seenHeap))
+    } else if r.contexts.length > 0 && builtin == .none {
+        var seenHeap = List<Type>()
+        allocated = containsList(ref c, for: callType, by: ref seenList)
+            || t41BroadAllocates(ref c, for: fn, by: recv, from: arguments) && mayBorrow(ref c, for: callType, by: ref seenHeap)
     } else if r.contexts.length > 0 {
         allocated = containsList(ref c, for: callType, by: ref seenList)
     }
@@ -361,6 +367,36 @@ List<StorePair> t41Stores(ref Ctx c, for FuncId fn, by BExpr call) {
         result[at] = p
     }
     return result
+}
+
+/// Whether a value of function type `type` may allocate: its type uses `alloc`.
+bool t41FunctionAllocates(ref Ctx c, for Type type) {
+    return false if kindOf(type) != .function
+    for effect in c.functionTypes[typeIndex(type)].effects {
+        return true if effect == "alloc"
+    }
+    return false
+}
+
+/// Whether an argument is a function value that may allocate: its effects are charged to the caller, not the callee (R16).
+bool t41PassesAllocating(ref Ctx c, for FuncId fn, from List<BExpr> arguments) {
+    let parameters = copyIds(c.functions[fn].parameters)
+    for j in 0..arguments.length {
+        return true if t41FunctionAllocates(ref c, for: exprType(c, for: arguments[j]))
+        return true if j < parameters.length && t41FunctionAllocates(ref c, for: c.locals[parameters[j]].type)
+    }
+    return false
+}
+
+/// Whether a broad callee may allocate from `context.allocator`: a function value whose type uses `alloc`, or an
+/// interface method or `extern` function (no body to judge); an allocating function value passed to it counts too.
+bool t41BroadAllocates(ref Ctx c, for FuncId fn, by BExpr recv, from List<BExpr> arguments) {
+    return true if t41PassesAllocating(ref c, for: fn, from: arguments)
+    if recv != -1 && kindOf(exprType(c, for: recv)) == .function {
+        return t41FunctionAllocates(ref c, for: exprType(c, for: recv))
+    }
+    // An interface method or `extern` function has no body for the effects pass to fill `allocates` from: assume it allocates.
+    return true
 }
 
 /// A function value, an interface method or an `extern` function: no body to summarise.

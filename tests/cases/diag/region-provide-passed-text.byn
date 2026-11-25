@@ -1,0 +1,9 @@
+string run(i64 -> string uses alloc f) => f(1)
+void main() uses alloc {
+    var s = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = run(n => $"v={n}") }
+    }
+    print(s)
+}
