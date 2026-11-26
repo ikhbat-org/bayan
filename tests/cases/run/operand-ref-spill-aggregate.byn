@@ -1,0 +1,92 @@
+// A tuple, optional, fixed-size array or union local of plain values passed by value beside a later call taking it by
+// `ref` is read first, left to right (audit 0.4.0 09-emitter M4; branch review 3 of the mediums fixes).
+union Mark {
+    a
+    b
+}
+
+union Shape {
+    circle(i64 r)
+    square(i64 side)
+}
+
+struct Row {
+    i64[2] cells
+}
+
+i64 setTuple(ref (i64 x, i64 y) t) {
+    t = (x: 20, y: 20)
+    return 20
+}
+
+i64 setOptional(ref i64? o) {
+    o = 20
+    return 20
+}
+
+i64 setArray(ref i64[2] a) {
+    a[0] = 20
+    return 20
+}
+
+i64 setRow(ref Row r) {
+    r.cells[0] = 20
+    return 20
+}
+
+i64 setMark(ref Mark m) {
+    m = .b
+    return 2
+}
+
+i64 setShape(ref Shape s) {
+    s = .square(side: 20)
+    return 20
+}
+
+void tuple((i64 x, i64 y) t, to i64 b) {
+    print($"tuple {t.x} {b}")
+}
+
+void optional(i64? o, to i64 b) {
+    print($"optional {o ?? 0} {b}")
+}
+
+void array(i64[2] a, to i64 b) {
+    print($"array {a[0]} {b}")
+}
+
+void row(Row r, to i64 b) {
+    print($"row {r.cells[0]} {b}")
+}
+
+void mark(Mark m, to i64 b) {
+    switch m {
+        case .a: print($"mark a {b}")
+        case .b: print($"mark b {b}")
+    }
+}
+
+void shape(Shape s, to i64 b) {
+    switch s {
+        case .circle(let r):
+            print($"shape circle {r} {b}")
+        case .square(let side):
+            print($"shape square {side} {b}")
+    }
+}
+
+void main() {
+    var t: (i64 x, i64 y) = (x: 1, y: 1)
+    tuple(t, to: setTuple(ref t))
+    var o: i64? = 1
+    optional(o, to: setOptional(ref o))
+    var a: i64[2] = [1, 2]
+    array(a, to: setArray(ref a))
+    var r = Row { cells: [1, 2] }
+    row(r, to: setRow(ref r))
+    var m = Mark.a
+    mark(m, to: setMark(ref m))
+    var s = Shape.circle(r: 1)
+    shape(s, to: setShape(ref s))
+}

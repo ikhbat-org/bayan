@@ -512,17 +512,37 @@ void emitEffect(ref Ctx c, through ref LCtx l, for BExpr value) uses alloc {
     )
 }
 
-/// Whether a bitwise copy of a `t` value is that value: a number, `bool`, a `rune`, an enum, or a struct whose fields are
-/// all plain values, `depth` structs deep at most 8. Strings, lists, type parameters and other storage are not.
+/// Whether a bitwise copy of a `t` value is that value: a number, `bool`, a `rune`, an enum, or a struct, tuple, optional,
+/// fixed-size array or union made only of such values, `depth` levels deep at most 8. Strings, lists, type parameters and
+/// other storage are not.
 bool plainValue(ref Ctx c, for semantics.Type t, at i64 depth) {
     return true if semantics.isNumeric(t) || semantics.isBool(t) || t == semantics.prim(.char)
-    return true if semantics.kindOf(t) == .enumType
-    return false if semantics.kindOf(t) != .structType || depth >= 8
-    let sid = i64(t & 0xFFFFFFFF)
-    for k in 0..c.structs[sid].fields.length {
-        return false unless plainValue(ref c, for: c.fields[c.structs[sid].fields[k]].type, at: depth + 1)
+    return false if depth >= 8
+    let i = i64(t & 0xFFFFFFFF)
+    switch semantics.kindOf(t) {
+        case .enumType: return true
+        case .optional: return plainValue(ref c, for: c.optionalTypes[i], at: depth + 1)
+        case .array: return plainValue(ref c, for: c.arrayTypes[i].element, at: depth + 1)
+        case .tuple:
+            for k in 0..c.tupleTypes[i].length {
+                return false unless plainValue(ref c, for: c.tupleTypes[i][k].type, at: depth + 1)
+            }
+            return true
+        case .structType:
+            for k in 0..c.structs[i].fields.length {
+                return false unless plainValue(ref c, for: c.fields[c.structs[i].fields[k]].type, at: depth + 1)
+            }
+            return true
+        case .unionType:
+            for j in 0..c.unions[i].variants.length {
+                let v = c.unions[i].variants[j]
+                for k in 0..c.unionVariants[v].fields.length {
+                    return false unless plainValue(ref c, for: c.locals[c.unionVariants[v].fields[k]].type, at: depth + 1)
+                }
+            }
+            return true
+        default: return false
     }
-    return true
 }
 
 /// Lowerer.cs:248 `Operands`: lowers operands so they are evaluated left to right: when a later operand needs
@@ -561,7 +581,7 @@ bool operands(
         barrier = effects[effects.length - 1]
     }
     // An operand moving a local a later operand reads happens first, as its own statement, so the read sees the local moved.
-    // An operand reading a plain value (`plainValue`: a number, `bool`, a `rune`, an enum, or a struct of only such fields) from a
+    // An operand reading a plain value (`plainValue`: a number, `bool`, a `rune`, an enum, or an aggregate of only such) from a
     // local a later call takes by `ref` is stored first, so the read sees the value before the call. A list, a string or a
     // struct holding one is not copied: a shallow copy could outlive storage the call frees, so it stays a view of the local.
     var movedFirst = List<bool>()
