@@ -1584,8 +1584,12 @@ bool isVariadicArray(ref Parser p, at i64 index) {
 }
 
 /// Whether `ReadOnlySpan<T> name` starts at `index`: the `params` keyword on the span itself.
-bool isParamsSpan(ref Parser p, at i64 index) =>
-    p.textOf(p.lexed.tokens[index]) == "ReadOnlySpan" && isTypeThenName(ref p, at: index)
+/// Only `ReadOnlySpan<…>` ending at its `>` counts: `ReadOnlySpan xs` and `ReadOnlySpan<T>? xs` keep the BYN5008 path.
+bool isParamsSpan(ref Parser p, at i64 index) {
+    let after = scanType(ref p, at: index)
+    return p.textOf(p.lexed.tokens[index]) == "ReadOnlySpan" && p.kindAt(index + 1) == .less && after > 0
+        && p.kindAt(after - 1) == .greater && isName(p.kindAt(after))
+}
 
 /// `params T[] xs`, the BYN1058 input form for `rest ReadOnlySpan<T> xs`; also `params ReadOnlySpan<T> xs`.
 Param parseParamsInput(ref Parser p, at i64 start) {
@@ -1596,7 +1600,9 @@ Param parseParamsInput(ref Parser p, at i64 start) {
         var elementText = ""
         switch type {
             case .namedType(let n):
-                elementText = p.lexed.source.getText(typeSpan(in n.value.args[0]))
+                if n.value.args.length > 0 {
+                    elementText = p.lexed.source.getText(typeSpan(in n.value.args[0]))
+                }
             default:
                 elementText = ""
         }

@@ -475,6 +475,37 @@ test "driver t29: t9TreeSize counts the files of subdirectories" {
     deleteWorkDir(dir)
 }
 
+test "driver t29: t9CompileIn unlinks a directory link the compiler left, keeping its target" {
+    if Target.os == "windows" {
+        todo("`/bin/sh` and `ln -s` are Unix-only")
+    }
+    var d = newDCtx()
+    let key = $"t29-dsym-link-{t9Unique(ref d)}"
+    let entry = Path.combine(t9Programs(), key)
+    let work = t29CacheDir("compile-dsym-link")
+    let kept = t29CacheDir("compile-dsym-target")
+    goldenWrite(kept, for: "keep", as: "x")
+    let built = t9CompileIn(
+        work,
+        by: boundList(
+            ["/bin/sh", "-c", $"while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf ours > \"$2\"; ln -s '{kept}' \"$2.dSYM\"; fi; shift; done"],
+        ),
+        through: boundList([]),
+        from: "int main(void) { return 0; }\n",
+        for: key,
+        as: "a.out",
+        until: "rt.o",
+        at: false,
+        to: ref d,
+    ) catch { panic("compile") }
+    assert built.succeeded && !built.rejected
+    assert Fs.fileExists(Path.combine(kept, "keep"))
+    assert !t9DirectoryExists(Path.combine(work, "a.out.dSYM"))
+    deleteWorkDir(entry)
+    deleteWorkDir(work)
+    deleteWorkDir(kept)
+}
+
 test "driver t29: t9TreeSize does not enter a link to a directory" {
     if Target.os == "windows" {
         todo("`/bin/sh` and `ln -s` are Unix-only")

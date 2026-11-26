@@ -716,7 +716,12 @@ NativeBuild t9CompileIn(
         if name != exeName && Fs.fileExists(file) {
             try Io.remove(file)
         } else if t9DirectoryExists(file) {
-            try t9DeleteTree(file)
+            // a link to a directory is unlinked, not emptied: its target is not the compiler's
+            if (try Fs.realPath(file)) == Path.combine(try Fs.realPath(work), name) {
+                try t9DeleteTree(file)
+            } else {
+                try Io.remove(file)
+            }
         }
     }
     try Io.writeFile(Path.combine(work, "program.sha256"), $"{try t9HashFile(exe)}\n".bytes)
@@ -919,16 +924,18 @@ void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAge
 }
 
 /// The bytes of the files below `dir`, subdirectories included, by `Fs.fileSize`. A link to a directory (its real path is not
-/// `dir`'s real path joined with its name) is not entered, so a link cycle cannot recurse without end (docs/memory-leaks.md).
-i64 t9TreeSize(string dir) uses alloc, fs fails IoError {
+/// `dir`'s real path joined with its name) is not entered, so a link cycle cannot recurse without end (docs/memory-leaks.md). Nor is a
+/// subdirectory more than 32 levels down, or one that cannot be listed: it counts 0 rather than stopping the eviction.
+i64 t9TreeSize(string dir, i64 depth = 0) uses alloc, fs fails IoError {
     var size: i64 = 0
     let real = try Fs.realPath(dir)
     let names = try Io.listDir(dir)
     for name in names {
         let path = Path.combine(dir, name)
         if t9DirectoryExists(path) {
-            if (try Fs.realPath(path)) == Path.combine(real, name) {
-                size += try t9TreeSize(path)
+            let inside = (Fs.realPath(path) catch "") == Path.combine(real, name)
+            if inside && depth < 32 {
+                size += t9TreeSize(path, depth: depth + 1) catch 0
             }
         } else if Fs.fileExists(path) {
             size += try Fs.fileSize(path)
