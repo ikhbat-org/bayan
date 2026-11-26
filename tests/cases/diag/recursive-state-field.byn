@@ -1,0 +1,7 @@
+struct Wrap {
+    i64 id
+    states { a }
+    Wrap.a inner
+}
+i64 f(Wrap w) => w.id
+void main() { print("hi") }

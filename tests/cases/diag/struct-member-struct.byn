@@ -1,0 +1,4 @@
+struct Outer {
+    struct Inner { i64 x }
+}
+void main() { print("hi") }
