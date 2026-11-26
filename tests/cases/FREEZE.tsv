@@ -4131,7 +4131,7 @@ file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDefaultT2T
 file	dcde18db6b486080fcc1976c23900168770d3f10	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-456/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-456/expected.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-457/expected.exitcode
-file	20d86560e86f18523e0433d5ddea6b83cb13a4dd	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-457/expected.stderr
+file	74b831a6fca8b3c573a8863bb16731004aa187d3	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-457/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-457/expected.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-458/expected.exitcode
 file	5f3675a82d840031751829be5e0b4a5b3b01a2bb	tests/cases/cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-458/expected.stderr
@@ -10207,7 +10207,7 @@ file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDriverT2Te
 file	8f8eaf250a7db4d27ca2309ec353d754b7629ecc	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-406/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-406/expected.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-407/expected.exitcode
-file	aeaa97c0f09048926738efe4840de2b3b688ed9f	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-407/expected.stderr
+file	fe100637f71aec9b6bad339a210d71d411fc36a7	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-407/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-407/expected.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-408/expected.exitcode
 file	4bfd63cb9204bb522fc0bf298b2e5e569edf180f	tests/cases/cli/SelfhostDriverT2Tests/CheckAsCliApp-408/expected.stderr
@@ -16318,10 +16318,10 @@ file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitter
 file	fac208a4255168da2d3056e70ddd75003b8f0390	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-stored-through-span.byn --diagnostics json/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --all/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --all/expected.exitcode
-file	a5e3e547df728c83075632f22e436c043487c365	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --all/expected.stderr
+file	64344720b792171c64a2ac86db990e3485af069f	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --all/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --diagnostics json/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --diagnostics json/expected.exitcode
-file	83d02afdd9bd3abb09a3c033381c018aecf50357	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --diagnostics json/expected.stderr
+file	04ba600b2fd7d8519fd8e10c88dbc40e5dfa16b9	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_borrow-then-mutated-in-initializer.byn --diagnostics json/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_bracket-attribute.byn --all/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_bracket-attribute.byn --all/expected.exitcode
 file	14868075dc5fb1583e27c051dc13b606047df811	tests/cases/emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_bracket-attribute.byn --all/expected.stderr
@@ -20083,7 +20083,7 @@ file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitter
 file	f46c472377b1f5051f4fb672afbaa800e679cc33	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_borrow-stored-through-span.byn/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_borrow-then-mutated-in-initializer.byn/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_borrow-then-mutated-in-initializer.byn/expected.exitcode
-file	a5e3e547df728c83075632f22e436c043487c365	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_borrow-then-mutated-in-initializer.byn/expected.stderr
+file	64344720b792171c64a2ac86db990e3485af069f	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_borrow-then-mutated-in-initializer.byn/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_bracket-attribute.byn/expected.c
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_bracket-attribute.byn/expected.exitcode
 file	14868075dc5fb1583e27c051dc13b606047df811	tests/cases/emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_bracket-attribute.byn/expected.stderr
