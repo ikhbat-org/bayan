@@ -79,3 +79,36 @@ test "{a,b} groups are tried one alternative at a time, not all built first" {
     assert !Glob.matches($"{"{a,b}".repeated(40)}x", for: "a".repeated(40))
     assert Glob.matches($"{"{a,b}".repeated(4)}*", for: "abababab")
 }
+
+/// The live memory of this process in KB (`ps -o rss`; on macOS `vmmap`'s physical footprint, as the LSP bounds test reads it).
+i64 globResidentKb() uses alloc, process {
+    var args = List<string>()
+    args.append("-c")
+    if Target.os == "macos" {
+        args.append("vmmap --summary $PPID | awk '/^Physical footprint:/{s=$3;u=substr(s,length(s),1);v=substr(s,1,length(s)-1)+0;if(u==\"K\")v=v;else if(u==\"M\")v=v*1024;else if(u==\"G\")v=v*1048576;else v=v/1024;printf \"%d\\n\",v}'")
+    } else {
+        args.append("ps -o rss= -p $PPID")
+    }
+    let r = Io.run("sh", args.span) catch { panic("cannot run sh to read the resident set") }
+    assert(r.exitCode == 0)
+    var kb: i64 = 0
+    for b in r.stdout.trimmed().bytes {
+        assert(b >= '0' && b <= '9')
+        kb = kb * 10 + i64(b - '0')
+    }
+    return kb
+}
+
+test "matching many paths keeps nothing per call (audit 0.4.0 mediums review: the `*` table built in the caller's allocator)" {
+    return if Target.os == "windows"
+    let pattern = $"*{"c".repeated(300)}"
+    let path = "a".repeated(400)
+    assert !Glob.matches(pattern, for: path)
+    let before = globResidentKb()
+    for _ in 0..2000 {
+        assert !Glob.matches(pattern, for: path)
+    }
+    let grown = globResidentKb() - before
+    print($"2000 matches of a 301-byte pattern over a 400-byte path grew the resident set by {grown} KB") if grown >= 40 * 1024
+    assert grown < 40 * 1024
+}

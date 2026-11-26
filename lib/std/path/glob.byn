@@ -9,8 +9,13 @@ public struct Glob {
     /// alternatives nest and may hold `/`; an unclosed `{` is itself. A character is one UTF-8 code point (`é` is one,
     /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character
     /// that equals only the same byte.
+    /// Everything it builds (each alternative, the `*` table) lives in an arena freed on return, so a caller matching
+    /// many paths (`fs.glob` walking a tree) keeps nothing per call.
     public static bool matches(string pattern, for string path) uses alloc {
-        return expandMatches(pattern, for: path)
+        using let arena = Arena()
+        provide allocator: arena {
+            return expandMatches(pattern, for: path)
+        }
     }
 }
 
