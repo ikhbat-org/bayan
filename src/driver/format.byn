@@ -75,7 +75,7 @@ Map<string, string> sizedPrimitives() uses alloc {
 }
 
 /// Format.cs:41 `Run`. `kept` is the command and its arguments.
-i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs {
+i32 formatCommand(in List<string> kept, by in DCtx d) uses alloc, console, fs, random {
     let rest = t2Rest(in kept)
     var check = false
     var args = List<string>()
@@ -207,10 +207,14 @@ bool t8SameBytes(in List<u8> a, as in List<u8> b) {
     return true
 }
 
-/// Format.cs:284 `WriteReplacing`: writes `bytes` over `file`, already resolved by `realPath`, in place (Q1122).
-// stub: T8 `WriteReplacing` temp file, mode, rename (blocked: Q1111)
-void writeReplacing(string file, from in List<u8> bytes) fails IoError {
-    try Io.writeFile(file, bytes.span)
+/// Format.cs:296 `WriteReplacing`: writes `bytes` to a temp file beside `file`, already resolved by `realPath`, then renames it over
+/// `file`; a symlink to it stays a symlink. The runtime has no Unix mode get or set, so the C#'s `SetUnixFileMode` is not ported: the
+/// file gets the temp file's mode.
+void writeReplacing(string file, from in List<u8> bytes) uses alloc, fs, random fails IoError {
+    let temp = Path.combine(Path.directoryName(file) ?? ".", $"{Io.randomU64()}.tmp")
+    defer t9DeleteFile(temp)
+    try Io.writeFile(temp, bytes.span)
+    try Fs.rename(temp, to: file)
 }
 
 /// Format.cs:301 `ApplyFixes`: the bytes with each distinct fix applied in order; a fix overlapping an earlier one is skipped.

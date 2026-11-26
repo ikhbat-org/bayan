@@ -247,7 +247,7 @@ struct ZigOrCc : ICCompiler {
         by string mode,
         for string? target
     ) {
-        let compiler = ccFindCompiler()
+        let compiler = t5FindCompiler()
         let resolved = target ?? targetHost()
         let refusal = ccRefusal(in compiler, for: resolved)
         return NativeBuild { errors: refusal } if refusal != ""
@@ -269,7 +269,9 @@ struct ZigOrCc : ICCompiler {
         }
         // Toolchain.cs:397-402: the runtime object first. A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode`.
         let runtimeArgs = ccRuntimeArguments(in compiler, for: dir, by: mode, through: resolved)
-        let rt = Io.run(compiler[0], runtimeArgs.span, env: zigCacheEnv(compiler)) catch switch {
+        let limit = t9CompileTimeout() / 1000000
+        let rt = Io.run(compiler[0], runtimeArgs.span, env: zigCacheEnv(compiler), timeout: Millis(limit)) catch switch {
+            .timeout(_, _, _) => return NativeBuild { errors: t9TimedOut(limit), rejected: true },
             // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
@@ -285,7 +287,8 @@ struct ZigOrCc : ICCompiler {
             // coverage-exempt: Q1286 a compiler that exits 0 without writing bayan-rt.o
             || !t1FileExists(Path.combine(dir, "bayan-rt.o"))
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
-        let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+        let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler), timeout: Millis(limit)) catch switch {
+            .timeout(_, _, _) => return NativeBuild { errors: t9TimedOut(limit), rejected: true },
             // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",

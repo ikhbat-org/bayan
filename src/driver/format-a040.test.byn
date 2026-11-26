@@ -1,0 +1,29 @@
+// Audit 0.4.0 (11-driver-tools #1): `writeReplacing` writes a temp file beside the target and renames it over, as Format.cs:296.
+
+test "audit040: writeReplacing renames a new file over the target, so a hard link keeps the old bytes and no temp file is left" {
+    if Target.os == "windows" {
+        todo("`ln` makes the hard link; Windows has none")
+    }
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "audit040-format"), "replace")
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    let file = Path.combine(dir, "a.byn")
+    let link = Path.combine(dir, "b.link")
+    goldenWrite(dir, for: "a.byn", as: "old\n")
+    var args = List<string>()
+    args.append(file)
+    args.append(link)
+    let r = Io.run("ln", args.span) catch { panic("ln did not run") }
+    assert r.exitCode == 0
+    var bytes = List<u8>()
+    for b in "new\n".bytes {
+        bytes.append(b)
+    }
+    writeReplacing(file, from: in bytes) catch { panic($"cannot replace {file}") }
+    assert (Io.readText(file) catch "") == "new\n"
+    // an in-place write goes through the shared inode, so the link would read `new`
+    assert (Io.readText(link) catch "") == "old\n"
+    let names = Io.listDir(dir) catch List<string>()
+    assert names.length == 2
+    deleteWorkDir(dir)
+}
