@@ -1,4 +1,5 @@
 error BYN1002: expected an expression, found `=`
+  --> main.byn:3:17
 
   3 │     assert a == = 1
     │                 ^

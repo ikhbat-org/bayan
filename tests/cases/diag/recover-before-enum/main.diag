@@ -1,9 +1,11 @@
 error BYN1002: expected an expression, found `=`
+  --> main.byn:1:9
 
   1 │ let x = = 1
     │         ^
 
 error BYN1001: expected `}`, found `=`
+  --> main.byn:4:11
 
   4 │     green = = =
     │           ^
@@ -11,6 +13,7 @@ error BYN1001: expected `}`, found `=`
   help: close the enum opened on line 2
 
 error BYN1001: expected a declaration or statement, found `}`
+  --> main.byn:5:1
 
   5 │ }
     │ ^

@@ -1,4 +1,5 @@
 error BYN1044: `distinct type` is an input form; write `type distinct`
+  --> main.byn:1:1
 
   1 │ distinct type Meter = i64
     │ ^^^^^^^^^^^^^ the input form
@@ -8,6 +9,7 @@ error BYN1044: `distinct type` is an input form; write `type distinct`
     │   │ +++++++++++++
 
 error BYN1001: expected `}`, found `=`
+  --> main.byn:4:11
 
   4 │     green = = =
     │           ^
@@ -15,6 +17,7 @@ error BYN1001: expected `}`, found `=`
   help: close the enum opened on line 2
 
 error BYN1001: expected a declaration or statement, found `}`
+  --> main.byn:5:1
 
   5 │ }
     │ ^

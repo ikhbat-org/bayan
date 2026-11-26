@@ -1,4 +1,5 @@
 error BYN1057: `(u8)x` is an input form; write `u8(x)`
+  --> main.byn:2:13
 
   2 │     let a = (u8)x
     │             ^^^^ a cast
@@ -8,6 +9,7 @@ error BYN1057: `(u8)x` is an input form; write `u8(x)`
     │   │             +++++
 
 error BYN1002: expected an expression, found `=`
+  --> main.byn:3:17
 
   3 │     assert a == = 1
     │                 ^
