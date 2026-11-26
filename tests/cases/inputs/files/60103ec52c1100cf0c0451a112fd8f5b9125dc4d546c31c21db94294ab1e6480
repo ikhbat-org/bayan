@@ -1,0 +1,2 @@
+#!/bin/sh
+echo CUSTOM >&2; exit 1

@@ -1,0 +1,15 @@
+// Audit 0.4.0 (11-driver-tools #4): `fixRoots` matches the project `src/` root with the host separator, as FixCommand.cs:129.
+
+test "audit040: fixRoots puts the project src root first for a module three levels below it" {
+    let root = Path.combine(Path.combine(Path.fullPath("tmp"), "audit040-fix"), "roots")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "package.byn", as: "")
+    let src = Path.combine(root, "src")
+    let dir = Path.combine(Path.combine(Path.combine(src, "a"), "b"), "c")
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    let roots = fixRoots(dir)
+    assert roots.length == 4
+    assert roots[0] == src
+    assert roots[1] == dir
+    deleteWorkDir(root)
+}

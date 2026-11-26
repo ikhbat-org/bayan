@@ -14,7 +14,7 @@ struct T9PathFix {
 /// Applies the fix of every style lint (BYN1072–BYN1080), whatever its severity in `lints`; overlapping fixes wait for the next
 /// pass, up to `d.maxPasses`. It does not run the formatter.
 // FixCommand.cs: Run
-i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, fs {
+i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, fs, random {
     let args = t2Rest(in kept)
     for a in args {
         if a.startsWith("-") {
@@ -110,7 +110,7 @@ i32 fixCommand(in List<string> kept, by in DCtx d) uses alloc, clock, console, f
 /// sets `exit` to 1 (the C# `false`).
 // FixCommand.cs: FixModule
 void fixModule(string dir, for in List<string> files, until i64 maxPasses, through ref i32 exit)
-        uses alloc, clock, console, fs
+        uses alloc, clock, console, fs, random
         fails IoError {
     var counts = List<i64>()
     var refused = List<bool>()
@@ -250,7 +250,7 @@ List<string> fixRoots(string dir) uses alloc, fs {
     var up = Path.directoryName(dir)
     while let u = up {
         let src = Path.combine(u, "src")
-        if t1FileExists(Path.combine(u, "package.byn")) && dir.startsWith($"{src}/") {
+        if t1FileExists(Path.combine(u, "package.byn")) && dir.startsWith($"{src}{Target.os == "windows" ? "\\" : "/"}") {
             roots.append(src)
             break
         }

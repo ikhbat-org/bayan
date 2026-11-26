@@ -1,0 +1,3 @@
+error BYN4001: internal compiler error: the C compiler rejected the generated C; this is a bug in
+the Bayan compiler
+C compiler timed out after 2 s and was killed (set BAYAN_CC_TIMEOUT_S to allow longer)
