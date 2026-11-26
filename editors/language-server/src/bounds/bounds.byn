@@ -562,3 +562,62 @@ test "1,000 edits to one open document do not grow the resident set" {
     // The allocator settles at most one step of about 2.5 MiB at some edit; an edit that kept its document would add over 100 KiB.
     assert(after - before < 4096)
 }
+
+test "40 incremental changes to a 1 MiB document in one didChange do not grow the resident set: no change keeps its text" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    var ws = workspace.Workspace.create()
+    let text = dense(1 << 19)
+    let at = ws.open("file:///changes.byn", from: text.utf16.copy(), at: 1)
+    var before: i64 = 0
+    var after: i64 = 0
+    // As `run` handles one didChange with many `contentChanges`: all in one arena.
+    using let arena = Arena()
+    provide allocator: arena {
+        for i in 0..40 {
+            // After a warm-up.
+            if i == 4 {
+                before = residentKb()
+            }
+            if i % 2 == 0 {
+                ws.apply(at: at, from: 0, by: 0, to: 0, through: 0, as: "x".utf16.copy().span)
+            } else {
+                ws.apply(at: at, from: 0, by: 0, to: 0, through: 1, as: "".utf16.copy().span)
+            }
+        }
+        after = residentKb()
+    }
+    print($"resident set {before} KB to {after} KB")
+    assert(ws.charCount == text.length)
+    // A change that kept its text in the message arena would add about 2 MiB each, over 70 MiB for the 36 measured.
+    assert(after - before < 8192)
+}
+
+test "walking 100 folders of 200 files leaves under 2 MiB in the message arena: the walk keeps no listing once it returns" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    let root = fresh("walk-listing")
+    let stem = "n".repeated(100)
+    for d in 0..100 {
+        for f in 0..200 {
+            let _ = touch(root, at: $"d{d}/{stem}{f}.txt", as: "")
+        }
+    }
+    var ws = workspace.Workspace.create()
+    var before: i64 = 0
+    var after: i64 = 0
+    // As `run` handles initialize: the walk in one arena.
+    using let arena = Arena()
+    provide allocator: arena {
+        before = residentKb()
+        ws.indexFolder(root)
+        after = residentKb()
+    }
+    print($"resident set {before} KB to {after} KB")
+    assert(ws.slots().length == 0)
+    // A walk that kept every name and entry path in the message arena would add over 6 MiB for the 20,000 entries. The peak during the
+    // walk (each folder in its own arena) is not seen here: the resident set is read only before and after.
+    assert(after - before < 2048)
+}
