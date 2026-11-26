@@ -198,15 +198,7 @@ void analyzeEffects(ref Ctx c) {
                         direct = true
                     }
                 } else if kind == .forStmt {
-                    // A loop over a user iterable calls its `moveNext`/`count` and `current`/`get` witnesses.
-                    if (c.bFors[i].userIteration is { } u) {
-                        for f in [u.advance, u.item] {
-                            continue if f == -1
-                            for x in t23Visible(ref c, by: in e, for: f) {
-                                sources.append(x)
-                            }
-                        }
-                    }
+                    sources = t23ForEffects(ref c, by: in e, for: i)
                 }
                 for effect in sources {
                     // A direct use replaces an indirect one, so a capability check sees it; otherwise the first use stays.
@@ -532,6 +524,20 @@ List<string> t23PassedEffects(ref Ctx c, by in T23Effects e, for i64 call) {
     }
     for x in t23PassedValues(ref c, for: call) {
         result.append(x)
+    }
+    return result
+}
+
+/// A loop over a user iterable calls its `moveNext`/`count` and `current`/`get` witnesses.
+List<string> t23ForEffects(ref Ctx c, by in T23Effects e, for i64 loop) {
+    var result = List<string>()
+    if (c.bFors[loop].userIteration is { } u) {
+        for f in [u.advance, u.item] {
+            continue if f == -1
+            for x in t23Visible(ref c, by: in e, for: f) {
+                result.append(x)
+            }
+        }
     }
     return result
 }
