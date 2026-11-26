@@ -6,7 +6,8 @@
 #      A worktree holding ignored files (tmp/ builds) is kept unless --delete-worktree-scratch, because
 #      git worktree remove deletes ignored files without --force.
 #   2. branches merged into dev: git branch -d (refuses anything unmerged).
-#   3. scratch under the repo's tmp/ and /tmp/gate12-loop2 (a worker gate dir).
+#   3. scratch: tmp/mediums, tmp/med-*, /tmp/gate12-loop2 (a worker gate dir), and tmp/{rf,review,a,rv}-* entries
+#      last written in this session's window only; dev-worktree scratch is listed, not removed.
 #   4. zig caches (~/.cache/zig, tmp/zig-global): only with --clear-zig-cache.
 #   5. wp1 run dirs: listed only (names not recorded).
 #   Stale branches fix/review-2026-11-10-5, fix/review-2026-11-11-3, fix/review-2026-11-11-4 are listed, never touched.
@@ -97,13 +98,24 @@ for b in $session_branches; do
   fi
 done
 
-# 3. tmp scratch (globs inside the repo tmp/ and the dev worktree tmp/)
+# 3. tmp scratch. Named session paths always; the shared prefixes (rf-, review-, a-, rv-) only for entries last written
+#    inside this session (2026-11-25 20:00 to 2026-11-27 00:00) and not in the last 2 hours, so earlier sessions' files and
+#    another session's live scratch stay. Paths inside the dev worktree fix-divergences-run-cases are listed, never removed:
+#    this session does not own that worktree.
 dev_wt="$repo/.worktrees/fix-divergences-run-cases"
-for p in "$repo"/tmp/rf-* "$repo"/tmp/review-* "$repo"/tmp/a-* "$repo"/tmp/rv-* "$repo"/tmp/mediums "$repo"/tmp/med-* \
-  "$dev_wt/tmp/a-stage1" "$dev_wt/tmp/rv-r2" /tmp/gate12-loop2; do
+in_window() { [ -n "$(find "$1" -maxdepth 0 -newermt '2026-11-25 20:00' ! -newermt '2026-11-27 00:00' ! -mmin -120 2>/dev/null)" ]; }
+for p in "$repo"/tmp/mediums "$repo"/tmp/med-* "$repo"/tmp/session-2026-11-26.sh /tmp/gate12-loop2 \
+  "$repo"/tmp/rf-* "$repo"/tmp/review-* "$repo"/tmp/a-* "$repo"/tmp/rv-*; do
   [ -e "$p" ] || continue
+  case "$p" in
+    "$repo"/tmp/rf-*|"$repo"/tmp/review-*|"$repo"/tmp/a-*|"$repo"/tmp/rv-*)
+      in_window "$p" || { printf 'keep:  %s (not written in this session, or written in the last 2 hours)\n' "$p"; continue; } ;;
+  esac
   if [ $execute = 1 ]; then rm -rf -- "$p" && printf 'removed %s\n' "$p"
   else printf 'would remove %s (%s)\n' "$p" "$(du -sh "$p" | cut -f1)"; fi
+done
+for p in "$dev_wt/tmp/a-stage1" "$dev_wt/tmp/rv-r2"; do
+  [ -e "$p" ] && printf 'list:  %s (in the dev worktree; remove by hand when it is idle)\n' "$p"
 done
 
 # 4. zig caches
