@@ -114,6 +114,8 @@ test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 23 le
     for name in listed {
         continue unless name.endsWith(".byn")
         goldens.append(name)
+        // added after csharp-final (audit 0.4.0 03): lexed below, kept out of the pool so the corpus stays the frozen C# one
+        continue if name == "shebang.byn" || name == "bom-shebang.byn"
         let bytes = Io.readFile(Path.combine(cases, name)) catch List<u8>()
         caseStart.append(pool.length)
         var from = pool.length
