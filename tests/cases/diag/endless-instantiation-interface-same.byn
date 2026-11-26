@@ -1,0 +1,4 @@
+// An interface whose member names the same instance of itself expands once: no BYN2745.
+interface IFoo<T> { void f(dyn ref IFoo<T> x) }
+void g(dyn ref IFoo<i32> x) {}
+print("x")
