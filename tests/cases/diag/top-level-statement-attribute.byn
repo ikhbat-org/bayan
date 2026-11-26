@@ -1,0 +1,6 @@
+@foo
+x = 1
+@unobservable because "a reason"
+y = 2
+@unobservable
+z = 3

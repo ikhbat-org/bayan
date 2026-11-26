@@ -1,0 +1,3 @@
+i32 sum(params ReadOnlySpan<i32> items) {
+    return 0
+}
