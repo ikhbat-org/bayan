@@ -42,6 +42,18 @@ Small, clear, and could be picked up without a design decision.
 - A32: `csharp/Bayan.Semantics/Binding/Binder.cs:1430-1431` accepts `provide allocator:` as a synonym of `alloc:`; make it an input form with a fix-it to `alloc:` and update the goldens `tests/cases/diag/env-get-escapes-context.byn:6`, `interpolation-escapes-context.byn:6`, `io-read-escapes-context.byn:6`. From revision 0020.
 - Manifest style knobs (revision 0020 Open items): `csharp/Bayan.Syntax/Packages/Manifest.cs:35`, `:179-184` accept `braces`, the 100-column line knob and a bool `trailingCommas`; accept `width`, `align`, `trailingCommas: .multiline | .never` and `lints` per SPEC §19.2. From revision 0020.
 - A state named `open` cannot be constructed: `Door.open { … }` is BYN1005 although `open` is only contextual (`Keywords.cs:10`), a parser bug; the conformance cases name their states `ajar`/`shut` (plan 2026-11-25-019 E).
+- Audit 0.4.0 mediums LOW, m-fold: src/semantics/naming.byn:655,881,965,1020 same `[0..1]` slice as 06 #4, likely panics on non-ASCII names (audit 0.4.0 follow-up).
+- Audit 0.4.0 mediums LOW, m-fold: BYN5102 rename suggestion `isézz` is itself flagged (`statePrefixed` counts only an ASCII capital after the prefix).
+- Audit 0.4.0 mediums LOW, m-fold: public bool field `état` gets no BYN5102; only methods do.
+- Audit 0.4.0 mediums LOW, m-std: lib/std/path/glob.byn brace expansion still copies the pattern once per nesting level; 50,000 nested braces now 3.6 GB RSS (2.85 GB before the 13 #2 fix). Audit 0.4.0 13 #2 quadratic half.
+- Audit 0.4.0 mediums LOW, m-std: glob brace groups that pass the literal-prefix check still take exponential time (memory bounded). Audit 0.4.0 13 #1/#2.
+- Audit 0.4.0 mediums LOW, m-std: lib/std/fs/glob.byn `collect` repeats the brace scan of lib/std/path `expandMatches` (not public).
+- Audit 0.4.0 mediums LOW, m-lex (gate notes): `src/parser/recover.byn:546` adds `interface`/`extension`/`effect` to the restart set with no case covering them; `@` not in the restart set (verifier suggested it); BYN0006 message now shows ``\\u{1B}`` (source backslash + notation), reads as a doubled backslash (`src/lexer/lexer.byn:1053`).
+- Audit 0.4.0 mediums LOW, m-front 08 #5: a test file doing `import <entry>` now gets `BYN2010 import cycle: main → main`; the message names the internal `main`, not the project module name (`app`). Row 5 case is a compiler test block, not a tests/cases golden.
+- Audit 0.4.0 mediums LOW, m-drv: `src/driver/goldenexport.byn:1503` still calls `ccFindCompiler()` (ignores `BAYAN_CC`); `cc.byn:280,297` exempt a failed start because "`ccFindOnPath` checks `Fs.fileExists`", no longer true when `BAYAN_CC` names a missing file; `doctor.byn:212` and `doctor-t29.test.byn:13` still say a test cannot set `BAYAN_CC`. 11 #4 (Windows `\` in fixRoots) has no failing-before proof off Windows.
+- Audit 0.4.0 mediums LOW, m-states 06 #5(b): a for over a type parameter constrained to IEnumerator inside a generic template is not charged effects (unprobed; effects.byn:201).
+- Audit 0.4.0 mediums LOW, m-lsp 14 #1: bounds test samples RSS only before/after Workspace.walk, so the per-directory scratch arena has no failing test (proven by peak RSS 33.7 MB → 3.1 MB on 1000×200 dirs); add a peak-sampling bound.
+- Audit 0.4.0 mediums LOW, m-lsp gate: full-sync didChange still builds a full List<u16> per change in the message arena (editors/language-server/src/server/server.byn:724 .utf16.copy() into ws.replace).
 
 ## Later
 
