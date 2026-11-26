@@ -109,7 +109,7 @@ static byn_writer bynh_strbuf_over(bynt_span_u8 s, const char* file, int line);
 static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line);
 
 static byn_writer bynh_strbuf_over(bynt_span_u8 s, const char* file, int line) {
-    return (byn_writer){s.ptr, s.len, 0, BYN_WRITE_GROW, file, line, byn_context};
+    return (byn_writer){s.ptr, s.len, 0, BYN_WRITE_OVER, file, line, byn_context};
 }
 
 static void bynh_strbuf_repeat(byn_writer* w, uint32_t c, int64_t n, const char* file, int line) {

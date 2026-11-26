@@ -1,3 +1,3 @@
 == bag borrow-then-mutated-in-initializer
-BYN3004 37:57 `w` is modified while `sp` still borrows it |`sp` is used again on line 38|finish using `sp` first, or copy what it needs before changing `w`|
-BYN3004 41:50 `b` is modified while `d` still borrows it |`d` is used again on line 42|finish using `d` first, or copy what it needs before changing `b`|
+BYN3004 37:57 `w` is modified while `w.items.span` still borrows it |`w.items.span` is still passed to `first`|store the argument that changes `w` in a local before the call|
+BYN3004 41:50 `b` is modified while `b.items[0]` still borrows it |`b.items[0]` is still passed to `pick`|store the argument that changes `b` in a local before the call|

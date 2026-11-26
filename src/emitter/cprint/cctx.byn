@@ -102,4 +102,6 @@ public struct CFunc {
     // ── T14 state
     /// The line starts of the function's file, taken from `CCtx.lineStarts` by `emitFunction`; a frame built by hand sets it with `lineStartsOf` (R7).
     public List<i64> lineStarts = []
+    /// A constructor with a panic handler is emitted as a body function on `T* self` and a wrapper; set while its body is emitted.
+    public bool ctorBody = false
 }

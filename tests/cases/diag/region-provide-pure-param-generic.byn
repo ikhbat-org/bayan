@@ -1,0 +1,9 @@
+R apply<T, R>(T x, by T -> R f) => f(x)
+void main() uses alloc {
+    var s: string = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = apply<i64, string>(1, by: n => $"v={n}") }
+    }
+    print(s)
+}

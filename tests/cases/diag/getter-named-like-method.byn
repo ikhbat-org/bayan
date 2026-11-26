@@ -1,0 +1,16 @@
+// A getter that shares its name with a method is reported, not a checker panic (0.4.0 L023 counterexample).
+struct Tally {
+    i64 left
+
+    bool count(ref this) {
+        left -= 1
+        return left >= 0
+    }
+
+    i64 count => left
+}
+
+void main() {
+    let t = Tally { left: 2 }
+    print($"{t.left}")
+}

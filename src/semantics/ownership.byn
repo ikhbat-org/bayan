@@ -160,7 +160,7 @@ OwnState t24Block(ref Ownership a, through ref Ctx c, for in List<BStmt> stateme
     for s in statements {
         state = t24Statement(ref a, through: ref c, for: s, by: move state)
     }
-    t24RunCleanups(ref a, through: ref c, for: in state, from: depth, failing: false)
+    t24RunCleanups(ref a, through: ref c, for: ref state, from: depth, failing: false)
     while a.cleanups.length > depth {
         let _ = a.cleanups.removeLast()
     }
@@ -209,24 +209,31 @@ OwnState t24Statement(ref Ownership a, through ref Ctx c, for BStmt s, by move O
             if value != -1 {
                 state = t24Expr(ref a, through: ref c, for: value, by: move state)
                 // A local or `move` parameter returned is going out of scope: it moves.
-                if !t24IsMovable(in c, for: t24StripConversions(in c, for: value)) {
+                let core = t24StripConversions(c, for: value)
+                if !t24IsMovable(c, for: core) {
                     t24CheckStore(ref a, through: ref c, for: value)
+                } else {
+                    // It moves before the cleanups run: one that reads or moves it again is a use after move.
+                    let l = c.bLocals[boundIndex(core)].local
+                    if isUnique(ref c, for: c.locals[l].type) {
+                        t24Set(ref state.moved, for: l, at: c.bLocals[boundIndex(core)].span)
+                    }
                 }
             }
-            t24RunCleanups(ref a, through: ref c, for: in state, from: 0, failing: false)
+            t24RunCleanups(ref a, through: ref c, for: ref state, from: 0, failing: false)
             return t24Unreachable()
         case .failStmt:
-            let after = t24Expr(ref a, through: ref c, for: c.bFails[i].error, by: move state)
-            t24RunCleanups(ref a, through: ref c, for: in after, from: 0, failing: true)
+            var after = t24Expr(ref a, through: ref c, for: c.bFails[i].error, by: move state)
+            t24RunCleanups(ref a, through: ref c, for: ref after, from: 0, failing: true)
             return t24Unreachable()
         case .breakStmt:
             let target = c.bBreaks[i].target
-            t24RunCleanups(ref a, through: ref c, for: in state, from: a.depths.tryGet(at: target) ?? 0, failing: false)
+            t24RunCleanups(ref a, through: ref c, for: ref state, from: a.depths.tryGet(at: target) ?? 0, failing: false)
             t24Merge(ref a.breaks, for: target, by: in state)
             return t24Unreachable()
         case .continueStmt:
             let target = c.bContinues[i].target
-            t24RunCleanups(ref a, through: ref c, for: in state, from: a.depths.tryGet(at: target) ?? 0, failing: false)
+            t24RunCleanups(ref a, through: ref c, for: ref state, from: a.depths.tryGet(at: target) ?? 0, failing: false)
             t24Merge(ref a.continues, for: target, by: in state)
             return t24Unreachable()
         case .ifStmt:
@@ -330,13 +337,19 @@ OwnState t24Statement(ref Ownership a, through ref Ctx c, for BStmt s, by move O
             return t24Exit(ref a, for: target, by: move after)
         case .deferStmt:
             let body = c.bDefers[i].body
-            let _ = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
+            let end = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
             t24Register(ref a, through: ref c, for: body, at: c.bDefers[i].span, onFailure: false, by: in state)
+            let last = a.cleanups.length - 1
+            var kept = t24BodyMoves(a.cleanups[last].moves, by: end)
+            a.cleanups[last].moves = move kept
             return move state
         case .errdeferStmt:
             let body = c.bErrdefers[i].body
-            let _ = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
+            let end = t24Statement(ref a, through: ref c, for: body, by: t24Clone(in state))
             t24Register(ref a, through: ref c, for: body, at: c.bErrdefers[i].span, onFailure: true, by: in state)
+            let last = a.cleanups.length - 1
+            var kept = t24BodyMoves(a.cleanups[last].moves, by: end)
+            a.cleanups[last].moves = move kept
             return move state
         // A panic handler runs in place of the scope's cleanups, not at its exit: registered only so a later move of what it reads is BYN2615.
         case .panicDefer:
@@ -356,6 +369,14 @@ OwnState t24Statement(ref Ownership a, through ref Ctx c, for BStmt s, by move O
             let body = c.bContexts[i].body
             state = t24Expr(ref a, through: ref c, for: c.bContexts[i].allocator, by: move state)
             return t24Statement(ref a, through: ref c, for: body, by: move state)
+        case .becomeStmt:
+            // The payload is stored into `this`, as a `.unionNew`'s is.
+            let payload = copyIds(in c.bBecomes[i].payload)
+            for p in payload {
+                state = t24Expr(ref a, through: ref c, for: p, by: move state)
+                t24CheckStore(ref a, through: ref c, for: p)
+            }
+            return move state
         default:
             return move state
     }
@@ -385,6 +406,19 @@ OwnState t24Bind(in Ctx c, for BPattern pattern, by move OwnState start) {
         }
     }
     return move state
+}
+
+/// The moves a `defer`/`errdefer` body makes that still hold at its end, run from the state at registration: a local
+/// the body moves and then reassigns is not moved (0.4.0 review of audit 05 #6). A move the state already held at
+/// registration (a loop's earlier pass of the same cleanup) still counts when the body makes it.
+List<T24Moved> t24BodyMoves(List<T24Moved> registered, by OwnState end) {
+    var r = List<T24Moved>()
+    for x in registered {
+        if !end.reachable || t24Find(end.moved, by: x.local) >= 0 {
+            r.append(T24Moved { local: x.local, site: x.site })
+        }
+    }
+    return move r
 }
 
 /// Registers a cleanup: the locals `body` reads (not those it only assigns) and moves.
@@ -430,10 +464,9 @@ void t24Register(
 }
 
 /// Runs the cleanups from `depth` up, innermost first, at an exit reached in `state`: a local one reads that was moved
-/// after it was registered is a use after move, reported at the move.
-void t24RunCleanups(ref Ownership a, through ref Ctx c, for in OwnState state, from i64 depth, bool failing) {
+/// after it was registered is a use after move, reported at the move. The cleanups' own moves land in `state`.
+void t24RunCleanups(ref Ownership a, through ref Ctx c, for ref OwnState state, from i64 depth, bool failing) {
     return if !state.reachable
-    var moved = t24CopyMoved(in state.moved)
     var i = a.cleanups.length - 1
     while i >= depth {
         let onFailure = a.cleanups[i].onFailure
@@ -444,9 +477,9 @@ void t24RunCleanups(ref Ownership a, through ref Ctx c, for in OwnState state, f
         let line = t24Line(in c, for: a.file, at: a.cleanups[i].site.start)
         let reads = copyIds(in a.cleanups[i].reads)
         for l in reads {
-            let k = t24Find(in moved, by: l)
+            let k = t24Find(state.moved, by: l)
             continue if k < 0
-            let site = moved[k].site
+            let site = state.moved[k].site
             let b = t24Find(in a.cleanups[i].movedBefore, by: l)
             continue if b >= 0 && t24SameSpan(a.cleanups[i].movedBefore[b].site, as: site)
             let name = c.locals[l].name
@@ -455,7 +488,7 @@ void t24RunCleanups(ref Ownership a, through ref Ctx c, for in OwnState state, f
             t24Report(ref a, through: ref c, for: .useAfterMove, at: site, by: name, label: label, help: help)
         }
         for x in a.cleanups[i].moves {
-            t24Set(ref moved, for: x.local, at: x.site)
+            t24Set(ref state.moved, for: x.local, at: x.site)
         }
         i -= 1
     }
@@ -531,8 +564,11 @@ OwnState t24Expr(ref Ownership a, through ref Ctx c, for BExpr e, by move OwnSta
             }
             return move state
         case .tryExpr:
+            // The failing path starts from before and after the operand: a failed call assigned no `out` argument.
+            let before = t24Clone(state)
             state = t24Expr(ref a, through: ref c, for: c.bTries[i].operand, by: move state)
-            t24RunCleanups(ref a, through: ref c, for: in state, from: 0, failing: true)
+            var failed = state.reachable ? t24Join(before, by: state) : t24Clone(state)
+            t24RunCleanups(ref a, through: ref c, for: ref failed, from: 0, failing: true)
             return isNever(c.bTries[i].type) ? t24Unreachable() : move state
         case .binary:
             let op = c.bBinaries[i].op
@@ -601,11 +637,15 @@ OwnState t24Expr(ref Ownership a, through ref Ctx c, for BExpr e, by move OwnSta
             return isNever(c.bCalls[i].type) ? t24Unreachable() : move state
         case .catchExpr:
             let handler = c.bCatches[i].handler
+            let before = t24Clone(state)
             state = t24Expr(ref a, through: ref c, for: c.bCatches[i].operand, by: move state)
+            // As `try`: the failing path and the handler start from before and after the operand.
+            let failed = state.reachable ? t24Join(before, by: state) : t24Clone(state)
             if c.bCatches[i].variant != -1 {
-                t24RunCleanups(ref a, through: ref c, for: in state, from: 0, failing: true)
+                var propagated = t24Clone(failed)
+                t24RunCleanups(ref a, through: ref c, for: ref propagated, from: 0, failing: true)
             }
-            let h = t24Expr(ref a, through: ref c, for: handler, by: t24Clone(in state))
+            let h = t24Expr(ref a, through: ref c, for: handler, by: move failed)
             return t24Join(in state, by: in h)
         case .jump:
             return t24Statement(ref a, through: ref c, for: c.bJumps[i].jump, by: move state)

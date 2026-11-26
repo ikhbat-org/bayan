@@ -1,0 +1,6 @@
+error BYN2781: `x` is used after it was moved
+
+  18 │     print($"{x.length}")
+     │              ^ moved on line 16
+     │
+  help: assign `x` a new value before using it again, or move a `.copy(to: alloc)` of it instead

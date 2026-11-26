@@ -1,0 +1,11 @@
+struct Person {
+    string name
+    void rename(ref this, to string name) {
+        this.name = name
+    }
+}
+void main() {
+    var p = Person { name: "Aisha" }
+    p.rename(to: p.name)
+    print(p.name)
+}

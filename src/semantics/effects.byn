@@ -79,10 +79,15 @@ List<string> t23Primitives() => ["alloc", "suspend", "net", "fs", "clock", "rand
 /// The effects that need a package capability; the others are always allowed.
 List<string> t23Capabilities() => ["net", "fs", "process", "env"]
 
-/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics, so the
-/// run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
+/// Q31 (plan 015): `analyzeEffects` with its working memory freed. It writes nothing into `Ctx` but diagnostics and the
+/// elements of `c.allocates` (bools, in a list made here in `General`), so the run is made in an arena and, when it reported any (arena memory), undone (`t42Undo`) and made again in `General`.
 /// A run with a bag as the sink stays in `General`: `t42Undo` does not cover bags.
 void t42AnalyzeEffects(ref Ctx c) {
+    // In `General`: the arena run only sets its elements, so a run that is undone leaves it valid and the rerun refills it.
+    c.allocates = List<bool>()
+    for _ in 0..c.functions.length {
+        c.allocates.append(false)
+    }
     if c.sink >= 0 {
         analyzeEffects(ref c)
         return
@@ -192,13 +197,34 @@ void analyzeEffects(ref Ctx c) {
                         sources.append("alloc")
                         direct = true
                     }
+                } else if kind == .forStmt {
+                    sources = t23ForEffects(ref c, by: in e, for: i)
                 }
                 for effect in sources {
-                    continue if t23HasUse(in e.used[k], by: effect)
+                    // A direct use replaces an indirect one, so a capability check sees it; otherwise the first use stays.
+                    let at = t23UseIndex(e.used[k], by: effect)
+                    if at >= 0 {
+                        continue if !direct || e.used[k][at].direct
+                        e.used[k][at] = T23Use { effect: effect, span: nodeSpan(in c, for: node), direct: true }
+                        changed = true
+                        continue
+                    }
                     e.used[k].append(T23Use { effect: effect, span: nodeSpan(in c, for: node), direct: direct })
                     changed = true
                 }
             }
+        }
+    }
+
+    // What a caller sees, declared or inferred, as `t23Visible` gives it to a call. A lambda cloned into a generic
+    // instance reads its template twin's effects; an instance with no template to read may allocate.
+    for fn in functions {
+        if fn < c.allocates.length {
+            var source = fn
+            if functionIsInstance(ref c, by: fn) && !(templateOf(ref c, for: fn) is { }) {
+                source = t23LambdaTemplate(ref c, for: fn)
+            }
+            c.allocates[fn] = source == -1 || listContainsString(t23Visible(ref c, by: e, for: source), by: "alloc")
         }
     }
 
@@ -394,10 +420,14 @@ List<string> t23Visible(ref Ctx c, by in T23Effects e, for FuncId f) {
 }
 
 bool t23HasUse(in List<T23Use> list, by string effect) {
-    for u in list {
-        return true if u.effect == effect
+    return t23UseIndex(list, by: effect) >= 0
+}
+
+i64 t23UseIndex(List<T23Use> list, by string effect) {
+    for k in 0..list.length {
+        return k if list[k].effect == effect
     }
-    return false
+    return -1
 }
 
 /// C# `OrderBy(e => e.Value.Span.Start)`, which is stable.
@@ -465,6 +495,25 @@ List<string> t23PassedValues(ref Ctx c, for i64 call) {
     return result
 }
 
+/// The lambda a generic template holds for `fn`, a lambda cloned into an instance of it: the same file and start,
+/// enclosed by the template of `fn`'s enclosing function (or by that function's own twin, for a nested lambda); -1 if none.
+FuncId t23LambdaTemplate(ref Ctx c, for FuncId fn) {
+    return -1 if c.functions[fn].kind != .lambda || c.functions[fn].enclosing == -1
+    let outer = c.functions[fn].enclosing
+    var target: FuncId = -1
+    if (templateOf(ref c, for: outer) is { } template) {
+        target = template
+    } else if functionIsInstance(ref c, by: outer) {
+        target = t23LambdaTemplate(ref c, for: outer)
+    }
+    return -1 if target == -1
+    for k in 0..c.functions.length {
+        return k if k != fn && c.functions[k].kind == .lambda && c.functions[k].enclosing == target
+            && c.functions[k].file == c.functions[fn].file && c.functions[k].span.start == c.functions[fn].span.start
+    }
+    return -1
+}
+
 /// C# `Passed(call).SelectMany(p => Visible(p.Function)).Concat(PassedValues(call))`.
 List<string> t23PassedEffects(ref Ctx c, by in T23Effects e, for i64 call) {
     var result = List<string>()
@@ -475,6 +524,20 @@ List<string> t23PassedEffects(ref Ctx c, by in T23Effects e, for i64 call) {
     }
     for x in t23PassedValues(ref c, for: call) {
         result.append(x)
+    }
+    return result
+}
+
+/// A loop over a user iterable calls its `moveNext`/`count` and `current`/`get` witnesses.
+List<string> t23ForEffects(ref Ctx c, by in T23Effects e, for i64 loop) {
+    var result = List<string>()
+    if (c.bFors[loop].userIteration is { } u) {
+        for f in [u.advance, u.item] {
+            continue if f == -1
+            for x in t23Visible(ref c, by: in e, for: f) {
+                result.append(x)
+            }
+        }
     }
     return result
 }

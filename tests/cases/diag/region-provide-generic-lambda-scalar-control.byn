@@ -1,0 +1,13 @@
+string pick(string s, by i64 -> i64 f) => f(1) > 0 ? s : s
+string viaGeneric<T>(T x, from string outer) uses alloc {
+    var s: string = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = pick(outer, by: n => n + 1) }
+    }
+    return s
+}
+void main() uses alloc {
+    let o = $"heap{1}"
+    print(viaGeneric<i64>(1, from: o))
+}

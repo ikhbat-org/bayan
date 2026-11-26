@@ -1,0 +1,6 @@
+ReadOnlySpan<i64> f(ReadOnlySpan<i64> e) {
+    let xs: i64[2] = [1, 2]
+    var b = e
+    b = xs.span
+    return b
+}

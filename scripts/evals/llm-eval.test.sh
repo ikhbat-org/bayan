@@ -4,12 +4,15 @@
 #   bash scripts/evals/llm-eval.test.sh [<law id>]
 set -uo pipefail
 cd "$(dirname "$0")/../.."
+# One pin for the whole run: the stamp checks compare commits read at different times, and `dev` can move in between.
+PINNED_BAYAN_REF=$(git rev-parse --verify "${PINNED_BAYAN_REF:-dev}^{commit}") || exit 2
+export PINNED_BAYAN_REF
 only=${1:-}
 case "$only" in ''|L048|L049|L050) ;; *) echo "llm-eval.test: unknown law id '$only' (L048, L049, L050)" >&2; exit 2 ;; esac
 seed=evals/llm/tasks
 root=$PWD/tmp/llm-eval-test${only:+-$only}
-rm -rf "$root"; mkdir -p "$root/tasks" "$root/cand" "$root/out" "$root/rec"
-trap 'rm -rf "$root"' EXIT
+rm -rf "$root"; mkdir -p "$root/tasks" "$root/cand" "$root/out" "$root/rec"; rm -rf "$root-net"; mkdir -p "$root-net"
+trap 'rm -rf "$root" "$root-net"' EXIT
 export LLM_EVAL_STAMP_DIR=$root/stamps
 
 pass=0 fail=0
@@ -71,7 +74,7 @@ if law L048; then
     for k in compiles passes lintClean formatStable; do
       [ "$(get "seed-$name" $k)" = true ] && continue
       echo "  $name: $k $(get "seed-$name" $k) reference/solution.byn"
-      for f in $(step $k); do [ -f "$root/out/seed-$name/work/$name/1/$f" ] && head -20 "$root/out/seed-$name/work/$name/1/$f" | sed 's/^/    /'; done
+      for f in $(step $k); do [ -f "$root/out/seed-$name/results/$name/1/$f" ] && head -20 "$root/out/seed-$name/results/$name/1/$f" | sed 's/^/    /'; done
       sed 's/^/    /' "$root/rec/seed-$name.err"
       break
     done
@@ -101,8 +104,11 @@ fi
 # each unchanged and nothing else; (b) it is the same prompt from a copy of the task without checks/ and reference/; (c) no
 # compared line of a file under checks/ or reference/ is a line of the preamble; (d) no such file has all its compared lines
 # in prompt.md, where a line of the task's starter/ or source.* does not count as in prompt.md. Lines are trimmed; blank lines
-# and lines with no letter or digit are not compared; a file with no compared line is skipped. A stub model records each
-# prompt; the n-th record of records.jsonl is the task of the n-th prompt.
+# and lines with no letter or digit are not compared; a file with no compared line is skipped. The runs use
+# --retry-diagnostics (R42) and the stub always answers a program that does not compile, so each task gets a retry: (e) its
+# prompt is the first prompt, the program and the compiler's errors; (f) it is the same without checks/ and reference/; (g) on
+# a `tests` task the errors name no file of checks/ and hold no compared line of one. A stub model records each prompt; the
+# n-th record of records.jsonl is the task of prompts 2n-1 (first) and 2n (retry).
 if law L050; then
   mkdir -p "$root/l050/a" "$root/l050/b" "$root/l050/tasks"
   printf 'Some words about Bayan.\n' > "$root/l050/context.md"
@@ -118,26 +124,46 @@ EOF2
     for f in "$t"*; do case $(basename "$f") in (checks|reference) ;; (*) cp -R "$f" "$d/" ;; esac; done
   done
   bash scripts/bayan-tool.sh llm-eval run "$seed" --model "sh $root/l050.sh $root a" --context "$root/l050/context.md" --machine m \
-    --out "$root/out/l050a" > "$root/rec/l050a" 2> "$root/rec/l050a.err"
+    --retry-diagnostics --out "$root/out/l050a" > "$root/rec/l050a" 2> "$root/rec/l050a.err"
   codeA=$?
   bash scripts/bayan-tool.sh llm-eval run "$root/l050/tasks" --model "sh $root/l050.sh $root b" --context "$root/l050/context.md" --machine m \
-    --out "$root/out/l050b" > "$root/rec/l050b" 2> "$root/rec/l050b.err"
+    --retry-diagnostics --out "$root/out/l050b" > "$root/rec/l050b" 2> "$root/rec/l050b.err"
   codeB=$?
   total=$(ls -d "$seed"/*/ | wc -l | tr -d ' ')
   check "L050: the runner sends a prompt for every seed task, with and without checks/ and reference/" \
     "$codeA $codeB $(wc -l < "$root/out/l050a/1/records.jsonl" | tr -d ' ') $(wc -l < "$root/out/l050b/1/records.jsonl" | tr -d ' ')" "0 0 $total $total"
+  check "L050: every seed task gets one retry, with and without checks/ and reference/" \
+    "$(cat "$root/l050/a/count") $(cat "$root/l050/b/count")" "$((2 * total)) $((2 * total))"
   # trimmed <file>: the compared lines of <file>, one per line.
   trimmed() { sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' "$1" | grep '[[:alnum:]]' || true; }
   n=0 dev=0 seen=0
   for name in $(sed -n 's/^{"task": "\([^"]*\)".*/\1/p' "$root/out/l050a/1/records.jsonl"); do
-    n=$((n + 1)); t=$seed/$name
+    n=$((n + 1)); t=$seed/$name; p=$((2 * n - 1)); q=$((2 * n))
     grep -q '^Split: dev$' "$t/task.md" || continue
     seen=$((seen + 1))
     { cat evals/llm/preamble.md; echo; cat "$root/l050/context.md"; echo; cat "$t/prompt.md"; } > "$root/l050/want"
-    if cmp -s "$root/l050/a/prompt.$n" "$root/l050/want"; then got=same; else got="prompt sent differs from preamble, context and prompt.md: $(diff "$root/l050/want" "$root/l050/a/prompt.$n" | head -3 | tr '\n' '|')"; fi
+    if cmp -s "$root/l050/a/prompt.$p" "$root/l050/want"; then got=same; else got="prompt sent differs from preamble, context and prompt.md: $(diff "$root/l050/want" "$root/l050/a/prompt.$p" | head -3 | tr '\n' '|')"; fi
     check "L050: $name: prompt sent is preamble, context, prompt.md" "$got" "same"
-    if cmp -s "$root/l050/a/prompt.$n" "$root/l050/b/prompt.$n"; then got=same; else got="prompt sent differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$n" "$root/l050/b/prompt.$n" | head -3 | tr '\n' '|')"; fi
+    if cmp -s "$root/l050/a/prompt.$p" "$root/l050/b/prompt.$p"; then got=same; else got="prompt sent differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$p" "$root/l050/b/prompt.$p" | head -3 | tr '\n' '|')"; fi
     check "L050: $name: same prompt without checks/ and reference/" "$got" "same"
+    # The retry: the first prompt, the program, then the compiler's errors, which are the rest.
+    { cat "$root/l050/want"; printf '\nYour program:\n'; cat "$root/cand/broken.byn"; printf '\nThe compiler said:\n'; } > "$root/l050/retry-head"
+    head -c "$(wc -c < "$root/l050/retry-head")" "$root/l050/a/prompt.$q" > "$root/l050/retry-got"
+    tail -c +"$(($(wc -c < "$root/l050/retry-head") + 1))" "$root/l050/a/prompt.$q" > "$root/l050/said"
+    check "L050: $name: retry prompt is the prompt, the program, the compiler's errors" \
+      "$(cmp -s "$root/l050/retry-got" "$root/l050/retry-head" && echo same) $(grep -c 'error BYN' "$root/l050/said")" "same 1"
+    if cmp -s "$root/l050/a/prompt.$q" "$root/l050/b/prompt.$q"; then got=same; else got="retry prompt differs without checks/ and reference/: $(diff "$root/l050/a/prompt.$q" "$root/l050/b/prompt.$q" | head -3 | tr '\n' '|')"; fi
+    check "L050: $name: same retry prompt without checks/ and reference/" "$got" "same"
+    if grep -q '^Check: tests$' "$t/task.md"; then
+      hid=""
+      for h in $(find "$t/checks" -type f | sort); do
+        grep -qF -- "$(basename "$h")" "$root/l050/said" && hid="$hid $h: its name is in the errors;"
+        while IFS= read -r l; do
+          grep -qF -- "$l" "$root/l050/said" && hid="$hid $h: \"$l\" is in the errors;"
+        done < <(trimmed "$h")
+      done
+      check "L050: $name: no hidden file name or check line in the retry prompt's errors" "$hid" ""
+    fi
     trimmed evals/llm/preamble.md > "$root/l050/preamble.lines"
     trimmed "$t/prompt.md" > "$root/l050/prompt.lines"
     : > "$root/l050/quoted.lines"
@@ -181,8 +207,8 @@ score right "$exit3" "$root/cand/right.byn"; secsRight=$secs
 check "exit code 3 as expected passes" "$code $(four right) $(get right outcome) $(get right passed)" '0 true true true true "pass" true'
 # The program is primed before its timed run (R14): the prime's status file is there, dated no later than run.stdout.
 # Equal counts as before: ext4 stamps files from a coarse clock tick, so two files written within a few ms share one mtime.
-mtime() { stat -f %Fm "$1" 2> /dev/null || stat -c %.9Y "$1" 2> /dev/null || echo none; }
-s=$root/out/right/work/small-900-exit-code/1
+mtime() { stat -c %.9Y "$1" 2> /dev/null || stat -f %Fm "$1" 2> /dev/null || echo none; }
+s=$root/out/right/results/small-900-exit-code/1
 check "the run is primed first" "$(head -1 "$s/prime.stdout.status" 2> /dev/null) $(awk -v a="$(mtime "$s/prime.stdout.status")" \
   -v b="$(mtime "$s/run.stdout")" 'BEGIN { print (a != "none" && b != "none" && a + 0 <= b + 0) ? "before" : "not before" }')" \
   "exit: 0 before"
@@ -200,7 +226,10 @@ check "tests candidate with a main" "$code $(get with-main compiles) $(get with-
 # A candidate that loops reaches the run limit, not the build limit (R14).
 score loop "$exit3" "$root/cand/loop.byn"
 check "loop gives limit" "$code $(get loop compiles) $(get loop passes) $(get loop outcome)" '0 true false "limit"'
-check "loop is stopped at the run limit" "$([ $((secs - secsRight)) -ge 8 ] && [ $((secs - secsRight)) -le 30 ] && echo yes)" "yes"
+# Times the run step alone (prime's status file to format's stdout), so build and check times under load do not count.
+l=$root/out/loop/results/small-900-exit-code/1
+check "loop is stopped at the run limit" "$(awk -v a="$(mtime "$l/prime.stdout.status")" -v b="$(mtime "$l/format.stdout")" \
+  'BEGIN { d = b - a; print (a != "none" && b != "none" && d >= 8 && d <= 30) ? "yes" : "no: " a " to " b " is " d " s" }')" "yes"
 # The time limit reaches the launcher as TERM; its sweep kills the candidate, which runs in a process group of its own (M3).
 # Each later launch on the sample sweeps it too, so llm-sandbox.test.sh tests the TERM sweep alone.
 if $mac; then
@@ -229,6 +258,42 @@ EOF
 PINNED_BAYAN=$(bash scripts/pinned-bayan.sh) bash "$fake/scripts/bayan-tool.sh" llm-eval score "$exit3" "$root/cand/right.byn" \
   --out "$root/out/probe" > "$root/rec/probe" 2> "$root/rec/probe.err"
 check "a probe that exits non-zero fails the scoring, no record" "$([ $? != 0 ] && echo failed) $(wc -c < "$root/rec/probe" | tr -d ' ')" "failed 0"
+
+# A tests task passes only when every test ran and passed (0.4.0 audit 16 #2): `bayan test` exits 0 when every test is
+# pending, so a stub of todo() bodies scored as passed. The real run first, then reports handed back by a stub launcher
+# that runs the real one for every step but `bayan test`.
+printf 'struct Portion {\n    i32 dates\n    i32 guests\n}\n\nPortion portion(i32 dates, for i32 guests) fails ValidationError<Portion> => todo("x")\n\nPortion joined(Portion p, by i32 extra) fails ValidationError<Portion> => todo("x")\n\ni32 perGuest(Portion p) => todo("x")\n' > "$root/cand/pending.byn"
+score pending "$seed/contracts-001-date-portion" "$root/cand/pending.byn"
+check "every test pending: not passed" "$code $(get pending compiles) $(get pending passes) $(get pending outcome) $(get pending passed)" '0 true false "fail" false'
+cp scripts/evals/llm-sandbox.sh "$fake/scripts/evals/llm-sandbox-real.sh"
+cp scripts/evals/llm-prime.c "$fake/scripts/evals/"
+summary() { printf '{\n  "package": null,\n  "tests": [],\n  "summary": {\n    "total": %s,\n    "passed": %s,\n    "failed": 0,\n    "panicked": 0,\n    "timedOut": 0,\n    "pending": 0,\n    "skipped": %s,\n    "durationMs": 1.0\n  }\n}\n' "$1" "$2" "$3"; }
+summary 2 2 0 > "$root/report-pass"
+: > "$root/report-empty"
+head -c 60 "$root/report-pass" > "$root/report-cut"
+summary 3 3 1 > "$root/report-skipped"
+summary 0 0 0 > "$root/report-none"
+cat > "$fake/scripts/evals/llm-sandbox.sh" <<EOF
+o="" s="" prev=""
+for a in "\$@"; do [ "\$prev" = --stdout ] && o=\$a; [ "\$prev" = --status ] && s=\$a; prev=\$a; done
+case " \$* " in
+  (*" test --json "*) cat "\$(cat "$root/report-which")" > "\$o"; printf 'exit: 0\nlimit: false\nsandbox: stub\n' > "\$s"; exit 0 ;;
+esac
+exec bash "$fake/scripts/evals/llm-sandbox-real.sh" "\$@"
+EOF
+for r in pass empty cut skipped none; do
+  echo "$root/report-$r" > "$root/report-which"
+  PINNED_BAYAN=$(bash scripts/pinned-bayan.sh) bash "$fake/scripts/bayan-tool.sh" llm-eval score "$seed/contracts-001-date-portion" \
+    "$root/cand/pending.byn" --out "$root/out/report-$r" > "$root/rec/report-$r" 2> "$root/rec/report-$r.err"
+done
+check "a report where every test passed passes" "$(get report-pass passes) $(get report-pass passed)" "true true"
+check "an empty report does not pass" "$(get report-empty compiles) $(get report-empty passes)" "true false"
+check "a cut report does not pass" "$(get report-cut compiles) $(get report-cut passes)" "true false"
+check "a report with a skipped test does not pass" "$(get report-skipped compiles) $(get report-skipped passes)" "true false"
+check "a report with no tests does not pass" "$(get report-none compiles) $(get report-none passes)" "true false"
+# The launcher's outputs are outside the sample (0.4.0 audit 16 #1): none in work/, every one in results/.
+check "step outputs in results/, none in the sample" \
+  "$(ls "$root/out/pending/work/contracts-001-date-portion/1" | grep -c 'stdout\|json') $(ls "$root/out/pending/results/contracts-001-date-portion/1" | grep -c 'test.json')" "0 2"
 
 # A test that prints without end reaches the per-test run limit (R14).
 score shout "$loud" "$root/cand/shout.byn"
@@ -449,21 +514,24 @@ if $mac; then
   # The launcher's own profile cannot hold the tool (it denies reads of the repo and exec of anything but its program), so
   # the denial here is a profile of network and writes only. The scorer's launches cannot apply their profile inside it
   # (sandbox-exec cannot apply a second one), so the probe fails and the run stops there, after the model command ran.
+  # The launcher makes its profile dir under /tmp (never TMPDIR, which lies under --write), so that is allowed too.
   real=$(cd "$root" && pwd -P)
   env -i "HOME=$root/net-tmp" "PATH=$PATH" "TMPDIR=$root/net-tmp" "BAYAN_CACHE=$root/net-cache" "DOTNET_ROOT=${DOTNET_ROOT:-}" \
     "PINNED_BAYAN=$pinned" /usr/bin/sandbox-exec -p "(version 1) (allow default) (deny network*) (deny file-write*)
-      (allow file-write* (literal \"/dev/null\") (literal \"/dev/dtracehelper\") (subpath \"$real\"))" \
+      (allow file-write* (literal \"/dev/null\") (literal \"/dev/dtracehelper\") (subpath \"$real\")
+      (regex #\"^/private/tmp/llm-sandbox\\.\"))" \
     bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" \
     --machine m --out "$root/out/run-net" > "$root/rec/net" 2> "$root/rec/net.err"
   check "run: inside the network denial the model command runs, then the probe stops the scoring" \
     "$([ $? != 0 ] && echo stopped) $(grep -c "the launcher's probe exited" "$root/rec/net.err") $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "stopped 1 same"
 else
-  TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.sh --write "$root" --stdout "$root/rec/net" \
-    --status "$root/rec/net.status" -- env "PINNED_BAYAN=$pinned" bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" \
+  TMPDIR=$root/net-tmp BAYAN_CACHE=$root/net-cache bash scripts/evals/llm-sandbox.sh --write "$root" --stdout "$root-net/out" \
+    --status "$root-net/status" -- env "PINNED_BAYAN=$pinned" bash scripts/bayan-tool.sh llm-eval run "$root/sets/run" \
     --model "sh $root/model.sh $root/reply-two $root/rec/net.prompt 7" --machine m --out "$root/out/run-net" 2> "$root/rec/net.err"
-  status() { sed -n "s/^$1: //p" "$root/rec/net.status"; }
+  cp "$root-net/out" "$root/rec/net" 2> /dev/null
+  status() { sed -n "s/^$1: //p" "$root-net/status"; }
   check "run: completes inside the network denial" "$(status exit) $(status sandbox) $(get net tokens) $(cmp -s "$root/rec/net.prompt" "$root/want-plain" && echo same)" "0 $sandbox 7 same"
-  [ "$(status exit)" = 0 ] || { echo "  net.status:"; sed 's/^/    /' "$root/rec/net.status"; echo "  net.err (last 40 lines):"; tail -40 "$root/rec/net.err" | sed 's/^/    /'; }
+  [ "$(status exit)" = 0 ] || { echo "  net.status:"; sed 's/^/    /' "$root-net/status"; echo "  net.err (last 40 lines):"; tail -40 "$root/rec/net.err" | sed 's/^/    /'; }
 fi
 
 # Stamp and heldout guard (T9). A git repository holding a set with one `dev` and one `Split: heldout` task, both
@@ -601,6 +669,85 @@ seen() { grep -c "/work/small-900-salam/$1/" "$root/rec/t44.ps"; }
 check "run: two samples start zig from one tools directory, removed at the end" \
   "$code $zigs $([ "$(seen 1)" -gt 0 ] && [ "$(seen 2)" -gt 0 ] && echo both) $([ -e "$root/out/t44/1/tools" ] && echo left || echo gone)" \
   "0 $root/out/t44/1/tools/zig/zig both gone"
+
+# Retry with diagnostics (T45, R42). A stub model answers its n-th request with the n-th planned candidate and records each
+# prompt; with no n-th candidate it answers nothing.
+#   sh retry.sh <dir>
+cat > "$root/retry.sh" <<'EOF'
+n=$(( $(cat "$1/count" 2> /dev/null || echo 0) + 1 ))
+echo "$n" > "$1/count"
+cat > "$1/prompt.$n"
+cat "$1/$n.byn" 2> /dev/null
+EOF
+good retry small-900-salam small
+# A tests task whose hidden checks/entry.byn holds the entry point: a candidate with a main of its own compiles alone and fails
+# to compile only beside the hidden file.
+mkdir -p "$root/sets/rloud"
+cp -R "$loud" "$root/sets/rloud/"
+printf 'Write a function `shout` that prints a line.\n' > "$root/sets/rloud/errors-900-loud/prompt.md"
+printf '/// Says nothing.\nvoid quiet() {\n}\n\nvoid main() {\n}\n' > "$root/cand/quiet.byn"
+# rtry <case> <set> [--no-retry] <candidate>...: a run over <set> with --retry-diagnostics whose stub answers request n with the
+# n-th candidate; after --no-retry, a run without the flag and one sample per candidate. Prompts in $root/rq/<case>/prompt.<n>,
+# the request count in $asked.
+rtry() {
+  local c=$1 set=$2 n=1 f flag=--retry-diagnostics; shift 2
+  [ "$1" = --no-retry ] && { shift; flag="--samples $#"; }
+  mkdir -p "$root/rq/$c"
+  for f in "$@"; do cp "$root/cand/$f.byn" "$root/rq/$c/$n.byn"; n=$((n + 1)); done
+  bash scripts/bayan-tool.sh llm-eval run "$set" --model "sh $root/retry.sh $root/rq/$c" --machine m $flag \
+    --out "$root/out/rq-$c" > "$root/rec/rq-$c" 2> "$root/rec/rq-$c.err"
+  code=$?
+  asked=$(cat "$root/rq/$c/count" 2> /dev/null || echo 0)
+}
+rtry fix "$root/sets/retry" broken right
+check "retry: no-compile, then a pass: two requests, both outcomes in the record" \
+  "$code $asked $(get rq-fix outcome) $(get rq-fix retryOutcome) $(grep -c '"reply": "void main() {.*"retryReply": "i32 main() {' "$root/out/rq-fix/1/records.jsonl")" \
+  '0 2 "no-compile" "pass" 1'
+{ cat "$root/rq/fix/prompt.1"; printf '\nYour program:\n'; cat "$root/cand/broken.byn"; printf '\nThe compiler said:\n'; } > "$root/rq/fix/head"
+check "retry: the second prompt is the prompt, the first program, the compiler's errors for it" \
+  "$(head -c "$(wc -c < "$root/rq/fix/head")" "$root/rq/fix/prompt.2" | cmp -s - "$root/rq/fix/head" && echo same) $(grep -c '^error BYN2001: `nope` is not defined$' "$root/rq/fix/prompt.2") $(grep -c -- '--> solution.byn:2:11$' "$root/rq/fix/prompt.2") $(grep -cF "$root" "$root/rq/fix/prompt.2")" \
+  "same 1 1 0"
+flat=$(tr -d ' \n' < "$root/out/rq-fix/1/summary.json")
+after='"pass@1":{"count":0,"rate":0.0000},"pass@1afterretry":{"count":1,"rate":1.0000},"pass@k":{"count":0,'
+check "retry: pass@1 0 from the first reply, pass@1 after retry 1, overall and per category, tier and revision" \
+  "$(holds "\"overall\":{\"tasks\":1,$after") $(holds "\"small\":{\"tasks\":1,$after") $(holds "\"1\":{\"tasks\":1,$after") $(holds "\"0023\":{\"tasks\":1,$after")" \
+  "holds holds holds holds"
+rtry twice "$root/sets/retry" broken broken broken
+check "retry: a second no-compile gets no third request" \
+  "$code $asked $(get rq-twice outcome) $(get rq-twice retryOutcome)" '0 2 "no-compile" "no-compile"'
+check "retry: pass@1 after retry 0 when the retry does not pass" \
+  "$(tr -d ' \n' < "$root/out/rq-twice/1/summary.json" | grep -c '"overall":{"tasks":1,"pass@1":{"count":0,"rate":0.0000},"pass@1afterretry":{"count":0,')" "1"
+for c in right:pass wrong-code:fail loop:limit; do
+  rtry "${c%%:*}" "$root/sets/retry" "${c%%:*}" right
+  check "retry: a first reply that gives ${c#*:} gets no retry" \
+    "$code $asked $(get "rq-${c%%:*}" outcome) $(grep -c retry "$root/rec/rq-${c%%:*}")" "0 1 \"${c#*:}\" 0"
+done
+# Only the hidden test fails the candidate: the retry is sent with no error line, and nothing of checks/.
+rtry hidden "$root/sets/rloud" quiet quiet
+said=$(sed -n '/^The compiler said:$/,$p' "$root/rq/hidden/prompt.2")
+check "retry: an error caused only by the hidden checks is not sent" \
+  "$code $asked $(get rq-hidden outcome) $(grep -c 'shout()\|checks.test\|entry.byn\|BYN' "$root/rq/hidden/prompt.2") $(echo "$said" | wc -l | tr -d ' ')" \
+  '0 2 "no-compile" 0 1'
+# Without the flag, records and summary are the base commit's for the same replies (wall times set to 0). The base tool runs
+# from a copy of the files it needs; its llm-eval.byn and llm-sandbox.sh are commit 52b9b1ce's, kept in fixtures/ (CI checks out
+# depth 2). The current launcher refuses that tool's outputs inside the sample dir.
+brepo=$root/base-repo
+mkdir -p "$brepo/scripts/evals" "$brepo/tools" "$brepo/evals/llm"
+cp scripts/bayan-tool.sh scripts/pinned-bayan.sh "$brepo/scripts/"
+cp scripts/evals/llm-prime.c "$brepo/scripts/evals/"
+cp scripts/evals/fixtures/llm-sandbox-52b9b1ce.sh.txt "$brepo/scripts/evals/llm-sandbox.sh"; chmod +x "$brepo/scripts/evals/llm-sandbox.sh"
+cp evals/llm/preamble.md "$brepo/evals/llm/"
+cp scripts/evals/fixtures/llm-eval-52b9b1ce.byn.txt "$brepo/tools/llm-eval.byn"
+mkdir -p "$root/rq/base"
+cp "$root/cand/broken.byn" "$root/rq/base/1.byn"; cp "$root/cand/right.byn" "$root/rq/base/2.byn"; cp "$root/cand/wrong-code.byn" "$root/rq/base/3.byn"
+PINNED_BAYAN=$(bash scripts/pinned-bayan.sh) bash "$brepo/scripts/bayan-tool.sh" llm-eval run "$root/sets/retry" \
+  --model "sh $root/retry.sh $root/rq/base" --samples 3 --machine m --out "$root/out/rq-base" > "$root/rec/rq-base" 2> "$root/rec/rq-base.err"
+codeBase=$?
+rtry plain "$root/sets/retry" --no-retry broken right wrong-code
+nowall() { sed 's/"wallMs": [0-9]*/"wallMs": 0/g' "$1"; }
+check "retry: without the flag, records and summary are the base commit's" \
+  "$codeBase $code $asked $(nowall "$root/out/rq-plain/1/records.jsonl" | cmp -s - <(nowall "$root/out/rq-base/1/records.jsonl") && echo same) $(nowall "$root/out/rq-plain/1/summary.json" | cmp -s - <(nowall "$root/out/rq-base/1/summary.json") && echo same) $(nowall "$root/rec/rq-plain" | cmp -s - <(nowall "$root/rec/rq-base") && echo same)" \
+  "0 0 3 same same same"
 
 echo "llm-eval.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]

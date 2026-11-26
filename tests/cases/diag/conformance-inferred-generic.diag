@@ -1,0 +1,24 @@
+error BYN2802: `S.run` is `void run() fails F` but `IRun` requires `void run() fails E`
+
+  10 │     void run() fails {
+     │          ^^^ infers `F`, which `IRun.run` does not declare
+     │
+  help: change the signature to `void run() fails E` and handle the other errors inside `S.run`
+
+warning BYN2311: `a` is never reassigned; declare it with `let`
+
+  16 │     var a = S<i64> { v: 1 }
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 16 │     let a = S<i64> { v: 1 }
+     │    │     +++
+
+warning BYN2311: `b` is never reassigned; declare it with `let`
+
+  17 │     var b = S<bool> { v: true }
+     │         ^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 17 │     let b = S<bool> { v: true }
+     │    │     +++

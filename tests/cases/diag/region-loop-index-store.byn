@@ -1,0 +1,11 @@
+void main() {
+    var xs = List<i64>()
+    var views = List<ReadOnlySpan<i64>>()
+    views.append([])
+    views.append([])
+    for i in 0..100 {
+        xs.append(i)
+        views[i % 2] = xs.span
+        print($"{views[0].length}")
+    }
+}

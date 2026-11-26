@@ -1,0 +1,24 @@
+struct Order {
+    states {
+        draft(string msg)
+        paid(i64 code)
+    }
+    i64 reset(ref this) becomes .draft {
+        become .draft("again")
+        return 1
+    }
+    i64 settle(ref this) becomes .paid {
+        become .paid(7)
+        return 2
+    }
+    void draftOnly(this is .draft) {
+        print(msg)
+    }
+}
+i64 add(i64 a, to i64 b) => a + b
+void run(bool flag, by i64 k) {
+    var o = Order.draft { msg: "hi" }
+    print($"{add(o.settle(), to: o switch { .draft => 1, .paid => k })}") if flag
+    o.draftOnly()
+}
+void main() { run(flag: true, by: 2) }

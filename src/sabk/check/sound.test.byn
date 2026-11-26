@@ -306,6 +306,19 @@ sir.Function tenFn() uses alloc {
     return f
 }
 
+/// redefine(v0, v1): v1 = helper(v0); ret v1. The redefined parameter must not take x0 while v0 waits there for the call.
+sir.Function redefineFn() uses alloc {
+    var f = sir.newFunction("redefine", by: 2)
+    let b = sir.newBlock(ref f)
+    sir.emit(ref f, to: b, as: .call(f.params[1], "helper", [f.params[0]]))
+    sir.terminate(ref f, at: b, as: .ret(f.params[1]))
+    return f
+}
+
+test "a parameter redefined by a call result does not overwrite an earlier parameter's register" {
+    assert audit(redefineFn()) == ""
+}
+
 test "the allocator's output is sound on the remaining T7-T10 shapes" {
     assert audit(countdownFn()) == ""
     assert audit(callsFn()) == ""

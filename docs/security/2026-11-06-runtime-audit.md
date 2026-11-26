@@ -1,6 +1,6 @@
 # Runtime security audit, 2026-11-06
 
-Version: 0.4.0 (matches `bayan --version`)
+Version: 0.4.1 (matches `bayan --version`)
 
 Scope: `src/runtime/bayan-rt.c` (the C runtime every program links), read-only audit with probes (`tmp/security/`). Not reached: case tables (:690-1190), path tables (:1622-1800), `selfhost/driver/runtime.byn` (embedded copy), any run on Windows. Fix status is tracked per row in `docs/bayan-progress-log.md` and `work/todo.md`.
 

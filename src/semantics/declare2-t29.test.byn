@@ -47,7 +47,7 @@ test "declare2 t29: an interface holding a field and a nested type, and two reje
     let text = "interface IOdd {\n    i64 x = 1\n    struct Inner {\n        i64 a\n    }\n    enum K {\n        a\n    }\n    i64 size()\n}\n\nstruct S {\n    static readonly unique i64 n\n}\n\nstatic required interface IQ {\n    i64 q()\n}\n"
     assert t29s0Same(
         t29s0Diags(text),
-        as: "BYN1001 21+3 expected a method, getter or `type Name`, found `i64`;BYN1001 35+6 expected a method, getter or `type Name`, found keyword `struct`;BYN1016 164+6 `static` is not allowed here;",
+        as: "BYN1001 21+3 expected a method, getter or `type Name`, found `i64`;BYN1001 35+6 expected a method, getter or `type Name`, found keyword `struct`;BYN1001 74+4 expected a method, getter or `type Name`, found keyword `enum`;BYN1016 164+6 `static` is not allowed here;",
     )
 }
 

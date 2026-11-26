@@ -1,0 +1,15 @@
+error BYN7007: `IDoor` has no state `.ajar`
+
+  2 │     void close(ref this is .ajar) becomes .shut
+    │                             ^^^^
+    │
+  help: remove it: an interface declares no states, so a caller through `IDoor` cannot check or
+        track one
+
+error BYN7007: `IDoor` has no state `.shut`
+
+  2 │     void close(ref this is .ajar) becomes .shut
+    │                                            ^^^^
+    │
+  help: remove it: an interface declares no states, so a caller through `IDoor` cannot check or
+        track one

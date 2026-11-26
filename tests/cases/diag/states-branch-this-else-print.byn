@@ -1,0 +1,25 @@
+struct Order {
+    states {
+        draft(string msg)
+        paid(i64 code)
+    }
+    void pay(ref this is .draft) becomes .paid {
+        become .paid(42)
+    }
+    void draftOnly(this is .draft) {
+        print(msg)
+    }
+    void step(ref this is .draft, bool flag) becomes .paid {
+        if flag {
+            print("x")
+            become .paid(1)
+        } else {
+            draftOnly()
+            become .paid(2)
+        }
+    }
+}
+void main() {
+    var o = Order.draft { msg: "hi" }
+    o.step(flag: false)
+}

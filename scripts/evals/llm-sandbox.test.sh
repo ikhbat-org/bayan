@@ -4,7 +4,7 @@
 #   bash scripts/evals/llm-sandbox.test.sh
 set -uo pipefail
 cd "$(dirname "$0")/../.."
-sb=scripts/evals/llm-sandbox.sh
+sb=$PWD/scripts/evals/llm-sandbox.sh
 root=$PWD/tmp/llm-sandbox-test
 rm -rf "$root"; mkdir -p "$root/tasks" "$root/w/pids" "$root/other"
 # At exit, every process the test started that is still alive is killed: the server, the launcher of the TERM case, the
@@ -328,5 +328,58 @@ else
   echo "skip lingerer cases: zig missing"
 fi
 
+
+# --stdout and --status are written and read by the launcher outside the sandbox, so neither may be a symlink nor lie under
+# --write, where the program could plant one (0.4.0 audit 16 #1). Each refusal leaves the outside file as it was.
+printf 'kept\n' > "$root/other/victim"
+refused() { "$bash" "$sb" "$@" -- "$shell" -c 'head -c 1048600 /dev/zero' > /dev/null 2> "$root/err"; echo "$? $(cat "$root/other/victim")"; }
+check "--stdout under --write refused" "$(refused --write "$root/w" --stdout "$root/w/out" --status "$root/status")" "2 kept"
+check "--status under --write refused" "$(refused --write "$root/w" --stdout "$root/out" --status "$root/w/status")" "2 kept"
+ln -sfn "$root/w" "$root/wlink"
+check "--stdout under --write named through a symlink refused" \
+  "$(refused --write "$root/wlink" --stdout "$root/w/out" --status "$root/status")" "2 kept"
+rm -f "$root/out" "$root/status"
+ln -s "$root/other/victim" "$root/out"
+check "--stdout a symlink refused" "$(refused --write "$root/w" --stdout "$root/out" --status "$root/status")" "2 kept"
+rm -f "$root/out"
+ln -s "$root/other/victim" "$root/status"
+check "--status a symlink refused" "$(refused --write "$root/w" --stdout "$root/out" --status "$root/status")" "2 kept"
+rm -f "$root/status"
+ln -s "$root/other/victim" "$root/w/big.cut"
+check "--stdout whose .cut is planted under --write refused" \
+  "$(refused --write "$root/w" --stdout "$root/w/big" --status "$root/status")" "2 kept"
+rm -f "$root/w/big.cut"
+check "--status in a missing directory under --write named through a symlink refused" \
+  "$(refused --write "$root/wlink" --stdout "$root/out" --status "$root/wlink/new/status")" "2 kept"
+check "--status in a missing directory outside --write refused" \
+  "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/new/status")" "2 kept"
+mkdir -p "$root/w/rel"
+check "relative --status under --write refused" \
+  "$(cd "$root/w" && refused --write . --stdout "$root/out" --status rel/status) $(grep -c 'under --write' "$root/err")" "2 kept 1"
+check "relative --stdout under --write refused" \
+  "$(cd "$root/w" && refused --write . --stdout ./out --status "$root/status") $(grep -c 'under --write' "$root/err")" "2 kept 1"
+mkdir -p "$root/other/rel"
+check "relative --status under --write refused with CDPATH exported" \
+  "$(cd "$root/w" && export CDPATH="$root/other" && refused --write . --stdout "$root/out" --status rel/status) $(grep -c 'under --write' "$root/err")" "2 kept 1"
+check "--write / refused" "$(refused --write / --stdout "$root/out" --status "$root/status")" "2 kept"
+check "--status naming a directory refused" \
+  "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/") $(grep -c 'name a file' "$root/err")" "2 kept 1"
+rm -f "$root/wlink"
+# `..` after a symlink is resolved as the kernel does: other/l/.. is w, not other.
+mkdir -p "$root/w/deep"
+ln -sfn "$root/w/deep" "$root/other/l"
+check "--status through a symlink and .. into --write refused" \
+  "$(refused --write "$root/w" --stdout "$root/out" --status "$root/other/l/../x") $(grep -c 'under --write' "$root/err")" "2 kept 1"
+rm -f "$root/other/l"
+# A symlink in the given path that lies under --write is read once, at the check: the program retargeting it during its
+# run does not move the launcher's writes.
+mkdir -p "$root/w/evil"
+ln -sfn "$root/other" "$root/w/link"
+ln -sfn "$root/other/victim" "$root/w/evil/status"
+"$bash" "$sb" --write "$root/w" --stdout "$root/out" --status "$root/w/link/status" -- /bin/ln -sfn "$root/w/evil" "$root/w/link" \
+  > /dev/null 2> "$root/err"
+check "a symlink retargeted by the program does not move --status" \
+  "$? $(cat "$root/other/victim") $(grep -c '^exit:' "$root/other/status")" "0 kept 1"
+rm -rf "$root/w/link" "$root/w/evil" "$root/other/status"
 echo "llm-sandbox.test: $pass passed, $fail failed"
 [ "$fail" = 0 ]

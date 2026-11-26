@@ -1,0 +1,6 @@
+import m
+
+// The overload the labels select is the one whose visibility counts, not the first declared.
+void main() {
+    m.f(by: 1)
+}

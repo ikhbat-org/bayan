@@ -1,0 +1,20 @@
+union error E {
+    one,
+}
+
+union error F {
+    boom,
+}
+
+interface IRun {
+    void run() fails E, F
+}
+
+struct S : IRun {
+    void run() fails {
+        fail E.one
+    }
+}
+
+void main() {
+}

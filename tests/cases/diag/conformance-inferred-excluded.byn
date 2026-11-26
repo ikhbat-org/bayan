@@ -1,0 +1,19 @@
+union error E {
+    one
+    two
+}
+
+union error Narrow = E except .two
+
+interface IRun {
+    void run() fails Narrow
+}
+
+struct S : IRun {
+    void run() fails {
+        fail E.one
+    }
+}
+
+void main() {
+}

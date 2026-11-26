@@ -1,0 +1,4 @@
+void f(i64 x) {
+    let a = (u8)x
+    assert a == = 1
+}

@@ -1,0 +1,14 @@
+List<i64> keep(i64 -> i64 f, from move List<i64> xs) {
+    print($"{f(1)}")
+    return xs
+}
+void main() uses alloc, console {
+    var xs = List<i64>()
+    xs.append(1)
+    var s = List<i64>()
+    {
+        using let a = Arena()
+        provide allocator: a { s = keep(n => n + 1, from: move xs) }
+    }
+    print($"{s.length}")
+}

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Refuses a commit range with a golden-update commit that breaks spec 019 R14 (decision 006 §2).
-#   scripts/ci/golden-commit-check.sh <base>..<head>
+#   scripts/ci/golden-commit-check.sh <base>..<head> [<ref>...]
+# Commits reachable from any <ref> are left out (pre-push passes origin/dev and origin/main: published commits are not re-judged).
 # Every non-merge commit in the range is checked (merge commits are skipped, as are the commits listed in
 # scripts/ci/golden-commit-allow.txt as of <head>):
 #   - it changes no expected file: passes;
@@ -15,7 +16,8 @@
 #     with an optional lowercase suffix (T21, T41b, T123).
 # Exit 0 clean, 1 refused (sha, subject and reason on stderr), 2 usage or git error.
 set -uo pipefail
-[ $# = 1 ] && [[ "$1" == *..* ]] || { echo "usage: scripts/ci/golden-commit-check.sh <base>..<head>" >&2; exit 2; }
+[ $# -ge 1 ] && [[ "$1" == *..* ]] || { echo "usage: scripts/ci/golden-commit-check.sh <base>..<head> [<ref>...]" >&2; exit 2; }
+range="$1"; shift
 manifest=tests/cases/FREEZE.tsv
 is_expected() {
   case "$1" in
@@ -34,8 +36,8 @@ has_cause() {
   done
   return 1
 }
-commits=$(git rev-list --reverse --no-merges "$1") || { echo "golden-commit-check: bad range '$1'" >&2; exit 2; }
-allowed=" $(git show "${1##*..}:scripts/ci/golden-commit-allow.txt" 2>/dev/null | sed 's/#.*//' | tr -s ' \t\n' '   ') "
+commits=$(git rev-list --reverse --no-merges "$range" ${1:+--not} "$@") || { echo "golden-commit-check: bad range '$range'" >&2; exit 2; }
+allowed=" $(git show "${range##*..}:scripts/ci/golden-commit-allow.txt" 2>/dev/null | sed 's/#.*//' | tr -s ' \t\n' '   ') "
 bad=0; n=0
 for c in $commits; do
   n=$((n + 1))
@@ -56,5 +58,5 @@ EOT
     bad=$((bad + 1))
   fi
 done
-[ $bad = 0 ] || { echo "golden-commit-check: $bad commit(s) refused in $1" >&2; exit 1; }
-echo "golden-commit-check: clean ($n commits in $1)"
+[ $bad = 0 ] || { echo "golden-commit-check: $bad commit(s) refused in $range" >&2; exit 1; }
+echo "golden-commit-check: clean ($n commits in $range)"

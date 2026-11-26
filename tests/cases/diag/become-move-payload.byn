@@ -1,0 +1,22 @@
+struct Box {
+    i64 id
+    states {
+        idle
+        active(i64 n)
+    }
+    void start(ref this is .idle) becomes .active {
+        var xs = List<i64>()
+        xs.append(1)
+        become .active(takeLen(move xs))
+        print($"{xs[0]}")
+    }
+}
+i64 takeLen(move List<i64> xs) {
+    var ys = move xs
+    for i in 0..100 { ys.append(i) }
+    return ys.length
+}
+void main() {
+    var b = Box.idle { id: 1 }
+    b.start()
+}

@@ -259,7 +259,7 @@ public List<u8> writeObject(List<Section> sections, for List<ObjSymbol> symbols)
             let pcrel = rel.kind == .branch26 || rel.kind == .page21 ? 1 : 0
             let length = rel.kind == .unsigned ? 3 : 2
             put32(ref buf, as: rel.offset)
-            put32(ref buf, as: (sym ?? 0) | (pcrel << 24) | (length << 25) | (1 << 27) | (relocType(rel.kind) << 28))
+            put32(ref buf, as: sym | (pcrel << 24) | (length << 25) | (1 << 27) | (relocType(rel.kind) << 28))
             r -= 1
         }
     }

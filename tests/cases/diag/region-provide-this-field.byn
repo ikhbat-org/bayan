@@ -1,0 +1,13 @@
+struct S {
+    Arena a
+    void f(ref this) uses alloc, console {
+        var s = ""
+        provide allocator: this.a { s = $"v={1}" }
+        this.a.reset()
+        print(s)
+    }
+}
+void main() uses alloc {
+    var o = S { a: Arena() }
+    o.f()
+}

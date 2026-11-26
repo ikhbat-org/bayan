@@ -1,0 +1,4 @@
+// os: windows
+// `Path.fullPath` on a `\\.\` device path holding `~` whose root is the whole path: the short-name expansion stops at the root (audit 0.4.0 02 #1) and the path comes back unchanged.
+print(Path.fullPath("\\\\.\\a~1"))
+print(Path.fullPath("\\\\.\\b~2"))

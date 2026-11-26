@@ -73,12 +73,14 @@ public struct Regex {
 
     /// Whether the pattern matches the whole of `text`, as Python's `re.fullmatch` (not only a part; `find` is that).
     public bool matches(string text) uses alloc {
-        return search(text, from: 0, whole: true) is not null
+        var vm = makeScratch()
+        return search(text, from: 0, whole: true, through: ref vm) is not null
     }
 
     /// The leftmost-first match in `text`, or `null` when there is none.
     public Match? find(string text) uses alloc {
-        let slots = search(text, from: 0, whole: false) ?? return null
+        var vm = makeScratch()
+        let slots = search(text, from: 0, whole: false, through: ref vm) ?? return null
         return Match { text: text, slots: move slots }
     }
 
@@ -88,8 +90,9 @@ public struct Regex {
         var all = List<Match>()
         var pos = 0
         var previousEnd = -1
+        var vm = makeScratch()
         while pos <= text.length {
-            let slots = search(text, from: pos, whole: false) ?? break
+            let slots = search(text, from: pos, whole: false, through: ref vm) ?? break
             let start = slots[0]
             let end = slots[1]
             var accept = true
@@ -141,22 +144,16 @@ public struct Regex {
 
     /// The slots of the first match at or after `from` (start and end of the match, then of each group, -1 when a
     /// group took no part), or `null`. `whole` anchors the match at `from` and accepts it only when it ends at the
-    /// text's end.
-    List<i64>? search(string text, from i64 from, bool whole) uses alloc {
-        let slotCount = 2 * (groups + 1)
-        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }
-        for _ in 0..program.length {
-            vm.marks.append(0)
-        }
-        for _ in 0..slotCount {
-            vm.current.append(-1)
-        }
+    /// text's end. `vm` is a `makeScratch` of this pattern, reused across searches: its marks stay below the
+    /// generations this search uses, so they are not zeroed again.
+    List<i64>? search(string text, from i64 from, bool whole, through ref Vm vm) uses alloc {
+        let slotCount = vm.slotCount
         var now = Threads { pcs: List<i64>(), slots: List<i64>() }
         var next = Threads { pcs: List<i64>(), slots: List<i64>() }
         var best = List<i64>()
         var matched = false
-        var generation = 1
-        var nowGeneration = 1
+        var generation = vm.generation + 1
+        var nowGeneration = generation
         var pos = from
         while true {
             if !matched && (!whole || pos == from) {
@@ -216,6 +213,19 @@ public struct Regex {
         }
         return null if !matched
         return best
+    }
+
+    /// A `Vm` for `search` over this pattern, its marks zeroed; `findAll` makes one for all its searches.
+    Vm makeScratch() uses alloc {
+        let slotCount = 2 * (groups + 1)
+        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }
+        for _ in 0..program.length {
+            vm.marks.append(0)
+        }
+        for _ in 0..slotCount {
+            vm.current.append(-1)
+        }
+        return vm
     }
 
     /// Whether rune `value` is in the class of `inst`.

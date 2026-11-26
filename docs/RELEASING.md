@@ -1,6 +1,6 @@
 # Releasing Bayān
 
-Version: 0.4.0 (matches `bayan --version`)
+Version: 0.4.1 (matches `bayan --version`)
 
 How a version is cut, checked, tagged and published, and where the version and the versioned docs live.
 

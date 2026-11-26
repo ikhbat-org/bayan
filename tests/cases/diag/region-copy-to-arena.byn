@@ -1,0 +1,13 @@
+List<string> f(ref Arena a) {
+    let buf = stackalloc u8[16]
+    var sb = StrBuf(buf)
+    sb.append("hi")
+    var xs = List<string>()
+    xs.append(sb.view)
+    return xs.copy(to: a)
+}
+void main() {
+    var a = Arena()
+    let xs = f(ref a)
+    print(xs[0])
+}

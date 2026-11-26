@@ -1,0 +1,11 @@
+error BYN2208: `==` cannot be applied to `Listed` and `Listed`
+
+  26 │ bool sameListed(Listed a, to Listed b) => a == b
+     │                                           ^^^^^^
+
+error BYN2831: `Measured` cannot be a `Map` key: field `r` is a `f64`
+
+  31 │     let measured = Map<Measured, i64>()
+     │                        ^^^^^^^^
+     │
+  help: use a field that identifies the value as the key, such as an id or a `Symbol`

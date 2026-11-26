@@ -27,3 +27,4 @@ returns pick 0
 store many 0 3 77..78
 store many 1 2 87..88
 store pass 0 1 242..243
+store pick 0 -2 142..149

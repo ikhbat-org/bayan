@@ -483,7 +483,9 @@ Bound? rangeBound(ref Parser p, for Expr e) {
                     runes += 1
                 }
             }
-            return null if runes != 1
+            let b0 = p.lexed.source.bytes[s.start + 1]
+            let width: i64 = b0 < 0x80 ? 1 : b0 < 0xC2 ? 0 : b0 < 0xE0 ? 2 : b0 < 0xF0 ? 3 : b0 < 0xF5 ? 4 : 0
+            return null if runes != 1 || width != s.length - 2
             return Bound { kind: .rune, negative: false, l0: scalarAt(ref p, at: s.start + 1), l1: 0, l2: 0, l3: 0 }
         default:
             return null

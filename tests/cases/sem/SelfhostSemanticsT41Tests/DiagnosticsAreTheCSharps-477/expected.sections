@@ -3,3 +3,5 @@ returns keep 1
 returns pick 0 1
 returns tail 0
 returns view -1
+store top -1 -2 1526..1540
+store view -1 -2 1483..1493

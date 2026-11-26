@@ -1,0 +1,4 @@
+error BYN4001: internal compiler error: the C compiler rejected the generated C; this is a bug in
+the Bayan compiler
+C compiler failed (exit 1):
+CUSTOM

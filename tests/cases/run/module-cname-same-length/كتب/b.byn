@@ -1,0 +1,3 @@
+public i64 value() {
+    return 2
+}

@@ -57,11 +57,7 @@ string goldenStem(string name) {
 /// `path` with `\` read as `/` (Windows paths from `Path.relative`).
 string goldenSlashed(string path) uses alloc {
     return path if Target.os != "windows"
-    var text = ""
-    for i in 0..path.length {
-        text = $"{text}{path.bytes[i] == 0x5c ? "/" : path[i..i + 1]}"
-    }
-    return text
+    return path.replaced("\\", by: "/")
 }
 
 /// `text` with the directory `dir` read as `tag` (with the `/` after it dropped too when `drop`). A Windows `dir` (one holding `\`) is also
@@ -2564,7 +2560,7 @@ test "lex, parse and typed cases pass over tests/cases" {
 test "diag, manifest and diag-json cases pass over tests/cases" {
     var count: i64 = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag", to: ref count).length == 0)
-    assert(count == 677)
+    assert(count == 893)
     count = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "manifest", to: ref count).length == 0)
     assert(count == 21)

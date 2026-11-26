@@ -1,0 +1,34 @@
+// `==` and a `Map` key look at the payload fields of a struct's states as well as its plain fields.
+struct Listed {
+    i64 id
+    states {
+        idle
+        active(List<i64> xs)
+    }
+}
+
+struct Measured {
+    i64 id
+    states {
+        idle
+        active(f64 r)
+    }
+}
+
+struct Counted {
+    i64 id
+    states {
+        idle
+        active(i64 n)
+    }
+}
+
+bool sameListed(Listed a, to Listed b) => a == b
+
+bool sameCounted(Counted a, to Counted b) => a == b
+
+void main() {
+    let measured = Map<Measured, i64>()
+    let counted = Map<Counted, i64>()
+    print($"{measured.length} {counted.length}")
+}

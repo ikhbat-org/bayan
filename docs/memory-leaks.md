@@ -1,6 +1,6 @@
 # Memory and disk leaks
 
-Version: 0.4.0 (matches `bayan --version`)
+Version: 0.4.1 (matches `bayan --version`)
 
 Every Bayan memory or disk leak found so far, what caused it, and the rule that keeps it
 from coming back. Read this before writing anything that walks directories, watches files,

@@ -216,6 +216,7 @@ void bindAll(ref Ctx c) {
         instantiatingEnd(ref c, by: scope, instance: workInstance)
     }
     inferErrorSets(ref c)
+    t14CheckInferredWitnesses(ref c)
     t42AnalyzeEffects(ref c)
     checkMutation(ref c)
     checkRequires(ref c)
@@ -949,6 +950,9 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
             return instance
         case .interfaceType:
             let i = InterfaceId(typeIndex(template))
+            let file = c.interfaces[i].file
+            let nameSpan = c.interfaces[i].nameSpan
+            return errorType() if t13ExpandsWithoutEnd(ref c, for: template, from: file, at: nameSpan)
             let typeMap = t13Substitution(in c, from: null, for: in c.interfaces[i].typeParams, by: in args)
             let id = newInterface(ref c, by: InterfaceSymbol {
                 name: c.interfaces[i].name,
@@ -973,7 +977,9 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
             // A `where` bound can name an instance before the template's members are declared.
             if c.interfaceMembersDeclared {
                 let declaring = instantiatingBegin(ref c, from: site, at: span)
+                c.declaringInstances.append((template, instance))
                 declareInterfaceMembers(ref c, for: id)
+                let _ = c.declaringInstances.removeLast()
                 instantiatingEnd(ref c, by: declaring)
             } else {
                 c.pendingInterfaces.append(
@@ -1223,7 +1229,7 @@ List<(LocalId, Type)>? t13BindBody(ref Ctx c, for FuncId fn, by in List<(LocalId
                     }
                 }
                 if !found {
-                    panic("internal error: a getter without its property")
+                    return null
                 }
             }
         case .constructor:

@@ -1,0 +1,19 @@
+// A call that failed did not assign its `out` argument: a local moved before it is still moved after `catch {}` (BYN2781).
+union error E {
+    bad
+}
+
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void g(out List<i64> o) fails E {
+    fail E.bad
+}
+
+void main() {
+    var x = List<i64>()
+    consume(move x)
+    g(out x) catch {}
+    print($"{x.length}")
+}

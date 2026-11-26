@@ -77,5 +77,23 @@ error BYN7010: `close` declares `becomes .closed` but takes `move this is .open`
      │ 25 │     void close(ref this is .open)
      │    │                +++
 
-✗ build failed: 8 errors, 2 warnings
+error BYN7007: `IStore` has no state `.open`
+  --> input.byn:25:30
+
+  25 │     void close(move this is .open)
+     │                              ^^^^
+     │
+  help: remove it: an interface declares no states, so a caller through `IStore` cannot check or
+        track one
+
+error BYN7007: `IStore` has no state `.closed`
+  --> input.byn:26:18
+
+  26 │         becomes .closed
+     │                  ^^^^^^
+     │
+  help: remove it: an interface declares no states, so a caller through `IStore` cannot check or
+        track one
+
+✗ build failed: 10 errors, 2 warnings
   explain: bayan explain BYN5004

@@ -361,7 +361,7 @@ T9Built t9BuildCached(string cSource, by string mode, to string? output, for str
         fails IoError {
     sweepOnce(ref d)
     let cross = target != targetHost()
-    let compiler = ccFindCompiler()
+    let compiler = t5FindCompiler()
     let refusal = ccRefusal(in compiler, for: target)
     return T9Built { result: NativeBuild { errors: refusal } } if refusal != ""
     // coverage-exempt: Q1114 `target` is null only when `targetHost()` is, on a host no target names (Toolchain.cs:262's host build)
@@ -576,7 +576,10 @@ T9Runtime t9RuntimeIn(
     args.append(Path.combine(work, "bayan-rt.c"))
     args.append("-o")
     args.append(obj)
-    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+    let limit = t9CompileTimeout() / 1000000
+    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler), timeout: Millis(limit)) catch switch {
+        // Toolchain.cs:444-446.
+        .timeout(_, _, _) => return T9Runtime { result: NativeBuild { errors: t9TimedOut(limit), rejected: true } },
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:397-402).
         .signaled(let s, let streamOut, let streamErr) => return T9Runtime {
             result: NativeBuild {
@@ -657,8 +660,7 @@ void t9DiscardLeft(string work, through ref DCtx d) uses alloc, clock, env, fs, 
 }
 
 /// The `try` body of `Compile` (Toolchain.cs:429-465) in `work`, linking the prebuilt `runtime`. `Io.run` has no working directory
-/// (Q1009): the files are named by absolute path. `Io.run` takes a `timeout:`, which `t9ComputeIdentity` passes, but
-/// the `Io.run` below does not, so this compile is never killed and has no `timed out` failure (the C# `Compile` has one).
+/// (Q1009): the files are named by absolute path. The compile is killed after `t9CompileTimeout`, as the C# `Exec` with `limit`.
 NativeBuild t9CompileIn(
     string work,
     by in List<string> compiler,
@@ -690,7 +692,10 @@ NativeBuild t9CompileIn(
     args.append(exe)
     // `CommandLineToArgvW` (program arguments) is in shell32.
     args.append(windows ? "-lshell32" : "-lm")
-    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler)) catch switch {
+    let limit = t9CompileTimeout() / 1000000
+    let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler), timeout: Millis(limit)) catch switch {
+        // Toolchain.cs:486-497.
+        .timeout(_, _, _) => return NativeBuild { errors: t9TimedOut(limit), rejected: true },
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
         .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
             errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
@@ -1018,6 +1023,11 @@ i64 t9CompileTimeout() uses alloc, env {
     return seconds > 0 ? seconds * 1000000000 : 600000000000
 }
 
+/// Toolchain.cs:446, :497: the failure of a compile killed after `limitMs`.
+string t9TimedOut(i64 limitMs) uses alloc {
+    return $"C compiler timed out after {limitMs / 1000} s and was killed (set BAYAN_CC_TIMEOUT_S to allow longer)"
+}
+
 /// Toolchain.cs:532 `SweepStale`: `bayan-coverage-*`, `bayan-mutate-*` and `bayan-asan-*` directories in `tempRoot` older than
 /// `ageNanos`, and every entry of `Staging` older than the larger of it and the compile timeout plus 10 minutes, are removed.
 /// Errors are ignored.
@@ -1119,7 +1129,7 @@ string? lookupScript(string scriptKey, by string exeName, through ref DCtx d) us
     }
     // Toolchain.cs:585-588.
     let stored = t9PointerLine(pointer, for: true) catch return null
-    let compiler = ccFindCompiler()
+    let compiler = t5FindCompiler()
     if compiler.length > 0 {
         let stamp = t9CompilerStamp(in compiler)
         return null if stamp != "" && stamp != stored
@@ -1148,7 +1158,7 @@ void t9Remember(string scriptKey, by string programKey, through ref DCtx d)
     try Io.createDirectory(scripts)
     let temp = Path.combine(scripts, $"{scriptKey}.{t9Unique(ref d)}.tmp")
     // Toolchain.cs:609.
-    let compiler = ccFindCompiler()
+    let compiler = t5FindCompiler()
     let stamp = compiler.length > 0 ? t9CompilerStamp(in compiler) : ""
     try Io.writeFile(temp, $"{programKey}\n{stamp}\n".bytes)
     try Fs.rename(temp, to: Path.combine(scripts, scriptKey))

@@ -1,0 +1,13 @@
+void main() {
+    var xs = List<i64>()
+    let ys = List<i64>()
+    var s: ReadOnlySpan<i64> = []
+    for k in 0..3 {
+        for i in 0..10 {
+            xs.append(i)
+            print($"{s.length}")
+            s = ys.span
+        }
+        s = xs.span
+    }
+}

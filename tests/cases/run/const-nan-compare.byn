@@ -1,0 +1,12 @@
+// Ordered comparisons with NaN fold to false, as at run time; `==` and `!=` too.
+const a = (0.0 / 0.0) < 1.0
+const b = (0.0 / 0.0) <= (0.0 / 0.0)
+const c = 1.0 > (0.0 / 0.0)
+const d = (0.0 / 0.0) >= 1.0
+const e = (0.0 / 0.0) == (0.0 / 0.0)
+const f = (0.0 / 0.0) != (0.0 / 0.0)
+const g = 1.0 <= 2.0
+print($"{a} {b} {c} {d} {e} {f} {g}")
+let z = 0.0
+let n = z / z
+print($"{n < 1.0} {n <= n} {1.0 > n} {n >= 1.0} {n == n} {n != n} {z <= 2.0}")

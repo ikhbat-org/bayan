@@ -1,0 +1,11 @@
+// `Owned<T>` takes part in type-argument inference, and a generic body naming `Owned<T>` stays generic.
+void g<T>(move T x) {}
+
+void f<T>(move Owned<T> x) {
+    g<Owned<T>>(move x)
+}
+
+i64 take<T>(Owned<T> x) => 7
+
+print($"{take(Owned(1))}")
+print($"{take<i64>(Owned(2))}")

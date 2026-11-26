@@ -1,0 +1,20 @@
+struct Count : IEnumerator {
+    type Item = i64
+    i64 at
+    i64 current => at
+    bool moveNext(ref this) {
+        at += 1
+        return at < 2
+    }
+}
+
+public void f(ref Count it) uses console {
+    for x in it {
+        print($"{x}")
+    }
+}
+
+void main() {
+    var n = Count { at: -1 }
+    f(ref n)
+}

@@ -601,3 +601,31 @@ test "bound: doctor of a 256 MB cache stays under 100 MB" {
     assert(run.peakKb > 0)
     assert(run.peakKb < 100 * 1024)
 }
+
+/// A program that runs `Regex.findAll` with a 20,000-instruction pattern over 20,000 one-byte matches, then waits 200 ms
+/// on `sleep` with the matches still live. Without the wait it ended on the macOS and Linux runners before the sampler's
+/// first sample (peak 0, ci 45853205771).
+const boundFindAll: string = "import std.regex\n\nvoid main() fails IoError {\n    let re = regex.Regex.parse(\"(a{1000}){20}|b\") catch panic(\"parse failed\")\n    let all = re.findAll(\"b\".repeated(20000))\n    let hold: string[2] = [\"-c\", \"sleep 0.2\"]\n    let _ = try Io.run(\"sh\", hold.span)\n    print($\"{all.length}\")\n}\n"
+
+// measured: 3.3 GB on macOS when each search made and zeroed its own work space (O(matches x program)), 10 MB with one
+// work space for all the searches of a findAll (2026-11-26); with the wait, sampled 11 MB on macOS and 20.9 MB on Linux
+// (gcc:14 container, 2026-11-27). bound = 100 MB.
+test "bound: Regex.findAll over many matches stays under 100 MB" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("regex-findall")
+    goldenWrite(root, for: "findall.byn", as: boundFindAll)
+    let program = Path.combine(root, "findall")
+    let built = boundStart(boundList([exe, "build", "-o", program, "findall.byn"]), at: root, as: List<string>())
+    print(built.stderr)
+    assert(built.exit == 0)
+    let run = boundStart(boundList([program]), at: root, as: List<string>())
+    deleteWorkDir(root)
+    print($"findAll peaked at {run.peakKb / 1024} MB, bound 100 MB\n{run.stderr}")
+    assert(run.exit == 0)
+    assert(run.stdout == "20000\n")
+    assert(run.peakKb > 0)
+    assert(run.peakKb < 100 * 1024)
+}

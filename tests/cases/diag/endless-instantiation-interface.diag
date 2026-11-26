@@ -1,0 +1,5 @@
+error BYN2745: `IFoo<List<List<T>>>` needs `IFoo<List<List<List<T>>>>`, itself with a larger type
+argument, without end
+
+  2 │ interface IFoo<T> { void f(dyn ref IFoo<List<T>> x) }
+    │           ^^^^

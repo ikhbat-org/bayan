@@ -338,7 +338,10 @@ public string functionName(ref CCtx cc, from ref Ctx c, for semantics.FuncId fn)
     if owner != -1 {
         var member = ""
         switch kind {
-            case .constructor: member = $"init{t6IndexOf(in c.structs[owner].constructors, for: fn)}"
+            case .constructor:
+                // A method named `init0` would take the constructor's name: then the constructor becomes `0init`, which no method can be.
+                let k = t6IndexOf(in c.structs[owner].constructors, for: fn)
+                member = semantics.findMethods(ref c, by: owner, for: $"init{k}").length == 0 ? $"init{k}" : $"{k}init"
             case .getter: member = $"get_{name}"
             default: member = $"{name}{t6Overload(in semantics.findMethods(ref c, by: owner, for: name), for: fn)}"
         }

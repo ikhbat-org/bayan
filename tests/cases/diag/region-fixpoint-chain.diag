@@ -1,0 +1,15 @@
+warning BYN2311: `xs` is never reassigned; declare it with `let`
+
+  2 │     var xs: i64[2] = [1, 2]
+    │         ^^
+    │
+  help: declare it with `let` to tell the reader the value never changes
+    │ 2 │     let xs: i64[2] = [1, 2]
+    │   │     +++
+
+error BYN3003: cannot return a borrow of `xs`, which is freed when `f` returns
+
+  7 │         if i == 2 { return b }
+    │                            ^
+    │
+  help: let the caller pass the buffer or allocator in, and borrow or allocate from that

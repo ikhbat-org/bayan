@@ -1,0 +1,18 @@
+// Control for ctor-init0-method: a method `init1` beside one constructor does not collide, names stay as they were.
+struct S {
+    i64 x
+
+    S(i64 x) {
+        this.x = x
+    }
+
+    void init1() {
+        print("init1")
+    }
+}
+
+void main() {
+    let s = S(2)
+    s.init1()
+    print($"{s.x}")
+}

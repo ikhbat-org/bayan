@@ -1,0 +1,10 @@
+void stash(ref List<i64> xs, to out ReadOnlySpan<i64> s) { s = xs.span }
+void outer(ref List<i64> ys, to out ReadOnlySpan<i64> t) { stash(ref ys, to: out t) }
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    var s: ReadOnlySpan<i64>
+    outer(ref xs, to: out s)
+    for i in 0..100 { xs.append(i) }
+    print($"{s[0]}")
+}

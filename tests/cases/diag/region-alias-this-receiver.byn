@@ -1,0 +1,15 @@
+struct S {
+    List<i64> xs
+    void f(ref this, ReadOnlySpan<i64> s) {
+        for i in 0..100 { this.xs.append(i) }
+        print($"{s[0]}")
+    }
+    void g(ref this) {
+        this.f(this.xs.span)
+    }
+}
+void main() {
+    var obj = S { xs: List<i64>() }
+    obj.xs.append(5)
+    obj.g()
+}

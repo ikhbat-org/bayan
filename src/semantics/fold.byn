@@ -53,7 +53,10 @@ Constant? foldBinary(ref Ctx c, for parser.BinaryOp op, from in Constant l, by i
                 case .mul: return t6Real(a * b)
                 case .div: return t6Real(a / b)
                 case .rem: return t6Real(a % b)
-                default: return t6Compare(op, by: t6RealOrder(a, as: b), equal: a == b)
+                default:
+                    // IEEE 754: every ordered comparison with NaN is false, as at run time.
+                    return t6Flag(flag: false) if (a != a || b != b) && op is .lt or .gt or .le or .ge
+                    return t6Compare(op, by: t6RealOrder(a, as: b), equal: a == b)
             }
         case .flag:
             let a = l.flag
@@ -126,7 +129,11 @@ Constant? t6IntegerOp(parser.BinaryOp op, from Big a, by Big b, as Type type) {
             case .mulWrap: return t6Integer(t6Wrap(bigMul(a, by: b), as: type))
             case .addSat: return t6Integer(bigSaturate(bigAdd(a, by: b), to: bits, signed: signed))
             case .subSat: return t6Integer(bigSaturate(bigSub(a, by: b), to: bits, signed: signed))
-            case .mulSat: return t6Integer(bigSaturate(bigMul(a, by: b), to: bits, signed: signed))
+            case .mulSat:
+                let product = bigMul(a, by: b)
+                // Two unsigned 64-bit operands can reach 2^128 - 2^65 + 1, which reads as negative in 128 bits.
+                let wrapped = !signed && !bigIsNeg(a) && !bigIsNeg(b) && bigIsNeg(product)
+                return t6Integer(wrapped ? bigMax(bits, signed: false) : bigSaturate(product, to: bits, signed: signed))
             case .shl:
                 return t6Integer(t6Wrap(bigShl(a, by: bigToI64(b)), as: type)) if inShift
             case .shr:

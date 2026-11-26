@@ -1,0 +1,8 @@
+struct Node {
+    i64 id
+    states {
+        leaf
+        branch(Node left)
+    }
+}
+void main() { print("hi") }

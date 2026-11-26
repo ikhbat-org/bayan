@@ -51,4 +51,24 @@ grep -q '/worktrees/wt-' gitdir || fail "the tests ran on the pushing repo's git
 
 rc=0; bash $pp deadbeef >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "a bad sha exited $rc, not 2"
 rc=0; bash $pp >/dev/null 2>&1 || rc=$?; [ $rc = 2 ] || fail "no argument exited $rc, not 2"
+# a release merge into main reaches main's published commits; a mixed golden commit among them is not judged again (0.4.0:
+# be206ed35, 17dd378f5), a new one still is
+git checkout -q -- file; rm -f tmp/pre-push/passed
+cp "$root/scripts/ci/golden-commit-check.sh" scripts/ci/; mkdir -p tests/cases/diag; echo a > tests/cases/diag/a.diag
+git add scripts/ci tests; git commit -qm "test: golden script"
+git checkout -q -b mainline; echo b > tests/cases/diag/a.diag; echo b > file; git commit -qam "test: published mixed"
+git update-ref refs/remotes/origin/main HEAD
+git checkout -q scratch; echo 1 > d1; git add d1; git commit -qm "test: dev 1"; echo 2 > d2; git add d2; git commit -qm "test: dev 2"
+git update-ref refs/remotes/origin/dev HEAD
+git checkout -q mainline; git merge -q --no-ff scratch -m "test: release merge"
+rc=0; out="$(bash $pp "$(git rev-parse HEAD)" 2>&1)" || rc=$?; [ $rc = 0 ] || fail "a release merge over a published mixed commit exited $rc: $out"
+echo c > tests/cases/diag/a.diag; echo c > file; git commit -qam "test: unpublished mixed"
+rc=0; out="$(bash $pp "$(git rev-parse HEAD)" 2>&1)" || rc=$?; [ $rc != 0 ] || fail "an unpublished mixed commit exited 0"
+grep -q 'FAILED golden-commit-check' <<<"$out" || fail "the refusal does not name golden-commit-check: $out"
+# a commit whose FREEZE.tsv does not match its tree is refused (0.4.0: 051d36320)
+git reset -q --hard HEAD~1; rm -f tmp/pre-push/passed
+cp "$root/scripts/ci/freeze-check.sh" scripts/ci/; printf 'cases\tdiag\t0\n' > tests/cases/FREEZE.tsv
+git add scripts/ci tests; git commit -qm "test: freeze manifest"
+rc=0; out="$(bash $pp "$(git rev-parse HEAD)" 2>&1)" || rc=$?; [ $rc != 0 ] || fail "a commit with a stale FREEZE.tsv exited 0"
+grep -q 'FAILED freeze-check' <<<"$out" || fail "the refusal does not name freeze-check: $out"
 echo "pre-push.test: all passed"

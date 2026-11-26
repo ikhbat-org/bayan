@@ -1,0 +1,17 @@
+interface IValue {
+    i64 get(at i64 n)
+}
+struct Box : IValue {
+    i64 v
+    i64 get(at i64 n) => v + n
+}
+dyn ref readonly IValue view(ReadOnlySpan<Box> boxes) => boxes[0]
+i64 grow(ref List<Box> boxes) {
+    for i in 0..100 { boxes.append(Box { v: i }) }
+    return 0
+}
+void main() {
+    var boxes = List<Box>()
+    boxes.append(Box { v: 5 })
+    print($"{view(boxes.span).get(at: grow(ref boxes))}")
+}

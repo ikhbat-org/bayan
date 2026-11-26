@@ -850,6 +850,18 @@ bool isValidKeyInner(ref Ctx c, by Type t, for ref List<i64> path) {
                     break
                 }
             }
+            let u = valid ? statesOf(ref c, for: s) : -1
+            if u != -1 {
+                for vi in 0..c.unions[u].variants.length {
+                    let v = c.unions[u].variants[vi]
+                    for fi in 0..c.unionVariants[v].fields.length {
+                        let ft = c.locals[c.unionVariants[v].fields[fi]].type
+                        if kindOf(ft) != .typeParam && !isValidKeyInner(ref c, by: ft, for: ref path) {
+                            valid = false
+                        }
+                    }
+                }
+            }
             path.remove(at: path.length - 1)
             return valid
         default:
@@ -889,6 +901,18 @@ InvalidKeyPart? invalidKeyPart(ref Ctx c, by Type t) {
                 return InvalidKeyPart { part: f.name, type: f.type } if kindOf(f.type) != .typeParam
                     && !isValidKey(ref c, by: f.type)
             }
+            let u = statesOf(ref c, for: s)
+            if u != -1 {
+                for vi in 0..c.unions[u].variants.length {
+                    let v = c.unions[u].variants[vi]
+                    for fi in 0..c.unionVariants[v].fields.length {
+                        let p =c.unionVariants[v].fields[fi]
+                        let pt = c.locals[p].type
+                        return InvalidKeyPart { part: c.locals[p].name, type: pt } if kindOf(pt) != .typeParam
+                            && !isValidKey(ref c, by: pt)
+                    }
+                }
+            }
             return null
         default:
             return null
@@ -902,6 +926,7 @@ bool occurs(ref Ctx c, by Type t) {
         case .optional: return occurs(ref c, by: c.optionalTypes[typeIndex(t)])
         case .span: return occurs(ref c, by: c.spanTypes[typeIndex(t)].element)
         case .list: return occurs(ref c, by: c.listTypes[typeIndex(t)])
+        case .owned: return occurs(ref c, by: c.ownedTypes[typeIndex(t)])
         case .map:
             return occurs(ref c, by: c.mapTypes[typeIndex(t)].key) || occurs(ref c, by: c.mapTypes[typeIndex(t)].value)
         case .array: return occurs(ref c, by: c.arrayTypes[typeIndex(t)].element)

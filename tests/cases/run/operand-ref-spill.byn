@@ -1,0 +1,46 @@
+// A local read beside a call taking it by `ref` is read first, left to right (audit 0.4.0 09-emitter M4).
+union error E { bad }
+
+struct P {
+    i64 x
+
+    i64 set(ref this) {
+        this.x = 20
+        return 20
+    }
+
+    i64 get() => this.x
+}
+
+i64 bump(ref i64 n) {
+    n = 20
+    return 20
+}
+
+i64 tryBump(ref i64 n) fails E {
+    n = 20
+    return 20
+}
+
+i64 bumpX(ref P p) {
+    p.x = 20
+    return 20
+}
+
+void main() fails E {
+    var n: i64 = 10
+    let a = n + bump(ref n)
+    n = 10
+    let b = n + (try tryBump(ref n))
+    var p: P = { x: 10 }
+    let d = p.x + bumpX(ref p)
+    p.x = 10
+    let m = p.x + p.set()
+    // Control: a member without `ref this` only reads, so nothing is stored first.
+    p.x = 10
+    let r = p.x + p.get()
+    // Control: the call first, then the read sees its write.
+    n = 10
+    let e = bump(ref n) + n
+    print($"{a} {b} {d} {m} {r} {e}")
+}

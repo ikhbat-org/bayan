@@ -1,0 +1,15 @@
+void consume(move List<i64> xs) {
+    print($"{xs.length}")
+}
+
+void main() {
+    var buf = List<i64>()
+    for i in 0..3 {
+        defer {
+            consume(move buf)
+            buf = List<i64>()
+        }
+        buf.append(i)
+    }
+    print($"{buf.length}")
+}

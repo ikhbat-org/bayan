@@ -1,6 +1,6 @@
 # Revisions
 
-Version: 0.4.0 (matches `bayan --version`)
+Version: 0.4.1 (matches `bayan --version`)
 
 After round 3's documentation deliverables, `docs/bayan-spec.md`, `docs/bayan-grammar.md` and `docs/bayan-style.md` change only through a numbered revision here (HANDOFF round 3 §32).
 

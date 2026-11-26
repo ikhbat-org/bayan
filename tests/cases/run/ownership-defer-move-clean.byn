@@ -1,0 +1,35 @@
+// Controls for `defer` moves and `return`: each local a `defer` moves is not used after it runs.
+void consume(move List<i64> xs) {
+    print($"consumed {xs.length}")
+}
+
+List<i64> f() {
+    var xs = List<i64>()
+    xs.append(1)
+    var ys = List<i64>()
+    ys.append(2)
+    ys.append(3)
+    defer consume(move ys)
+    return xs
+}
+
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    {
+        defer consume(move xs)
+        print($"in block {xs.length}")
+    }
+    xs = List<i64>()
+    xs.append(4)
+    print($"after block {xs[0]}")
+    for i in 0..2 {
+        var zs = List<i64>()
+        zs.append(i)
+        defer consume(move zs)
+        continue if i == 0
+        break
+    }
+    let r = f()
+    print($"returned {r[0]}")
+}

@@ -512,6 +512,39 @@ void emitEffect(ref Ctx c, through ref LCtx l, for BExpr value) uses alloc {
     )
 }
 
+/// Whether a bitwise copy of a `t` value is that value: a number, `bool`, a `rune`, an enum, or a struct, tuple, optional,
+/// fixed-size array or union made only of such values, `depth` levels deep at most 8. Strings, lists, type parameters and
+/// other storage are not.
+bool plainValue(ref Ctx c, for semantics.Type t, at i64 depth) {
+    return true if semantics.isNumeric(t) || semantics.isBool(t) || t == semantics.prim(.char)
+    return false if depth >= 8
+    let i = i64(t & 0xFFFFFFFF)
+    switch semantics.kindOf(t) {
+        case .enumType: return true
+        case .optional: return plainValue(ref c, for: c.optionalTypes[i], at: depth + 1)
+        case .array: return plainValue(ref c, for: c.arrayTypes[i].element, at: depth + 1)
+        case .tuple:
+            for k in 0..c.tupleTypes[i].length {
+                return false unless plainValue(ref c, for: c.tupleTypes[i][k].type, at: depth + 1)
+            }
+            return true
+        case .structType:
+            for k in 0..c.structs[i].fields.length {
+                return false unless plainValue(ref c, for: c.fields[c.structs[i].fields[k]].type, at: depth + 1)
+            }
+            return true
+        case .unionType:
+            for j in 0..c.unions[i].variants.length {
+                let v = c.unions[i].variants[j]
+                for k in 0..c.unionVariants[v].fields.length {
+                    return false unless plainValue(ref c, for: c.locals[c.unionVariants[v].fields[k]].type, at: depth + 1)
+                }
+            }
+            return true
+        default: return false
+    }
+}
+
 /// Lowerer.cs:248 `Operands`: lowers operands so they are evaluated left to right: when a later operand needs
 /// statements first, or two operands have effects (C leaves their order unspecified), earlier operands are stored in
 /// temporaries. Operand `i` stays addressable when `lvalues[i]` is true (C#'s `lvalues?.Invoke(i) ?? false`; an
@@ -548,16 +581,24 @@ bool operands(
         barrier = effects[effects.length - 1]
     }
     // An operand moving a local a later operand reads happens first, as its own statement, so the read sees the local moved.
+    // An operand reading a plain value (`plainValue`: a number, `bool`, a `rune`, an enum, or an aggregate of only such) from a
+    // local a later call takes by `ref` is stored first, so the read sees the value before the call. A list, a string or a
+    // struct holding one is not copied: a shallow copy could outlive storage the call frees, so it stays a view of the local.
     var movedFirst = List<bool>()
     for i in 0..n {
+        let type = t2Type(in c, through: in l, for: values[i])
+        let scalar = plainValue(ref c, for: type, at: 0)
+        let read = scalar ? rootLocal(c, for: values[i]) : -1
         var moved = false
         for j in i + 1..n {
-            if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i])) {
+            if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i]))
+                    || read != -1 && anyNode(in c, through: in l, for: values[j], by: .writesLocal(read)) {
                 moved = true
                 break
             }
             for s in pres[j] {
-                if anyNode(in c, through: in l, for: s, by: .readsLocalMovedBy(values[i])) {
+                if anyNode(in c, through: in l, for: s, by: .readsLocalMovedBy(values[i]))
+                        || read != -1 && anyNode(in c, through: in l, for: s, by: .writesLocal(read)) {
                     moved = true
                     break
                 }
@@ -588,6 +629,8 @@ union T2AnyTest {
     movesLocal(LocalId local)
     /// `x => x is BoundLocal r && Moves(mover, r.Local)` (`Operands`).
     readsLocalMovedBy(BExpr mover)
+    /// A call taking `local` (or a field of it) as a `ref`/`out` argument or as its `ref this` receiver (`Operands`).
+    writesLocal(LocalId local)
 }
 
 bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest probe) uses alloc {
@@ -602,6 +645,32 @@ bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest p
                 && c.bLocals[i64(operand & 0xFFFFFFFF)].local == local
         case .readsLocalMovedBy(let mover):
             return semantics.boundKind(x) == .local && moves(in c, through: in l, for: mover, by: c.bLocals[i].local)
+        case .writesLocal(let local):
+            return false if semantics.boundKind(x) != .call
+            let fn = c.bCalls[i].function
+            let receiver = c.bCalls[i].receiver
+            return true if receiver != -1 && c.functions[fn].isMutating && rootLocal(c, for: receiver) == local
+            for k in 0..c.bCalls[i].arguments.length {
+                break if k >= c.functions[fn].parameters.length
+                let param = c.functions[fn].parameters[k]
+                if c.locals[param].modifier is .refKeyword or .outKeyword
+                        && rootLocal(c, for: c.bCalls[i].arguments[k]) == local {
+                    return true
+                }
+            }
+            return false
+    }
+}
+
+/// The local a place `n`, `n.f` or `n.0` reads, or -1.
+LocalId rootLocal(Ctx c, for BExpr e) {
+    return -1 if ltree.isLowered(e)
+    let i = i64(e & 0xFFFFFFFF)
+    switch semantics.boundKind(e) {
+        case .local: return c.bLocals[i].local
+        case .field: return rootLocal(c, for: c.bFields[i].receiver)
+        case .tupleElement: return rootLocal(c, for: c.bTupleElements[i].receiver)
+        default: return -1
     }
 }
 

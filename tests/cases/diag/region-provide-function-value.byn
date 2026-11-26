@@ -1,0 +1,9 @@
+void main() uses alloc {
+    let f: i64 -> string uses alloc = n => $"v={n}"
+    var s = ""
+    {
+        using let a = Arena()
+        provide allocator: a { s = f(1) }
+    }
+    print(s)
+}

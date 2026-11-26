@@ -1,0 +1,9 @@
+List<i64> run(i64 -> List<i64> uses alloc f) => f(1)
+void main() uses alloc {
+    var s = List<i64>()
+    {
+        using let a = Arena()
+        provide allocator: a { s = run(n => List<i64>()) }
+    }
+    print($"{s.length}")
+}

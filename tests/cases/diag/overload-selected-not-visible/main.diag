@@ -1,0 +1,7 @@
+error BYN2005: `f` is not visible here
+  --> main.byn:5:7
+
+  5 │     m.f(by: 1)
+    │       ^ not `public`
+    │
+  help: mark `f` `public` to use it from another module

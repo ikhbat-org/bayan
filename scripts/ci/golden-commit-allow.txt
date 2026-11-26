@@ -17,3 +17,69 @@ dad3339e3c00426375e2d9ae2296aaa65b33dee9  # 019-t30bb
 3287030240a0e499c17a2f9debe72b23d22bc9d9  # d1-reexport-pairing
 c771916579538b83fbd9b8a1c6d12a291fb4cca0  # fix019-sem
 d11fe2f69d4ab9ba8f7500c7ce3600b43c1bd14c  # fix019-lsp
+1f567c062a3151ec5a4cefcf6355c9ef52c66d72  # 0.4.1 fix: a direct effect use replaces an earlier indir
+d9fb195a0113fe6cc2685382d2834daa792c191b  # 0.4.1 chore(worker): e-conformance: Branch E is implemen
+c9a8850f9e40fcbd55ebee4ed2d943de460156c9  # 0.4.1 fix: BYN2802 receiver mismatch shows the receiver 
+013e0b9b8a9ed62cedd83b3a17e5b9068cc36043  # 0.4.1 fix: inferred-fails conformance check runs on the 
+9645e7a07c8b49c8b6861d010ac412b7e7f593a1  # 0.4.1 test: corpus goldens and DIVERGENCES rows for BYN7
+51fd07dc0ea1cbc4f2e8da782113e26d570dd356  # 0.4.1 chore(worker): b-ownership: All three fixes are in
+7e7580bf5e27143340bc2136e01eb81c7d6b8c08  # 0.4.1 fix: a defer's moves are the body's own moves stil
+1bb7de0bc449250e402847f4f55c6ebca722cf76  # 0.4.1 test: pin the never-call failing path (Q1287), div
+9bac9ad93c19af220814fcbf6fcc248868c808cc  # 0.4.1 chore(worker): c-states: All three fixes are in, n
+c75516a6797991d8b8fc28fe399607570cd1f0a5  # 0.4.1 fix: a branch join keeps only the open-scope facts
+6e46809cb5f718d57c1417bf36254e5f95210f37  # 0.4.1 fix: postfix if/unless keeps no facts from scopes 
+08dcc585ef224af0738a48da76f16ea149512422  # 0.4.1 chore(worker): a-fixpoint: Item 1 is implemented a
+ec57172624dec99774db29168a1d8987b2c617a6  # 0.4.1 chore(worker): a-fixpoint: The cheaper stop rule w
+0f9b450874a2d49813ac9df8044dadc6e8855e6c  # 0.4.1 fix(region): run each loop body to a fixed point, 
+3df5d2026f388b72e4fa76108dd75d557a4f0c64  # 0.4.1 fix(region): run loop conditions inside the fixed 
+a157c07758067c87073c8f7135c78accea5b3554  # 0.4.1 test(region): a nested for loop whose dyn ref vari
+d73ab32f5213c2bb6c02177bbff1b6d84427c230  # 0.4.1 test(region): pin ref/out transfer probes and cont
+14116d665649d2538043a3aebd20cd81afb3e9ef  # 0.4.1 fix(region): lend a ref/out argument's own storage
+5ebcc31a8e39205b1f9df9e185d5156e1571fae3  # 0.4.1 chore(worker): a-provide: Item 3 is done. A user f
+9ddd36a3781e7b91f6f35fdc0db1e97c89ba2eac  # 0.4.1 fix(region): a provide-allocated result escapes th
+34cb459ee8d426dcd30a32f63b549068d564390a  # 0.4.1 chore(worker): a-call: The background grep -r I st
+7e2d09bcc762b2faacbb401af94832509bfaf52e  # 0.4.1 fix(region): judge a lambda or function passed by 
+3fb6982cdf3ef201f3d8d22aec324912bbb91048  # 0.4.1 fix(region): a lambda cloned into a generic instan
+9570839ab43795290ac47f1e9e24d5162cef9f12  # 0.4.1 fix(region): a span's index or slice bound that ch
+09a475336b5d3764f4874accf68510c3c0f54f20  # 0.4.1 chore(worker): a-defer: Item 4(b) is done and unco
+e6c99d4abd21f82d8e12afeaadddf9871491f9d1  # 0.4.1 fix(region): a lambda cloned into a generic instan
+d94da15365d32c4b64082fcc3378a4b6e4bc9901  # 0.4.1 fix(region): a defer in a switch case runs at the 
+c7bd68d6bd6b045e7f36ba397f17403cfa8910fc  # 0.4.1 chore(worker): a-store: A background search I star
+66de9693b746ef5d5e94c3fd24b400aa2f625991  # 0.4.1 chore(worker): a-copies: The background search for
+a60e2af94bee16f8f95e25fbe9eeecc238899e57  # 0.4.1 test(region): region-copy-provide covers a collect
+449c5a422ac65449787df4a52c54990d5906c76e  # 0.4.1 fix(region): a span copy drops the list it views, 
+9fc5e2cd9dd39ee43c6d6940dfc8a3db46a2b4ee  # 0.4.1 chore(worker): a-this: I implemented 10 and 11 and
+78d20964e2591edb8e2a948ee4e8448c778a004e  # 0.4.1 fix: a copy of a direct span view takes the list's
+f769ef673aefe48f18cc839e2f4c82ba1c86402d  # 0.4.1 test: golden cases for a bare this receiver or ref
+d43aff8878d8a5da462f46f6ce0f92caeb20b44a  # 0.4.1 fix: a local ref-this receiver aliases only the fi
+998d2a1ef53e5f311510f106af481f281a5fc858  # 0.4.1 fix: the receiver field filter applies only to a b
+266e12be48d2e0de19106fdfd764afbc965f3c87  # 0.4.1 chore(worker): a-loop: I implemented 4(a) and ever
+43d83c8cae31496aef8574d6e241e3a0bf1d0482  # 0.4.1 chore(worker): a-loop: I added a case for the .blo
+5a180e133c1907f13ff2a5beffffa3279a841cfc  # 0.4.1 chore(worker): a-loop2: Round 2 of 4(a) is in, and
+9e280f9b29bac17176f418a3bed510d7ccde3120  # 0.4.1 chore(worker): a-loop2: region-loop-store-before n
+a9eb49ec196e5b1c3f93257f5c95b6091f963f99  # 0.4.1 chore(worker): a-loop3: Round 3 is in: both ruling
+b4c84107ef55ad0da5d5c5a59aec174874b07777  # 0.4.1 fix(region): count jumps from the outermost loop a
+2a1437d331004d444ffaf5a328d574e35420c462  # 0.4.1 fix(region): a store before a jump that precedes t
+04c810ba8d2c702c63923c355ce3b6a1d222253b  # 0.4.1 fix(sem): a while condition's exit turn and a defe
+d0fca0d74bfe7f37c9fdb7c1589b09e501f8cf36  # 0.4.1 fix: shift a deferred mutation only for defers ins
+e34332fdc79b7ae7e79f0c6ad1d19bd37976608d  # 0.4.1 test: deferred loop with the mutation in an if and
+84a61d3253e3dcfa72bff306c5c4efeadc9e75e9  # 0.4.1 test: sem goldens for the result-target store summ
+22092ca03ab6eabf7307f70e0dfba1d7b8e6059a  # 0.4.1 fix: a failing defer's mutation keeps its text pos
+12c836a03dacd84aeca243d9b378e3bbbf716230  # 0.4.1 test: regenerate the emit-c and cli copies of borrow-then-mutated-in-init
+c30615f1bd941fa51dfbcbcfe1011f60997419e8  # 0.4.1 audit mediums: chore(worker): m-fold: 06-semantics-effects 4: fixed
+5dca3775039a100c39700b88af7ef74434fac0c2  # 0.4.1 audit mediums: chore(worker): m-lex: 03-lexer 3: fixed. I fixed both parts:
+bf273e3c43d15a0aad3ddead66ea9b79cdc52300  # 0.4.1 audit mediums: chore(worker): m-rt: Both rows are fixed. Each fix failed be
+6fa33f0d146df8d11a4897e63aa13603d910c769  # 0.4.1 audit mediums: fix(runtime): stop short-name expansion at a device root tha
+bcb6c1ff6736671af68c84797aee75962ab3aef1  # 0.4.1 audit mediums: chore(worker): m-drv: 10-driver-build 1: fixed. Build, run, 
+c23e08586a7753b6d8a718dbae5700147b320bc3  # 0.4.1 audit mediums: chore(worker): m-front: The other background wait loop, bfok
+51a942a5aaa5df2e241fe8d40883d25d93f7bdbe  # 0.4.1 audit mediums: chore(worker): m-types: The leftover waiter (bvitnjtd9) reac
+b9cda6117c15dc789cf891ea48a8f109c6ca98c5  # 0.4.1 audit mediums: chore(worker): m-states: 06-semantics-effects 5 (b): fixed
+974e0bc64cd1cd2494ec3174c9d2df02b52a657c  # 0.4.1 audit mediums: chore(worker): m-emit: Row 2 (09-emitter 2, radix hole evalu
+995a15d7aa6c8894de1556eda6e2e9784ed48ec0  # 0.4.1 audit mediums: fix: statesOf returns no states for a struct with no declara
+a6f54ea29c6c3ad883b37fb8f69c5b5fc5a4e732  # 0.4.1 audit mediums: chore(worker): m-misc: Row 09 10, part 1 (constructor vs met
+f4df25e34e8b1eb30fcc7d3835c8f69bfb56ee9c  # 0.4.1 audit mediums: chore(worker): m-cname: Commit 1 (10 part 2, module cName co
+889be6081b5035567c9a8d72b0a4a9a9c4c21fb4  # 0.4.1 audit mediums: test: expected output of run/operand-ref-spill-value
+17cffff0711d258b9ebb85d212eca890161cf108  # 0.4.1 audit mediums: fix(driver): a BAYAN_CC naming an existing file is one progr
+cff51e75ab15092ddac5d344e133975cee0454ad  # 0.4.1 audit mediums: test: expected output and run-c pin of run/operand-ref-spill
+88a06f01d3e66791f83154ad947c24484031996d  # 0.4.1 audit mediums: test: expected files of run/ctor-panic-handler-ref-this and 
+75e9adfa030e68c4a514cdddb0d3063a13b18a44  # 0.4.1 ci fix: move 8 parse-error diag cases into package dirs (renames .byn with their .diag)

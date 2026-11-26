@@ -1,0 +1,6 @@
+error BYN7001: `draftOnly` needs `o` to be `.draft`, but it is `Order`
+
+  22 │     o.draftOnly()
+     │     ^
+     │
+  help: check the state with `is` or `switch` first

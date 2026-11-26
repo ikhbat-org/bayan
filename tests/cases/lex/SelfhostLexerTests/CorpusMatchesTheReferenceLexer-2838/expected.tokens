@@ -33,7 +33,7 @@ error BYN0009: a char literal holds exactly one Unicode scalar
     │
   help: use a string literal ("…") for text
 
-error BYN0006: invalid escape sequence `\`
+error BYN0006: invalid escape sequence `\\u{1}`
 
   5 │  x́́ 'a' '\n' '\�u{1F600}' '\'' 'é' '\\' '\0'
     │                ^^
