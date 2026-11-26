@@ -24,8 +24,9 @@ BExpr bindErrorNew(ref Binder b, through ref Ctx c, for in parser.CallExpr call,
                     let text = t15Text(in c, from: b.file, at: n.value.name)
                     return -1 if t15Lookup(ref b, for: text) != -1
                     var type = c.modules[c.files[b.file].module].types.tryGet(at: text) ?? -1
-                    if type == -1 && !c.files[b.file].imports.contains(text)
-                            && (text is "IoError" or "Utf8Error" or "ParseError") {
+                    let builtinSet = type == -1 && !c.files[b.file].imports.contains(text)
+                        && (text is "IoError" or "Utf8Error" or "ParseError")
+                    if builtinSet {
                         type = t8BuiltinSet(in c, for: text)
                     }
                     return -1 if type == -1 || kindOf(type) != .errorSet

@@ -213,7 +213,7 @@ BExpr bindCall(
             && call.args.length == 1
         let chosen = t20Overload(ref c, for: fn, from: b.file, by: call)
         // `m.f(…)` checked the group's head; the overload the labels select must be visible too.
-        if chosen != fn && c.functions[chosen].owner == -1 && t18Visible(in b, through: ref c, for: fn) {
+        if chosen != fn && c.functions[chosen].owner == -1 && t18Visible(b, through: ref c, for: fn) {
             switch call.callee {
                 case .memberExpr(let member):
                     checkAccess(

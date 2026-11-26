@@ -790,7 +790,7 @@ BExpr t18BindModuleMember(
         var fnId = c.modules[mod].functions[name][0]
         for oi in 0..c.modules[mod].functions[name].length {
             let o = c.modules[mod].functions[name][oi]
-            if t18Visible(in b, through: ref c, for: o) {
+            if t18Visible(b, through: ref c, for: o) {
                 fnId = o
                 break
             }
@@ -898,7 +898,7 @@ void checkAccess(
 }
 
 /// Whether `checkAccess` lets the current module see free function `f`.
-bool t18Visible(in Binder b, through ref Ctx c, for FuncId f) {
+bool t18Visible(Binder b, through ref Ctx c, for FuncId f) {
     let module = c.functions[f].module
     return true if module == c.files[b.file].module || module == t9Module(ref c)
     return !(c.functions[f].access is .privateKeyword or .module)
