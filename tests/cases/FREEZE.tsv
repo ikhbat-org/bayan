@@ -1,6 +1,6 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
-cases	cli	4484
+cases	cli	4485
 cases	diag	893
 cases	diag-json	2
 cases	emit	3
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	375
+cases	run	378
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -6626,6 +6626,9 @@ file	7b8862f32824ce092c5cbb5dc6976336d4bd7247	tests/cases/cli/SelfhostDefaultT9T
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/cli/SelfhostDriverApiTests/VersionConstantIsTheCompilersVersion/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverApiTests/VersionConstantIsTheCompilersVersion/expected.stderr
 file	64468c2448f2dfff335a7ffdd360b4d26ff8e610	tests/cases/cli/SelfhostDriverApiTests/VersionConstantIsTheCompilersVersion/expected.stdout
+file	b8626c4cff2849624fb67f87cd0ad72b163671ad	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesABayanCcPathWithASpace/expected.exitcode
+file	f232c62c3085f252d52340354a1b2303c2125497	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesABayanCcPathWithASpace/expected.stderr
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesABayanCcPathWithASpace/expected.stdout
 file	b8626c4cff2849624fb67f87cd0ad72b163671ad	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesTheCompilerOfBayanCc/expected.exitcode
 file	f232c62c3085f252d52340354a1b2303c2125497	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesTheCompilerOfBayanCc/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesTheCompilerOfBayanCc/expected.stdout
@@ -27078,9 +27081,9 @@ file	5df0d5d59a5f9587c83ac26dca504a4b156d376b	tests/cases/emit-c/SelfhostEmitter
 file	1123a44f41243943fd5b596d51043b9db625fc51	tests/cases/emit-c/SelfhostEmitterT8Tests/Corpus_MatchesCSharp-6/expected.sections
 file	cc6bfe8b8fa0ce88b42b957fca16a8bade8e8c37	tests/cases/emit-c/SelfhostEmitterT8Tests/Corpus_MatchesCSharp/expected.sections
 file	ad8da2b7cb30fa28678fd4d403cde057577f2852	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-2/expected.sections
-file	9436157632b37ba6784b9a03b7cf9b57e10addf5	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-3/expected.sections
+file	bb30b42cd09f71c796d7dd1625ff038c7c28d2d3	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-3/expected.sections
 file	637e934fd1fcea985ee5afb4a2744b8adaead6fc	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-4/expected.sections
-file	d48f351ed1340cfba7553f78a175299a4cb5635b	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp/expected.sections
+file	77bb790b4106b382fa46dd57a117280e76273f47	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp/expected.sections
 file	b1d96286ef53a9ccd3529cc46f5f7aea9b97e651	tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-all-debug/expected.c
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-all-debug/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-all-debug/expected.stderr
@@ -27126,7 +27129,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	82f5cef08f4241fcb5ee1f385a30030789a4b88a	tests/cases/emit/run-c.sha256
+file	1f86e7ec0bed6cc8f9e58cb5684ee95f510489f1	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -48612,6 +48615,9 @@ file	2f4186b9aed098c9ad043a354c9667e755f21ba0	tests/cases/run/copy-default-alloc
 file	4506d47d89093979f54dcea1bce1624460293d8c	tests/cases/run/csharp-primitive-names.stdout
 file	384178740a4f70bf64aee37a0b2906473bd73fc3	tests/cases/run/ctor-init-control.stdout
 file	326601965a748fc84ec97d3df775e7c6e10ad888	tests/cases/run/ctor-init0-method.stdout
+file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/ctor-panic-handler-ref-this.exitcode
+file	f42fdb01fe59983889cf3a9c4c2c14992bc89b3f	tests/cases/run/ctor-panic-handler-ref-this.stderr
+file	6ed281c757a969ffe22f3dcfa5830c532479c726	tests/cases/run/ctor-panic-handler-ref-this.stdout
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/ctor-panic-handler-this.exitcode
 file	c20e98e37013655be3870b3bbb6fa05d7667fef9	tests/cases/run/ctor-panic-handler-this.stderr
 file	d81cc0710eb6cf9efd5b920a8453e1e07157b6cd	tests/cases/run/ctor-panic-handler-this.stdout
@@ -48859,6 +48865,8 @@ file	89b2a0a19bb96b40f4ce9d25e44b3efd4362a2af	tests/cases/run/null-narrowing.std
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/on-panic-order.exitcode
 file	d9780b407e9f140bda998f27e92db286dae5b035	tests/cases/run/on-panic-order.stderr
 file	1ff8fad40a9c2edd5a9465a4c3bc44f8c84a9d28	tests/cases/run/on-panic-order.stdout
+file	3a73898dc67a563de0611d20886fdeb268039d06	tests/cases/run/operand-ref-spill-aggregate.stdout
+file	975cdadc30500abb7264a6a04122b85978f65c01	tests/cases/run/operand-ref-spill-value.stdout
 file	d3537d7c0251c9da63d3702227f6a3b0267ff1b3	tests/cases/run/operand-ref-spill.stdout
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/overflow-add.exitcode
 file	7a9f9434bc8e086f6bc66b0a7ba1c96e2da60b3d	tests/cases/run/overflow-add.stderr
