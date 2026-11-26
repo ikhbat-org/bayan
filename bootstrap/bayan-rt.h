@@ -7,7 +7,7 @@
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 3
+#define BYN_RUNTIME_VERSION 4
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -150,11 +150,12 @@ typedef enum byn_writer_mode {
     BYN_WRITE_TRUNCATE, /* drop what does not fit (panic messages) */
     BYN_WRITE_STRICT,   /* panic when full (StrBuf(buf)) */
     BYN_WRITE_GROW,     /* grow through alloc when full (StrBuf()) */
+    BYN_WRITE_OVER,     /* borrowed bytes, then BYN_WRITE_GROW once outgrown (StrBuf.over(span)) */
 } byn_writer_mode;
 
 typedef struct byn_alloc byn_alloc;
 
-/* Formats text into caller-provided bytes; only BYN_WRITE_GROW allocates. */
+/* Formats text into caller-provided bytes; only BYN_WRITE_GROW and BYN_WRITE_OVER allocate. */
 typedef struct byn_writer {
     uint8_t* buf;
     int64_t cap;
