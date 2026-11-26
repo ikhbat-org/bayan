@@ -21,7 +21,7 @@ range="$1"; shift
 manifest=tests/cases/FREEZE.tsv
 is_expected() {
   case "$1" in
-    (tests/cases/out/results-fail.json) return 0 ;;
+    (tests/cases/out/results-fail.json|tests/cases/emit/run-c.sha256) return 0 ;;
     (tests/cases/*/expected.*) return 0 ;;
     (tests/cases/*.tokens|tests/cases/*.ast|tests/cases/*.diag|tests/cases/*.jsonl|tests/cases/*.types|tests/cases/*.stdout|\
      tests/cases/*.stderr|tests/cases/*.exitcode|tests/cases/*.tree|tests/cases/*.color|tests/cases/*.plain|tests/cases/*.ascii) return 0 ;;
