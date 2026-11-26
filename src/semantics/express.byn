@@ -220,6 +220,17 @@ BExpr convert(
                 by: $"it is borrowed as `{typeDisplay(ref c, by: target)}`",
             )
         }
+        if kind is .listToSpan or .arrayToSpan
+                && kindOf(target) == .span
+                && !c.spanTypes[typeIndex(target)].readOnly {
+            let _ = checkWritable(
+                ref b,
+                through: ref c,
+                for: value,
+                at: span,
+                by: $"it is borrowed as `{typeDisplay(ref c, by: target)}`",
+            )
+        }
         let converted = t17SameSyntax(
             ref c,
             for: addConversion(ref c, from: BConversion { span: at, operand: value, type: target, kind: kind }),

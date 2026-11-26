@@ -1,0 +1,36 @@
+struct Holder {
+    i64[2] arr
+    List<i64> xs
+
+    ReadOnlySpan<i64> head() => this.arr[0..2]
+
+    void bumpHead(ref this) {
+        this.arr[0..2][0] = 66
+    }
+}
+
+i64 first(ReadOnlySpan<i64> s) => s[0]
+
+void writeFirst(Span<i64> s) {
+    s[0] = 99
+}
+
+void main() {
+    let la: i64[2] = [1, 2]
+    let lxs: List<i64> = [3, 4]
+    let lh = Holder { arr: [5, 6], xs: [7, 8] }
+    print($"{first(la)} {first(la[0..2])} {first(lxs)} {first(lxs[0..2])} {first(lh.arr)} {first(lh.xs)} {first(lh.head())}")
+
+    var va: i64[2] = [1, 2]
+    va[0..2][0] = 11
+    var va2: i64[2] = [1, 2]
+    writeFirst(va2)
+    var vxs: List<i64> = [3, 4]
+    vxs[0..2][0] = 22
+    var vxs2: List<i64> = [3, 4]
+    writeFirst(vxs2)
+    var vh = Holder { arr: [5, 6], xs: [7, 8] }
+    vh.bumpHead()
+    writeFirst(vh.xs)
+    print($"{va[0]} {va2[0]} {vxs[0]} {vxs2[0]} {vh.arr[0]} {vh.xs[0]}")
+}
