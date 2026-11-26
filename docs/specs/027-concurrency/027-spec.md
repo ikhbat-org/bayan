@@ -269,9 +269,12 @@ Per requirement:
   the parent's allocator, copy on return, or restrict result types). For `/plan`.
 - `IoError` variants for the streamed child: the closed-stdin failure, and `signaled`, whose `stdout`/`stderr`
   payload a streamed child does not keep (empty, or a new variant). For `/plan`.
-- Whether the new stdin and child reads return `Untrusted<…>` now (§15.1 lists stdin as a source) or follow
-  `readAll`'s interim plain `string`. For the owner.
 - What `Io.Simulated` does with real stdin and child processes: pass through, or refuse. For `/plan`.
 - What owns a `CancelSource`'s shared state: copies cannot count themselves (only `unique` types have cleanup), so
   a handle with a generation check (like §9.6's `Handle<T>`) fits "after, it does nothing", but a source canceled
   and never attached still needs an owner. For `/plan`.
+
+Answered:
+- 2026-11-27 (owner): the new stdin reads and the child-process reads return `Untrusted<…>` now (§15.1 lists stdin
+  as a source), not `readAll`'s interim plain `string`. Was: whether they return `Untrusted<…>` now or follow
+  `readAll`'s interim plain `string`.
