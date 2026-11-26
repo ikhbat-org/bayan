@@ -1,0 +1,6 @@
+import m
+
+// A public overload declared after a private one is callable from another module.
+void main() {
+    m.f(1)
+}

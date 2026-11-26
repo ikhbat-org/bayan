@@ -1,0 +1,3 @@
+void f(by i64 x) uses console { print("private") }
+
+public void f(i64 x) uses console { print("public") }

@@ -23,8 +23,26 @@ BExpr bindErrorNew(ref Binder b, through ref Ctx c, for in parser.CallExpr call,
                     return -1 if n.value.typeArgs.length > 0
                     let text = t15Text(in c, from: b.file, at: n.value.name)
                     return -1 if t15Lookup(ref b, for: text) != -1
-                    let type = c.modules[c.files[b.file].module].types.tryGet(at: text) ?? -1
+                    var type = c.modules[c.files[b.file].module].types.tryGet(at: text) ?? -1
+                    if type == -1 && !c.files[b.file].imports.contains(text)
+                            && (text is "IoError" or "Utf8Error" or "ParseError") {
+                        type = t8BuiltinSet(in c, for: text)
+                    }
                     return -1 if type == -1 || kindOf(type) != .errorSet
+                case .memberExpr(let q):
+                    return -1 if q.value.nullConditional
+                    switch q.value.target {
+                        case .nameExpr(let n):
+                            return -1 if n.value.typeArgs.length > 0
+                            let text = t15Text(in c, from: b.file, at: n.value.name)
+                            return -1 if t15Lookup(ref b, for: text) != -1
+                            return -1 if c.modules[c.files[b.file].module].types.contains(text)
+                            let mod = c.files[b.file].imports.tryGet(at: text) ?? -1
+                            return -1 if mod == -1
+                            let type = c.modules[mod].types.tryGet(at: t15Text(in c, from: b.file, at: q.value.member)) ?? -1
+                            return -1 if type == -1 || kindOf(type) != .errorSet
+                        default: return -1
+                    }
                 default: return -1
             }
             callee = bindMember(ref b, through: ref c, for: in m.value)

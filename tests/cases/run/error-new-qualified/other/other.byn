@@ -1,0 +1,3 @@
+public union error MyErr {
+    bad(i64 code),
+}
