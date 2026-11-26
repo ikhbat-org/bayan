@@ -186,6 +186,8 @@ void declareCheck(ref Ctx c, for StructId s) {
 UnionId statesOf(ref Ctx c, for StructId s) {
     let file = c.structs[s].file
     let dIdx = c.structs[s].declIndex
+    // A struct with no declaration (one a harness builds) has no states.
+    return -1 if dIdx < 0
     // `s.Decl.States`: a `type distinct` has none.
     var count: i64 = 0
     switch c.files[file].unit.members[dIdx] {
