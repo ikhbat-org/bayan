@@ -14,33 +14,49 @@ public struct Glob {
     public static bool matches(string pattern, for string path) uses alloc {
         using let arena = Arena()
         provide allocator: arena {
-            return expandMatches(pattern, for: path)
+            return expandMatches(pattern, for: path, from: 0)
         }
     }
 }
 
-/// Whether `pattern`, with its first `{a,b}` group replaced by each option in turn and expanded again until no group is
+/// Whether `pattern`, with its first closed `{a,b}` group (found from `scan`, outside any `[...]`; an unclosed `{` is skipped)
+/// replaced by each option in turn and expanded again until no group is
 /// left, matches `path`. Each option is built and tried in an arena freed before the next, so memory grows with the
 /// nesting depth, not the number of alternatives; an option whose leading literal text is not where `path` starts is
 /// not expanded further.
-bool expandMatches(string pattern, for string path) uses alloc {
-    let open = pattern.position("{") ?? -1
+bool expandMatches(string pattern, for string path, from i64 scan) uses alloc {
+    var open = -1
     var close = -1
     var starts = List<i64>()
-    if open >= 0 {
-        var depth = 0
-        var i = open
-        starts.append(open)
-        while i < pattern.length && close < 0 {
-            let b = pattern.bytes[i]
-            if b == '{' {
-                depth += 1
-            } else if b == '}' {
-                depth -= 1
-                if depth == 0 { close = i }
-            } else if b == ',' && depth == 1 {
-                starts.append(i)
+    var i = scan
+    while i < pattern.length && open < 0 {
+        let b = pattern.bytes[i]
+        if b == '[' && classEnd(pattern, at: i) > 0 {
+            i = classEnd(pattern, at: i)
+        } else if b == '{' {
+            var depth = 0
+            var k = i
+            starts = List<i64>()
+            starts.append(i)
+            while k < pattern.length && close < 0 {
+                let c = pattern.bytes[k]
+                if c == '[' && classEnd(pattern, at: k) > 0 {
+                    k = classEnd(pattern, at: k)
+                    continue
+                }
+                if c == '{' {
+                    depth += 1
+                } else if c == '}' {
+                    depth -= 1
+                    if depth == 0 { close = k }
+                } else if c == ',' && depth == 1 {
+                    starts.append(k)
+                }
+                k += 1
             }
+            if close >= 0 { open = i }
+            i += 1
+        } else {
             i += 1
         }
     }
@@ -56,7 +72,7 @@ bool expandMatches(string pattern, for string path) uses alloc {
         using let arena = Arena()
         provide allocator: arena {
             let next = $"{head}{option}{tail}"
-            if literalFits(next, for: path) && expandMatches(next, for: path) { return true }
+            if literalFits(next, for: path) && expandMatches(next, for: path, from: open) { return true }
         }
     }
     return false

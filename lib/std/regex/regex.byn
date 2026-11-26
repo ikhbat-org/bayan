@@ -479,7 +479,7 @@ struct Parser {
                 return Inst { op: .set, x: from, y: ranges.length, flags: flags }
             }
             first = false
-            fail .unsupported(message: "POSIX class", offset: pos) if pattern[pos..].startsWith("[:")
+            fail .unsupported(message: "POSIX class", offset: pos) if pattern[pos..].startsWith("[:") && pattern[pos + 2..].contains(":]")
             let at = pos
             let lo = try classRune()
             if lo < 0 {

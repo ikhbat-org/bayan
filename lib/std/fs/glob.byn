@@ -83,9 +83,16 @@ void collect(string pattern, to ref List<string> found) uses fs, alloc {
         }
         return
     }
-    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
+    let depth = depthOf(pattern)
     var seen: Map<string, bool> = []
     walk(pattern, from: baseOf(pattern), until: depth, through: ref seen, to: ref found)
+}
+
+/// The directory levels a walk for `pattern` descends below its base: `maxDepth` with `**` or `{`, else one more than the
+/// `/` after the base.
+i64 depthOf(string pattern) {
+    if pattern.contains("**") || pattern.contains("{") { return maxDepth }
+    return count(pattern[baseOf(pattern).length..], for: "/") + 1
 }
 
 /// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`, through the `/` that
