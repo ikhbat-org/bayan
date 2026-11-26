@@ -208,11 +208,12 @@ bool t8SameBytes(in List<u8> a, as in List<u8> b) {
 }
 
 /// Format.cs:296 `WriteReplacing`: writes `bytes` to a temp file beside `file`, already resolved by `realPath`, then renames it over
-/// `file`; a symlink to it stays a symlink. The runtime has no Unix mode get or set, so the C#'s `SetUnixFileMode` is not ported: the
-/// file gets the temp file's mode.
+/// `file`; a symlink to it stays a symlink. The temp file starts as `Fs.copy` of `file`, which keeps the mode bits, as the C#'s
+/// `SetUnixFileMode`.
 void writeReplacing(string file, from in List<u8> bytes) uses alloc, fs, random fails IoError {
     let temp = Path.combine(Path.directoryName(file) ?? ".", $"{Io.randomU64()}.tmp")
     defer t9DeleteFile(temp)
+    try Fs.copy(file, to: temp)
     try Io.writeFile(temp, bytes.span)
     try Fs.rename(temp, to: file)
 }

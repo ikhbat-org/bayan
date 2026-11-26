@@ -272,7 +272,7 @@ struct ZigOrCc : ICCompiler {
         let limit = t9CompileTimeout() / 1000000
         let rt = Io.run(compiler[0], runtimeArgs.span, env: zigCacheEnv(compiler), timeout: Millis(limit)) catch switch {
             .timeout(_, _, _) => return NativeBuild { errors: t9TimedOut(limit), rejected: true },
-            // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
+            // coverage-exempt: Q1286 a compiler killed by a signal: no case's `BAYAN_CC` script kills itself
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,
@@ -289,7 +289,7 @@ struct ZigOrCc : ICCompiler {
         // A compiler killed by signal n is exit 128+n to the C# `Process.ExitCode` (Toolchain.cs:440).
         let r = Io.run(compiler[0], args.span, env: zigCacheEnv(compiler), timeout: Millis(limit)) catch switch {
             .timeout(_, _, _) => return NativeBuild { errors: t9TimedOut(limit), rejected: true },
-            // coverage-exempt: Q1286 a compiler killed by a signal: a test cannot set BAYAN_CC or PATH
+            // coverage-exempt: Q1286 a compiler killed by a signal: no case's `BAYAN_CC` script kills itself
             .signaled(let s, let streamOut, let streamErr) => return NativeBuild {
                 errors: $"C compiler failed (exit {128 + s}):\n{streamOut}{streamErr}",
                 rejected: true,

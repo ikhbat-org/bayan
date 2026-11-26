@@ -27,3 +27,28 @@ test "audit040: writeReplacing renames a new file over the target, so a hard lin
     assert names.length == 2
     deleteWorkDir(dir)
 }
+
+test "audit040: writeReplacing keeps the target's execute bit" {
+    if Target.os == "windows" {
+        todo("`chmod` sets the execute bit; Windows has none")
+    }
+    let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "audit040-format"), "mode")
+    deleteWorkDir(dir)
+    Io.createDirectory(dir) catch { panic($"cannot create {dir}") }
+    let file = Path.combine(dir, "a.byn")
+    goldenWrite(dir, for: "a.byn", as: "#!/usr/bin/env bayan\nold\n")
+    var args = List<string>()
+    args.append("+x")
+    args.append(file)
+    let r = Io.run("chmod", args.span) catch { panic("chmod did not run") }
+    assert r.exitCode == 0
+    assert goldenCliExecutable(file)
+    var bytes = List<u8>()
+    for b in "#!/usr/bin/env bayan\nnew\n".bytes {
+        bytes.append(b)
+    }
+    writeReplacing(file, from: in bytes) catch { panic($"cannot replace {file}") }
+    assert (Io.readText(file) catch "") == "#!/usr/bin/env bayan\nnew\n"
+    assert goldenCliExecutable(file)
+    deleteWorkDir(dir)
+}
