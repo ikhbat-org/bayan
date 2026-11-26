@@ -2744,6 +2744,8 @@ static byn_path_buf byn_path_full(byn_str s, const char* name, const char* file,
         char* cwd = getcwd(NULL, 0);
         if (!cwd) byn_path_fail(name, "the working directory cannot be read", file, line);
         int64_t cn = (int64_t)strlen(cwd);
+        if (!byn_utf8_valid((const uint8_t*)cwd, cn))
+            byn_path_fail(name, "the working directory is not valid UTF-8", file, line);
         byn_path_put(&in, cwd, cn);
         if (cn == 0 || cwd[cn - 1] != '/') byn_path_put(&in, "/", 1);
         free(cwd);
@@ -3440,6 +3442,8 @@ uint32_t byn_io_read_text(byn_str path, byn_str* out, byn_alloc* alloc) {
 }
 
 uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc) {
+    /* As in byn_io_read_stdin_some: a prompt printed before the read must not wait in the buffer while it blocks. */
+    byn_stdout_flush();
 #ifdef _WIN32
     /* Text mode would turn CRLF into LF and stop at Ctrl-Z. */
     _setmode(_fileno(stdin), _O_BINARY);
@@ -3459,6 +3463,7 @@ uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc) 
     }
     if (ferror(stdin)) {
         int e = errno;
+        clearerr(stdin);
         byn_release(alloc, buf);
         return byn_io_error(e);
     }
@@ -4187,6 +4192,10 @@ uint32_t byn_fs_real_path(byn_str path, byn_str* out, byn_alloc* alloc) {
     int e = resolved ? 0 : errno;
     free(c);
     if (!resolved) return byn_io_error(e);
+    if (!byn_utf8_valid((const uint8_t*)resolved, (int64_t)strlen(resolved))) {
+        free(resolved);
+        return BYN_IO_INVALID_UTF8;
+    }
     if (out) *out = byn_str_copy((byn_str){(const uint8_t*)resolved, (int64_t)strlen(resolved)}, alloc);
     free(resolved);
     return 0;

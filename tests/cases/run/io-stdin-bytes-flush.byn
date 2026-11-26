@@ -1,0 +1,13 @@
+// os: unix
+// `Io.stdin.readAllBytes()` writes out what was printed before it reads, as `readAll()` does (io-stdin-flush): the
+// signal that kills the program after the read drops only what print still holds.
+void main() fails IoError {
+    print("ready")
+    let input = Io.stdin.readAllBytes() catch {
+        print("read failed")
+        return
+    }
+    let kill: string[2] = ["-c", "kill -9 $PPID"]
+    let _ = try Io.run("sh", kill.span)
+    print($"not reached {input.length}")
+}
