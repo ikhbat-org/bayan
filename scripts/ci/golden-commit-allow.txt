@@ -78,3 +78,7 @@ b9cda6117c15dc789cf891ea48a8f109c6ca98c5  # 0.4.1 audit mediums: chore(worker): 
 995a15d7aa6c8894de1556eda6e2e9784ed48ec0  # 0.4.1 audit mediums: fix: statesOf returns no states for a struct with no declara
 a6f54ea29c6c3ad883b37fb8f69c5b5fc5a4e732  # 0.4.1 audit mediums: chore(worker): m-misc: Row 09 10, part 1 (constructor vs met
 f4df25e34e8b1eb30fcc7d3835c8f69bfb56ee9c  # 0.4.1 audit mediums: chore(worker): m-cname: Commit 1 (10 part 2, module cName co
+889be6081b5035567c9a8d72b0a4a9a9c4c21fb4  # 0.4.1 audit mediums: test: expected output of run/operand-ref-spill-value
+17cffff0711d258b9ebb85d212eca890161cf108  # 0.4.1 audit mediums: fix(driver): a BAYAN_CC naming an existing file is one progr
+cff51e75ab15092ddac5d344e133975cee0454ad  # 0.4.1 audit mediums: test: expected output and run-c pin of run/operand-ref-spill
+88a06f01d3e66791f83154ad947c24484031996d  # 0.4.1 audit mediums: test: expected files of run/ctor-panic-handler-ref-this and 
