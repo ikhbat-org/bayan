@@ -124,8 +124,10 @@ public string emitFunction(ref CCtx cc, from ref Ctx c, through in ltree.LTree t
     sb.append(" {\n")
     if kind == .constructor {
         let ty = cType(ref cc, from: ref c, for: semantics.structTypeOf(c.functions[fn].owner))
-        line(ref sb, by: in fe, for: $"{ty} self_v = {{0}};")
-        line(ref sb, by: in fe, for: $"{ty}* self = &self_v;")
+        // A panic handler may read `this`, changed since the setjmp, so its storage is then `volatile`.
+        let qualifier = f.panicSlots > 0 ? "volatile " : ""
+        line(ref sb, by: in fe, for: $"{qualifier}{ty} self_v = {{0}};")
+        line(ref sb, by: in fe, for: $"{qualifier}{ty}* self = &self_v;")
     }
     for l in f.locals {
         let lt = c.locals[l].type
@@ -520,7 +522,8 @@ void statement(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree
                     for: $"byn_arena_free({emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: t.freeArenas[i].arena)});",
                 )
             case .pushPanicHandler:
-                // The runtime longjmps here on a panic; the handler reads only `let`s and parameters, unchanged since the setjmp.
+                // The runtime longjmps here on a panic; the handler reads only `let`s and parameters, unchanged since the
+                // setjmp, and a constructor's `this`, `volatile` then.
                 let slotIndex = t.pushPanicHandlers[i].slot
                 line(ref sb, by: in f, for: $"if (BYN_PANIC_CATCH(&ph{slotIndex})) {{")
                 f.indent += 1
@@ -796,8 +799,11 @@ string formatWithSpec(
 string formatInner(ref CCtx cc, from ref Ctx c, for Type type, at string v, by BFormatSpec spec, to string sw)
         uses alloc {
     if spec.radix != 0 {
-        let negative = semantics.isSignedInteger(type) ? $"({v}) < 0" : "false"
-        return $"bynh_w_radix({sw}, (uint64_t)({v}), {negative}, {spec.radix});"
+        // A signed value is read once into `rv`, since the hole may have effects.
+        if semantics.isSignedInteger(type) {
+            return $"{{ int64_t rv = (int64_t)({v}); bynh_w_radix({sw}, (uint64_t)rv, rv < 0, {spec.radix}); }}"
+        }
+        return $"bynh_w_radix({sw}, (uint64_t)({v}), false, {spec.radix});"
     }
     if spec.digits >= 0 {
         return $"bynh_w_digits({sw}, (double)({v}), {spec.digits});"

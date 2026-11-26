@@ -367,6 +367,7 @@ void byn_w_bytes(byn_writer* w, const uint8_t* p, int64_t n) {
             return;
         case BYN_WRITE_STRICT:
             byn_panic("StrBuf is full", w->file, w->line);
+        case BYN_WRITE_OVER:
         case BYN_WRITE_GROW: {
             int64_t grown = w->cap < 16 ? 16 : w->cap * 2;
             if (grown < w->len + n) grown = w->len + n;
@@ -375,8 +376,10 @@ void byn_w_bytes(byn_writer* w, const uint8_t* p, int64_t n) {
             uint8_t* p = (uint8_t*)w->alloc->resize(w->alloc, NULL, 0, grown);
             if (w->len > 0) memcpy(p, w->buf, (size_t)w->len);
 #ifdef BYN_DEBUG
-            byn_own_rekey(w->buf, p);
+            /* Borrowed bytes belong to their owner, which keeps its claim. */
+            if (w->mode == BYN_WRITE_GROW) byn_own_rekey(w->buf, p);
 #endif
+            w->mode = BYN_WRITE_GROW;
             w->buf = p;
             w->cap = grown;
             break;

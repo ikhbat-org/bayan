@@ -188,7 +188,7 @@ void byn_main__B__formatInto__o1(bynt_main__B* self, byn_writer* p_output, byn_f
                     w->file = byn_file_0;
                     w->line = 10;
                     byn_w_str(w, BYN_STR("B(hex ", 6));
-                    bynh_w_radix(w, (uint64_t)((*self).n), ((*self).n) < 0, 16);
+                    { int64_t rv = (int64_t)((*self).n); bynh_w_radix(w, (uint64_t)rv, rv < 0, 16); }
                     byn_w_str(w, BYN_STR(")", 1));
                 }
             }

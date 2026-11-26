@@ -1,0 +1,23 @@
+// mode: debug
+// `StrBuf.over` borrows its span's bytes, so debug mode does not claim them (audit 0.4.0 09-emitter M7).
+i64 g() {
+    var arr: u8[8] = [0, 0, 0, 0, 0, 0, 0, 0]
+    var b = StrBuf.over(arr.mutableSpan())
+    b.append("hi")
+    return b.length
+}
+
+void main() {
+    var xs: List<u8> = [0, 0, 0, 0]
+    var b = StrBuf.over(xs.mutableSpan())
+    b.append("hi")
+    print($"{b.length}")
+    // Outgrown, it spills to its own bytes; the list keeps its own.
+    b.append("there")
+    print($"{b.view} {xs.length}")
+    xs.append(1)
+    print($"{xs.length}")
+    let a = g()
+    let c = g()
+    print($"{a} {c}")
+}
