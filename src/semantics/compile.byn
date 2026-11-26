@@ -152,7 +152,7 @@ public Ctx fromProject(string root, for string entryModule, by in CompilationOpt
             lexer.SourceText.create(t11RelativePath(root, to: f).replaced("\\", by: "/"), from: t11ReadAllBytes(f)),
         )
     }
-    return create(from: move sources, at: src, by: in options, displayRoot: root)
+    return create(from: move sources, at: src, by: in options, displayRoot: root, entryDir: entry)
 }
 
 // ── Compilation.cs:100 Create ────────────────────────────────────────────────
@@ -162,7 +162,8 @@ public Ctx create(
     from move List<lexer.SourceText> entryFiles,
     at string packageRoot,
     by in CompilationOptions options,
-    string? displayRoot = null
+    string? displayRoot = null,
+    string? entryDir = null
 ) uses alloc, clock, fs =>
     t2Create(
         from: move entryFiles,
@@ -171,6 +172,7 @@ public Ctx create(
         through: [],
         for: List<string>(),
         displayRoot: displayRoot,
+        entryDir: entryDir,
     )
 
 /// Compilation.cs:129 WithFile: the same program compiled again with `text` in place of the file of the same path,
@@ -197,6 +199,7 @@ public Ctx withFile(in Ctx c, from in lexer.SourceText text) uses alloc, clock, 
         through: move replaced,
         for: move paths,
         displayRoot: c.displayRoot,
+        entryDir: c.entryDir,
     )
 }
 
@@ -226,7 +229,8 @@ Ctx t2Create(
     through move Map<string,
     lexer.SourceText> replaced,
     for move List<string> replacedPaths,
-    string? displayRoot = null
+    string? displayRoot = null,
+    string? entryDir = null
 ) uses alloc, clock, fs {
     var capabilities: List<string>? = null
     if (options.capabilities is { } caps) {
@@ -243,6 +247,7 @@ Ctx t2Create(
         target: options.target,
         packageRoot: packageRoot,
         displayRoot: displayRoot ?? packageRoot,
+        entryDir: entryDir,
         includeTests: options.includeTests,
         skipOwnershipCheck: options.skipOwnershipCheck,
     }
@@ -361,6 +366,12 @@ ModId loadModule(
     c.modules.append(Mod { name: name, files: List<FileId>(), directory: dir, cName: t11CNameOf(name) })
     let module = c.modules.length - 1
     c.modulesByDir[dir] = module
+    // `t11OrderModules` rebuilds the map from `directory`, so this second key lives only while modules load.
+    if (c.entryDir is { } entryDir) {
+        if importer == -1 {
+            c.modulesByDir[entryDir] = module
+        }
+    }
     c.loading.append(module)
     var pending = move sources
     var inOrder = List<lexer.SourceText>()
@@ -1886,11 +1897,28 @@ Map<string, Type> t11CopyMap(in Map<string, Type> m) {
     return copy
 }
 
-/// The span of a top-level statement (the C# `GlobalStatement.Span`).
+/// The span of a declaration (the C# `Decl.Span`): a top-level statement, or a member reported as unsupported.
 TextSpan t11DeclSpan(in parser.Decl d) {
     switch d {
-        case .globalStatement(let g): return g.value.span
-        default: panic("main statements are global statements")
+        case .importDecl(let x): return x.value.span
+        case .globalStatement(let x): return x.value.span
+        case .functionDecl(let x): return x.value.span
+        case .structDecl(let x): return x.value.span
+        case .interfaceDecl(let x): return x.value.span
+        case .getterDecl(let x): return x.value.span
+        case .associatedTypeDecl(let x): return x.value.span
+        case .extensionDecl(let x): return x.value.span
+        case .fieldDecl(let x): return x.value.span
+        case .propertyDecl(let x): return x.value.span
+        case .constructorDecl(let x): return x.value.span
+        case .errorEnumDecl(let x): return x.value.span
+        case .errorSetDecl(let x): return x.value.span
+        case .enumDecl(let x): return x.value.span
+        case .unionDecl(let x): return x.value.span
+        case .typeAliasDecl(let x): return x.value.span
+        case .effectDecl(let x): return x.value.span
+        case .testDecl(let x): return x.value.span
+        case .none: panic("a declaration has a span")
     }
 }
 

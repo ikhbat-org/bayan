@@ -1,0 +1,4 @@
+error BYN2022: this kind of struct member is not supported in v0.1
+
+  2 │     union error E { a }
+    │     ^^^^^^^^^^^^^^^^^^^

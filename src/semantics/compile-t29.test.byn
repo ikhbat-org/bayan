@@ -138,6 +138,27 @@ test "compile t29: a project with only tests" {
     assert t29s1Diags(in c) == ""
 }
 
+test "compile t29: importing the entry module is the entry module, not a second copy" {
+    let root = "tmp/t29s1-entry-import"
+    Io.createDirectory(root) catch {}
+    Io.createDirectory($"{root}/src") catch {}
+    Io.createDirectory($"{root}/src/app") catch {}
+    Io.createDirectory($"{root}/src/helper") catch {}
+    Io.createDirectory($"{root}/tests") catch {}
+    Io.writeFile($"{root}/src/app/main.byn", "import helper\npublic i64 one() => 1\nprint($\"{helper.two()}\")\n".bytes) catch {}
+    Io.writeFile($"{root}/src/helper/helper.byn", "public i64 two() => 2\n".bytes) catch {}
+    Io.writeFile($"{root}/tests/app.test.byn", "test \"t\" {\n    assert one() == 1\n}\n".bytes) catch {}
+    let clean = fromProject(root, for: "app", by: CompilationOptions { includeTests: true })
+    assert t29s1Diags(in clean) == ""
+    Io.writeFile($"{root}/tests/app.test.byn", "import app\ntest \"t\" {\n    assert app.one() == 1\n}\n".bytes) catch {}
+    let own = fromProject(root, for: "app", by: CompilationOptions { includeTests: true })
+    assert t29s1Diags(in own) == "BYN2010 import cycle: main → main\n"
+    Io.writeFile($"{root}/tests/app.test.byn", "test \"t\" {\n    assert one() == 1\n}\n".bytes) catch {}
+    Io.writeFile($"{root}/src/helper/helper.byn", "import app\npublic i64 two() => app.one() * 2\n".bytes) catch {}
+    let back = fromProject(root, for: "app", by: CompilationOptions { includeTests: true })
+    assert t29s1Diags(in back) == "BYN2010 import cycle: main → helper → main\n"
+}
+
 test "compile t29: more main signatures, aliases twice and top-level values in a test file" {
     var sb = StrBuf()
     let mains: List<string> = [

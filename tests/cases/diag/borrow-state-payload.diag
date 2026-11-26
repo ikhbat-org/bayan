@@ -1,0 +1,7 @@
+error BYN3001: a struct field cannot hold a borrowed `ReadOnlySpan<u8>`
+
+  5 │         bad(ReadOnlySpan<u8> v)
+    │                              ^
+    │
+  help: store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in
+        a later version

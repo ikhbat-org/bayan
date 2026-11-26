@@ -1,0 +1,8 @@
+struct S {
+    i64 id
+    states {
+        good
+        bad(List<u8> v)
+    }
+}
+void main() { print("hi") }

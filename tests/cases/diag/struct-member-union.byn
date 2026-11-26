@@ -1,0 +1,4 @@
+struct Outer {
+    union error E { a }
+}
+void main() { print("hi") }

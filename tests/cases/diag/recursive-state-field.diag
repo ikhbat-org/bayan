@@ -1,0 +1,6 @@
+error BYN2761: `Wrap` contains itself by value: Wrap → Wrap
+
+  1 │ struct Wrap {
+    │        ^^^^
+    │
+  help: store the inner one as `Owned<Wrap>` (or in a `List<Wrap>`); a value cannot contain itself
