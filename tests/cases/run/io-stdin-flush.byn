@@ -1,0 +1,10 @@
+// os: unix
+// `Io.stdin.readAll()` writes out what was printed before it reads, so a prompt shows while the read waits: here the
+// program is then killed by a signal, which drops whatever print is still holding.
+void main() fails IoError {
+    print("ready")
+    let input = Io.stdin.readAll()
+    let kill: string[2] = ["-c", "kill -9 $PPID"]
+    let _ = try Io.run("sh", kill.span)
+    print($"not reached {input.isOk}")
+}
