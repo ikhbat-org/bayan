@@ -2,7 +2,7 @@
 Spec: ./027-spec.md
 
 Status: draft
-Release: phase 1 planned for 0.5.0, with spec 023's units (#9) and spec 028's `Duration` and `Uptime`
+Release: unscheduled (phase 1 planned for 0.5.0, with spec 023's units (#9) and spec 028's `Duration` and `Uptime`)
 Sources: `./027-spec.md` (owner decisions D1–D8, 2026-11-23; owner answer on `Untrusted`, 2026-11-27);
 `docs/bayan-concurrency.md`; `docs/memory-leaks.md`; `docs/bayan-library-tiers.md`;
 `docs/specs/028-units-duration-uptime/028-spec.md`; `docs/specs/023-spec-catch-up/023-spec.md`
@@ -35,7 +35,7 @@ golden cases.
 i32 streamLog(Sender<Untrusted<string>> lines) uses process, suspend, alloc fails IoError, ChannelError {
     var child = try Io.start("git", args: ["log", "--oneline"])
     var output = child.takeStdout() ?? return -1
-    while try output.readLine(max: 1048576) is { } line {
+    while let line = try output.readLine(max: 1048576) {
         try lines.send(line)
     }
     return try child.wait()
