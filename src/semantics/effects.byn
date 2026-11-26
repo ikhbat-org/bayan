@@ -197,6 +197,16 @@ void analyzeEffects(ref Ctx c) {
                         sources.append("alloc")
                         direct = true
                     }
+                } else if kind == .forStmt {
+                    // A loop over a user iterable calls its `moveNext`/`count` and `current`/`get` witnesses.
+                    if (c.bFors[i].userIteration is { } u) {
+                        for f in [u.advance, u.item] {
+                            continue if f == -1
+                            for x in t23Visible(ref c, by: in e, for: f) {
+                                sources.append(x)
+                            }
+                        }
+                    }
                 }
                 for effect in sources {
                     // A direct use replaces an indirect one, so a capability check sees it; otherwise the first use stays.

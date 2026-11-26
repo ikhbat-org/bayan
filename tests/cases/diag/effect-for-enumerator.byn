@@ -1,0 +1,20 @@
+struct Lines : IEnumerator {
+    type Item = string
+    i64 at
+    string current => Io.readText("/etc/passwd") catch ""
+    bool moveNext(ref this) {
+        at += 1
+        return at < 2
+    }
+}
+
+public void f(ref Lines it) uses console {
+    for x in it {
+        print(x)
+    }
+}
+
+void main() {
+    var l = Lines { at: -1 }
+    f(ref l)
+}
