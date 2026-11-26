@@ -64,3 +64,18 @@
 test "patterns against paths" (string pattern, string path, bool expected) {
     assert Glob.matches(pattern, for: path) == expected
 }
+
+test "a run of `*` or `**/` that cannot match fails in polynomial time" {
+    assert !Glob.matches($"{"*".repeated(20)}b", for: "a".repeated(28))
+    assert !Glob.matches($"{"*a".repeated(14)}b", for: "a".repeated(28))
+    assert !Glob.matches($"{"**/".repeated(20)}b", for: "a/".repeated(25))
+    assert Glob.matches($"{"*".repeated(20)}b", for: $"{"a".repeated(28)}b")
+    assert Glob.matches($"{"**/".repeated(20)}b", for: $"{"a/".repeated(25)}b")
+}
+
+test "{a,b} groups are tried one alternative at a time, not all built first" {
+    assert !Glob.matches("{a,b}".repeated(40), for: "x")
+    assert Glob.matches("{a,b}".repeated(40), for: "ab".repeated(20))
+    assert !Glob.matches($"{"{a,b}".repeated(40)}x", for: "a".repeated(40))
+    assert Glob.matches($"{"{a,b}".repeated(4)}*", for: "abababab")
+}

@@ -16,10 +16,7 @@ const maxDepth: i64 = 64
 /// returned.
 public List<string> glob(string pattern) uses fs, alloc {
     var found = List<string>()
-    let base = baseOf(pattern)
-    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
-    var seen: Map<string, bool> = []
-    walk(pattern, from: base, until: depth, through: ref seen, to: ref found)
+    collect(pattern, to: ref found)
     var j = 0
     while j < found.length {
         var k = j
@@ -31,10 +28,68 @@ public List<string> glob(string pattern) uses fs, alloc {
         }
         j += 1
     }
-    return found
+    var kept = List<string>()
+    for f in found {
+        if kept.length == 0 || kept[kept.length - 1] != f {
+            kept.append(f)
+        }
+    }
+    return kept
 }
 
-/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`.
+/// Adds the files `pattern` names to `found`, sorted or not, a file more than once when two alternatives name it. A `{a,b}`
+/// group before the first `*`, `?` or `[` is replaced by each option in turn and each result collected on its own, so
+/// every alternative is walked from its own base directory (`{/x/a,b}/*.byn` lists `/x/a` and `b`).
+void collect(string pattern, to ref List<string> found) uses fs, alloc {
+    var open: i64 = -1
+    var i = 0
+    while i < pattern.length && open < 0 {
+        let b = pattern.bytes[i]
+        if b == '*' || b == '?' || b == '[' {
+            break
+        }
+        if b == '{' {
+            open = i
+        }
+        i += 1
+    }
+    var close: i64 = -1
+    var starts = List<i64>()
+    if open >= 0 {
+        var depth = 0
+        var k = open
+        starts.append(open)
+        while k < pattern.length && close < 0 {
+            let b = pattern.bytes[k]
+            if b == '{' {
+                depth += 1
+            } else if b == '}' {
+                depth -= 1
+                if depth == 0 {
+                    close = k
+                }
+            } else if b == ',' && depth == 1 {
+                starts.append(k)
+            }
+            k += 1
+        }
+    }
+    if close >= 0 {
+        starts.append(close)
+        let head = pattern[0..open]
+        let tail = pattern[close + 1..pattern.length]
+        for k in 0..(starts.length - 1) {
+            collect($"{head}{pattern[starts[k] + 1..starts[k + 1]]}{tail}", to: ref found)
+        }
+        return
+    }
+    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
+    var seen: Map<string, bool> = []
+    walk(pattern, from: baseOf(pattern), until: depth, through: ref seen, to: ref found)
+}
+
+/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`, through the `/` that
+/// ends them (`a/`, `a//`, `/`, `C:/`), so an entry under it is the base and a name and starts as `pattern` does.
 string baseOf(string pattern) {
     var i = 0
     var slash = -1
@@ -51,7 +106,7 @@ string baseOf(string pattern) {
     if slash < 0 {
         return ""
     }
-    return slash == 0 ? "/" : pattern[0..slash]
+    return pattern[0..slash + 1]
 }
 
 /// The number of times `part` occurs in `text`.
