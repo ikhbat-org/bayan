@@ -1,0 +1,4 @@
+// An interface whose member names a deeper instance of itself: BYN2745, not a stack overflow.
+interface IFoo<T> { void f(dyn ref IFoo<List<T>> x) }
+void g(dyn ref IFoo<i32> x) {}
+print("x")

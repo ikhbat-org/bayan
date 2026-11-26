@@ -1,0 +1,7 @@
+// `*|` on constants saturates like the run-time path, also when the 128-bit product reads as negative.
+const x: u64 = 18446744073709551615 *| 18446744073709551615
+const y: u64 = 4294967296 *| 4294967296
+const z: u64 = 4294967295 *| 4294967297
+const s: i64 = -9223372036854775807 *| 9223372036854775807
+let m: u64 = 18446744073709551615
+print($"{x} {y} {z} {s} {m *| m}")

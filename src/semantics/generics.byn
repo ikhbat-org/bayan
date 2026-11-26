@@ -950,6 +950,9 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
             return instance
         case .interfaceType:
             let i = InterfaceId(typeIndex(template))
+            let file = c.interfaces[i].file
+            let nameSpan = c.interfaces[i].nameSpan
+            return errorType() if t13ExpandsWithoutEnd(ref c, for: template, from: file, at: nameSpan)
             let typeMap = t13Substitution(in c, from: null, for: in c.interfaces[i].typeParams, by: in args)
             let id = newInterface(ref c, by: InterfaceSymbol {
                 name: c.interfaces[i].name,
@@ -974,7 +977,9 @@ Type instantiateType(ref Ctx c, for Type template, by in List<Type> args, from F
             // A `where` bound can name an instance before the template's members are declared.
             if c.interfaceMembersDeclared {
                 let declaring = instantiatingBegin(ref c, from: site, at: span)
+                c.declaringInstances.append((template, instance))
                 declareInterfaceMembers(ref c, for: id)
+                let _ = c.declaringInstances.removeLast()
                 instantiatingEnd(ref c, by: declaring)
             } else {
                 c.pendingInterfaces.append(

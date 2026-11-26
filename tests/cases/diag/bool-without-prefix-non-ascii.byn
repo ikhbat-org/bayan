@@ -1,0 +1,8 @@
+// A `bool` state whose name starts with a non-ASCII letter: the rename splits after the whole first code point.
+public struct S {
+    public bool état
+    public bool ézz() { return true }
+}
+
+let s = S { état: true }
+print($"{s.état}")
