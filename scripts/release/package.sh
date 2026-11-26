@@ -19,6 +19,8 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 limit='Known limit: the stage-2 build of `src/driver` peaks at 1.69 GB of memory.'
 die() { echo "package: $*" >&2; exit 1; }
 version() { bayan_version "$root"; }
+# tar flags that drop the owner: bsdtar and GNU tar spell them differently.
+if tar --version 2>/dev/null | grep -q bsdtar; then own=(--uid 0 --gid 0 --uname "" --gname ""); else own=(--owner=0 --group=0 --numeric-owner); fi
 
 # hexat <file> <offset> <n>: n bytes from offset as lowercase hex, in file order; le <hex>: the bytes reversed (a little-endian field).
 hexat() { od -An -v -tx1 -j "$2" -N "$3" "$1" | tr -d ' \n'; }
@@ -100,13 +102,25 @@ case "${1:-}" in
     if [ -f "$root/LICENSE.md" ]; then cp "$root/LICENSE.md" "$stage/$name/"; else echo "::warning::package: the repo has no LICENSE.md; $name ships without one" >&2; fi
     if [ -f "$root/NOTICE.md" ]; then cp "$root/NOTICE.md" "$stage/$name/"; fi
     docs "$stage/$name"
+    # Reproducible archives: fixed mtimes (UTC), sorted members, no owner ids, no gzip header time; the zip is written by python's zipfile (no ctime).
+    TZ=UTC find "$stage" -exec touch -t 198001010000 {} +
     if [ "$ext" = zip ]; then
-      # bsdtar writes zip: System32's on Windows runners, the system tar on macOS; else Info-ZIP.
-      if [ -n "${SYSTEMROOT:-}" ] && [ -x "$SYSTEMROOT/System32/tar.exe" ]; then (cd "$stage" && "$SYSTEMROOT/System32/tar.exe" -a -cf "$out/$name.zip" "$name")
-      elif tar --version 2>/dev/null | grep -q bsdtar; then (cd "$stage" && tar -a -cf "$out/$name.zip" "$name")
-      else (cd "$stage" && zip -qr "$out/$name.zip" "$name"); fi
+      py=python3; command -v python3 >/dev/null || py=python
+      (cd "$stage" && "$py" -I -c '
+import os, sys, zipfile
+with zipfile.ZipFile(sys.argv[2], "w", zipfile.ZIP_DEFLATED) as z:
+    for d, ds, fs in os.walk(sys.argv[1]):
+        ds.sort()
+        for f in sorted(fs):
+            p = os.path.join(d, f)
+            i = zipfile.ZipInfo(p.replace(os.sep, "/"), (1980, 1, 1, 0, 0, 0))
+            i.external_attr = (0o755 if os.stat(p).st_mode & 0o111 else 0o644) << 16
+            i.compress_type = zipfile.ZIP_DEFLATED
+            with open(p, "rb") as h:
+                z.writestr(i, h.read())
+' "$name" "$out/$name.zip")
     else
-      COPYFILE_DISABLE=1 tar -czf "$out/$name.tar.gz" -C "$stage" "$name"
+      (cd "$stage" && find "$name" | LC_ALL=C sort | COPYFILE_DISABLE=1 tar -cf - --no-recursion -T - "${own[@]}" | gzip -n > "$out/$name.tar.gz")
     fi
     rm -rf "$stage"
     echo "$out/$name.$ext" ;;
@@ -116,7 +130,8 @@ case "${1:-}" in
     mkdir -p "$out"; out="$(cd "$out" && pwd)"
     stage="$out/.stage-docs"; rm -rf "$stage"; mkdir -p "$stage/$name"
     docs "$stage/$name" all
-    COPYFILE_DISABLE=1 tar -czf "$out/$name.tar.gz" -C "$stage" "$name"
+    TZ=UTC find "$stage" -exec touch -t 198001010000 {} +
+    (cd "$stage" && find "$name" | LC_ALL=C sort | COPYFILE_DISABLE=1 tar -cf - --no-recursion -T - "${own[@]}" | gzip -n > "$out/$name.tar.gz")
     rm -rf "$stage"
     echo "$out/$name.tar.gz" ;;
   sums)

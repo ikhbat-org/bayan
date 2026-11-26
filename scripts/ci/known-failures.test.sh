@@ -80,11 +80,12 @@ run all-pass-empty-list 0 "0 failed" "$tmp/empty.txt" "$tmp/pass.txt"
 
 run no-args 2 "usage"
 run one-arg 2 "usage" "$list"
-run extra-arg 2 "usage" "$list" "$tmp/pass.txt" "$tmp/pass.txt"
+run two-reports 0 "0 failed" "$tmp/empty.txt" "$tmp/pass.txt" "$tmp/pass.txt"
 run missing-list 2 "" "$tmp/nope.txt" "$tmp/pass.txt"
 run missing-report 2 "" "$list" "$tmp/nope.txt"
 echo "no summary here" > "$tmp/bad.txt"
 run no-summary 2 "no 'test:" "$list" "$tmp/bad.txt"
+run one-report-no-summary 2 "no 'test:" "$tmp/empty.txt" "$tmp/pass.txt" "$tmp/bad.txt"
 printf 'test: golden   FAIL    1s  x (exit 1; log: %s/gone.log)\n' "$tmp" > "$tmp/nolog.txt"
 run missing-log 2 "" "$list" "$tmp/nolog.txt"
 
