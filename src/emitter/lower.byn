@@ -554,7 +554,7 @@ bool operands(
     for i in 0..n {
         let type = t2Type(in c, through: in l, for: values[i])
         let scalar = semantics.isNumeric(type) || type == semantics.prim(.bool)
-        let read = scalar ? rootLocal(in c, for: values[i]) : -1
+        let read = scalar ? rootLocal(c, for: values[i]) : -1
         var moved = false
         for j in i + 1..n {
             if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i]))
@@ -615,12 +615,12 @@ bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest p
             return false if semantics.boundKind(x) != .call
             let fn = c.bCalls[i].function
             let receiver = c.bCalls[i].receiver
-            return true if receiver != -1 && c.functions[fn].isMutating && rootLocal(in c, for: receiver) == local
+            return true if receiver != -1 && c.functions[fn].isMutating && rootLocal(c, for: receiver) == local
             for k in 0..c.bCalls[i].arguments.length {
                 break if k >= c.functions[fn].parameters.length
                 let param = c.functions[fn].parameters[k]
                 if c.locals[param].modifier is .refKeyword or .outKeyword
-                        && rootLocal(in c, for: c.bCalls[i].arguments[k]) == local {
+                        && rootLocal(c, for: c.bCalls[i].arguments[k]) == local {
                     return true
                 }
             }
@@ -629,13 +629,13 @@ bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest p
 }
 
 /// The local a place `n`, `n.f` or `n.0` reads, or -1.
-LocalId rootLocal(in Ctx c, for BExpr e) {
+LocalId rootLocal(Ctx c, for BExpr e) {
     return -1 if ltree.isLowered(e)
     let i = i64(e & 0xFFFFFFFF)
     switch semantics.boundKind(e) {
         case .local: return c.bLocals[i].local
-        case .field: return rootLocal(in c, for: c.bFields[i].receiver)
-        case .tupleElement: return rootLocal(in c, for: c.bTupleElements[i].receiver)
+        case .field: return rootLocal(c, for: c.bFields[i].receiver)
+        case .tupleElement: return rootLocal(c, for: c.bTupleElements[i].receiver)
         default: return -1
     }
 }
