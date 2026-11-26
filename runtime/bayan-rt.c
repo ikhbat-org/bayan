@@ -2023,7 +2023,7 @@ static wchar_t* byn_path_expand_short(wchar_t* full, int64_t* n, int64_t cap) {
             /* Not found at this index: look further back, ending the string there for now. */
             found--;
             for (; found > root && in[found] != L'\\'; found--) {}
-            if (found == root) break;
+            if (found <= root) break; /* `found` can start at most one past `root` (a device root that is the whole path). */
             in[found] = 0;
         } else if (r > cap) {
             cap = byn_path_grown(cap, r);
