@@ -1125,7 +1125,9 @@ void checkMutations(ref Regions r, through ref Ctx c) {
     var useOf: Map<LocalId, i64> = []
     var useLists = List<List<i64>>()
     var loops = List<TextSpan>()
+    var whiles = List<bool>()
     var defers = List<TextSpan>()
+    var plainDefers = List<bool>()
     var blocks = List<TextSpan>()
     // For the back edge: each loop's body, the conditional children a store's effect ends with, the whole stores,
     // where each `break` or `continue` is and what it leaves, each loop's and switch's id and span, and the `if`/`else`
@@ -1150,6 +1152,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
             useLists[useOf[l]].append(nodeSpan(in c, for: node).start)
         } else if k is .whileStmt or .doWhile or .forStmt {
             loops.append(nodeSpan(in c, for: node))
+            whiles.append(k == .whileStmt)
             let i = boundIndex(node)
             let body = k == .whileStmt ? c.bWhiles[i].body : k == .doWhile ? c.bDoWhiles[i].body : c.bFors[i].body
             bodies.append(nodeSpan(c, for: body))
@@ -1163,6 +1166,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 : k == .errdeferStmt ? c.bErrdefers[i].body : c.bPanicDefers[i].body
             let start = nodeSpan(in c, for: node).start
             defers.append(TextSpan.fromBounds(start, until: nodeSpan(in c, for: body).end))
+            plainDefers.append(k == .deferStmt)
             scopes.append(nodeSpan(c, for: body))
         } else if k == .block {
             blocks.append(nodeSpan(in c, for: node))
@@ -1266,7 +1270,33 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 // The loan "closes" the mutation when every iteration that ran the mutation goes on to store the holder
                 // whole: the first such store in the mutation's own scope, else in the loop body's, with no counted
                 // jump before it. Only uses before that store's end can then be stale.
-                let own = innermostScope(scopes, for: mSpan)
+                // A deferred mutation runs where its outermost deferred statement inside loop p does, at the end of the
+                // block around it, so a store its text precedes in that block runs before it. A defer around the loop
+                // runs the loop in text order, and a store after the mutation in its own deferred block runs right after it.
+                // A failing or panic defer runs only on an exit that leaves the loop, so it is not moved.
+                var mAt = mSpan
+                var outerDefer: i64 = -1
+                for d in 0..defers.length {
+                    let holds = defers[d].start <= mSpan.start && mSpan.end <= defers[d].end
+                    let inLoop = bodies[p].start <= defers[d].start && defers[d].end <= bodies[p].end
+                    if holds && inLoop && plainDefers[d] && (outerDefer == -1 || defers[d].length > defers[outerDefer].length) {
+                        outerDefer = d
+                    }
+                }
+                if outerDefer != -1 {
+                    let textScope = innermostScope(scopes, for: mSpan)
+                    var storedAfter = false
+                    for s in stores {
+                        let home = innermostScope(scopes, for: s.span)
+                        let same = home.start == textScope.start && home.end == textScope.end
+                        let deferred = defers[outerDefer].start <= s.span.start && s.span.end <= defers[outerDefer].end
+                        storedAfter = storedAfter || s.holder == holder && s.span.start >= mSpan.end && same && deferred
+                    }
+                    if !storedAfter {
+                        mAt = TextSpan.fromBounds(deferEnds[outerDefer], until: deferEnds[outerDefer])
+                    }
+                }
+                let own = innermostScope(scopes, for: mAt)
                 var closes = false
                 var w = -1
                 var scope = bodies[p]
@@ -1274,7 +1304,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                     w = -1
                     for si in 0..stores.length {
                         let s = stores[si]
-                        continue if s.holder != holder || s.span.start < mSpan.end || s.span.start < candidate.start
+                        continue if s.holder != holder || s.span.start < mAt.end || s.span.start < candidate.start
                         continue if s.span.end > candidate.end
                         let home = innermostScope(scopes, for: s.span)
                         continue if home.start != candidate.start || home.end != candidate.end
@@ -1284,7 +1314,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                     }
                     closes = w != -1
                     // A jump before the mutation in a loop around it inside the scope runs after it on that loop's next turn.
-                    var from = mSpan.end
+                    var from = mAt.end
                     var fromSize: i64 = -1
                     for loop in loops {
                         let around = loop.start <= mSpan.start && mSpan.end <= loop.end
@@ -1306,8 +1336,8 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                             }
                         }
                         // So does one after a whole store of the holder in its scope; before the mutation, the store runs after it on the next turn too.
-                        var after = mSpan.end
-                        after = from if j < mSpan.start
+                        var after = mAt.end
+                        after = from if j < mAt.start
                         var dominated = false
                         for s in stores {
                             if s.holder == holder && s.span.start >= after && s.span.end <= j && j < s.scopeEnd {
@@ -1323,7 +1353,7 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                 }
                 // Uses from the mutation's outermost loop inside the closing scope, otherwise from the outermost loop
                 // around this one that the holder outlives.
-                var lower = mSpan.end
+                var lower = mAt.end
                 var upper = loops[p].end
                 var size: i64 = -1
                 for loop in loops {
@@ -1356,6 +1386,21 @@ void checkMutations(ref Regions r, through ref Ctx c) {
                     to: deferEnds,
                     for: mSpan,
                 )
+                // A `while` condition also runs on the last turn, which leaves the loop without the body's store.
+                let header = mSpan.start < bodies[p].start || mSpan.end > bodies[p].end
+                if end == -1 && closes && header && whiles[p] && scope.start == bodies[p].start && scope.end == bodies[p].end {
+                    end = backEdgeUse(
+                        holder,
+                        at: loops[p],
+                        through: false,
+                        until: TextSpan.fromBounds(loops[p].end, until: loops[p].end),
+                        from: useLists[useOf[holder]],
+                        as: stores,
+                        by: defers,
+                        to: deferEnds,
+                        for: mSpan,
+                    )
+                }
                 continue if end == -1
             } else {
                 // Writing an element in place through the loop's own `dyn ref` variable leaves the loop's collection as it is.

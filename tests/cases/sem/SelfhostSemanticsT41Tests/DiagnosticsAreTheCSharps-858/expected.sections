@@ -22,3 +22,6 @@ BYN3003 43:22 cannot return a borrow of the temporary on line 43, which is freed
 returns spanAndCount -1
 returns tokens -1
 returns view -1
+store spanAndCount -1 -2 229..253
+store tokens -1 -2 104..113
+store view -1 -2 873..886

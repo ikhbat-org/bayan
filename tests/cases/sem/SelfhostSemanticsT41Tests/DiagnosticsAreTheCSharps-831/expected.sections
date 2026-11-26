@@ -1,3 +1,6 @@
 == diags.diag/borrow-own-field
 returns rest -1
 returns tokens -1
+store firstMarks -1 -2 306..314
+store rest -1 -2 206..223
+store tokens -1 -2 121..130
