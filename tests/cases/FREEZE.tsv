@@ -1,16 +1,16 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
-cases	cli	4482
-cases	diag	871
+cases	cli	4484
+cases	diag	893
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
-cases	lex	20097
+cases	lex	20099
 cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	359
+cases	run	375
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -6626,6 +6626,12 @@ file	7b8862f32824ce092c5cbb5dc6976336d4bd7247	tests/cases/cli/SelfhostDefaultT9T
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/cli/SelfhostDriverApiTests/VersionConstantIsTheCompilersVersion/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverApiTests/VersionConstantIsTheCompilersVersion/expected.stderr
 file	64468c2448f2dfff335a7ffdd360b4d26ff8e610	tests/cases/cli/SelfhostDriverApiTests/VersionConstantIsTheCompilersVersion/expected.stdout
+file	b8626c4cff2849624fb67f87cd0ad72b163671ad	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesTheCompilerOfBayanCc/expected.exitcode
+file	f232c62c3085f252d52340354a1b2303c2125497	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesTheCompilerOfBayanCc/expected.stderr
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverCcTests/ABuildUsesTheCompilerOfBayanCc/expected.stdout
+file	b8626c4cff2849624fb67f87cd0ad72b163671ad	tests/cases/cli/SelfhostDriverCcTests/ACompileIsKilledAfterTheTimeout/expected.exitcode
+file	3e5ae03dabcd0e493f28e942da0e23de551841ad	tests/cases/cli/SelfhostDriverCcTests/ACompileIsKilledAfterTheTimeout/expected.stderr
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverCcTests/ACompileIsKilledAfterTheTimeout/expected.stdout
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/cli/SelfhostDriverFixTests/FixAsCSharpCli-10/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverFixTests/FixAsCSharpCli-10/expected.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverFixTests/FixAsCSharpCli-10/expected.stdout
@@ -14186,12 +14192,15 @@ file	6525eb74127ad112dcb063cf0d63955c97bebe4b	tests/cases/diag/become-without-re
 file	8aae740c3aa68cea100b29908a8d7f666c96b473	tests/cases/diag/becomes-needs-ref.diag
 file	7d740e7eae39b15d1305fb043cf6baa7f97a0705	tests/cases/diag/becomes-on-ref-parameter.diag
 file	37583d612b99ef731f67b18499fb0434ca0f08ec	tests/cases/diag/block-comment.diag
+file	c5a9c5721fb06569e25cbe1707af693e5ab12a72	tests/cases/diag/bool-without-prefix-non-ascii.diag
 file	d93304e3a8844f2226bfc449a30854132fc19be9	tests/cases/diag/bool-without-prefix.diag
 file	c9bc77d8819e8e61e54da30c2748c792d8faeb78	tests/cases/diag/borrow-escapes-region.diag
 file	18d25a7204d83fc9ec3f4c68a214e13d4e98a222	tests/cases/diag/borrow-field.diag
 file	2d7c66f9a963259aaeaeeda1b6c58b048a90f5ea	tests/cases/diag/borrow-own-field-mutated.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/borrow-own-field.diag
 file	372ebf32a9ffe228ed2cc9d8174bf032e37fde42	tests/cases/diag/borrow-returned.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/borrow-state-payload-control.diag
+file	f1027b68a81d460ce96e8d36de0c58082472dae9	tests/cases/diag/borrow-state-payload.diag
 file	da142fca1b8b1270efb8a9f7e94d35345a759770	tests/cases/diag/borrow-stored-through-span.diag
 file	e3cc17e7d39c334cc20e2c4c032394dcd870866f	tests/cases/diag/borrow-then-mutated-in-initializer.diag
 file	cee04349e90f3a835a757001029111e513eefd53	tests/cases/diag/bracket-attribute.diag
@@ -14284,6 +14293,8 @@ file	debeef2a3a13cacddb6c4fe8f643e073626e433f	tests/cases/diag/dyn-ref-this-fiel
 file	30da84a55ecb1a1db8efb1d36cb70478cffb3cea	tests/cases/diag/dyn-ref-this-list-field-modified.diag
 file	13a34b52c25f84b7916593df8a366bb68350c08f	tests/cases/diag/effect-bound-exceeded.diag
 file	ec6f364eabbc06c0143b74dbb8ab58111da3656a	tests/cases/diag/effect-direct-after-indirect-span.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/effect-for-enumerator-control.diag
+file	4f5d48a28821b2525402a48ffd52f1f87b18d91f	tests/cases/diag/effect-for-enumerator.diag
 file	82fb6d1990e0bf1cce0db031daea7a6340ca51d6	tests/cases/diag/effect-not-declared.diag
 file	51211aa364fb3775fe80b4f630af43cd61d77f17	tests/cases/diag/effect-random-not-declared.diag
 file	0daaa00382f09125dd7c1184e47acbda3c6bfcb3	tests/cases/diag/else-on-new-line.diag
@@ -14291,6 +14302,8 @@ file	02a9c1a387f2abeca32f4d9ec937d2055c070492	tests/cases/diag/empty-enum.diag
 file	f7591df1adfa064fd9574c6d2ef83e9ddaf528de	tests/cases/diag/empty-error-set.diag
 file	da90b17dfce8b8e17c14c46d7470810fa9ca1a84	tests/cases/diag/empty-union.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/endless-instantiation-distinct-chain.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/endless-instantiation-interface-same.diag
+file	8a988517a7302a10a289754ed651163c9a4781ec	tests/cases/diag/endless-instantiation-interface.diag
 file	dc7954dfee9486d4d10cca32cdd17b02cd3ea939	tests/cases/diag/enum-argument-count.diag
 file	a746d4616cda4c8b6629250968c89e69951521b6	tests/cases/diag/enum-argument-not-constant.diag
 file	c80901a5d6292e52ddab0bc92d2f08f4a85b350a	tests/cases/diag/env-fs-target-far-member.diag
@@ -14303,6 +14316,8 @@ file	7b56f9db901f519e827c9110037c30fa2b7ed383	tests/cases/diag/error-equality-li
 file	c4bb3f1a2e75f20a1174e41906a9458fe263a15a	tests/cases/diag/error-payload-mismatch.diag
 file	2637ea84ff97111eddb2bef74583a998f3d280b7	tests/cases/diag/error-payload-pattern.diag
 file	aa609fc9026b58d1348b809c61d4f1e36d6d47df	tests/cases/diag/error-set-same-name/main.diag
+file	b9b7471f64e65e1516c2b3f48ae8106153bc273b	tests/cases/diag/escape-hidden-scalar.diag
+file	1277e12e096f50fa1531f4db0bc6248a521fee50	tests/cases/diag/escape-visible-scalar.diag
 file	387de925bcc75476a42028a7a34d76aee732dce8	tests/cases/diag/except-in-case-left.diag
 file	40bfbefbdb138cca03cf10a7f58a53a1279b7c27	tests/cases/diag/except-in-case.diag
 file	71639f5009b855fde3dcadeee337683fe34ea2ed	tests/cases/diag/except-narrowing.diag
@@ -14574,6 +14589,7 @@ file	903d350027326c1e003688b0118c87caeeaa1a38	tests/cases/diag/one-line-cases.di
 file	13e39d6ab52679ae74a06029b475b537719b9d48	tests/cases/diag/open-range.diag
 file	2b6fbc6818b04d0cd4a3c615ae19e499f753b303	tests/cases/diag/out-not-assigned.diag
 file	095c365b88e4fa021a0203d6ca677b0428b32edc	tests/cases/diag/overload-overlap.diag
+file	b659351c09d7863b926822578852b12789ed45c6	tests/cases/diag/overload-selected-not-visible/main.diag
 file	fd84cc48d155a12f61ab5485a545dcbbe10ec6df	tests/cases/diag/owned-escapes-arena.diag
 file	2e8c787f765e0f7fdc2786a72fb4902ab715f0fd	tests/cases/diag/owned-read-only.diag
 file	d7ffffd097ea8bf010039042c9f2148e15295e7d	tests/cases/diag/ownership-catch-never-handler.diag
@@ -14618,10 +14634,19 @@ file	c3d438c7f6223e3dd0a1493974ad172ace360dcf	tests/cases/diag/postfix-on-new-li
 file	13c6e792dec8de618e12181cc8ec8223234611ee	tests/cases/diag/prefix-pointer-input.diag
 file	e0af1b21ac4b8ae40277a1e09a5deb0276a3ca29	tests/cases/diag/propagate-from-infallible.diag
 file	c2a4c6dbecdb45952b976cc751771986599d006a	tests/cases/diag/public-inferred-fails.diag
+file	162e6d91b01fe0adf4fd6842f9001cd7fe72101e	tests/cases/diag/range-bound-invalid-utf8.diag
 file	8c578c719098194586474727f5fcb298a0464e88	tests/cases/diag/readonly-field.diag
 file	018c4902c349bf4951356a97506fb10ecc399b2d	tests/cases/diag/receiver-without-state.diag
+file	06af4cbce7d2518cc66ed6aa0e6bfcd9ac8eb593	tests/cases/diag/recover-after-cast-input.diag
+file	8af496830e4763cd168b0db7c12a1224a84a3681	tests/cases/diag/recover-after-conversion.diag
+file	3dc6e725bb122b789c90c9d5f2dcf40b0df9094c	tests/cases/diag/recover-after-keyword-order.diag
+file	f16497c792369272602fa8aa36c54a0e2cb9d531	tests/cases/diag/recover-before-assert.diag
+file	68956c410935bc3ae20085c0037aa68599a6062c	tests/cases/diag/recover-before-enum.diag
 file	13a398345f63f39b9c03bf8524ab95d35fbac42b	tests/cases/diag/recovery.diag
 file	e14665791291bd0054f1369130d6f3e769ec2e9f	tests/cases/diag/recursive-cycle.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/recursive-state-control.diag
+file	e26a17b174966f9030172e00160cab2164c0c88d	tests/cases/diag/recursive-state-field.diag
+file	59d71a9ee9e2b431661771f0cf4deee816572907	tests/cases/diag/recursive-state-payload.diag
 file	59d71a9ee9e2b431661771f0cf4deee816572907	tests/cases/diag/recursive-struct.diag
 file	c1b1e3e5c215c6952bef321fb3352d6a21eac411	tests/cases/diag/recursive-union.diag
 file	9be0f637e32d2e055958382bdbb575ac41fe4341	tests/cases/diag/ref-and-value.diag
@@ -14835,6 +14860,7 @@ file	77a14f44fc985337ab02fdd3ef164d28d49d5953	tests/cases/diag/state-line-input.
 file	7e6a106b53751f03e2f0414c4636c13c635ab69b	tests/cases/diag/state-literal-needs-state.diag
 file	66e1cc75607fc90f5333f559805aeb586f8733d6	tests/cases/diag/state-literal-violated.diag
 file	17ec21945ba7ae8932eb1c65ffa4873101fc3ce6	tests/cases/diag/state-member-mutates.diag
+file	d41fcc635698044e00bec4a7430619c34e4b0291	tests/cases/diag/state-payload-equality-key.diag
 file	abc403bea6323e608c1e25701d0eed81214f9573	tests/cases/diag/state-shadows-static.diag
 file	15e57fd58e2ce7ec1ef3c1a3e0fb08512c137493	tests/cases/diag/state-switch-not-exhaustive.diag
 file	9adbde01bab7717c2e9974fd956dcb122161eba0	tests/cases/diag/statement-attribute-because.diag
@@ -14902,6 +14928,8 @@ file	4fe1656f9fe8c8511858edd7b63b87a1205b166d	tests/cases/diag/string-concatenat
 file	1c1a983a3f61b75026aca29f30075802a0f6dd8f	tests/cases/diag/string-indexer.diag
 file	8b665080fb36576022f25822e9c43d6295001c39	tests/cases/diag/string-member-arguments.diag
 file	0d481bf21f619a84ba7e9a89a072c84ac2552d4f	tests/cases/diag/string-member-renames.diag
+file	028aec74c04e2e54252410b6c392cf05582b1263	tests/cases/diag/struct-member-struct.diag
+file	ee5f0a220b0cd1ad6b6d470661bbe559af7f373b	tests/cases/diag/struct-member-union.diag
 file	c5575043b8e8a3054e98af8f6e607c411a04158e	tests/cases/diag/style-conditions-named.diag
 file	5c9bdb64398da50dff0dfafa01d65bffd1557769	tests/cases/diag/style-conditions-patterns.diag
 file	7cc3ab3a8f91b70171aaa4d2ec22cd99dd77180a	tests/cases/diag/style-fix-keeps-comments.diag
@@ -15161,9 +15189,9 @@ file	0a548c38bfcea8797acecd27214c8e418aef51c7	tests/cases/emit-c/SelfhostDefault
 file	935e02efa7d1f1b5af1b1201035e8a4390d19405	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-for-user-break-defer.byn --coverage/expected.c
 file	82cc27a31329e9d478d3aab8a881e3fde79d20a6	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-debug-rune-escapes.byn --coverage/expected.c
 file	a163d5c2fd6b324d4eb0fb519657db0f9eb8dfee	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-debug-struct.byn --coverage/expected.c
-file	c8d529be60996cff1d9eb25a476c50f824e01af3	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-into-both-forms.byn --coverage/expected.c
-file	61e3df6b16f6e4bb7dc73d9d4654dc12b145a84e	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-spec-struct.byn --coverage/expected.c
-file	b071179a431785a993951a3b67bb0cf136f2ea47	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-specs.byn --coverage/expected.c
+file	fedafcd71bc41a3849cdcabec1789ad2a2da7fb6	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-into-both-forms.byn --coverage/expected.c
+file	8dcd909aa061d6d7a4fe33f4180125d07c8205a3	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-spec-struct.byn --coverage/expected.c
+file	203b020ba73b4fec4c5fb3783f0a91237cc0d605	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-specs.byn --coverage/expected.c
 file	8d8279af2cbda366e8606adfc5d51f4ebffd8293	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-format-width-cut-code-point.byn --coverage/expected.c
 file	52b66795b32778948d7b95193a1094af09647335	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-fs-copy.byn --coverage/expected.c
 file	5ffb211e83ae44df817a8fcff2e583cc001d22d1	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-fs-file-exists.byn --coverage/expected.c
@@ -15351,7 +15379,7 @@ file	c8bc44a48030cd3e93904f505007340fcb05ee73	tests/cases/emit-c/SelfhostDefault
 file	5a4854d8a850e08bd81faf3063a1695bd1037eed	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-strbuf-insert-splits-rune.byn --coverage/expected.c
 file	2d499450b5337c1336f9f27b208cbe5e0f49d951	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-strbuf-insert.byn --coverage/expected.c
 file	86f5682fef9d63c49011d10c7a5ef3ced73cc136	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-strbuf-loan-safe-members.byn --coverage/expected.c
-file	1934caedfdc18c135182649ae1e0ba471d67d5fd	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-strbuf-over.byn --coverage/expected.c
+file	29c1d83bf5b828b6e3907e9330999b3c5dfd513b	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-strbuf-over.byn --coverage/expected.c
 file	27b77c554bd8a119407b0f49b3834075ccfef760	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-string-case.byn --coverage/expected.c
 file	3ee512cd8211cc17e650997e1a8a600350e336da	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-string-copies.byn --coverage/expected.c
 file	1384904ab031172b84a950afb7f604f2f7b150d3	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-string-copy-default.byn --coverage/expected.c
@@ -15526,9 +15554,9 @@ file	d6524218328faf7fb8def3633640c81f43bcc168	tests/cases/emit-c/SelfhostDefault
 file	6510c7d503dba63608b5d21f3f554c53605139b5	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-for-user-break-defer.byn --mutate/expected.c
 file	58dd6d4fe5b7f7b815b359268f038857d18e38f4	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-debug-rune-escapes.byn --mutate/expected.c
 file	2c806e88382697b43dcfc50464098edf7094e3f1	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-debug-struct.byn --mutate/expected.c
-file	cd6e83f6c8f17a8f7799e818095d189cd7429827	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-into-both-forms.byn --mutate/expected.c
-file	68bd0b960e51a798db7ad7a0f13cbd8b4963a1f4	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-spec-struct.byn --mutate/expected.c
-file	8d89554b0b1cac8fd5d1eb56b3458186c0240872	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-specs.byn --mutate/expected.c
+file	60256d11cb55758650a91783de414c2f52b1ea99	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-into-both-forms.byn --mutate/expected.c
+file	7fd8e533d357ae590c6e9d9e283eb745d7232637	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-spec-struct.byn --mutate/expected.c
+file	43aa7c49c918dd24302425fed709d2143a1ebcef	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-specs.byn --mutate/expected.c
 file	8f69eb2f2e316af8e3279fb8e33e9dac52f4bf8e	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-format-width-cut-code-point.byn --mutate/expected.c
 file	183dcc8b2ac97b848140fac4b8be23bb3958fb52	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-fs-copy.byn --mutate/expected.c
 file	acbd80fa46089816773c2eccdb95860cc38250b7	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-fs-file-exists.byn --mutate/expected.c
@@ -15716,7 +15744,7 @@ file	b680d67606e8a0b0727a86d52c1ecf7bc519ff69	tests/cases/emit-c/SelfhostDefault
 file	3677b4fdb731689b66f34fdff34b0cbdd6ffa7bc	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-strbuf-insert-splits-rune.byn --mutate/expected.c
 file	e74eb71d92ef07bac488b51308cd2cec389faef6	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-strbuf-insert.byn --mutate/expected.c
 file	efb11f4057a323d6d93466eb04ae4f1d268e38ac	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-strbuf-loan-safe-members.byn --mutate/expected.c
-file	7e3bf7755b3401e662869f9a20c20e7097681798	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-strbuf-over.byn --mutate/expected.c
+file	8cc23c1b6d7575492b92b615a61c2529066553fc	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-strbuf-over.byn --mutate/expected.c
 file	06c71ad780aba72ffc8488bc39dd6fb02744636d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-string-case.byn --mutate/expected.c
 file	334bced920c9ce1ffd01b48ab8ac63592504a252	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-string-copies.byn --mutate/expected.c
 file	220a1d260107e78c00720a63ee5e2e6fa63d4b8d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-string-copy-default.byn --mutate/expected.c
@@ -22184,9 +22212,9 @@ file	cd05262d20a49b9b5bd580ae26d98c060b08b27a	tests/cases/emit-c/SelfhostEmitter
 file	888113ee5bd9f40e6d860240849f5e16854a5b41	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_for-user-break-defer.byn/expected.c
 file	9625975e0b5cf5dc730e6e9af0477fca4787e120	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-debug-rune-escapes.byn/expected.c
 file	701e7867886fdceeba547823aeb3044f42de4f0b	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-debug-struct.byn/expected.c
-file	3dcc22d65ca817102e6ae73a70aef3211bc1c1e2	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-into-both-forms.byn/expected.c
-file	4faa20a567ecc65ae88003358768afa5940e40ba	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-spec-struct.byn/expected.c
-file	34173b21ac236f21d89b6f17070c4654cfe1b9c1	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-specs.byn/expected.c
+file	e689d0b25da9f29bd2fd817baa0cdd42239e3002	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-into-both-forms.byn/expected.c
+file	72a9d3865a242d6c9fbce57f1206ebac0f05d834	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-spec-struct.byn/expected.c
+file	77aabd882116abc5c4c70a39de3064649a51f99a	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-specs.byn/expected.c
 file	f261aad3f308e32114488c519b6db6c4aade59c7	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_format-width-cut-code-point.byn/expected.c
 file	0b5bf8b70bfe9f7bcb5bdb3b519468e9be3776bd	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_fs-copy.byn/expected.c
 file	311da117f51d8a258c3622ca1b68e6088d0b80c1	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_fs-file-exists.byn/expected.c
@@ -22373,7 +22401,7 @@ file	14f76459c8cb8c007877503cbd2bf27bd1919ef7	tests/cases/emit-c/SelfhostEmitter
 file	5ddd006c4fd890dd1cb6ceca6c8b64dd108057ce	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_strbuf-insert-splits-rune.byn/expected.c
 file	4f9ca3840cb54cec85d65e3527e02ad882a2cda3	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_strbuf-insert.byn/expected.c
 file	60e7645518171c5544862330a652c8e0f14cb9ef	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_strbuf-loan-safe-members.byn/expected.c
-file	28e2593611eaeb72024bf8161afbdae756d4876a	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_strbuf-over.byn/expected.c
+file	dd85bd424898e998c00fb7b60a68f741cb83def2	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_strbuf-over.byn/expected.c
 file	300fdba8497ee0084f96d3745413c001dbbe1509	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_string-case.byn/expected.c
 file	04dd9ef63b4def9de505090c6d3b088539816045	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_string-copies.byn/expected.c
 file	c9c18fbfb02af1ff8f330cab2de7087589a8c814	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_string-copy-default.byn/expected.c
@@ -27050,9 +27078,9 @@ file	5df0d5d59a5f9587c83ac26dca504a4b156d376b	tests/cases/emit-c/SelfhostEmitter
 file	1123a44f41243943fd5b596d51043b9db625fc51	tests/cases/emit-c/SelfhostEmitterT8Tests/Corpus_MatchesCSharp-6/expected.sections
 file	cc6bfe8b8fa0ce88b42b957fca16a8bade8e8c37	tests/cases/emit-c/SelfhostEmitterT8Tests/Corpus_MatchesCSharp/expected.sections
 file	ad8da2b7cb30fa28678fd4d403cde057577f2852	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-2/expected.sections
-file	05fe42997dcade267d11d1cde38a2d962b70fe7e	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-3/expected.sections
+file	9436157632b37ba6784b9a03b7cf9b57e10addf5	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-3/expected.sections
 file	637e934fd1fcea985ee5afb4a2744b8adaead6fc	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp-4/expected.sections
-file	e6ae9e2e321d94f765363e3fe6886622316e1889	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp/expected.sections
+file	d48f351ed1340cfba7553f78a175299a4cb5635b	tests/cases/emit-c/SelfhostEmitterT9Tests/Emit_MatchesCSharp/expected.sections
 file	b1d96286ef53a9ccd3529cc46f5f7aea9b97e651	tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-all-debug/expected.c
 file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-all-debug/expected.exitcode
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/emit-c/SelfhostPathT5Tests/EmitsTheSameC-all-debug/expected.stderr
@@ -27098,7 +27126,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	c9be37581b1212357a9c97d7273974f2470be63e	tests/cases/emit/run-c.sha256
+file	82f5cef08f4241fcb5ee1f385a30030789a4b88a	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -28796,7 +28824,7 @@ file	e96fa53c7ba0905f7e673c82ad1d23b03a5247f1	tests/cases/lex/SelfhostLexerTests
 file	88a6b55de459c7ca843e4b85d3695fd772bf0b5a	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2503/expected.json
 file	58e91dc7ae20cdef2ca2419023fc85b721e6400e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2504/expected.json
 file	4fab206265a70f935c4e419d900d33ab01c3d5ea	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2505/expected.json
-file	ef977104e31eff947b8c51c24e5d03fa7f065872	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2506/expected.json
+file	11920136cc0e00a7b50ebd7093cd0dd836555ce3	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2506/expected.json
 file	2154f4ed616db9cb5058d82799d55d88ca7ff399	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2507/expected.json
 file	d4ae0d9f700fc66ed648da88a6b5294684b2fdb9	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2508/expected.json
 file	e53abbea70fba557abcdc342900080ac8bd4102e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2509/expected.json
@@ -29187,7 +29215,7 @@ file	b3c839a91dd0ad1e4277efa23fb0ad1bfd907670	tests/cases/lex/SelfhostLexerTests
 file	f5e7e16b697467e42e1da9853fbbd8f48bdc268f	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2856/expected.json
 file	2e45c713d05cfa8b07ed527fde7e42d7a25b95d5	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2857/expected.json
 file	936dfcfdc9f2a644176dff747a056e5cfe968442	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2858/expected.json
-file	bde68fdbb26f0ed84064c012bfa5d190a6bb19ab	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2859/expected.json
+file	a5877bf017c497c1c14bb935bf918a982a8ed8d1	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2859/expected.json
 file	e68b9681363fbb1bb978463dccee0c78dd40eb1d	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-286/expected.json
 file	ebaf5ad35fc2c9b05217d9802be12ae85296e4db	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2860/expected.json
 file	f3eea7bb474a0c2756b8da4427a6e991af6e5cbd	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2861/expected.json
@@ -29225,7 +29253,7 @@ file	e4d6f6e163249cdae624bde578a3248ae6c61a24	tests/cases/lex/SelfhostLexerTests
 file	678d7ffebb3150a73f2e1ab3610c6d0cfaaca92b	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2890/expected.json
 file	1cd3ef9c0c741abb141e528db06f47438462ebea	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2891/expected.json
 file	2a6215af5d004c88bcfbbf3b4051f749f1ddaf68	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2892/expected.json
-file	f867b43a21fa44bc46f85d3562f56dfb4e7dbc5e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2893/expected.json
+file	97207b4bda7c6a160f0f8f1833b52af77e8d15a2	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2893/expected.json
 file	b0a6b507e698183d183586b92db1ce67119d9f66	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2894/expected.json
 file	b52e705b5645fb4adccbd56bb395568c30fb11c0	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2895/expected.json
 file	b385e339d4f71c780460d7d0c61f1694fa5780ef	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-2896/expected.json
@@ -30438,7 +30466,7 @@ file	df7ad8d5bf30a51e12c715dbf671131956f47300	tests/cases/lex/SelfhostLexerTests
 file	6e246abc4cde80f71cdc61899a8210f5abe546f0	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3982/expected.json
 file	18366628fd5cf6bd8b5bdff58a083b132efba3f1	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3983/expected.json
 file	376f909c78ee89966d68e9468a1721508380ca1f	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3984/expected.json
-file	7f989917ced98585afed3c870fa02112f2acfebc	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3985/expected.json
+file	63722785a5fc190689c884ac5e70820dd9669526	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3985/expected.json
 file	9a4d94b0ab71dadc8f57a01ef9b481c6916861b2	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3986/expected.json
 file	07494bfe7ba1235298491c958fdbb77d703eeaf7	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3987/expected.json
 file	25b1a3d8f9cbc85cdaec437a379937ef60c10a9f	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-3988/expected.json
@@ -33139,7 +33167,7 @@ file	af8d26195fbd9439ea93e62fc224b553081bbf42	tests/cases/lex/SelfhostLexerTests
 file	e9e5de0d37a7c21f3767b9cdfe02f73762248d23	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6412/expected.json
 file	7f513bbb304a55524634f66c6c657ff6ee327c69	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6413/expected.json
 file	86615f24e2303b65e89435534536510e10e4ffe5	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6414/expected.json
-file	f117141e5d0dd2d626f772ea8cc4b514a3ebe74b	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6415/expected.json
+file	efc5ee0fb248db048b4b9e6e2394aa076d2c11c3	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6415/expected.json
 file	875bca6f72886bfb40e70bcacfebce66d3f0449e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6416/expected.json
 file	011fffeeab2fc06cbdcde584c4c40cc1cbeae3ad	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6417/expected.json
 file	eccf99dd5fd5415c6e5d3e5c3cc0aed947068b82	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6418/expected.json
@@ -33187,7 +33215,7 @@ file	0835844421df4b7c0dca89c6be6f71f8aac6820e	tests/cases/lex/SelfhostLexerTests
 file	889ac37321d49b674d40be56759db85ed14e77d3	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6456/expected.json
 file	98f7ebc341f409fa00059dad8d0d8e004713cf51	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6457/expected.json
 file	a4cfb92d52c7fd9461790efe36138b2caf5cf788	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6458/expected.json
-file	d031749bc992a94595bc94e3004e86e57752846b	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6459/expected.json
+file	a2e1eca61519c3f950e959a1154cd83a5a160b8a	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6459/expected.json
 file	8580e63e48de698e53b65869510dde219d7d10a0	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-646/expected.json
 file	71b7e366348d2e75c103210fdd1bf8ed23c80881	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6460/expected.json
 file	9385186043425f8ccc33ced55d8a4c3ff64105fb	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-6461/expected.json
@@ -38772,7 +38800,7 @@ file	dfde7f27b66d8b7a0a5fa40998b5f5021ec2e1dd	tests/cases/lex/SelfhostLexerTests
 file	6bb3914eb5f9c27f1d5946683f54627c7bdcbe18	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2482/expected.tokens
 file	72987f4a33385229388aa89d7d12ea00a79b8ea3	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2483/expected.tokens
 file	81ffd78c7b6f4393cfaf2ed03146b69486b276db	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2484/expected.tokens
-file	79e4ace45ea9be60d2044dfc946ebf184281f1d7	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2485/expected.tokens
+file	d8927f599b5c500bb368bc98fd5f3c6b32abb47a	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2485/expected.tokens
 file	b7627ac927b8b634b7cf23e58485b8eb706ddb90	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2486/expected.tokens
 file	9d1a90c9c7a01b97424916873b30f10c0cb1de76	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2487/expected.tokens
 file	940e37e821254fa8ca54af51e5484934a3ac1531	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2488/expected.tokens
@@ -39164,7 +39192,7 @@ file	8c4682a140d8a0fa060b20743372646b9edf1521	tests/cases/lex/SelfhostLexerTests
 file	9699a056ef78b92fd79f472e4a73299f4037beb4	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2835/expected.tokens
 file	bcab7424e91f10afe9e47b9d7e77be9f8963cf1a	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2836/expected.tokens
 file	6a36da40be79ec07ae9c19ab54b6b4bc6037c98e	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2837/expected.tokens
-file	7fbae3f813bed2319ac8af4b1c57212c075de15d	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2838/expected.tokens
+file	dbafd722a454beeac8455cfb20ebf1a1bdb16e2e	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2838/expected.tokens
 file	0a04de3ae63822e969b945aeb6873f68fe99d702	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2839/expected.tokens
 file	2ff770cb1bd5db97fa2d167810bed37e135dacd9	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-284/expected.tokens
 file	e4909dbc2df2da62b0c8bd80794c05ad9c680940	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2840/expected.tokens
@@ -39202,7 +39230,7 @@ file	200da1844b053bc4aaf2cc5d3fcf2dab81400881	tests/cases/lex/SelfhostLexerTests
 file	00f822f4eda1ad1522f4b956783b2ae9fb05836f	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-287/expected.tokens
 file	bbbd30091415d2c50e35446df998e207e514071e	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2870/expected.tokens
 file	0c870c4d29d9697a4dc55b72dfe45c62dfa708b3	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2871/expected.tokens
-file	1dffba3c0a3d8703ceed4cfc84a6aa705e9d0b84	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2872/expected.tokens
+file	89f9b78725744ada4f69c6ef97c861328b69ab84	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2872/expected.tokens
 file	1cd9c3b0669254b2da11dd17a7d856f09f49b14b	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2873/expected.tokens
 file	67080bf1dde89d6aabf445fc7ab1371bb7af5588	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2874/expected.tokens
 file	bb2f7f2244fff829a94a3e58b122209c2dda096f	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-2875/expected.tokens
@@ -40415,7 +40443,7 @@ file	6eedcc35e13e95b2ac931077c6083cdc4a928650	tests/cases/lex/SelfhostLexerTests
 file	11832b8506902d45205589376d1ceeca8c61fd91	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3961/expected.tokens
 file	913a0a8508e0a51740257a5cc7e1c080fa0e43ed	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3962/expected.tokens
 file	d9dd6fbaee757f38c1cf87f2df1a37995c2b95f5	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3963/expected.tokens
-file	2cbfe65c941491db2f94ebb3f2f91f1aa7a403a7	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3964/expected.tokens
+file	a891051944257c45af59291dc37e4aefb090ca62	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3964/expected.tokens
 file	ad3d5c48f4b678d243f74499e580ad3c23b6f291	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3965/expected.tokens
 file	8efe234e8f01ac43b0d6c94ff7b9c6db537023a0	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3966/expected.tokens
 file	6fe829ad7d48b9bba6c27e378dfc45f600b1b1b8	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-3967/expected.tokens
@@ -43115,7 +43143,7 @@ file	ae5a08b5929ae6024cc5a7ee0d8749e7ab7d95e4	tests/cases/lex/SelfhostLexerTests
 file	53e4089ff83769aef874dc69d31d5a62e5f6e042	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6391/expected.tokens
 file	600095543a25c763f50534cbb4b9f1a3607df6ad	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6392/expected.tokens
 file	c3bfbec34824b3e539ac18c78e2f4140904f5942	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6393/expected.tokens
-file	6e2558bacbb2fd5508c5de647abf3b6354c4b7b1	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6394/expected.tokens
+file	c91250ab43257f3128f704e9919b217c06ad3a50	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6394/expected.tokens
 file	4e938b214c75ed8aedf47775de78b4d85b6f84b4	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6395/expected.tokens
 file	57dd0e8f8fec6df13d6b055c2ed5f1a101f6665c	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6396/expected.tokens
 file	48efd723a6c0cdc24fe6c61273a9ee3824ed73b9	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6397/expected.tokens
@@ -43164,7 +43192,7 @@ file	862e267781403a2f76c02a3e9596f8e8dddf9b39	tests/cases/lex/SelfhostLexerTests
 file	62f0c660b0b322decb980ee5dd693f7690eb8884	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6435/expected.tokens
 file	e6386c063d0d5090029d9e626fa869fbab1f76cc	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6436/expected.tokens
 file	333d783d519e4671e7e18a626ba58ba029899e5d	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6437/expected.tokens
-file	a689fd5173f1484ebbabe785645a2a97558c2946	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6438/expected.tokens
+file	db6149cce18f7dc0b8eb34b7705c4f5e47b9ea82	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6438/expected.tokens
 file	8e2581f361436f734ea8851893d9b7bcebf8b4e3	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6439/expected.tokens
 file	946827b7f07edadf1d9dfcef6f3f86169a65ffa8	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-644/expected.tokens
 file	c411072cb25315b1d70b26fb10fe7cd3f3965667	tests/cases/lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-6440/expected.tokens
@@ -47212,6 +47240,7 @@ file	050d0c90dc8b5168e6ea4f7ceaff4254fec1993b	tests/cases/lex/bad-interpolation.
 file	986e6230fd0a62616e9c2c46f08587859a3955dd	tests/cases/lex/bad-numbers.tokens
 file	600549ee1df92008dbef43b09b6abff5e2c05ca9	tests/cases/lex/bad-strings.tokens
 file	33ae656fb1a6f90568ce55d4d3d37b34f8a32d77	tests/cases/lex/bidi.tokens
+file	1c4fb5c2e6a778fe20b14bd418c974bf9bbfd543	tests/cases/lex/bom-shebang.tokens
 file	acf3b8055186af8729e2562797f7fc8d806534e4	tests/cases/lex/chars.tokens
 file	e1e54182169956dc38d9a8306bd2826115868137	tests/cases/lex/comments.tokens
 file	09b4e80bf55af958f56462c2fe18ea296886760c	tests/cases/lex/floats.tokens
@@ -47224,6 +47253,7 @@ file	49c0414f3f9a9d3dad9e5a1e70ee89d96babc6ae	tests/cases/lex/keywords.tokens
 file	b67d7191e9216b3abc19c5828fdf6da64667d8b6	tests/cases/lex/nfc.tokens
 file	0e91329ab22217617021f169a12195dcdb05b645	tests/cases/lex/operators.tokens
 file	8e6e6a00410779c4f584d6f73b0c48cb9b8ba7cb	tests/cases/lex/reserved.tokens
+file	1c4fb5c2e6a778fe20b14bd418c974bf9bbfd543	tests/cases/lex/shebang.tokens
 file	4a6698239b103b06d5c72ac587ceaec485d8bf00	tests/cases/lex/strings.tokens
 file	feee6afe8e02e635ff21b9d6c48b37cc134a9f75	tests/cases/lex/too-deep.tokens
 file	cc05e4c7a0e550bc9ee80741190eb6bb1145c3f2	tests/cases/lex/unexpected.tokens
@@ -48573,11 +48603,18 @@ file	c8b5dff1e41f216d91d352b21bca4739c1d398b5	tests/cases/run/collection-copy.st
 file	42ef6efeaeb2d5cf536b2dc80a6d9f1807c5435f	tests/cases/run/collection-literals.stdout
 file	efc7498dbcd7a218d81572147b054cc140e9d3c9	tests/cases/run/condition-cast.stdout
 file	35ebd06180d6d893b558728f3f0f66f0d282d210	tests/cases/run/condition-paren-in.stdout
+file	c67a85fa0a8b80c24ba4b735b4ba4d9dbc98d9b2	tests/cases/run/const-mul-sat-u64.stdout
+file	a06674003620623360e1eaa35e8ac0cc24af8862	tests/cases/run/const-nan-compare.stdout
 file	e66466d28535f3c8c113489084ba0ac10fe95743	tests/cases/run/const-string-array.stdout
 file	5a4e808846d1ce499f2662f56b3d6a46894025a5	tests/cases/run/control-flow.stdout
 file	bf298f65bc9f77f2bcd65ef49ef6a06101cd5d50	tests/cases/run/conversions.stdout
 file	2f4186b9aed098c9ad043a354c9667e755f21ba0	tests/cases/run/copy-default-allocator.stdout
 file	4506d47d89093979f54dcea1bce1624460293d8c	tests/cases/run/csharp-primitive-names.stdout
+file	384178740a4f70bf64aee37a0b2906473bd73fc3	tests/cases/run/ctor-init-control.stdout
+file	326601965a748fc84ec97d3df775e7c6e10ad888	tests/cases/run/ctor-init0-method.stdout
+file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/ctor-panic-handler-this.exitcode
+file	c20e98e37013655be3870b3bbb6fa05d7667fef9	tests/cases/run/ctor-panic-handler-this.stderr
+file	d81cc0710eb6cf9efd5b920a8453e1e07157b6cd	tests/cases/run/ctor-panic-handler-this.stdout
 file	cc9c7704c8842c5e121f03626ce57c674c173da8	tests/cases/run/data-enums.stdout
 file	681fcdf0ab3123625ba4c8cc6ac4f01ee7a1bb4b	tests/cases/run/defer-call-named-failing.stdout
 file	f982cf711b50ad16ae6f4c043152f1bde028ed99	tests/cases/run/defer-modifier-errdefer.stdout
@@ -48601,6 +48638,7 @@ file	c69c3d208b2af1dd74ac91d4b86d977c134f1a5d	tests/cases/run/enums.stdout
 file	807930e76f0cadaec1b34c950860a5e4f122af00	tests/cases/run/env-get.stdout
 file	3dfc1a669f4005cac4c889056af4a78379959fa6	tests/cases/run/error-equality-other-set.stdout
 file	63ffa4c38572c617184a248d15746246160209d4	tests/cases/run/error-equality-payload.stdout
+file	4d57cfe5734463fd3127edad6f93b78bb29a54c5	tests/cases/run/error-new-qualified/main.stdout
 file	5aae88e162ad6852c1da51f9744a49339be888ae	tests/cases/run/errors-catch-block-assign.stdout
 file	9451437a28dc02d3272ba39bcf4ddbfae79ae71c	tests/cases/run/errors-catch-block.stdout
 file	affc7d6be9b64798db433a8653be3d5a35cbb7b1	tests/cases/run/errors-catch-struct-literal.stdout
@@ -48714,8 +48752,12 @@ file	16d791a9f4e9c5d33bda14484db93ddba8cbe944	tests/cases/run/io-run-timeout-exi
 file	17b03e39f986019fd5d94fc45d4cd82a08f4301b	tests/cases/run/io-run-timeout-output.stdout
 file	da4ca86fdfbfd9d80e919e2fa6483e15a1b6115b	tests/cases/run/io-run-timeout.stdout
 file	0c6705093159bb045e99a147a573422804ce45ac	tests/cases/run/io-run.stdout
+file	065fd3e79c93500fd6b1588a36d15692c9ed1c8e	tests/cases/run/io-stdin-bytes-flush.exitcode
+file	395527df662d5fdf4b00c5f1cd9b8d7ac048e127	tests/cases/run/io-stdin-bytes-flush.stdout
 file	b80a6bd8bd64c7b5c0c0efb051e53afba94d0af6	tests/cases/run/io-stdin-bytes-move.stdout
 file	6fec08acaa0e2820a2ba150781a5897ce2d80814	tests/cases/run/io-stdin-bytes.stdout
+file	065fd3e79c93500fd6b1588a36d15692c9ed1c8e	tests/cases/run/io-stdin-flush.exitcode
+file	395527df662d5fdf4b00c5f1cd9b8d7ac048e127	tests/cases/run/io-stdin-flush.stdout
 file	20ccc7dfae08287ff75bfac5d5f06fed6bd2c3fc	tests/cases/run/io-stdin-invalid-utf8.stdout
 file	ffebcd57f5ae11280c6749eef98df1fe1b1864a1	tests/cases/run/io-stdin-read.stdout
 file	86ec0f85ad25b45b7f169e2355e3027641a95823	tests/cases/run/io-stdin.stdout
@@ -48808,6 +48850,8 @@ file	759abb769da15eec674eef83abef79df91b39400	tests/cases/run/memory-slicing.std
 file	a67fa202ffbfd97848f0ba6fb95f4ab9598d73a7	tests/cases/run/memory-slicing.stdout
 file	e15b72bfdca6636a948aa6f7bb545ca6627fbe04	tests/cases/run/memory-stackalloc.stdout
 file	8689d9a71a1e67ffb9e708ef6633f7dcaf061758	tests/cases/run/millis.stdout
+file	8d04f961a037117c1eaa69ac60eb363d37ae78d1	tests/cases/run/module-cname-dotted/main.stdout
+file	8d04f961a037117c1eaa69ac60eb363d37ae78d1	tests/cases/run/module-cname-same-length/main.stdout
 file	ded68de125e533f27f36ad5be98ab10d19faecb4	tests/cases/run/move-after-borrow-last-use.stdout
 file	556b305471c13e075b29b63c65ac375c476337e7	tests/cases/run/move-narrowed.stdout
 file	8bb26481d4cb557d389c5b54f6a2cf6a3fdb1648	tests/cases/run/mutable-span.stdout
@@ -48815,6 +48859,7 @@ file	89b2a0a19bb96b40f4ce9d25e44b3efd4362a2af	tests/cases/run/null-narrowing.std
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/on-panic-order.exitcode
 file	d9780b407e9f140bda998f27e92db286dae5b035	tests/cases/run/on-panic-order.stderr
 file	1ff8fad40a9c2edd5a9465a4c3bc44f8c84a9d28	tests/cases/run/on-panic-order.stdout
+file	d3537d7c0251c9da63d3702227f6a3b0267ff1b3	tests/cases/run/operand-ref-spill.stdout
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/overflow-add.exitcode
 file	7a9f9434bc8e086f6bc66b0a7ba1c96e2da60b3d	tests/cases/run/overflow-add.stderr
 file	90be1f3056c4f471f977a28497b8d4b392c55a02	tests/cases/run/overflow-add.stdout
@@ -48824,8 +48869,10 @@ file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/run/overflow-cast.stdo
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/overflow-fast.exitcode
 file	479715d7d5cf3f98534a5f9d30c69fa98cb75ac0	tests/cases/run/overflow-fast.stderr
 file	90be1f3056c4f471f977a28497b8d4b392c55a02	tests/cases/run/overflow-fast.stdout
+file	a48cf0de7af6613887a8f33ce5957001234ac817	tests/cases/run/overload-selected-visible/main.stdout
 file	0077c8cdc0690f41792dfa3483a64d1c1b827a3e	tests/cases/run/overloads.stdout
 file	2836eec4347525769c62932fcfd7f7c097bdd625	tests/cases/run/owned-expr.stdout
+file	49019db807899bc5793047943ce0fbb1a09b2e14	tests/cases/run/owned-generic-infer.stdout
 file	8bcfee9cd645213662d7a9e6c7533e47a2ad4c7e	tests/cases/run/owned-list.stdout
 file	fa9b9c93c6d867f5d015db786bbba257d74d27f4	tests/cases/run/ownership-defer-move-clean.stdout
 file	533dce9c3d62762901844938eb9c21cada9feb64	tests/cases/run/ownership-defer-move-reassigned.stdout
@@ -48871,6 +48918,7 @@ file	624f8731aca626ce575494d7f9519b81112bf49e	tests/cases/run/path-relative-nul.
 file	61780798228d17af2d34fce4cfbdf35556832472	tests/cases/run/path-relative-nul.stdout
 file	ddabd8de5fef8a0a5f33c3a9feb89b7a7525b1b1	tests/cases/run/path-relative.stdout
 file	9b6fb2a6e0264f47018863a259db2e0b2ba7709e	tests/cases/run/path-windows-combine.stdout
+file	31ee07d0460ed9659f55137557e4d9bfb97a4698	tests/cases/run/path-windows-full-device-short.stdout
 file	1997882ef38819347fba2325217c6cad7729db0e	tests/cases/run/path-windows-relative.stdout
 file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/run/pending-peers-negate-accumulator.stdout
 file	b748e2dcfcbc7db3aae214293cef6cb2afbd0a65	tests/cases/run/pending-peers-negate.stdout
@@ -48885,6 +48933,7 @@ file	751196ff80dc9e05dc88becd3d467d9b21271831	tests/cases/run/print-stderr.stder
 file	7b46182c8cd500214f6cb4a6cf68c77ed96a13ce	tests/cases/run/print-stderr.stdout
 file	5d737c73be4cb3412b0523fe3eb1e51236019e56	tests/cases/run/property-block.stdout
 file	9290688fa7995d643a841e69083fc3f1316a0ef8	tests/cases/run/provide-alloc.stdout
+file	649642ab9ba1734620cce1452bf762078f943afa	tests/cases/run/radix-hole-once.stdout
 file	5b366e494ad1988f2c827479d10f71d04838566b	tests/cases/run/range-binds-looser-than-arithmetic.stdout
 file	4cc014ec3b882d454abc1b83663ea2c16d664770	tests/cases/run/raw-string-closing-line.stdout
 file	73f5d26427b5b6b8488ff670815f81cd10530e93	tests/cases/run/ref-and-value-element-copy.stdout
@@ -48929,6 +48978,7 @@ file	7f6be54d03e4f2bce8964be2c3646af72fe7ea5e	tests/cases/run/strbuf-insert-spli
 file	5eb9513018cd77ef1b0eb9c07fb76e0b367d4b4b	tests/cases/run/strbuf-insert-splits-rune.stdout
 file	98521752b9538223ef48dffe077181deed77186c	tests/cases/run/strbuf-insert.stdout
 file	c4b7cd62dc5d3644aa5507d1dc35821e070d3658	tests/cases/run/strbuf-loan-safe-members.stdout
+file	4586e4ab9b222037e18e3405f6ee7674f0ed3dda	tests/cases/run/strbuf-over-debug.stdout
 file	dfe304b90f71abce772649d36c8f5f0006f964fb	tests/cases/run/strbuf-over.stdout
 file	5ca8a9769134d51c597a31f7476eed34e1ec989a	tests/cases/run/string-case.stdout
 file	ff3f24ecfcd968c13c65b74b8cee188c215caabd	tests/cases/run/string-copies.stdout
@@ -56121,7 +56171,7 @@ file	fdb3fc0a36c6a6427c0e30a6cd0ce8a8059a08b3	tests/cases/sem/SelfhostSemanticsT
 file	695b3c767078e714b36e34f6e8641266fb0cbf60	tests/cases/sem/SelfhostSemanticsT5Tests/FloatConversionsMatchCSharp/expected.lines
 file	79216371a611701d56499aa319c14d47d416417c	tests/cases/sem/SelfhostSemanticsT5Tests/LiteralsMatchBigInteger/expected.lines
 file	567c8e64dbea4a0204573c3ce8bddac1cec6ef4a	tests/cases/sem/SelfhostSemanticsT5Tests/OperationsMatchInt128/expected.lines
-file	3e9f2a5223b044a8695929264b64ea8094403df8	tests/cases/sem/SelfhostSemanticsT6Tests/BinaryFoldingMatchesCSharp/expected.sections
+file	8d2cfe2dd67990752777d575ca54d25dc39b15b1	tests/cases/sem/SelfhostSemanticsT6Tests/BinaryFoldingMatchesCSharp/expected.sections
 file	7a91904bf7a6ad618010aed7e58e47c8773e19df	tests/cases/sem/SelfhostSemanticsT6Tests/CastFoldingMatchesCSharp/expected.sections
 file	55008f3b28bb8f3173680a3d0806ef608b2841dd	tests/cases/sem/SelfhostSemanticsT6Tests/ConversionsMatchCSharp/expected.sections
 file	ce1dd7edea03d76702fca13724c6b773ba5f8ba9	tests/cases/sem/SelfhostSemanticsT6Tests/EvaluateMatchesCSharp/expected.sections
