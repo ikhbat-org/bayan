@@ -2,6 +2,33 @@
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-27
+
+A prerelease of fixes from the 0.4.0 release audit (`docs/misc/2026-11-25-v0.4.0-audit.md`): 15 of its 20 HIGH findings and a batch of its MEDIUMs.
+
+### Known limits
+- Five audit HIGHs are still open and go into 0.4.2: a mutable `Span` can write through a `let` binding (07 #3); `requires` field checks miss `ref`/`out` arguments and nested fields (07 #4); the implicit string-to-bytes conversion and compound assignment through `xs[i].f` evaluate an operand twice (09 #1, #3); a `#!` script's cache key leaves out its imported modules, so `bayan run` can start a stale binary (10 #2).
+- Audit 05 #8 (`become` payloads) is fixed in part: a payload that borrows a parameter is missing from the caller's summary, and `lowerBecome` does not free the old payload (`work/todo.md`).
+- The Known limits of 0.4.0 still apply.
+
+### Fixed
+- Region analysis: borrows carried across loop iterations, returned through `out` or as `Span?`, made from `context.allocator` strings, kept by `.copy()`, mutated across loop back-edges, `defer` reads and `Span[i]` stores, and `become` payloads are now checked (audit 05 #1–#5, #8).
+- Ownership: moves inside `defer` and the value of `return xs` before cleanups run are tracked (audit 05 #6, #7).
+- Effects: a function that calls a declared-`uses` function before an undeclared effect now gets BYN6004 (audit 06 #1).
+- Interface conformance compares receiver states, `move this` and declared error sets (audit 06 #2); `defer` bodies and branch joins see the state after `become` (audit 06 #3).
+- A branch that ends in `fail` narrows the rest of the block, as `return` does (audit 08 #2).
+- A raw string whose text shares the closing `"""` line keeps that text (audit 04 #3).
+- A getter named like a method reports BYN2006 instead of panicking the checker.
+- The LLM evaluation sandbox: launcher outputs no longer write through candidate-controlled paths, `CDPATH` is cleared, and pending or skipped tests no longer count as passing (audit 16 #1, #2).
+- Audit MEDIUMs across the runtime, lexer, parser, semantics, emitter, driver, std and language server, in 13 lands (merge f621962cb); the review LOWs are in `work/todo.md`.
+- CI: the `Regex.findAll` memory bound holds its matches long enough to be sampled, and eight parse-error `diag/` cases moved into their own package directories for CLI parity.
+
+### Revisions
+- none
+
+### Status changes
+- none
+
 ## [0.4.0] - 2026-11-24
 
 Bayān no longer needs .NET (spec 019). The compiler, its test suite and the language server are Bayān programs, built from `bootstrap/bayan.c` with a C compiler.

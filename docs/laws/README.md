@@ -1,6 +1,6 @@
 # Laws
 
-Version: 0.4.1-dev (matches `bayan --version`)
+Version: 0.4.1 (matches `bayan --version`)
 
 Rules this project must never break, each backed by a test that proves it. One law per
 file, `NNN-slug.md`, numbered in the order they were written and revised in place.
