@@ -80,10 +80,10 @@ public struct SourceText {
         let line = getLineIndex(offset)
         let start = lineStarts[line]
         var column: i64 = 1
-        for i in start..offset {
-            if (bytes[i] & 0xC0) != 0x80 {
-                column += 1
-            }
+        var i = start
+        while i < offset {
+            i += decodeAt(bytes.span, at: i).length
+            column += 1
         }
         return (line: line + 1, column: column)
     }
