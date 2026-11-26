@@ -1,4 +1,4 @@
-    doc `///��� }// \u{202E}x\r`
+    doc `///��� }// \u{202E}x`
 2:2 Bang `!`
 2:3 StringLiteral `" $"`
 2:7 StringLiteral `"`

@@ -11,11 +11,11 @@
 1:36 DotDotEquals `..=`
 1:39 IntegerLiteral `3`
 1:41 IntegerLiteral `5`
-1:43 Identifier `x`
-1:44 Dot `.`
-1:45 Identifier `y`
-1:47 FloatLiteral `2.5`
-1:50 NumericSuffix `f`
+1:44 Identifier `x`
+1:45 Dot `.`
+1:46 Identifier `y`
+1:48 FloatLiteral `2.5`
+1:51 NumericSuffix `f`
 2:1 Identifier `elet`
 2:8 Equals `=`
 2:10 IntegerLiteral `2`

@@ -3,7 +3,7 @@
 1:12 Equals `=`
 1:14 IntegerLiteral `2`
     doc `/// Doc line two.� `
-2:22 EndOfFile
+2:25 EndOfFile
 
 error BYN0002: unexpected character `\u{12}`
 

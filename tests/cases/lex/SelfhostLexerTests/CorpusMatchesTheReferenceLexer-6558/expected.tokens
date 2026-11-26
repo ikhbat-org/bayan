@@ -1,9 +1,9 @@
 1:3 Identifier `r`
-1:4 Identifier `w`
-1:6 IntegerLiteral `3`
-1:7 NumericSuffix `quot`
-1:12 Identifier `ed`
-1:14 StringLiteral `"`
+1:5 Identifier `w`
+1:7 IntegerLiteral `3`
+1:8 NumericSuffix `quot`
+1:13 Identifier `ed`
+1:15 StringLiteral `"`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAD)

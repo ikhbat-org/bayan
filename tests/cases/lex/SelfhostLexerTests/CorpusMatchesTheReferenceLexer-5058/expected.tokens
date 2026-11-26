@@ -90,18 +90,18 @@
 6:28 InterpolatedStringStart `$"`
 6:30 InterpolationStart `{`
 6:31 StringLiteral `$"{$�"`
-6:36 OpenBrace `{`
-6:37 StringLiteral `$"{$"`
-6:42 OpenBrace `{`
-6:43 StringLiteral `$"{$"`
-6:48 OpenBrace `{`
-6:49 Identifier `x`
-6:50 CloseBrace `}`
-6:51 StringLiteral `"}"`
-6:54 CloseBrace `}`
-6:55 StringLiteral `"}"`
-6:58 CloseBrace `}`
-6:59 StringLiteral `"`
+6:37 OpenBrace `{`
+6:38 StringLiteral `$"{$"`
+6:43 OpenBrace `{`
+6:44 StringLiteral `$"{$"`
+6:49 OpenBrace `{`
+6:50 Identifier `x`
+6:51 CloseBrace `}`
+6:52 StringLiteral `"}"`
+6:55 CloseBrace `}`
+6:56 StringLiteral `"}"`
+6:59 CloseBrace `}`
+6:60 StringLiteral `"`
 7:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

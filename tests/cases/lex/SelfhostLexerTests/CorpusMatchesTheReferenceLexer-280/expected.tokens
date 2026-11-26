@@ -19,7 +19,7 @@
 4:50 AsyncKeyword `async`
 4:56 AwaitKeyword `await`
 5:2 CharLiteral `'��'`
-5:4 IntegerLiteral `1__`
+5:6 IntegerLiteral `1__`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolationStart `{`
 7:4 InterpolatedStringStart `$"`

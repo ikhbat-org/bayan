@@ -1,6 +1,6 @@
 1:1 Identifier `b`
-2:3 IntegerLiteral `0b1`
-2:6 NumericSuffix `ms`
+2:7 IntegerLiteral `0b1`
+2:10 NumericSuffix `ms`
 3:1 IntegerLiteral `1__`
 4:1 StringLiteral `"a\u{2067}b"`
 5:1 InterpolatedStringStart `$"`
@@ -58,8 +58,8 @@
 5:77 StringLiteral `"}"`
 5:80 InterpolationEnd `}`
 5:81 InterpolatedStringText `�}`
-5:82 InterpolatedStringEnd
-5:82 EndOfFile
+5:83 InterpolatedStringEnd
+5:83 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

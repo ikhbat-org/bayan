@@ -58,10 +58,10 @@
 2:9 InterpolationStart `{`
 2:10 Identifier `x`
 2:11 StringLiteral `";`
-4:3 LetKeyword `let`
-4:7 Identifier `c`
-4:9 Equals `=`
-4:11 RawStringLiteral `"""never closed\n\na >> b\n`
+4:7 LetKeyword `let`
+4:11 Identifier `c`
+4:13 Equals `=`
+4:15 RawStringLiteral `"""never closed\n\na >> b\n`
 7:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

@@ -4,7 +4,7 @@
 2:7 Equals `=`
 2:9 StringLiteral `"open`
 3:2 IntegerLiteral `0`
-3:3 Identifier `xFJ__4`
+3:4 Identifier `xFJ__4`
 4:1 EndOfFile
 
 error BYN0003: unterminated string literal

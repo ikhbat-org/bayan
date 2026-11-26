@@ -6,10 +6,10 @@
 2:11 Equals `=`
 2:13 IntegerLiteral `1`
 3:2 Identifier `x́́`
-4:1 LetKeyword `let`
-4:5 Identifier `a`
-4:7 Equals `=`
-4:10 IntegerLiteral `1`
+4:3 LetKeyword `let`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:12 IntegerLiteral `1`
 8:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

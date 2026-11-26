@@ -60,7 +60,7 @@
 5:5 CheckedKeyword `checked`
 6:1 TestKeyword `test`
 6:6 AsKeyword `as`
-6:10 EndOfFile
+6:12 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C
 

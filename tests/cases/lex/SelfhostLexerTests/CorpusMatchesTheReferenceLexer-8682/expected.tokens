@@ -18,9 +18,9 @@
 5:1 Identifier `é`
 6:1 Identifier `ment`
 7:1 CharLiteral `'\u{202E}'`
-8:3 InterpolatedStringStart `$"`
-8:5 InterpolatedStringText `stray �} here`
-8:17 InterpolatedStringEnd `"`
+8:4 InterpolatedStringStart `$"`
+8:6 InterpolatedStringText `stray �} here`
+8:19 InterpolatedStringEnd `"`
 10:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

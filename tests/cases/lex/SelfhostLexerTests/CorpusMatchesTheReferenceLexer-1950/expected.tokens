@@ -1,7 +1,7 @@
-1:3 LetKeyword `let`
-1:7 Identifier `b`
-1:9 Equals `=`
-1:13 IntegerLiteral `2`
+1:7 LetKeyword `let`
+1:11 Identifier `b`
+1:13 Equals `=`
+1:17 IntegerLiteral `2`
 3:1 LetKeyword `let`
 3:5 Identifier `a`
 3:7 Equals `=`
@@ -21,9 +21,9 @@
 7:80 ConstKeyword `const`
 7:86 LetKeyword `let`
 7:90 VarKeyword `var`
-7:93 EmbedKeyword `embed`
-7:99 ExternKeyword `extern`
-7:106 UnsafeKeyword `unsafe`
+7:94 EmbedKeyword `embed`
+7:100 ExternKeyword `extern`
+7:107 UnsafeKeyword `unsafe`
 8:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

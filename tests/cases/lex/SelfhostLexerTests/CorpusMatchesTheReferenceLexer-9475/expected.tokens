@@ -134,10 +134,10 @@
 4:79 InterpolatedStringEnd `"`
 5:3 Identifier `raw`
 5:7 StringLiteral `"quoted"`
-7:1 Identifier `ن`
-7:3 Identifier `μετρητής`
-7:12 Identifier `x_1`
-7:16 Identifier `é`
+7:2 Identifier `ن`
+7:4 Identifier `μετρητής`
+7:13 Identifier `x_1`
+7:17 Identifier `é`
 9:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

@@ -10,11 +10,11 @@
 4:7 Equals `=`
 4:9 IntegerLiteral `1`
 5:1 CloseBrace `}`
-5:2 CharLiteral `'\r`
+5:2 CharLiteral `'`
 6:1 CharLiteral `'\u{110000}'`
-7:1 CharLiteral `'x\r`
+7:1 CharLiteral `'x`
 9:1 StringLiteral `"a\u{2067}b"`
-9:8 Identifier `a`
+9:11 Identifier `a`
 12:1 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier

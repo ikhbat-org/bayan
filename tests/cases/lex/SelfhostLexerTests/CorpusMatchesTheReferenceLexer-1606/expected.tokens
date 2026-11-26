@@ -7,9 +7,9 @@
 2:14 Identifier `Croperty`
 2:23 FuzzKeyword `fuzz`
 2:28 Identifier `mode`
-2:33 ForeachKeyword `foreach`
-2:41 NewKeyword `new`
-2:45 GotoKeyword `goto`
+2:34 ForeachKeyword `foreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
 4:1 IntegerLiteral `1_`
 5:2 CharLiteral `'\u{110000}'`
 9:1 EndOfFile

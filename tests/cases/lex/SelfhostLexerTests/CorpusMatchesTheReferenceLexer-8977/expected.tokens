@@ -5,8 +5,8 @@
 1:23 NoallocKeyword `noalloc`
 1:31 NosuspendKeyword `nosuspend`
 1:41 Identifier `suspend`
-1:48 Identifier `s`
-1:50 Identifier `asyncawait`
+1:49 Identifier `s`
+1:51 Identifier `asyncawait`
 3:1 OpenParen `(`
 3:3 CloseParen `)`
 3:5 OpenBracket `[`

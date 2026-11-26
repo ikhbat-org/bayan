@@ -13,7 +13,7 @@
 6:1 LetKeyword `let`
 6:5 Identifier `c`
 6:7 Equals `=`
-6:9 RawStringLiteral `"""never closed\n'x\n\u{2069} `
+6:10 RawStringLiteral `"""never closed\n'x\n\u{2069} `
 8:3 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier

@@ -1,7 +1,7 @@
 1:1 Identifier `l`
-1:2 Identifier `et`
-1:5 Identifier `a`
-1:10 Identifier `v`
+1:3 Identifier `et`
+1:6 Identifier `a`
+1:12 Identifier `v`
 3:1 Identifier `macro`
 3:7 Identifier `select`
 3:14 BecomeKeyword `become`

@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `1__`
 2:1 IntegerLiteral `1__`
 3:4 Identifier `_`
-3:8 StringLiteral `" /*`
+3:10 StringLiteral `" /*`
 4:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

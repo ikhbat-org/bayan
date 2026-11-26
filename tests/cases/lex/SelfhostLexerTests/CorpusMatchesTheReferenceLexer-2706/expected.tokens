@@ -1,4 +1,4 @@
-1:2 IntegerLiteral `0x`
+1:6 IntegerLiteral `0x`
 2:2 CharLiteral `'a'`
 2:6 CharLiteral `'\n'`
 2:11 CharLiteral `'\u{1F600}'`

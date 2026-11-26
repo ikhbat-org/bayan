@@ -14,7 +14,7 @@
 2:31 Identifier `y`
 2:33 CharLiteral `'ab'`
 3:1 CharLiteral `'\q'`
-4:1 CharLiteral `'\u{D8\r`
+4:1 CharLiteral `'\u{D8`
 5:1 Identifier `b`
 6:4 InterpolatedStringStart `$"`
 6:6 InterpolationStart `{`

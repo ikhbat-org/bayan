@@ -21,8 +21,8 @@
 2:81 DeferKeyword `defer`
 2:87 ErrdeferKeyword `errdefer`
 2:96 Identifier `u`
-2:97 Identifier `sing`
-2:102 ContextKeyword `context`
+2:98 Identifier `sing`
+2:103 ContextKeyword `context`
 3:2 Identifier `_`
 3:4 Identifier `é`
 3:7 IntegerLiteral `0b102`

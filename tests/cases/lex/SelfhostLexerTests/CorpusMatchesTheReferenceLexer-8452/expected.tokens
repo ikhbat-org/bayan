@@ -1,6 +1,6 @@
-1:4 CloseBracket `]`
-1:6 OpenBrace `{`
-1:8 CloseBrace `}`
+1:8 CloseBracket `]`
+1:10 OpenBrace `{`
+1:12 CloseBrace `}`
 2:1 Comma `,`
 2:3 Dot `.`
 2:5 DotDot `..`

@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `a`
 1:7 Equals `=`
-1:8 IntegerLiteral `1`
+1:9 IntegerLiteral `1`
 2:2 LetKeyword `let`
 2:6 LawKeyword `law`
 2:10 Equals `=`

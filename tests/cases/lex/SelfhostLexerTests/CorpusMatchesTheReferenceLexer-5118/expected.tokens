@@ -1,6 +1,6 @@
 1:4 CloseBracket `]`
-1:5 OpenBrace `{`
-1:7 CloseBrace `}`
+1:6 OpenBrace `{`
+1:8 CloseBrace `}`
 2:1 Comma `,`
 2:3 Dot `.`
 3:1 EndOfFile

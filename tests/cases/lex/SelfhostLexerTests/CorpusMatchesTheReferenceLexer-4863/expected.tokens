@@ -1,8 +1,8 @@
 1:1 IntegerLiteral `0xF__`
 3:1 LetKeyword `let`
 3:5 Identifier `ck`
-3:8 Equals `=`
-3:10 RawStringLiteral `"""never closed\r\n\r\n`
+3:9 Equals `=`
+3:11 RawStringLiteral `"""never closed\r\n\r\n`
 5:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

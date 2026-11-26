@@ -58,7 +58,7 @@
 5:68 InterpolatedStringEnd `"`
 5:69 InterpolationEnd `}`
 5:70 InterpolatedStringEnd `"`
-5:73 EndOfFile
+5:75 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar
 

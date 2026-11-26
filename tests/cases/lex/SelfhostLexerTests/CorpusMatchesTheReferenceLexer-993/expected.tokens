@@ -15,9 +15,9 @@
 1:54 NumericSuffix `u`
 1:56 IntegerLiteral `0xFF`
 1:60 NumericSuffix `u`
-1:62 Identifier `b1ul`
-1:67 IntegerLiteral `7`
-1:68 NumericSuffix `l`
+1:63 Identifier `b1ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`

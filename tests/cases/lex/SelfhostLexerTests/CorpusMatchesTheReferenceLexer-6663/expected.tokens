@@ -7,9 +7,9 @@
 5:3 StringLiteral `"`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolatedStringText `open �`
-6:8 InterpolationStart `{`
-6:9 Identifier `x`
-6:10 StringLiteral `";`
+6:9 InterpolationStart `{`
+6:10 Identifier `x`
+6:11 StringLiteral `";`
 7:1 Identifier `_`
 8:1 Identifier `liter`
 9:1 EndOfFile

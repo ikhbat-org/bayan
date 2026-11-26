@@ -11,14 +11,14 @@
 6:3 Identifier `raw`
 6:7 StringLiteral `"quoted"`
 7:3 StringLiteral `"�"`
-7:5 StringLiteral `" "`
-7:8 Identifier `text`
-7:12 StringLiteral `" u16"`
-7:18 Identifier `wide`
-7:22 StringLiteral `" "`
-7:27 Identifier `allowed`
-7:35 InKeyword `in`
-7:38 EndOfFile
+7:6 StringLiteral `" "`
+7:9 Identifier `text`
+7:13 StringLiteral `" u16"`
+7:19 Identifier `wide`
+7:23 StringLiteral `" "`
+7:28 Identifier `allowed`
+7:36 InKeyword `in`
+7:39 EndOfFile
 
 error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
 

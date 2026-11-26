@@ -1,4 +1,4 @@
-    doc `///Do� line one.\r`
+    doc `///Do� line one.`
 3:2 OpenBrace `{`
 3:3 Identifier `x`
 3:4 StringLiteral `";`

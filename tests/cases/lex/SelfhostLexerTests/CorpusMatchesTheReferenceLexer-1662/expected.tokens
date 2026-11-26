@@ -92,30 +92,30 @@
 5:69 InterpolatedStringEnd `"`
 5:70 InterpolationEnd `}`
 5:71 InterpolatedStringText `�`
-5:71 InterpolatedStringEnd `"`
-5:72 InterpolationEnd `}`
-5:73 InterpolatedStringEnd `"`
-5:74 InterpolationEnd `}`
-5:75 InterpolatedStringEnd `"`
-5:76 InterpolationEnd `}`
-5:77 InterpolatedStringEnd `"`
-5:78 InterpolationEnd `}`
-5:79 InterpolatedStringEnd `"`
-5:80 InterpolationEnd `}`
-5:81 InterpolatedStringEnd `"`
-5:82 InterpolationEnd `}`
-5:83 InterpolatedStringEnd `"`
-5:84 InterpolationEnd `}`
-5:85 InterpolatedStringEnd `"`
-5:86 InterpolationEnd `}`
-5:87 InterpolatedStringEnd `"`
-5:88 InterpolationEnd `}`
-5:89 InterpolatedStringEnd `"`
-5:90 InterpolationEnd `}`
-5:91 InterpolatedStringEnd `"`
-5:92 InterpolationEnd `}`
-5:93 InterpolatedStringEnd `"`
-5:94 EndOfFile
+5:72 InterpolatedStringEnd `"`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringEnd `"`
+5:75 InterpolationEnd `}`
+5:76 InterpolatedStringEnd `"`
+5:77 InterpolationEnd `}`
+5:78 InterpolatedStringEnd `"`
+5:79 InterpolationEnd `}`
+5:80 InterpolatedStringEnd `"`
+5:81 InterpolationEnd `}`
+5:82 InterpolatedStringEnd `"`
+5:83 InterpolationEnd `}`
+5:84 InterpolatedStringEnd `"`
+5:85 InterpolationEnd `}`
+5:86 InterpolatedStringEnd `"`
+5:87 InterpolationEnd `}`
+5:88 InterpolatedStringEnd `"`
+5:89 InterpolationEnd `}`
+5:90 InterpolatedStringEnd `"`
+5:91 InterpolationEnd `}`
+5:92 InterpolatedStringEnd `"`
+5:93 InterpolationEnd `}`
+5:94 InterpolatedStringEnd `"`
+5:95 EndOfFile
 
 error BYN0003: unterminated string literal
 

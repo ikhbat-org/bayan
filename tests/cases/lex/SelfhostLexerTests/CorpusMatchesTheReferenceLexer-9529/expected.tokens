@@ -15,7 +15,7 @@
 1:22 InterpolationStart `{`
 1:23 InterpolatedStringStart `$"`
 1:25 InterpolatedStringText `���}`
-1:27 InterpolatedStringEnd
+1:29 InterpolatedStringEnd
 2:1 StructKeyword `struct`
 2:8 Identifier `S`
 2:10 IntegerLiteral `0b1`

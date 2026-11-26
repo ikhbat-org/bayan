@@ -2,11 +2,11 @@
 1:4 MinusEquals `-=`
 1:7 StarEquals `*=`
 1:10 SlashEquals `/=`
-1:12 PercentEquals `%=`
-1:15 AmpEquals `&=`
-1:18 BarEquals `|=`
-1:21 CaretEquals `^=`
-1:24 LessLessEquals `<<=`
+1:13 PercentEquals `%=`
+1:16 AmpEquals `&=`
+1:19 BarEquals `|=`
+1:22 CaretEquals `^=`
+1:25 LessLessEquals `<<=`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8E)

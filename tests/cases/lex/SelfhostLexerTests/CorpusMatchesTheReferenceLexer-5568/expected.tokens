@@ -14,7 +14,7 @@
 1:33 At `@`
 1:35 Hash `#`
 4:1 IntegerLiteral `0x`
-4:4 CharLiteral `'x\r`
+4:4 CharLiteral `'x`
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolationStart `{`
 5:5 InterpolatedStringStart `$"`

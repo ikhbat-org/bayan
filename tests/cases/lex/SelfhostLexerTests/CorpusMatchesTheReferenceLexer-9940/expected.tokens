@@ -4,7 +4,7 @@
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolationStart `{`
 5:5 StringLiteral `"/* �block`
-6:5 IntegerLiteral `0x`
+6:6 IntegerLiteral `0x`
 7:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

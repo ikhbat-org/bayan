@@ -23,9 +23,9 @@
 4:47 FalseKeyword `false`
 4:53 ComptimeKeyword `comptime`
 4:62 CheckedKeyword `checked`
-5:4 Identifier `macro`
-5:10 Identifier `select`
-5:17 BecomeKeyword `become`
+5:7 Identifier `macro`
+5:13 Identifier `select`
+5:20 BecomeKeyword `become`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolatedStringText `{{`
 6:5 InterpolatedStringEnd `"`

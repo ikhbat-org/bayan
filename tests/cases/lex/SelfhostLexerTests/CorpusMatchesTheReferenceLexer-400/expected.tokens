@@ -3,15 +3,15 @@
 1:5 IntegerLiteral `1`
 1:6 DotDot `..`
 2:1 Identifier `W`
-2:3 Equals `=`
-2:5 IntegerLiteral `2`
+2:4 Equals `=`
+2:6 IntegerLiteral `2`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `stray } here`
 3:15 InterpolatedStringEnd `"`
 4:2 IntegerLiteral `0b1`
 4:5 NumericSuffix `ms`
 5:1 Identifier `o`
-5:2 Identifier `sed`
+5:3 Identifier `sed`
 6:1 Identifier `b`
 8:1 StringLiteral `"a\u{2067}b"`
 8:7 LetKeyword `let`

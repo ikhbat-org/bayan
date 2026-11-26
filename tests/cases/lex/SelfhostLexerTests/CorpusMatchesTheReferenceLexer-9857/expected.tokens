@@ -1,8 +1,8 @@
 1:1 Identifier `le`
 1:5 Identifier `x`
 1:7 IntegerLiteral `6`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
 2:2 IntegerLiteral `0x`
 2:4 EndOfFile
 

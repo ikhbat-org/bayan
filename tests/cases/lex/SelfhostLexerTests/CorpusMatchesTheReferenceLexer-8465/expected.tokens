@@ -1,8 +1,8 @@
 1:1 Identifier `ent`
-3:3 LetKeyword `let`
-3:7 Identifier `a`
-3:9 Equals `=`
-3:11 StringLiteral `"open`
+3:6 LetKeyword `let`
+3:10 Identifier `a`
+3:12 Equals `=`
+3:14 StringLiteral `"open`
 4:3 Identifier `uct`
 4:7 Identifier `S`
 6:1 Identifier `b`

@@ -18,10 +18,10 @@
 2:22 CaretEquals `^=`
 2:25 LessLessEquals `<<=`
 4:1 StringLiteral `"a\u{2067}b"`
-4:10 InterpolatedStringStart `$"`
-4:12 InterpolationStart `{`
-4:13 InterpolationEnd `}`
-4:14 InterpolatedStringEnd `"`
+4:11 InterpolatedStringStart `$"`
+4:13 InterpolationStart `{`
+4:14 InterpolationEnd `}`
+4:15 InterpolatedStringEnd `"`
 5:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

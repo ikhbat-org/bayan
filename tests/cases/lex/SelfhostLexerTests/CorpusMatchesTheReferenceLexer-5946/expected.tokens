@@ -10,13 +10,13 @@
 3:15 DotDotEquals `..=`
 3:19 Colon `:`
 3:21 Question `?`
-3:23 QuestionQuestion `??`
-3:26 QuestionQuestionEquals `??=`
-3:30 QuestionDot `?.`
-3:33 FatArrow `=>`
-3:36 Arrow `->`
-3:39 At `@`
-3:41 Hash `#`
+3:24 QuestionQuestion `??`
+3:27 QuestionQuestionEquals `??=`
+3:31 QuestionDot `?.`
+3:34 FatArrow `=>`
+3:37 Arrow `->`
+3:40 At `@`
+3:42 Hash `#`
 4:1 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

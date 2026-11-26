@@ -14,7 +14,7 @@
 4:14 Slash `/`
 4:16 Identifier `a`
 8:2 Identifier `H`
-8:3 EndOfFile
+8:7 EndOfFile
 
 error BYN0005: identifier `fé` is not in Unicode normalization form C
 

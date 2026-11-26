@@ -1,10 +1,10 @@
-    doc `/// jlet a = $ 1\r`
-2:2 CharLiteral `'\r`
+    doc `/// jlet a = $ 1`
+2:2 CharLiteral `'`
 3:1 LetKeyword `let`
 3:5 Identifier `a`
 3:7 Equals `=`
 3:11 IntegerLiteral `1`
-4:3 EndOfFile
+4:4 EndOfFile
 
 error BYN0008: unterminated char literal
 

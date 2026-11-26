@@ -34,11 +34,11 @@
 10:24 RefKeyword `ref`
 10:28 OutKeyword `out`
 10:32 ThisKeyword `this`
-10:37 Identifier `ull`
-10:41 TrueKeyword `true`
-10:46 FalseKeyword `false`
-10:52 ComptimeKeyword `comptime`
-10:61 CheckedKeyword `checked`
+10:38 Identifier `ull`
+10:42 TrueKeyword `true`
+10:47 FalseKeyword `false`
+10:53 ComptimeKeyword `comptime`
+10:62 CheckedKeyword `checked`
 11:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

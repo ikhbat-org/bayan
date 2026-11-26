@@ -45,7 +45,7 @@
 4:8 InterpolatedStringText `c`
 4:9 InterpolatedStringEnd
 5:1 LetKeyword `let`
-5:7 RawStringLiteral `"""never closed\n`
+5:8 RawStringLiteral `"""never closed\n`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)

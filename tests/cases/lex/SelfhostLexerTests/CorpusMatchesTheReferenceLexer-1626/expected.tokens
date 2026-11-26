@@ -1,5 +1,5 @@
 1:1 Star `*`
-1:5 EndOfFile
+1:6 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

@@ -1,9 +1,9 @@
-1:4 OpenParen `(`
-1:6 CloseParen `)`
-1:8 OpenBracket `[`
-1:10 CloseBracket `]`
-1:12 OpenBrace `{`
-1:14 CloseBrace `}`
+1:6 OpenParen `(`
+1:8 CloseParen `)`
+1:10 OpenBracket `[`
+1:12 CloseBracket `]`
+1:14 OpenBrace `{`
+1:17 CloseBrace `}`
 2:1 Identifier `sJruc`
 2:8 Identifier `S`
 3:1 EndOfFile

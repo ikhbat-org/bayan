@@ -96,9 +96,9 @@
 3:112 InterpolatedStringEnd `"`
 5:1 IntegerLiteral `0`
 5:2 CloseBrace `}`
-5:3 CharLiteral `'\r`
+5:3 CharLiteral `'`
 6:1 CharLiteral `'\u{110000}'`
-7:1 CharLiteral `'x\r`
+7:1 CharLiteral `'x`
 8:2 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

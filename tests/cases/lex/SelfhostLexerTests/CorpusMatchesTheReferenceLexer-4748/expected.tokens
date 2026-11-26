@@ -7,8 +7,8 @@
 5:2 Identifier `n`
 5:4 Identifier `comment`
 6:1 Identifier `ạ̇`
-6:5 Identifier `u`
-6:7 EndOfFile
+6:9 Identifier `u`
+6:11 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled
 

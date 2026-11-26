@@ -17,11 +17,11 @@
 1:95 UsingKeyword `using`
 1:101 ContextKeyword `context`
 2:1 CharLiteral `'\u{202E}'`
-5:2 StringLiteral `"open {x"`
-5:11 Semicolon `;`
+5:3 StringLiteral `"open {x"`
+5:12 Semicolon `;`
 6:2 IntegerLiteral `0x_`
 7:2 Identifier `ạ̇`
-7:8 EndOfFile
+7:10 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

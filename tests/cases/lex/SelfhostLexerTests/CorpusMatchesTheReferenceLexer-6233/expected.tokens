@@ -1,18 +1,18 @@
-1:2 VarKeyword `var`
-1:6 Identifier `xs`
-1:8 Colon `:`
-1:10 Identifier `List`
-1:14 Less `<`
-1:15 Identifier `List`
-1:19 Less `<`
-1:20 Identifier `i64`
-1:23 Greater `>`
-1:24 Greater `>`
+1:4 VarKeyword `var`
+1:8 Identifier `xs`
+1:10 Colon `:`
+1:12 Identifier `List`
+1:16 Less `<`
+1:17 Identifier `List`
+1:21 Less `<`
+1:22 Identifier `i64`
+1:25 Greater `>`
+1:26 Greater `>`
 2:2 LetKeyword `let`
 2:6 EffectKeyword `effect`
 2:13 Equals `=`
 2:15 IntegerLiteral `2`
-4:1 EndOfFile
+4:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

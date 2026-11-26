@@ -21,10 +21,10 @@
 2:9 InterpolationStart `{`
 2:10 Identifier `x`
 2:11 StringLiteral `";`
-3:4 CharLiteral `' '`
-3:9 CharLiteral `' '`
-3:13 IntegerLiteral `0`
-3:14 CharLiteral `'`
+3:5 CharLiteral `' '`
+3:10 CharLiteral `' '`
+3:14 IntegerLiteral `0`
+3:15 CharLiteral `'`
 8:1 EndOfFile
 
 error BYN0003: unterminated string literal

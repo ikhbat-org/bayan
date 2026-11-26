@@ -8,7 +8,7 @@
 4:7 Identifier `a`
 4:9 Equals `=`
 4:11 IntegerLiteral `1`
-6:2 EndOfFile
+6:4 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`
 

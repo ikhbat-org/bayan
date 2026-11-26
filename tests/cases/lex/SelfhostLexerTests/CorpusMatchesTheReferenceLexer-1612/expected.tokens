@@ -2,10 +2,10 @@
 2:7 StringLiteral `"quoted"`
 3:2 Greater `>`
 3:3 Greater `>`
-4:1 Identifier `a`
-4:3 Greater `>`
+4:2 Identifier `a`
 4:4 Greater `>`
-4:6 Identifier `b`
+4:5 Greater `>`
+4:7 Identifier `b`
 5:1 Identifier `c`
 5:3 Greater `>`
 5:4 GreaterEquals `>=`

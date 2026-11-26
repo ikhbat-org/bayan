@@ -1,6 +1,6 @@
 1:1 CloseBrace `}`
-3:2 Identifier `q`
-3:3 CharLiteral `'`
+3:3 Identifier `q`
+3:4 CharLiteral `'`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolatedStringText `b `
 5:5 InterpolationStart `{`

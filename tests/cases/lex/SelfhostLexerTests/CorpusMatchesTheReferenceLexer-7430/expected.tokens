@@ -10,8 +10,8 @@
 3:25 AmpEquals `&=`
 3:28 BarEquals `|=`
 3:31 Caret `^`
-3:32 Equals `=`
-3:34 LessEquals `<=`
+3:33 Equals `=`
+3:35 LessEquals `<=`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)

@@ -39,7 +39,7 @@
 4:70 InterpolatedStringEnd `"`
 4:72 InterpolatedStringStart `$"`
 4:74 InterpolatedStringEnd `"`
-    doc `/// Doc lin\u{19} o?ne.\r`
+    doc `/// Doc lin\u{19} o?ne.`
 7:2 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

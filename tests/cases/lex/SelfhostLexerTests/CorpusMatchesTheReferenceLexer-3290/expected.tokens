@@ -10,12 +10,12 @@
 2:25 CloseBrace `}`
 2:26 CloseBrace `}`
 2:27 StringLiteral `"  �����  "`
-2:34 StringLiteral `""`
-2:37 CStringLiteral `c"text"`
-2:45 U16StringLiteral `u16"wide"`
-2:55 StringLiteral `"\u{202E} allowed in strings"`
-2:78 StringLiteral `""`
-2:81 StringLiteral `"\u{48}i"`
+2:38 StringLiteral `""`
+2:41 CStringLiteral `c"text"`
+2:49 U16StringLiteral `u16"wide"`
+2:59 StringLiteral `"\u{202E} allowed in strings"`
+2:82 StringLiteral `""`
+2:85 StringLiteral `"\u{48}i"`
 3:2 CharLiteral `''`
 5:1 EndOfFile
 

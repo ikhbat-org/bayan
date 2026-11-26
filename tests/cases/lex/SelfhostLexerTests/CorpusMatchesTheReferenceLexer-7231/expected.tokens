@@ -50,14 +50,14 @@
 5:45 InterpolationStart `{`
 5:46 InterpolatedStringStart `$"`
 5:48 InterpolatedStringText `�`
-5:48 InterpolationStart `{`
-5:49 StringLiteral `$"{$"`
-5:54 OpenBrace `{`
-5:55 StringLiteral `$"{$"`
-5:60 OpenBrace `{`
-5:61 StringLiteral `$"{x}"`
-5:67 CloseBrace `}`
-5:68 StringLiteral `"// ok � in comment`
+5:49 InterpolationStart `{`
+5:50 StringLiteral `$"{$"`
+5:55 OpenBrace `{`
+5:56 StringLiteral `$"{$"`
+5:61 OpenBrace `{`
+5:62 StringLiteral `$"{x}"`
+5:68 CloseBrace `}`
+5:69 StringLiteral `"// ok � in comment`
 7:1 Star `*`
 7:2 Slash `/`
 8:2 Question `?`

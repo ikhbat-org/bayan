@@ -5,8 +5,8 @@
 1:23 NoallocKeyword `noalloc`
 1:31 NosuspendKeyword `nosuspend`
 1:41 SuspendsKeyword `suspends`
-1:50 AsyncKeyword `async`
-1:56 AwaitKeyword `await`
+1:51 AsyncKeyword `async`
+1:57 AwaitKeyword `await`
 2:2 IntegerLiteral `2`
 2:4 IntegerLiteral `1`
 2:5 DotDotEquals `..=`

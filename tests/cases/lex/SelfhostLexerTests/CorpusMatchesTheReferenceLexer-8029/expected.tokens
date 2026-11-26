@@ -1,4 +1,4 @@
-1:3 RawStringLiteral `"""\u{0}\n1e"a\u{2067}b"\never closed\nb\nlet x\u{2067} = \n `
+1:5 RawStringLiteral `"""\u{0}\n1e"a\u{2067}b"\never closed\nb\nlet x\u{2067} = \n `
 6:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)

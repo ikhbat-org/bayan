@@ -10,7 +10,7 @@
 4:2 Identifier `a`
 4:4 Greater `>`
 4:6 Identifier `b`
-    doc `/// & && | || ^ ~ ! = == != < <= > >= << >> >>\r`
+    doc `/// & && | || ^ ~ ! = == != < <= > >= << >> >>`
 7:2 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C

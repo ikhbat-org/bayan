@@ -9,7 +9,7 @@
 3:1 LetKeyword `let`
 3:5 Identifier `c`
 3:7 Equals `=`
-3:8 StringLiteral `" �����let effect = 2`
+3:9 StringLiteral `" �����let effect = 2`
 4:1 Identifier `ver`
 4:5 Identifier `closed`
 5:1 Identifier `b`

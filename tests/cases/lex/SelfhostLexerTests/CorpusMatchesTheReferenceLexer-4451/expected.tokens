@@ -1,41 +1,41 @@
 1:1 InterpolatedStringStart `$"`
 1:3 InterpolationStart `{`
-3:5 InterpolatedStringStart `$"`
-3:7 InterpolatedStringText `total `
-3:13 InterpolationStart `{`
-3:14 Identifier `x`
-3:15 InterpolationEnd `}`
-3:16 InterpolatedStringEnd `"`
-3:18 InterpolatedStringStart `$"`
-3:20 InterpolatedStringText `a `
-3:22 InterpolationStart `{`
-3:23 Identifier `f`
-3:24 OpenParen `(`
-3:25 InterpolatedStringStart `$"`
-3:27 InterpolatedStringText `b `
-3:29 InterpolationStart `{`
-3:30 Identifier `c`
-3:31 InterpolationEnd `}`
-3:32 InterpolatedStringText `X`
-3:33 InterpolatedStringEnd `"`
-3:34 CloseParen `)`
-3:35 InterpolationEnd `}`
-3:36 InterpolatedStringText ` d`
-3:38 InterpolatedStringEnd `"`
-3:40 InterpolatedStringStart `$"`
-3:42 InterpolatedStringText `{{literal}} $`
-3:55 InterpolatedStringEnd `"`
-3:56 OpenBrace `{`
-3:57 Identifier `Point`
-3:63 OpenBrace `{`
-3:65 Identifier `x`
-3:67 Equals `=`
-3:69 IntegerLiteral `1`
-3:71 CloseBrace `}`
-3:72 CloseBrace `}`
-3:73 Bang `!`
-3:74 StringLiteral `" $"`
-3:78 StringLiteral `"`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolatedStringText `total `
+3:15 InterpolationStart `{`
+3:16 Identifier `x`
+3:17 InterpolationEnd `}`
+3:18 InterpolatedStringEnd `"`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolatedStringText `a `
+3:24 InterpolationStart `{`
+3:25 Identifier `f`
+3:26 OpenParen `(`
+3:27 InterpolatedStringStart `$"`
+3:29 InterpolatedStringText `b `
+3:31 InterpolationStart `{`
+3:32 Identifier `c`
+3:33 InterpolationEnd `}`
+3:34 InterpolatedStringText `X`
+3:35 InterpolatedStringEnd `"`
+3:36 CloseParen `)`
+3:37 InterpolationEnd `}`
+3:38 InterpolatedStringText ` d`
+3:40 InterpolatedStringEnd `"`
+3:42 InterpolatedStringStart `$"`
+3:44 InterpolatedStringText `{{literal}} $`
+3:57 InterpolatedStringEnd `"`
+3:58 OpenBrace `{`
+3:59 Identifier `Point`
+3:65 OpenBrace `{`
+3:67 Identifier `x`
+3:69 Equals `=`
+3:71 IntegerLiteral `1`
+3:73 CloseBrace `}`
+3:74 CloseBrace `}`
+3:75 Bang `!`
+3:76 StringLiteral `" $"`
+3:80 StringLiteral `"`
 5:3 LetKeyword `let`
 5:7 Identifier `c`
 5:9 Equals `=`

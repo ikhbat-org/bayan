@@ -1,6 +1,6 @@
 1:1 CharLiteral `'\u{D800}'`
 3:1 CloseBrace `}`
-3:3 StringLiteral `"{`
+3:4 StringLiteral `"{`
 4:2 Identifier `et`
 4:5 Identifier `b`
 4:7 Equals `=`

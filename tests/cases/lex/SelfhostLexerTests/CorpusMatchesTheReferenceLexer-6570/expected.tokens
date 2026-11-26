@@ -1,5 +1,5 @@
 1:1 StructKeyword `struct`
-1:8 Identifier `S`
+1:9 Identifier `S`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`
@@ -52,14 +52,14 @@
 3:83 InterpolationEnd `}`
 3:84 InterpolatedStringEnd `"`
 3:85 IntegerLiteral `1_`
-4:2 Identifier `_000`
-4:8 Identifier `xFF`
-4:12 IntegerLiteral `0x_ff`
-4:18 IntegerLiteral `0`
-4:19 NumericSuffix `blet`
-4:24 EffectKeyword `effect`
-4:31 Equals `=`
-4:33 IntegerLiteral `2`
+4:5 Identifier `_000`
+4:11 Identifier `xFF`
+4:15 IntegerLiteral `0x_ff`
+4:21 IntegerLiteral `0`
+4:22 NumericSuffix `blet`
+4:27 EffectKeyword `effect`
+4:34 Equals `=`
+4:36 IntegerLiteral `2`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA1)

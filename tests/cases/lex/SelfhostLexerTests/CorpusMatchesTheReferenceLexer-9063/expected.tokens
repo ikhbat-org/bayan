@@ -5,9 +5,9 @@
 2:5 InterpolatedStringEnd `"`
 2:6 InterpolatedStringStart `$"`
 2:8 InterpolatedStringText `op�n `
-2:12 InterpolationStart `{`
-2:13 Identifier `x`
-2:14 StringLiteral `";`
+2:13 InterpolationStart `{`
+2:14 Identifier `x`
+2:15 StringLiteral `";`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

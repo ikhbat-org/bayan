@@ -11,12 +11,12 @@
 4:8 TryKeyword `try`
 4:12 CatchKeyword `catch`
 4:18 Identifier `n`
-4:19 Identifier `ever`
-4:24 NoallocKeyword `noalloc`
-4:32 Identifier `nsuspend`
-4:41 SuspendsKeyword `suspends`
-4:50 AsyncKeyword `async`
-4:56 AwaitKeyword `await`
+4:20 Identifier `ever`
+4:25 NoallocKeyword `noalloc`
+4:33 Identifier `nsuspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

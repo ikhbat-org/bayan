@@ -5,9 +5,9 @@
 2:11 IntegerLiteral `3`
 3:1 LetKeyword `let`
 3:7 Equals `=`
-3:9 IntegerLiteral `2`
+3:10 IntegerLiteral `2`
 4:2 IntegerLiteral `1__`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 7:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

@@ -8,7 +8,7 @@
 2:5 NumericSuffix `ms`
     doc `/// Doc line two.`
 5:1 IntegerLiteral `0x`
-5:6 EndOfFile
+5:8 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal
 

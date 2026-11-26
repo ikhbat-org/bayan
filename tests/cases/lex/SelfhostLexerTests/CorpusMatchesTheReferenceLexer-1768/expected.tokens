@@ -1,11 +1,11 @@
-1:2 LetKeyword `let`
-1:6 Identifier `a`
-1:8 Equals `=`
-1:12 IntegerLiteral `1`
-2:2 CharLiteral `' '`
-2:7 CharLiteral `' '`
-2:11 IntegerLiteral `0`
-2:12 CharLiteral `'`
+1:6 LetKeyword `let`
+1:10 Identifier `a`
+1:12 Equals `=`
+1:16 IntegerLiteral `1`
+2:3 CharLiteral `' '`
+2:8 CharLiteral `' '`
+2:12 IntegerLiteral `0`
+2:13 CharLiteral `'`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `a`
 4:4 InterpolationStart `{`

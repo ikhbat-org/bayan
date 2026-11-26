@@ -8,7 +8,7 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `{{`
 4:5 InterpolatedStringEnd `"`
-    doc `///\r`
+    doc `///`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolatedStringText `total `
 5:9 InterpolationStart `{`

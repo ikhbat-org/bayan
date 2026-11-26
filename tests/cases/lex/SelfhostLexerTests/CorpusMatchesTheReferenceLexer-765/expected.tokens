@@ -21,24 +21,24 @@
 9:6 Identifier `_x`
 9:9 Identifier `camelCase2`
 9:20 Identifier `بي`
-9:25 ErrorKeyword `error`
-9:31 SetKeyword `set`
-9:35 UnitKeyword `unit`
-9:40 DistinctKeyword `distinct`
-9:49 TypeKeyword `type`
-9:54 ImportKeyword `import`
-9:61 AsKeyword `as`
-9:64 PublicKeyword `public`
-9:71 PrivateKeyword `private`
-9:79 StaticKeyword `static`
-9:86 ReadonlyKeyword `readonly`
-9:95 RequiredKeyword `required`
-9:104 ConstKeyword `const`
-9:110 LetKeyword `let`
-9:114 VarKeyword `var`
-9:118 EmbedKeyword `embed`
-9:124 ExternKeyword `extern`
-9:131 UnsafeKeyword `unsafe`
+9:28 ErrorKeyword `error`
+9:34 SetKeyword `set`
+9:38 UnitKeyword `unit`
+9:43 DistinctKeyword `distinct`
+9:52 TypeKeyword `type`
+9:57 ImportKeyword `import`
+9:64 AsKeyword `as`
+9:67 PublicKeyword `public`
+9:74 PrivateKeyword `private`
+9:82 StaticKeyword `static`
+9:89 ReadonlyKeyword `readonly`
+9:98 RequiredKeyword `required`
+9:107 ConstKeyword `const`
+9:113 LetKeyword `let`
+9:117 VarKeyword `var`
+9:121 EmbedKeyword `embed`
+9:127 ExternKeyword `extern`
+9:134 UnsafeKeyword `unsafe`
 10:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE6)

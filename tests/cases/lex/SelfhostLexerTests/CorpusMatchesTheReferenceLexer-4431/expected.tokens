@@ -1,8 +1,8 @@
 1:1 Identifier `lt`
 1:4 Identifier `cafe`
-1:9 Equals `=`
-1:11 IntegerLiteral `1`
-3:2 EndOfFile
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+3:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8A)
 

@@ -1,7 +1,7 @@
 2:1 Identifier `b`
 3:2 Star `*`
     doc `/// ine comment`
-7:12 EndOfFile
+7:13 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

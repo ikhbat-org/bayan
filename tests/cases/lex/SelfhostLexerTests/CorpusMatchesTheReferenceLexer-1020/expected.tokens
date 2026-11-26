@@ -7,7 +7,7 @@
 1:19 BarEquals `|=`
 1:22 CaretEquals `^=`
 1:25 LessLessEquals `<<=`
-2:3 EndOfFile
+2:4 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

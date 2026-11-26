@@ -2,8 +2,6 @@
 1:5 Identifier `c`
 1:7 Equals `=`
 1:11 IntegerLiteral `3`
-2:2 InterpolatedStringStart `$"`
-2:4 InterpolationStart `{`
 2:5 InterpolatedStringStart `$"`
 2:7 InterpolationStart `{`
 2:8 InterpolatedStringStart `$"`
@@ -34,13 +32,15 @@
 2:46 InterpolationStart `{`
 2:47 InterpolatedStringStart `$"`
 2:49 InterpolationStart `{`
-2:50 StringLiteral `$"{$"`
-2:55 OpenBrace `{`
-2:56 StringLiteral `$"{$"`
-2:61 OpenBrace `{`
-2:62 StringLiteral `$"{x}"`
-2:68 CloseBrace `}`
-2:69 StringLiteral `" ver `
+2:50 InterpolatedStringStart `$"`
+2:52 InterpolationStart `{`
+2:53 StringLiteral `$"{$"`
+2:58 OpenBrace `{`
+2:59 StringLiteral `$"{$"`
+2:64 OpenBrace `{`
+2:65 StringLiteral `$"{x}"`
+2:71 CloseBrace `}`
+2:72 StringLiteral `" ver `
 3:1 Identifier `se2`
 3:5 Identifier `بيان`
 3:10 Identifier `μετρητής`

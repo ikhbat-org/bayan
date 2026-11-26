@@ -4,7 +4,7 @@
 1:14 IntegerLiteral `1`
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `stray �} here`
-2:15 InterpolatedStringEnd `"`
+2:16 InterpolatedStringEnd `"`
 3:2 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier

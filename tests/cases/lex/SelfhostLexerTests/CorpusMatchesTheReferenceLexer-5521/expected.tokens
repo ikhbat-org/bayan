@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `0b1`
 1:4 NumericSuffix `ms`
-3:2 InterpolatedStringStart `$"`
-3:4 InterpolationStart `{`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
 4:1 StringLiteral `"{struct S`
 5:1 EndOfFile
 

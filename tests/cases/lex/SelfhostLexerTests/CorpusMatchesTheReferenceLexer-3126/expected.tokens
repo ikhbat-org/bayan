@@ -1,10 +1,10 @@
 1:1 CharLiteral `'a'`
 1:5 CharLiteral `'\n'`
 1:10 CharLiteral `'\u{1F6�00}'`
-1:22 CharLiteral `'\''`
-1:27 CharLiteral `'é'`
-1:31 CharLiteral `'\\'`
-1:36 CharLiteral `'\0'`
+1:23 CharLiteral `'\''`
+1:28 CharLiteral `'é'`
+1:32 CharLiteral `'\\'`
+1:37 CharLiteral `'\0'`
     doc `/// Doc line one.`
 4:1 Bang `!`
 4:2 StringLiteral `" $"`

@@ -13,9 +13,9 @@
 1:90 AttributeKeyword `attribute`
 2:4 IntegerLiteral `800`
 2:7 CloseBrace `}`
-2:8 CharLiteral `'\r`
+2:8 CharLiteral `'`
 3:1 CharLiteral `'\u{110000}'`
-4:1 CharLiteral `'x\r`
+4:1 CharLiteral `'x`
 5:2 EndOfFile
 
 error BYN0002: unexpected character `\u{1D}`

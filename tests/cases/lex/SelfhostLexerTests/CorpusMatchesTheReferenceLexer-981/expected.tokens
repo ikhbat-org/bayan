@@ -1,7 +1,7 @@
 1:1 Identifier `b`
 3:3 Identifier `raw`
 3:7 StringLiteral `"qoed"`
-    doc `/// �\r\r`
+    doc `/// �\r`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x86)

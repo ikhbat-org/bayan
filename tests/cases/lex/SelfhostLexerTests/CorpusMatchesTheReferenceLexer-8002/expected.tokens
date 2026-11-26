@@ -13,7 +13,7 @@
 2:33 ForeachKeyword `foreach`
 2:41 NewKeyword `new`
 2:45 Identifier `go`
-2:47 Identifier `o`
+2:48 Identifier `o`
 4:1 CharLiteral `'a'`
 4:5 CharLiteral `'\n'`
 4:10 CharLiteral `'\u{1F600}'`

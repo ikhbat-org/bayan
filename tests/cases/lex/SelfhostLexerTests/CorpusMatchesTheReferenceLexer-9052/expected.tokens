@@ -1,5 +1,5 @@
 1:1 StringLiteral `"{ `
-2:2 StringLiteral `"stray } here"`
+2:3 StringLiteral `"stray } here"`
 4:1 EndOfFile
 
 error BYN0003: unterminated string literal

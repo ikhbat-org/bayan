@@ -28,7 +28,7 @@
 6:4 Identifier `comment`
 6:12 Star `*`
 6:13 Slash `/`
-6:15 Identifier `a`
+6:16 Identifier `a`
 7:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

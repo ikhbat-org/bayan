@@ -76,7 +76,7 @@
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolationStart `{`
 5:4 Identifier `a`
-5:8 EndOfFile
+5:12 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`
 

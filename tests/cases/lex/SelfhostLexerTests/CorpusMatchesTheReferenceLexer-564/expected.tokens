@@ -24,21 +24,21 @@
 1:36 InterpolationStart `{`
 1:37 InterpolatedStringStart `$"`
 1:39 InterpolatedStringText `�$`
-1:40 InterpolatedStringEnd `"`
-1:41 OpenBrace `{`
-1:42 InterpolatedStringStart `$"`
-1:44 InterpolationStart `{`
-1:45 Identifier `x`
-1:46 InterpolationEnd `}`
-1:47 InterpolatedStringEnd `"`
-1:48 CloseBrace `}`
-1:49 StringLiteral `" // ok � in comment`
-3:2 LetKeyword `let`
-3:6 EffectKeyword `effect`
-3:13 Equals `=`
-3:15 IntegerLiteral `2`
+1:41 InterpolatedStringEnd `"`
+1:42 OpenBrace `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 Identifier `x`
+1:47 InterpolationEnd `}`
+1:48 InterpolatedStringEnd `"`
+1:49 CloseBrace `}`
+1:50 StringLiteral `" // ok � in comment`
+3:5 LetKeyword `let`
+3:9 EffectKeyword `effect`
+3:16 Equals `=`
+3:18 IntegerLiteral `2`
 5:1 IntegerLiteral `0`
-5:2 EndOfFile
+5:4 EndOfFile
 
 error BYN0003: unterminated string literal
 

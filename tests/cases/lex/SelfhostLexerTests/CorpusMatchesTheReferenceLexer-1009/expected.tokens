@@ -3,7 +3,7 @@
 1:4 InterpolationStart `{`
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
-1:10 Identifier `hidden`
+1:11 Identifier `hidden`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 IntegerLiteral `0x`

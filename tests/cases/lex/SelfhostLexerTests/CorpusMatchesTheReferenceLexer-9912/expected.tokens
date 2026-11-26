@@ -1,9 +1,9 @@
-2:5 StructKeyword `struct`
-2:12 Identifier `S`
+2:6 StructKeyword `struct`
+2:13 Identifier `S`
 4:4 Identifier `comment`
-4:12 Star `*`
-4:13 Slash `/`
-4:15 Identifier `a`
+4:13 Star `*`
+4:14 Slash `/`
+4:16 Identifier `a`
 6:1 Identifier `macro`
 6:7 IntegerLiteral `8`
 6:8 NumericSuffix `select`

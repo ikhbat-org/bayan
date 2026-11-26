@@ -18,9 +18,9 @@
 6:23 Identifier `بيان`
 6:28 Identifier `μετρη`
 6:33 Question `?`
-6:34 Identifier `ής`
-6:37 Identifier `x_1`
-6:41 Identifier `é`
+6:35 Identifier `ής`
+6:38 Identifier `x_1`
+6:42 Identifier `é`
 7:2 InterpolatedStringStart `$"`
 7:4 InterpolatedStringText `open `
 7:9 InterpolationStart `{`

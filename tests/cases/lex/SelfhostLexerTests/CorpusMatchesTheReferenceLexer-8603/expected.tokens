@@ -1,6 +1,6 @@
 1:1 IntegerLiteral `0b1`
 1:4 NumericSuffix `ms`
-2:4 IntegerLiteral `3`
+2:8 IntegerLiteral `3`
 3:2 Identifier `Å`
 3:3 InterpolatedStringStart `$"`
 3:5 InterpolatedStringText `x`

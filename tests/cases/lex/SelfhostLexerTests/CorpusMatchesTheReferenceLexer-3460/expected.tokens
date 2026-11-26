@@ -1,6 +1,5 @@
 1:1 Identifier `i`
 1:2 StringLiteral `"`
-    doc `/// Doc line one.`
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

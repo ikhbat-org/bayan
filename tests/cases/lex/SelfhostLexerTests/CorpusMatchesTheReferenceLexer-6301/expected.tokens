@@ -1,6 +1,6 @@
 1:1 CharLiteral `'\uD800}'`
-2:2 Equals `=`
-2:4 IntegerLiteral `2`
+2:3 Equals `=`
+2:5 IntegerLiteral `2`
 3:1 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar

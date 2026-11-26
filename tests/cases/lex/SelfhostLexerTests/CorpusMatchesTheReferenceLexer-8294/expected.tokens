@@ -22,11 +22,11 @@
 3:2 Identifier `ητής`
 3:7 Identifier `x_1`
 3:11 Identifier `é`
-4:5 CloseParen `)`
-4:7 OpenBracket `[`
-4:9 CloseBracket `]`
-4:11 OpenBrace `{`
-4:13 CloseBrace `}`
+4:7 CloseParen `)`
+4:9 OpenBracket `[`
+4:11 CloseBracket `]`
+4:13 OpenBrace `{`
+4:15 CloseBrace `}`
 5:1 Comma `,`
 5:3 Dot `.`
 5:5 DotDot `..`

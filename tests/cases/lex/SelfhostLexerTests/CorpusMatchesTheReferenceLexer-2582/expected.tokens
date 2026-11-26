@@ -1,7 +1,7 @@
-1:2 LetKeyword `let`
-1:6 Identifier `c`
-1:8 Equals `=`
-1:9 RawStringLiteral `"""never closed\n 1_\n\n$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"let café = 1; �`
+1:5 LetKeyword `let`
+1:9 Identifier `c`
+1:11 Equals `=`
+1:12 RawStringLiteral `"""never closed\n 1_\n\n$"{$"{$"{${$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"let café = 1; �`
 4:64 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

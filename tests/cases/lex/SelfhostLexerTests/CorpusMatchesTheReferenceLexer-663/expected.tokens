@@ -5,22 +5,22 @@
 7:4 OpenBrace `{`
 7:5 InterpolatedStringStart `$"`
 7:7 InterpolationStart `{`
-7:9 StringLiteral `"{$"`
-7:13 OpenBrace `{`
-7:14 InterpolatedStringStart `$"`
-7:16 InterpolationStart `{`
-7:17 InterpolatedStringStart `$"`
-7:19 InterpolationStart `{`
-7:22 Identifier `s`
-7:24 Identifier `trings`
-7:30 StringLiteral `" "`
-7:33 StringLiteral `" "`
-7:37 Identifier `u`
-7:38 OpenBrace `{`
-7:39 IntegerLiteral `48`
-7:41 CloseBrace `}`
-7:42 Identifier `i`
-7:43 StringLiteral `"`
+7:10 StringLiteral `"{$"`
+7:14 OpenBrace `{`
+7:15 InterpolatedStringStart `$"`
+7:17 InterpolationStart `{`
+7:18 InterpolatedStringStart `$"`
+7:20 InterpolationStart `{`
+7:23 Identifier `s`
+7:25 Identifier `trings`
+7:31 StringLiteral `" "`
+7:34 StringLiteral `" "`
+7:38 Identifier `u`
+7:39 OpenBrace `{`
+7:40 IntegerLiteral `48`
+7:42 CloseBrace `}`
+7:43 Identifier `i`
+7:44 StringLiteral `"`
 8:1 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier

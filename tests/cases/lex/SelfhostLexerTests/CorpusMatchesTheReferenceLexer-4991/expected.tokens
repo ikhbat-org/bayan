@@ -13,11 +13,11 @@
 3:11 IntegerLiteral `1`
 4:1 Identifier `ere`
 4:4 StringLiteral `"`
-5:1 InterpolatedStringStart `$"`
-5:3 InterpolatedStringText `open `
-5:8 InterpolationStart `{`
-5:9 Identifier `x`
-5:10 StringLiteral `";`
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolatedStringText `open `
+5:9 InterpolationStart `{`
+5:10 Identifier `x`
+5:11 StringLiteral `";`
 7:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)

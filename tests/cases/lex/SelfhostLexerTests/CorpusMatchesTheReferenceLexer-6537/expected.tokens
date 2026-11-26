@@ -23,35 +23,35 @@
 6:17 InterpolationStart `{`
 6:18 InterpolatedStringStart `$"`
 6:20 InterpolationStart `{`
-6:21 StringLiteral `"{$_{$"`
-6:28 OpenBrace `{`
-6:29 InterpolatedStringStart `$"`
-6:31 InterpolationStart `{`
-6:32 InterpolatedStringStart `$"`
-6:34 InterpolationStart `{`
-6:35 InterpolatedStringStart `$"`
-6:37 InterpolationStart `{`
-6:38 InterpolatedStringStart `$"`
-6:40 InterpolationStart `{`
-6:41 InterpolatedStringStart `$"`
-6:43 InterpolationStart `{`
-6:44 InterpolatedStringStart `$"`
-6:46 InterpolationStart `{`
-6:47 InterpolatedStringStart `$"`
-6:49 InterpolationStart `{`
-6:50 InterpolatedStringStart `$"`
-6:52 InterpolationStart `{`
-6:53 InterpolatedStringStart `$"`
-6:55 InterpolationStart `{`
-6:56 InterpolatedStringStart `$"`
-6:58 InterpolationStart `{`
-6:59 InterpolatedStringStart `$"`
-6:61 InterpolationStart `{`
-6:63 Identifier `x`
-6:64 Dot `.`
-6:65 Identifier `y`
-6:67 IntegerLiteral `2`
-6:69 EndOfFile
+6:22 StringLiteral `"{$_{$"`
+6:29 OpenBrace `{`
+6:30 InterpolatedStringStart `$"`
+6:32 InterpolationStart `{`
+6:33 InterpolatedStringStart `$"`
+6:35 InterpolationStart `{`
+6:36 InterpolatedStringStart `$"`
+6:38 InterpolationStart `{`
+6:39 InterpolatedStringStart `$"`
+6:41 InterpolationStart `{`
+6:42 InterpolatedStringStart `$"`
+6:44 InterpolationStart `{`
+6:45 InterpolatedStringStart `$"`
+6:47 InterpolationStart `{`
+6:48 InterpolatedStringStart `$"`
+6:50 InterpolationStart `{`
+6:51 InterpolatedStringStart `$"`
+6:53 InterpolationStart `{`
+6:54 InterpolatedStringStart `$"`
+6:56 InterpolationStart `{`
+6:57 InterpolatedStringStart `$"`
+6:59 InterpolationStart `{`
+6:60 InterpolatedStringStart `$"`
+6:62 InterpolationStart `{`
+6:64 Identifier `x`
+6:65 Dot `.`
+6:66 Identifier `y`
+6:68 IntegerLiteral `2`
+6:70 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBA)
 

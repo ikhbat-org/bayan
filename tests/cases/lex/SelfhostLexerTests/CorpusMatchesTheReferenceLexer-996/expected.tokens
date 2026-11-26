@@ -1,6 +1,6 @@
 1:1 Identifier `eaw`
-1:4 Equals `=`
-1:6 IntegerLiteral `3`
+1:5 Equals `=`
+1:7 IntegerLiteral `3`
 2:1 CloseBrace `}`
 2:2 EndOfFile
 

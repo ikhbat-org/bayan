@@ -3,8 +3,8 @@
 1:10 CStringLiteral `c"text"`
 1:18 U16StringLiteral `u16"wide"`
 1:28 StringLiteral `"\u{202E} allowed in �trings"`
-1:50 StringLiteral `""`
-1:53 StringLiteral `"\u{48}i"`
+1:51 StringLiteral `""`
+1:54 StringLiteral `"\u{48}i"`
 3:1 Identifier `x́́`
 3:5 EndOfFile
 

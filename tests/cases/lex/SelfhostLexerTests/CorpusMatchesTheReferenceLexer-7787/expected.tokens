@@ -3,7 +3,7 @@
 3:5 EffectKeyword `effect`
 3:12 Equals `=`
 3:14 IntegerLiteral `2`
-3:17 Identifier `_`
+3:18 Identifier `_`
 4:1 EndOfFile
 
 error BYN0007: empty char literal

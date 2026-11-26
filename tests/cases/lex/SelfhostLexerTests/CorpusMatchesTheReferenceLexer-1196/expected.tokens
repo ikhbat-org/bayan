@@ -1,5 +1,5 @@
-1:4 Identifier `i`
-1:5 StringLiteral `"`
+1:7 Identifier `i`
+1:8 StringLiteral `"`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 Equals `=`

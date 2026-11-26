@@ -51,7 +51,7 @@
 1:67 LetKeyword `let`
 1:71 Identifier `a`
 1:73 Equals `=`
-1:76 IntegerLiteral `1`
+1:77 IntegerLiteral `1`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 InterpolatedStringStart `$"`

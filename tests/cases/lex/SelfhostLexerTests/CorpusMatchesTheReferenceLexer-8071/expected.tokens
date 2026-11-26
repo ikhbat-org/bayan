@@ -3,9 +3,9 @@
 1:10 CharLiteral `'\u{1F600}'`
 1:22 CharLiteral `'\''`
 1:27 CharLiteral `'é'`
-1:33 CharLiteral `' '`
-1:37 IntegerLiteral `0`
-1:38 CharLiteral `'`
+1:34 CharLiteral `' '`
+1:38 IntegerLiteral `0`
+1:39 CharLiteral `'`
 2:1 IntegerLiteral `7`
 2:2 NumericSuffix `l`
 4:1 EndOfFile

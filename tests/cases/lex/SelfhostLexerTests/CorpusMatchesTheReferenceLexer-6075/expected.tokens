@@ -8,7 +8,7 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `{{`
 4:5 InterpolatedStringEnd `"`
-4:7 EndOfFile
+4:8 EndOfFile
 
 error BYN0002: unexpected character ```
 

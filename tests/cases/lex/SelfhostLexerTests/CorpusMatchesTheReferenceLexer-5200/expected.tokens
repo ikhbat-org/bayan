@@ -1,7 +1,7 @@
-1:2 Identifier `각a`
-1:7 Greater `>`
-1:8 Greater `>`
-1:10 Identifier `b`
+1:5 Identifier `각a`
+1:10 Greater `>`
+1:11 Greater `>`
+1:13 Identifier `b`
 2:2 PlusEquals `+=`
 2:5 MinusEquals `-=`
 2:8 StarEquals `*=`

@@ -26,20 +26,20 @@
 1:39 InterpolationStart `{`
 1:40 InterpolatedStringStart `$"`
 1:42 InterpolatedStringText `�`
-1:42 InterpolationStart `{`
-1:43 InterpolatedStringStart `$"`
-1:45 InterpolationStart `{`
-1:46 Identifier `x`
-1:47 InterpolationEnd `}`
-1:48 InterpolatedStringEnd `"`
-1:49 InterpolationEnd `}`
-1:50 InterpolatedStringEnd `"`
-1:51 CharLiteral `''`
+1:43 InterpolationStart `{`
+1:44 InterpolatedStringStart `$"`
+1:46 InterpolationStart `{`
+1:47 Identifier `x`
+1:48 InterpolationEnd `}`
+1:49 InterpolatedStringEnd `"`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 CharLiteral `''`
 2:2 Identifier `l`
-2:3 Identifier `t`
-2:5 Identifier `a`
-2:7 Equals `=`
-2:11 IntegerLiteral `1`
+2:4 Identifier `t`
+2:6 Identifier `a`
+2:8 Equals `=`
+2:12 IntegerLiteral `1`
 3:3 Caret `^`
 4:1 EndOfFile
 

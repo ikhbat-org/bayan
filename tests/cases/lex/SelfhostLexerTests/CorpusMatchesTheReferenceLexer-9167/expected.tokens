@@ -13,16 +13,16 @@
 6:16 Equals `=`
 6:17 Identifier `C`
 6:19 Equals `=`
-6:21 BangEquals `!=`
-6:24 Less `<`
-6:26 LessEquals `<=`
-6:29 Greater `>`
-6:31 GreaterEquals `>=`
-6:34 LessLess `<<`
-6:37 Greater `>`
+6:22 BangEquals `!=`
+6:25 Less `<`
+6:27 LessEquals `<=`
+6:30 Greater `>`
+6:32 GreaterEquals `>=`
+6:35 LessLess `<<`
 6:38 Greater `>`
-6:40 Greater `>`
-6:41 GreaterEquals `>=`
+6:39 Greater `>`
+6:41 Greater `>`
+6:42 GreaterEquals `>=`
 7:2 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`

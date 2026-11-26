@@ -32,7 +32,6 @@
 1:70 InterpolatedStringEnd `"`
 1:72 InterpolatedStringStart `$"`
 1:74 InterpolatedStringEnd `"`
-    doc `/// Doc line two.`
 5:1 LetKeyword `let`
 5:5 Identifier `b`
 5:7 Equals `=`

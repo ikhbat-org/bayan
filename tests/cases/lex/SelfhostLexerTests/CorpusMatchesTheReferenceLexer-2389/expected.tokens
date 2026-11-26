@@ -34,7 +34,7 @@
 11:1 Identifier `et`
 11:4 Identifier `a`
 11:6 Equals `=`
-11:7 EndOfFile
+11:8 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier
 

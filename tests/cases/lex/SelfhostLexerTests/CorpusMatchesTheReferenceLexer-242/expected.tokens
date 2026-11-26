@@ -1,6 +1,6 @@
 1:1 CharLiteral `'\q'`
 2:4 Identifier `ra`
-2:7 StringLiteral `"quoted`
+2:8 StringLiteral `"quoted`
 3:3 IntegerLiteral `0x`
 3:6 EndOfFile
 

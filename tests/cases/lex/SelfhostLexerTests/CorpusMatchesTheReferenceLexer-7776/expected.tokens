@@ -18,9 +18,9 @@
 2:40 Greater `>`
 2:41 GreaterEquals `>=`
 3:1 Identifier `é`
-4:3 InterpolatedStringStart `$"`
-4:5 InterpolatedStringText `stray } here`
-4:17 InterpolatedStringEnd `"`
+4:7 InterpolatedStringStart `$"`
+4:9 InterpolatedStringText `stray } here`
+4:21 InterpolatedStringEnd `"`
     doc `/// `
 5:5 EndOfFile
 

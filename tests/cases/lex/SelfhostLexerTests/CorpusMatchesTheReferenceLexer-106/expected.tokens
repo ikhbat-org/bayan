@@ -1,12 +1,12 @@
 1:1 CharLiteral `'\u{110000}'`
 2:1 Identifier `fo`
-2:4 Identifier `Bar`
-2:8 Identifier `_x`
-2:11 Identifier `camelCase2`
-2:22 Identifier `بيان`
-2:27 Identifier `μετρητής`
-2:36 Identifier `x_1`
-2:40 Identifier `é`
+2:5 Identifier `Bar`
+2:9 Identifier `_x`
+2:12 Identifier `camelCase2`
+2:23 Identifier `بيان`
+2:28 Identifier `μετρητής`
+2:37 Identifier `x_1`
+2:41 Identifier `é`
 3:1 StringLiteral `"{`
 3:3 EndOfFile
 

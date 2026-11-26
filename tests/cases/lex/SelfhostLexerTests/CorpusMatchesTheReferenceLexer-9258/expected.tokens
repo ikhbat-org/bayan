@@ -3,20 +3,20 @@
 1:8 IntegerLiteral `2`
 1:9 Dot `.`
 1:10 Identifier `q5e`
-1:13 Minus `-`
-1:14 IntegerLiteral `3`
-1:16 FloatLiteral `6E+2`
-1:21 FloatLiteral `1.50`
-1:25 NumericSuffix `dec`
-1:29 IntegerLiteral `1`
-1:30 DotDot `..`
-1:32 IntegerLiteral `2`
-1:34 IntegerLiteral `1`
-1:35 DotDotEquals `..=`
-1:39 Identifier `ạ̇`
-2:2 LetKeyword `let`
-2:8 Equals `=`
-2:10 IntegerLiteral `2`
+1:14 Minus `-`
+1:15 IntegerLiteral `3`
+1:17 FloatLiteral `6E+2`
+1:22 FloatLiteral `1.50`
+1:26 NumericSuffix `dec`
+1:30 IntegerLiteral `1`
+1:31 DotDot `..`
+1:33 IntegerLiteral `2`
+1:35 IntegerLiteral `1`
+1:36 DotDotEquals `..=`
+1:40 Identifier `ạ̇`
+2:3 LetKeyword `let`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xEB)

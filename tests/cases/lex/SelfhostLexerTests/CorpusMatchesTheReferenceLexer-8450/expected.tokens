@@ -7,9 +7,9 @@
 1:35 Identifier `nosus`
 1:41 Identifier `pend`
 1:46 Identifier `sus`
-1:49 Identifier `pends`
-1:55 AsyncKeyword `async`
-1:61 AwaitKeyword `await`
+1:50 Identifier `pends`
+1:56 AsyncKeyword `async`
+1:62 AwaitKeyword `await`
 2:1 CharLiteral `'\u{110000}'`
 3:2 EndOfFile
 

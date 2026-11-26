@@ -4,7 +4,7 @@
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
 1:9 Identifier `a`
-3:21 Identifier `a`
+3:28 Identifier `a`
 4:2 EndOfFile
 
 error BYN0003: unterminated string literal

@@ -64,11 +64,11 @@
 1:80 InterpolationEnd `}`
 1:81 InterpolatedStringText `}`
 1:82 InterpolatedStringEnd `"`
-2:2 LetKeyword `let`
-2:6 Identifier `café`
-2:11 Equals `=`
-2:13 IntegerLiteral `2`
-2:14 NumericSuffix `O`
+2:4 LetKeyword `let`
+2:8 Identifier `café`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
+2:16 NumericSuffix `O`
 3:3 OpenParen `(`
 3:5 CloseParen `)`
 3:7 OpenBracket `[`

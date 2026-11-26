@@ -22,7 +22,7 @@
 5:102 ExternKeyword `extern`
 5:109 UnsafeKeyword `unsafe`
 7:1 IntegerLiteral `0xF__`
-9:3 EndOfFile
+9:7 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

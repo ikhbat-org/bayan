@@ -9,7 +9,7 @@
 3:3 InterpolationStart `{`
 3:5 IntegerLiteral `1`
 3:6 Slash `/`
-3:10 EndOfFile
+3:14 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

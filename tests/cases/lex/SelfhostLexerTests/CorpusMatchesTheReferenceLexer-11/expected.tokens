@@ -2,7 +2,7 @@
 1:3 InterpolationStart `{`
 1:4 Identifier `a`
 1:6 Identifier `é`
-2:3 EndOfFile
+2:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

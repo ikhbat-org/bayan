@@ -1,16 +1,16 @@
 1:1 StructKeyword `struct`
 1:8 Identifier `uique`
 1:14 Identifier `un`
-1:16 Identifier `on`
-1:19 EnumKeyword `enum`
-1:24 FlagsKeyword `flags`
-1:30 OpenKeyword `open`
-1:35 ExtensibleKeyword `extensible`
-1:46 InterfaceKeyword `interface`
-1:56 DelegateKeyword `delegate`
-1:65 ExtensionKeyword `extension`
-1:75 DerivationKeyword `derivation`
-1:86 AttributeKeyword `attribute`
+1:17 Identifier `on`
+1:20 EnumKeyword `enum`
+1:25 FlagsKeyword `flags`
+1:31 OpenKeyword `open`
+1:36 ExtensibleKeyword `extensible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 ExtensionKeyword `extension`
+1:76 DerivationKeyword `derivation`
+1:87 AttributeKeyword `attribute`
 2:1 Identifier `ạ̇`
 2:5 Identifier `é`
 2:8 InterpolatedStringStart `$"`
@@ -29,7 +29,7 @@
 3:15 InterpolationStart `{`
 3:16 InterpolatedStringStart `$"`
 3:18 InterpolationStart `{`
-4:3 EndOfFile
+4:4 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8D)
 

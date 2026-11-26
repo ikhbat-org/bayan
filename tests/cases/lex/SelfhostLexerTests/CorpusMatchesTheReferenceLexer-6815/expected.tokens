@@ -6,7 +6,7 @@
 2:13 OpenBrace `{`
 2:14 Identifier `literal`
 2:21 CloseBrace `}`
-2:23 EndOfFile
+2:24 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x90)
 

@@ -11,7 +11,7 @@
 1:43 TrueKeyword `true`
 1:48 FalseKeyword `false`
 1:54 ComptimeKeyword `comptime`
-1:63 CheckedKeyword `checked`
+1:64 CheckedKeyword `checked`
 3:1 FloatLiteral `3.14`
 3:6 FloatLiteral `1e5`
 3:10 FloatLiteral `2.5e-3`

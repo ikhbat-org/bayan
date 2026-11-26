@@ -32,8 +32,8 @@
 8:86 ErrdeferKeyword `errdefer`
 8:95 UsingKeyword `using`
 8:101 ContextKeyword `context`
-10:2 Identifier `ạ̇`
-10:5 EndOfFile
+10:5 Identifier `ạ̇`
+10:8 EndOfFile
 
 error BYN0008: unterminated char literal
 

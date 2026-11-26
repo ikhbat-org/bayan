@@ -66,11 +66,11 @@
 3:71 InterpolatedStringEnd `"`
 3:72 InterpolationEnd `}`
 3:73 InterpolatedStringEnd `"`
-3:76 LetKeyword `let`
-3:80 Identifier `café`
-3:86 Equals `=`
-3:88 IntegerLiteral `1`
-3:89 Semicolon `;`
+3:80 LetKeyword `let`
+3:84 Identifier `café`
+3:90 Equals `=`
+3:92 IntegerLiteral `1`
+3:93 Semicolon `;`
 4:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

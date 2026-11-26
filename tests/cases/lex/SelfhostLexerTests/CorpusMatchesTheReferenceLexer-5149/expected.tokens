@@ -14,15 +14,15 @@
 3:5 InterpolatedStringEnd `"`
 3:6 Identifier `wed`
 3:10 InKeyword `in`
-3:13 Identifier `trings`
-3:19 StringLiteral `" "`
-3:22 StringLiteral `" "`
-3:26 Identifier `u`
-3:27 OpenBrace `{`
-3:28 IntegerLiteral `48`
-3:30 CloseBrace `}`
-3:31 Identifier `i`
-3:32 StringLiteral `"`
+3:14 Identifier `trings`
+3:20 StringLiteral `" "`
+3:23 StringLiteral `" "`
+3:27 Identifier `u`
+3:28 OpenBrace `{`
+3:29 IntegerLiteral `48`
+3:31 CloseBrace `}`
+3:32 Identifier `i`
+3:33 StringLiteral `"`
 4:1 Identifier `각`
 4:6 LetKeyword `let`
 4:10 EffectKeyword `effect`

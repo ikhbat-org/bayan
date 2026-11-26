@@ -1,8 +1,8 @@
 1:1 LetKeyword `let`
 1:5 Identifier `ac`
-1:7 OrKeyword `or`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
+1:8 OrKeyword `or`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
 3:1 CharLiteral `'\q'`
 4:1 CharLiteral `'\u{D800}'`
 5:1 CharLiteral `'\u{510000}'`

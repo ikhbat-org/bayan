@@ -2,7 +2,7 @@
 1:4 NumericSuffix `ul`
 1:8 IntegerLiteral `7`
 1:9 NumericSuffix `l`
-2:1 EndOfFile
+2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xDD)
 

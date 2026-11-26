@@ -12,9 +12,9 @@
 3:3 Greater `>`
 3:4 GreaterEquals `>=`
 3:7 IntegerLiteral `1`
-5:1 Identifier `τής`
-5:5 Identifier `x_1`
-5:9 Identifier `é`
+5:2 Identifier `τής`
+5:6 Identifier `x_1`
+5:10 Identifier `é`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolatedStringText `open `
 6:8 InterpolationStart `{`

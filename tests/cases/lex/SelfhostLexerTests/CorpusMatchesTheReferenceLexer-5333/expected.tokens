@@ -107,7 +107,7 @@
 3:129 InterpolatedStringEnd `"`
 3:130 InterpolationEnd `}`
 3:131 InterpolatedStringEnd `"`
-4:2 CharLiteral `'x\r`
+4:2 CharLiteral `'x`
 6:2 Equals `=`
 6:4 IntegerLiteral `2`
 7:1 Slash `/`

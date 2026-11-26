@@ -72,8 +72,8 @@
 5:28 CharLiteral `'é'`
 5:32 CharLiteral `'\\'`
 5:37 CharLiteral `'\0'`
-6:3 Equals `=`
-6:5 IntegerLiteral `1`
+6:4 Equals `=`
+6:6 IntegerLiteral `1`
 7:1 LetKeyword `let`
 7:7 Equals `=`
 7:9 IntegerLiteral `2`

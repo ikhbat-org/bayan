@@ -1,6 +1,6 @@
 1:1 Identifier `l`
-1:6 Equals `=`
-1:8 IntegerLiteral `2`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
 3:1 Identifier `Å`
 5:1 EndOfFile
 

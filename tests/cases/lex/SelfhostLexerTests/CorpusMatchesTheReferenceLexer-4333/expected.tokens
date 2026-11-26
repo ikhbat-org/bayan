@@ -4,11 +4,11 @@
 1:6 Identifier `b`
     doc `/// D�oc line two.`
 4:1 IntegerLiteral `000_000`
-4:9 Identifier `xFF`
-4:13 IntegerLiteral `0x_ff`
-4:19 IntegerLiteral `0`
-4:20 NumericSuffix `b`
-4:22 CharLiteral `'ab'`
+4:10 Identifier `xFF`
+4:14 IntegerLiteral `0x_ff`
+4:20 IntegerLiteral `0`
+4:21 NumericSuffix `b`
+4:23 CharLiteral `'ab'`
 6:3 IntegerLiteral `2`
 7:1 LetKeyword `let`
 7:5 Identifier `c`

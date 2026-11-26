@@ -1,10 +1,10 @@
 1:1 Identifier `Åst`
-1:4 Identifier `ray`
-1:8 CloseBrace `}`
-1:10 Identifier `here`
-1:14 StringLiteral `"`
-2:2 StringLiteral `"open {x"`
-2:11 Semicolon `;`
+1:5 Identifier `ray`
+1:9 CloseBrace `}`
+1:11 Identifier `here`
+1:15 StringLiteral `"`
+2:3 StringLiteral `"open {x"`
+2:12 Semicolon `;`
 3:1 EndOfFile
 
 error BYN0005: identifier `Åst` is not in Unicode normalization form C

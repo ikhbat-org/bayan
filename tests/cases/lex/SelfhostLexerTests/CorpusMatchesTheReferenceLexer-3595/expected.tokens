@@ -2,12 +2,12 @@
 1:5 Identifier `b`
 1:7 Equals `=`
 1:9 StringLiteral `"bad \q escape"`
-2:3 LetKeyword `let`
-2:7 Identifier `café`
-2:13 Equals `=`
-2:15 IntegerLiteral `1`
-2:16 Semicolon `;`
-2:20 StringLiteral `"doc comment`
+2:6 LetKeyword `let`
+2:10 Identifier `café`
+2:16 Equals `=`
+2:18 IntegerLiteral `1`
+2:19 Semicolon `;`
+2:23 StringLiteral `"doc comment`
 3:1 Identifier `b`
 4:1 EndOfFile
 

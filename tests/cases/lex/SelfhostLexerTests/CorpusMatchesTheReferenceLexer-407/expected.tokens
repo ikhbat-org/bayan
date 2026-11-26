@@ -17,7 +17,7 @@
 2:39 Greater `>`
 2:41 Greater `>`
 2:42 GreaterEquals `>=`
-3:2 Identifier `hidden`
+3:4 Identifier `hidden`
 4:1 LetKeyword `let`
 4:5 Identifier `x`
 5:1 IntegerLiteral `0x_`

@@ -20,10 +20,10 @@
 3:39 Greater `>`
 3:41 Greater `>`
 3:42 GreaterEquals `>=`
-4:2 LetKeyword `let`
-4:6 Identifier `c`
-4:8 Equals `=`
-4:10 RawStringLiteral `"""never closed\n $"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"�x}"}"}" $"{{"\n/*let a = $ 1\n `
+4:5 LetKeyword `let`
+4:9 Identifier `c`
+4:11 Equals `=`
+4:13 RawStringLiteral `"""never closed\n $"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$"{$"{$"{$"�x}"}"}" $"{{"\n/*let a = $ 1\n `
 7:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

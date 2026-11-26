@@ -11,41 +11,41 @@
 3:9 Identifier `x`
 3:10 StringLiteral `";`
 5:1 LetKeyword `let`
-5:6 Equals `=`
-5:8 StringLiteral `"bad \q escape"`
-5:23 CloseBracket `]`
+5:7 Equals `=`
+5:9 StringLiteral `"bad \q escape"`
+5:24 CloseBracket `]`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`
-6:4 StringLiteral `"{$"`
-6:8 OpenBrace `{`
-6:9 InterpolatedStringStart `$"`
-6:11 InterpolationStart `{`
-6:12 InterpolatedStringStart `$"`
-6:14 InterpolationStart `{`
-6:15 InterpolatedStringStart `$"`
-6:17 InterpolationStart `{`
-6:18 InterpolatedStringStart `$"`
-6:20 InterpolationStart `{`
-6:21 InterpolatedStringStart `$"`
-6:23 InterpolationStart `{`
-6:24 InterpolatedStringStart `$"`
-6:26 InterpolationStart `{`
-6:27 InterpolatedStringStart `$"`
-6:29 InterpolationStart `{`
-6:30 InterpolatedStringStart `$"`
-6:32 InterpolationStart `{`
-6:33 InterpolatedStringStart `$"`
-6:35 InterpolationStart `{`
-6:36 InterpolatedStringStart `$"`
-6:38 InterpolationStart `{`
-6:39 InterpolatedStringStart `$"`
-6:41 InterpolationStart `{`
-6:42 Identifier `x`
-6:43 InterpolationEnd `}`
-6:44 InterpolatedStringEnd `"`
-6:45 InterpolationEnd `}`
-6:46 InterpolatedStringEnd `"`
-6:47 EndOfFile
+6:5 StringLiteral `"{$"`
+6:9 OpenBrace `{`
+6:10 InterpolatedStringStart `$"`
+6:12 InterpolationStart `{`
+6:13 InterpolatedStringStart `$"`
+6:15 InterpolationStart `{`
+6:16 InterpolatedStringStart `$"`
+6:18 InterpolationStart `{`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolationStart `{`
+6:22 InterpolatedStringStart `$"`
+6:24 InterpolationStart `{`
+6:25 InterpolatedStringStart `$"`
+6:27 InterpolationStart `{`
+6:28 InterpolatedStringStart `$"`
+6:30 InterpolationStart `{`
+6:31 InterpolatedStringStart `$"`
+6:33 InterpolationStart `{`
+6:34 InterpolatedStringStart `$"`
+6:36 InterpolationStart `{`
+6:37 InterpolatedStringStart `$"`
+6:39 InterpolationStart `{`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolationStart `{`
+6:43 Identifier `x`
+6:44 InterpolationEnd `}`
+6:45 InterpolatedStringEnd `"`
+6:46 InterpolationEnd `}`
+6:47 InterpolatedStringEnd `"`
+6:48 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

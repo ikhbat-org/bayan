@@ -5,7 +5,7 @@
 2:23 CharLiteral `'\''`
 2:28 CharLiteral `'é'`
 2:32 CharLiteral `'\\'`
-2:37 CharLiteral `'\0'`
+2:38 CharLiteral `'\0'`
 3:1 IntegerLiteral `0b1`
 3:4 NumericSuffix `ms`
 4:1 InterpolatedStringStart `$"`

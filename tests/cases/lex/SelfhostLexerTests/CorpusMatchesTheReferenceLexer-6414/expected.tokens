@@ -1,11 +1,11 @@
 1:1 Identifier `foo`
 1:5 Identifier `B`
-1:6 Identifier `ar`
-1:9 Identifier `_x`
-1:12 Identifier `camelCase2`
-1:23 Identifier `بيانμετρητής`
-1:36 Identifier `x_1`
-1:40 Identifier `é`
+1:7 Identifier `ar`
+1:10 Identifier `_x`
+1:13 Identifier `camelCase2`
+1:24 Identifier `بيانμετρητής`
+1:37 Identifier `x_1`
+1:41 Identifier `é`
 2:2 Identifier `a`
 2:4 Greater `>`
 2:5 Greater `>`

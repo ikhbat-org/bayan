@@ -3,15 +3,15 @@
 3:1 IntegerLiteral `1__`
 4:1 IntegerLiteral `0xF__`
 6:1 VarKeyword `var`
-6:5 Identifier `s`
-6:6 Colon `:`
-6:8 Identifier `List`
-6:12 Less `<`
-6:13 Identifier `List`
-6:17 Less `<`
-6:18 Identifier `i64`
-6:21 Greater `>`
+6:6 Identifier `s`
+6:7 Colon `:`
+6:9 Identifier `List`
+6:13 Less `<`
+6:14 Identifier `List`
+6:18 Less `<`
+6:19 Identifier `i64`
 6:22 Greater `>`
+6:23 Greater `>`
 8:2 Identifier `o`
 9:1 Identifier `a`
 10:1 EndOfFile

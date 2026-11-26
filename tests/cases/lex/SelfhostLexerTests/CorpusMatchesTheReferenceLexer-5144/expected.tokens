@@ -1,5 +1,5 @@
-2:2 IntegerLiteral `0xFF`
-2:6 NumericSuffix `s`
+2:4 IntegerLiteral `0xFF`
+2:8 NumericSuffix `s`
 3:2 LetKeyword `let`
 3:6 Identifier `a`
 3:8 Equals `=`

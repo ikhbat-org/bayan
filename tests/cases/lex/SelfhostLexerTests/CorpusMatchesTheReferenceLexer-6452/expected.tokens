@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `0b1`
 1:4 NumericSuffix `ms`
 3:1 Identifier `F__`
-5:1 Star `*`
-5:2 Slash `/`
-5:4 EndOfFile
+5:2 Star `*`
+5:3 Slash `/`
+5:5 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal
 

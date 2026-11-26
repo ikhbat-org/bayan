@@ -5,7 +5,7 @@
 1:27 CharLiteral `'é'`
 1:31 CharLiteral `'\\'`
 1:36 CharLiteral `'\0'`
-3:2 CharLiteral `' 0b1ms\r`
+3:3 CharLiteral `' 0b1ms`
 5:1 Identifier `b`
 6:2 EndOfFile
 

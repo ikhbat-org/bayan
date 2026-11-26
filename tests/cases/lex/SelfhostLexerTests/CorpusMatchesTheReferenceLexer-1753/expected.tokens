@@ -31,8 +31,8 @@
 4:2 Identifier `x́́`
 5:1 IntegerLiteral `110000`
 5:7 CloseBrace `}`
-5:8 CharLiteral `'\r`
-6:1 CharLiteral `'x\r`
+5:8 CharLiteral `'`
+6:1 CharLiteral `'x`
 7:1 CharLiteral `'ab'`
 8:2 EndOfFile
 

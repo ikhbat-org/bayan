@@ -14,7 +14,7 @@
 8:3 Identifier `__`
 9:1 Identifier `é`
 10:1 CharLiteral `'\q'`
-11:2 EndOfFile
+11:5 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

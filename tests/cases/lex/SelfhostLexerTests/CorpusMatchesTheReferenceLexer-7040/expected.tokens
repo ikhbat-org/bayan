@@ -1,8 +1,8 @@
 2:1 CharLiteral `'x`
-3:3 Identifier `i`
-3:4 OpenBrace `{`
-3:5 StringLiteral `"$"`
-3:8 OpenBrace `{`
+3:4 Identifier `i`
+3:5 OpenBrace `{`
+3:6 StringLiteral `"$"`
+3:9 OpenBrace `{`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

@@ -45,20 +45,20 @@
 8:33 InterpolatedStringEnd `"`
 8:35 InterpolatedStringStart `$"`
 8:37 InterpolatedStringText `{{litera�}}`
-8:47 InterpolatedStringEnd `"`
-8:49 InterpolatedStringStart `$"`
-8:51 InterpolationStart `{`
-8:52 Identifier `Point`
-8:58 OpenBrace `{`
-8:60 Identifier `x`
-8:62 Equals `=`
-8:64 IntegerLiteral `1`
-8:66 CloseBrace `}`
-8:67 InterpolationEnd `}`
-8:68 InterpolatedStringText `!`
-8:69 InterpolatedStringEnd `"`
-8:71 InterpolatedStringStart `$"`
-8:73 InterpolatedStringEnd `"`
+8:48 InterpolatedStringEnd `"`
+8:50 InterpolatedStringStart `$"`
+8:52 InterpolationStart `{`
+8:53 Identifier `Point`
+8:59 OpenBrace `{`
+8:61 Identifier `x`
+8:63 Equals `=`
+8:65 IntegerLiteral `1`
+8:67 CloseBrace `}`
+8:68 InterpolationEnd `}`
+8:69 InterpolatedStringText `!`
+8:70 InterpolatedStringEnd `"`
+8:72 InterpolatedStringStart `$"`
+8:74 InterpolatedStringEnd `"`
 9:1 Identifier `b`
 10:1 EndOfFile
 

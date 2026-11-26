@@ -9,7 +9,7 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 StringLiteral `" Å \u{2066}0xF 0�\u{1E}`
-4:15 EndOfFile
+4:16 EndOfFile
 
 error BYN0002: unexpected character ```
 

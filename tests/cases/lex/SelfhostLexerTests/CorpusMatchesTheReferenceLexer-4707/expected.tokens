@@ -13,11 +13,11 @@
 6:9 Identifier `_x`
 6:12 Identifier `camelCase2`
 6:23 Identifier `ب`
-6:24 Identifier `يان`
-6:28 Identifier `μi`
-6:30 Identifier `τρητής`
-6:37 Identifier `x_1`
-6:41 Identifier `é`
+6:25 Identifier `يان`
+6:29 Identifier `μi`
+6:32 Identifier `τρητής`
+6:39 Identifier `x_1`
+6:43 Identifier `é`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolatedStringText `open `
 7:8 InterpolationStart `{`

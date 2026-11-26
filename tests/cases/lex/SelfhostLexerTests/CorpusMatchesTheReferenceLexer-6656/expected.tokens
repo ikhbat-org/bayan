@@ -73,10 +73,10 @@
 3:87 Identifier `Bar`
 3:91 Identifier `_x`
 3:94 Identifier `camelCase2`
-3:104 Identifier `بيان`
-3:109 Identifier `μετρητής`
-3:119 Identifier `x_1`
-3:123 Identifier `é`
+3:105 Identifier `بيان`
+3:110 Identifier `μετρητής`
+3:120 Identifier `x_1`
+3:124 Identifier `é`
 5:1 Identifier `macro`
 5:7 Identifier `sel`
 5:11 Identifier `ct`

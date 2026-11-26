@@ -1,6 +1,6 @@
-1:2 Identifier `acro`
-1:7 Identifier `select`
-1:14 BecomeKeyword `become`
+1:5 Identifier `acro`
+1:10 Identifier `select`
+1:17 BecomeKeyword `become`
 2:1 LetKeyword `let`
 2:5 LawKeyword `law`
 2:9 Equals `=`
@@ -16,21 +16,21 @@
 6:43 WhileKeyword `while`
 6:49 DoKeyword `do`
 6:52 Identifier `brea`
-6:56 Identifier `k`
-6:58 ContinueKeyword `continue`
-6:67 ReturnKeyword `return`
-6:74 YieldKeyword `yield`
-6:80 DeferKeyword `defer`
-6:86 ErrdeferKeyword `errdefer`
-6:95 UsingKeyword `using`
-6:101 ContextKeyword `context`
+6:57 Identifier `k`
+6:59 ContinueKeyword `continue`
+6:68 ReturnKeyword `return`
+6:75 YieldKeyword `yield`
+6:81 DeferKeyword `defer`
+6:87 ErrdeferKeyword `errdefer`
+6:96 UsingKeyword `using`
+6:102 ContextKeyword `context`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolationStart `{`
 7:4 Identifier `a`
-8:2 LetKeyword `let`
-8:6 Identifier `café`
-8:11 Equals `=`
-8:13 IntegerLiteral `2`
+8:4 LetKeyword `let`
+8:8 Identifier `café`
+8:13 Equals `=`
+8:15 IntegerLiteral `2`
 9:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

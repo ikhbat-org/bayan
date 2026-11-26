@@ -1,20 +1,20 @@
 1:1 Identifier `mment`
 1:9 Identifier `hidden`
-2:1 Identifier `ن`
-2:3 Identifier `μετρητής`
-2:13 Comma `,`
-2:15 Dot `.`
-2:17 DotDot `..`
-2:20 DotDotEquals `..=`
-2:24 Colon `:`
-2:26 Question `?`
-2:28 QuestionQuestion `??`
-2:31 QuestionQuestionEquals `??=`
-2:35 QuestionDot `?.`
-2:38 FatArrow `=>`
-2:41 Arrow `->`
-2:44 At `@`
-2:46 Hash `#`
+2:2 Identifier `ن`
+2:4 Identifier `μετρητής`
+2:14 Comma `,`
+2:16 Dot `.`
+2:18 DotDot `..`
+2:21 DotDotEquals `..=`
+2:25 Colon `:`
+2:27 Question `?`
+2:29 QuestionQuestion `??`
+2:32 QuestionQuestionEquals `??=`
+2:36 QuestionDot `?.`
+2:39 FatArrow `=>`
+2:42 Arrow `->`
+2:45 At `@`
+2:47 Hash `#`
 3:2 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

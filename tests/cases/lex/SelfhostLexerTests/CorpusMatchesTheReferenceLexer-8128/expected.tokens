@@ -4,7 +4,7 @@
 2:10 Equals `=`
 2:12 IntegerLiteral `1`
 2:13 Semicolon `;`
-2:15 CharLiteral `' | || ^ ~ ! =� ={`
+2:17 CharLiteral `' | || ^ ~ ! =� ={`
 3:1 IntegerLiteral `0x`
 4:2 InterpolatedStringStart `$"`
 4:4 InterpolatedStringText `x`

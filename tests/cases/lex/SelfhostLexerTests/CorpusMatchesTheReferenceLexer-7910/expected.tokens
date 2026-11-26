@@ -5,26 +5,26 @@
 1:27 CharLiteral `'é'`
 1:31 CharLiteral `'\\'`
 1:36 CharLiteral `'\0'`
-3:1 StringLiteral `" $"`
-3:5 Identifier `a`
-3:7 OpenBrace `{`
-3:8 Identifier `f`
-3:9 OpenParen `(`
-3:10 InterpolatedStringStart `$"`
-3:12 InterpolatedStringText `b `
-3:14 InterpolationStart `{`
-3:15 Identifier `c`
-3:16 InterpolationEnd `}`
-3:17 InterpolatedStringEnd `"`
-3:18 CloseParen `)`
-3:19 CloseBrace `}`
-3:21 Identifier `d`
-3:22 StringLiteral `" $"`
-3:26 StringLiteral `"}"`
-3:29 CloseBrace `}`
-3:30 StringLiteral `"~}"`
-3:34 CloseBrace `}`
-3:35 StringLiteral `"`
+3:2 StringLiteral `" $"`
+3:6 Identifier `a`
+3:8 OpenBrace `{`
+3:9 Identifier `f`
+3:10 OpenParen `(`
+3:11 InterpolatedStringStart `$"`
+3:13 InterpolatedStringText `b `
+3:15 InterpolationStart `{`
+3:16 Identifier `c`
+3:17 InterpolationEnd `}`
+3:18 InterpolatedStringEnd `"`
+3:19 CloseParen `)`
+3:20 CloseBrace `}`
+3:22 Identifier `d`
+3:23 StringLiteral `" $"`
+3:27 StringLiteral `"}"`
+3:30 CloseBrace `}`
+3:31 StringLiteral `"~}"`
+3:35 CloseBrace `}`
+3:36 StringLiteral `"`
 5:1 LetKeyword `let`
 5:5 Identifier `café`
 5:11 Equals `=`

@@ -75,8 +75,8 @@
 4:34 ForeachKeyword `foreach`
 4:42 NewKeyword `new`
 4:46 GotoKeyword `goto`
-5:3 Equals `=`
-5:5 IntegerLiteral `1`
+5:5 Equals `=`
+5:7 IntegerLiteral `1`
 6:2 EndOfFile
 
 error BYN0003: unterminated string literal

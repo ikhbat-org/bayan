@@ -36,10 +36,10 @@
 4:44 InterpolationEnd `}`
 4:45 InterpolatedStringEnd `"`
 4:46 Slash `/`
-4:47 Star `*`
-4:51 Star `*`
-4:52 Slash `/`
-4:54 CharLiteral `'x`
+4:48 Star `*`
+4:52 Star `*`
+4:53 Slash `/`
+4:58 CharLiteral `'x`
 5:2 EndOfFile
 
 error BYN0003: unterminated string literal

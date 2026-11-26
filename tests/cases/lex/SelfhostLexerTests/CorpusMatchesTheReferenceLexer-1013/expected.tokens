@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `0b1`
 1:4 NumericSuffix `ms`
 3:1 RawStringLiteral `""" ��\n"\n*/\n���`
-6:2 EndOfFile
+6:4 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal
 

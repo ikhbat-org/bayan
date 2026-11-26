@@ -2,7 +2,7 @@
 1:5 Identifier `c`
 1:6 Equals `=`
 1:7 Identifier `osed`
-3:1 EndOfFile
+3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAA)
 

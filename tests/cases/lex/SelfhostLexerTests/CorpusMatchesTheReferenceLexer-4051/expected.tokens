@@ -1,5 +1,5 @@
 1:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n A� c 1..2 1..=3 5e x.y 2.`
-2:26 EndOfFile
+2:27 EndOfFile
 
 error BYN0003: unterminated string literal
 

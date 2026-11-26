@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `c`
 1:7 Equals `=`
-1:11 IntegerLiteral `3`
+1:12 IntegerLiteral `3`
 2:1 CharLiteral `''`
 3:2 Identifier `x́́let`
 3:9 Identifier `c`

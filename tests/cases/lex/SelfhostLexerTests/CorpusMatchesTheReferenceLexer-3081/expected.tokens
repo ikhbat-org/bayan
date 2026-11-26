@@ -1,4 +1,4 @@
-2:1 OpenBrace `{`
+2:2 OpenBrace `{`
 3:1 LetKeyword `let`
 3:5 Identifier `actor`
 3:13 IntegerLiteral `1`

@@ -15,25 +15,25 @@
 7:3 InterpolatedStringText `stray } here`
 7:15 InterpolatedStringEnd `"`
 9:1 IntegerLiteral `0x_`
-10:1 Amp `&`
-10:3 AmpAmp `&&`
-10:6 Bar `|`
-10:8 BarBar `||`
-10:11 Caret `^`
-10:13 Tilde `~`
-10:15 Bang `!`
-10:17 Equals `=`
-10:19 EqualsEquals `==`
-10:22 BangEquals `!=`
-10:25 Less `<`
-10:27 LessEquals `<=`
-10:30 Greater `>`
-10:32 GreaterEquals `>=`
-10:35 LessLess `<<`
-10:38 Greater `>`
+10:2 Amp `&`
+10:4 AmpAmp `&&`
+10:7 Bar `|`
+10:9 BarBar `||`
+10:12 Caret `^`
+10:14 Tilde `~`
+10:16 Bang `!`
+10:18 Equals `=`
+10:20 EqualsEquals `==`
+10:23 BangEquals `!=`
+10:26 Less `<`
+10:28 LessEquals `<=`
+10:31 Greater `>`
+10:33 GreaterEquals `>=`
+10:36 LessLess `<<`
 10:39 Greater `>`
-10:41 Greater `>`
-10:42 GreaterEquals `>=`
+10:40 Greater `>`
+10:42 Greater `>`
+10:43 GreaterEquals `>=`
 12:1 EndOfFile
 
 error BYN0003: unterminated string literal

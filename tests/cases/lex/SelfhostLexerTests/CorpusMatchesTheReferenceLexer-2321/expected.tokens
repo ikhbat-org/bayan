@@ -3,10 +3,10 @@
 3:1 StringLiteral `"open {x"`
 3:10 Semicolon `;`
 5:1 CharLiteral `'\u{202E}'`
-5:5 Identifier `c`
-5:7 Greater `>`
-5:8 GreaterEquals `>=`
-5:11 IntegerLiteral `1`
+5:9 Identifier `c`
+5:11 Greater `>`
+5:12 GreaterEquals `>=`
+5:15 IntegerLiteral `1`
 7:1 EndOfFile
 
 error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal

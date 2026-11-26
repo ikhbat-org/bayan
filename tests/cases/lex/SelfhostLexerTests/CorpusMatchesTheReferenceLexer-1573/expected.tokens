@@ -1,7 +1,7 @@
 1:1 Star `*`
 1:2 Slash `/`
 1:4 CharLiteral `'\u{110000}'`
-2:2 EndOfFile
+2:3 EndOfFile
 
 error BYN0013: `\u{110000}` is not a Unicode scalar value
 

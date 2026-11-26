@@ -1,12 +1,12 @@
 1:1 CharLiteral `'x`
 3:1 IntegerLiteral `60`
-3:3 IntegerLiteral `0`
-3:4 CloseBrace `}`
-3:5 CharLiteral `' '`
-3:9 CharLiteral `''`
-3:12 CharLiteral `'é'`
-3:16 CharLiteral `'\\'`
-3:21 CharLiteral `'\0'`
+3:4 IntegerLiteral `0`
+3:5 CloseBrace `}`
+3:6 CharLiteral `' '`
+3:10 CharLiteral `''`
+3:13 CharLiteral `'é'`
+3:17 CharLiteral `'\\'`
+3:22 CharLiteral `'\0'`
 4:1 CharLiteral `'x`
 6:1 CharLiteral `'`
 7:1 EndOfFile

@@ -1,4 +1,4 @@
-1:2 CharLiteral `'/// Doc line two.`
+1:5 CharLiteral `'/// Doc line two.`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 InterpolatedStringStart `$"`
@@ -49,7 +49,7 @@
 4:63 InterpolationEnd `}`
 4:64 InterpolatedStringEnd `"`
 4:65 Identifier `b`
-5:1 EndOfFile
+5:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

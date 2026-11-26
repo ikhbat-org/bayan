@@ -1,7 +1,7 @@
 1:1 Identifier `cl`
 2:1 Identifier `K`
 2:2 RawStringLiteral `""" ��C�`
-2:8 EndOfFile
+2:10 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -1,6 +1,6 @@
 1:2 Identifier `caf`
-1:6 Equals `=`
-1:8 IntegerLiteral `2`
+1:7 Equals `=`
+1:9 IntegerLiteral `2`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 StringLiteral `"`
@@ -29,8 +29,8 @@
 6:91 VarKeyword `var`
 6:95 EmbedKeyword `embed`
 6:101 Identifier `ext`
-6:104 Identifier `rn`
-6:107 UnsafeKeyword `unsafe`
+6:105 Identifier `rn`
+6:108 UnsafeKeyword `unsafe`
 7:2 BarEquals `|=`
 7:5 CaretEquals `^=`
 7:8 LessLessEquals `<<=`

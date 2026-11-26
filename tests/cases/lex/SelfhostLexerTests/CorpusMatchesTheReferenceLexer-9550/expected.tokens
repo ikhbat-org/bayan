@@ -20,8 +20,8 @@
 2:5 Identifier `x`
 2:8 Equals `=`
 2:10 IntegerLiteral `1`
-4:3 CloseBrace `}`
-4:5 IntegerLiteral `0x`
+4:4 CloseBrace `}`
+4:6 IntegerLiteral `0x`
 6:1 Identifier `_`
 6:4 EndOfFile
 

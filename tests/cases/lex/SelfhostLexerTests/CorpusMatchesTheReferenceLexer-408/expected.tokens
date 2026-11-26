@@ -9,8 +9,8 @@
 2:2 Identifier `ere`
 2:5 StringLiteral `"`
 3:1 InterpolatedStringStart `$"`
-3:3 InterpolatedStringText `open \r`
-3:9 InterpolatedStringEnd
+3:3 InterpolatedStringText `open `
+3:8 InterpolatedStringEnd
 4:1 CharLiteral `'\q'`
 6:1 Identifier `x́́`
 6:5 InterpolatedStringStart `$"`

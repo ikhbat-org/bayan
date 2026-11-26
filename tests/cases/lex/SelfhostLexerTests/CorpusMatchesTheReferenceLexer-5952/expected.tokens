@@ -1,5 +1,5 @@
 1:1 Identifier `x́`
-1:4 StringLiteral `"stray  he�e"`
+1:5 StringLiteral `"stray  he�e"`
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `open `
 2:8 InterpolationStart `{`

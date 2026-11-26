@@ -29,7 +29,6 @@
 7:68 ExtensionKeyword `extension`
 7:78 Identifier `deri`
 7:82 CharLiteral `'vation attribute`
-    doc `/// Doc line one.`
 10:2 Identifier `e`
 10:4 Identifier `comment`
 12:15 Identifier `a`

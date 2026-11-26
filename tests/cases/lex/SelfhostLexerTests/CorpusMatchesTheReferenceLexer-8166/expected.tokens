@@ -8,7 +8,7 @@
 2:16 Bang `!`
 2:17 StringLiteral `" $"`
 2:21 StringLiteral `"`
-3:2 EndOfFile
+3:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

@@ -1,4 +1,4 @@
-1:4 CharLiteral `'`
+1:8 CharLiteral `'`
 2:1 LetKeyword `let`
 2:5 Identifier `b`
 2:7 Equals `=`

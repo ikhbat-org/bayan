@@ -42,8 +42,8 @@
 5:7 FloatLiteral `2.5`
 5:10 NumericSuffix `f`
 7:1 LetKeyword `let`
-7:6 Equals `=`
-7:8 IntegerLiteral `2`
+7:7 Equals `=`
+7:9 IntegerLiteral `2`
 8:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xEC)

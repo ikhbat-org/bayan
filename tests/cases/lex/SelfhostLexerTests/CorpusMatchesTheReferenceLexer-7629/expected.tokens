@@ -1,11 +1,11 @@
 1:1 Identifier `Å`
 2:2 IntegerLiteral `1`
 2:3 DotDot `..`
-2:6 InterpolatedStringStart `$"`
-2:8 InterpolationStart `{`
-2:10 InterpolatedStringStart `$"`
-2:12 InterpolationStart `{`
-2:14 EndOfFile
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:11 InterpolatedStringStart `$"`
+2:13 InterpolationStart `{`
+2:15 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C
 

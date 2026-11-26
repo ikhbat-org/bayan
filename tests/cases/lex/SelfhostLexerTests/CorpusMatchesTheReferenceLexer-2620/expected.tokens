@@ -2,9 +2,9 @@
 2:1 CharLiteral `'ab'`
 3:2 Identifier `uct`
 3:6 Identifier `S`
-5:1 Identifier `ρητής`
-5:7 Identifier `x_1`
-5:11 Identifier `é`
+5:2 Identifier `ρητής`
+5:8 Identifier `x_1`
+5:12 Identifier `é`
 6:2 InterpolatedStringStart `$"`
 6:4 InterpolatedStringText `total `
 6:10 InterpolationStart `{`

@@ -7,10 +7,10 @@
 5:8 InterpolationStart `{`
 5:9 Identifier `x`
 5:10 StringLiteral `";`
-6:1 Identifier `a`
-6:3 Greater `>`
+6:2 Identifier `a`
 6:4 Greater `>`
-6:5 Identifier `b`
+6:5 Greater `>`
+6:6 Identifier `b`
 7:2 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value

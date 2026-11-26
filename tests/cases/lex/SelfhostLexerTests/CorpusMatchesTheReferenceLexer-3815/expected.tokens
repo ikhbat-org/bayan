@@ -24,10 +24,10 @@
 6:33 ThisKeyword `this`
 6:38 NullKeyword `null`
 6:43 Identifier `t`
-6:44 Identifier `rue`
-6:48 FalseKeyword `false`
-6:54 ComptimeKeyword `comptime`
-6:63 CheckedKeyword `checked`
+6:45 Identifier `rue`
+6:49 FalseKeyword `false`
+6:55 ComptimeKeyword `comptime`
+6:64 CheckedKeyword `checked`
 9:1 EndOfFile
 
 error BYN0003: unterminated string literal

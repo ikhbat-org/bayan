@@ -1,8 +1,8 @@
-1:2 LetKeyword `let`
-1:6 Identifier `café`
-1:12 Equals `=`
-1:14 IntegerLiteral `1`
-1:15 Semicolon `;`
+1:4 LetKeyword `let`
+1:8 Identifier `café`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
+1:17 Semicolon `;`
 2:1 VarKeyword `var`
 2:5 Identifier `xs`
 2:7 Colon `:`

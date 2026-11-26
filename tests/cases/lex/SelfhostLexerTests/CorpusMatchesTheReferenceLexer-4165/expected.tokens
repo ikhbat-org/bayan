@@ -9,7 +9,7 @@
 3:24 Identifier `μετρητής`
 3:33 Identifier `x_1`
 3:37 Identifier `é`
-    doc `/// Doc lne one.\r`
+    doc `/// Doc lne one.`
 6:1 EndOfFile
 
 error BYN0002: unexpected character `\u{1E}`

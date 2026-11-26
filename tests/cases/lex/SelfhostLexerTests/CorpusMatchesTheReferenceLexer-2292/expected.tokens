@@ -15,7 +15,7 @@
 2:1 Identifier `b`
 4:2 Identifier `ok`
 4:7 InKeyword `in`
-4:10 Identifier `comment`
+4:11 Identifier `comment`
     doc `/// Doc line one.`
 6:2 EndOfFile
 

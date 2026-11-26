@@ -56,8 +56,8 @@
 5:5 Identifier `actor`
 5:11 Equals `=`
 5:13 IntegerLiteral `1`
-6:1 IntegerLiteral `1`
-6:2 Dot `.`
+6:2 IntegerLiteral `1`
+6:3 Dot `.`
 7:1 Identifier `b`
 8:2 LetKeyword `let`
 8:6 Identifier `a`

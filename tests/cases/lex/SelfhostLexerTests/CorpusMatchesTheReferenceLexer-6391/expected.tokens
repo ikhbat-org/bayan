@@ -1,6 +1,6 @@
 1:1 Identifier `le`
-1:6 Equals `=`
-1:10 IntegerLiteral `1`
+1:7 Equals `=`
+1:11 IntegerLiteral `1`
 2:1 Identifier `_`
 4:1 IntegerLiteral `1`
 4:2 NumericSuffix `e`

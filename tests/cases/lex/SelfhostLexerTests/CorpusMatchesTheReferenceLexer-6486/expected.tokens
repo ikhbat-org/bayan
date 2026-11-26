@@ -1,5 +1,5 @@
-1:2 Identifier `hidd`
-1:6 Identifier `n`
+1:3 Identifier `hidd`
+1:8 Identifier `n`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 Equals `=`

@@ -13,7 +13,7 @@
 1:30 NumericSuffix `b`
 1:32 LetKeyword `let`
 1:36 Identifier `café`
-1:42 IntegerLiteral `2`
+1:43 IntegerLiteral `2`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA4)

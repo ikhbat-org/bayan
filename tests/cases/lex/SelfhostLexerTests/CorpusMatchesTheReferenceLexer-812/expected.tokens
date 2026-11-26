@@ -33,10 +33,10 @@
 8:8 Identifier `S`
 10:1 Identifier `b`
 11:3 IntegerLiteral `1`
-12:1 CharLiteral `' '`
-12:6 CharLiteral `' '`
-12:10 IntegerLiteral `0`
-12:11 CharLiteral `'`
+12:2 CharLiteral `' '`
+12:7 CharLiteral `' '`
+12:11 IntegerLiteral `0`
+12:12 CharLiteral `'`
 13:2 Identifier `_`
 14:1 EndOfFile
 

@@ -3,7 +3,7 @@
 3:5 LawKeyword `law`
 3:9 Equals `=`
 3:11 IntegerLiteral `3`
-4:1 CharLiteral `'x\r`
+4:1 CharLiteral `'x`
 5:2 EndOfFile
 
 error BYN0002: unexpected character `﻿`

@@ -3,12 +3,12 @@
 1:4 InterpolationStart `{`
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
-1:11 Identifier `ᄁ`
-1:12 Identifier `ᅡᆨlet`
-1:18 Identifier `a`
-1:19 Identifier `tor`
-1:23 Equals `=`
-1:25 IntegerLiteral `1`
+1:15 Identifier `ᄁ`
+1:17 Identifier `ᅡᆨlet`
+1:23 Identifier `a`
+1:25 Identifier `tor`
+1:29 Equals `=`
+1:31 IntegerLiteral `1`
 2:2 EndOfFile
 
 error BYN0003: unterminated string literal

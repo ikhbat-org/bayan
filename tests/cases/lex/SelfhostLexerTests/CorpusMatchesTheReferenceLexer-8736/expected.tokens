@@ -64,43 +64,43 @@
 1:85 InterpolationEnd `}`
 1:86 InterpolatedStringEnd `"`
 5:2 IntegerLiteral `0xF__`
-6:4 InterpolatedStringStart `$"`
-6:6 InterpolatedStringText `total `
-6:12 InterpolationStart `{`
-6:13 Identifier `x`
-6:14 InterpolationEnd `}`
-6:15 InterpolatedStringEnd `"`
-6:17 InterpolatedStringStart `$"`
-6:19 InterpolatedStringText `a `
-6:21 InterpolationStart `{`
-6:22 Identifier `f`
-6:23 OpenParen `(`
-6:24 InterpolatedStringStart `$"`
-6:26 InterpolatedStringText `b `
-6:28 InterpolationStart `{`
-6:29 Identifier `c`
-6:30 InterpolationEnd `}`
-6:31 InterpolatedStringEnd `"`
-6:32 CloseParen `)`
-6:33 InterpolationEnd `}`
-6:34 InterpolatedStringText ` d`
-6:36 InterpolatedStringEnd `"`
-6:38 InterpolatedStringStart `$"`
-6:40 InterpolatedStringText `{{literal}}`
-6:51 InterpolatedStringEnd `"`
-6:53 InterpolatedStringStart `$"`
-6:55 InterpolationStart `{`
-6:56 Identifier `Point`
-6:62 OpenBrace `{`
-6:64 Identifier `x`
-6:66 Equals `=`
-6:68 IntegerLiteral `1`
-6:70 CloseBrace `}`
-6:71 InterpolationEnd `}`
-6:72 InterpolatedStringText `!`
-6:73 InterpolatedStringEnd `"`
-6:75 InterpolatedStringStart `$"`
-6:77 InterpolatedStringEnd `"`
+6:6 InterpolatedStringStart `$"`
+6:8 InterpolatedStringText `total `
+6:14 InterpolationStart `{`
+6:15 Identifier `x`
+6:16 InterpolationEnd `}`
+6:17 InterpolatedStringEnd `"`
+6:19 InterpolatedStringStart `$"`
+6:21 InterpolatedStringText `a `
+6:23 InterpolationStart `{`
+6:24 Identifier `f`
+6:25 OpenParen `(`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolatedStringText `b `
+6:30 InterpolationStart `{`
+6:31 Identifier `c`
+6:32 InterpolationEnd `}`
+6:33 InterpolatedStringEnd `"`
+6:34 CloseParen `)`
+6:35 InterpolationEnd `}`
+6:36 InterpolatedStringText ` d`
+6:38 InterpolatedStringEnd `"`
+6:40 InterpolatedStringStart `$"`
+6:42 InterpolatedStringText `{{literal}}`
+6:53 InterpolatedStringEnd `"`
+6:55 InterpolatedStringStart `$"`
+6:57 InterpolationStart `{`
+6:58 Identifier `Point`
+6:64 OpenBrace `{`
+6:66 Identifier `x`
+6:68 Equals `=`
+6:70 IntegerLiteral `1`
+6:72 CloseBrace `}`
+6:73 InterpolationEnd `}`
+6:74 InterpolatedStringText `!`
+6:75 InterpolatedStringEnd `"`
+6:77 InterpolatedStringStart `$"`
+6:79 InterpolatedStringEnd `"`
 7:2 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

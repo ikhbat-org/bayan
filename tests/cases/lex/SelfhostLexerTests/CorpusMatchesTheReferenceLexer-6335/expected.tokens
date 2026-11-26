@@ -1,7 +1,7 @@
-1:4 Identifier `et`
-1:7 Identifier `b`
-1:9 Equals `=`
-1:11 StringLiteral `"bad \q escape"`
+1:5 Identifier `et`
+1:8 Identifier `b`
+1:10 Equals `=`
+1:12 StringLiteral `"bad \q escape"`
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 Equals `=`

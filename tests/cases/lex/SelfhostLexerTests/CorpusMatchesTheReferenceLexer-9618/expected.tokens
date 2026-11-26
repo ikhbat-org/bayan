@@ -75,7 +75,7 @@
 1:110 InterpolationEnd `}`
 1:111 InterpolatedStringEnd `"`
 3:2 Identifier `C`
-3:7 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n "a\u{2067}b"\n"""`
+3:11 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n "a\u{2067}b"\n"""`
 5:5 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

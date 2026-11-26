@@ -69,22 +69,22 @@
 7:25 Identifier `c`
 7:26 CloseBrace `}`
 7:27 StringLiteral `")} �d"`
-7:34 InterpolatedStringStart `$"`
-7:36 InterpolatedStringText `{{literal}}`
-7:47 InterpolatedStringEnd `"`
-7:49 InterpolatedStringStart `$"`
-7:51 InterpolationStart `{`
-7:52 Identifier `Point`
-7:58 OpenBrace `{`
-7:60 Identifier `x`
-7:62 Equals `=`
-7:64 IntegerLiteral `1`
-7:66 CloseBrace `}`
-7:67 InterpolationEnd `}`
-7:68 InterpolatedStringText `!`
-7:69 InterpolatedStringEnd `"`
-7:71 InterpolatedStringStart `$"`
-7:73 InterpolatedStringEnd `"`
+7:35 InterpolatedStringStart `$"`
+7:37 InterpolatedStringText `{{literal}}`
+7:48 InterpolatedStringEnd `"`
+7:50 InterpolatedStringStart `$"`
+7:52 InterpolationStart `{`
+7:53 Identifier `Point`
+7:59 OpenBrace `{`
+7:61 Identifier `x`
+7:63 Equals `=`
+7:65 IntegerLiteral `1`
+7:67 CloseBrace `}`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringText `!`
+7:70 InterpolatedStringEnd `"`
+7:72 InterpolatedStringStart `$"`
+7:74 InterpolatedStringEnd `"`
 8:4 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

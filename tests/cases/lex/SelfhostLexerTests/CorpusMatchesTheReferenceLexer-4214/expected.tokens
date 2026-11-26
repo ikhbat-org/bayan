@@ -4,16 +4,16 @@
 1:15 Identifier `a`
 2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\nlet � = 2\n """`
 5:6 Identifier `va`
-5:8 Identifier `r`
-5:10 Identifier `xs`
-5:12 Colon `:`
-5:14 Identifier `ist`
-5:17 Less `<`
-5:18 Identifier `List`
-5:22 Less `<`
-5:23 Identifier `i64`
-5:26 Greater `>`
+5:9 Identifier `r`
+5:11 Identifier `xs`
+5:13 Colon `:`
+5:15 Identifier `ist`
+5:18 Less `<`
+5:19 Identifier `List`
+5:23 Less `<`
+5:24 Identifier `i64`
 5:27 Greater `>`
+5:28 Greater `>`
 7:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

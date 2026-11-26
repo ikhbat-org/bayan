@@ -45,7 +45,7 @@
 2:74 InterpolatedStringEnd `"`
 4:1 Identifier `ab`
 4:3 CharLiteral `'`
-6:3 IntegerLiteral `1__`
+6:5 IntegerLiteral `1__`
 7:1 EndOfFile
 
 error BYN0005: identifier `é` is not in Unicode normalization form C

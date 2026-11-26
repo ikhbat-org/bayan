@@ -91,7 +91,7 @@
 4:46 Identifier `y`
 4:48 FloatLiteral `2.5`
 4:51 NumericSuffix `f`
-6:3 CharLiteral `'\q'`
+6:4 CharLiteral `'\q'`
 7:2 CharLiteral `'\u{110000}'`
 8:2 EndOfFile
 

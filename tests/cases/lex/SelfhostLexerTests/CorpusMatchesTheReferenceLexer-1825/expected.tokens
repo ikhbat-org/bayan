@@ -3,8 +3,8 @@
 1:4 InterpolationStart `{`
 1:5 Identifier `b`
 1:6 InterpolationEnd `}`
-1:7 InterpolatedStringText `c����\r`
-1:10 InterpolatedStringEnd
+1:7 InterpolatedStringText `c����`
+1:12 InterpolatedStringEnd
 2:3 StringLiteral `"a\u{2067}b"`
 3:1 EndOfFile
 

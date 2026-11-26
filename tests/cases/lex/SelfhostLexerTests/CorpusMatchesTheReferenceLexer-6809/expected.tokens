@@ -42,7 +42,7 @@
 1:70 InterpolationEnd `}`
 1:71 InterpolatedStringEnd `"`
 1:76 StringLiteral `" '\q'`
-2:1 StringLiteral `" fails try catch never noalloc nosuspend suspends async await`
+2:2 StringLiteral `" fails try catch never noalloc nosuspend suspends async await`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

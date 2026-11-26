@@ -1,4 +1,4 @@
-1:1 CharLiteral `'x\r`
+1:1 CharLiteral `'x`
 2:2 Identifier `b`
 3:2 Identifier `t`
 3:4 EndOfFile

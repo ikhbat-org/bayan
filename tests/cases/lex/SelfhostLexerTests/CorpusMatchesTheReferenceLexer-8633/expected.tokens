@@ -53,7 +53,7 @@
 3:70 StringLiteral `"}"`
 3:73 InterpolationEnd `}`
 3:74 InterpolatedStringEnd `"`
-4:3 EndOfFile
+4:4 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`
 

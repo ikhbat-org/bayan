@@ -9,7 +9,7 @@
 1:22 Greater `>`
 1:23 Greater `>`
 2:1 IntegerLiteral `0b1`
-2:4 Identifier `s`
+2:5 Identifier `s`
 4:1 Identifier `en`
 5:1 LetKeyword `let`
 5:5 Identifier `b`

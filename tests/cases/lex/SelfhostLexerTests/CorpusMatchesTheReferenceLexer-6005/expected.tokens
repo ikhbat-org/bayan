@@ -2,8 +2,8 @@
 3:1 CharLiteral `'ab'`
 4:2 CharLiteral `'\u{D8�00}'`
 5:1 CharLiteral `'\u{202E}'`
-5:5 Slash `/`
-5:6 CharLiteral `'/ line comment`
+5:6 Slash `/`
+5:7 CharLiteral `'/ line comment`
 7:1 IntegerLiteral `0`
 7:2 CloseBrace `}`
 7:3 CharLiteral `'`

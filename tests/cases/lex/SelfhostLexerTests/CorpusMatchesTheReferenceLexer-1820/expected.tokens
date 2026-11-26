@@ -6,10 +6,10 @@
 6:5 ContinueKeyword `continue`
 6:14 ReturnKeyword `return`
 6:21 YieldKeyword `yield`
-6:27 Identifier `efer`
-6:32 ErrdeferKeyword `errdefer`
-6:41 UsingKeyword `using`
-6:47 ContextKeyword `context`
+6:28 Identifier `efer`
+6:33 ErrdeferKeyword `errdefer`
+6:42 UsingKeyword `using`
+6:48 ContextKeyword `context`
 7:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

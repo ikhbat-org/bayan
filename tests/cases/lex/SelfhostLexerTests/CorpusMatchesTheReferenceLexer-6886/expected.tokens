@@ -7,7 +7,7 @@
 2:12 IntegerLiteral `2`
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolatedStringText `�a  S`
-5:8 InterpolatedStringEnd
+5:9 InterpolatedStringEnd
 7:1 Identifier `b`
 11:1 EndOfFile
 

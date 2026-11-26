@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `a`
 1:7 Equals `=`
-1:9 StringLiteral `"open`
+1:10 StringLiteral `"open`
 3:3 IntegerLiteral `1__`
 4:2 EndOfFile
 

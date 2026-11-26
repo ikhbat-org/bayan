@@ -37,10 +37,10 @@
 6:9 OpenBrace `{`
 6:11 CloseBrace `}`
 7:3 Identifier `l`
-7:4 Identifier `t`
-7:6 Identifier `actor`
-7:12 Equals `=`
-7:14 IntegerLiteral `1`
+7:5 Identifier `t`
+7:7 Identifier `actor`
+7:13 Equals `=`
+7:15 IntegerLiteral `1`
 9:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

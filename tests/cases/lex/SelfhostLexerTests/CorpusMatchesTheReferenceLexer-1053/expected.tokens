@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `0xFF`
 1:5 NumericSuffix `s`
-    doc `/// Doc line one.\r`
-3:2 Identifier `ạ̇`
-3:6 StringLiteral `"a\u{2067}b�"`
-3:12 EndOfFile
+    doc `/// Doc line one.`
+3:3 Identifier `ạ̇`
+3:7 StringLiteral `"a\u{2067}b�"`
+3:14 EndOfFile
 
 error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
 

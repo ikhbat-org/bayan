@@ -89,7 +89,6 @@
 4:108 InterpolatedStringEnd `"`
 4:109 InterpolationEnd `}`
 4:110 InterpolatedStringEnd `"`
-    doc `///`
 9:1 CharLiteral `'ab'`
 11:1 EndOfFile
 

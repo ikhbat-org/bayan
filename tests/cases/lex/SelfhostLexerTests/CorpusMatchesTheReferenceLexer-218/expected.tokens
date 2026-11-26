@@ -30,9 +30,9 @@
 4:30 Arrow `->`
 4:33 At `@`
 4:35 Hash `#`
-5:1 Identifier `ής`
-5:4 Identifier `x_1`
-5:8 Identifier `é`
+5:2 Identifier `ής`
+5:5 Identifier `x_1`
+5:9 Identifier `é`
 6:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x84)

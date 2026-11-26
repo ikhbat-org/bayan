@@ -3,7 +3,7 @@
 5:3 Greater `>`
 5:4 Greater `>`
 5:6 Identifier `b`
-6:6 EndOfFile
+6:7 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

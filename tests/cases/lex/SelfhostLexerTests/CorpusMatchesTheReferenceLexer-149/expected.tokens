@@ -1,5 +1,5 @@
-1:2 Identifier `U`
-1:5 Tilde `~`
+1:4 Identifier `U`
+1:7 Tilde `~`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

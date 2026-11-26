@@ -49,7 +49,7 @@
 7:1 Identifier `c`
 7:3 Equals `=`
 7:7 IntegerLiteral `3`
-8:3 EndOfFile
+8:4 EndOfFile
 
 error BYN0002: unexpected character `$`
 

@@ -11,9 +11,9 @@
 2:14 Less `<`
 2:15 Identifier `List`
 2:19 Less `<`
-2:20 IntegerLiteral `64`
-2:22 Greater `>`
+2:21 IntegerLiteral `64`
 2:23 Greater `>`
+2:24 Greater `>`
 4:1 IntegerLiteral `0xF__`
 5:2 EndOfFile
 

@@ -1,5 +1,5 @@
-1:2 Identifier `t`
-1:4 BecomeKeyword `become`
+1:6 Identifier `t`
+1:8 BecomeKeyword `become`
 2:1 LetKeyword `let`
 2:5 LawKeyword `law`
 2:9 Equals `=`

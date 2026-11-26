@@ -24,18 +24,18 @@
 5:46 InterpolatedStringEnd `"`
 5:48 InterpolatedStringStart `$"`
 5:50 InterpolatedStringText `�`
-5:50 InterpolationStart `{`
-5:51 Identifier `Point`
-5:57 OpenBrace `{`
-5:59 Identifier `x`
-5:61 Equals `=`
-5:63 IntegerLiteral `1`
-5:65 CloseBrace `}`
-5:66 InterpolationEnd `}`
-5:67 InterpolatedStringText `!`
-5:68 InterpolatedStringEnd `"`
-5:70 InterpolatedStringStart `$"`
-5:72 InterpolatedStringEnd `"`
+5:51 InterpolationStart `{`
+5:52 Identifier `Point`
+5:58 OpenBrace `{`
+5:60 Identifier `x`
+5:62 Equals `=`
+5:64 IntegerLiteral `1`
+5:66 CloseBrace `}`
+5:67 InterpolationEnd `}`
+5:68 InterpolatedStringText `!`
+5:69 InterpolatedStringEnd `"`
+5:71 InterpolatedStringStart `$"`
+5:73 InterpolatedStringEnd `"`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

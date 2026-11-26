@@ -28,7 +28,7 @@
 6:22 CaretEquals `^=`
 6:25 LessLessEquals `<<=`
 7:1 StringLiteral `"{ a /* never closed`
-8:4 EndOfFile
+8:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

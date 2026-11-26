@@ -5,7 +5,7 @@
 2:1 Identifier `_`
 3:1 CharLiteral `'\u{110000}'`
 4:2 CharLiteral `'$"{$"{$"{$"{$"{$"U{$"{$"{$"{$"{$"{$"{$"�$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"`
-4:85 EndOfFile
+4:86 EndOfFile
 
 error BYN0013: `\u{110000}` is not a Unicode scalar value
 

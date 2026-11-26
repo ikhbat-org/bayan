@@ -15,8 +15,8 @@
 3:1 CharLiteral `' '`
 3:5 CharLiteral `''`
 3:8 CharLiteral `'é�'`
-3:12 CharLiteral `'\\'`
-3:17 CharLiteral `'\0'`
+3:13 CharLiteral `'\\'`
+3:18 CharLiteral `'\0'`
 5:2 Identifier `escape`
 5:8 StringLiteral `"`
 6:1 Identifier `lt`

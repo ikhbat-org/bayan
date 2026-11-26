@@ -4,7 +4,7 @@
 2:5 GreaterEquals `>=`
 2:8 IntegerLiteral `1`
 2:9 Hash `#`
-3:4 EndOfFile
+3:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

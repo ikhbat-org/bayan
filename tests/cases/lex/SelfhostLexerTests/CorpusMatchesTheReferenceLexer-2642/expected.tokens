@@ -42,7 +42,7 @@
 1:57 LetKeyword `let`
 1:63 Equals `=`
 1:65 IntegerLiteral `2`
-    doc `/// Doc linNe two.\r`
+    doc `/// Doc linNe two.`
 4:1 Identifier `Å`
 4:3 LetKeyword `let`
 4:7 Identifier `c`

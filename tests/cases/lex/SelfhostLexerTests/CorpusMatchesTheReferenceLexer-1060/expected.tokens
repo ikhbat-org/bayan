@@ -1,11 +1,11 @@
-1:2 Identifier `foo`
-1:6 Identifier `Bar`
-1:10 Identifier `_x`
-1:13 Identifier `camelCase2`
-1:24 Identifier `بيان`
-1:29 Identifier `μετρητής`
-1:38 Identifier `x_1`
-1:42 Identifier `é`
+1:4 Identifier `foo`
+1:8 Identifier `Bar`
+1:12 Identifier `_x`
+1:15 Identifier `camelCase2`
+1:26 Identifier `بيان`
+1:31 Identifier `μετρητής`
+1:40 Identifier `x_1`
+1:44 Identifier `é`
 2:2 Identifier `a`
 5:1 EndOfFile
 

@@ -1,7 +1,7 @@
 1:2 Identifier `macro`
 1:8 Identifier `slect`
 1:14 Identifier `bec`
-1:17 Identifier `me`
+1:18 Identifier `me`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF2)

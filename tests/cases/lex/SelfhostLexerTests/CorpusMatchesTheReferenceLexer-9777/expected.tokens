@@ -8,9 +8,9 @@
 3:14 IntegerLiteral `2`
 4:1 Identifier `macro`
 4:7 Identifier `select`
-4:16 Identifier `Å`
-4:18 Identifier `ab`
-4:20 CharLiteral `'`
+4:17 Identifier `Å`
+4:19 Identifier `ab`
+4:21 CharLiteral `'`
 5:2 Identifier `q`
 5:3 CharLiteral `'`
 6:1 CharLiteral `'\u{D800}'`

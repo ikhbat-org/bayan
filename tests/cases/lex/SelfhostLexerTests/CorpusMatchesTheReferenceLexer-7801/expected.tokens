@@ -18,7 +18,7 @@
 1:41 Greater `>`
 1:42 GreaterEquals `>=`
 3:1 StringLiteral `"{�`
-3:3 EndOfFile
+3:4 EndOfFile
 
 error BYN0003: unterminated string literal
 

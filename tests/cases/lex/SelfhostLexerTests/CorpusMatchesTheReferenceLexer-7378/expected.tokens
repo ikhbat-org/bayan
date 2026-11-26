@@ -1,7 +1,7 @@
 1:1 Identifier `c`
-1:2 Identifier `fé`
-1:6 Equals `=`
-1:8 IntegerLiteral `1`
+1:3 Identifier `fé`
+1:7 Equals `=`
+1:9 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:5 Identifier `caf`
 2:11 Equals `=`

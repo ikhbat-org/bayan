@@ -11,8 +11,8 @@
 5:10 CharLiteral `'\u{1F600}'`
 5:22 CharLiteral `'\''`
 5:27 CharLiteral `'���'`
-5:32 CharLiteral `'\\'`
-5:37 CharLiteral `'\0'`
+5:33 CharLiteral `'\\'`
+5:38 CharLiteral `'\0'`
 6:2 Identifier `two`
 6:5 Dot `.`
 7:1 StructKeyword `struct`

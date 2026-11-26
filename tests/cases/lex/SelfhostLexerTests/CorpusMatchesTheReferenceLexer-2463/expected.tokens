@@ -10,7 +10,7 @@
 7:1 StructKeyword `struct`
 7:8 OpenParen `(`
     doc `/// 1.$"{� �� `
-8:14 EndOfFile
+8:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)
 

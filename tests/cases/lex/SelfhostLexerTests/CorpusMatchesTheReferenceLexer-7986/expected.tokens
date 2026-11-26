@@ -91,7 +91,7 @@
 5:3 InterpolationStart `{`
 5:4 StringLiteral `"`
 6:1 Amp `&`
-6:3 EndOfFile
+6:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -13,11 +13,11 @@
 10:5 CharLiteral `'\n'`
 10:10 CharLiteral `'\u{1F600}'`
 10:22 CharLiteral `'\'� '`
-10:27 Identifier `é`
-10:28 CharLiteral `' '`
-10:33 CharLiteral `' '`
-10:37 IntegerLiteral `0`
-10:38 CharLiteral `'`
+10:28 Identifier `é`
+10:29 CharLiteral `' '`
+10:34 CharLiteral `' '`
+10:38 IntegerLiteral `0`
+10:39 CharLiteral `'`
 11:2 IntegerLiteral `1`
 11:3 NumericSuffix `e`
 11:4 EndOfFile

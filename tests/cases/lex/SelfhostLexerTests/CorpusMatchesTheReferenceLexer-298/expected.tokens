@@ -102,21 +102,21 @@
 3:92 OpenBrace `{`
 3:93 StringLiteral `$"{$"`
 3:98 OpenBrace `{`
-3:99 StringLiteral `"{\u{1E}"`
-3:103 OpenBrace `{`
-3:104 StringLiteral `$"{$"`
-3:109 OpenBrace `{`
-3:110 StringLiteral `$"{$"`
-3:115 OpenBrace `{`
-3:116 StringLiteral `$"{$"`
-3:121 OpenBrace `{`
-3:122 StringLiteral `$"{$"`
-3:127 OpenBrace `{`
-3:128 Identifier `x`
-3:129 CloseBrace `}`
-3:130 StringLiteral `"}"`
-3:133 CloseBrace `}`
-3:134 StringLiteral `"}"`
+3:100 StringLiteral `"{\u{1E}"`
+3:104 OpenBrace `{`
+3:105 StringLiteral `$"{$"`
+3:110 OpenBrace `{`
+3:111 StringLiteral `$"{$"`
+3:116 OpenBrace `{`
+3:117 StringLiteral `$"{$"`
+3:122 OpenBrace `{`
+3:123 StringLiteral `$"{$"`
+3:128 OpenBrace `{`
+3:129 Identifier `x`
+3:130 CloseBrace `}`
+3:131 StringLiteral `"}"`
+3:134 CloseBrace `}`
+3:135 StringLiteral `"}"`
 4:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

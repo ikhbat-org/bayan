@@ -9,15 +9,15 @@
 2:12 Identifier `u`
 2:13 OpenBrace `{`
 2:14 IntegerLiteral `1`
-2:15 Identifier `F600`
-2:19 CloseBrace `}`
-2:20 CharLiteral `' '`
-2:24 CharLiteral `''`
-2:27 Identifier `é`
-2:28 CharLiteral `' '`
-2:33 CharLiteral `' '`
-2:37 IntegerLiteral `0`
-2:38 CharLiteral `'`
+2:16 Identifier `F600`
+2:20 CloseBrace `}`
+2:21 CharLiteral `' '`
+2:25 CharLiteral `''`
+2:29 Identifier `é`
+2:30 CharLiteral `' '`
+2:35 CharLiteral `' '`
+2:39 IntegerLiteral `0`
+2:40 CharLiteral `'`
 6:1 CharLiteral `''`
 7:1 EndOfFile
 

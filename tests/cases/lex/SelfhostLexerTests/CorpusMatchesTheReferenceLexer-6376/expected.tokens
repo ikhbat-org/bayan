@@ -1,10 +1,10 @@
-2:3 InterpolatedStringStart `$"`
-2:5 InterpolatedStringText `a`
-2:6 InterpolationStart `{`
-2:7 Identifier `b`
-2:8 InterpolationEnd `}`
-2:9 InterpolatedStringText `c\r`
-2:11 InterpolatedStringEnd
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolatedStringText `a`
+2:8 InterpolationStart `{`
+2:9 Identifier `b`
+2:10 InterpolationEnd `}`
+2:11 InterpolatedStringText `c`
+2:12 InterpolatedStringEnd
 3:1 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines

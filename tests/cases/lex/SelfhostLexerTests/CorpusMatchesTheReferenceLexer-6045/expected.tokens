@@ -1,11 +1,11 @@
 1:1 IntegerLiteral `1`
 1:2 Dot `.`
-2:4 CharLiteral `'\r`
+2:4 CharLiteral `'`
 3:1 CharLiteral `'ab'`
 4:1 CharLiteral `'\q'`
 5:1 CharLiteral `'\u{D800}'`
 6:1 CharLiteral `'\u{110000}'`
-7:1 CharLiteral `'x\r`
+7:1 CharLiteral `'x`
 9:1 OpenBrace `{`
 10:1 CharLiteral `'\u{110000}'`
 11:1 Comma `,`

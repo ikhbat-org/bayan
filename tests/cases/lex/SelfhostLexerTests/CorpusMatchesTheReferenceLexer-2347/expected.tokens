@@ -7,7 +7,7 @@
 2:41 SuspendsKeyword `suspends`
 2:50 AsyncKeyword `async`
 2:56 AwaitKeyword `await`
-4:1 IntegerLiteral `0b__`
+4:2 IntegerLiteral `0b__`
 5:2 LetKeyword `let`
 5:6 Identifier `b`
 5:8 Equals `=`

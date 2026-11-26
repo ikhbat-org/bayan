@@ -3,14 +3,14 @@
 3:1 Identifier `fé`
 3:4 Equals `=`
 3:6 IntegerLiteral `2`
-5:3 TestKeyword `test`
-5:8 AssertKeyword `assert`
-5:15 PropertyKeyword `property`
-5:24 FuzzKeyword `fuzz`
-5:29 ModelKeyword `model`
-5:35 ForeachKeyword `foreach`
-5:43 NewKeyword `new`
-5:47 GotoKeyword `goto`
+5:6 TestKeyword `test`
+5:11 AssertKeyword `assert`
+5:18 PropertyKeyword `property`
+5:27 FuzzKeyword `fuzz`
+5:32 ModelKeyword `model`
+5:38 ForeachKeyword `foreach`
+5:46 NewKeyword `new`
+5:50 GotoKeyword `goto`
 6:2 Identifier `é`
 6:5 Identifier `ạ̇`
 7:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}"\n`

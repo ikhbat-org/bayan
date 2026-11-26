@@ -5,21 +5,21 @@
 5:12 Equals `=`
 5:14 IntegerLiteral `2`
 7:1 CharLiteral `'b'`
-8:4 IntegerLiteral `1_`
-8:6 NumericSuffix `dec`
-8:10 IntegerLiteral `1`
-8:11 DotDot `..`
-8:13 IntegerLiteral `2`
-8:15 IntegerLiteral `1`
-8:16 DotDotEquals `..=`
-8:19 IntegerLiteral `3`
-8:21 IntegerLiteral `5`
-8:22 NumericSuffix `e`
-8:24 Identifier `x`
-8:25 Dot `.`
-8:26 Identifier `y`
-8:28 FloatLiteral `2.5`
-8:31 NumericSuffix `f`
+8:7 IntegerLiteral `1_`
+8:9 NumericSuffix `dec`
+8:13 IntegerLiteral `1`
+8:14 DotDot `..`
+8:16 IntegerLiteral `2`
+8:18 IntegerLiteral `1`
+8:19 DotDotEquals `..=`
+8:22 IntegerLiteral `3`
+8:24 IntegerLiteral `5`
+8:25 NumericSuffix `e`
+8:27 Identifier `x`
+8:28 Dot `.`
+8:29 Identifier `y`
+8:31 FloatLiteral `2.5`
+8:34 NumericSuffix `f`
 9:2 EndOfFile
 
 error BYN0010: invalid numeric literal: binary literals use only `0` and `1`

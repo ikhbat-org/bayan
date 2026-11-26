@@ -2,7 +2,7 @@
 1:3 Identifier `s`
 1:5 Identifier `lect`
 1:12 Identifier `C`
-1:14 EndOfFile
+1:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE3)
 

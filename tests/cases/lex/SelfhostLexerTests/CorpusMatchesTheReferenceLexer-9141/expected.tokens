@@ -29,13 +29,13 @@
 4:6 Identifier `b`
 4:8 Equals `=`
 4:10 StringLiteral `"bad \q escape"`
-5:2 CharLiteral `'a'`
-5:6 CharLiteral `'\n'`
-5:11 CharLiteral `'\u{1F600}'`
-5:23 CharLiteral `'\''`
-5:28 CharLiteral `'é'`
-5:32 CharLiteral `'\\'`
-5:37 CharLiteral `'\0'`
+5:3 CharLiteral `'a'`
+5:7 CharLiteral `'\n'`
+5:12 CharLiteral `'\u{1F600}'`
+5:24 CharLiteral `'\''`
+5:29 CharLiteral `'é'`
+5:33 CharLiteral `'\\'`
+5:38 CharLiteral `'\0'`
 6:4 EndOfFile
 
 error BYN0003: unterminated string literal

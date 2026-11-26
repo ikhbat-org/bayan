@@ -3,7 +3,7 @@
 2:3 Greater `>`
 2:4 GreaterEquals `>=`
 2:7 IntegerLiteral `1`
-5:16 EndOfFile
+5:18 EndOfFile
 
 error BYN0004: unterminated block comment
 

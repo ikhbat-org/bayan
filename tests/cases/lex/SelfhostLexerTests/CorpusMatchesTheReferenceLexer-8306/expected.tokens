@@ -4,17 +4,17 @@
 1:5 NumericSuffix `a`
 2:1 IntegerLiteral `0x`
 4:1 Comma `,`
-4:4 DotDot `..`
-4:7 DotDotEquals `..=`
-4:11 Colon `:`
-4:13 Question `?`
-4:15 QuestionQuestion `??`
-4:18 QuestionQuestionEquals `??=`
-4:22 Dot `.`
-4:24 FatArrow `=>`
-4:27 Arrow `->`
-4:30 At `@`
-4:32 Hash `#`
+4:5 DotDot `..`
+4:8 DotDotEquals `..=`
+4:12 Colon `:`
+4:14 Question `?`
+4:16 QuestionQuestion `??`
+4:19 QuestionQuestionEquals `??=`
+4:23 Dot `.`
+4:25 FatArrow `=>`
+4:28 Arrow `->`
+4:31 At `@`
+4:33 Hash `#`
 5:2 EndOfFile
 
 error BYN0003: unterminated string literal

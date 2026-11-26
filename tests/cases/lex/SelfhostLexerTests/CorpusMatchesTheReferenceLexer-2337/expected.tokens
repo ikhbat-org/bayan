@@ -2,8 +2,8 @@
 1:5 Identifier `b`
 1:7 Equals `=`
 1:9 StringLiteral `"bad \q escape"`
-2:3 Equals `=`
-2:5 IntegerLiteral `1`
+2:4 Equals `=`
+2:6 IntegerLiteral `1`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolatedStringText `{{`
 3:6 InterpolatedStringEnd `"`

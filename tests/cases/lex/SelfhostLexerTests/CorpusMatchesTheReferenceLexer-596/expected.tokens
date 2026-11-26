@@ -20,11 +20,11 @@
 2:27 StarBar `*|`
 2:30 PlusPlus `++`
 2:33 MinusMinus `--`
-3:2 Identifier `x́́`
-3:6 Identifier `et`
-3:9 EffectKeyword `effect`
-3:16 Equals `=`
-3:18 IntegerLiteral `2`
+3:5 Identifier `x́́`
+3:9 Identifier `et`
+3:12 EffectKeyword `effect`
+3:19 Equals `=`
+3:21 IntegerLiteral `2`
 4:1 Identifier `macro`
 4:7 Identifier `select`
 4:14 Identifier `beicome`

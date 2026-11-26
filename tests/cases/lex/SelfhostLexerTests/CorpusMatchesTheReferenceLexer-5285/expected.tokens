@@ -14,9 +14,9 @@
 6:1 StructKeyword `struct`
 6:8 Identifier `S`
 7:2 Identifier `b`
-8:2 Identifier `ητής`
-8:7 Identifier `x_`
-8:10 Identifier `é`
+8:3 Identifier `ητής`
+8:8 Identifier `x_`
+8:11 Identifier `é`
 10:1 EndOfFile
 
 error BYN0008: unterminated char literal

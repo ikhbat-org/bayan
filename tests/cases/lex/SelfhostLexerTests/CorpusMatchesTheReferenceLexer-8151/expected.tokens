@@ -24,11 +24,11 @@
 4:65 NumericSuffix `ul`
 4:68 IntegerLiteral `7`
 4:69 NumericSuffix `l`
-5:2 Identifier `u`
-5:3 OpenBrace `{`
-5:4 IntegerLiteral `110000`
-5:10 CloseBrace `}`
-5:11 CharLiteral `'`
+5:3 Identifier `u`
+5:4 OpenBrace `{`
+5:5 IntegerLiteral `110000`
+5:11 CloseBrace `}`
+5:12 CharLiteral `'`
 7:1 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar

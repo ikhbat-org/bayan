@@ -47,8 +47,8 @@
 1:61 InterpolatedStringEnd `"`
 1:62 InterpolationEnd `}`
 1:63 InterpolatedStringText `� \u{2066} `
-1:66 InterpolatedStringEnd
-1:66 EndOfFile
+1:67 InterpolatedStringEnd
+1:67 EndOfFile
 
 error BYN0003: unterminated string literal
 

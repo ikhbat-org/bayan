@@ -1,6 +1,6 @@
-1:1 StringLiteral `"text"`
-1:8 StringLiteral `"esc \"q\" \\ \n"`
-1:26 RawStringLiteral `"""\n'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'\n\n0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l\n\nis and or not with move ref out this null true false comptime checked\n\n0x_\n‏`
+1:2 StringLiteral `"text"`
+1:9 StringLiteral `"esc \"q\" \\ \n"`
+1:27 RawStringLiteral `"""\n'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'\n\n0 42 1_000_000 0xFF 0x_ff 0b1010 0B11 5s 250ms 4KiB 1u 0xFFu 0b1ul 7l\n\nis and or not with move ref out this null true false comptime checked\n\n0x_\n‏`
 9:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAF)

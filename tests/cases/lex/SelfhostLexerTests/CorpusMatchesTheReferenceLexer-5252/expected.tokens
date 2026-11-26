@@ -8,7 +8,7 @@
 3:5 Identifier `café`
 3:11 Equals `=`
 3:13 IntegerLiteral `1`
-6:2 EndOfFile
+6:3 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C
 

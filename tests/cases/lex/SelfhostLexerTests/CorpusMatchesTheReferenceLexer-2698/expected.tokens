@@ -35,7 +35,7 @@
 5:28 Identifier `μετρητής`
 5:37 Identifier `x_1`
 5:41 Identifier `é`
-7:2 IntegerLiteral `1__`
+7:4 IntegerLiteral `1__`
     doc `///`
 8:4 EndOfFile
 

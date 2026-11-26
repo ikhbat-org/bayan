@@ -1,4 +1,4 @@
-1:2 IntegerLiteral `0x_`
+1:6 IntegerLiteral `0x_`
 4:1 IntegerLiteral `0b1`
 4:5 IntegerLiteral `2`
 5:1 IntegerLiteral `0xFF`

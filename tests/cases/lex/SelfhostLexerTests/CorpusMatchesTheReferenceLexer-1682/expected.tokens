@@ -6,7 +6,7 @@
 2:6 Identifier `café`
 2:11 Equals `=`
 2:13 IntegerLiteral `2`
-3:4 Identifier `closed`
+3:8 Identifier `closed`
 4:1 Identifier `b`
 5:2 Identifier `afé`
 5:7 Equals `=`

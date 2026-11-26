@@ -1,6 +1,6 @@
-1:4 InterpolatedStringStart `$"`
-1:6 InterpolationStart `{`
-1:7 StringLiteral `"'\u{110000}'`
+1:5 InterpolatedStringStart `$"`
+1:7 InterpolationStart `{`
+1:8 StringLiteral `"'\u{110000}'`
 3:1 Identifier `scape`
 3:6 StringLiteral `"`
 4:1 LetKeyword `let`

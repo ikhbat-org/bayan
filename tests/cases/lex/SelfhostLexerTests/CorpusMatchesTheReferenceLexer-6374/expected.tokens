@@ -1,4 +1,4 @@
-1:4 IntegerLiteral `1`
+1:5 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 EndOfFile

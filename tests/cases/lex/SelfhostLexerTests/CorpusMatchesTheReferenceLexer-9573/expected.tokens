@@ -2,7 +2,7 @@
 1:3 Identifier `ok`
 1:8 InKeyword `in`
 1:11 Identifier `comme`
-1:16 Identifier `t`
+1:17 Identifier `t`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

@@ -5,8 +5,8 @@
 2:13 Identifier `camelCase2`
 2:24 Identifier `بيfان`
 2:30 Identifier `μετρητής`
-2:39 Identifier `x_1`
-2:43 Identifier `é`
+2:40 Identifier `x_1`
+2:44 Identifier `é`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolationStart `{`
 3:6 ErrorKeyword `error`

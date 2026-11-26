@@ -35,7 +35,7 @@
 7:94 EmbedKeyword `embed`
 7:100 ExternKeyword `extern`
 7:107 Identifier `unsa`
-7:111 Identifier `e`
+7:112 Identifier `e`
 8:2 EndOfFile
 
 error BYN0003: unterminated string literal

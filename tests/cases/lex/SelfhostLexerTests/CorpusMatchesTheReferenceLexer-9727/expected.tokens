@@ -9,12 +9,12 @@
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolatedStringText `o`
 5:4 InterpolatedStringEnd
-6:3 IsKeyword `is`
-6:6 NullKeyword `null`
-6:11 TrueKeyword `true`
-6:16 FalseKeyword `false`
-6:22 ComptimeKeyword `comptime`
-6:31 CheckedKeyword `checked`
+6:6 IsKeyword `is`
+6:9 NullKeyword `null`
+6:14 TrueKeyword `true`
+6:19 FalseKeyword `false`
+6:25 ComptimeKeyword `comptime`
+6:34 CheckedKeyword `checked`
 7:1 Identifier `t`
 8:1 LetKeyword `let`
 8:5 Identifier `c`

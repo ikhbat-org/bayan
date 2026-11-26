@@ -17,19 +17,19 @@
 1:27 InterpolationStart `{`
 1:28 InterpolatedStringStart `$"`
 1:30 InterpolationStart `{`
-1:31 StringLiteral `"{$"`
-1:35 OpenBrace `{`
-1:36 InterpolatedStringStart `$"`
-1:38 InterpolationStart `{`
-1:39 InterpolatedStringStart `$"`
-1:41 InterpolationStart `{`
-1:42 InterpolatedStringStart `$"`
-1:44 InterpolationStart `{`
-1:45 InterpolatedStringStart `$"`
-1:47 InterpolationStart `{`
-1:48 InterpolatedStringStart `$"`
-1:50 InterpolationStart `{`
-1:51 EndOfFile
+1:32 StringLiteral `"{$"`
+1:36 OpenBrace `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 InterpolatedStringStart `$"`
+1:51 InterpolationStart `{`
+1:52 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x82)
 

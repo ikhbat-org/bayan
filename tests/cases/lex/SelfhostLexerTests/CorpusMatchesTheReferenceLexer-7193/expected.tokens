@@ -1,5 +1,5 @@
 1:1 IntegerLiteral `0x`
-1:3 Identifier `__`
+1:4 Identifier `__`
 2:2 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

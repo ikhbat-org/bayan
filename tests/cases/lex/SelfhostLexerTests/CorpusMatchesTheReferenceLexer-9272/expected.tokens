@@ -43,12 +43,12 @@
 4:21 TestKeyword `test`
 4:26 AssertKeyword `assert`
 4:33 Identifier `prop`
-4:37 Identifier `erty`
-4:42 FuzzKeyword `fuzz`
-4:47 ModelKeyword `model`
-4:53 ForeachKeyword `foreach`
-4:61 NewKeyword `new`
-4:65 GotoKeyword `goto`
+4:38 Identifier `erty`
+4:43 FuzzKeyword `fuzz`
+4:48 ModelKeyword `model`
+4:54 ForeachKeyword `foreach`
+4:62 NewKeyword `new`
+4:66 GotoKeyword `goto`
 5:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF7)

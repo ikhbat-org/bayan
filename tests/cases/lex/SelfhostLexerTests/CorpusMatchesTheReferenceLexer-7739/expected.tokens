@@ -95,11 +95,11 @@
 1:175 InterpolatedStringEnd `"`
 1:176 InterpolationEnd `}`
 1:177 InterpolatedStringEnd `"`
-1:178 StringLiteral `"}"`
-1:181 InterpolationEnd `}`
-1:182 InterpolatedStringEnd `"`
-1:183 InterpolationEnd `}`
-1:184 InterpolatedStringEnd `"`
+1:179 StringLiteral `"}"`
+1:182 InterpolationEnd `}`
+1:183 InterpolatedStringEnd `"`
+1:184 InterpolationEnd `}`
+1:185 InterpolatedStringEnd `"`
 2:2 Identifier `Å`
 2:3 InterpolatedStringStart `$"`
 2:5 InterpolationStart `{`

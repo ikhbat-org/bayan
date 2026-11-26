@@ -56,7 +56,7 @@
 4:58 InterpolatedStringEnd `"`
 4:59 InterpolationEnd `}`
 4:60 InterpolatedStringEnd `"`
-4:63 EndOfFile
+4:66 EndOfFile
 
 error BYN0008: unterminated char literal
 

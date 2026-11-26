@@ -5,10 +5,10 @@
 2:16 Identifier `a`
 3:1 LetKeyword `let`
 3:5 LawKeyword `law`
-3:9 Equals `=`
-3:11 IntegerLiteral `3`
-3:12 NumericSuffix `W`
-3:14 IntegerLiteral `0x`
+3:10 Equals `=`
+3:12 IntegerLiteral `3`
+3:13 NumericSuffix `W`
+3:15 IntegerLiteral `0x`
 4:2 IntegerLiteral `1_`
 5:4 EndOfFile
 

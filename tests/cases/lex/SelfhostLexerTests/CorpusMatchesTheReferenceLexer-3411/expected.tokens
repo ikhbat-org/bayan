@@ -8,11 +8,11 @@
 1:35 OpenKeyword `open`
 1:40 ExtensibleKeyword `extensible`
 1:51 Identifier `interfa`
-1:58 Identifier `ce`
-1:61 DelegateKeyword `delegate`
-1:70 ExtensionKeyword `extension`
-1:80 DerivationKeyword `derivation`
-1:91 AttributeKeyword `attribute`
+1:59 Identifier `ce`
+1:62 DelegateKeyword `delegate`
+1:71 ExtensionKeyword `extension`
+1:81 DerivationKeyword `derivation`
+1:92 AttributeKeyword `attribute`
 3:2 IntegerLiteral `1`
 4:1 LetKeyword `let`
 4:5 Identifier `caié`

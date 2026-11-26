@@ -5,8 +5,8 @@
 2:10 StringLiteral `"bad \q escape"`
 3:1 LetKeyword `let`
 3:5 Identifier `c`
-3:7 Equals `=`
-3:9 RawStringLiteral `"""never c�losed\n`
+3:8 Equals `=`
+3:10 RawStringLiteral `"""never c�losed\n`
 4:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

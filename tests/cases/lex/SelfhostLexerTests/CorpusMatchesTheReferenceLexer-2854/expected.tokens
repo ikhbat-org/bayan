@@ -5,7 +5,7 @@
 5:8 Equals `=`
 5:9 Identifier `P`
 5:11 IntegerLiteral `3`
-6:4 EndOfFile
+6:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x95)
 

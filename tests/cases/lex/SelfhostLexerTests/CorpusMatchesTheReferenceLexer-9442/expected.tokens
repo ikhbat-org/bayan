@@ -1,11 +1,11 @@
 1:1 CloseBrace `}`
 2:1 Identifier `r`
-2:3 Slash `/`
-2:4 Identifier `a`
-2:5 Slash `/`
-2:7 Identifier `ok`
-2:12 InKeyword `in`
-2:15 Identifier `comment`
+2:6 Slash `/`
+2:7 Identifier `a`
+2:8 Slash `/`
+2:10 Identifier `ok`
+2:15 InKeyword `in`
+2:18 Identifier `comment`
 5:2 IntegerLiteral `0x`
 7:1 StringLiteral `"{ `
 7:4 EndOfFile

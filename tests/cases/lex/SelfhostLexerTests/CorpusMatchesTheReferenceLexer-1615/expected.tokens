@@ -5,10 +5,10 @@
 1:9 IntegerLiteral `1`
 1:10 NumericSuffix `n600`
 1:14 CloseBrace `}`
-1:16 CharLiteral `'\''`
-1:21 CharLiteral `'é'`
-1:25 CharLiteral `'\'`
-1:28 EndOfFile
+1:17 CharLiteral `'\''`
+1:22 CharLiteral `'é'`
+1:26 CharLiteral `'\'`
+1:29 EndOfFile
 
 error BYN0002: unexpected character `\`
 

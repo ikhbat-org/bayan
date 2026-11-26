@@ -75,9 +75,9 @@
 3:104 InterpolatedStringEnd `"`
 3:105 InterpolationEnd `}`
 3:106 InterpolatedStringText `�}`
-3:107 InterpolatedStringEnd `"`
-3:108 InterpolationEnd `}`
-3:109 InterpolatedStringEnd `"`
+3:108 InterpolatedStringEnd `"`
+3:109 InterpolationEnd `}`
+3:110 InterpolatedStringEnd `"`
 4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)

@@ -1,6 +1,6 @@
 1:2 StringLiteral `"d\" \\ \n"`
 1:14 RawStringLiteral `"""\n  raw "quoted"$"total {x}" $"a {f($"b {c}")} d" $"{{literal}}" $"{Point { x = 1 }}!" $""\n c >>= 1\n struct S\n\n// line comment\n0xF__\n $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{�x}"}�" 각`
-8:54 EndOfFile
+8:55 EndOfFile
 
 error BYN0002: unexpected character `\`
 

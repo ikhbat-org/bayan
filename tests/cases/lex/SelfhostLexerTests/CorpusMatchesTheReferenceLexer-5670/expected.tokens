@@ -1,6 +1,6 @@
-1:2 Star `*`
-1:4 Identifier `bl`
-1:7 Identifier `ck`
+1:3 Star `*`
+1:5 Identifier `bl`
+1:8 Identifier `ck`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x92)

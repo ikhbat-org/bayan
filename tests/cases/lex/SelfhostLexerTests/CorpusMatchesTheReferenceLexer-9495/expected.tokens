@@ -3,7 +3,7 @@
 2:1 StringLiteral `"tex"`
 2:7 StringLiteral `"eHc \"q\" \\ \n"`
 2:25 RawStringLiteral `"""\nℾ�`
-3:2 EndOfFile
+3:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

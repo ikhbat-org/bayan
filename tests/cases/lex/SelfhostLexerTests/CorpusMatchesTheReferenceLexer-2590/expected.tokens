@@ -1,7 +1,7 @@
 2:2 IntegerLiteral `0x`
-4:1 Identifier `τρητής`
-4:8 Identifier `x_1`
-4:12 Identifier `é`
+4:2 Identifier `τρητής`
+4:9 Identifier `x_1`
+4:13 Identifier `é`
 5:4 StringLiteral `" c >>= 1`
 7:1 EndOfFile
 

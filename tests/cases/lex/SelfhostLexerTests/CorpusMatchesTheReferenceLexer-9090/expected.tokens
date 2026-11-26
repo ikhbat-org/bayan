@@ -70,7 +70,7 @@
 2:77 Identifier `macro`
 2:83 Identifier `select`
 2:90 BecomeKeyword `become`
-3:3 EndOfFile
+3:4 EndOfFile
 
 error BYN0003: unterminated string literal
 

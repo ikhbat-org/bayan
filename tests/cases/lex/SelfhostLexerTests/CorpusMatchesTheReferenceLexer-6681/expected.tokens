@@ -1,6 +1,6 @@
-1:2 Identifier `a`
-1:6 CloseBrace `}`
-1:7 CharLiteral `'`
+1:5 Identifier `a`
+1:9 CloseBrace `}`
+1:10 CharLiteral `'`
 2:1 Identifier `q`
 2:2 CharLiteral `'x`
 3:2 EndOfFile

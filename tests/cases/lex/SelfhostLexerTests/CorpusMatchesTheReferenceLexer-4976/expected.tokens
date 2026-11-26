@@ -57,8 +57,8 @@
 1:86 InterpolationEnd `}`
 1:87 InterpolatedStringEnd `"`
 1:88 OpenBrace `{`
-2:2 Identifier `é`
-2:4 CharLiteral `'\u{202E}'`
+2:3 Identifier `é`
+2:5 CharLiteral `'\u{202E}'`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `x`
 3:4 InterpolationStart `{`

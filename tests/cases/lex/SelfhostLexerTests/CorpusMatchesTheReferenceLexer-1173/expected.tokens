@@ -38,15 +38,15 @@
 4:94 EmbedKeyword `embed`
 4:100 ExternKeyword `extern`
 4:107 UnsafeKeyword `unsafe`
-5:3 Identifier `t`
-5:5 WithKeyword `with`
-5:10 MoveKeyword `move`
-5:15 RefKeyword `ref`
-5:19 OutKeyword `out`
-5:23 ThisKeyword `this`
-5:28 Identifier `nll`
-5:32 TrueKeyword `true`
-5:37 Identifier `fa`
+5:4 Identifier `t`
+5:6 WithKeyword `with`
+5:11 MoveKeyword `move`
+5:16 RefKeyword `ref`
+5:20 OutKeyword `out`
+5:24 ThisKeyword `this`
+5:29 Identifier `nll`
+5:33 TrueKeyword `true`
+5:38 Identifier `fa`
 6:1 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled

@@ -1,16 +1,16 @@
 1:1 CharLiteral `'a'`
 1:5 CharLiteral `'\n'`
-1:11 Identifier `u`
-1:12 OpenBrace `{`
-1:13 IntegerLiteral `1`
-1:14 NumericSuffix `F600`
-1:18 CloseBrace `}`
-1:20 CharLiteral `'\''`
-1:26 Identifier `é`
-1:27 CharLiteral `' '`
-1:32 CharLiteral `' '`
-1:36 IntegerLiteral `0`
-1:37 CharLiteral `'`
+1:12 Identifier `u`
+1:13 OpenBrace `{`
+1:14 IntegerLiteral `1`
+1:15 NumericSuffix `F600`
+1:19 CloseBrace `}`
+1:21 CharLiteral `'\''`
+1:27 Identifier `é`
+1:28 CharLiteral `' '`
+1:33 CharLiteral `' '`
+1:37 IntegerLiteral `0`
+1:38 CharLiteral `'`
 2:1 CharLiteral `'x`
 4:1 EndOfFile
 

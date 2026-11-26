@@ -20,34 +20,34 @@
 1:30 InterpolationStart `{`
 1:31 InterpolatedStringStart `$"`
 1:33 InterpolatedStringText `�$`
-1:34 InterpolatedStringEnd `"`
-1:35 OpenBrace `{`
-1:36 InterpolatedStringStart `$"`
-1:38 InterpolationStart `{`
-1:39 InterpolatedStringStart `$"`
-1:41 InterpolationStart `{`
-1:42 InterpolatedStringStart `$"`
-1:44 InterpolationStart `{`
-1:45 InterpolatedStringStart `$"`
-1:47 InterpolationStart `{`
-1:48 Identifier `x`
-1:49 InterpolationEnd `}`
-1:50 InterpolatedStringEnd `"`
-1:51 InterpolationEnd `}`
-1:52 InterpolatedStringEnd `"`
-1:53 InterpolationEnd `}`
-1:54 InterpolatedStringEnd `"`
-1:55 InterpolationEnd `}`
-1:56 InterpolatedStringEnd `"`
-1:57 CloseBrace `}`
-1:58 StringLiteral `"}�"`
-1:61 InterpolationEnd `}`
-1:62 InterpolatedStringEnd `"`
-1:63 InterpolatedStringStart `$"`
-1:65 InterpolatedStringText `open `
-1:70 InterpolationStart `{`
-1:71 Identifier `x`
-1:72 StringLiteral `";`
+1:35 InterpolatedStringEnd `"`
+1:36 OpenBrace `{`
+1:37 InterpolatedStringStart `$"`
+1:39 InterpolationStart `{`
+1:40 InterpolatedStringStart `$"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 Identifier `x`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
+1:56 InterpolationEnd `}`
+1:57 InterpolatedStringEnd `"`
+1:58 CloseBrace `}`
+1:59 StringLiteral `"}�"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolatedStringStart `$"`
+1:67 InterpolatedStringText `open `
+1:72 InterpolationStart `{`
+1:73 Identifier `x`
+1:74 StringLiteral `";`
 4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9B)

@@ -1,12 +1,12 @@
-1:2 Identifier `e`
-1:3 StringLiteral `"$"`
-1:6 OpenKeyword `open`
-1:11 OpenBrace `{`
-1:12 Identifier `x`
-1:13 StringLiteral `";`
-2:4 Identifier `macro`
-2:10 Identifier `select`
-2:17 BecomeKeyword `become`
+1:4 Identifier `e`
+1:5 StringLiteral `"$"`
+1:8 OpenKeyword `open`
+1:13 OpenBrace `{`
+1:14 Identifier `x`
+1:15 StringLiteral `";`
+2:6 Identifier `macro`
+2:12 Identifier `select`
+2:19 BecomeKeyword `become`
 3:8 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)

@@ -2,7 +2,7 @@
 2:3 Identifier `et`
 2:6 Identifier `b`
 2:8 Equals `=`
-2:11 IntegerLiteral `2`
+2:12 IntegerLiteral `2`
 3:2 IntegerLiteral `1__`
 5:1 EndOfFile
 

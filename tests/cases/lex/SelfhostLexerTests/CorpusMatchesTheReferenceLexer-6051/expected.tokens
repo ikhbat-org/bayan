@@ -14,7 +14,7 @@
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`
 6:4 Identifier `a`
-7:2 EndOfFile
+7:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

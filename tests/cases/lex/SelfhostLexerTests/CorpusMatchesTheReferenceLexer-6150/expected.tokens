@@ -15,7 +15,7 @@
 4:29 Identifier `del`
 4:33 ForeachKeyword `foreach`
 4:41 NewKeyword `new`
-4:44 GotoKeyword `goto`
+4:45 GotoKeyword `goto`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

@@ -38,12 +38,12 @@
 1:64 Identifier `x`
 1:65 CloseBrace `}`
 1:66 StringLiteral `"}�}"`
-1:70 CloseBrace `}`
-1:71 StringLiteral `"let b = "`
-1:81 Identifier `bad`
-1:86 Identifier `q`
-1:88 Identifier `escape`
-1:94 StringLiteral `"`
+1:71 CloseBrace `}`
+1:72 StringLiteral `"let b = "`
+1:82 Identifier `bad`
+1:87 Identifier `q`
+1:89 Identifier `escape`
+1:95 StringLiteral `"`
 2:2 EndOfFile
 
 error BYN0003: unterminated string literal

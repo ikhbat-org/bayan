@@ -5,20 +5,20 @@
 1:9 InterpolatedStringStart `$"`
 1:11 InterpolationStart `{`
 1:12 Identifier `x`
-1:13 InterpolationEnd `}`
-1:14 InterpolatedStringEnd `"`
-1:15 InterpolationEnd `}`
-1:16 InterpolatedStringEnd `"`
-1:17 CloseBrace `}`
-1:18 StringLiteral `"}"`
-1:21 CloseBrace `}`
-1:22 StringLiteral `"}"`
-1:25 CloseBrace `}`
-1:26 StringLiteral `"}"`
-1:29 CloseBrace `}`
-1:30 StringLiteral `"}"`
-1:35 Identifier `raw`
-1:39 StringLiteral `"quoted"`
+1:14 InterpolationEnd `}`
+1:15 InterpolatedStringEnd `"`
+1:16 InterpolationEnd `}`
+1:17 InterpolatedStringEnd `"`
+1:18 CloseBrace `}`
+1:19 StringLiteral `"}"`
+1:22 CloseBrace `}`
+1:23 StringLiteral `"}"`
+1:26 CloseBrace `}`
+1:27 StringLiteral `"}"`
+1:30 CloseBrace `}`
+1:31 StringLiteral `"}"`
+1:36 Identifier `raw`
+1:40 StringLiteral `"quoted"`
 3:1 CharLiteral `'\u{202E}'`
 3:5 EndOfFile
 

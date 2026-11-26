@@ -4,8 +4,8 @@
 3:4 InterpolationStart `{`
 3:5 Identifier `b`
 3:6 InterpolationEnd `}`
-3:7 InterpolatedStringText `c\r`
-3:9 InterpolatedStringEnd
+3:7 InterpolatedStringText `c`
+3:8 InterpolatedStringEnd
 4:2 Equals `=`
 4:4 IntegerLiteral `2`
 6:1 IfKeyword `if`

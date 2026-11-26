@@ -72,8 +72,7 @@
 2:29 PlusPlus `++`
 2:32 MinusMinus `--`
 5:1 InterpolationEnd `}`
-5:2 InterpolatedStringText `\r`
-5:3 InterpolatedStringEnd
+5:2 InterpolatedStringEnd
 6:1 EndOfFile
 
 error BYN0003: unterminated string literal

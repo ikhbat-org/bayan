@@ -17,8 +17,8 @@
 3:1 IntegerLiteral `0x`
 4:1 IntegerLiteral `0b1`
 4:4 NumericSuffix `ms`
-6:1 Identifier `r`
-6:3 Identifier `closed`
+6:2 Identifier `r`
+6:4 Identifier `closed`
 7:2 IntegerLiteral `1`
 7:3 Dot `.`
 7:5 LetKeyword `let`

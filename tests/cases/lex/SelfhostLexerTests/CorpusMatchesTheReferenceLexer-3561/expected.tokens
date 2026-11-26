@@ -63,7 +63,7 @@
 3:76 InterpolationEnd `}`
 3:77 InterpolatedStringEnd `"`
 4:1 CharLiteral `'\u{D800}'`
-5:3 EndOfFile
+5:4 EndOfFile
 
 error BYN0002: unexpected character `̈́`
 

@@ -1,5 +1,5 @@
 1:1 Identifier `comment`
-3:2 IntegerLiteral `0b102`
+3:3 IntegerLiteral `0b102`
 5:1 IntegerLiteral `1`
 5:2 Dot `.`
 5:3 StructKeyword `struct`

@@ -8,8 +8,8 @@
 6:13 Equals `=`
 6:15 IntegerLiteral `2`
 7:1 CharLiteral `'\u{D800}'`
-9:2 Equals `=`
-9:4 IntegerLiteral `1`
+9:3 Equals `=`
+9:5 IntegerLiteral `1`
 10:1 LetKeyword `let`
 10:5 Identifier `a`
 10:7 Equals `=`

@@ -8,9 +8,9 @@
 4:6 NeverKeyword `never`
 4:12 Identifier `closed`
 5:1 Identifier `b`
-6:2 StringLiteral `"open {x"`
-6:11 Semicolon `;`
-7:3 IntegerLiteral `0x_`
+6:3 StringLiteral `"open {x"`
+6:12 Semicolon `;`
+7:4 IntegerLiteral `0x_`
 8:2 CharLiteral `'"`
 8:4 EndOfFile
 

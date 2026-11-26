@@ -6,8 +6,8 @@
 1:28 Identifier `μετρητής`
 1:37 Identifier `x_1`
 1:41 Identifier `é`
-2:3 Identifier `a`
-2:8 CharLiteral `'\u{D800}'`
+2:4 Identifier `a`
+2:10 CharLiteral `'\u{D800}'`
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

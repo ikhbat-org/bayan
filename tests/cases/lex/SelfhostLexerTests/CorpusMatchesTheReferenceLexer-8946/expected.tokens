@@ -1,6 +1,6 @@
 1:1 Identifier `b`
-2:2 CharLiteral `'`
-2:3 EndOfFile
+2:3 CharLiteral `'`
+2:4 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)
 

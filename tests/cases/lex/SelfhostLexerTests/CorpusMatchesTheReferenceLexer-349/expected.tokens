@@ -5,7 +5,7 @@
 5:1 StringLiteral `"text"`
 5:8 StringLiteral `"esc \"q\" \\ \n"`
 5:26 RawStringLiteral `"""\n let effect = 2\n\nis and or not with move ref out this null true false comptime checked\n� `
-9:2 EndOfFile
+9:3 EndOfFile
 
 error BYN0005: identifier `각` is not in Unicode normalization form C
 

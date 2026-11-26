@@ -1,15 +1,15 @@
 1:1 CharLiteral `'`
 2:2 IntegerLiteral `2`
 2:5 Dot `.`
-2:6 Equals `=`
-2:7 IntegerLiteral `3`
-2:9 IntegerLiteral `5`
-2:10 NumericSuffix `e`
-2:12 Identifier `x`
-2:13 Dot `.`
-2:14 Identifier `y`
-2:16 FloatLiteral `2.5`
-2:19 NumericSuffix `f`
+2:7 Equals `=`
+2:8 IntegerLiteral `3`
+2:10 IntegerLiteral `5`
+2:11 NumericSuffix `e`
+2:13 Identifier `x`
+2:14 Dot `.`
+2:15 Identifier `y`
+2:17 FloatLiteral `2.5`
+2:20 NumericSuffix `f`
 4:1 CharLiteral `'\q'`
 5:1 EndOfFile
 

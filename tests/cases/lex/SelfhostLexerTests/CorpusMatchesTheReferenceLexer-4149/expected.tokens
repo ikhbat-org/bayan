@@ -79,7 +79,7 @@
 3:5 Identifier `c`
 3:7 Equals `=`
 3:9 RawStringLiteral `"""nev�r closed\n\t let a = $ 1\n\n\u{FEFF}������ `
-6:4 EndOfFile
+6:9 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply
 

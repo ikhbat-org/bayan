@@ -16,7 +16,7 @@
 4:4 GreaterEquals `>=`
 4:7 IntegerLiteral `1`
 5:3 RawStringLiteral `""" ctext" u16"wide" "\u{202E} allowed in strings" "� "\u{48}i"\nstruct S\nmacro select become\n  ` 2\nlet c = \u{7} 3\n\n$"{{" �����`
-11:8 EndOfFile
+11:12 EndOfFile
 
 error BYN0003: unterminated string literal
 

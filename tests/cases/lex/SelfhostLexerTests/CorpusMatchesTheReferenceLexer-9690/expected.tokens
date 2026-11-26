@@ -5,7 +5,7 @@
 1:9 OpenBrace `{`
 1:11 CloseBrace `}`
 2:2 Identifier `b`
-6:3 EndOfFile
+6:5 EndOfFile
 
 error BYN0004: unterminated block comment
 

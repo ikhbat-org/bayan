@@ -4,10 +4,10 @@
 2:10 Identifier `List`
 2:14 Less `<`
 2:15 Identifier `Lis`
-2:18 Less `<`
-2:19 Identifier `i64`
-2:22 Greater `>`
+2:19 Less `<`
+2:20 Identifier `i64`
 2:23 Greater `>`
+2:24 Greater `>`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`

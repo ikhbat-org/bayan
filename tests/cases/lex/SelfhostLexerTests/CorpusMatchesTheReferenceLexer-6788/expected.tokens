@@ -17,8 +17,8 @@
 2:51 AsyncKeyword `async`
 2:57 AwaitKeyword `await`
     doc `/// Doc line two.`
-4:3 StructKeyword `struct`
-4:10 Identifier `S`
+4:4 StructKeyword `struct`
+4:11 Identifier `S`
 6:1 CharLiteral `''`
 11:2 EndOfFile
 

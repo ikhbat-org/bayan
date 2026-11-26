@@ -1,8 +1,8 @@
 1:1 LetKeyword `let`
 1:5 Identifier `caf`
-1:11 Equals `=`
-1:13 IntegerLiteral `1`
-2:4 EndOfFile
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+2:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xCC)
 

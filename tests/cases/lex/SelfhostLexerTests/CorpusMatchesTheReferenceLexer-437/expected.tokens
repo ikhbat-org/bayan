@@ -27,9 +27,9 @@
 6:48 FalseKeyword `false`
 6:54 ComptimeKeyword `comptime`
 6:63 Identifier `Gchecked`
-7:1 Identifier `ητής`
-7:6 Identifier `x_1`
-7:10 Identifier `é`
+7:2 Identifier `ητής`
+7:7 Identifier `x_1`
+7:11 Identifier `é`
 8:2 OpenBrace `{`
 8:4 Identifier `Å0b__`
 10:1 EndOfFile

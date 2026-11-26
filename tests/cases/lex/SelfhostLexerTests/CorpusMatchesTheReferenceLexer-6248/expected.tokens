@@ -1,7 +1,7 @@
-1:4 InterpolatedStringStart `$"`
-1:6 InterpolatedStringText `{{`
-1:8 InterpolatedStringEnd `"`
-1:9 Identifier `hidden`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolatedStringText `{{`
+1:11 InterpolatedStringEnd `"`
+1:12 Identifier `hidden`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 Equals `=`

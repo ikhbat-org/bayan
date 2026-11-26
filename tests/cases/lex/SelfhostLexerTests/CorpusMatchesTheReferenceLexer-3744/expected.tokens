@@ -35,7 +35,7 @@
 1:51 StringLiteral `"`
 3:1 CaretEquals `^=`
 3:4 LessLessEquals `<<=`
-5:2 Identifier `x`
+5:3 Identifier `x`
 6:1 IntegerLiteral `1_`
 7:1 IntegerLiteral `0b102`
 8:1 IntegerLiteral `0xFF`

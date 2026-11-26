@@ -4,7 +4,7 @@
 1:5 Identifier `b`
 1:6 InterpolationEnd `}`
 1:7 InterpolatedStringText `c �����`
-1:10 InterpolatedStringEnd
+1:14 InterpolatedStringEnd
 2:1 StringLiteral `"{$"`
 2:5 Identifier `a`
 2:6 OpenBrace `{`

@@ -1,4 +1,4 @@
-1:4 StringLiteral `"}"`
+1:8 StringLiteral `"}"`
 3:2 IntegerLiteral `000`
 3:5 CloseBrace `}`
 3:6 CharLiteral `'`

@@ -7,10 +7,10 @@
 2:11 CloseBrace `}`
 3:2 CharLiteral `'\u{202E}'`
 3:7 Identifier `closed`
-4:1 LetKeyword `let`
-4:5 Identifier `x`
-4:8 Equals `=`
-4:10 IntegerLiteral `1`
+4:2 LetKeyword `let`
+4:6 Identifier `x`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
     doc `/// Doc line one.`
 6:2 EndOfFile
 

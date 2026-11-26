@@ -1,9 +1,9 @@
-1:2 Identifier `hidden`
+1:3 Identifier `hidden`
 2:1 Identifier `le`
-2:4 Identifier `x`
-2:7 Equals `=`
-2:9 IntegerLiteral `1`
-2:14 EndOfFile
+2:5 Identifier `x`
+2:8 Equals `=`
+2:10 IntegerLiteral `1`
+2:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAE)
 

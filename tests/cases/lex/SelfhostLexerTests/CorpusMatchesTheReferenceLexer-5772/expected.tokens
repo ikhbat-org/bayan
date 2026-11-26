@@ -2,7 +2,7 @@
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `open `
 2:8 InterpolationStart `{`
-2:9 StringLiteral `"\u{16};`
+2:10 StringLiteral `"\u{16};`
 4:1 CharLiteral `'\u{202E}'`
 4:5 EndOfFile
 

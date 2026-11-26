@@ -61,7 +61,7 @@
 3:19 StringLiteral `"wid`
 4:1 IntegerLiteral `1`
 4:3 Identifier `e`
-4:6 EndOfFile
+4:10 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -9,10 +9,10 @@
 7:1 LetKeyword `let`
 7:7 Equals `=`
 7:9 IntegerLiteral `2`
-8:3 Identifier `letf`
-8:8 Identifier `x`
-8:11 Equals `=`
-8:13 IntegerLiteral `1`
+8:7 Identifier `letf`
+8:12 Identifier `x`
+8:15 Equals `=`
+8:17 IntegerLiteral `1`
 9:2 EndOfFile
 
 error BYN0002: unexpected character ```

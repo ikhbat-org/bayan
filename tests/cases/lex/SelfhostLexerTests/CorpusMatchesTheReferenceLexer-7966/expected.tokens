@@ -14,10 +14,10 @@
 6:7 Identifier `select`
 6:14 BecomeKeyword `become`
 7:1 Identifier `le`
-8:3 LetKeyword `let`
-8:7 Identifier `a`
-8:9 Equals `=`
-8:11 IntegerLiteral `1`
+8:4 LetKeyword `let`
+8:8 Identifier `a`
+8:10 Equals `=`
+8:12 IntegerLiteral `1`
     doc `/// Doc linejtwo.`
 11:3 Equals `=`
 11:6 EndOfFile

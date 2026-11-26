@@ -3,7 +3,7 @@
 1:7 OpenBrace `{`
 1:8 IntegerLiteral `110000`
 1:14 CloseBrace `}`
-1:15 CharLiteral `'\r`
+1:15 CharLiteral `'`
 4:1 LetKeyword `let`
 4:5 Identifier `b`
 4:7 Equals `=`

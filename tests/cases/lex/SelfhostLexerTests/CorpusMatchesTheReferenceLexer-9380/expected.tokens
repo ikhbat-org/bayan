@@ -3,8 +3,8 @@
 4:4 IntegerLiteral `3`
 4:6 IntegerLiteral `5`
 4:7 NumericSuffix `e`
-4:9 Identifier `y`
-4:11 IntegerLiteral `2`
+4:10 Identifier `y`
+4:12 IntegerLiteral `2`
 5:1 CloseBrace `}`
 5:3 IntegerLiteral `0b__`
 7:1 IntegerLiteral `0b102`

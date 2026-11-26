@@ -1,4 +1,4 @@
-1:2 IntegerLiteral `0b__`
+1:4 IntegerLiteral `0b__`
 2:1 CharLiteral `'ab'`
 4:2 InterpolatedStringStart `$"`
 4:4 InterpolationStart `{`

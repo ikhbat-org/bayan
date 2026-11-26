@@ -1,41 +1,41 @@
 1:1 StringLiteral `"'a' '\n' '\u{1F600}' '\'' 'é' '\' \0'`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolatedStringText `tota� `
-2:9 InterpolationStart `{`
-2:10 Identifier `x`
-2:11 InterpolationEnd `}`
-2:12 InterpolatedStringEnd `"`
-2:14 InterpolatedStringStart `$"`
-2:16 InterpolatedStringText `a `
-2:18 InterpolationStart `{`
-2:19 Identifier `f`
-2:20 OpenParen `(`
-2:21 InterpolatedStringStart `$"`
-2:23 InterpolatedStringText `b `
-2:25 InterpolationStart `{`
-2:26 Identifier `c`
-2:27 InterpolationEnd `}`
-2:28 InterpolatedStringEnd `"`
-2:29 CloseParen `)`
-2:30 InterpolationEnd `}`
-2:31 InterpolatedStringText ` d`
-2:33 InterpolatedStringEnd `"`
-2:35 InterpolatedStringStart `$"`
-2:37 InterpolatedStringText `{{literal}}`
-2:48 InterpolatedStringEnd `"`
-2:50 InterpolatedStringStart `$"`
-2:52 InterpolationStart `{`
-2:53 Identifier `Point`
-2:59 OpenBrace `{`
-2:61 Identifier `x`
-2:63 Equals `=`
-2:65 IntegerLiteral `1`
-2:67 CloseBrace `}`
-2:68 InterpolationEnd `}`
-2:69 InterpolatedStringText `!`
-2:70 InterpolatedStringEnd `"`
-2:72 InterpolatedStringStart `$"`
-2:74 InterpolatedStringEnd `"`
+2:10 InterpolationStart `{`
+2:11 Identifier `x`
+2:12 InterpolationEnd `}`
+2:13 InterpolatedStringEnd `"`
+2:15 InterpolatedStringStart `$"`
+2:17 InterpolatedStringText `a `
+2:19 InterpolationStart `{`
+2:20 Identifier `f`
+2:21 OpenParen `(`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `b `
+2:26 InterpolationStart `{`
+2:27 Identifier `c`
+2:28 InterpolationEnd `}`
+2:29 InterpolatedStringEnd `"`
+2:30 CloseParen `)`
+2:31 InterpolationEnd `}`
+2:32 InterpolatedStringText ` d`
+2:34 InterpolatedStringEnd `"`
+2:36 InterpolatedStringStart `$"`
+2:38 InterpolatedStringText `{{literal}}`
+2:49 InterpolatedStringEnd `"`
+2:51 InterpolatedStringStart `$"`
+2:53 InterpolationStart `{`
+2:54 Identifier `Point`
+2:60 OpenBrace `{`
+2:62 Identifier `x`
+2:64 Equals `=`
+2:66 IntegerLiteral `1`
+2:68 CloseBrace `}`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringText `!`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
 4:1 EndOfFile
 
 error BYN0003: unterminated string literal

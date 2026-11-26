@@ -2,8 +2,8 @@
 1:5 NumericSuffix `s`
 2:1 IntegerLiteral `0xF__`
 3:1 IntegerLiteral `0`
-3:2 CloseBrace `}`
-3:3 Identifier `FFs`
+3:3 CloseBrace `}`
+3:4 Identifier `FFs`
 4:1 Identifier `x́́`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolatedStringText `x`

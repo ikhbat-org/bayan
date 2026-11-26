@@ -13,7 +13,7 @@
 3:28 PlusPlus `++`
 3:31 MinusMinus `--`
 4:2 Identifier `T`
-4:4 EndOfFile
+4:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)
 

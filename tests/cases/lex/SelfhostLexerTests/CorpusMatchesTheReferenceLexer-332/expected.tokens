@@ -1,15 +1,15 @@
 2:2 Slash `/`
 2:3 LetKeyword `let`
 2:7 Identifier `a`
-2:8 Equals `=`
-2:10 StringLiteral `"open`
+2:9 Equals `=`
+2:11 StringLiteral `"open`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolatedStringText `a`
 3:5 InterpolationStart `{`
 3:6 Identifier `b`
 3:7 InterpolationEnd `}`
-3:8 InterpolatedStringText `n\r`
-3:10 InterpolatedStringEnd
+3:8 InterpolatedStringText `n`
+3:9 InterpolatedStringEnd
 4:1 CharLiteral `'\q'`
 5:2 EndOfFile
 

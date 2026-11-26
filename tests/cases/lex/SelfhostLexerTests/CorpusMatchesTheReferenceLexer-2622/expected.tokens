@@ -9,7 +9,7 @@
 2:2 StringLiteral `"{'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0'`
 3:1 StringLiteral `"text"`
 3:8 StringLiteral `"esc \�q\" \\ \n"`
-3:25 RawStringLiteral `"""\no�nt { x = 1 }}!" $""\n0x\n `
+3:26 RawStringLiteral `"""\no�nt { x = 1 }}!" $""\n0x\n `
 6:2 EndOfFile
 
 error BYN0003: unterminated string literal

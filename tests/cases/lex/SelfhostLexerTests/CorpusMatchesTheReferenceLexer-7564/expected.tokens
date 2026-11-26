@@ -58,24 +58,24 @@
 4:3 IntegerLiteral `42`
 4:6 IntegerLiteral `1_000_000`
 4:16 IntegerLiteral `0x`
-4:18 Identifier `F`
-4:20 IntegerLiteral `0x_ff`
-4:26 IntegerLiteral `0b1010`
-4:33 IntegerLiteral `0B11`
-4:38 IntegerLiteral `5`
-4:39 NumericSuffix `s`
-4:41 IntegerLiteral `250`
-4:44 NumericSuffix `ms`
-4:47 IntegerLiteral `4`
-4:48 NumericSuffix `KiB`
-4:52 IntegerLiteral `1`
-4:53 NumericSuffix `u`
-4:55 IntegerLiteral `0xFF`
-4:59 NumericSuffix `u`
-4:61 IntegerLiteral `0b1`
-4:64 NumericSuffix `ul`
-4:67 IntegerLiteral `7`
-4:68 NumericSuffix `l`
+4:19 Identifier `F`
+4:21 IntegerLiteral `0x_ff`
+4:27 IntegerLiteral `0b1010`
+4:34 IntegerLiteral `0B11`
+4:39 IntegerLiteral `5`
+4:40 NumericSuffix `s`
+4:42 IntegerLiteral `250`
+4:45 NumericSuffix `ms`
+4:48 IntegerLiteral `4`
+4:49 NumericSuffix `KiB`
+4:53 IntegerLiteral `1`
+4:54 NumericSuffix `u`
+4:56 IntegerLiteral `0xFF`
+4:60 NumericSuffix `u`
+4:62 IntegerLiteral `0b1`
+4:65 NumericSuffix `ul`
+4:68 IntegerLiteral `7`
+4:69 NumericSuffix `l`
 5:2 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C

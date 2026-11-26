@@ -117,7 +117,7 @@
 5:56 StringLiteral `$"{$"`
 5:61 OpenBrace `{`
 5:62 StringLiteral `$"{x\' '\0'`
-6:4 EndOfFile
+6:7 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply
 

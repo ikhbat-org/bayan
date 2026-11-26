@@ -7,23 +7,23 @@
 2:2 IfKeyword `if`
 2:5 ElseKeyword `else`
 2:10 Identifier `u`
-2:11 Identifier `nless`
-2:17 Identifier `sitch`
-2:23 CaseKeyword `case`
-2:28 DefaultKeyword `default`
-2:36 ForKeyword `for`
-2:40 InKeyword `in`
-2:43 WhileKeyword `while`
-2:49 DoKeyword `do`
-2:52 BreakKeyword `break`
-2:58 Identifier `co`
-2:61 Identifier `ntinue`
-2:68 ReturnKeyword `return`
-2:75 YieldKeyword `yield`
-2:81 DeferKeyword `defer`
-2:87 ErrdeferKeyword `errdefer`
-2:96 UsingKeyword `using`
-2:102 ContextKeyword `context`
+2:12 Identifier `nless`
+2:18 Identifier `sitch`
+2:24 CaseKeyword `case`
+2:29 DefaultKeyword `default`
+2:37 ForKeyword `for`
+2:41 InKeyword `in`
+2:44 WhileKeyword `while`
+2:50 DoKeyword `do`
+2:53 BreakKeyword `break`
+2:59 Identifier `co`
+2:62 Identifier `ntinue`
+2:69 ReturnKeyword `return`
+2:76 YieldKeyword `yield`
+2:82 DeferKeyword `defer`
+2:88 ErrdeferKeyword `errdefer`
+2:97 UsingKeyword `using`
+2:103 ContextKeyword `context`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

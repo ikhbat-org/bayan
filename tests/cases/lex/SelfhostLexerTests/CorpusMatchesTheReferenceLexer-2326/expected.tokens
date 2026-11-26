@@ -1,4 +1,4 @@
-1:2 IntegerLiteral `0b__`
+1:6 IntegerLiteral `0b__`
 3:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n"a\u{2067}b"\n///\n�τρητής x_1 é\n `
 8:2 EndOfFile
 

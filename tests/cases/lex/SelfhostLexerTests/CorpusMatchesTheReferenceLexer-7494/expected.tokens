@@ -27,8 +27,8 @@
 4:5 Identifier `a`
 4:7 Equals `=`
 4:9 StringLiteral `"open`
-7:3 StringLiteral `"`
-7:4 EndOfFile
+7:6 StringLiteral `"`
+7:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

@@ -1,5 +1,4 @@
 1:1 IntegerLiteral `1__`
-    doc `/// Doc lin two.\r`
 4:1 Identifier `c`
 4:3 Greater `>`
 4:4 GreaterEquals `>=`

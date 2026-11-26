@@ -33,7 +33,7 @@
 1:68 InterpolationEnd `}`
 1:69 InterpolatedStringText `!`
 1:70 InterpolatedStringEnd `"`
-1:73 StringLiteral `""`
+1:74 StringLiteral `""`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 InterpolatedStringStart `$"`

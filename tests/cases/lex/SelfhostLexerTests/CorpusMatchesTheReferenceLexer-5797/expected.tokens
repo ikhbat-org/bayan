@@ -1,7 +1,7 @@
-1:2 LetKeyword `let`
-1:6 Identifier `c`
-1:8 Equals `=`
-1:10 RawStringLiteral `"""never closed\n\n// comment \u{202E} hiden\n0b1ms\n var xs: �ist<List<i64>>\n`
+1:3 LetKeyword `let`
+1:7 Identifier `c`
+1:9 Equals `=`
+1:11 RawStringLiteral `"""never closed\n\n// comment \u{202E} hiden\n0b1ms\n var xs: �ist<List<i64>>\n`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

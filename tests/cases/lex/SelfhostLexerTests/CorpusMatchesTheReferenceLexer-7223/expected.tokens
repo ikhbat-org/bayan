@@ -8,12 +8,12 @@
 5:5 Identifier `actor`
 5:11 Equals `=`
 5:13 IntegerLiteral `1`
-6:3 Identifier `et`
-6:6 Identifier `café`
-6:11 Equals `=`
-6:13 IntegerLiteral `1`
-6:14 Semicolon `;`
-6:15 EndOfFile
+6:5 Identifier `et`
+6:8 Identifier `café`
+6:14 Equals `=`
+6:16 IntegerLiteral `1`
+6:17 Semicolon `;`
+6:18 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`
 

@@ -28,7 +28,7 @@
 7:39 Greater `>`
 7:41 Greater `>`
 7:42 GreaterEquals `>=`
-8:3 EndOfFile
+8:4 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`
 

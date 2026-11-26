@@ -9,7 +9,7 @@
 7:11 IntegerLiteral `3`
 9:1 CharLiteral `'\u{D800}'`
 10:3 Identifier `L`
-11:2 EndOfFile
+11:4 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`
 

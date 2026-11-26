@@ -9,8 +9,8 @@
 4:1 LetKeyword `let`
 4:5 Identifier `x`
 4:7 Identifier `M`
-4:9 Equals `=`
-4:11 IntegerLiteral `1`
+4:10 Equals `=`
+4:12 IntegerLiteral `1`
 5:1 Identifier `c`
 5:3 Greater `>`
 5:4 GreaterEquals `>=`

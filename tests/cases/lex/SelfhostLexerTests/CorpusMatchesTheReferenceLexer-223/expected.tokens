@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `0`
 2:1 IntegerLiteral `1__`
 3:1 Identifier `le`
-3:4 Identifier `b`
-3:6 Equals `=`
-3:10 IntegerLiteral `2`
+3:5 Identifier `b`
+3:7 Equals `=`
+3:11 IntegerLiteral `2`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBF)

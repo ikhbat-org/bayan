@@ -1,5 +1,5 @@
 1:1 CharLiteral `'�\q'`
-1:5 Identifier `k`
+1:6 Identifier `k`
 2:1 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar

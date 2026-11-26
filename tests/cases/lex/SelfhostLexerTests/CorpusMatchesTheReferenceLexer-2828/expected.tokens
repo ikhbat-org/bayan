@@ -5,21 +5,21 @@
 4:15 IntegerLiteral `0xFF`
 4:20 IntegerLiteral `0x_ff`
 4:26 IntegerLiteral `0b1`
-4:29 IntegerLiteral `10`
-4:32 IntegerLiteral `0B11`
-4:37 IntegerLiteral `5`
-4:38 NumericSuffix `s`
-4:40 IntegerLiteral `250`
-4:43 NumericSuffix `ms`
-4:46 IntegerLiteral `4`
-4:47 NumericSuffix `KiB`
-4:51 IntegerLiteral `1`
-4:52 NumericSuffix `u`
-4:54 IntegerLiteral `0xFF`
-4:58 NumericSuffix `u`
-4:60 IntegerLiteral `0b1`
-4:63 NumericSuffix `ul`
-4:67 Identifier `l`
+4:30 IntegerLiteral `10`
+4:33 IntegerLiteral `0B11`
+4:38 IntegerLiteral `5`
+4:39 NumericSuffix `s`
+4:41 IntegerLiteral `250`
+4:44 NumericSuffix `ms`
+4:47 IntegerLiteral `4`
+4:48 NumericSuffix `KiB`
+4:52 IntegerLiteral `1`
+4:53 NumericSuffix `u`
+4:55 IntegerLiteral `0xFF`
+4:59 NumericSuffix `u`
+4:61 IntegerLiteral `0b1`
+4:64 NumericSuffix `ul`
+4:68 Identifier `l`
 5:2 StringLiteral `"{`
 6:2 EndOfFile
 

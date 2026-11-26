@@ -3,11 +3,11 @@
 2:8 TryKeyword `try`
 2:12 CatchKeyword `catch`
 2:18 NeverKeyword `never`
-2:23 NoallocKeyword `noalloc`
-2:31 NosuspendKeyword `nosuspend`
-2:41 SuspendsKeyword `suspends`
-2:50 AsyncKeyword `async`
-2:56 AwaitKeyword `await`
+2:24 NoallocKeyword `noalloc`
+2:32 NosuspendKeyword `nosuspend`
+2:42 SuspendsKeyword `suspends`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
 3:3 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

@@ -4,12 +4,12 @@
 1:10 CharLiteral `' '`
 1:14 Identifier `u`
 1:15 OpenBrace `{`
-1:16 IntegerLiteral `1`
-1:17 NumericSuffix `F600`
-1:21 CloseBrace `}`
-1:22 CharLiteral `' '`
-1:26 CharLiteral `''`
-1:29 CharLiteral `'�`
+1:17 IntegerLiteral `1`
+1:18 NumericSuffix `F600`
+1:22 CloseBrace `}`
+1:23 CharLiteral `' '`
+1:27 CharLiteral `''`
+1:30 CharLiteral `'�`
 3:1 Identifier `struc`
 3:7 Identifier `t`
 3:9 UniqueKeyword `unique`

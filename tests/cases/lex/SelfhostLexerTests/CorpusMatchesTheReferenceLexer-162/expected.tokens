@@ -23,13 +23,13 @@
 4:40 IntegerLiteral `3`
 4:42 IntegerLiteral `5`
 4:43 NumericSuffix `e`
-4:44 Identifier `x`
-4:45 Dot `.`
-4:46 Identifier `y`
-4:48 FloatLiteral `2.5`
-4:51 NumericSuffix `f`
+4:45 Identifier `x`
+4:46 Dot `.`
+4:47 Identifier `y`
+4:49 FloatLiteral `2.5`
+4:52 NumericSuffix `f`
 5:1 Identifier `_`
-6:3 EndOfFile
+6:5 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

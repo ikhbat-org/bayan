@@ -2,10 +2,10 @@
 1:5 Identifier `a`
 1:7 Equals `=`
 1:9 IntegerLiteral `1`
-1:10 LetKeyword `let`
-1:14 LawKeyword `law`
-1:18 Equals `=`
-1:20 IntegerLiteral `3`
+1:11 LetKeyword `let`
+1:15 LawKeyword `law`
+1:19 Equals `=`
+1:21 IntegerLiteral `3`
 3:3 InterpolatedStringStart `$"`
 3:5 InterpolatedStringText `open `
 3:10 InterpolationStart `{`

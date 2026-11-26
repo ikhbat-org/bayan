@@ -28,7 +28,7 @@
 5:11 IntegerLiteral `1`
 5:12 NumericSuffix `x`
 5:14 Equals `=`
-5:20 EndOfFile
+5:23 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier
 

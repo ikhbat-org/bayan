@@ -1,6 +1,6 @@
-2:3 LetKeyword `let`
-2:9 Equals `=`
-2:11 IntegerLiteral `2`
+2:7 LetKeyword `let`
+2:13 Equals `=`
+2:15 IntegerLiteral `2`
 4:1 IntegerLiteral `0xF`
 4:5 IntegerLiteral `0x_ff`
 4:11 IntegerLiteral `0b1010`

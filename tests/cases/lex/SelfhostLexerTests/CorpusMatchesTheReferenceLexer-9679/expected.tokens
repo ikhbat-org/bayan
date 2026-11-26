@@ -13,7 +13,7 @@
 2:26 StarBar `*|`
 2:29 PlusPlus `++`
 2:32 MinusMinus `--`
-3:2 StringLiteral `"{`
+3:3 StringLiteral `"{`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 InterpolatedStringStart `$"`

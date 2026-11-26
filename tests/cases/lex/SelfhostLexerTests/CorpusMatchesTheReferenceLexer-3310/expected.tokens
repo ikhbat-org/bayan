@@ -4,7 +4,7 @@
 1:8 NumericSuffix `ms`
 1:11 IntegerLiteral `4`
 1:12 NumericSuffix `KiB`
-1:16 EndOfFile
+1:19 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

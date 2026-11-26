@@ -15,23 +15,23 @@
 5:43 Identifier `t`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolationStart `{`
-7:5 IntegerLiteral `0x`
-7:7 Plus `+`
-7:8 IntegerLiteral `2`
-7:10 FloatLiteral `1.50`
-7:14 NumericSuffix `dec`
-7:18 IntegerLiteral `1`
-7:19 DotDot `..`
-7:21 IntegerLiteral `2`
-7:23 IntegerLiteral `1`
-7:24 DotDotEquals `..=`
-7:27 IntegerLiteral `3`
-7:28 NumericSuffix `V5e`
-7:32 Identifier `x`
-7:33 Dot `.`
-7:34 Identifier `y`
-7:36 FloatLiteral `2.5`
-7:39 NumericSuffix `f`
+7:6 IntegerLiteral `0x`
+7:8 Plus `+`
+7:9 IntegerLiteral `2`
+7:11 FloatLiteral `1.50`
+7:15 NumericSuffix `dec`
+7:19 IntegerLiteral `1`
+7:20 DotDot `..`
+7:22 IntegerLiteral `2`
+7:24 IntegerLiteral `1`
+7:25 DotDotEquals `..=`
+7:28 IntegerLiteral `3`
+7:29 NumericSuffix `V5e`
+7:33 Identifier `x`
+7:34 Dot `.`
+7:35 Identifier `y`
+7:37 FloatLiteral `2.5`
+7:40 NumericSuffix `f`
 8:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

@@ -10,7 +10,7 @@
 5:5 LawKeyword `law`
 5:9 Equals `=`
 5:11 IntegerLiteral `3`
-6:3 EndOfFile
+6:5 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

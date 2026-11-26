@@ -12,7 +12,7 @@
 6:2 IntegerLiteral `0xFF`
 6:6 NumericSuffix `s`
     doc `///��� `
-8:7 EndOfFile
+8:8 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`
 

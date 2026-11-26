@@ -1,4 +1,4 @@
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 2:2 StringLiteral `"text"`
 2:9 StringLiteral `"esc \"q\" \\ \n"`
 2:27 RawStringLiteral `"""\r\n\r\n$"{{" is and or not with move ref out this null true false comptime checked\r\n & && | || ^ ~ ! = == !F < <= > >= << >> >>=\r\n 'x\r\n\t let actor = 1\r\n\r\n`

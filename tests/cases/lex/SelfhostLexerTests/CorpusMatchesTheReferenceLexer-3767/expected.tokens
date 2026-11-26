@@ -1,4 +1,4 @@
-    doc `///*Do line two.\r`
+    doc `///*Do line two.`
 2:2 PlusEquals `+=`
 2:5 MinusEquals `-=`
 2:8 StarEquals `*=`

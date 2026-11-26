@@ -21,20 +21,20 @@
 1:33 InterpolatedStringEnd `"`
 1:35 InterpolatedStringStart `$"`
 1:37 InterpolatedStringText `{{literal}�`
-1:47 InterpolatedStringEnd `"`
-1:49 InterpolatedStringStart `$"`
-1:51 InterpolationStart `{`
-1:52 Identifier `Point`
-1:58 OpenBrace `{`
-1:60 Identifier `x`
-1:62 Equals `=`
-1:64 IntegerLiteral `1`
-1:66 CloseBrace `}`
-1:67 InterpolationEnd `}`
-1:68 InterpolatedStringText `!`
-1:69 InterpolatedStringEnd `"`
-1:71 InterpolatedStringStart `$"`
-1:73 InterpolatedStringEnd `"`
+1:48 InterpolatedStringEnd `"`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 Identifier `Point`
+1:59 OpenBrace `{`
+1:61 Identifier `x`
+1:63 Equals `=`
+1:65 IntegerLiteral `1`
+1:67 CloseBrace `}`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringText `!`
+1:70 InterpolatedStringEnd `"`
+1:72 InterpolatedStringStart `$"`
+1:74 InterpolatedStringEnd `"`
 2:1 StringLiteral `"total {x}"`
 2:13 InterpolatedStringStart `$"`
 2:15 InterpolatedStringText `a `

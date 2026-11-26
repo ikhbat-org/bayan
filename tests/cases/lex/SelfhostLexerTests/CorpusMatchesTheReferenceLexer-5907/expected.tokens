@@ -4,7 +4,7 @@
 2:6 Identifier `c`
 2:8 Equals `=`
 2:12 IntegerLiteral `3`
-3:2 Identifier `Å`
+3:3 Identifier `Å`
 4:3 LetKeyword `let`
 4:7 Identifier `effecp`
 4:14 Equals `=`

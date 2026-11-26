@@ -7,7 +7,7 @@
 1:12 InterpolatedStringStart `$"`
 1:14 InterpolationStart `{`
 1:15 CharLiteral `'"{$"{$"{$"{$"{$"{$"{$"x{$"{$"{$"{$"{$"{$"{x}"}"A�`
-1:64 EndOfFile
+1:65 EndOfFile
 
 error BYN0003: unterminated string literal
 

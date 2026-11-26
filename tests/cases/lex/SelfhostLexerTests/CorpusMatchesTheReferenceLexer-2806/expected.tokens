@@ -4,9 +4,9 @@
 3:5 CharLiteral `'\n'`
 3:10 CharLiteral `'\u{1F600}'`
 3:22 CharLiteral `'�\''`
-3:27 CharLiteral `'é'`
-3:31 CharLiteral `'\\'`
-3:36 CharLiteral `'\0'`
+3:28 CharLiteral `'é'`
+3:32 CharLiteral `'\\'`
+3:37 CharLiteral `'\0'`
 4:1 Identifier `ivate`
 4:7 Identifier `sta`
 5:1 EndOfFile

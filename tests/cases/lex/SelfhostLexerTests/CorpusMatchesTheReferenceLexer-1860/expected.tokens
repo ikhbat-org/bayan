@@ -77,10 +77,10 @@
 1:110 InterpolatedStringEnd `"`
 3:1 IntegerLiteral `0`
 3:2 CloseBrace `}`
-3:3 CharLiteral `'\r`
-4:1 CharLiteral `'x\r`
-5:2 IntegerLiteral `0b1`
-5:5 NumericSuffix `ms`
+3:3 CharLiteral `'`
+4:1 CharLiteral `'x`
+5:4 IntegerLiteral `0b1`
+5:7 NumericSuffix `ms`
 7:2 CloseBrace `}`
 7:3 EndOfFile
 

@@ -18,15 +18,15 @@
 1:48 FloatLiteral `2.5`
 1:51 NumericSuffix `f`
 2:1 FailsKeyword `fails`
-2:7 Identifier `ry`
-2:10 CatchKeyword `catch`
-2:16 NeverKeyword `never`
-2:22 NoallocKeyword `noalloc`
-2:30 NosuspendKeyword `nosuspend`
-2:40 SuspendsKeyword `suspends`
-2:49 AsyncKeyword `async`
-2:55 AwaitKeyword `await`
-3:3 Identifier `xFFs`
+2:8 Identifier `ry`
+2:11 CatchKeyword `catch`
+2:17 NeverKeyword `never`
+2:23 NoallocKeyword `noalloc`
+2:31 NosuspendKeyword `nosuspend`
+2:41 SuspendsKeyword `suspends`
+2:50 AsyncKeyword `async`
+2:56 AwaitKeyword `await`
+3:4 Identifier `xFFs`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA3)

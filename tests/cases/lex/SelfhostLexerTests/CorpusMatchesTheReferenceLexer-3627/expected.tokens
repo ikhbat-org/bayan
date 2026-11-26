@@ -2,15 +2,15 @@
 1:7 Identifier `hi`
 2:2 Equals `=`
 2:4 Identifier `ạ̇`
-2:10 PlusEquals `+=`
-2:13 MinusEquals `-=`
-2:16 StarEquals `*=`
-2:19 SlashEquals `/=`
-2:22 PercentEquals `%=`
-2:25 AmpEquals `&=`
-2:28 BarEquals `|=`
-2:31 CaretEquals `^=`
-2:34 LessLessEquals `<<=`
+2:12 PlusEquals `+=`
+2:15 MinusEquals `-=`
+2:18 StarEquals `*=`
+2:21 SlashEquals `/=`
+2:24 PercentEquals `%=`
+2:27 AmpEquals `&=`
+2:30 BarEquals `|=`
+2:33 CaretEquals `^=`
+2:36 LessLessEquals `<<=`
 5:2 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

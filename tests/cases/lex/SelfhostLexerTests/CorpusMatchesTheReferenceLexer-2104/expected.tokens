@@ -22,18 +22,18 @@
 1:37 OpenBrace `{`
 1:38 Identifier `literal`
 1:45 CloseBrace `}`
-1:46 StringLiteral `" $"`
-1:50 OpenBrace `{`
-1:51 Identifier `Point`
-1:57 OpenBrace `{`
-1:59 Identifier `x`
-1:61 Equals `=`
-1:63 IntegerLiteral `1`
-1:65 CloseBrace `}`
+1:47 StringLiteral `" $"`
+1:51 OpenBrace `{`
+1:52 Identifier `Point`
+1:58 OpenBrace `{`
+1:60 Identifier `x`
+1:62 Equals `=`
+1:64 IntegerLiteral `1`
 1:66 CloseBrace `}`
-1:67 Bang `!`
-1:68 StringLiteral `" $"`
-1:72 StringLiteral `"`
+1:67 CloseBrace `}`
+1:68 Bang `!`
+1:69 StringLiteral `" $"`
+1:73 StringLiteral `"`
 2:2 EndOfFile
 
 error BYN0003: unterminated string literal

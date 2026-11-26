@@ -8,11 +8,11 @@
 6:4 GreaterEquals `>=`
 6:7 IntegerLiteral `1`
 8:2 BecomeKeyword `become`
-8:8 LetKeyword `let`
-8:12 LawKeyword `law`
-8:16 Equals `=`
-8:18 IntegerLiteral `3`
-8:19 EndOfFile
+8:9 LetKeyword `let`
+8:13 LawKeyword `law`
+8:17 Equals `=`
+8:19 IntegerLiteral `3`
+8:20 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C
 

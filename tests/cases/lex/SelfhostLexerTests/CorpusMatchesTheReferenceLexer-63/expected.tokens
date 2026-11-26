@@ -11,7 +11,7 @@
 3:29 CharLiteral `' '`
 3:34 CharLiteral `' '`
 3:38 IntegerLiteral `0`
-3:39 CharLiteral `'\r`
+3:39 CharLiteral `'`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolatedStringText `$`
 5:4 InterpolatedStringEnd `"`

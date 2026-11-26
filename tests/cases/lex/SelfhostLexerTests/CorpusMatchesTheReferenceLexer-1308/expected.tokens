@@ -1,4 +1,4 @@
-2:3 IntegerLiteral `0b__`
+2:5 IntegerLiteral `0b__`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolatedStringText `total `
 3:10 InterpolationStart `{`

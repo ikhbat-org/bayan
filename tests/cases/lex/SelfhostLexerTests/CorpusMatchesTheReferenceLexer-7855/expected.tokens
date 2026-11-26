@@ -20,10 +20,10 @@
 7:3 CharLiteral `'`
 8:1 CharLiteral `'\u{110000}'`
 9:1 CharLiteral `'x`
-10:4 LetKeyword `let`
-10:8 Identifier `b`
-10:10 Equals `=`
-10:12 StringLiteral `"bad \q escape"`
+10:6 LetKeyword `let`
+10:10 Identifier `b`
+10:12 Equals `=`
+10:14 StringLiteral `"bad \q escape"`
 11:2 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

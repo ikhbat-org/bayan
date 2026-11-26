@@ -2,7 +2,7 @@
 1:3 InterpolatedStringText `sray } here`
 1:14 InterpolatedStringEnd `"`
 3:1 CharLiteral `'�'`
-3:3 Identifier `x`
+3:4 Identifier `x`
 5:1 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled

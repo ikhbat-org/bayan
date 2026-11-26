@@ -36,8 +36,8 @@
 1:53 InterpolationEnd `}`
 1:54 InterpolatedStringEnd `"`
 1:56 OpenBrace `{`
-1:59 StructKeyword `struct`
-1:66 Identifier `S`
+1:60 StructKeyword `struct`
+1:67 Identifier `S`
 2:2 Identifier `é`
 2:4 EndOfFile
 

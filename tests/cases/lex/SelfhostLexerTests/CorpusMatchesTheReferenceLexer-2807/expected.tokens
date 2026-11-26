@@ -2,12 +2,12 @@
 1:5 Identifier `b`
 1:7 Equals `=`
 1:11 IntegerLiteral `2`
-3:1 InterpolatedStringStart `$"`
-3:3 InterpolatedStringText `x`
-3:4 InterpolationStart `{`
-3:7 Identifier `Z`
-3:8 OpenBrace `{`
-3:9 EndOfFile
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolatedStringText `x`
+3:7 InterpolationStart `{`
+3:10 Identifier `Z`
+3:11 OpenBrace `{`
+3:12 EndOfFile
 
 error BYN0002: unexpected character ```
 

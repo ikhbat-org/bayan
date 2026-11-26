@@ -5,8 +5,8 @@
 1:23 Identifier `بيان`
 1:28 Identifier `μετρητής`
 1:37 Identifier `x_1`
-1:40 OpenParen `(`
-1:41 Identifier `é`
+1:41 OpenParen `(`
+1:42 Identifier `é`
 9:11 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBD)

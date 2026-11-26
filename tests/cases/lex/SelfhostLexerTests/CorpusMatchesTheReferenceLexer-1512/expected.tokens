@@ -52,14 +52,14 @@
 5:75 InterpolatedStringEnd `"`
 5:76 InterpolationEnd `}`
 5:77 InterpolatedStringEnd `"`
-6:3 Identifier `foo`
-6:7 Identifier `Bar`
-6:11 Identifier `_x`
-6:14 Identifier `camelCase2`
-6:25 Identifier `بيان`
-6:30 Identifier `μετρητής`
-6:39 Identifier `x_1`
-6:43 Identifier `é`
+6:4 Identifier `foo`
+6:8 Identifier `Bar`
+6:12 Identifier `_x`
+6:15 Identifier `camelCase2`
+6:26 Identifier `بيان`
+6:31 Identifier `μετρητής`
+6:40 Identifier `x_1`
+6:44 Identifier `é`
 7:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

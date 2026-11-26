@@ -53,7 +53,7 @@
 2:1 IntegerLiteral `0b1`
 2:4 NumericSuffix `ms`
 3:2 IntegerLiteral `0b__`
-3:6 IntegerLiteral `1__`
+3:7 IntegerLiteral `1__`
 5:1 IntegerLiteral `1__`
 7:1 EndOfFile
 

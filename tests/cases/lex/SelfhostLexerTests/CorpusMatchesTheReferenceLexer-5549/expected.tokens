@@ -6,11 +6,11 @@
 4:6 NumericSuffix `e`
 5:1 LetKeyword `let`
 5:5 Identifier `v`
-5:6 Identifier `r`
-5:8 EmbedKeyword `embed`
-5:14 Identifier `ex`
-5:17 Identifier `tern`
-5:22 UnsafeKeyword `unsafe`
+5:7 Identifier `r`
+5:9 EmbedKeyword `embed`
+5:15 Identifier `ex`
+5:18 Identifier `tern`
+5:23 UnsafeKeyword `unsafe`
 6:1 IfKeyword `if`
 6:4 ElseKeyword `else`
 6:9 UnlessKeyword `unless`

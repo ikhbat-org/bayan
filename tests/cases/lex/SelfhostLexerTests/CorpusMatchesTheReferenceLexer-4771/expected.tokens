@@ -22,8 +22,8 @@
 5:11 CharLiteral `'\u{1F600}'`
 5:23 CharLiteral `'\''`
 5:28 CharLiteral `'é�'`
-5:32 CharLiteral `'\\'`
-5:37 CharLiteral `'\0'`
+5:33 CharLiteral `'\\'`
+5:38 CharLiteral `'\0'`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9B)

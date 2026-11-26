@@ -5,23 +5,23 @@
 2:13 IntegerLiteral `2`
 3:2 IfKeyword `if`
 3:5 Identifier `els`
-3:8 Identifier `e`
-3:10 UnlessKeyword `unless`
-3:17 SwitchKeyword `switch`
-3:24 Identifier `caEse`
-3:30 DefaultKeyword `default`
-3:38 ForKeyword `for`
-3:42 InKeyword `in`
-3:45 WhileKeyword `while`
-3:51 DoKeyword `do`
-3:54 BreakKeyword `break`
-3:60 ContinueKeyword `continue`
-3:69 ReturnKeyword `return`
-3:76 YieldKeyword `yield`
-3:82 DeferKeyword `defer`
-3:88 ErrdeferKeyword `errdefer`
-3:97 UsingKeyword `using`
-3:103 ContextKeyword `context`
+3:9 Identifier `e`
+3:11 UnlessKeyword `unless`
+3:18 SwitchKeyword `switch`
+3:25 Identifier `caEse`
+3:31 DefaultKeyword `default`
+3:39 ForKeyword `for`
+3:43 InKeyword `in`
+3:46 WhileKeyword `while`
+3:52 DoKeyword `do`
+3:55 BreakKeyword `break`
+3:61 ContinueKeyword `continue`
+3:70 ReturnKeyword `return`
+3:77 YieldKeyword `yield`
+3:83 DeferKeyword `defer`
+3:89 ErrdeferKeyword `errdefer`
+3:98 UsingKeyword `using`
+3:104 ContextKeyword `context`
 7:1 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`

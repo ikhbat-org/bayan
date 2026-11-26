@@ -2,10 +2,10 @@
 1:5 Identifier `x`
 1:8 Equals `=`
 1:10 IntegerLiteral `1`
-2:4 Identifier `c`
-2:6 Greater `>`
-2:7 GreaterEquals `>=`
-2:10 IntegerLiteral `1`
+2:6 Identifier `c`
+2:8 Greater `>`
+2:9 GreaterEquals `>=`
+2:12 IntegerLiteral `1`
 4:1 IntegerLiteral `1`
 4:2 Dot `.`
 6:2 CloseBrace `}`

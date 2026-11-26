@@ -7,7 +7,7 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `stray } here`
 4:15 InterpolatedStringEnd `"`
-5:1 IntegerLiteral `0b__`
+5:2 IntegerLiteral `0b__`
 6:1 Greater `>`
 6:2 GreaterEquals `>=`
 7:1 PlusEquals `+=`

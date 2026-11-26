@@ -5,7 +5,7 @@
 1:7 InterpolationStart `{`
 1:9 InterpolatedStringStart `$"`
 1:11 InterpolatedStringText ` ' �& && | || ^ ~ ! = == != < <= > >= << >> >>=`
-1:57 InterpolatedStringEnd
+1:58 InterpolatedStringEnd
 2:2 Identifier `c`
 2:4 Greater `>`
 2:5 GreaterEquals `>=`

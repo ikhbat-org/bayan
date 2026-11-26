@@ -39,8 +39,8 @@
 3:41 InterpolatedStringStart `$"`
 3:43 InterpolationStart `{`
 3:44 InterpolatedStringStart `$"`
-3:46 InterpolatedStringText ` if else unless switch case default for in while do break continue return yie�d defer errdefer using�context\r`
-3:153 InterpolatedStringEnd
+3:46 InterpolatedStringText ` if else unless switch case default for in while do break continue return yie�d defer errdefer using�context`
+3:154 InterpolatedStringEnd
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

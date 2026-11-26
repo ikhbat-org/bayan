@@ -1,5 +1,5 @@
-1:1 CharLiteral `' '`
-1:4 CharLiteral `''`
+1:2 CharLiteral `' '`
+1:5 CharLiteral `''`
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `total `
 2:9 InterpolationStart `{`

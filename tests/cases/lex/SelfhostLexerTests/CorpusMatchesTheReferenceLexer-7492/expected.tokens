@@ -85,7 +85,7 @@
 2:108 InterpolationEnd `}`
 2:109 InterpolatedStringEnd `"`
 3:2 Identifier `Ԁ`
-3:4 EndOfFile
+3:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)
 

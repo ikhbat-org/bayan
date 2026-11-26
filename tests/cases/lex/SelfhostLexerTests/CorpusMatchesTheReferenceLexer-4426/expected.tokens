@@ -7,7 +7,7 @@
 1:36 CharLiteral `'\0'`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `stray } �here`
-3:15 InterpolatedStringEnd `"`
+3:16 InterpolatedStringEnd `"`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolationStart `{`
 5:4 StringLiteral `"`

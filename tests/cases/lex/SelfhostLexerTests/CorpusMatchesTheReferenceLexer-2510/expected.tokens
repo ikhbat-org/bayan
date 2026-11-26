@@ -4,9 +4,9 @@
 3:2 CharLiteral `'\q'`
 5:1 LetKeyword `let`
 5:5 Identifier `ca`
-5:7 Identifier `fé`
-5:10 Equals `=`
-5:12 IntegerLiteral `2`
+5:8 Identifier `fé`
+5:11 Equals `=`
+5:13 IntegerLiteral `2`
 6:2 EndOfFile
 
 error BYN0003: unterminated string literal

@@ -9,7 +9,7 @@
 2:8 StringLiteral `";`
 3:3 Identifier `q`
 3:5 Identifier `escap`
-3:11 EndOfFile
+3:12 EndOfFile
 
 error BYN0003: unterminated string literal
 

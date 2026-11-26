@@ -2,8 +2,8 @@
 2:8 Identifier `sele`
 2:13 Identifier `t`
 2:15 BecomeKeyword `become`
-3:4 Identifier `ᅡ`
-3:6 EndOfFile
+3:6 Identifier `ᅡ`
+3:10 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier
 

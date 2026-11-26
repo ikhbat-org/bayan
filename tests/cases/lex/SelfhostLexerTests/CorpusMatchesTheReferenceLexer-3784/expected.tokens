@@ -56,14 +56,14 @@
 1:99 IntegerLiteral `5`
 1:100 NumericSuffix `e`
 1:102 Identifier `x`
-1:103 Identifier `y`
-1:105 FloatLiteral `2.5`
-1:108 NumericSuffix `f`
+1:104 Identifier `y`
+1:106 FloatLiteral `2.5`
+1:109 NumericSuffix `f`
 2:2 IntegerLiteral `0b1`
 2:5 NumericSuffix `ms`
-4:2 InterpolatedStringStart `$"`
-4:4 InterpolationStart `{`
-4:5 StringLiteral `"�� 0xFFu 0b1ul 7l`
+4:4 InterpolatedStringStart `$"`
+4:6 InterpolationStart `{`
+4:7 StringLiteral `"�� 0xFFu 0b1ul 7l`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA0)

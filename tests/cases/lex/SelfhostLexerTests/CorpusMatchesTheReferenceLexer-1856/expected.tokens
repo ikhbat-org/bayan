@@ -7,7 +7,7 @@
 3:5 LawKeyword `law`
 3:9 Equals `=`
 3:11 IntegerLiteral `3`
-4:4 EndOfFile
+4:6 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

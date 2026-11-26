@@ -15,10 +15,10 @@
 1:52 Arrow `->`
 1:55 At `@`
 1:57 Hash `#`
-2:2 LetKeyword `let`
-2:6 EffectKeyword `effect`
-2:13 Equals `=`
-2:15 IntegerLiteral `2`
+2:3 LetKeyword `let`
+2:7 EffectKeyword `effect`
+2:14 Equals `=`
+2:16 IntegerLiteral `2`
 4:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

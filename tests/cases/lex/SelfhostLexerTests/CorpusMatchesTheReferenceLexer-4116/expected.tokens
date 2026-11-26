@@ -1,7 +1,7 @@
-1:3 Identifier `ma`
-1:6 Identifier `ro`
-1:9 Identifier `select`
-1:16 BecomeKeyword `become`
+1:6 Identifier `ma`
+1:9 Identifier `ro`
+1:12 Identifier `select`
+1:19 BecomeKeyword `become`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

@@ -2,10 +2,10 @@
 1:5 IntegerLiteral `0b__`
 2:2 CharLiteral `'\u{110000}'`
 3:1 CharLiteral `'\u{110000}'`
-4:3 LetKeyword `let`
-4:7 Identifier `x`
-4:10 Equals `=`
-4:12 IntegerLiteral `1`
+4:5 LetKeyword `let`
+4:9 Identifier `x`
+4:12 Equals `=`
+4:14 IntegerLiteral `1`
 5:1 Identifier `c`
 5:2 CloseBrace `}`
 5:3 StringLiteral `")} d"`

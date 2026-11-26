@@ -3,7 +3,7 @@
 2:6 Identifier `x`
 2:9 Equals `=`
 2:11 IntegerLiteral `1`
-3:3 EndOfFile
+3:5 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
 

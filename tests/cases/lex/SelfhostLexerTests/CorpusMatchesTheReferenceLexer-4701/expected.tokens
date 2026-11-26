@@ -3,7 +3,7 @@
 1:5 StringLiteral `"}"`
 1:8 CloseBrace `}`
 1:9 StringLiteral `" var xs: List<List<i64>>`
-3:3 CharLiteral `'x\r`
+3:3 CharLiteral `'x`
 4:1 LetKeyword `let`
 4:5 Identifier `café`
 4:11 Equals `=`

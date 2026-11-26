@@ -15,9 +15,9 @@
 9:2 Identifier `ạ̇`
 10:1 LetKeyword `let`
 10:5 Identifier `cafe`
-10:10 Equals `=`
-10:12 IntegerLiteral `1`
-10:13 Semicolon `;`
+10:11 Equals `=`
+10:13 IntegerLiteral `1`
+10:14 Semicolon `;`
 11:4 Identifier `comment`
 11:12 Star `*`
 11:13 Slash `/`

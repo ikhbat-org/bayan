@@ -9,11 +9,11 @@
 3:26 RefKeyword `ref`
 3:30 OutKeyword `out`
 3:34 ThisKeyword `this`
-3:39 NullKeyword `null`
-3:44 TrueKeyword `true`
-3:49 FalseKeyword `false`
-3:55 ComptimeKeyword `comptime`
-3:64 CheckedKeyword `checked`
+3:40 NullKeyword `null`
+3:45 TrueKeyword `true`
+3:50 FalseKeyword `false`
+3:56 ComptimeKeyword `comptime`
+3:65 CheckedKeyword `checked`
 5:1 Identifier `lct`
 5:7 Equals `=`
 5:9 IntegerLiteral `2`

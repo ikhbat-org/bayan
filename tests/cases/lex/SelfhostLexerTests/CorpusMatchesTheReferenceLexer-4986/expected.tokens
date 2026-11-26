@@ -1,8 +1,8 @@
 1:1 IntegerLiteral `4`
-1:2 IntegerLiteral `8`
-1:3 CloseBrace `}`
-1:4 Identifier `i`
-1:5 StringLiteral `"� let a = $ 1`
+1:3 IntegerLiteral `8`
+1:4 CloseBrace `}`
+1:5 Identifier `i`
+1:6 StringLiteral `"� let a = $ 1`
 2:1 Identifier `a`
 3:1 EndOfFile
 

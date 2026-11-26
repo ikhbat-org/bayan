@@ -35,11 +35,11 @@
 4:36 InterpolationStart `{`
 4:37 InterpolatedStringStart `$"`
 4:39 InterpolationStart `{`
-4:40 StringLiteral `"{x}"`
-4:45 InterpolationEnd `}`
-4:46 InterpolatedStringEnd `"`
-4:47 InterpolationEnd `}`
-4:48 InterpolatedStringEnd `"`
+4:41 StringLiteral `"{x}"`
+4:46 InterpolationEnd `}`
+4:47 InterpolatedStringEnd `"`
+4:48 InterpolationEnd `}`
+4:49 InterpolatedStringEnd `"`
 5:1 RawStringLiteral `"""$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"`
 5:69 EndOfFile
 

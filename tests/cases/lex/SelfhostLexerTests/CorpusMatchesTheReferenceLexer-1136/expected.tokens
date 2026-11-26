@@ -1,12 +1,12 @@
 1:1 Identifier `ᄀ`
-1:2 Identifier `ᆨ`
-1:4 OpenParen `(`
-1:6 CloseParen `)`
-1:8 OpenBracket `[`
-1:10 CloseBracket `]`
-1:12 OpenBrace `{`
-1:14 Identifier `k`
-1:15 CloseBrace `}`
+1:5 Identifier `ᆨ`
+1:8 OpenParen `(`
+1:10 CloseParen `)`
+1:12 OpenBracket `[`
+1:14 CloseBracket `]`
+1:16 OpenBrace `{`
+1:18 Identifier `k`
+1:19 CloseBrace `}`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x86)

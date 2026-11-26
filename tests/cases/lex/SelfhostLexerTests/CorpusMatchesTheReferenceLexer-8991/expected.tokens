@@ -1,6 +1,6 @@
-1:4 CharLiteral `'\''`
-1:9 CharLiteral `'é'`
-1:13 CharLiteral `'\' '`
+1:6 CharLiteral `'\''`
+1:11 CharLiteral `'é'`
+1:15 CharLiteral `'\' '`
 2:1 Identifier `a`
 2:3 Greater `>`
 2:4 Greater `>`

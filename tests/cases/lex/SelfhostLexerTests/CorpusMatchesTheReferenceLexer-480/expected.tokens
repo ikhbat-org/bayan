@@ -1,7 +1,7 @@
 1:1 CharLiteral `'�\u{1C}��'`
-1:6 IntegerLiteral `1`
-1:8 Identifier `__`
-3:3 EndOfFile
+1:8 IntegerLiteral `1`
+1:11 Identifier `__`
+3:7 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar
 

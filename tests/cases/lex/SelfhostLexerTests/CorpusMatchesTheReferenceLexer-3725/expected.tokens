@@ -4,20 +4,20 @@
 1:16 SwitchKeyword `switch`
 1:23 Identifier `cas`
 1:28 Identifier `defaul`
-1:34 Identifier `t`
-1:36 ForKeyword `for`
-1:40 InKeyword `in`
-1:43 WhileKeyword `while`
-1:49 DoKeyword `do`
-1:52 BreakKeyword `break`
-1:58 Identifier `contin`
-1:64 Identifier `ue`
-1:67 ReturnKeyword `return`
-1:74 YieldKeyword `yield`
-1:80 DeferKeyword `defer`
-1:86 ErrdeferKeyword `errdefer`
-1:95 UsingKeyword `using`
-1:101 ContextKeyword `context`
+1:35 Identifier `t`
+1:37 ForKeyword `for`
+1:41 InKeyword `in`
+1:44 WhileKeyword `while`
+1:50 DoKeyword `do`
+1:53 BreakKeyword `break`
+1:59 Identifier `contin`
+1:66 Identifier `ue`
+1:69 ReturnKeyword `return`
+1:76 YieldKeyword `yield`
+1:82 DeferKeyword `defer`
+1:88 ErrdeferKeyword `errdefer`
+1:97 UsingKeyword `using`
+1:103 ContextKeyword `context`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF6)

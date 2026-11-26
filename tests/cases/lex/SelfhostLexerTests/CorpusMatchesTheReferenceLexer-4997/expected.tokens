@@ -8,13 +8,13 @@
 3:5 Identifier `xs`
 3:7 Colon `:`
 3:9 Identifier `L`
-3:10 Identifier `ist`
-3:13 Less `<`
-3:14 Identifier `List`
-3:18 Less `<`
-3:19 Identifier `i64`
-3:22 Greater `>`
+3:11 Identifier `ist`
+3:14 Less `<`
+3:15 Identifier `List`
+3:19 Less `<`
+3:20 Identifier `i64`
 3:23 Greater `>`
+3:24 Greater `>`
 4:2 EndOfFile
 
 error BYN0005: identifier `ạ̇let` is not in Unicode normalization form C

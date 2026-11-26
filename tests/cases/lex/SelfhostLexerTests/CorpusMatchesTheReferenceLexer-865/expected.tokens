@@ -1,7 +1,7 @@
 1:1 Identifier `Ϡ`
-1:4 StringLiteral `"text"`
-1:11 StringLiteral `"esc \"q\" \\ \n"`
-1:29 RawStringLiteral `"""\n `
+1:5 StringLiteral `"text"`
+1:12 StringLiteral `"esc \"q\" \\ \n"`
+1:30 RawStringLiteral `"""\n `
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)

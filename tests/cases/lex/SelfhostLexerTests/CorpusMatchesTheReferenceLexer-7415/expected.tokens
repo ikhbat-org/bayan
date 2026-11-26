@@ -1,6 +1,6 @@
 2:1 IntegerLiteral `3`
-3:3 IntegerLiteral `1`
-3:4 NumericSuffix `e`
+3:6 IntegerLiteral `1`
+3:7 NumericSuffix `e`
 4:1 LetKeyword `let`
 4:5 Identifier `café`
 4:10 Equals `=`

@@ -1,6 +1,6 @@
 1:1 Identifier `b`
-3:2 CloseBrace `}`
-3:3 StringLiteral `"   comment */ a`
+3:6 CloseBrace `}`
+3:7 StringLiteral `"   comment */ a`
     doc `///`
 5:1 IntegerLiteral `0`
 5:3 IntegerLiteral `42`

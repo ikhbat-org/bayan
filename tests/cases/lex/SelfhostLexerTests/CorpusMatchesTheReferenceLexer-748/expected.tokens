@@ -22,7 +22,7 @@
 4:13 InterpolatedStringStart `$"`
 4:15 InterpolationStart `{`
 4:16 InterpolatedStringStart `$"`
-4:18 InterpolatedStringText `� � // li`e comment\r`
+4:18 InterpolatedStringText `� � // li`e comment`
 4:37 InterpolatedStringEnd
 5:1 LetKeyword `let`
 5:5 Identifier `café`

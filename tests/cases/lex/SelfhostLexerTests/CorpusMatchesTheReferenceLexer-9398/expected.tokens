@@ -1,5 +1,5 @@
 1:1 IntegerLiteral `1__`
-2:3 EndOfFile
+2:6 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

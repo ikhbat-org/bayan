@@ -44,8 +44,8 @@
 3:77 IntegerLiteral `1`
 4:1 LetKeyword `let`
 4:5 Identifier `acto`
-4:10 Equals `=`
-4:12 IntegerLiteral `1`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
 6:1 FailsKeyword `fails`
 6:7 TryKeyword `try`
 6:11 CatchKeyword `catch`

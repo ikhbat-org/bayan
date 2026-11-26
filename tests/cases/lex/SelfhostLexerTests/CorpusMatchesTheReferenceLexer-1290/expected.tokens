@@ -63,7 +63,7 @@
 3:84 InterpolationEnd `}`
 3:85 InterpolatedStringEnd `"`
 4:1 CharLiteral `'\u{D800}'`
-5:2 EndOfFile
+5:3 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`
 

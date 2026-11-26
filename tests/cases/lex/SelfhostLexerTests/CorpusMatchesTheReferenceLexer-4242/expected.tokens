@@ -5,7 +5,7 @@
 3:1 Identifier `각`
 3:4 Bar `|`
 4:1 Identifier `a`
-7:3 EndOfFile
+7:4 EndOfFile
 
 error BYN0002: unexpected character `$`
 

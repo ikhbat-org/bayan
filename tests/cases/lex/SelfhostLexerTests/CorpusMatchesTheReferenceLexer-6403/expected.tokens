@@ -1,17 +1,17 @@
-1:3 IsKeyword `is`
-1:6 AndKeyword `and`
-1:10 OrKeyword `or`
-1:13 Identifier `no`
-1:16 WithKeyword `with`
-1:21 MoveKeyword `move`
-1:26 RefKeyword `ref`
-1:30 OutKeyword `out`
-1:34 ThisKeyword `this`
-1:39 NullKeyword `null`
-1:44 TrueKeyword `true`
-1:49 FalseKeyword `false`
-1:55 Identifier `comptimechecked`
-2:2 EndOfFile
+1:4 IsKeyword `is`
+1:7 AndKeyword `and`
+1:11 OrKeyword `or`
+1:14 Identifier `no`
+1:17 WithKeyword `with`
+1:22 MoveKeyword `move`
+1:27 RefKeyword `ref`
+1:31 OutKeyword `out`
+1:35 ThisKeyword `this`
+1:40 NullKeyword `null`
+1:45 TrueKeyword `true`
+1:50 FalseKeyword `false`
+1:56 Identifier `comptimechecked`
+2:6 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

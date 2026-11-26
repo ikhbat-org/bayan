@@ -84,9 +84,9 @@
 6:72 InterpolatedStringEnd `"`
 6:73 InterpolationEnd `}`
 6:74 InterpolatedStringText `�}`
-6:75 InterpolatedStringEnd `"`
-6:76 InterpolationEnd `}`
-6:77 InterpolatedStringEnd `"`
+6:76 InterpolatedStringEnd `"`
+6:77 InterpolationEnd `}`
+6:78 InterpolatedStringEnd `"`
 7:1 IntegerLiteral `1`
 7:2 NumericSuffix `einct`
 7:8 TypeKeyword `type`

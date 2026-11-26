@@ -1,14 +1,14 @@
-1:2 Identifier `allowed`
-1:10 InKeyword `in`
-1:13 Identifier `strings`
-1:20 StringLiteral `" "`
-1:23 StringLiteral `" "`
-1:27 Identifier `u`
-1:28 OpenBrace `{`
-1:29 IntegerLiteral `48`
-1:31 CloseBrace `}`
-1:32 Identifier `i`
-1:33 StringLiteral `"`
+1:4 Identifier `allowed`
+1:12 InKeyword `in`
+1:15 Identifier `strings`
+1:22 StringLiteral `" "`
+1:25 StringLiteral `" "`
+1:29 Identifier `u`
+1:30 OpenBrace `{`
+1:31 IntegerLiteral `48`
+1:33 CloseBrace `}`
+1:34 Identifier `i`
+1:35 StringLiteral `"`
 3:1 Identifier `café`
 3:6 Equals `=`
 3:8 IntegerLiteral `2`

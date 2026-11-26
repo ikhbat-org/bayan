@@ -8,10 +8,10 @@
 3:7 CloseBrace `}`
 3:8 CharLiteral `'`
 4:1 CharLiteral `'x`
-5:1 LetKeyword `let`
-5:5 Identifier `x`
-5:8 Equals `=`
-5:10 IntegerLiteral `1`
+5:2 LetKeyword `let`
+5:6 Identifier `x`
+5:9 Equals `=`
+5:11 IntegerLiteral `1`
 6:1 Identifier `a`
 6:3 Greater `>`
 6:4 Greater `>`

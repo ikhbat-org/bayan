@@ -1,21 +1,21 @@
 1:1 ErrorKeyword `error`
 1:7 SetKeyword `set`
-1:11 UnitKeyword `unit`
-1:16 Identifier `distinc`
-1:25 TypeKeyword `type`
-1:30 ImportKeyword `import`
-1:37 AsKeyword `as`
-1:40 PublicKeyword `public`
-1:47 PrivateKeyword `private`
-1:55 StaticKeyword `static`
-1:62 Identifier `readony`
-1:70 RequiredKeyword `required`
-1:79 ConstKeyword `const`
-1:85 LetKeyword `let`
-1:89 VarKeyword `var`
-1:93 EmbedKeyword `embed`
-1:99 ExternKeyword `extern`
-1:106 UnsafeKeyword `unsafe`
+1:12 UnitKeyword `unit`
+1:17 Identifier `distinc`
+1:26 TypeKeyword `type`
+1:31 ImportKeyword `import`
+1:38 AsKeyword `as`
+1:41 PublicKeyword `public`
+1:48 PrivateKeyword `private`
+1:56 StaticKeyword `static`
+1:63 Identifier `readony`
+1:71 RequiredKeyword `required`
+1:80 ConstKeyword `const`
+1:86 LetKeyword `let`
+1:90 VarKeyword `var`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x88)

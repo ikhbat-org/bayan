@@ -3,7 +3,7 @@
 1:13 Slash `/`
 2:2 CharLiteral `'\q'`
 3:2 CharLiteral `'x`
-5:3 EndOfFile
+5:4 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`
 

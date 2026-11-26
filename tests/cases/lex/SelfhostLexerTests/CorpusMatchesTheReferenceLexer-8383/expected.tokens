@@ -23,12 +23,12 @@
 8:8 Equals `=`
 8:10 StringLiteral `"bad \q escape"`
 9:2 OpenParen `(`
-9:3 CloseParen `)`
-9:5 OpenBracket `[`
-9:6 OpenBrace `{`
-9:7 CloseBracket `]`
-9:9 OpenBrace `{`
-9:11 CloseBrace `}`
+9:4 CloseParen `)`
+9:6 OpenBracket `[`
+9:7 OpenBrace `{`
+9:8 CloseBracket `]`
+9:10 OpenBrace `{`
+9:12 CloseBrace `}`
 11:1 EndOfFile
 
 error BYN0002: unexpected character `$`

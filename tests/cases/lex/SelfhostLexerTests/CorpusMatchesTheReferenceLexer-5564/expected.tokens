@@ -22,27 +22,27 @@
 5:27 Identifier `c`
 5:28 InterpolationEnd `}`
 5:29 InterpolatedStringText `�`
-5:29 InterpolatedStringEnd `"`
-5:30 CloseParen `)`
-5:31 InterpolationEnd `}`
-5:32 InterpolatedStringText ` d`
-5:34 InterpolatedStringEnd `"`
-5:36 InterpolatedStringStart `$"`
-5:38 InterpolatedStringText `{{literal}}`
-5:49 InterpolatedStringEnd `"`
-5:51 InterpolatedStringStart `$"`
-5:53 InterpolationStart `{`
-5:54 Identifier `Point`
-5:60 OpenBrace `{`
-5:62 Identifier `x`
-5:64 Equals `=`
-5:66 IntegerLiteral `1`
-5:68 CloseBrace `}`
-5:69 InterpolationEnd `}`
-5:70 InterpolatedStringText `!`
-5:71 InterpolatedStringEnd `"`
-5:73 InterpolatedStringStart `$"`
-5:75 InterpolatedStringEnd `"`
+5:30 InterpolatedStringEnd `"`
+5:31 CloseParen `)`
+5:32 InterpolationEnd `}`
+5:33 InterpolatedStringText ` d`
+5:35 InterpolatedStringEnd `"`
+5:37 InterpolatedStringStart `$"`
+5:39 InterpolatedStringText `{{literal}}`
+5:50 InterpolatedStringEnd `"`
+5:52 InterpolatedStringStart `$"`
+5:54 InterpolationStart `{`
+5:55 Identifier `Point`
+5:61 OpenBrace `{`
+5:63 Identifier `x`
+5:65 Equals `=`
+5:67 IntegerLiteral `1`
+5:69 CloseBrace `}`
+5:70 InterpolationEnd `}`
+5:71 InterpolatedStringText `!`
+5:72 InterpolatedStringEnd `"`
+5:74 InterpolatedStringStart `$"`
+5:76 InterpolatedStringEnd `"`
 7:1 EndOfFile
 
 error BYN0008: unterminated char literal

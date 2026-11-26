@@ -69,7 +69,7 @@
 6:17 Identifier `escape`
 6:23 StringLiteral `"`
 8:1 IntegerLiteral `0`
-8:2 Identifier `b1ms`
+8:3 Identifier `b1ms`
 9:1 IntegerLiteral `0x_`
 10:1 IntegerLiteral `0b__`
 11:1 IntegerLiteral `1__`

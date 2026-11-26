@@ -15,8 +15,8 @@
 1:35 Less `<`
 1:37 Greater `>`
 1:38 Greater `>`
-1:40 Greater `>`
-1:41 GreaterEquals `>=`
+1:41 Greater `>`
+1:42 GreaterEquals `>=`
 2:1 Identifier `é`
 4:1 Identifier `각`
 4:4 EndOfFile

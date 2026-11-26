@@ -2,9 +2,9 @@
 1:5 Identifier `a`
 1:7 Equals `=`
 1:9 StringLiteral `"open`
-2:1 IntegerLiteral `1`
-2:2 Dot `.`
-2:6 EndOfFile
+2:2 IntegerLiteral `1`
+2:3 Dot `.`
+2:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

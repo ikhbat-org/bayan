@@ -50,12 +50,12 @@
 3:11 Identifier `strings`
 3:18 StringLiteral `" "`
 3:21 StringLiteral `" "`
-3:25 Identifier `u`
-3:26 OpenBrace `{`
-3:27 IntegerLiteral `48`
-3:29 CloseBrace `}`
-3:30 Identifier `i`
-3:31 StringLiteral `"`
+3:26 Identifier `u`
+3:27 OpenBrace `{`
+3:28 IntegerLiteral `48`
+3:30 CloseBrace `}`
+3:31 Identifier `i`
+3:32 StringLiteral `"`
 5:1 Comma `,`
 5:3 Dot `.`
 5:5 DotDot `..`

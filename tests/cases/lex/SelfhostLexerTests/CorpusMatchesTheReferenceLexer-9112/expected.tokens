@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `0x`
 2:1 IntegerLiteral `1_`
 3:1 IntegerLiteral `0b10`
-3:5 IntegerLiteral `2`
+3:6 IntegerLiteral `2`
 4:1 IntegerLiteral `0xFF`
 4:5 NumericSuffix `s`
 5:1 IntegerLiteral `0b1`
@@ -10,8 +10,8 @@
 7:1 IntegerLiteral `0b__`
 8:1 InterpolatedStringStart `$"`
 8:3 InterpolatedStringText `ab}c��� �����`
-8:10 InterpolatedStringEnd
-8:10 EndOfFile
+8:16 InterpolatedStringEnd
+8:16 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

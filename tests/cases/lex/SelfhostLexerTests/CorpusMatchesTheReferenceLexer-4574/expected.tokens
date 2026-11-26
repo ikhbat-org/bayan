@@ -29,29 +29,29 @@
 7:19 InterpolationStart `{`
 7:20 Identifier `f`
 7:21 OpenParen `(`
-7:22 StringLiteral `"b {c}"`
-7:29 CloseParen `)`
-7:30 InterpolationEnd `}`
-7:31 InterpolatedStringText ` d`
-7:33 InterpolatedStringEnd `"`
-7:35 InterpolatedStringStart `$"`
-7:37 InterpolatedStringText `{{literal}}`
-7:48 InterpolatedStringEnd `"`
-7:50 InterpolatedStringStart `$"`
-7:52 InterpolationStart `{`
-7:53 Identifier `Point`
-7:59 OpenBrace `{`
-7:61 Identifier `x`
-7:63 Equals `=`
-7:65 IntegerLiteral `1`
-7:67 CloseBrace `}`
-7:68 InterpolationEnd `}`
-7:69 InterpolatedStringText `!`
-7:70 InterpolatedStringEnd `"`
-7:72 InterpolatedStringStart `$"`
-7:74 InterpolatedStringEnd `"`
+7:23 StringLiteral `"b {c}"`
+7:30 CloseParen `)`
+7:31 InterpolationEnd `}`
+7:32 InterpolatedStringText ` d`
+7:34 InterpolatedStringEnd `"`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolatedStringText `{{literal}}`
+7:49 InterpolatedStringEnd `"`
+7:51 InterpolatedStringStart `$"`
+7:53 InterpolationStart `{`
+7:54 Identifier `Point`
+7:60 OpenBrace `{`
+7:62 Identifier `x`
+7:64 Equals `=`
+7:66 IntegerLiteral `1`
+7:68 CloseBrace `}`
+7:69 InterpolationEnd `}`
+7:70 InterpolatedStringText `!`
+7:71 InterpolatedStringEnd `"`
+7:73 InterpolatedStringStart `$"`
+7:75 InterpolatedStringEnd `"`
 8:2 StringLiteral `"{ � �`
-8:7 EndOfFile
+8:8 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`
 

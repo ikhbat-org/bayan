@@ -1,9 +1,9 @@
 1:1 Identifier `각`
 2:1 IntegerLiteral `0x_`
 3:1 LetKeyword `let`
-3:5 Identifier `aw`
-3:8 Equals `=`
-3:10 IntegerLiteral `3`
+3:7 Identifier `aw`
+3:10 Equals `=`
+3:12 IntegerLiteral `3`
 5:2 Identifier `c`
 5:4 Greater `>`
 5:5 GreaterEquals `>=`

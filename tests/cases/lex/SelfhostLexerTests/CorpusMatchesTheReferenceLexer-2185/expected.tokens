@@ -20,8 +20,8 @@
 6:10 Equals `=`
 6:12 IntegerLiteral `2`
 7:1 Minus `-`
-7:2 Bar `|`
-7:4 StarBar `*|`
+7:3 Bar `|`
+7:5 StarBar `*|`
 8:1 LetKeyword `let`
 8:5 Identifier `x`
 8:8 Equals `=`

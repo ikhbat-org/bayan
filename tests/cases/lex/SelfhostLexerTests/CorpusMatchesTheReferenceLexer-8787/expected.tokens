@@ -1,4 +1,4 @@
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 2:1 FailsKeyword `fails`
 2:7 TryKeyword `try`
 2:11 CatchKeyword `catch`
@@ -32,10 +32,10 @@
 6:59 ContinueKeyword `continue`
 6:68 ReturnKeyword `return`
 6:75 YieldKeyword `yield`
-6:81 DeferKeyword `defer`
-6:87 ErrdeferKeyword `errdefer`
-6:96 UsingKeyword `using`
-6:102 ContextKeyword `context`
+6:82 DeferKeyword `defer`
+6:88 ErrdeferKeyword `errdefer`
+6:97 UsingKeyword `using`
+6:103 ContextKeyword `context`
 7:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

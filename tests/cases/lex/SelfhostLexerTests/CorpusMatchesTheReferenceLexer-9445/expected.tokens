@@ -42,7 +42,7 @@
 1:61 InterpolatedStringEnd `"`
 1:62 InterpolationEnd `}`
 1:63 InterpolatedStringText `�}`
-1:64 InterpolatedStringEnd `"`
+1:65 InterpolatedStringEnd `"`
 2:1 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`

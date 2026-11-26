@@ -26,7 +26,7 @@
 6:7 Equals `=`
 6:11 IntegerLiteral `2`
 7:1 IntegerLiteral `0x`
-7:3 Identifier `FFs`
+7:4 Identifier `FFs`
 9:1 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`

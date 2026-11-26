@@ -7,12 +7,12 @@
 3:26 FlagsKeyword `flags`
 3:32 OpenKeyword `open`
 3:37 Identifier `exten`
-3:42 Identifier `ible`
-3:47 InterfaceKeyword `interface`
-3:57 DelegateKeyword `delegate`
-3:66 ExtensionKeyword `extension`
-3:76 DerivationKeyword `derivation`
-3:87 AttributeKeyword `attribute`
+3:43 Identifier `ible`
+3:48 InterfaceKeyword `interface`
+3:58 DelegateKeyword `delegate`
+3:67 ExtensionKeyword `extension`
+3:77 DerivationKeyword `derivation`
+3:88 AttributeKeyword `attribute`
 4:2 RawStringLiteral `"""\nfails try catch never noalloc nosuspend suspends @async await\n\n`
 7:1 EndOfFile
 

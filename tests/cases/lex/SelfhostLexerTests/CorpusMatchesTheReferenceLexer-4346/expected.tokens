@@ -1,5 +1,5 @@
-2:2 IntegerLiteral `0x_`
-2:5 CharLiteral `'\q'`
+2:3 IntegerLiteral `0x_`
+2:6 CharLiteral `'\q'`
 4:1 IntegerLiteral `0x_`
 5:2 LetKeyword `let`
 5:6 Identifier `a`

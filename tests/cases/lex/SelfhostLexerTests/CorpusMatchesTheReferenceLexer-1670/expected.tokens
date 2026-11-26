@@ -7,9 +7,9 @@
 2:13 PropertyKeyword `property`
 2:22 FuzzKeyword `fuzz`
 2:27 ModelKeyword `model`
-2:33 ForeachKeyword `foreach`
-2:41 NewKeyword `new`
-2:45 GotoKeyword `goto`
+2:34 ForeachKeyword `foreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
 3:1 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`

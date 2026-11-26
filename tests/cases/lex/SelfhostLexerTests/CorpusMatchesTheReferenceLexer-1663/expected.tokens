@@ -6,8 +6,8 @@
 2:13 PercentEquals `%=`
 2:16 AmpEquals `&=`
 2:19 BarEquals `|=`
-2:22 CaretEquals `^=`
-2:25 LessLessEquals `<<=`
+2:23 CaretEquals `^=`
+2:26 LessLessEquals `<<=`
 3:1 Identifier `ạ̇`
 4:1 LetKeyword `let`
 4:5 Identifier `a`

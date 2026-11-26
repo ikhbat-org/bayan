@@ -1,6 +1,6 @@
 1:1 CharLiteral `''`
-2:4 IntegerLiteral `0xFF`
-2:8 NumericSuffix `s`
+2:5 IntegerLiteral `0xFF`
+2:9 NumericSuffix `s`
 4:1 EndOfFile
 
 error BYN0007: empty char literal

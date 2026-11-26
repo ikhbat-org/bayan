@@ -1,10 +1,10 @@
 1:1 CharLiteral `'\u{110000}'`
     doc `///"{ 0xose`
 3:1 Identifier `b`
-5:1 Identifier `يان`
-5:5 Identifier `μετρητής`
-5:14 Identifier `x_1`
-5:18 Identifier `é`
+5:2 Identifier `يان`
+5:6 Identifier `μετρητής`
+5:15 Identifier `x_1`
+5:19 Identifier `é`
 7:1 LetKeyword `let`
 7:5 Identifier `café`
 7:11 Equals `=`

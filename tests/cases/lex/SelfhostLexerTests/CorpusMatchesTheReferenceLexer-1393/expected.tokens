@@ -5,10 +5,10 @@
 1:13 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:5 Identifier `caf`
-2:10 Equals `=`
-2:12 IntegerLiteral `1`
-2:13 Semicolon `;`
-2:15 EndOfFile
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
+2:14 Semicolon `;`
+2:16 EndOfFile
 
 error BYN0001: bidirectional control character U+2066 is not allowed outside string literals
 

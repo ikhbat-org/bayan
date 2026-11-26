@@ -1,9 +1,9 @@
 1:3 CharLiteral `'\q'`
-3:2 LetKeyword `let`
-3:6 Identifier `a`
-3:8 Equals `=`
-3:10 StringLiteral `"open`
-5:1 CharLiteral `'x\r`
+3:4 LetKeyword `let`
+3:8 Identifier `a`
+3:10 Equals `=`
+3:12 StringLiteral `"open`
+5:1 CharLiteral `'x`
 6:1 FloatLiteral `3.14`
 6:6 FloatLiteral `1e5`
 6:10 FloatLiteral `2.5e-3`

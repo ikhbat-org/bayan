@@ -9,7 +9,7 @@
 4:3 OpenBrace `{`
 4:4 Identifier `D800`
 4:8 CloseBrace `}`
-4:9 CharLiteral `'\r`
+4:9 CharLiteral `'`
 6:3 Comma `,`
 6:5 Dot `.`
 6:7 DotDot `..`

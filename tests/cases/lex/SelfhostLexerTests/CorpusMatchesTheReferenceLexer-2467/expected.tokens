@@ -47,7 +47,7 @@
 4:61 InterpolatedStringEnd `"`
 4:62 InterpolationEnd `}`
 4:63 InterpolatedStringEnd `"`
-4:66 CharLiteral `'ab'`
+4:69 CharLiteral `'ab'`
 5:2 LetKeyword `let`
 5:8 Equals `=`
 5:10 IntegerLiteral `2`

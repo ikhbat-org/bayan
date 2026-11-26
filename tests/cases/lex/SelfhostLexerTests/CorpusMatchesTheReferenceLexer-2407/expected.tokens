@@ -37,8 +37,8 @@
 1:53 InterpolatedStringEnd `"`
 2:1 OpenBrace `{`
 2:3 Identifier `le`
-2:8 Equals `=`
-2:10 IntegerLiteral `2`
+2:9 Equals `=`
+2:11 IntegerLiteral `2`
 4:1 IntegerLiteral `0b102`
 5:1 CharLiteral `'x`
 6:1 Identifier `x`

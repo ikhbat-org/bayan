@@ -50,7 +50,7 @@
 1:68 CloseBrace `}`
 1:69 StringLiteral `"}"`
     doc `/// Doc line two.`
-2:2 CharLiteral `'\u{D800}'`
+2:4 CharLiteral `'\u{D800}'`
 4:1 Identifier `q`
 4:3 Identifier `escape`
 4:9 StringLiteral `"`

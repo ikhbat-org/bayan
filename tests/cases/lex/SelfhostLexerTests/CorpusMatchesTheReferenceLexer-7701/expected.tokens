@@ -2,7 +2,7 @@
 1:5 Identifier `b`
 1:7 Equals `=`
 1:11 IntegerLiteral `2`
-4:1 IntegerLiteral `0b__`
+4:2 IntegerLiteral `0b__`
 6:1 Identifier `a`
 6:3 Greater `>`
 6:4 Greater `>`

@@ -9,7 +9,7 @@
 3:37 Identifier `x_1`
 3:41 Identifier `é`
 4:1 StringLiteral `"a\u{2067}b"`
-5:3 EndOfFile
+5:4 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal
 

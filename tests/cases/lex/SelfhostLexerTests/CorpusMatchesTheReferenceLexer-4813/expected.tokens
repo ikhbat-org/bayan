@@ -40,10 +40,10 @@
 4:51 StringLiteral `$"{x}"`
 4:57 IntegerLiteral `0xFF`
 4:61 NumericSuffix `s`
-5:7 Identifier `comment`
-5:15 Star `*`
-5:16 Slash `/`
-5:18 Identifier `a`
+5:8 Identifier `comment`
+5:16 Star `*`
+5:17 Slash `/`
+5:19 Identifier `a`
 6:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

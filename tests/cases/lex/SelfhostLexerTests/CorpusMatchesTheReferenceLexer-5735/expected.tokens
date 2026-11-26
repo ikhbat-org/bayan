@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `0x_`
 2:2 CharLiteral `'x`
-5:1 Identifier `ε`
-5:2 Identifier `ρητής`
-5:8 Identifier `x_1`
-5:12 Identifier `é`
+5:2 Identifier `ε`
+5:5 Identifier `ρητής`
+5:11 Identifier `x_1`
+5:15 Identifier `é`
 7:1 Identifier `macro`
 7:7 Identifier `select`
 7:14 BecomeKeyword `become`

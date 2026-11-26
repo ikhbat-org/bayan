@@ -1,8 +1,8 @@
 1:1 Identifier `etXc`
 1:6 Equals `=`
 1:8 StringLiteral `""`
-1:11 NeverKeyword `never`
-1:17 Identifier `closed`
+1:12 NeverKeyword `never`
+1:18 Identifier `closed`
 2:5 InterpolatedStringStart `$"`
 2:7 InterpolatedStringText `{{`
 2:9 InterpolatedStringEnd `"`

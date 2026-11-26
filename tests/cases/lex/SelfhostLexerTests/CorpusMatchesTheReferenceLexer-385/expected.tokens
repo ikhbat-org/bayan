@@ -9,10 +9,10 @@
 1:22 Identifier `i64`
 1:25 Greater `>`
 1:26 Greater `>`
-2:2 Identifier `τρητ`
-2:7 Identifier `ής`
-2:10 Identifier `x_1`
-2:14 Identifier `é`
+2:4 Identifier `τρητ`
+2:9 Identifier `ής`
+2:12 Identifier `x_1`
+2:16 Identifier `é`
 4:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

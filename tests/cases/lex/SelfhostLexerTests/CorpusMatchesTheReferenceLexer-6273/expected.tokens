@@ -1,4 +1,4 @@
-1:2 Identifier `é`
+1:5 Identifier `é`
 3:1 LetKeyword `let`
 3:5 Identifier `c`
 3:7 Equals `=`
@@ -8,8 +8,8 @@
 5:5 Identifier `μετρητής`
 5:14 Identifier `x_1`
 5:18 Identifier `é`
-6:3 Equals `=`
-6:5 IntegerLiteral `1`
+6:4 Equals `=`
+6:6 IntegerLiteral `1`
 7:1 LetKeyword `let`
 7:5 Identifier `café`
 7:10 Equals `=`

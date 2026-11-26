@@ -53,8 +53,8 @@
 3:9 Equals `=`
 3:11 IntegerLiteral `3`
 4:2 OpenBrace `{`
-4:4 Identifier `x́́`
-4:7 EndOfFile
+4:6 Identifier `x́́`
+4:9 EndOfFile
 
 error BYN0003: unterminated string literal
 

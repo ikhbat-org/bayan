@@ -3,9 +3,9 @@
 2:13 PropertyKeyword `property`
 2:22 FuzzKeyword `fuzz`
 2:27 ModelKeyword `model`
-2:33 ForeachKeyword `foreach`
-2:41 NewKeyword `new`
-2:45 GotoKeyword `goto`
+2:34 ForeachKeyword `foreach`
+2:42 NewKeyword `new`
+2:46 GotoKeyword `goto`
 4:1 Identifier `fo`
 4:4 Identifier `o`
 4:6 Identifier `Bar`
@@ -14,8 +14,8 @@
 4:24 Identifier `بيان`
 4:29 Identifier `μετρητή`
 4:37 IntegerLiteral `5`
-4:39 Identifier `x_1`
-4:43 Identifier `é`
+4:40 Identifier `x_1`
+4:44 Identifier `é`
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolationStart `{`
 5:5 Identifier `a`

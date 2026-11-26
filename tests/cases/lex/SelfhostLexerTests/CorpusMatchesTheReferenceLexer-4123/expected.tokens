@@ -85,7 +85,7 @@
 10:5 Identifier `c`
 10:7 Equals `=`
 10:11 IntegerLiteral `3`
-11:4 EndOfFile
+11:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

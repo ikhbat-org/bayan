@@ -14,7 +14,7 @@
 6:5 Identifier `a`
 6:7 Equals `=`
 6:9 StringLiteral `"open`
-7:3 EndOfFile
+7:4 EndOfFile
 
 error BYN0002: unexpected character ```
 

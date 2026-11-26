@@ -3,7 +3,7 @@
 2:1 CharLiteral `'\u{110000}'`
 3:1 CharLiteral `'x`
 5:1 Identifier `Å`
-5:4 EndOfFile
+5:7 EndOfFile
 
 error BYN0008: unterminated char literal
 

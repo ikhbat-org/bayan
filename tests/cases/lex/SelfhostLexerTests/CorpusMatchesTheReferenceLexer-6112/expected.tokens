@@ -24,17 +24,17 @@
 2:49 InterpolatedStringStart `$"`
 2:51 InterpolationStart `{`
 2:52 Identifier `Poi`
-2:55 Identifier `nt`
-2:58 OpenBrace `{`
-2:60 Identifier `x`
-2:62 Equals `=`
-2:64 IntegerLiteral `1`
-2:66 CloseBrace `}`
-2:67 InterpolationEnd `}`
-2:68 InterpolatedStringText `!-`
-2:70 InterpolatedStringEnd `"`
-2:72 InterpolatedStringStart `$"`
-2:74 InterpolatedStringEnd `"`
+2:56 Identifier `nt`
+2:59 OpenBrace `{`
+2:61 Identifier `x`
+2:63 Equals `=`
+2:65 IntegerLiteral `1`
+2:67 CloseBrace `}`
+2:68 InterpolationEnd `}`
+2:69 InterpolatedStringText `!-`
+2:71 InterpolatedStringEnd `"`
+2:73 InterpolatedStringStart `$"`
+2:75 InterpolatedStringEnd `"`
 4:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

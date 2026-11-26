@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:7 Equals `=`
 1:9 IntegerLiteral `2`
-3:3 CharLiteral `'\u{202E}'`
+3:4 CharLiteral `'\u{202E}'`
 4:1 OpenParen `(`
 4:3 CloseParen `)`
 4:5 OpenBracket `[`

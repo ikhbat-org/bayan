@@ -12,7 +12,7 @@
 4:1 LetKeyword `let`
 4:5 Identifier `c`
 4:7 Equals `=`
-4:11 IntegerLiteral `3`
+4:12 IntegerLiteral `3`
 5:4 StructKeyword `struct`
 5:11 Identifier `S`
 6:1 IntegerLiteral `1__`

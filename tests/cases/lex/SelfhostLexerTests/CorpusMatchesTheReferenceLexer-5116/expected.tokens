@@ -71,7 +71,7 @@
 1:104 InterpolatedStringEnd `"`
 1:105 InterpolationEnd `}`
 1:106 InterpolatedStringEnd `"`
-1:109 Identifier `Å`
+1:113 Identifier `Å`
 2:1 AmpAmp `&&`
 2:4 Bar `|`
 2:6 BarBar `||`
@@ -83,7 +83,7 @@
 2:20 BangEquals `!=`
 2:23 Less `<`
 2:25 LessEquals `<=`
-2:31 CharLiteral `'\u{202E}'`
+2:35 CharLiteral `'\u{202E}'`
 3:1 Amp `&`
 3:3 AmpAmp `&&`
 3:6 Bar `|`

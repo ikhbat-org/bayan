@@ -80,13 +80,13 @@
 9:22 BangEquals `!=`
 9:25 Less `<`
 9:27 Less `<`
-9:29 Greater `>`
-9:31 GreaterEquals `>=`
-9:34 LessLess `<<`
-9:37 Greater `>`
+9:30 Greater `>`
+9:32 GreaterEquals `>=`
+9:35 LessLess `<<`
 9:38 Greater `>`
-9:40 Greater `>`
-9:41 GreaterEquals `>=`
+9:39 Greater `>`
+9:41 Greater `>`
+9:42 GreaterEquals `>=`
 10:2 InterpolatedStringStart `$"`
 10:4 InterpolatedStringText `total `
 10:10 InterpolationStart `{`

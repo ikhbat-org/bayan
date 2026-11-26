@@ -17,8 +17,8 @@
 1:60 NumericSuffix `u`
 1:62 IntegerLiteral `0b1`
 1:65 NumericSuffix `u`
-1:67 IntegerLiteral `7`
-1:68 NumericSuffix `l`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
 3:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA8)

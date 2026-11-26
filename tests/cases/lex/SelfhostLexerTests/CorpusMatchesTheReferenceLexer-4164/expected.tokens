@@ -1,5 +1,5 @@
 1:1 CharLiteral `''`
-2:2 OpenBrace `{`
+2:3 OpenBrace `{`
 3:1 CharLiteral `'ab'`
 4:1 Identifier `a`
 5:1 EndOfFile

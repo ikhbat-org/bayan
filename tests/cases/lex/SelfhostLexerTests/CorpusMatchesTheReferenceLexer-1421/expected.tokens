@@ -17,11 +17,11 @@
 2:68 ReturnKeyword `return`
 2:75 YieldKeyword `yield`
 2:81 Identifier `d`
-2:82 Identifier `fer`
-2:86 ErrdeferKeyword `errdefer`
-2:95 UsingKeyword `using`
-2:101 Identifier `con`
-2:105 Identifier `ext`
+2:83 Identifier `fer`
+2:87 ErrdeferKeyword `errdefer`
+2:96 UsingKeyword `using`
+2:102 Identifier `con`
+2:106 Identifier `ext`
 5:4 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier

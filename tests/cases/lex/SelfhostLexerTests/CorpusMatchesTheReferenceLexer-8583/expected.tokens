@@ -1,7 +1,7 @@
 1:1 StringLiteral `"`
 3:1 CharLiteral `'\0'`
 4:3 StringLiteral `"{ 'a' '\n' '\u{1F600}' '\'' 'é' '\\' '\0U'`
-5:3 EndOfFile
+5:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

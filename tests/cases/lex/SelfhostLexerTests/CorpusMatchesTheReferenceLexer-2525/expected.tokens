@@ -1,13 +1,13 @@
 1:1 Identifier `x́`
-1:6 IntegerLiteral `0xF__`
+1:7 IntegerLiteral `0xF__`
 3:1 OpenBrace `{`
 3:3 Identifier `x`
 3:5 Equals `=`
-3:8 CloseBrace `}`
 3:9 CloseBrace `}`
-3:10 Bang `!`
-3:11 StringLiteral `" "`
-3:14 StringLiteral `"`
+3:10 CloseBrace `}`
+3:11 Bang `!`
+3:12 StringLiteral `" "`
+3:15 StringLiteral `"`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xCC)

@@ -1,5 +1,5 @@
 1:3 StringLiteral `"comme\u{C}nt */ a`
-2:10 EndOfFile
+2:11 EndOfFile
 
 error BYN0003: unterminated string literal
 

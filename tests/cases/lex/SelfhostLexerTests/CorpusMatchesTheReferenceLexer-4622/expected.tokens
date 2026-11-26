@@ -6,8 +6,8 @@
 1:11 CloseBrace `}`
 3:1 CharLiteral `'\u{D800}'`
 4:1 LetKeyword `let`
-4:5 Identifier `actor`
-4:11 Equals `=`
+4:6 Identifier `actor`
+4:12 Equals `=`
 6:1 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value

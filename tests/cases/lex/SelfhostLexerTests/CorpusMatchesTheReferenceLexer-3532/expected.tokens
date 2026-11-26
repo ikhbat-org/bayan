@@ -25,7 +25,7 @@
 4:34 Hash `#`
 6:1 IntegerLiteral `0xFF`
 6:5 NumericSuffix `s`
-6:7 EndOfFile
+6:8 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

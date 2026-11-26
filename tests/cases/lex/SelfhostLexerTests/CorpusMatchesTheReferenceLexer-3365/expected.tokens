@@ -6,12 +6,12 @@
 4:21 Identifier `x_1`
 4:25 Identifier `é`
 5:1 StringLiteral `"}"`
-5:4 CloseBrace `}`
-5:5 StringLiteral `"}"`
-5:8 CloseBrace `}`
-5:9 StringLiteral `"}"`
-5:12 CloseBrace `}`
-5:13 StringLiteral `"}"`
+5:5 CloseBrace `}`
+5:6 StringLiteral `"}"`
+5:9 CloseBrace `}`
+5:10 StringLiteral `"}"`
+5:13 CloseBrace `}`
+5:14 StringLiteral `"}"`
 7:1 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value

@@ -2,11 +2,11 @@
 2:1 LetKeyword `let`
 2:5 LawKeyword `law`
 2:9 Equals `=`
-2:11 IntegerLiteral `3`
-2:12 Question `?`
-2:13 StringLiteral `"text"`
-2:20 StringLiteral `"esc \"q\" \\ \n"`
-2:38 RawStringLiteral `"""\n\n`
+2:12 IntegerLiteral `3`
+2:13 Question `?`
+2:14 StringLiteral `"text"`
+2:21 StringLiteral `"esc \"q\" \\ \n"`
+2:39 RawStringLiteral `"""\n\n`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA0)

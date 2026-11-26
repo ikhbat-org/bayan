@@ -2,7 +2,7 @@
 4:1 LetKeyword `let`
 4:5 Identifier `a`
 4:7 Equals `=`
-4:9 IntegerLiteral `1`
+4:10 IntegerLiteral `1`
 5:2 StringLiteral `"text"`
 5:9 StringLiteral `"esc \"q\" \\ \n\u{C} "`
 5:28 StringLiteral `""`

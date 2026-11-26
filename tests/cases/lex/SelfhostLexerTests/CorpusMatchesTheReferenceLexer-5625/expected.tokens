@@ -45,10 +45,10 @@
 8:91 ErrdeferKeyword `errdefer`
 8:100 UsingKeyword `using`
 8:106 ContextKeyword `context`
-9:4 Identifier `pen`
-9:8 OpenBrace `{`
-9:9 Identifier `x`
-9:10 StringLiteral `";`
+9:6 Identifier `pen`
+9:10 OpenBrace `{`
+9:11 Identifier `x`
+9:12 StringLiteral `";`
 11:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xD4)

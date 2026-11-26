@@ -2,7 +2,7 @@
 1:5 Identifier `c`
 1:7 Equals `=`
 1:9 RawStringLiteral `"""never closed\n\n// line comment\net b = ` 2\nlet c = \u{7} b\n\n\t\n�� {`
-8:4 EndOfFile
+8:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

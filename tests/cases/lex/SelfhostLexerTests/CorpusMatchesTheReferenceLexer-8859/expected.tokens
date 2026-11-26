@@ -7,7 +7,7 @@
 5:12 Star `*`
 5:13 Slash `/`
 5:15 Identifier `a`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 7:1 IntegerLiteral `0x_`
 10:1 IsKeyword `is`
 10:4 AndKeyword `and`

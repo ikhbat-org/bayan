@@ -1,4 +1,4 @@
-1:1 CharLiteral `'x`
+1:2 CharLiteral `'x`
 2:2 IntegerLiteral `0b102`
 3:1 Identifier `a`
 3:3 Greater `>`

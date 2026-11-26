@@ -58,7 +58,7 @@
 4:95 InterpolatedStringEnd `"`
 4:96 InterpolationEnd `}`
 4:97 InterpolatedStringEnd `"`
-4:98 StringLiteral `"`
+4:99 StringLiteral `"`
 5:1 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier

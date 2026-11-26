@@ -4,10 +4,10 @@
 1:9 Identifier `μετρητής`
 1:18 Identifier `x_1`
 1:22 Identifier `é`
-3:2 Identifier `a`
-3:4 Greater `>`
-3:5 Greater `>`
-3:7 Identifier `b`
+3:4 Identifier `a`
+3:6 Greater `>`
+3:7 Greater `>`
+3:9 Identifier `b`
 4:2 IntegerLiteral `0b102`
 5:2 CharLiteral `'x`
 6:2 ErrorKeyword `error`

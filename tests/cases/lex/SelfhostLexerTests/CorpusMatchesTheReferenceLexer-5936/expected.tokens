@@ -30,11 +30,11 @@
 1:63 Equals `=`
 1:64 IntegerLiteral `1`
 1:66 CloseBrace `}`
-1:67 InterpolationEnd `}`
-1:68 InterpolatedStringText `!`
-1:69 InterpolatedStringEnd `"`
-1:71 InterpolatedStringStart `$"`
-1:73 InterpolatedStringEnd `"`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringText `!`
+1:70 InterpolatedStringEnd `"`
+1:72 InterpolatedStringStart `$"`
+1:74 InterpolatedStringEnd `"`
 2:1 IntegerLiteral `0xFF`
 2:5 NumericSuffix `s`
 4:1 VarKeyword `var`

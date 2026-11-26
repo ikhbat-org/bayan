@@ -8,8 +8,8 @@
 3:20 ModelKeyword `model`
 3:26 ForeachKeyword `foreach`
 3:34 Identifier `n`
-3:35 Identifier `w`
-3:37 GotoKeyword `goto`
+3:36 Identifier `w`
+3:38 GotoKeyword `goto`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA6)

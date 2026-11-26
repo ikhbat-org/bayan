@@ -2,7 +2,7 @@
 1:5 Identifier `b`
 1:7 Equals `=`
 1:9 StringLiteral `"bad \q escape"`
-2:2 CharLiteral `'x\r`
+2:2 CharLiteral `'x`
 4:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

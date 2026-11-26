@@ -3,7 +3,7 @@
 2:2 StringLiteral `"text"`
 2:9 StringLiteral `"esc \"q\" \\ \n"`
 2:27 RawStringLiteral `"""\r\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}\u{4}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"\r\nạ̇ ����\r\n�� `
-5:3 EndOfFile
+5:4 EndOfFile
 
 error BYN0003: unterminated string literal
 

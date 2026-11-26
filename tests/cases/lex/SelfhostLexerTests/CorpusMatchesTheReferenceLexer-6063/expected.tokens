@@ -20,8 +20,8 @@
 4:5 InterpolationStart `{`
 4:6 Identifier `b`
 4:7 InterpolationEnd `}`
-4:8 InterpolatedStringText `c\r`
-4:10 InterpolatedStringEnd
+4:8 InterpolatedStringText `c`
+4:9 InterpolatedStringEnd
 5:1 Identifier `_`
 5:3 IntegerLiteral `0x`
 6:1 IntegerLiteral `1_`

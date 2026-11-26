@@ -2,10 +2,10 @@
 1:4 IntegerLiteral `0x_ff`
 1:10 Colon `:`
 1:11 IntegerLiteral `0b1010`
-1:21 LetKeyword `let`
-1:25 Identifier `café`
-1:31 Equals `=`
-1:32 Identifier `Y1`
+1:24 LetKeyword `let`
+1:28 Identifier `café`
+1:34 Equals `=`
+1:35 Identifier `Y1`
 3:1 Amp `&`
 3:3 AmpAmp `&&`
 3:6 Bar `|`

@@ -26,14 +26,14 @@
 3:9 Identifier `_x`
 3:12 Identifier `camelCase2`
 3:24 Identifier `m`
-3:25 Identifier `يان`
-3:29 Identifier `μετρητής`
-3:38 Identifier `x_1`
-3:42 Identifier `é`
-6:1 InterpolatedStringStart `$"`
-6:3 InterpolationStart `{`
-6:4 Identifier `a`
-6:6 EndOfFile
+3:26 Identifier `يان`
+3:30 Identifier `μετρητής`
+3:39 Identifier `x_1`
+3:43 Identifier `é`
+6:2 InterpolatedStringStart `$"`
+6:4 InterpolationStart `{`
+6:5 Identifier `a`
+6:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xD8)
 

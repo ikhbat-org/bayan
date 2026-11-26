@@ -16,10 +16,10 @@
 4:28 Identifier `μετρητής`
 4:37 Identifier `x_1`
 4:41 Identifier `é`
-5:5 IntegerLiteral `50`
-5:7 NumericSuffix `ms`
-5:10 IntegerLiteral `4`
-5:11 NumericSuffix `KiB`
+5:8 IntegerLiteral `50`
+5:10 NumericSuffix `ms`
+5:13 IntegerLiteral `4`
+5:14 NumericSuffix `KiB`
 6:1 Identifier `x́́`
 6:5 IntegerLiteral `0b1`
 6:8 NumericSuffix `ms`

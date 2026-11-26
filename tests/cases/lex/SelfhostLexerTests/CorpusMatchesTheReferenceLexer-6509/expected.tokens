@@ -7,7 +7,7 @@
 3:33 ForeachKeyword `foreach`
 3:41 NewKeyword `new`
 3:45 GotoKeyword `goto`
-4:2 Identifier `τ1e`
+4:3 Identifier `τ1e`
 5:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

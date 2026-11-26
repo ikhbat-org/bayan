@@ -1,7 +1,7 @@
 2:1 Identifier `l`
-2:2 Identifier `t`
-2:6 Equals `=`
-2:8 IntegerLiteral `2`
+2:3 Identifier `t`
+2:7 Equals `=`
+2:9 IntegerLiteral `2`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 InterpolatedStringStart `$"`
