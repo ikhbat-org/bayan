@@ -54,6 +54,8 @@ Small, clear, and could be picked up without a design decision.
 - Audit 0.4.0 mediums LOW, m-states 06 #5(b): a for over a type parameter constrained to IEnumerator inside a generic template is not charged effects (unprobed; effects.byn:201).
 - Audit 0.4.0 mediums LOW, m-lsp 14 #1: bounds test samples RSS only before/after Workspace.walk, so the per-directory scratch arena has no failing test (proven by peak RSS 33.7 MB → 3.1 MB on 1000×200 dirs); add a peak-sampling bound.
 - Audit 0.4.0 mediums LOW, m-lsp gate: full-sync didChange still builds a full List<u16> per change in the message arena (editors/language-server/src/server/server.byn:724 .utf16.copy() into ws.replace).
+- Audit 0.4.0 mediums LOW, m-cname (09 #10 part 2): module cNames now get an ordinal suffix on collision (src/semantics/compile.byn loadModule), but other C-name joins can still collide: the enum/union single-underscore join (src/emitter/cprint/common.byn:30,38) and user identifiers containing `__`. Injective mangling (hex-escape `_` and non-ASCII, Fable option a) is the full fix, for 0.5.0: it changes every such C name (emit-c goldens, bootstrap/bayan.c, coverage/mutation keys).
+- Audit 0.4.0 mediums LOW, m-lex: docs/laws/002-lexer-never-panics.md proof notes still say 21 lex cases / 10,021 inputs; the test now counts 23 (shebang, bom-shebang). Update the notes when the law owner next touches L002.
 
 ## Later
 
