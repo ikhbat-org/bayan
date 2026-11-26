@@ -1,0 +1,66 @@
+// A struct, enum or `rune` local passed by value beside a later call taking it by `ref` is read first, left to right
+// (audit 0.4.0 09-emitter M4, the value-struct part; branch review of the mediums fixes).
+enum Light {
+    red
+    green
+}
+
+struct P {
+    i64 x
+}
+
+struct Pair {
+    P a
+    Light l
+}
+
+i64 bumpX(ref P p) {
+    p.x = 20
+    return 20
+}
+
+i64 flip(ref Light l) {
+    l = .green
+    return 2
+}
+
+i64 bumpPair(ref Pair q) {
+    q.a.x = 30
+    return 30
+}
+
+i64 nextChar(ref rune c) {
+    c = 'z'
+    return 26
+}
+
+void show(P a, to i64 b) {
+    print($"{a.x} {b}")
+}
+
+void light(Light l, to i64 b) {
+    print($"{l == .red ? "red" : "green"} {b}")
+}
+
+void pair(Pair q, to i64 b) {
+    print($"{q.a.x} {b}")
+}
+
+void letter(rune c, to i64 b) {
+    print($"{c} {b}")
+}
+
+void main() {
+    var p = P { x: 1 }
+    show(p, to: bumpX(ref p))
+    var l = Light.red
+    light(l, to: flip(ref l))
+    var q = Pair { a: P { x: 3 }, l: .red }
+    pair(q, to: bumpPair(ref q))
+    var c = 'a'
+    letter(c, to: nextChar(ref c))
+    // Control: the call first, then the read sees its write.
+    p.x = 1
+    let s = bumpX(ref p)
+    show(p, to: s)
+}
