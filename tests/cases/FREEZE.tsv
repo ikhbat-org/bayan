@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4485
-cases	diag	897
+cases	diag	899
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14971,6 +14971,8 @@ file	a1b2c7a1e7b458dfa27bc1d6444d2228338660f0	tests/cases/diag/this-ref-call-mod
 file	90e0aa861c6b19209c28da5ddbd3554633825f55	tests/cases/diag/time-now-needs-clock.diag
 file	490b7fad81148309716d41adc536b3c1ce54e4dc	tests/cases/diag/to-string-call.diag
 file	f027fa6d5264b2ba612e278bbb6c42d531ad44fb	tests/cases/diag/too-many-arguments.diag
+file	6d8434db2be3480534b154fff421216c194ad4d0	tests/cases/diag/top-level-statement-attribute-twice.diag
+file	f8462d4336963a3fd47522e3c3abd7bd4fdd9e5f	tests/cases/diag/top-level-statement-attribute-unclosed.diag
 file	1eb656ba41b7e3ec790d308578a6d99c12d24419	tests/cases/diag/top-level-statement-attribute.diag
 file	c3e807cac4686e3a79ce1af1a98577f696b53267	tests/cases/diag/trust-input.diag
 file	5efc8978336a5d55fc1ed3ca670d50a62a47bc7f	tests/cases/diag/trust-reason.diag

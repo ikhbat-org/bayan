@@ -1,0 +1,23 @@
+error BYN1069: attribute `@a` is not allowed before a statement
+
+  1 │ @a because
+    │ ^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+error BYN1001: expected the reason as a string literal, found `@`
+
+  2 │ @b because
+    │ ^
+
+error BYN1069: attribute `@b` is not allowed before a statement
+
+  2 │ @b because
+    │ ^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+error BYN1001: expected the reason as a string literal, found `foo`
+
+  3 │ foo()
+    │ ^^^
