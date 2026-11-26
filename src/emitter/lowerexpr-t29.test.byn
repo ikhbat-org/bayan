@@ -1003,3 +1003,28 @@ test "emitter t29: a states field read of a call that never returns ends at the 
         """,
     )
 }
+
+test "emitter t29: a string passed as a byte span is stored first unless repeatable" {
+    t29LxCase(
+        """
+        i64 f(string s) {
+            return lenBytes(mkStr(1)) + lenBytes(s)
+        }
+
+        string mkStr(i64 a) => $"{a}"
+        i64 lenBytes(ReadOnlySpan<u8> b) => b.length
+        """,
+        by: """
+        int64_t byn_main__f(byn_str p_s) {
+            byn_str t0 = {0};
+            int64_t t1 = {0};
+        #line 32 "t29.byn"
+            t0 = byn_main__mkStr(INT64_C(1));
+        #line 32 "t29.byn"
+            t1 = byn_main__lenBytes(((bynt_span_u8){(uint8_t*)t0.ptr, t0.len}));
+        #line 32 "t29.byn"
+            return byn_add_i64(t1, byn_main__lenBytes(((bynt_span_u8){(uint8_t*)p_s.ptr, p_s.len})), byn_file_0, 32);
+        }
+        """,
+    )
+}

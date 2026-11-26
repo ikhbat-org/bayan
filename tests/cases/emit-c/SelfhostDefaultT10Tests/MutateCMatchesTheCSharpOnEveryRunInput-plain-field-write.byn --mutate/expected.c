@@ -115,21 +115,30 @@ static bynt_main__Mode* bynh_at_arr2_main__Mode(bynt_arr2_main__Mode* a, int64_t
 void byn_main__main(void) {
     bynt_arr2_main__Mode l0_modes = {0};
     int32_t l1_depth = {0};
-    bynt_main__Particle l2_p = {0};
+    int64_t t2 = {0};
+    int64_t t3 = {0};
+    int64_t t4 = {0};
+    bynt_main__Particle l5_p = {0};
 #line 10 "plain-field-write.byn"
     l0_modes = ((bynt_arr2_main__Mode){{((bynt_main__Mode){(byn_mutant_is(1) ? true : false), (byn_mutant_is(2) ? INT64_C(1) : (byn_mutant_is(3) ? INT64_C(-1) : INT64_C(0)))}), ((bynt_main__Mode){(byn_mutant_is(4) ? false : true), (byn_mutant_is(5) ? INT64_C(1) : (byn_mutant_is(6) ? INT64_C(-1) : INT64_C(0)))})}});
 #line 11 "plain-field-write.byn"
     l1_depth = ((int32_t)1);
 #line 12 "plain-field-write.byn"
-    (*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)((int64_t)l1_depth), false, byn_file_0, 12)).braceDepth = byn_add_i64((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)((int64_t)l1_depth), false, byn_file_0, 12)).braceDepth, INT64_C(1), byn_file_0, 12);
+    t2 = ((int64_t)l1_depth);
+#line 12 "plain-field-write.byn"
+    (*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)t2, false, byn_file_0, 12)).braceDepth = byn_add_i64((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)t2, false, byn_file_0, 12)).braceDepth, INT64_C(1), byn_file_0, 12);
 #line 13 "plain-field-write.byn"
-    (*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)((int64_t)l1_depth), false, byn_file_0, 13)).braceDepth = byn_add_i64((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)((int64_t)l1_depth), false, byn_file_0, 13)).braceDepth, INT64_C(1), byn_file_0, 13);
+    t3 = ((int64_t)l1_depth);
+#line 13 "plain-field-write.byn"
+    (*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)t3, false, byn_file_0, 13)).braceDepth = byn_add_i64((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)t3, false, byn_file_0, 13)).braceDepth, INT64_C(1), byn_file_0, 13);
 #line 14 "plain-field-write.byn"
-    (*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)((int64_t)l1_depth), false, byn_file_0, 14)).braceDepth = byn_sub_i64((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)((int64_t)l1_depth), false, byn_file_0, 14)).braceDepth, INT64_C(1), byn_file_0, 14);
+    t4 = ((int64_t)l1_depth);
+#line 14 "plain-field-write.byn"
+    (*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)t4, false, byn_file_0, 14)).braceDepth = byn_sub_i64((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)t4, false, byn_file_0, 14)).braceDepth, INT64_C(1), byn_file_0, 14);
 #line 15 "plain-field-write.byn"
-    l2_p = ((bynt_main__Particle){(1.0)});
+    l5_p = ((bynt_main__Particle){(1.0)});
 #line 16 "plain-field-write.byn"
-    l2_p.life = (l2_p.life - (0.25));
+    l5_p.life = (l5_p.life - (0.25));
 #line 17 "plain-field-write.byn"
     {
         uint8_t wb[256];
@@ -139,11 +148,11 @@ void byn_main__main(void) {
         byn_w_str(w, BYN_STR(" ", 1));
         byn_w_i64(w, (int64_t)((*bynh_at_arr2_main__Mode(&l0_modes, (int64_t)INT64_C(0), false, byn_file_0, 17)).braceDepth));
         byn_w_str(w, BYN_STR(" ", 1));
-        byn_w_f64(w, l2_p.life);
+        byn_w_f64(w, l5_p.life);
         byn_w_println(w);
     }
 }
-#line 147 "main.c"
+#line 156 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
