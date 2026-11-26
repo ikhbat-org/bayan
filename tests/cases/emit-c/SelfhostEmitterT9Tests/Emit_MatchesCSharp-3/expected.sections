@@ -1158,9 +1158,7 @@ L0:;
 slot false own_l0_k
 fn P
 sig bynt_main__P byn_main__P__init0(int64_t p_zq)
-bynt_main__P byn_main__P__init0(int64_t p_zq) {
-    volatile bynt_main__P self_v = {0};
-    volatile bynt_main__P* self = &self_v;
+static void byn_main__P__0body(bynt_main__P* self, int64_t p_zq) {
     byn_alloc* ctx0 = byn_context;
     byn_panic_handler ph0;
     {
@@ -1213,12 +1211,17 @@ L0:;
 #line 8 "a.byn"
     byn_arena_free(p_zq);
 #line 8 "a.byn"
-    return self_v;
+    return;
 #line 8 "a.byn"
-    return self_v;
-    return self_v;
+    return;
+    return;
 }
 #line generated
+bynt_main__P byn_main__P__init0(int64_t p_zq) {
+    bynt_main__P self_v = {0};
+    byn_main__P__0body(&self_v, p_zq);
+    return self_v;
+}
 slot false own_p_zq
 fn m
 sig void byn_main__P__m(bynt_main__P* self)

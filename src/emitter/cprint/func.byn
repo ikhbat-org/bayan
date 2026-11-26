@@ -120,14 +120,35 @@ public string emitFunction(ref CCtx cc, from ref Ctx c, through in ltree.LTree t
     }
     let kind = c.functions[fn].kind
     var sb = StrBuf()
-    sb.append(frameSignature(ref cc, for: fe, from: ref c))
-    sb.append(" {\n")
+    // A panic handler may read `this`, changed since the setjmp: a constructor with one keeps `self_v` in a wrapper and runs its body
+    // (and the setjmp) in `<name>__<k>body` on `T* self`, a name no method can take (C11 7.13.2.1p3).
+    fe.ctorBody = kind == .constructor && f.panicSlots > 0
+    var ty = ""
+    var bodyName = ""
+    var args = StrBuf()
     if kind == .constructor {
-        let ty = cType(ref cc, from: ref c, for: semantics.structTypeOf(c.functions[fn].owner))
-        // A panic handler may read `this`, changed since the setjmp, so its storage is then `volatile`.
-        let qualifier = f.panicSlots > 0 ? "volatile " : ""
-        line(ref sb, by: in fe, for: $"{qualifier}{ty} self_v = {{0}};")
-        line(ref sb, by: in fe, for: $"{qualifier}{ty}* self = &self_v;")
+        ty = cType(ref cc, from: ref c, for: semantics.structTypeOf(c.functions[fn].owner))
+    }
+    if fe.ctorBody {
+        let name = functionName(ref cc, from: ref c, for: fn)
+        let at = name.lastPosition("__") ?? 0
+        let k = t6IndexOf(in c.structs[c.functions[fn].owner].constructors, for: fn)
+        bodyName = $"{name[0..at]}__{k}body"
+        var ps = StrBuf()
+        let parameters = t9Copy(c.functions[fn].parameters)
+        for p in parameters {
+            let ct = cType(ref cc, from: ref c, for: c.locals[p].type)
+            ps.append($", {ct}{semantics.paramIsByRef(ref c, by: p) ? "*" : ""} {fe.names[p]}")
+            args.append($", {fe.names[p]}")
+        }
+        sb.append($"static void {bodyName}({ty}* self{ps.finish()}) {{\n")
+    } else {
+        sb.append(frameSignature(ref cc, for: fe, from: ref c))
+        sb.append(" {\n")
+    }
+    if kind == .constructor && !fe.ctorBody {
+        line(ref sb, by: in fe, for: $"{ty} self_v = {{0}};")
+        line(ref sb, by: in fe, for: $"{ty}* self = &self_v;")
     }
     for l in f.locals {
         let lt = c.locals[l].type
@@ -158,7 +179,7 @@ public string emitFunction(ref CCtx cc, from ref Ctx c, through in ltree.LTree t
         statement(ref cc, for: ref fe, from: ref c, through: t, to: ref sb, at: s)
     }
     if kind == .constructor {
-        line(ref sb, by: in fe, for: "return self_v;")
+        line(ref sb, by: in fe, for: fe.ctorBody ? "return;" : "return self_v;")
     } else if c.functions[fn].hasFails && !returnsValue(c, by: fn) {
         line(ref sb, by: in fe, for: $"return ({errorCType(ref cc, from: ref c)}){{0}};")
     } else if semantics.isNever(c.functions[fn].returnType) {
@@ -172,6 +193,12 @@ public string emitFunction(ref CCtx cc, from ref Ctx c, through in ltree.LTree t
     if fe.lastLine != 0 {
         sb.append(t9ResetLine)
         sb.append("\n")
+    }
+    if fe.ctorBody {
+        sb.append($"{frameSignature(ref cc, for: fe, from: ref c)} {{\n")
+        sb.append($"    {ty} self_v = {{0}};\n")
+        sb.append($"    {bodyName}(&self_v{args.finish()});\n")
+        sb.append("    return self_v;\n}\n")
     }
     // coverage-exempt: Q827
     if file != -1 {
@@ -523,7 +550,7 @@ void statement(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTree
                 )
             case .pushPanicHandler:
                 // The runtime longjmps here on a panic; the handler reads only `let`s and parameters, unchanged since the
-                // setjmp, and a constructor's `this`, `volatile` then.
+                // setjmp, and a constructor's `this`, whose `self_v` is then in the caller of the setjmp's function.
                 let slotIndex = t.pushPanicHandlers[i].slot
                 line(ref sb, by: in f, for: $"if (BYN_PANIC_CATCH(&ph{slotIndex})) {{")
                 f.indent += 1
@@ -631,7 +658,7 @@ void returnStmt(ref CCtx cc, for ref CFunc f, from ref Ctx c, through ltree.LTre
         uses alloc {
     let fn = f.fn
     if c.functions[fn].kind == .constructor {
-        line(ref sb, by: in f, for: "return self_v;")
+        line(ref sb, by: in f, for: f.ctorBody ? "return;" : "return self_v;")
         return
     }
     let value = t.returnStmts[r & 0xFFFFFFFF].value
