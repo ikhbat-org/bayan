@@ -110,6 +110,10 @@ Decl parseDeclaration(ref Parser p, bool topLevel, for TextSpan? structName) {
     let startIndex = p.pos
     let start = first.start
     let attributesAt = p.pos
+    let attributesPrevEnd = p.prevEnd
+    let diagnosticsAt = p.lexed.diagnostics.length
+    let syntaxErrorsAt = p.syntaxErrors
+    let lastErrorAt = p.lastErrorAt
     var attributes = parseAttributes(ref p)
     if doc is null {
         doc = docOf(ref p, for: p.current())
@@ -256,8 +260,15 @@ Decl parseDeclaration(ref Parser p, bool topLevel, for TextSpan? structName) {
             arg1: p.describe(p.current()),
         )
     } else {
-        // A statement takes its own `@` attributes (BYN1069, BYN8001), so parse them again as the statement's.
+        // A statement takes its own `@` attributes (BYN1069, BYN8001), so parse them again as the statement's,
+        // with the first pass's diagnostics dropped so the second reports each once.
         if p.kindAt(attributesAt) == .at {
+            while p.lexed.diagnostics.length > diagnosticsAt {
+                let _ = p.lexed.diagnostics.removeLast()
+            }
+            p.syntaxErrors = syntaxErrorsAt
+            p.lastErrorAt = lastErrorAt
+            p.prevEnd = attributesPrevEnd
             p.pos = attributesAt
             attributes = List<AttributeSyntax>()
         }

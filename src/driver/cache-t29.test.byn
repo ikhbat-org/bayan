@@ -500,7 +500,7 @@ test "driver t29: t9CompileIn unlinks a directory link the compiler left, keepin
     ) catch { panic("compile") }
     assert built.succeeded && !built.rejected
     assert Fs.fileExists(Path.combine(kept, "keep"))
-    assert !t9DirectoryExists(Path.combine(work, "a.out.dSYM"))
+    assert !t9DirectoryExists(Path.combine(entry, "a.out.dSYM"))
     deleteWorkDir(entry)
     deleteWorkDir(work)
     deleteWorkDir(kept)
