@@ -57,11 +57,7 @@ string goldenStem(string name) {
 /// `path` with `\` read as `/` (Windows paths from `Path.relative`).
 string goldenSlashed(string path) uses alloc {
     return path if Target.os != "windows"
-    var text = ""
-    for i in 0..path.length {
-        text = $"{text}{path.bytes[i] == 0x5c ? "/" : path[i..i + 1]}"
-    }
-    return text
+    return path.replaced("\\", by: "/")
 }
 
 /// `text` with the directory `dir` read as `tag` (with the `/` after it dropped too when `drop`). A Windows `dir` (one holding `\`) is also

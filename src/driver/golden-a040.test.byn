@@ -1,0 +1,13 @@
+// A case path with a non-ASCII name (run/module-cname-same-length/بيت, audit 0.4.0 10 #2) made the Windows golden runner panic
+// ("string slice splits a code point"): goldenSlashed and goldenCliT9Steps sliced it one byte at a time.
+
+test "golden a040: a non-ASCII case path is slashed whole" {
+    let p = Path.combine(Path.combine("run", "x"), "بيت")
+    assert goldenSlashed(p) == (Target.os == "windows" ? "run/x/بيت" : p)
+}
+
+test "golden a040: a non-ASCII T9 step name is scanned for its dash without a panic" {
+    let parent = Path.fullPath("tmp")
+    assert goldenCliT9Steps(Path.combine(parent, "بيت-3")).length == 0
+    assert goldenCliT9Steps(Path.combine(parent, "كتب")).length == 0
+}

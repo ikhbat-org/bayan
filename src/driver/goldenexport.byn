@@ -639,7 +639,7 @@ List<string> goldenCliT9Steps(string dir) uses alloc, fs {
     let parent = Path.directoryName(dir) ?? ""
     var dash = -1
     for i in 0..name.length {
-        if name[i..i + 1] == "-" {
+        if name.bytes[i] == 0x2d {
             dash = i
         }
     }
