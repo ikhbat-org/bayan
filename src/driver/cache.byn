@@ -163,6 +163,8 @@ i32 cleanCommand(List<string> kept) uses alloc, console, env, fs {
     if cache {
         let data = cacheData()
         t3Remove(data, by: data)
+        let zig = Path.combine(cacheDirectory(), "zig")
+        t3Remove(zig, by: zig)
     }
     return exitOk
 }
@@ -713,6 +715,8 @@ NativeBuild t9CompileIn(
         let file = Path.combine(work, name)
         if name != exeName && Fs.fileExists(file) {
             try Io.remove(file)
+        } else if t9DirectoryExists(file) {
+            try t9DeleteTree(file)
         }
     }
     try Io.writeFile(Path.combine(work, "program.sha256"), $"{try t9HashFile(exe)}\n".bytes)
@@ -914,8 +918,23 @@ void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAge
     t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, at: cacheData(), through: ref d) catch return
 }
 
+/// The bytes of the files below `dir`, subdirectories included, by `Fs.fileSize`.
+i64 t9TreeSize(string dir) uses alloc, fs fails IoError {
+    var size: i64 = 0
+    let names = try Io.listDir(dir)
+    for name in names {
+        let path = Path.combine(dir, name)
+        if t9DirectoryExists(path) {
+            size += try t9TreeSize(path)
+        } else if Fs.fileExists(path) {
+            size += try Fs.fileSize(path)
+        }
+    }
+    return size
+}
+
 /// The `try` body of `Evict` (Toolchain.cs:490-516) on the cache data directory `data` (`cacheData()`; the evict blocks of bounds.byn
-/// give another). `FileInfo.Length` has no builtin: a file's size is its bytes, read (Q1149).
+/// give another). A file's size is `Fs.fileSize`.
 void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNanos, at string data, through ref DCtx d)
         uses alloc, clock, env, fs, random
         fails IoError {
@@ -941,18 +960,7 @@ void t9Evict(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAgeNa
             keys.append(name)
             dirs.append(dir)
             used.append((try Fs.modified(dir)).nanos)
-            var size: i64 = 0
-            let files = try Io.listDir(dir)
-            for file in files {
-                let path = Path.combine(dir, file)
-                // Q31 (plan 013): read only for the length, freed with the arena (no size builtin, Q1148)
-                using let arena = Arena()
-                provide allocator: arena {
-                    if Fs.fileExists(path) {
-                        size += (try Io.readFile(path)).length
-                    }
-                }
-            }
+            let size = try t9TreeSize(dir)
             sizes.append(size)
         }
     }

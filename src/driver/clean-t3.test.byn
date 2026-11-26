@@ -56,3 +56,25 @@ test "clean t3: CleanDoesNotReportAFileItCannotRemove" {
 test "clean t3: CleanDoesNotReportADirectoryItCannotRemove" {
     t3RefusesToReport("clean-locked-dir", by: "out/locked", for: "out/locked/empty", as: false)
 }
+
+// 0.4.0 audit 10-driver-build #10: `clean --cache` removes `<cache>/zig` as well as `<cache>/v1`.
+test "clean t3: CleanCacheRemovesTheZigCache" {
+    let root = Path.combine(Path.fullPath("tmp"), "driver-t3/s2/clean-cache-zig")
+    deleteWorkDir(root)
+    goldenWrite(root, for: "v1/programs/k/exe", as: "x")
+    goldenWrite(root, for: "zig/o/k/obj", as: "x")
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    print(failure) if exe == ""
+    assert(exe != "")
+    var env: Map<string, string?> = []
+    env["BAYAN_CACHE"] = root
+    var args = List<string>()
+    args.append("clean")
+    args.append("--cache")
+    let r = Io.run(exe, args.span, env: env) catch { panic("cannot run clean") }
+    assert(r.exitCode == 0)
+    assert(!Fs.fileExists(Path.combine(root, "zig/o/k/obj")) && !Fs.fileExists(Path.combine(root, "v1/programs/k/exe")))
+    assert(!t3DirectoryExists(Path.combine(root, "zig")))
+    deleteWorkDir(root)
+}
