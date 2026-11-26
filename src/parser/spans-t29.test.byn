@@ -96,11 +96,11 @@ test "parser t29: attributes on every declaration and statement keep their spans
         sb.append($"{d.code} {d.span.start}+{d.span.length} {d.message}\n")
     }
     let expected = """
-            span out of range: attributeSyntax 14+2 outside 17+8
             span out of range: blockStmt 66+12 outside 57+8
             span out of range: errorExpr 852+0 outside 849+2
             span out of range: nameExpr 889+1 outside 884+4
             span out of range: targetMemberExpr member 1027+1 outside 1026+1
+            BYN1069 14+2 attribute `@a` is not allowed before a statement
             BYN1012 68+8 this expression does nothing as a statement
             BYN1016 344+6 `extern` is not allowed here
             BYN1001 367+4 expected `{`, found `void`
