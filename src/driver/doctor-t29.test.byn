@@ -15,7 +15,9 @@ test "driver t29: t5FindCompiler is the words of BAYAN_CC when set, else the fou
     let found = t5FindCompiler()
     let cc = Env.get("BAYAN_CC") ?? ""
     var expected = List<string>()
-    if cc.length > 0 {
+    if cc.length > 0 && Fs.fileExists(cc) {
+        expected.append(cc)
+    } else if cc.length > 0 {
         for part in cc.parts(by: " ") {
             if part.length > 0 {
                 expected.append($"{part}")

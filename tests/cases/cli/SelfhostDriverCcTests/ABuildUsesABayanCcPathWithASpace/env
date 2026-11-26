@@ -1,0 +1,2 @@
+BAYAN_CC=<repo>/tmp/cc/env cc/fakecc
+BAYAN_CC_TIMEOUT_S
