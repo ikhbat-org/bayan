@@ -19,6 +19,16 @@ error BYN3006: `s` is moved while `sp` still borrows it
      │
   help: finish using `sp` first, or copy what it needs before moving `s`
 
+error BYN2104: `none` is immutable
+
+  56 │     let sp: Span<i64> = items(ref slot, by: none)
+     │                                             ^^^^ it is borrowed as `Span<i64>`; declared with
+     │                                                  `let` on line 55
+     │
+  help: declare it with `var` if it should change
+     │ 55 │     var none: i64[1] = [0]
+     │    │     +++
+
 error BYN3006: `slot` is moved while `sp` still borrows it
 
   57 │     switch move slot {
