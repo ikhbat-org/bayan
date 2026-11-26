@@ -10,16 +10,15 @@ public struct Glob {
     /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character
     /// that equals only the same byte.
     public static bool matches(string pattern, for string path) uses alloc {
-        for alternative in expand(pattern) {
-            if matchFrom(alternative, from: 0, for: path, at: 0) { return true }
-        }
-        return false
+        return expandMatches(pattern, for: path)
     }
 }
 
-/// `pattern` with its first `{a,b}` group replaced by each option in turn, expanded again until no group is left.
-List<string> expand(string pattern) uses alloc {
-    var result = List<string>()
+/// Whether `pattern`, with its first `{a,b}` group replaced by each option in turn and expanded again until no group is
+/// left, matches `path`. Each option is built and tried in an arena freed before the next, so memory grows with the
+/// nesting depth, not the number of alternatives; an option whose leading literal text is not where `path` starts is
+/// not expanded further.
+bool expandMatches(string pattern, for string path) uses alloc {
     let open = pattern.position("{") ?? -1
     var close = -1
     var starts = List<i64>()
@@ -41,34 +40,66 @@ List<string> expand(string pattern) uses alloc {
         }
     }
     if close < 0 {
-        result.append($"{pattern}")
-        return result
+        var failed = List<bool>()
+        return matchFrom(pattern, from: 0, for: path, at: 0, through: ref failed)
     }
     starts.append(close)
     let head = pattern[0..open]
     let tail = pattern[close + 1..pattern.length]
     for k in 0..(starts.length - 1) {
         let option = pattern[starts[k] + 1..starts[k + 1]]
-        for e in expand($"{head}{option}{tail}") { result.append(e) }
+        using let arena = Arena()
+        provide allocator: arena {
+            let next = $"{head}{option}{tail}"
+            if literalFits(next, for: path) && expandMatches(next, for: path) { return true }
+        }
     }
-    return result
+    return false
 }
 
-/// Whether `pattern` from `pi` matches `path` from `si` to its end.
-bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {
+/// Whether the text of `pattern` before its first `*`, `?`, `[` or `{` is where `path` starts.
+bool literalFits(string pattern, for string path) {
+    var i = 0
+    while i < pattern.length {
+        let b = pattern.bytes[i]
+        if b == '*' || b == '?' || b == '[' || b == '{' { return true }
+        if i >= path.length || path.bytes[i] != b { return false }
+        i += 1
+    }
+    return true
+}
+
+/// Whether `pattern` from `pi` matches `path` from `si` to its end. `failed` marks the `(pi, si)` pairs already found
+/// not to match (empty until a `*` first needs it), so each pair is tried once and `*` runs take polynomial time.
+bool matchFrom(string pattern, from i64 pi, for string path, at i64 si, through ref List<bool> failed) uses alloc {
+    let key = pi * (path.length + 1) + si
+    if failed.length > 0 && failed[key] { return false }
+    let hit = matchRest(pattern, from: pi, for: path, at: si, through: ref failed)
+    if !hit && failed.length > 0 { failed[key] = true }
+    return hit
+}
+
+/// `matchFrom` without the `failed` lookup.
+bool matchRest(string pattern, from i64 pi, for string path, at i64 si, through ref List<bool> failed) uses alloc {
     var i = pi
     var j = si
     while i < pattern.length {
         let c = pattern.bytes[i]
         if c == '*' {
+            if failed.length == 0 {
+                for _ in 0..(pattern.length + 1) * (path.length + 1) { failed.append(false) }
+            }
             if i + 1 < pattern.length && pattern.bytes[i + 1] == '*' && (i == 0 || pattern.bytes[i - 1] == '/') {
                 let k = i + 2
                 if k == pattern.length { return true }
                 if pattern.bytes[k] == '/' {
-                    if matchFrom(pattern, from: k + 1, for: path, at: j) { return true }
+                    if matchFrom(pattern, from: k + 1, for: path, at: j, through: ref failed) { return true }
                     var m = j
                     while m < path.length {
-                        if path.bytes[m] == '/' && matchFrom(pattern, from: k + 1, for: path, at: m + 1) { return true }
+                        if path.bytes[m] == '/'
+                                && matchFrom(pattern, from: k + 1, for: path, at: m + 1, through: ref failed) {
+                            return true
+                        }
                         m += 1
                     }
                     return false
@@ -76,7 +107,7 @@ bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {
             }
             var m = j
             while m <= path.length {
-                if matchFrom(pattern, from: i + 1, for: path, at: m) { return true }
+                if matchFrom(pattern, from: i + 1, for: path, at: m, through: ref failed) { return true }
                 if m == path.length || path.bytes[m] == '/' { return false }
                 m += charLength(charAt(path, at: m))
             }
