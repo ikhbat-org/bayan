@@ -363,7 +363,22 @@ ModId loadModule(
     from move List<lexer.SourceText> sources,
     by ModId importer
 ) {
-    c.modules.append(Mod { name: name, files: List<FileId>(), directory: dir, cName: t11CNameOf(name) })
+    // `a.b` and `a_b`, two Arabic names of one length, or an imported `main` share a C name: a later one gets `_{k}`.
+    let base = t11CNameOf(name)
+    var cName = base
+    var k = 0
+    var taken = true
+    while taken {
+        taken = false
+        for m in 0..c.modules.length {
+            taken = taken || c.modules[m].cName == cName
+        }
+        if taken {
+            k += 1
+            cName = $"{base}_{k}"
+        }
+    }
+    c.modules.append(Mod { name: name, files: List<FileId>(), directory: dir, cName: cName })
     let module = c.modules.length - 1
     c.modulesByDir[dir] = module
     // `t11OrderModules` rebuilds the map from `directory`, so this second key lives only while modules load.

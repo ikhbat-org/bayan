@@ -1,0 +1,7 @@
+import بيت
+import كتب
+
+// Two modules whose names have the same length map to the same C name; the second one gets a suffix.
+void main() {
+    print($"{بيت.value()} {كتب.value()}")
+}
