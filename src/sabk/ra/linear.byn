@@ -113,10 +113,14 @@ public Allocation allocate(Function f) uses alloc fails AllocError {
         let crossing = crossesCall(live, at: iv)
         var reg = -1
         if !crossing {
+            var isParam = false
             for i in 0..f.params.length {
+                isParam = true if f.params[i] == iv.vreg
                 reg = i if i < 8 && f.params[i] == iv.vreg && !busy[i]
             }
-            reg = 0 if isResult[iv.vreg] && !busy[0]
+            // A parameter that is also a call result keeps its own x<i> or takes the pool: the prologue moves it from x<i>
+            // before the call, so taking x0 would overwrite parameter 0 while the call still reads it.
+            reg = 0 if isResult[iv.vreg] && !isParam && !busy[0]
         }
         reg = pickReg(busy, for: crossing) if reg < 0
         if reg < 0 {
