@@ -2,7 +2,7 @@
 2:2 Identifier `a`
 4:7 EndOfFile
 
-error BYN0006: invalid escape sequence `\`
+error BYN0006: invalid escape sequence `\\u{12}`
 
   1 │ '\�'
     │  ^^

@@ -1,0 +1,11 @@
+error BYN0015: source is not valid UTF-8 (byte 0xF0)
+
+  2 │     let b = x >= 'a' && x <= '�'
+    │                               ^
+
+error BYN1001: expected `}`, found end of file
+
+  2 │     let b = x >= 'a' && x <= '�'
+    │                                 ^
+    │
+  help: close the block opened on line 1

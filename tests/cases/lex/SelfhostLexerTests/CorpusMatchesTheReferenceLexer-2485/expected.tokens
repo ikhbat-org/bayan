@@ -90,7 +90,7 @@ error BYN0009: a char literal holds exactly one Unicode scalar
      │
   help: use a string literal ("…") for text
 
-error BYN0006: invalid escape sequence `\`
+error BYN0006: invalid escape sequence `\\u{7F}`
 
   12 │ '\�{110000}'
      │  ^^

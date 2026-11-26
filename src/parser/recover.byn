@@ -543,7 +543,8 @@ bool isStatementKeyword(TokenKind kind) => kind switch {
         .contextKeyword or .provideKeyword or .becomeKeyword or .structKeyword or .publicKeyword or .privateKeyword or
         .importKeyword or .errorKeyword or .testKeyword or .typeKeyword or
         .staticKeyword or .readonlyKeyword or .requiredKeyword or .uniqueKeyword or
-        .externKeyword or .unsafeKeyword or .unionKeyword or .distinctKeyword => true,
+        .externKeyword or .unsafeKeyword or .unionKeyword or .distinctKeyword or .enumKeyword or
+        .assertKeyword or .interfaceKeyword or .extensionKeyword or .effectKeyword => true,
     _ => false,
 }
 
