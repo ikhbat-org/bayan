@@ -918,14 +918,18 @@ void evictWith(string keep, to i64 maxBytes, by i64 maxEntries, until i64 minAge
     t9Evict(keep, to: maxBytes, by: maxEntries, until: minAgeNanos, at: cacheData(), through: ref d) catch return
 }
 
-/// The bytes of the files below `dir`, subdirectories included, by `Fs.fileSize`.
+/// The bytes of the files below `dir`, subdirectories included, by `Fs.fileSize`. A link to a directory (its real path is not
+/// `dir`'s real path joined with its name) is not entered, so a link cycle cannot recurse without end (docs/memory-leaks.md).
 i64 t9TreeSize(string dir) uses alloc, fs fails IoError {
     var size: i64 = 0
+    let real = try Fs.realPath(dir)
     let names = try Io.listDir(dir)
     for name in names {
         let path = Path.combine(dir, name)
         if t9DirectoryExists(path) {
-            size += try t9TreeSize(path)
+            if (try Fs.realPath(path)) == Path.combine(real, name) {
+                size += try t9TreeSize(path)
+            }
         } else if Fs.fileExists(path) {
             size += try Fs.fileSize(path)
         }

@@ -362,7 +362,7 @@ bool refuseLibrary(semantics.Ctx compiled, by string command) {
 
 /// R3 (spec Q4): one stderr line naming `what`.
 i32 refuse(string what) {
-    Io.stderr.write($"error: `{what}` is not available in the self-hosted compiler; use the C# `bayan`\n")
+    Io.stderr.write($"error: `{what}` is not available in this version of `bayan`\n")
     return exitUsage
 }
 
