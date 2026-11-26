@@ -1,6 +1,6 @@
 # Bayān: not planned
 
-Version: 0.4.1-dev (matches `bayan --version`)
+Version: 0.4.1 (matches `bayan --version`)
 
 What Bayān will not do, or not soon. State of `dev` at 04366a4f, 2026-11-14. Every row names its source. The plan for what does come is `docs/bayan-roadmap.md`. Settled decisions are not re-proposed (`docs/bayan-spec.md`, Appendix A).
 
