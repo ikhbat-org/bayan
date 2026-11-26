@@ -786,7 +786,15 @@ BExpr t18BindModuleMember(
         return t21ConstantRef(ref b, through: ref c, at: m.span, for: constId, from: syntax)
     }
     if c.modules[mod].functions.contains(name) {
-        let fnId = c.modules[mod].functions[name][0]
+        // The first overload the current module may see heads the group; a call checks the one it selects.
+        var fnId = c.modules[mod].functions[name][0]
+        for oi in 0..c.modules[mod].functions[name].length {
+            let o = c.modules[mod].functions[name][oi]
+            if t18Visible(b, through: ref c, for: o) {
+                fnId = o
+                break
+            }
+        }
         checkAccess(ref b, through: ref c, for: c.functions[fnId].access, from: -1, by: mod, at: m.member)
         return recordSyntaxNode(
             ref c,
@@ -887,6 +895,13 @@ void checkAccess(
             }
         default: {}
     }
+}
+
+/// Whether `checkAccess` lets the current module see free function `f`.
+bool t18Visible(Binder b, through ref Ctx c, for FuncId f) {
+    let module = c.functions[f].module
+    return true if module == c.files[b.file].module || module == t9Module(ref c)
+    return !(c.functions[f].access is .privateKeyword or .module)
 }
 
 BExpr bindValueMember(ref Binder b, through ref Ctx c, at TextSpan span, for BExpr target, by TextSpan member) =>

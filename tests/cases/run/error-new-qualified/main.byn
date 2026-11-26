@@ -1,0 +1,29 @@
+import other
+
+// `fail` with a payload takes a set named through its module or a built-in set, as well as a local one.
+union error Local {
+    oops(i64 code),
+}
+
+void a() fails Local {
+    fail Local.oops(1)
+}
+
+void b() fails other.MyErr {
+    fail other.MyErr.bad(2)
+}
+
+void c() fails Utf8Error {
+    fail Utf8Error.invalidSequence(3)
+}
+
+void d() fails other.MyErr {
+    fail .bad(4)
+}
+
+void main() {
+    a() catch switch { .oops(let code) => print($"a {code}") }
+    b() catch switch { .bad(let code) => print($"b {code}") }
+    c() catch switch { .invalidSequence(let at) => print($"c {at}") }
+    d() catch switch { .bad(let code) => print($"d {code}") }
+}
