@@ -602,11 +602,14 @@ test "bound: doctor of a 256 MB cache stays under 100 MB" {
     assert(run.peakKb < 100 * 1024)
 }
 
-/// A program that runs `Regex.findAll` with a 20,000-instruction pattern over 20,000 one-byte matches.
-const boundFindAll: string = "import std.regex\n\nvoid main() {\n    let re = regex.Regex.parse(\"(a{1000}){20}|b\") catch panic(\"parse failed\")\n    let all = re.findAll(\"b\".repeated(20000))\n    print($\"{all.length}\")\n}\n"
+/// A program that runs `Regex.findAll` with a 20,000-instruction pattern over 100,000 one-byte matches.
+/// 20,000 matches ended on the Linux runner before the sampler's first sample (peak 0, ci 45853205771); 100,000 run
+/// about 90 ms there.
+const boundFindAll: string = "import std.regex\n\nvoid main() {\n    let re = regex.Regex.parse(\"(a{1000}){20}|b\") catch panic(\"parse failed\")\n    let all = re.findAll(\"b\".repeated(100000))\n    print($\"{all.length}\")\n}\n"
 
 // measured: 3.3 GB on macOS when each search made and zeroed its own work space (O(matches x program)), 10 MB with one
-// work space for all the searches of a findAll (2026-11-26). bound = 100 MB.
+// work space for all the searches of a findAll (2026-11-26, 20,000 matches); 100,000 matches: 40 MB on macOS, 62-69 MB on
+// Linux (gcc:14 container, 2026-11-27), the match list growing about 600 bytes a match. bound = 100 MB.
 test "bound: Regex.findAll over many matches stays under 100 MB" {
     if Target.os == "windows" {
         todo("`sh` and `ps` sample the resident set; Windows has neither")
@@ -622,7 +625,7 @@ test "bound: Regex.findAll over many matches stays under 100 MB" {
     deleteWorkDir(root)
     print($"findAll peaked at {run.peakKb / 1024} MB, bound 100 MB\n{run.stderr}")
     assert(run.exit == 0)
-    assert(run.stdout == "20000\n")
+    assert(run.stdout == "100000\n")
     assert(run.peakKb > 0)
     assert(run.peakKb < 100 * 1024)
 }
