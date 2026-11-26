@@ -1,4 +1,5 @@
 error BYN0006: invalid escape sequence `\q`
+  --> main.byn:1:10
 
   1 │ let a = "\q"
     │          ^^
@@ -6,6 +7,7 @@ error BYN0006: invalid escape sequence `\q`
   help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
 
 error BYN0006: invalid escape sequence `\é`
+  --> main.byn:2:10
 
   2 │ let b = "\é"
     │          ^^
