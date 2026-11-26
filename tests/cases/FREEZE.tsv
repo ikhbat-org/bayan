@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4485
-cases	diag	893
+cases	diag	896
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14626,6 +14626,7 @@ file	38e82cdbf299fac1369b25120dc8a6c9c7ab9043	tests/cases/diag/pattern-outside-c
 file	982f15e5da399562c7625fc1e860300a206659e2	tests/cases/diag/payload-needs-name.diag
 file	ded4a55db883623aa8ff6b0f489cc46067c44ea1	tests/cases/diag/payload-not-in-state.diag
 file	6fc1a10027f99ddda3150e7f5e5cf923f618921e	tests/cases/diag/pointer-outside-extern.diag
+file	6654b002fe5838dd8039d8bcfc1d525b08d1a456	tests/cases/diag/pointer-type-closers.diag
 file	e028e8a3378557a4c09d7d4470b8b69e45a35eeb	tests/cases/diag/positional-after-named.diag
 file	cd591a43bf227b811c1dfd41386d49e8b4e79350	tests/cases/diag/positional-arguments.diag
 file	945e2d39770d186da5ea8ba502ab08cf763aac80	tests/cases/diag/positional-exemption.diag
@@ -14840,6 +14841,7 @@ file	b951eb3d61d39699b23c46834411881c7481e2af	tests/cases/diag/requires-on-funct
 file	b6cc13a94fbc80708acf8230eba41a8dbeca0ecb	tests/cases/diag/requires-value.diag
 file	fecefed7e3b8c1ea0614ef6c1242bbbac1fdee9a	tests/cases/diag/requires-violated.diag
 file	ff26e841b3c56d03205250b5a25979523c803f78	tests/cases/diag/rest-escapes.diag
+file	0a6134d344fa6aa173666739b70d4ee2321a0a71	tests/cases/diag/rest-input-span.diag
 file	0ce173af01b21db015050f7803d51d03cc44088f	tests/cases/diag/rest-input.diag
 file	5ba3f521bb3b07aeeec662a594ce91b0d4a7c323	tests/cases/diag/rest-named-after.diag
 file	cea8e54a9abe89d88a2c974f9ec046328c0918b0	tests/cases/diag/return-error-input.diag
@@ -14968,6 +14970,7 @@ file	a1b2c7a1e7b458dfa27bc1d6444d2228338660f0	tests/cases/diag/this-ref-call-mod
 file	90e0aa861c6b19209c28da5ddbd3554633825f55	tests/cases/diag/time-now-needs-clock.diag
 file	490b7fad81148309716d41adc536b3c1ce54e4dc	tests/cases/diag/to-string-call.diag
 file	f027fa6d5264b2ba612e278bbb6c42d531ad44fb	tests/cases/diag/too-many-arguments.diag
+file	1eb656ba41b7e3ec790d308578a6d99c12d24419	tests/cases/diag/top-level-statement-attribute.diag
 file	c3e807cac4686e3a79ce1af1a98577f696b53267	tests/cases/diag/trust-input.diag
 file	5efc8978336a5d55fc1ed3ca670d50a62a47bc7f	tests/cases/diag/trust-reason.diag
 file	23b8f6374cce2918bb9804f909b7c7690fa2001a	tests/cases/diag/trust-unchecked-because.diag
@@ -47332,7 +47335,7 @@ file	f97435bdf70259347917ab3577c72290df78f6b6	tests/cases/parse/SelfhostParserT6
 file	deafbabfbb37066af6caaddd87158c6a9d800040	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-2/expected.type
 file	2ef300be4cd718e13a15b02079a958da6885e3cb	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-20/expected.type
 file	f47d8b3a3329b56558115012175abc84f14ae2e4	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-21/expected.type
-file	5ea1c5284759544f7f45f1eafcb5ad67ea4ba57f	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-22/expected.type
+file	9ebc1fdb949ba476dd085c6dcec065a88684c48a	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-22/expected.type
 file	c5578fbf5c2894ecd25f7501fb91c2d7c715018b	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-23/expected.type
 file	630406edfa58c095e95e1b14ee336d8f6a5be7c4	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-24/expected.type
 file	f97435bdf70259347917ab3577c72290df78f6b6	tests/cases/parse/SelfhostParserT6Tests/TypesMatchTheCSharpParser-25/expected.type
