@@ -1,5 +1,5 @@
 // L002 (spec 019 T31c): SelfhostLexerTests.cs:376 `BayanLexNeverPanicsAndKeepsSpansInsideTheInput` without .NET. The corpus of
-// SelfhostLexerTests.cs:183-232 `GenerateCorpus` (10,000 inputs) and the 21 lex/*.byn cases go through one `bayan-lex --many` run over
+// SelfhostLexerTests.cs:183-232 `GenerateCorpus` (10,000 inputs) and the 23 lex/*.byn cases go through one `bayan-lex --many` run over
 // tmp/l002-nopanic; the cases and the empty input also through `bayan-lex --json` on stdin. Each generated input is compared with the frozen C#
 // corpus: the `input.byn.ref` blob of lex/SelfhostLexerTests/CorpusMatchesTheReferenceLexer-<i + 1> (input 0: the case with no suffix).
 
@@ -94,7 +94,7 @@ string l002Name(i64 i) uses alloc {
 }
 
 // L002: the lexer never panics and keeps spans inside the input
-test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 lex cases, 10,000 generated inputs and the empty input" {
+test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 23 lex cases, 10,000 generated inputs and the empty input" {
     let started = Io.monotonicNanos()
     var failure = ""
     let exe = goldenExe(through: ref failure)
@@ -131,7 +131,7 @@ test "L002: bayan-lex exits 0 or 1 with every span inside the input on the 21 le
         }
         caseEnd.append(pool.length)
     }
-    assert(goldens.length == 21)
+    assert(goldens.length == 23)
     // SelfhostLexerTests.cs:169-180
     let invalid = [
         0xFF, 0x80, 0xC0, 0x80, 0xC3, 0xE2, 0x82, 0xED, 0xA0, 0x80, 0xF0, 0x9F, 0x98, 0xF4, 0x90, 0x80, 0x80, 0xF8,
