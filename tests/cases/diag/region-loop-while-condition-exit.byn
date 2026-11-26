@@ -1,0 +1,14 @@
+void main() {
+    var xs = List<i64>()
+    xs.append(7)
+    var s: ReadOnlySpan<i64> = []
+    while bump(ref xs) < 100 {
+        s = xs.span
+    }
+    print($"{s[0]}")
+}
+
+i64 bump(ref List<i64> xs) {
+    xs.append(1)
+    return xs.length
+}
