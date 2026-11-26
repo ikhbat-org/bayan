@@ -1,0 +1,18 @@
+// A method named `init0` must not take the C name of the struct's first constructor.
+struct S {
+    i64 x
+
+    S(i64 x) {
+        this.x = x
+    }
+
+    void init0() {
+        print("init0")
+    }
+}
+
+void main() {
+    let s = S(1)
+    s.init0()
+    print($"{s.x}")
+}
