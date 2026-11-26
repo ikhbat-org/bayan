@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4485
-cases	diag	896
+cases	diag	897
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14841,6 +14841,7 @@ file	b951eb3d61d39699b23c46834411881c7481e2af	tests/cases/diag/requires-on-funct
 file	b6cc13a94fbc80708acf8230eba41a8dbeca0ecb	tests/cases/diag/requires-value.diag
 file	fecefed7e3b8c1ea0614ef6c1242bbbac1fdee9a	tests/cases/diag/requires-violated.diag
 file	ff26e841b3c56d03205250b5a25979523c803f78	tests/cases/diag/rest-escapes.diag
+file	4d4c45b51c25886c6a901c522f9a52f32fe4d844	tests/cases/diag/rest-input-span-bare.diag
 file	0a6134d344fa6aa173666739b70d4ee2321a0a71	tests/cases/diag/rest-input-span.diag
 file	0ce173af01b21db015050f7803d51d03cc44088f	tests/cases/diag/rest-input.diag
 file	5ba3f521bb3b07aeeec662a594ce91b0d4a7c323	tests/cases/diag/rest-named-after.diag
