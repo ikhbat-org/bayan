@@ -548,16 +548,23 @@ bool operands(
         barrier = effects[effects.length - 1]
     }
     // An operand moving a local a later operand reads happens first, as its own statement, so the read sees the local moved.
+    // An operand reading a number or `bool` from a local a later call takes by `ref` is stored first, so the read sees the
+    // value before the call. A list or other storage is not copied: it stays a view of the local.
     var movedFirst = List<bool>()
     for i in 0..n {
+        let type = t2Type(in c, through: in l, for: values[i])
+        let scalar = semantics.isNumeric(type) || type == semantics.prim(.bool)
+        let read = scalar ? rootLocal(c, for: values[i]) : -1
         var moved = false
         for j in i + 1..n {
-            if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i])) {
+            if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i]))
+                    || read != -1 && anyNode(in c, through: in l, for: values[j], by: .writesLocal(read)) {
                 moved = true
                 break
             }
             for s in pres[j] {
-                if anyNode(in c, through: in l, for: s, by: .readsLocalMovedBy(values[i])) {
+                if anyNode(in c, through: in l, for: s, by: .readsLocalMovedBy(values[i]))
+                        || read != -1 && anyNode(in c, through: in l, for: s, by: .writesLocal(read)) {
                     moved = true
                     break
                 }
@@ -588,6 +595,8 @@ union T2AnyTest {
     movesLocal(LocalId local)
     /// `x => x is BoundLocal r && Moves(mover, r.Local)` (`Operands`).
     readsLocalMovedBy(BExpr mover)
+    /// A call taking `local` (or a field of it) as a `ref`/`out` argument or as its `ref this` receiver (`Operands`).
+    writesLocal(LocalId local)
 }
 
 bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest probe) uses alloc {
@@ -602,6 +611,32 @@ bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest p
                 && c.bLocals[i64(operand & 0xFFFFFFFF)].local == local
         case .readsLocalMovedBy(let mover):
             return semantics.boundKind(x) == .local && moves(in c, through: in l, for: mover, by: c.bLocals[i].local)
+        case .writesLocal(let local):
+            return false if semantics.boundKind(x) != .call
+            let fn = c.bCalls[i].function
+            let receiver = c.bCalls[i].receiver
+            return true if receiver != -1 && c.functions[fn].isMutating && rootLocal(c, for: receiver) == local
+            for k in 0..c.bCalls[i].arguments.length {
+                break if k >= c.functions[fn].parameters.length
+                let param = c.functions[fn].parameters[k]
+                if c.locals[param].modifier is .refKeyword or .outKeyword
+                        && rootLocal(c, for: c.bCalls[i].arguments[k]) == local {
+                    return true
+                }
+            }
+            return false
+    }
+}
+
+/// The local a place `n`, `n.f` or `n.0` reads, or -1.
+LocalId rootLocal(Ctx c, for BExpr e) {
+    return -1 if ltree.isLowered(e)
+    let i = i64(e & 0xFFFFFFFF)
+    switch semantics.boundKind(e) {
+        case .local: return c.bLocals[i].local
+        case .field: return rootLocal(c, for: c.bFields[i].receiver)
+        case .tupleElement: return rootLocal(c, for: c.bTupleElements[i].receiver)
+        default: return -1
     }
 }
 

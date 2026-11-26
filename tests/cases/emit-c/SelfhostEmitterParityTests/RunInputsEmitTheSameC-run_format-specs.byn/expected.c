@@ -136,13 +136,13 @@ void byn_main__main(void) {
         uint8_t wb[256];
         byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 4};
         byn_writer* w = &wv;
-        bynh_w_radix(w, (uint64_t)(l0_n), (l0_n) < 0, 16);
+        { int64_t rv = (int64_t)(l0_n); bynh_w_radix(w, (uint64_t)rv, rv < 0, 16); }
         byn_w_str(w, BYN_STR(" ", 1));
-        bynh_w_radix(w, (uint64_t)(l0_n), (l0_n) < 0, 2);
+        { int64_t rv = (int64_t)(l0_n); bynh_w_radix(w, (uint64_t)rv, rv < 0, 2); }
         byn_w_str(w, BYN_STR(" ", 1));
-        bynh_w_radix(w, (uint64_t)(l0_n), (l0_n) < 0, 8);
+        { int64_t rv = (int64_t)(l0_n); bynh_w_radix(w, (uint64_t)rv, rv < 0, 8); }
         byn_w_str(w, BYN_STR(" ", 1));
-        bynh_w_radix(w, (uint64_t)(l0_n), (l0_n) < 0, 10);
+        { int64_t rv = (int64_t)(l0_n); bynh_w_radix(w, (uint64_t)rv, rv < 0, 10); }
         byn_w_println(w);
     }
 #line 5 "format-specs.byn"
@@ -150,7 +150,7 @@ void byn_main__main(void) {
         uint8_t wb[256];
         byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 5};
         byn_writer* w = &wv;
-        bynh_w_radix(w, (uint64_t)(l2_neg), (l2_neg) < 0, 16);
+        { int64_t rv = (int64_t)(l2_neg); bynh_w_radix(w, (uint64_t)rv, rv < 0, 16); }
         byn_w_str(w, BYN_STR(" ", 1));
         { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 5}; byn_writer* sw = &sv; byn_w_i64(sw, (int64_t)(l1_id)); bynh_w_padded(w, (byn_str){sb, sv.len}, 6, 48u, 1); }
         byn_w_str(w, BYN_STR(" [", 2));
@@ -221,7 +221,7 @@ void byn_main__main(void) {
         byn_writer* w = &l5_buf;
         w->file = byn_file_0;
         w->line = 13;
-        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 13}; byn_writer* sw = &sv; bynh_w_radix(sw, (uint64_t)(l0_n), (l0_n) < 0, 16); bynh_w_padded(w, (byn_str){sb, sv.len}, 4, 48u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 13}; byn_writer* sw = &sv; { int64_t rv = (int64_t)(l0_n); bynh_w_radix(sw, (uint64_t)rv, rv < 0, 16); } bynh_w_padded(w, (byn_str){sb, sv.len}, 4, 48u, 1); }
     }
 #line 14 "format-specs.byn"
     (void)byn_print(((byn_builtin_Stream)0), byn_strbuf_str(l5_buf));

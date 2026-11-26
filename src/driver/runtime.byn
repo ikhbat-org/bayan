@@ -9,7 +9,7 @@ const runtimeHeader: string = """/* Bayan runtime: the C support every compiled 
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 3
+#define BYN_RUNTIME_VERSION 4
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -152,11 +152,12 @@ typedef enum byn_writer_mode {
     BYN_WRITE_TRUNCATE, /* drop what does not fit (panic messages) */
     BYN_WRITE_STRICT,   /* panic when full (StrBuf(buf)) */
     BYN_WRITE_GROW,     /* grow through alloc when full (StrBuf()) */
+    BYN_WRITE_OVER,     /* borrowed bytes, then BYN_WRITE_GROW once outgrown (StrBuf.over(span)) */
 } byn_writer_mode;
 
 typedef struct byn_alloc byn_alloc;
 
-/* Formats text into caller-provided bytes; only BYN_WRITE_GROW allocates. */
+/* Formats text into caller-provided bytes; only BYN_WRITE_GROW and BYN_WRITE_OVER allocate. */
 typedef struct byn_writer {
     uint8_t* buf;
     int64_t cap;
@@ -1010,6 +1011,7 @@ void byn_w_bytes(byn_writer* w, const uint8_t* p, int64_t n) {
             return;
         case BYN_WRITE_STRICT:
             byn_panic("StrBuf is full", w->file, w->line);
+        case BYN_WRITE_OVER:
         case BYN_WRITE_GROW: {
             int64_t grown = w->cap < 16 ? 16 : w->cap * 2;
             if (grown < w->len + n) grown = w->len + n;
@@ -1018,8 +1020,10 @@ void byn_w_bytes(byn_writer* w, const uint8_t* p, int64_t n) {
             uint8_t* p = (uint8_t*)w->alloc->resize(w->alloc, NULL, 0, grown);
             if (w->len > 0) memcpy(p, w->buf, (size_t)w->len);
 #ifdef BYN_DEBUG
-            byn_own_rekey(w->buf, p);
+            /* Borrowed bytes belong to their owner, which keeps its claim. */
+            if (w->mode == BYN_WRITE_GROW) byn_own_rekey(w->buf, p);
 #endif
+            w->mode = BYN_WRITE_GROW;
             w->buf = p;
             w->cap = grown;
             break;
