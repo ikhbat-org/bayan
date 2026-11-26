@@ -1,0 +1,5 @@
+distinct type Meter = i64
+enum Color {
+    red
+    green = = =
+}

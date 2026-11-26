@@ -1,0 +1,18 @@
+error BYN1002: expected an expression, found `=`
+
+  1 │ let x = = 1
+    │         ^
+
+error BYN1001: expected `}`, found `=`
+
+  4 │     green = = =
+    │           ^
+    │
+  help: close the enum opened on line 2
+
+error BYN1001: expected a declaration or statement, found `}`
+
+  5 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`

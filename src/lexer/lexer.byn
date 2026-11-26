@@ -236,7 +236,7 @@ public struct LexResult {
     public List<Token>      tokens
 
     void run(ref this, Keywords keywords) {
-        if source.bytes.length >= 3 && source.bytes[0] == 0xEF && source.bytes[1] == 0xBB && source.bytes[2] == 0xBF {
+        if startsWithByteOrderMark() {
             pos = 3
         }
         while true {
@@ -488,7 +488,10 @@ public struct LexResult {
         return $"{sb.finish()}"
     }
 
-    bool isAtLineStart() => pos == 0 || source.bytes[pos - 1] == '\n'
+    bool isAtLineStart() => pos == 0 || source.bytes[pos - 1] == '\n' || (pos == 3 && startsWithByteOrderMark())
+
+    bool startsWithByteOrderMark() =>
+        source.bytes.length >= 3 && source.bytes[0] == 0xEF && source.bytes[1] == 0xBB && source.bytes[2] == 0xBF
 
     // ── Tokens ───────────────────────────────────────────────────────────────
 
@@ -891,7 +894,7 @@ public struct LexResult {
                 return
             }
             if b == '\\' {
-                scanEscape()
+                scanEscape(allowBidi: true)
             } else {
                 advanceCodePoint(allowBidi: true)
             }
@@ -922,7 +925,7 @@ public struct LexResult {
                 depth -= 1
                 return
             } else if b == '\\' {
-                scanEscape()
+                scanEscape(allowBidi: true)
             } else if (b == '{' && peek(1) == '{') || (b == '}' && peek(1) == '}') {
                 pos += 2
             } else if b == '{' {
@@ -971,7 +974,7 @@ public struct LexResult {
         var scalars = 0
         while pos < source.bytes.length && source.bytes[pos] != '\'' && source.bytes[pos] != '\n' {
             if source.bytes[pos] == '\\' {
-                scanEscape()
+                scanEscape(allowBidi: false)
             } else {
                 advanceCodePoint(allowBidi: false)
             }
@@ -993,7 +996,7 @@ public struct LexResult {
         add(.charLiteral, at: TextSpan { start: start, length: pos - start })
     }
 
-    void scanEscape(ref this) {
+    void scanEscape(ref this, bool allowBidi) {
         let start = pos
         pos += 1
         if pos >= source.bytes.length || source.bytes[pos] == '\n' {
@@ -1006,7 +1009,7 @@ public struct LexResult {
                 pos += 1
             case 'u':
                 if peek(1) != '{' {
-                    invalidEscape(start)
+                    invalidEscape(start, allowBidi: allowBidi)
                     return
                 }
                 pos += 2
@@ -1036,17 +1039,23 @@ public struct LexResult {
                     )
                 }
             default:
-                invalidEscape(start)
+                invalidEscape(start, allowBidi: allowBidi)
         }
     }
 
-    /// The `default` arm of `scanEscape`.
-    void invalidEscape(ref this, i64 start) {
-        advanceCodePoint(allowBidi: true)
+    /// The `default` arm of `scanEscape`; a control or bidi scalar is shown as `\u{…}`, as `reportUnexpected` does.
+    void invalidEscape(ref this, i64 start, bool allowBidi) {
+        advanceCodePoint(allowBidi: allowBidi)
+        let d = decodeAt(source.bytes.span, at: start + 1)
+        let hidden = d.value < 0x20 || d.value == 0x7F || bidiControlAt(source.bytes.span, at: start + 1).length > 0
+        var shown = d.valid ? utf8(source.bytes.span[start..pos]) : $"\\{rune(d.value)}"
+        if hidden {
+            shown = $"\\\\u{{{hex(d.value, to: 1)}}}"
+        }
         report(
             .invalidEscape,
             at: TextSpan.fromBounds(start, until: pos),
-            arg0: utf8(source.bytes.span[start..pos]),
+            arg0: shown,
             help: "use a valid escape: \\n \\r \\t \\0 \\\\ \\\" \\' and \\u{…}",
         )
     }

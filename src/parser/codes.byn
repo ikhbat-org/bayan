@@ -237,7 +237,7 @@ bool isInputForm(ParseCode code) => code switch {
         .fatArrowFunctionType or .trustInput or .restInput or .stateLineInput or .interfaceGetInput or
         .receiverWithoutState or .requiresOnFunction or .clauseOrder or .prefixPointerInput or
         .compactFormatSpec or .noallocRemoved or .contextBlockInput or .singleStateInline or
-        .missingBecause or .statementAttribute => true,
+        .missingBecause or .statementAttribute or .declarationKeywordOrder or .castInput => true,
     _ => false,
 }
 

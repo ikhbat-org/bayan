@@ -1,0 +1,4 @@
+void f(i64 a) {
+    let x = = 1
+    assert a == = 1
+}

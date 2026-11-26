@@ -1,0 +1,22 @@
+error BYN1044: `distinct type` is an input form; write `type distinct`
+
+  1 │ distinct type Meter = i64
+    │ ^^^^^^^^^^^^^ the input form
+    │
+  help: put the kind first: `type distinct`
+    │ 1 │ type distinct Meter = i64
+    │   │ +++++++++++++
+
+error BYN1001: expected `}`, found `=`
+
+  4 │     green = = =
+    │           ^
+    │
+  help: close the enum opened on line 2
+
+error BYN1001: expected a declaration or statement, found `}`
+
+  5 │ }
+    │ ^
+    │
+  help: remove this `}`; it has no matching `{`
