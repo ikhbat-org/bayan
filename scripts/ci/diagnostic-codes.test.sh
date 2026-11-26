@@ -84,8 +84,9 @@ done
 [ -z "$missing" ] || fail "every-code-appears-in-a-golden-case: no golden case for$missing"
 
 # no-live-code-reuses-a-reserved-number
-reserved="$(awk -F'\t' '$1 == "round4" { print $2 }' "${BYAN_FACTS:-scripts/docs/data/csharp-facts.tsv}")"
-[ -n "$reserved" ] || fail "no-live-code-reuses-a-reserved-number: no round4 rows in scripts/docs/data/csharp-facts.tsv"
+facts="${BAYAN_FACTS:-scripts/docs/data/csharp-facts.tsv}"
+reserved="$(awk -F'\t' '$1 == "round4" { print $2 }' "$facts")"
+[ -n "$reserved" ] || fail "no-live-code-reuses-a-reserved-number: no round4 rows in $facts"
 [ -z "$(sort <<<"$reserved" | uniq -d)" ] || fail "no-live-code-reuses-a-reserved-number: a reserved number twice"
 reuse="$(comm -12 <(sort -u <<<"$reserved") <(sort -u <<<"$registered"))"
 [ -z "$reuse" ] || fail "no-live-code-reuses-a-reserved-number: $reuse"
