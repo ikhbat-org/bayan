@@ -126,6 +126,13 @@ printf 'cli/CliTests/Gone-9\tQ3\tcsharp\tr\nlex/a\tQ4\tcsharp\tr\n' >> tests/cas
 expect "unknown case" 1 "cli/CliTests/Gone-9 is no case of a manifest row"
 grep -q 'lex/a is' <<<"$out" && fail "the flat case lex/a was refused: $out"
 git checkout -q "$start" -- tests; git commit -qm back
+mkdir -p tests/cases/run/pk; echo pk > tests/cases/run/pk/main.stdout; echo pk > tests/cases/run/pk/main.byn
+run --write; git add -A; git commit -qm package
+printf 'run/pk\tQ5\tdriver\tr\n' >> tests/cases/DIVERGENCES.tsv; git commit -qam pkrow
+expect "package case by its directory" 0 "ok"
+printf 'run/pq\tQ6\tdriver\tr\n' >> tests/cases/DIVERGENCES.tsv; git commit -qam pqrow
+expect "unknown package case" 1 "run/pq is no case of a manifest row"
+git rm -rq tests/cases/run; git checkout -q "$start" -- tests; git commit -qm back
 
 # 12 run-c.sha256 is frozen
 echo hashx > tests/cases/emit/run-c.sha256; git commit -qam runc

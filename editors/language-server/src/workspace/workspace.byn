@@ -743,15 +743,22 @@ public struct Workspace {
 
     /// A full-sync change to the document at `at`, not analysed.
     public void replace(ref this, move List<u16> text, at i64 at) uses alloc {
-        chars += docs[at].replace(move text)
-        commit(at)
+        using let scratch = Arena()
+        provide allocator: scratch {
+            chars += docs[at].replace(move text)
+            commit(at)
+        }
     }
 
-    /// An incremental change to the document at `at`, not analysed.
+    /// An incremental change to the document at `at`, not analysed. The new text is built in a scratch arena and `commit` copies it out,
+    /// so a didChange with many changes keeps none of them in the message arena.
     public void apply(ref this, at i64 at, from i32 startLine, by i32 startChar, to i32 endLine, through i32 endChar, as ReadOnlySpan<u16> text)
             uses alloc {
-        chars += docs[at].apply(startLine, at: startChar, to: endLine, through: endChar, by: text)
-        commit(at)
+        using let scratch = Arena()
+        provide allocator: scratch {
+            chars += docs[at].apply(startLine, at: startChar, to: endLine, through: endChar, by: text)
+            commit(at)
+        }
     }
 
     /// Closes a buffer; a file that still exists on disk stays indexed from its disk content.
@@ -897,37 +904,44 @@ public struct Workspace {
     }
 
     /// Skipped directories and symbolic links are not entered; the walk stops once the budget is spent or once all walks together have
-    /// entered `maxDirs` directories.
+    /// entered `maxDirs` directories. Each directory's listing, entry paths and link checks are dropped with its own arena; only the
+    /// directories still to enter are copied out, into the walk's arena.
     void walk(ref this, string root) uses alloc, console, fs {
-        var stack = List<string>()
-        stack.append(root)
-        while stack.length > 0 && !limitReached {
-            let dir = stack.removeLast()
-            let fd = folded(dir)
-            if !dirs.contains(fd) && dirs.length >= maxDirs {
-                if !dirsLogged {
-                    Io.stderr.write($"bayan-lsp: the folder walk stopped after {maxDirs} directories; later directories are not indexed\n")
+        using let pending = Arena()
+        provide allocator: pending {
+            var stack = List<string>()
+            stack.append(root.copy())
+            while stack.length > 0 && !limitReached {
+                let dir = stack.removeLast()
+                using let scratch = Arena()
+                provide allocator: scratch {
+                    let fd = folded(dir)
+                    if !dirs.contains(fd) && dirs.length >= maxDirs {
+                        if !dirsLogged {
+                            Io.stderr.write($"bayan-lsp: the folder walk stopped after {maxDirs} directories; later directories are not indexed\n")
+                        }
+                        dirsLogged = true
+                        return
+                    }
+                    if !dirs.contains(fd) {
+                        dirs[fd.copy(to: dirsArena)] = true
+                    }
+                    let names = Io.listDir(dir) catch { continue }
+                    var subs = List<string>()
+                    for name in names {
+                        let entry = Path.combine(dir, name)
+                        if Fs.fileExists(entry) {
+                            continue if !isBynName(name, as: caseless) || isLink(entry)
+                            return if loadFromDisk(entry) || limitReached
+                        } else {
+                            subs.append(entry)
+                        }
+                    }
+                    for sub in subs {
+                        continue if isSkippedDirectory(Path.fileName(sub)) || isLink(sub)
+                        stack.append(sub.copy(to: pending))
+                    }
                 }
-                dirsLogged = true
-                return
-            }
-            if !dirs.contains(fd) {
-                dirs[fd.copy(to: dirsArena)] = true
-            }
-            let names = Io.listDir(dir) catch { continue }
-            var subs = List<string>()
-            for name in names {
-                let entry = Path.combine(dir, name)
-                if Fs.fileExists(entry) {
-                    continue if !isBynName(name, as: caseless) || isLink(entry)
-                    return if loadFromDisk(entry) || limitReached
-                } else {
-                    subs.append(entry)
-                }
-            }
-            for sub in subs {
-                continue if isSkippedDirectory(Path.fileName(sub)) || isLink(sub)
-                stack.append(sub)
             }
         }
     }

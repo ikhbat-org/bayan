@@ -1,0 +1,8 @@
+warning BYN5102: `ézz` is a `bool` state; prefix with `is`, `has` or `can`
+
+  4 │     public bool ézz() { return true }
+    │                 ^^^
+    │
+  help: rename it `isézz`
+    │ 4 │     public bool isézz() { return true }
+    │   │                 ++

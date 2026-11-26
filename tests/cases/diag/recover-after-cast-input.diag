@@ -1,0 +1,13 @@
+error BYN1057: `(u8)x` is an input form; write `u8(x)`
+
+  2 │     let a = (u8)x
+    │             ^^^^ a cast
+    │
+  help: call the conversion: `u8(x)`
+    │ 2 │     let a = u8(x)
+    │   │             +++++
+
+error BYN1002: expected an expression, found `=`
+
+  3 │     assert a == = 1
+    │                 ^

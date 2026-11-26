@@ -1,0 +1,16 @@
+// A radix hole evaluates its signed operand once (audit 0.4.0 09-emitter M2).
+struct Ctr { i64 n }
+
+i64 next(ref Ctr c) {
+    c.n += 1
+    return c.n == 1 ? -1 : 1
+}
+
+void main() {
+    var c: Ctr = { n: 0 }
+    print($"{next(ref c), as: .hex}")
+    print($"{c.n}")
+    let u: u64 = 255
+    let s: i8 = -16
+    print($"{u, as: .hex} {s, as: .hex} {s, as: .binary}")
+}

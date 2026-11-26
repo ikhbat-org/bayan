@@ -66,3 +66,19 @@ e34332fdc79b7ae7e79f0c6ad1d19bd37976608d  # 0.4.1 test: deferred loop with the m
 84a61d3253e3dcfa72bff306c5c4efeadc9e75e9  # 0.4.1 test: sem goldens for the result-target store summ
 22092ca03ab6eabf7307f70e0dfba1d7b8e6059a  # 0.4.1 fix: a failing defer's mutation keeps its text pos
 12c836a03dacd84aeca243d9b378e3bbbf716230  # 0.4.1 test: regenerate the emit-c and cli copies of borrow-then-mutated-in-init
+c30615f1bd941fa51dfbcbcfe1011f60997419e8  # 0.4.1 audit mediums: chore(worker): m-fold: 06-semantics-effects 4: fixed
+5dca3775039a100c39700b88af7ef74434fac0c2  # 0.4.1 audit mediums: chore(worker): m-lex: 03-lexer 3: fixed. I fixed both parts:
+bf273e3c43d15a0aad3ddead66ea9b79cdc52300  # 0.4.1 audit mediums: chore(worker): m-rt: Both rows are fixed. Each fix failed be
+6fa33f0d146df8d11a4897e63aa13603d910c769  # 0.4.1 audit mediums: fix(runtime): stop short-name expansion at a device root tha
+bcb6c1ff6736671af68c84797aee75962ab3aef1  # 0.4.1 audit mediums: chore(worker): m-drv: 10-driver-build 1: fixed. Build, run, 
+c23e08586a7753b6d8a718dbae5700147b320bc3  # 0.4.1 audit mediums: chore(worker): m-front: The other background wait loop, bfok
+51a942a5aaa5df2e241fe8d40883d25d93f7bdbe  # 0.4.1 audit mediums: chore(worker): m-types: The leftover waiter (bvitnjtd9) reac
+b9cda6117c15dc789cf891ea48a8f109c6ca98c5  # 0.4.1 audit mediums: chore(worker): m-states: 06-semantics-effects 5 (b): fixed
+974e0bc64cd1cd2494ec3174c9d2df02b52a657c  # 0.4.1 audit mediums: chore(worker): m-emit: Row 2 (09-emitter 2, radix hole evalu
+995a15d7aa6c8894de1556eda6e2e9784ed48ec0  # 0.4.1 audit mediums: fix: statesOf returns no states for a struct with no declara
+a6f54ea29c6c3ad883b37fb8f69c5b5fc5a4e732  # 0.4.1 audit mediums: chore(worker): m-misc: Row 09 10, part 1 (constructor vs met
+f4df25e34e8b1eb30fcc7d3835c8f69bfb56ee9c  # 0.4.1 audit mediums: chore(worker): m-cname: Commit 1 (10 part 2, module cName co
+889be6081b5035567c9a8d72b0a4a9a9c4c21fb4  # 0.4.1 audit mediums: test: expected output of run/operand-ref-spill-value
+17cffff0711d258b9ebb85d212eca890161cf108  # 0.4.1 audit mediums: fix(driver): a BAYAN_CC naming an existing file is one progr
+cff51e75ab15092ddac5d344e133975cee0454ad  # 0.4.1 audit mediums: test: expected output and run-c pin of run/operand-ref-spill
+88a06f01d3e66791f83154ad947c24484031996d  # 0.4.1 audit mediums: test: expected files of run/ctor-panic-handler-ref-this and 

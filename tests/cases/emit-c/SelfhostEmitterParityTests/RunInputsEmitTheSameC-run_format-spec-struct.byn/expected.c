@@ -99,7 +99,7 @@ static void bynh_fmt_main__Point(byn_writer* w, bynt_main__Point v) {
 }
 
 static byn_writer bynh_strbuf_over(bynt_span_u8 s, const char* file, int line) {
-    return (byn_writer){s.ptr, s.len, 0, BYN_WRITE_GROW, file, line, byn_context};
+    return (byn_writer){s.ptr, s.len, 0, BYN_WRITE_OVER, file, line, byn_context};
 }
 
 static void bynh_w_radix(byn_writer* w, uint64_t v, bool negative, int base) {
@@ -239,7 +239,7 @@ void byn_main__Money__formatInto(bynt_main__Money* self, byn_writer* p_output, b
             byn_writer* w = &l1_text;
             w->file = byn_file_0;
             w->line = 14;
-            bynh_w_radix(w, (uint64_t)((*self).cents), ((*self).cents) < 0, 16);
+            { int64_t rv = (int64_t)((*self).cents); bynh_w_radix(w, (uint64_t)rv, rv < 0, 16); }
         }
     } else {
 #line 16 "format-spec-struct.byn"

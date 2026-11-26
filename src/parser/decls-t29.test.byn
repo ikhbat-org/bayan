@@ -72,9 +72,13 @@ test "parser t29: rare declarations" {
               <error>
               <error>
               <error>
+              <error>
+              <error>
             [BYN1004 15+4]
             [BYN1004 32+5]
+            [BYN1004 50+9]
             [BYN1004 70+9]
+            [BYN1004 90+6]
             [BYN1004 114+4]
             [BYN1004 131+6]
             == 7

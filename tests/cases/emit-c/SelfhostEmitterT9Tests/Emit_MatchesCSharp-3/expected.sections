@@ -524,10 +524,10 @@ L0:;
         byn_writer* w = &wv;
         byn_w_str(w, BYN_STR("a", 1));
         if (p_zb) { byn_w_i64(w, (int64_t)(p_zq)); }
-        bynh_w_radix(w, (uint64_t)(p_zq), (p_zq) < 0, 16);
+        { int64_t rv = (int64_t)(p_zq); bynh_w_radix(w, (uint64_t)rv, rv < 0, 16); }
         bynh_w_radix(w, (uint64_t)(p_zb), false, 2);
         bynh_w_digits(w, (double)(p_zq), 2);
-        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; bynh_w_radix(sw, (uint64_t)(p_zq), (p_zq) < 0, 8); bynh_w_padded(w, (byn_str){sb, sv.len}, 6, 32u, 1); }
+        { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; { int64_t rv = (int64_t)(p_zq); bynh_w_radix(sw, (uint64_t)rv, rv < 0, 8); } bynh_w_padded(w, (byn_str){sb, sv.len}, 6, 32u, 1); }
         { uint8_t sb[1024]; byn_writer sv = {sb, 1024, 0, BYN_WRITE_TRUNCATE, byn_file_0, 68}; byn_writer* sw = &sv; bynh_w_quoted(sw, p_zs, '"'); bynh_w_padded(w, (byn_str){sb, sv.len}, 4, 32u, 0); }
         bynh_w_quoted(w, p_zs, '"');
         byn_w_i64(w, (int64_t)(p_zq));
@@ -1158,9 +1158,7 @@ L0:;
 slot false own_l0_k
 fn P
 sig bynt_main__P byn_main__P__init0(int64_t p_zq)
-bynt_main__P byn_main__P__init0(int64_t p_zq) {
-    bynt_main__P self_v = {0};
-    bynt_main__P* self = &self_v;
+static void byn_main__P__0body(bynt_main__P* self, int64_t p_zq) {
     byn_alloc* ctx0 = byn_context;
     byn_panic_handler ph0;
     {
@@ -1213,12 +1211,17 @@ L0:;
 #line 8 "a.byn"
     byn_arena_free(p_zq);
 #line 8 "a.byn"
-    return self_v;
+    return;
 #line 8 "a.byn"
-    return self_v;
-    return self_v;
+    return;
+    return;
 }
 #line generated
+bynt_main__P byn_main__P__init0(int64_t p_zq) {
+    bynt_main__P self_v = {0};
+    byn_main__P__0body(&self_v, p_zq);
+    return self_v;
+}
 slot false own_p_zq
 fn m
 sig void byn_main__P__m(bynt_main__P* self)

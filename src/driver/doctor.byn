@@ -204,10 +204,16 @@ T5Check t5CCompiler() uses alloc, env, fs, process {
 }
 
 /// Toolchain.cs:107 `FindCompiler`: `$BAYAN_CC` split on spaces (:110), else cc.byn `ccFindCompiler`; empty is C#'s null.
+/// A `BAYAN_CC` that names an existing file whole is that one program, so a compiler under a path with a space
+/// (`C:\Program Files\LLVM\bin\clang.exe`) runs (audit 0.4.0 review: `build` and the cache read it since the mediums fixes).
 List<string> t5FindCompiler() uses alloc, env, fs {
     // coverage-exempt: Q1286 the `?? ""` result is never null
     if ((Env.get("BAYAN_CC") ?? "") is { } cc && cc.length > 0) {
         var found = List<string>()
+        if Fs.fileExists(cc) {
+            found.append($"{cc}")
+            return found
+        }
         for part in cc.parts(by: " ") {
             // coverage-exempt: Q1286 needs BAYAN_CC with two adjacent spaces, which a test cannot set
             if part.length > 0 {

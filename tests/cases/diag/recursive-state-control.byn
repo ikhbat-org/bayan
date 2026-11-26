@@ -1,0 +1,9 @@
+struct Node {
+    i64 id
+    states {
+        leaf
+        branch(Owned<Node> left)
+    }
+    List<Node.leaf> leaves
+}
+void main() { print("hi") }

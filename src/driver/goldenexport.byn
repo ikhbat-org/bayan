@@ -639,7 +639,7 @@ List<string> goldenCliT9Steps(string dir) uses alloc, fs {
     let parent = Path.directoryName(dir) ?? ""
     var dash = -1
     for i in 0..name.length {
-        if name[i..i + 1] == "-" {
+        if name.bytes[i] == 0x2d {
             dash = i
         }
     }
@@ -1481,7 +1481,7 @@ int main(int argc, char **argv) {
 """
 
 /// SelfhostDriverT3Tests.cs:162-178 `FakeExe`: `goldenCliFakeSource` built once to `<tmp>/cli/t3-fake/fake.exe` (kept while its `fake.c` is
-/// unchanged) by the C compiler of Toolchain.cs:112-120 `FindCompiler`, `$BAYAN_CC` split at spaces, else `ccFindCompiler`: its path, or ""
+/// unchanged) by the C compiler of Toolchain.cs:112-120 `FindCompiler` (`t5FindCompiler`: `$BAYAN_CC`, else `ccFindCompiler`): its path, or ""
 /// with `failure` set.
 string goldenCliFakeExe(through ref string failure) uses alloc, env, fs, process {
     let dir = Path.combine(Path.combine(Path.fullPath("tmp"), "cli"), "t3-fake")
@@ -1493,15 +1493,7 @@ string goldenCliFakeExe(through ref string failure) uses alloc, env, fs, process
         failure = $"cannot write {source}"
         return ""
     }
-    var compiler = List<string>()
-    for word in (Env.get("BAYAN_CC") ?? "").parts(by: " ") {
-        if word.length > 0 {
-            compiler.append($"{word}")
-        }
-    }
-    if compiler.length == 0 {
-        compiler = ccFindCompiler()
-    }
+    let compiler = t5FindCompiler()
     if compiler.length == 0 {
         failure = "no C compiler to build the fake compiler (SelfhostDriverT3Tests.cs:170)"
         return ""

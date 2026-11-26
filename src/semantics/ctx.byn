@@ -491,6 +491,8 @@ public struct Ctx {
     public string                   packageRoot     = ""
     /// C# `DisplayRoot`: imported files are named relative to it.
     public string                   displayRoot     = ""
+    /// A project's `src/<entry>/`: `import <entry>` resolves to the entry module, not a second copy of it.
+    public string?                  entryDir        = null
     /// C# `Modules`: every loaded module, dependencies before dependents (`modules` also holds the builtin module).
     public List<ModId>              moduleOrder     = []
     /// C# `EntryModule`.

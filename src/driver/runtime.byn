@@ -9,7 +9,7 @@ const runtimeHeader: string = """/* Bayan runtime: the C support every compiled 
 #define BAYAN_RT_H
 
 /* Bumped on every change to the runtime source. */
-#define BYN_RUNTIME_VERSION 3
+#define BYN_RUNTIME_VERSION 4
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -152,11 +152,12 @@ typedef enum byn_writer_mode {
     BYN_WRITE_TRUNCATE, /* drop what does not fit (panic messages) */
     BYN_WRITE_STRICT,   /* panic when full (StrBuf(buf)) */
     BYN_WRITE_GROW,     /* grow through alloc when full (StrBuf()) */
+    BYN_WRITE_OVER,     /* borrowed bytes, then BYN_WRITE_GROW once outgrown (StrBuf.over(span)) */
 } byn_writer_mode;
 
 typedef struct byn_alloc byn_alloc;
 
-/* Formats text into caller-provided bytes; only BYN_WRITE_GROW allocates. */
+/* Formats text into caller-provided bytes; only BYN_WRITE_GROW and BYN_WRITE_OVER allocate. */
 typedef struct byn_writer {
     uint8_t* buf;
     int64_t cap;
@@ -1010,6 +1011,7 @@ void byn_w_bytes(byn_writer* w, const uint8_t* p, int64_t n) {
             return;
         case BYN_WRITE_STRICT:
             byn_panic("StrBuf is full", w->file, w->line);
+        case BYN_WRITE_OVER:
         case BYN_WRITE_GROW: {
             int64_t grown = w->cap < 16 ? 16 : w->cap * 2;
             if (grown < w->len + n) grown = w->len + n;
@@ -1018,8 +1020,10 @@ void byn_w_bytes(byn_writer* w, const uint8_t* p, int64_t n) {
             uint8_t* p = (uint8_t*)w->alloc->resize(w->alloc, NULL, 0, grown);
             if (w->len > 0) memcpy(p, w->buf, (size_t)w->len);
 #ifdef BYN_DEBUG
-            byn_own_rekey(w->buf, p);
+            /* Borrowed bytes belong to their owner, which keeps its claim. */
+            if (w->mode == BYN_WRITE_GROW) byn_own_rekey(w->buf, p);
 #endif
+            w->mode = BYN_WRITE_GROW;
             w->buf = p;
             w->cap = grown;
             break;
@@ -2666,7 +2670,7 @@ static wchar_t* byn_path_expand_short(wchar_t* full, int64_t* n, int64_t cap) {
             /* Not found at this index: look further back, ending the string there for now. */
             found--;
             for (; found > root && in[found] != L'\\'; found--) {}
-            if (found == root) break;
+            if (found <= root) break; /* `found` can start at most one past `root` (a device root that is the whole path). */
             in[found] = 0;
         } else if (r > cap) {
             cap = byn_path_grown(cap, r);
@@ -2744,6 +2748,8 @@ static byn_path_buf byn_path_full(byn_str s, const char* name, const char* file,
         char* cwd = getcwd(NULL, 0);
         if (!cwd) byn_path_fail(name, "the working directory cannot be read", file, line);
         int64_t cn = (int64_t)strlen(cwd);
+        if (!byn_utf8_valid((const uint8_t*)cwd, cn))
+            byn_path_fail(name, "the working directory is not valid UTF-8", file, line);
         byn_path_put(&in, cwd, cn);
         if (cn == 0 || cwd[cn - 1] != '/') byn_path_put(&in, "/", 1);
         free(cwd);
@@ -3440,6 +3446,8 @@ uint32_t byn_io_read_text(byn_str path, byn_str* out, byn_alloc* alloc) {
 }
 
 uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc) {
+    /* As in byn_io_read_stdin_some: a prompt printed before the read must not wait in the buffer while it blocks. */
+    byn_stdout_flush();
 #ifdef _WIN32
     /* Text mode would turn CRLF into LF and stop at Ctrl-Z. */
     _setmode(_fileno(stdin), _O_BINARY);
@@ -3459,6 +3467,7 @@ uint32_t byn_io_read_stdin_bytes(uint8_t** ptr, int64_t* len, byn_alloc* alloc) 
     }
     if (ferror(stdin)) {
         int e = errno;
+        clearerr(stdin);
         byn_release(alloc, buf);
         return byn_io_error(e);
     }
@@ -4187,6 +4196,10 @@ uint32_t byn_fs_real_path(byn_str path, byn_str* out, byn_alloc* alloc) {
     int e = resolved ? 0 : errno;
     free(c);
     if (!resolved) return byn_io_error(e);
+    if (!byn_utf8_valid((const uint8_t*)resolved, (int64_t)strlen(resolved))) {
+        free(resolved);
+        return BYN_IO_INVALID_UTF8;
+    }
     if (out) *out = byn_str_copy((byn_str){(const uint8_t*)resolved, (int64_t)strlen(resolved)}, alloc);
     free(resolved);
     return 0;

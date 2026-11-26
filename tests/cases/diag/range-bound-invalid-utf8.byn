@@ -1,0 +1,2 @@
+void f(rune x) {
+    let b = x >= 'a' && x <= 'ð'

@@ -119,3 +119,29 @@ test "glob finds a file through a link that a first visit by another path would 
     }
     assert joined(glob("tmp/glob-twice/[b]/*.byn")) == "tmp/glob-twice/b/f.byn"
 }
+
+test "glob walks each `{…}` alternative from its own base, an absolute one included" {
+    let root = "tmp/glob-brace"
+    touch(root, at: "a/x.byn")
+    touch(root, at: "b/y.byn")
+    let abs = Path.fullPath(root)
+    let open = "{"
+    let close = "}"
+    assert joined(glob($"{open}{abs}/a,{abs}/b{close}/*.byn")) == $"{abs}/a/x.byn {abs}/b/y.byn"
+    assert joined(glob($"{open}{abs}/a,tmp/glob-brace/b{close}/*.byn")) == $"{abs}/a/x.byn tmp/glob-brace/b/y.byn"
+    assert joined(glob("tmp/glob-brace/{a,b}/*.byn")) == "tmp/glob-brace/a/x.byn tmp/glob-brace/b/y.byn"
+    assert joined(glob("tmp/glob-brace/{a,a}/*.byn")) == "tmp/glob-brace/a/x.byn"
+}
+
+test "glob keeps a doubled `/` of the pattern in the paths it lists" {
+    touch("tmp/glob-brace", at: "a/x.byn")
+    assert joined(glob("tmp/glob-brace/a//*.byn")) == "tmp/glob-brace/a//x.byn"
+    assert joined(glob("tmp/glob-brace/a/*.byn")) == "tmp/glob-brace/a/x.byn"
+}
+
+test "the base of a pattern keeps the `/` after a drive, as after the root" {
+    assert baseOf("C:/**/*.byn") == "C:/"
+    assert baseOf("C:/a/*.byn") == "C:/a/"
+    assert baseOf("/*.byn") == "/"
+    assert baseOf("*.byn") == ""
+}

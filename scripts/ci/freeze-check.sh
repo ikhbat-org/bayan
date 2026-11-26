@@ -163,12 +163,12 @@ awk -F'\t' -v write=$write -v view="$work/view" -v overlay="$work/overlay" -v mf
         bad("EXPORT.tsv row " a[1] " " a[2] ": cases " a[4] ", " ncdir[key] + 0 " case directories under tests/cases/" a[2] "/" a[1])
     }
     for (key in cls) if (!(key in exrow)) { split(key, a, "\t"); bad("EXPORT.tsv has no row for class " a[2] " (tests/cases/" a[1] "/" a[2] ")") }
-    # DIVERGENCES.tsv: case, question, right, reason
+    # DIVERGENCES.tsv: case, question, right, reason; a package case is named by its directory (run/x for run/x/main.stdout), as replay-csharp.sh names it
     ln = 0
     while ((getline l < dv) > 0) {
       ln++; n = split(l, a, "\t"); if (ln == 1 && a[1] == "case") continue
       for (i = 1; i <= n; i++) if (a[i] == "pending") { bad("DIVERGENCES.tsv line " ln ": " a[1] " is pending (column " i ")"); break }
-      if ((kindof(a[1]) in kinds) && !(a[1] in keys)) bad("DIVERGENCES.tsv line " ln ": " a[1] " is no case of a manifest row")
+      if ((kindof(a[1]) in kinds) && !(a[1] in keys) && !((a[1] "/main") in keys)) bad("DIVERGENCES.tsv line " ln ": " a[1] " is no case of a manifest row")
     }
     exit (nbad > 0)
   }' > "$work/report"

@@ -1,0 +1,2 @@
+panic: boom
+  at ctor-panic-handler-ref-this.byn:9

@@ -582,7 +582,8 @@ bool t19IsEquatable(ref Ctx c, for Type t, by ref List<i64> seen) {
             for fi in 0..c.structs[i].fields.length {
                 return false if !t19IsEquatable(ref c, for: c.fields[c.structs[i].fields[fi]].type, by: ref seen)
             }
-            return true
+            let u = statesOf(ref c, for: i)
+            return u == -1 || t19IsEquatable(ref c, for: unionTypeOf(u), by: ref seen)
         case .unionType:
             return true if listContains(in seen, by: t)
             seen.append(t)

@@ -346,10 +346,7 @@ const maxDepth: i64 = 64
 /// returned.
 public List<string> glob(string pattern) uses fs, alloc {
     var found = List<string>()
-    let base = baseOf(pattern)
-    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
-    var seen: Map<string, bool> = []
-    walk(pattern, from: base, until: depth, through: ref seen, to: ref found)
+    collect(pattern, to: ref found)
     var j = 0
     while j < found.length {
         var k = j
@@ -361,10 +358,68 @@ public List<string> glob(string pattern) uses fs, alloc {
         }
         j += 1
     }
-    return found
+    var kept = List<string>()
+    for f in found {
+        if kept.length == 0 || kept[kept.length - 1] != f {
+            kept.append(f)
+        }
+    }
+    return kept
 }
 
-/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`.
+/// Adds the files `pattern` names to `found`, sorted or not, a file more than once when two alternatives name it. A `{a,b}`
+/// group before the first `*`, `?` or `[` is replaced by each option in turn and each result collected on its own, so
+/// every alternative is walked from its own base directory (`{/x/a,b}/*.byn` lists `/x/a` and `b`).
+void collect(string pattern, to ref List<string> found) uses fs, alloc {
+    var open: i64 = -1
+    var i = 0
+    while i < pattern.length && open < 0 {
+        let b = pattern.bytes[i]
+        if b == '*' || b == '?' || b == '[' {
+            break
+        }
+        if b == '{' {
+            open = i
+        }
+        i += 1
+    }
+    var close: i64 = -1
+    var starts = List<i64>()
+    if open >= 0 {
+        var depth = 0
+        var k = open
+        starts.append(open)
+        while k < pattern.length && close < 0 {
+            let b = pattern.bytes[k]
+            if b == '{' {
+                depth += 1
+            } else if b == '}' {
+                depth -= 1
+                if depth == 0 {
+                    close = k
+                }
+            } else if b == ',' && depth == 1 {
+                starts.append(k)
+            }
+            k += 1
+        }
+    }
+    if close >= 0 {
+        starts.append(close)
+        let head = pattern[0..open]
+        let tail = pattern[close + 1..pattern.length]
+        for k in 0..(starts.length - 1) {
+            collect($"{head}{pattern[starts[k] + 1..starts[k + 1]]}{tail}", to: ref found)
+        }
+        return
+    }
+    let depth = (pattern.contains("**") || pattern.contains("{")) ? maxDepth : count(pattern, for: "/") + 1
+    var seen: Map<string, bool> = []
+    walk(pattern, from: baseOf(pattern), until: depth, through: ref seen, to: ref found)
+}
+
+/// The directory a walk for `pattern` starts in: its leading segments with no `*`, `?`, `[` or `{`, through the `/` that
+/// ends them (`a/`, `a//`, `/`, `C:/`), so an entry under it is the base and a name and starts as `pattern` does.
 string baseOf(string pattern) {
     var i = 0
     var slash = -1
@@ -381,7 +436,7 @@ string baseOf(string pattern) {
     if slash < 0 {
         return ""
     }
-    return slash == 0 ? "/" : pattern[0..slash]
+    return pattern[0..slash + 1]
 }
 
 /// The number of times `part` occurs in `text`.
@@ -542,6 +597,32 @@ test "glob finds a file through a link that a first visit by another path would 
         return
     }
     assert joined(glob("tmp/glob-twice/[b]/*.byn")) == "tmp/glob-twice/b/f.byn"
+}
+
+test "glob walks each `{…}` alternative from its own base, an absolute one included" {
+    let root = "tmp/glob-brace"
+    touch(root, at: "a/x.byn")
+    touch(root, at: "b/y.byn")
+    let abs = Path.fullPath(root)
+    let open = "{"
+    let close = "}"
+    assert joined(glob($"{open}{abs}/a,{abs}/b{close}/*.byn")) == $"{abs}/a/x.byn {abs}/b/y.byn"
+    assert joined(glob($"{open}{abs}/a,tmp/glob-brace/b{close}/*.byn")) == $"{abs}/a/x.byn tmp/glob-brace/b/y.byn"
+    assert joined(glob("tmp/glob-brace/{a,b}/*.byn")) == "tmp/glob-brace/a/x.byn tmp/glob-brace/b/y.byn"
+    assert joined(glob("tmp/glob-brace/{a,a}/*.byn")) == "tmp/glob-brace/a/x.byn"
+}
+
+test "glob keeps a doubled `/` of the pattern in the paths it lists" {
+    touch("tmp/glob-brace", at: "a/x.byn")
+    assert joined(glob("tmp/glob-brace/a//*.byn")) == "tmp/glob-brace/a//x.byn"
+    assert joined(glob("tmp/glob-brace/a/*.byn")) == "tmp/glob-brace/a/x.byn"
+}
+
+test "the base of a pattern keeps the `/` after a drive, as after the root" {
+    assert baseOf("C:/**/*.byn") == "C:/"
+    assert baseOf("C:/a/*.byn") == "C:/a/"
+    assert baseOf("/*.byn") == "/"
+    assert baseOf("*.byn") == ""
 }
 """
 
@@ -1401,17 +1482,21 @@ public struct Glob {
     /// alternatives nest and may hold `/`; an unclosed `{` is itself. A character is one UTF-8 code point (`é` is one,
     /// in a path and in a set); where the bytes are not well-formed UTF-8, each such byte counts as one character
     /// that equals only the same byte.
+    /// Everything it builds (each alternative, the `*` table) lives in an arena freed on return, so a caller matching
+    /// many paths (`fs.glob` walking a tree) keeps nothing per call.
     public static bool matches(string pattern, for string path) uses alloc {
-        for alternative in expand(pattern) {
-            if matchFrom(alternative, from: 0, for: path, at: 0) { return true }
+        using let arena = Arena()
+        provide allocator: arena {
+            return expandMatches(pattern, for: path)
         }
-        return false
     }
 }
 
-/// `pattern` with its first `{a,b}` group replaced by each option in turn, expanded again until no group is left.
-List<string> expand(string pattern) uses alloc {
-    var result = List<string>()
+/// Whether `pattern`, with its first `{a,b}` group replaced by each option in turn and expanded again until no group is
+/// left, matches `path`. Each option is built and tried in an arena freed before the next, so memory grows with the
+/// nesting depth, not the number of alternatives; an option whose leading literal text is not where `path` starts is
+/// not expanded further.
+bool expandMatches(string pattern, for string path) uses alloc {
     let open = pattern.position("{") ?? -1
     var close = -1
     var starts = List<i64>()
@@ -1433,34 +1518,66 @@ List<string> expand(string pattern) uses alloc {
         }
     }
     if close < 0 {
-        result.append($"{pattern}")
-        return result
+        var failed = List<bool>()
+        return matchFrom(pattern, from: 0, for: path, at: 0, through: ref failed)
     }
     starts.append(close)
     let head = pattern[0..open]
     let tail = pattern[close + 1..pattern.length]
     for k in 0..(starts.length - 1) {
         let option = pattern[starts[k] + 1..starts[k + 1]]
-        for e in expand($"{head}{option}{tail}") { result.append(e) }
+        using let arena = Arena()
+        provide allocator: arena {
+            let next = $"{head}{option}{tail}"
+            if literalFits(next, for: path) && expandMatches(next, for: path) { return true }
+        }
     }
-    return result
+    return false
 }
 
-/// Whether `pattern` from `pi` matches `path` from `si` to its end.
-bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {
+/// Whether the text of `pattern` before its first `*`, `?`, `[` or `{` is where `path` starts.
+bool literalFits(string pattern, for string path) {
+    var i = 0
+    while i < pattern.length {
+        let b = pattern.bytes[i]
+        if b == '*' || b == '?' || b == '[' || b == '{' { return true }
+        if i >= path.length || path.bytes[i] != b { return false }
+        i += 1
+    }
+    return true
+}
+
+/// Whether `pattern` from `pi` matches `path` from `si` to its end. `failed` marks the `(pi, si)` pairs already found
+/// not to match (empty until a `*` first needs it), so each pair is tried once and `*` runs take polynomial time.
+bool matchFrom(string pattern, from i64 pi, for string path, at i64 si, through ref List<bool> failed) uses alloc {
+    let key = pi * (path.length + 1) + si
+    if failed.length > 0 && failed[key] { return false }
+    let hit = matchRest(pattern, from: pi, for: path, at: si, through: ref failed)
+    if !hit && failed.length > 0 { failed[key] = true }
+    return hit
+}
+
+/// `matchFrom` without the `failed` lookup.
+bool matchRest(string pattern, from i64 pi, for string path, at i64 si, through ref List<bool> failed) uses alloc {
     var i = pi
     var j = si
     while i < pattern.length {
         let c = pattern.bytes[i]
         if c == '*' {
+            if failed.length == 0 {
+                for _ in 0..(pattern.length + 1) * (path.length + 1) { failed.append(false) }
+            }
             if i + 1 < pattern.length && pattern.bytes[i + 1] == '*' && (i == 0 || pattern.bytes[i - 1] == '/') {
                 let k = i + 2
                 if k == pattern.length { return true }
                 if pattern.bytes[k] == '/' {
-                    if matchFrom(pattern, from: k + 1, for: path, at: j) { return true }
+                    if matchFrom(pattern, from: k + 1, for: path, at: j, through: ref failed) { return true }
                     var m = j
                     while m < path.length {
-                        if path.bytes[m] == '/' && matchFrom(pattern, from: k + 1, for: path, at: m + 1) { return true }
+                        if path.bytes[m] == '/'
+                                && matchFrom(pattern, from: k + 1, for: path, at: m + 1, through: ref failed) {
+                            return true
+                        }
                         m += 1
                     }
                     return false
@@ -1468,7 +1585,7 @@ bool matchFrom(string pattern, from i64 pi, for string path, at i64 si) {
             }
             var m = j
             while m <= path.length {
-                if matchFrom(pattern, from: i + 1, for: path, at: m) { return true }
+                if matchFrom(pattern, from: i + 1, for: path, at: m, through: ref failed) { return true }
                 if m == path.length || path.bytes[m] == '/' { return false }
                 m += charLength(charAt(path, at: m))
             }
@@ -1638,6 +1755,54 @@ const stdSource9: string = """// Tests of std.path Glob. The expected results ar
 test "patterns against paths" (string pattern, string path, bool expected) {
     assert Glob.matches(pattern, for: path) == expected
 }
+
+test "a run of `*` or `**/` that cannot match fails in polynomial time" {
+    assert !Glob.matches($"{"*".repeated(20)}b", for: "a".repeated(28))
+    assert !Glob.matches($"{"*a".repeated(14)}b", for: "a".repeated(28))
+    assert !Glob.matches($"{"**/".repeated(20)}b", for: "a/".repeated(25))
+    assert Glob.matches($"{"*".repeated(20)}b", for: $"{"a".repeated(28)}b")
+    assert Glob.matches($"{"**/".repeated(20)}b", for: $"{"a/".repeated(25)}b")
+}
+
+test "{a,b} groups are tried one alternative at a time, not all built first" {
+    assert !Glob.matches("{a,b}".repeated(40), for: "x")
+    assert Glob.matches("{a,b}".repeated(40), for: "ab".repeated(20))
+    assert !Glob.matches($"{"{a,b}".repeated(40)}x", for: "a".repeated(40))
+    assert Glob.matches($"{"{a,b}".repeated(4)}*", for: "abababab")
+}
+
+/// The live memory of this process in KB (`ps -o rss`; on macOS `vmmap`'s physical footprint, as the LSP bounds test reads it).
+i64 globResidentKb() uses alloc, process {
+    var args = List<string>()
+    args.append("-c")
+    if Target.os == "macos" {
+        args.append("vmmap --summary $PPID | awk '/^Physical footprint:/{s=$3;u=substr(s,length(s),1);v=substr(s,1,length(s)-1)+0;if(u==\"K\")v=v;else if(u==\"M\")v=v*1024;else if(u==\"G\")v=v*1048576;else v=v/1024;printf \"%d\\n\",v}'")
+    } else {
+        args.append("ps -o rss= -p $PPID")
+    }
+    let r = Io.run("sh", args.span) catch { panic("cannot run sh to read the resident set") }
+    assert(r.exitCode == 0)
+    var kb: i64 = 0
+    for b in r.stdout.trimmed().bytes {
+        assert(b >= '0' && b <= '9')
+        kb = kb * 10 + i64(b - '0')
+    }
+    return kb
+}
+
+test "matching many paths keeps nothing per call (audit 0.4.0 mediums review: the `*` table built in the caller's allocator)" {
+    return if Target.os == "windows"
+    let pattern = $"*{"c".repeated(300)}"
+    let path = "a".repeated(400)
+    assert !Glob.matches(pattern, for: path)
+    let before = globResidentKb()
+    for _ in 0..2000 {
+        assert !Glob.matches(pattern, for: path)
+    }
+    let grown = globResidentKb() - before
+    print($"2000 matches of a 301-byte pattern over a 400-byte path grew the resident set by {grown} KB") if grown >= 40 * 1024
+    assert grown < 40 * 1024
+}
 """
 
 const stdSource10: string = """// std.regex (spec 015 S3, T14): RE2-style patterns run by a Pike VM over the runes of UTF-8 text, so matching takes
@@ -1715,12 +1880,14 @@ public struct Regex {
 
     /// Whether the pattern matches the whole of `text`, as Python's `re.fullmatch` (not only a part; `find` is that).
     public bool matches(string text) uses alloc {
-        return search(text, from: 0, whole: true) is not null
+        var vm = makeScratch()
+        return search(text, from: 0, whole: true, through: ref vm) is not null
     }
 
     /// The leftmost-first match in `text`, or `null` when there is none.
     public Match? find(string text) uses alloc {
-        let slots = search(text, from: 0, whole: false) ?? return null
+        var vm = makeScratch()
+        let slots = search(text, from: 0, whole: false, through: ref vm) ?? return null
         return Match { text: text, slots: move slots }
     }
 
@@ -1730,8 +1897,9 @@ public struct Regex {
         var all = List<Match>()
         var pos = 0
         var previousEnd = -1
+        var vm = makeScratch()
         while pos <= text.length {
-            let slots = search(text, from: pos, whole: false) ?? break
+            let slots = search(text, from: pos, whole: false, through: ref vm) ?? break
             let start = slots[0]
             let end = slots[1]
             var accept = true
@@ -1783,22 +1951,16 @@ public struct Regex {
 
     /// The slots of the first match at or after `from` (start and end of the match, then of each group, -1 when a
     /// group took no part), or `null`. `whole` anchors the match at `from` and accepts it only when it ends at the
-    /// text's end.
-    List<i64>? search(string text, from i64 from, bool whole) uses alloc {
-        let slotCount = 2 * (groups + 1)
-        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }
-        for _ in 0..program.length {
-            vm.marks.append(0)
-        }
-        for _ in 0..slotCount {
-            vm.current.append(-1)
-        }
+    /// text's end. `vm` is a `makeScratch` of this pattern, reused across searches: its marks stay below the
+    /// generations this search uses, so they are not zeroed again.
+    List<i64>? search(string text, from i64 from, bool whole, through ref Vm vm) uses alloc {
+        let slotCount = vm.slotCount
         var now = Threads { pcs: List<i64>(), slots: List<i64>() }
         var next = Threads { pcs: List<i64>(), slots: List<i64>() }
         var best = List<i64>()
         var matched = false
-        var generation = 1
-        var nowGeneration = 1
+        var generation = vm.generation + 1
+        var nowGeneration = generation
         var pos = from
         while true {
             if !matched && (!whole || pos == from) {
@@ -1858,6 +2020,19 @@ public struct Regex {
         }
         return null if !matched
         return best
+    }
+
+    /// A `Vm` for `search` over this pattern, its marks zeroed; `findAll` makes one for all its searches.
+    Vm makeScratch() uses alloc {
+        let slotCount = 2 * (groups + 1)
+        var vm = Vm { marks: List<i64>(), stack: List<Frame>(), current: List<i64>(), slotCount: slotCount }
+        for _ in 0..program.length {
+            vm.marks.append(0)
+        }
+        for _ in 0..slotCount {
+            vm.current.append(-1)
+        }
+        return vm
     }
 
     /// Whether rune `value` is in the class of `inst`.

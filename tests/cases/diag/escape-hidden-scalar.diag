@@ -1,0 +1,30 @@
+error BYN0006: invalid escape sequence `\\u{1B}`
+
+  1 │ let a = "\�[31m"
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\\u{202E}`
+
+  2 │ let b = "\�"
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\\u{202E}`
+
+  3 │ let c = '\�'
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0001: bidirectional control character U+202E is not allowed outside string literals
+
+  3 │ let c = '\�'
+    │           ^ invisible character that reorders how the text displays
+    │
+  help: remove it; bidi controls may only appear inside string literals (Trojan Source,
+        CVE-2021-42574)
+    │ 3 │ let c = '\�'
+    │   │           -

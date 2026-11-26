@@ -1,0 +1,15 @@
+// A constructor's panic handler sees `this` as the body left it, in every mode (audit 0.4.0 09-emitter M8).
+struct S {
+    i64 x
+
+    S() {
+        defer panicking { print($"{this.x}") }
+        this.x = 42
+        panic("boom")
+    }
+}
+
+void main() {
+    let s = S()
+    print($"{s.x}")
+}

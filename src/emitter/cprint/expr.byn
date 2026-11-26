@@ -448,7 +448,7 @@ public string call(
                 ref cc,
                 for: "bynh_strbuf_over",
                 from: $"static byn_writer bynh_strbuf_over({span} s, const char* file, int line)",
-                as: "{\n    return (byn_writer){s.ptr, s.len, 0, BYN_WRITE_GROW, file, line, byn_context};\n}\n",
+                as: "{\n    return (byn_writer){s.ptr, s.len, 0, BYN_WRITE_OVER, file, line, byn_context};\n}\n",
             )
             let text = emitExpr(ref cc, for: ref f, from: ref c, through: in t, at: c.bCalls[n].arguments[0])
             return $"{name}({text}, {loc(in c, by: in f, at: c.bCalls[n].span)})"

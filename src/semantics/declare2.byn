@@ -186,6 +186,8 @@ void declareCheck(ref Ctx c, for StructId s) {
 UnionId statesOf(ref Ctx c, for StructId s) {
     let file = c.structs[s].file
     let dIdx = c.structs[s].declIndex
+    // A struct with no declaration (one a harness builds) has no states.
+    return -1 if dIdx < 0
     // `s.Decl.States`: a `type distinct` has none.
     var count: i64 = 0
     switch c.files[file].unit.members[dIdx] {
@@ -760,6 +762,28 @@ void checkStructShape(ref Ctx c, for StructId s) {
             )
         }
     }
+    // A state's payload is a field of the struct.
+    let states = statesOf(ref c, for: s)
+    if states >= 0 {
+        for v in copyIds(in c.unions[states].variants) {
+            for f in copyIds(in c.unionVariants[v].fields) {
+                let type = c.locals[f].type
+                if isBorrow(ref c, by: type) {
+                    let help = isString(
+                        type,
+                    ) ? "store an index or an owned copy instead; storing borrows in structs arrives in a later version" : "store a `List` copied with `.copy(to: alloc)` instead; storing borrows in structs arrives in a later version"
+                    report(
+                        ref c,
+                        for: .borrowField,
+                        from: file,
+                        at: c.locals[f].span,
+                        by: (typeDisplay(ref c, by: type), "", "", "", ""),
+                        help: help,
+                    )
+                }
+            }
+        }
+    }
     let name = $"{c.structs[s].name}"
     checkRecursion(ref c, for: structTypeOf(s), by: name, from: file, at: c.structs[s].nameSpan)
 }
@@ -842,6 +866,18 @@ List<Type>? cycle(ref Ctx c, for Type t, as Type target, to ref List<Type> seen)
             for f in c.structs[idx].fields {
                 parts.append(c.fields[f].type)
             }
+            // A state's payload is stored in the struct by value too.
+            let states = statesOf(ref c, for: idx)
+            if states >= 0 {
+                for v in c.unions[states].variants {
+                    for f in c.unionVariants[v].fields {
+                        parts.append(c.locals[f].type)
+                    }
+                }
+            }
+        case .state:
+            // `S.a` is an `S` by value.
+            parts.append(structTypeOf(c.stateTypes[idx].s))
         case .unionType:
             for v in c.unions[idx].variants {
                 for f in c.unionVariants[v].fields {

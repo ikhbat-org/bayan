@@ -1,0 +1,13 @@
+error BYN0006: invalid escape sequence `\q`
+
+  1 │ let a = "\q"
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
+
+error BYN0006: invalid escape sequence `\é`
+
+  2 │ let b = "\é"
+    │          ^^
+    │
+  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}

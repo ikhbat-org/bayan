@@ -1,0 +1,24 @@
+// A constructor with a panic handler passes `this` on to a `ref this` and a plain method: its C compiles without discarding qualifiers (audit 0.4.0 mediums review #1).
+struct S {
+    i64 x
+
+    S() {
+        defer panicking { print($"{this.x}") }
+        this.bump()
+        this.show()
+        panic("boom")
+    }
+
+    void bump(ref this) {
+        this.x += 1
+    }
+
+    void show() {
+        print($"{this.x}")
+    }
+}
+
+void main() {
+    let s = S()
+    print($"{s.x}")
+}
