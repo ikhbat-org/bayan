@@ -1,0 +1,38 @@
+// A call writing a local by `ref` or `ref this`, beside a later read of it, runs first, left to right (HF-0002).
+union error E { bad }
+
+struct P {
+    i64 x
+
+    i64 set(ref this) {
+        this.x = 20
+        return 20
+    }
+}
+
+i64 bump(ref i64 n) {
+    n = 20
+    return 20
+}
+
+i64 tryBump(ref i64 n) fails E {
+    n = 20
+    return 20
+}
+
+i64 bumpX(ref P p) {
+    p.x = 20
+    return 20
+}
+
+void main() fails E {
+    var n: i64 = 10
+    let a = bump(ref n) + n
+    n = 10
+    let b = (try tryBump(ref n)) + n
+    var p: P = { x: 10 }
+    let d = bumpX(ref p) + p.x
+    p.x = 10
+    let m = p.set() + p.x
+    print($"{a} {b} {d} {m}")
+}

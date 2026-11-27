@@ -584,6 +584,8 @@ bool operands(
     // An operand reading a plain value (`plainValue`: a number, `bool`, a `rune`, an enum, or an aggregate of only such) from a
     // local a later call takes by `ref` is stored first, so the read sees the value before the call. A list, a string or a
     // struct holding one is not copied: a shallow copy could outlive storage the call frees, so it stays a view of the local.
+    // An operand calling with a local by `ref`/`out` or as its `ref this` receiver, where a later operand reads that local, is
+    // stored first, so the read sees the call's write.
     var movedFirst = List<bool>()
     for i in 0..n {
         let type = t2Type(in c, through: in l, for: values[i])
@@ -592,12 +594,14 @@ bool operands(
         var moved = false
         for j in i + 1..n {
             if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i]))
+                    || anyNode(in c, through: in l, for: values[j], by: .readsLocalWrittenBy(values[i]))
                     || read != -1 && anyNode(in c, through: in l, for: values[j], by: .writesLocal(read)) {
                 moved = true
                 break
             }
             for s in pres[j] {
                 if anyNode(in c, through: in l, for: s, by: .readsLocalMovedBy(values[i]))
+                        || anyNode(in c, through: in l, for: s, by: .readsLocalWrittenBy(values[i]))
                         || read != -1 && anyNode(in c, through: in l, for: s, by: .writesLocal(read)) {
                     moved = true
                     break
@@ -629,6 +633,8 @@ union T2AnyTest {
     movesLocal(LocalId local)
     /// `x => x is BoundLocal r && Moves(mover, r.Local)` (`Operands`).
     readsLocalMovedBy(BExpr mover)
+    /// A local read that `writer` writes (a call or assignment in it), as `writesLocal` (`Operands`).
+    readsLocalWrittenBy(BExpr writer)
     /// A call or assignment mutating `local` (or a field of it).
     writesLocal(LocalId local)
     /// A call, assignment or `become` mutating `this` (or a field of it).
@@ -647,6 +653,9 @@ bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest p
                 && c.bLocals[i64(operand & 0xFFFFFFFF)].local == local
         case .readsLocalMovedBy(let mover):
             return semantics.boundKind(x) == .local && moves(in c, through: in l, for: mover, by: c.bLocals[i].local)
+        case .readsLocalWrittenBy(let writer):
+            return semantics.boundKind(x) == .local
+                && anyNode(in c, through: in l, for: writer, by: .writesLocal(c.bLocals[i].local))
         case .writesLocal(let local):
             switch semantics.boundKind(x) {
                 case .call:

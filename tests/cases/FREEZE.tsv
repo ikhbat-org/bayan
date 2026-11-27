@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	388
+cases	run	389
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -27155,7 +27155,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	a0624aea34054f5e828e16bee8c4bdd1959f3fd7	tests/cases/emit/run-c.sha256
+file	a578bac2eb5ba09d674ea07713dedc6d8429852e	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -48898,6 +48898,7 @@ file	89b2a0a19bb96b40f4ce9d25e44b3efd4362a2af	tests/cases/run/null-narrowing.std
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/on-panic-order.exitcode
 file	d9780b407e9f140bda998f27e92db286dae5b035	tests/cases/run/on-panic-order.stderr
 file	1ff8fad40a9c2edd5a9465a4c3bc44f8c84a9d28	tests/cases/run/on-panic-order.stdout
+file	6ee595503f486d839612a041b4a15509315c06b1	tests/cases/run/operand-ref-spill-after.stdout
 file	3a73898dc67a563de0611d20886fdeb268039d06	tests/cases/run/operand-ref-spill-aggregate.stdout
 file	975cdadc30500abb7264a6a04122b85978f65c01	tests/cases/run/operand-ref-spill-value.stdout
 file	d3537d7c0251c9da63d3702227f6a3b0267ff1b3	tests/cases/run/operand-ref-spill.stdout
