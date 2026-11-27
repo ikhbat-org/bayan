@@ -3,13 +3,13 @@ nav: Reference
 order: 20
 template: docs
 ---
-<p>This page lists every kind of type in Bayan, what it holds and the rules that come with it. Each section has a small program, and where the compiler rejects a misuse, the diagnostic code and its real message. Features the compiler does not have yet are marked as planned and shown as fragments only.</p>
+<p>Every type in Bayan: what it holds and its rules. Where the compiler rejects a misuse, the section shows the diagnostic code and its real message. Planned features appear as fragments.</p>
 
 <h2 id="primitives">Primitive types</h2>
 <div class="tablewrap"><table>
   <thead><tr><th scope="col">Type</th><th scope="col">What it is</th></tr></thead>
   <tbody>
-    <tr><td><code>i8 i16 i32 i64</code></td><td>Signed integers of 8, 16, 32 and 64 bits.</td></tr>
+    <tr><td><code>i8 i16 i32 i64</code></td><td>Signed integers of 8, 16, 32, 64 bits.</td></tr>
     <tr><td><code>u8 u16 u32 u64</code></td><td>Unsigned integers.</td></tr>
     <tr><td><code>isize usize</code></td><td>Signed and unsigned integers the width of a pointer.</td></tr>
     <tr><td><code>f32 f64</code></td><td>Floating-point numbers.</td></tr>
@@ -20,33 +20,33 @@ template: docs
     <tr><td><code>dec</code></td><td>A decimal type for exact decimal arithmetic.</td></tr>
   </tbody>
 </table></div>
-<p>A project may spell the integer and float types as <code>int</code>, <code>long</code>, <code>double</code> by setting <code>style.primitives</code>. The two spellings mean the same type, and <code>bayan format</code> rewrites a project to its own. <code>char</code>, <code>decimal</code> and <code>object</code> have no equivalent.</p>
-<note>Planned: <code>dec</code> has no literal yet (<code>1.50dec</code> is rejected with BYN2022), and the <code>style.primitives</code> setting is read from <code>package.byn</code>, which is covered in the command reference.</note>
+<p>Setting <code>style.primitives</code> spells the integer and float types <code>int</code>, <code>long</code>, <code>double</code>; both spellings are the same type, and <code>bayan format</code> rewrites a project to its own. <code>char</code>, <code>decimal</code> and <code>object</code> have no equivalent.</p>
+<note>Planned: <code>dec</code> has no literal yet (<code>1.50dec</code> is rejected with BYN2022). <code>style.primitives</code> comes from <code>package.byn</code> (see the <a href="ref-cli.html">command reference</a>).</note>
 
 <h2 id="numbers">Number conversions and arithmetic</h2>
-<ul>
-  <li><strong>Widening is implicit</strong> when no value can be lost: an <code>i8</code> goes where an <code>i64</code> is expected.</li>
-  <li><strong>Narrowing is written as a call</strong>: <code>u8(x)</code>. It stops the program with a panic in every build mode if the value does not fit.</li>
-  <li><code>u8.tryFrom(x)</code> gives <code>u8?</code>, which is <code>null</code> when the value does not fit.</li>
-  <li><code>+%</code>, <code>-%</code> and <code>*%</code> wrap around at the type's size. <code>+|</code>, <code>-|</code> and <code>*|</code> stop at the largest or smallest value.</li>
-  <li>Plain <code>+</code>, <code>-</code> and <code>*</code> stop the program on overflow, in every build mode. Division by zero does too.</li>
-  <li>Integer division rounds toward zero. Converting a float to an integer drops the fraction.</li>
-</ul>
+<p>Widening is implicit when no value can be lost (<code>i8</code> where <code>i64</code> is expected). Narrowing is a call, <code>u8(x)</code>, which panics in every build mode when the value does not fit; <code>u8.tryFrom(x)</code> gives <code>u8?</code>, <code>null</code> when it does not fit.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Operators</th><th scope="col">On overflow</th></tr></thead>
+  <tbody>
+    <tr><td><code>+ - *</code></td><td>Stop the program in every build mode.</td></tr>
+    <tr><td><code>+% -% *%</code></td><td>Wrap around at the type's size.</td></tr>
+    <tr><td><code>+| -| *|</code></td><td>Stop at the largest or smallest value.</td></tr>
+  </tbody>
+</table></div>
+<p>Division by zero also stops the program; integer division rounds toward zero, float-to-integer conversion drops fractions.</p>
 <example name="ref-types-primitives"/>
-<note>Planned: <code>x.truncate&lt;u8&gt;()</code>, <code>bitcast&lt;T&gt;(x)</code> and <code>checked(expr)</code> are in the specification but not in the compiler yet.</note>
+<note>Planned: <code>x.truncate&lt;u8&gt;()</code>, <code>bitcast&lt;T&gt;(x)</code> and <code>checked(expr)</code> are specified, not in the compiler.</note>
 
 <h2 id="strings">Strings</h2>
-<p>A <code>string</code> is always valid UTF-8 and cannot be changed. It is a view of bytes: a literal, a slice of another string, or text it owns.</p>
+<p>A <code>string</code> is immutable UTF-8 and a view of bytes: a literal, a slice, or text it owns.</p>
 <ul>
-  <li><code>s.length</code> is the number of bytes and costs nothing. <code>s.runeCount</code> counts runes and reads the whole string.</li>
-  <li>Every offset is a byte offset. <code>s[a..b]</code> slices by bytes and stops the program with a panic if an end falls inside a character.</li>
-  <li>A string has no <code>s[i]</code>. Read a byte with <code>s.bytes[i]</code>, a slice with <code>s[a..b]</code>, or take characters with <code>s.runes.take(n)</code> (BYN2201).</li>
-  <li>Searching returns byte positions or <code>bool</code>: <code>contains</code>, <code>startsWith</code>, <code>endsWith</code>, <code>position</code> (an <code>i64?</code>).</li>
-  <li><code>parts(by:)</code> and <code>lines</code> split lazily and return views. Nothing is copied.</li>
-  <li>Members that return new text, such as <code>lowercased()</code>, <code>uppercased()</code> and <code>replaced(_, by:)</code>, allocate.</li>
-  <li><code>s.copy()</code> makes an independent copy, which is how a borrowed string outlives its source.</li>
-  <li><code>==</code> compares the bytes. There is no ambient locale.</li>
-  <li>There is no <code>+</code> on strings (BYN2209). Join with <code>$"{a}{b}"</code>.</li>
+  <li><code>s.length</code> is the byte count and costs nothing; <code>s.runeCount</code> reads the whole string to count runes.</li>
+  <li>Offsets are bytes: <code>s[a..b]</code> slices by bytes and panics if an end falls inside a character.</li>
+  <li>There is no <code>s[i]</code> (BYN2201): read a byte with <code>s.bytes[i]</code>, a slice with <code>s[a..b]</code>, or characters with <code>s.runes.take(n)</code>.</li>
+  <li><code>contains</code>, <code>startsWith</code> and <code>endsWith</code> return <code>bool</code>; <code>position</code> an <code>i64?</code> byte position.</li>
+  <li><code>parts(by:)</code> and <code>lines</code> split lazily into views without copying; <code>lowercased()</code>, <code>uppercased()</code> and <code>replaced(_, by:)</code> return and allocate new text.</li>
+  <li><code>s.copy()</code> makes an independent copy, so a borrowed string outlives its source.</li>
+  <li><code>==</code> compares bytes with no ambient locale; there is no <code>+</code> (BYN2209), so join with <code>$"{a}{b}"</code>.</li>
 </ul>
 <example name="ref-types-strings"/>
 <pre><code class="byn">let s = "abc"
@@ -69,12 +69,11 @@ print($"{s[1]}")</code></pre>
 </figure>
 
 <h2 id="symbols">Symbols</h2>
-<p><code>Symbol</code> is an interned name: a 4-byte value that compares by identity in constant time and orders by its text. A string literal where a <code>Symbol</code> is expected becomes one when the program is built. Any other string needs <code>Symbol.intern(text)</code>, which allocates and keeps the text until the program ends (BYN2832). <code>sym.text</code> is the string back, and <code>$"{sym}"</code> writes it. There is no conversion to or from an integer.</p>
+<p><code>Symbol</code> is an interned name: a 4-byte value that compares by identity in constant time and orders by text. A string literal where a <code>Symbol</code> is expected becomes one at build time; any other string needs <code>Symbol.intern(text)</code>, which allocates and keeps the text until the program ends (BYN2832). <code>sym.text</code> is the string back; <code>$"{sym}"</code> writes it. There is no integer conversion.</p>
 <example name="ref-types-symbol"/>
 
 <h2 id="units">Units and distinct types</h2>
-<p>A distinct type wraps one existing type so that values of different meanings cannot be mixed. <code>type distinct UserId = i64</code> makes a type that does not convert to or from <code>i64</code> by itself. Build one by calling it, <code>UserId(7)</code>. Read the wrapped value with <code>.value</code>. A bare literal never becomes a distinct type: <code>let id: UserId = 0</code> is BYN3204, and the fix is <code>UserId(0)</code>. Two distinct types compare only with the same type.</p>
-<p>A distinct type can carry a <code>requires</code> rule. Then building one can fail, which is covered in <a href="ref-statements.html#requires">Statements</a>.</p>
+<p>A distinct type wraps an existing type so values of different meaning cannot mix: <code>type distinct UserId = i64</code> does not convert to or from <code>i64</code>. Build with <code>UserId(7)</code>, read <code>.value</code>. A bare literal never becomes one: <code>let id: UserId = 0</code> is BYN3204, so write <code>UserId(0)</code>. Distinct types compare only with their own, and a <code>requires</code> rule can make building fail (see <a href="ref-statements.html#requires">Statements</a>).</p>
 <example name="ref-types-distinct"/>
 <pre><code class="byn">type distinct Qty = i32 requires it &gt; 0
 
@@ -91,7 +90,7 @@ let q: Qty = 0</code></pre>
 <span class="gut">    │</span>   │              ++++++</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>A <em>unit</em> is a distinct type that also has arithmetic and a literal suffix:</p>
+<p>A <em>unit</em> is a distinct type with arithmetic and a literal suffix:</p>
 <pre><code class="byn">unit Seconds(s): i64
 unit Millis(ms) = Seconds / 1000
 unit Bytes(B): i64
@@ -99,19 +98,25 @@ unit KiB = 1024 B
 
 let t = 2s + 500ms          // Millis 2500
 let billed: Minutes = duration.ceiling()</code></pre>
-<note>Planned: units are not in the compiler yet. A <code>unit</code> line is a syntax error today. The rules are these. Mixing units is an error. A value converts without a cast only toward a finer unit, as <code>2s + 500ms</code> does. Going to a coarser unit names its rounding with <code>t.floor&lt;Seconds&gt;()</code>, <code>t.ceiling&lt;Seconds&gt;()</code> or <code>t.rounded&lt;Seconds&gt;()</code> (BYN3205 if you leave it out). A bare literal never takes a unit, <code>0</code> included (BYN3203). Units are gone at run time. A unit prints as its value and symbol, as in <code>524288 B</code>. Counts such as <code>s.length</code> stay plain <code>i64</code>.</note>
+<note>Planned: units are not in the compiler; a <code>unit</code> line is a syntax error. Mixing units is an error. A value converts without a cast only to a finer unit (<code>2s + 500ms</code>); coarser needs a named rounding, <code>t.floor&lt;Seconds&gt;()</code>, <code>t.ceiling&lt;Seconds&gt;()</code> or <code>t.rounded&lt;Seconds&gt;()</code> (BYN3205 if omitted). A bare literal never takes a unit, <code>0</code> included (BYN3203). Units vanish at run time and print as value and symbol (<code>524288 B</code>); counts such as <code>s.length</code> stay plain <code>i64</code>.</note>
 
 <h2 id="collections">Arrays, spans and collections</h2>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Type</th><th scope="col">Holds</th><th scope="col">Writable</th></tr></thead>
+  <tbody>
+    <tr><td><code>T[N]</code></td><td>A fixed-size array, stored inline.</td><td>Yes.</td></tr>
+    <tr><td><code>Span&lt;T&gt;</code></td><td>A borrowed view of a run of elements.</td><td>Yes.</td></tr>
+    <tr><td><code>ReadOnlySpan&lt;T&gt;</code></td><td>A borrowed view.</td><td>No. A <code>Span&lt;T&gt;</code> converts to it; the other direction never converts.</td></tr>
+    <tr><td><code>List&lt;T&gt;</code>, <code>Map&lt;K, V&gt;</code></td><td>Owned elements; they allocate.</td><td>Yes.</td></tr>
+  </tbody>
+</table></div>
+<p>A compile-time index out of range is an error (BYN2213); <code>xs[^1]</code> counts from the end and <code>xs[1..3]</code> spans positions 1 and 2. A <code>List</code> or array becomes a span as an argument; elsewhere <code>xs.span</code> is a read-only view.</p>
+<p><code>xs.remove(from: a, until: b)</code> removes positions <code>a</code> up to <code>b</code> and keeps the rest in order; <code>through:</code> includes the end. A bad range panics.</p>
 <ul>
-  <li><code>T[N]</code> is a fixed-size array stored inline. An index known at compile time that is out of range is an error (BYN2213).</li>
-  <li><code>Span&lt;T&gt;</code> is a borrowed view of a run of elements. You can assign to the elements.</li>
-  <li><code>ReadOnlySpan&lt;T&gt;</code> is a borrowed view you cannot assign through. A <code>Span&lt;T&gt;</code> converts to it. The other direction never converts.</li>
-  <li><code>List&lt;T&gt;</code> and <code>Map&lt;K, V&gt;</code> own their elements and allocate. A <code>List</code> or an array becomes a span when you pass it as an argument. Elsewhere, <code>xs.span</code> gives a read-only view.</li>
-  <li><code>xs[^1]</code> counts from the end. <code>xs[1..3]</code> is a span of the elements at positions 1 and 2.</li>
-  <li><code>xs.remove(from: a, until: b)</code> removes the elements at positions <code>a</code> up to but not including <code>b</code> and keeps the order of the rest. With <code>through:</code> the end is included. A bad range stops the program with a panic.</li>
-  <li><code>Map</code> keeps the order in which keys were inserted. It is the only hash map; <code>HashMap</code> is rejected with a fix (BYN2830).</li>
-  <li>A <code>Map</code> key is an integer, a <code>rune</code>, a <code>bool</code>, a <code>string</code>, a plain enum, a <code>Symbol</code>, a tuple of keys, or a struct of keys. Any other key type is BYN2760, and a struct or tuple that is not a key is BYN2831.</li>
-  <li>Hashing is seeded by default, to resist hash-flooding attacks.</li>
+  <li><code>Map</code> keeps insertion order and is the only hash map; <code>HashMap</code> is rejected with a fix (BYN2830).</li>
+  <li>A <code>Map</code> key is an integer, <code>rune</code>, <code>bool</code>, <code>string</code>, plain enum, <code>Symbol</code>, or a tuple or struct of keys; anything else is BYN2760, a non-key struct or tuple BYN2831.</li>
+  <li>Hashing is seeded by default against hash-flooding.</li>
+  <li><code>List</code>, <code>Map</code> and <code>StrBuf</code> are <code>unique</code>: assigning one moves it (see <a href="#unique">Move-only types</a>); copy with <code>xs.copy()</code>.</li>
 </ul>
 <example name="ref-types-collections"/>
 <pre><code class="byn">let scores: Map&lt;f64, i64&gt; = []</code></pre>
@@ -136,44 +141,42 @@ print($"{grid[7]}")</code></pre>
 <span class="gut">    │</span>               <span class="hl">^</span></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>A <code>List</code>, a <code>Map</code> and a <code>StrBuf</code> own memory, so they are <code>unique</code>: assigning one moves it (see <a href="#unique">Move-only types</a>). A copy is written out, <code>xs.copy()</code>.</p>
-<note>Planned: <code>Set&lt;T&gt;</code>, <code>Deque&lt;T&gt;</code>, <code>Pool&lt;T&gt;</code>, <code>Ring&lt;T, N&gt;</code>, <code>NonEmpty&lt;T&gt;</code> and <code>EnumMap</code> are in the specification, but the compiler reports <code>unknown type</code> for them. Typed indices (<code>List&lt;T, RowId&gt;</code> with <code>type distinct RowId = Index</code>), a module-level <code>const</code> array in read-only data and <code>StrBuf.over(stackalloc …)</code> are not in the compiler either.</note>
+<note>Planned: <code>Set&lt;T&gt;</code>, <code>Deque&lt;T&gt;</code>, <code>Pool&lt;T&gt;</code>, <code>Ring&lt;T, N&gt;</code>, <code>NonEmpty&lt;T&gt;</code> and <code>EnumMap</code> are specified, but the compiler reports <code>unknown type</code>. Typed indices (<code>List&lt;T, RowId&gt;</code> with <code>type distinct RowId = Index</code>), a module-level <code>const</code> array in read-only data and <code>StrBuf.over(stackalloc …)</code> are not in the compiler either.</note>
 
 <h2 id="optionals">Optionals</h2>
-<p><code>T?</code> is either a <code>T</code> or <code>null</code>. Plain types are never null.</p>
+<p><code>T?</code> is a <code>T</code> or <code>null</code>; plain types are never null.</p>
 <ul>
-  <li><code>x is null</code> and <code>x is not null</code> test it. After <code>is not null</code> on a <code>let</code> or a parameter, the value has its non-null type.</li>
+  <li><code>x is null</code> and <code>x is not null</code> test it; after <code>is not null</code>, a <code>let</code> or parameter has its non-null type.</li>
   <li><code>x ?? fallback</code> gives the fallback when <code>x</code> is null.</li>
-  <li><code>x ?? return v</code>, <code>x ?? break</code> and <code>x ?? continue</code> leave early, and <code>x ?? fail .e</code> fails. They also bind the non-null value: <code>let at = find(xs, at: 7) ?? return -1</code>.</li>
+  <li><code>x ?? return v</code>, <code>?? break</code>, <code>?? continue</code> leave early and <code>?? fail .e</code> fails; they bind the non-null value (<code>let at = find(xs, at: 7) ?? return -1</code>).</li>
   <li><code>x == null</code> is rejected with a fix to <code>x is null</code> (BYN2027).</li>
 </ul>
 <example name="ref-types-optionals"/>
-<note>Planned: the safe-navigation operator <code>?.</code> is in the specification but not in the compiler yet.</note>
+<note>Planned: safe navigation <code>?.</code> is specified, not in the compiler.</note>
 
 <h2 id="tuples">Tuples</h2>
-<p>A tuple groups values: <code>(1, "a")</code>. Elements may have names, and a name makes the element reachable with a dot: <code>(i32 count, string label)</code> as a type, <code>p.count</code> as an access. A tuple pattern takes a tuple apart in <code>switch</code>, in <code>is</code> and in the head of a <code>for</code> loop.</p>
+<p>A tuple groups values: <code>(1, "a")</code>. A named element is reachable with a dot: <code>(i32 count, string label)</code> as a type, <code>p.count</code> as an access. A tuple pattern unpacks one in <code>switch</code>, <code>is</code> and a <code>for</code> loop head.</p>
 <example name="ref-types-tuples"/>
-<note>The compiler does not take a tuple apart in a <code>let</code> (<code>let (a, b) = t</code> is a syntax error), and it has no numeric access such as <code>t.0</code>. Name the elements, or use a pattern.</note>
+<note>The compiler does not unpack a tuple in a <code>let</code> (<code>let (a, b) = t</code> is a syntax error) and has no <code>t.0</code>; name the elements or use a pattern.</note>
 
 <h2 id="results">Results</h2>
-<p><code>Result&lt;T, E&gt;</code> holds either a value of type <code>T</code> or an error of type <code>E</code>, side by side in the same storage as a tag. A function that is declared <code>fails E</code> returns one under the hood. You can also name the type yourself. <code>r.isOk</code> tells which it is, <code>r.value</code> reads the value, <code>r.err</code> reads the error, and a value can be returned where a <code>Result</code> is expected. Formatting a <code>Result</code> prints its value or, for an error, its summary line. More in <a href="errors.html">Errors</a>.</p>
+<p><code>Result&lt;T, E&gt;</code> holds a <code>T</code> or an <code>E</code> in the same storage as a tag. A <code>fails E</code> function returns one under the hood, and you can name the type yourself. <code>r.isOk</code> tells which, <code>r.value</code> reads the value, <code>r.err</code> the error, and a value can be returned where a <code>Result</code> is expected. Formatting prints the value or an error's summary line. More in <a href="errors.html">Errors</a>.</p>
 <example name="ref-types-result"/>
 
 <h2 id="never">never</h2>
-<p><code>never</code> is the type of an expression that does not come back: <code>panic</code>, <code>exit</code> and a loop with no exit. A <code>never</code> expression fits wherever a value is expected, in a <code>catch</code>, after <code>??</code> and in a <code>switch</code> arm. Code after one is unreachable.</p>
+<p><code>never</code> is the type of an expression that does not come back: <code>panic</code>, <code>exit</code>, a loop with no exit. It fits wherever a value is expected: a <code>catch</code>, after <code>??</code>, a <code>switch</code> arm; code after one is unreachable.</p>
 <example name="ref-types-never"/>
 
 <h2 id="structs">Structs</h2>
-<p>A struct is a value with named fields. Structs are the only data type with fields. There are no classes and no inheritance.</p>
+<p>A struct is a value with named fields, the only type with fields; no classes, no inheritance.</p>
 <ul>
-  <li><strong>Type first.</strong> A field, a parameter and a return type put the type before the name. A local binding puts the name first, <code>let w: Grams = 0g</code>, and <code>Grams w = 0g</code> inside a body is rejected with a fix (BYN1043).</li>
-  <li><strong>Defaults.</strong> <code>i32 y = 0</code> gives a field a default. A struct literal may then leave it out. A type can be created with no values (is <em>defaultable</em>) only if every field has a default.</li>
-  <li><strong>Computed members.</strong> <code>i32 sum =&gt; x + y</code> is a member that reads like a field. A member without arguments is a property. <code>sum</code> is read, not called.</li>
-  <li><strong>Methods are read-only by default.</strong> A method that changes the struct has <code>ref this</code> as its first parameter. Without it the compiler reports BYN2115 and shows the fix. You cannot call a <code>ref this</code> method on a <code>let</code> (BYN2104).</li>
-  <li><strong>Literals.</strong> <code>Point { x: 1 }</code> uses <code>:</code> for each field. A literal of a type with a <code>requires</code> rule is checked when it is built.</li>
-  <li><strong>Equality</strong> compares field by field, and so does hashing. A struct is a <code>Map</code> key when all its fields are.</li>
-  <li><strong>No default display.</strong> Putting a struct in a <code>$"{…}"</code> hole is an error unless it has a <code>formatInto</code> member or you write <code>{x, as: .debug}</code> (BYN2225).</li>
-  <li><strong>Field writes.</strong> A struct with a <code>requires</code> rule, a <code>states</code> block or <code>@sealed</code> can be written only by its own <code>ref this</code> methods or through <code>with</code> (BYN3216). Plain data allows direct writes.</li>
+  <li><strong>Type first.</strong> Fields, parameters and return types put the type first; a local puts the name first (<code>let w: Grams = 0g</code>). <code>Grams w = 0g</code> is BYN1043 with a fix.</li>
+  <li><strong>Defaults and literals.</strong> <code>i32 y = 0</code> defaults a field, which <code>Point { x: 1 }</code> may omit; a <code>requires</code> rule is checked when built. A type is <em>defaultable</em>, creatable empty, only if every field has one.</li>
+  <li><strong>Computed members.</strong> <code>i32 sum =&gt; x + y</code> is a property: no arguments, read not called.</li>
+  <li><strong>Methods are read-only by default.</strong> A mutating method declares <code>ref this</code> first, or BYN2115 with a fix; it cannot be called on a <code>let</code> (BYN2104).</li>
+  <li><strong>Equality</strong> and hashing go field by field; a struct is a <code>Map</code> key when all its fields are.</li>
+  <li><strong>No default display.</strong> A struct in a <code>$"{…}"</code> hole needs <code>formatInto</code> or <code>{x, as: .debug}</code>, else BYN2225.</li>
+  <li><strong>Field writes.</strong> A <code>requires</code> rule, <code>states</code> block or <code>@sealed</code> allows writes only from <code>ref this</code> methods or <code>with</code> (BYN3216); plain data allows direct writes.</li>
 </ul>
 <example name="ref-types-struct"/>
 <pre><code class="byn">struct Counter {
@@ -217,20 +220,19 @@ c.bump()</code></pre>
 </figure>
 
 <h3 id="constructors">Constructors and required fields</h3>
-<p>A struct may declare a constructor, written as a function with the struct's name. Once it has one, you build the struct by calling it, and a literal is BYN2111. A <code>required</code> field must be set by the time construction ends.</p>
+<p>A constructor is a function named after the struct; once declared, call it to build, and a literal is BYN2111. A <code>required</code> field must be set by the end of construction.</p>
 <example name="ref-types-constructor"/>
 
 <h3 id="struct-planned">Embedding</h3>
-<note>Planned: <code>@noEquality</code> (removes <code>==</code>) is rejected as an unknown attribute (BYN2770). <code>embed T</code>, which promotes the fields and methods of an embedded struct, is not in the compiler yet (BYN1004).</note>
+<note>Planned: <code>@noEquality</code> (removes <code>==</code>) is unknown (BYN2770); <code>embed T</code>, which promotes an embedded struct's fields and methods, is not in the compiler (BYN1004).</note>
 
 <h2 id="unique">Move-only types</h2>
-<p><code>struct unique</code> declares a type that cannot be copied. Its value has one owner, and it is cleaned up exactly once when that owner goes away. Use it for things like files and locks.</p>
+<p><code>struct unique</code> declares a type that cannot be copied: one owner, cleaned up once when it goes away. Use it for files and locks.</p>
 <ul>
-  <li>A type with a <code>unique</code> part is <code>unique</code> itself: a struct with a <code>List</code> field, a union with a <code>unique</code> payload, a tuple, array or optional of one. A struct holding a <code>Span&lt;T&gt;</code> (a mutable borrow) is <code>unique</code> too.</li>
-  <li>A <code>unique</code> value is never copied by accident. <code>let g = f</code> is BYN2780, and the fix is <code>move f</code>, an explicit copy (<code>f.copy(to: alloc)</code>) or passing it by <code>ref</code>.</li>
-  <li>A parameter of <code>unique</code> type takes <code>move</code> when the function takes ownership. A read-only parameter borrows.</li>
-  <li>Once moved, the source cannot be used.</li>
-  <li>A <code>unique</code> type cannot be <code>const</code> (BYN3209).</li>
+  <li>A type with a <code>unique</code> part is <code>unique</code>: a struct with a <code>List</code> field, a union with a <code>unique</code> payload, a tuple, array or optional of one, or a struct holding <code>Span&lt;T&gt;</code> (a mutable borrow).</li>
+  <li>A <code>unique</code> value is never copied by accident: <code>let g = f</code> is BYN2780; fix with <code>move f</code>, an explicit copy (<code>f.copy(to: alloc)</code>) or <code>ref</code>.</li>
+  <li>A <code>unique</code> parameter takes <code>move</code> to give ownership; a read-only one borrows.</li>
+  <li>Once moved, the source cannot be used; a <code>unique</code> type cannot be <code>const</code> (BYN3209).</li>
 </ul>
 <example name="ref-types-unique"/>
 <pre><code class="byn">struct unique File {
@@ -255,15 +257,15 @@ print($"{g.fd}")</code></pre>
 <p>The full ownership rules are in <a href="ref-memory.html">Memory model</a>.</p>
 
 <h2 id="unions">Unions</h2>
-<p>A union is a value that is exactly one of several cases. A case may carry named data. The storage is a tag plus room for the largest case, inline, with no allocation.</p>
+<p>A union is one of several cases, each possibly with named data, stored inline as a tag plus room for the largest case, no allocation.</p>
 <ul>
-  <li>Case names are camelCase, one per line. A one-line union is rejected (BYN1053).</li>
-  <li>Every payload is named in the declaration, <code>rect(i32 w, i32 h)</code>. A payload with no name is BYN1064.</li>
-  <li>Construction may drop the label when the case has exactly one payload (<code>.percentOff(10)</code>). With several payloads, labels are required: <code>.rect(w: 3, h: 4)</code>.</li>
-  <li>A leading dot, <code>.rect(…)</code>, names a case of the type the compiler expects at that place. <code>Shape.circle(2)</code> names it in full.</li>
-  <li>A <code>switch</code> over a union must cover every case, and the error names the one you missed (BYN2410). A <code>_</code> arm hides later additions, so on a union from the same package it is a lint warning.</li>
-  <li>Reading a payload is done by pattern: <code>.circle c</code> binds the whole case as <code>c</code>, and <code>.rect(let w, let h)</code> binds by position.</li>
-  <li>A union is closed. There is no cast from an integer to a case. A payload-free case may be given an integer for talking to C, <code>read = 1</code>, which must be unique inside the union.</li>
+  <li>Case names are camelCase, one per line; a one-line union is rejected (BYN1053).</li>
+  <li>Every payload is named, <code>rect(i32 w, i32 h)</code>; an unnamed one is BYN1064.</li>
+  <li>A single-payload case may drop its label (<code>.percentOff(10)</code>); several need labels: <code>.rect(w: 3, h: 4)</code>.</li>
+  <li>A leading dot (<code>.rect(…)</code>) names the case expected there; <code>Shape.circle(2)</code> names it in full.</li>
+  <li>A <code>switch</code> must cover every case, and the error names the missing one (BYN2410); a <code>_</code> arm hides later additions and is a lint warning on a union from the same package.</li>
+  <li>Read a payload by pattern: <code>.circle c</code> binds the case as <code>c</code>; <code>.rect(let w, let h)</code> by position.</li>
+  <li>A union is closed: no integer cast. A payload-free case may carry one for C, <code>read = 1</code>, unique inside the union.</li>
 </ul>
 <example name="ref-types-union"/>
 <pre><code class="byn">union Shape {
@@ -299,27 +301,26 @@ print($"{area(.empty)}")</code></pre>
   help: name the payload: `.circle(i32 name)`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: members declared after the cases of a union, and <code>T.tryParse(text)</code> for a union, are not in the compiler yet.</note>
+<note>Planned: union members after the cases, and <code>T.tryParse(text)</code> for a union, are not in the compiler.</note>
 
 <h2 id="enums">Enums</h2>
-<p>An enum is a closed set of named values, each with the same constant data. The enum value is a small number. Its data lives in read-only tables.</p>
+<p>An enum is a closed set of named values with constant data; the value is a small number, the data in read-only tables.</p>
 <ul>
-  <li>A value's data is listed in the declaration: <code>mercury(3, 24)</code> for the header <code>enum Planet(i64 mass, i64 radius)</code>. The data must be constant.</li>
-  <li>The compiler generates <code>name</code>, <code>ordinal</code>, <code>values</code>, <code>count</code>, <code>parse(text)</code> and <code>fromOrdinal(n)</code>. The last two return an optional. Today the member is <code>count</code>, where the specification says <code>length</code>.</li>
-  <li>There is no cast from an integer to an enum. <code>fromOrdinal</code> is the checked way.</li>
+  <li>A value's data is listed in the declaration: <code>mercury(3, 24)</code> for <code>enum Planet(i64 mass, i64 radius)</code>.</li>
+  <li>The compiler generates <code>name</code>, <code>ordinal</code>, <code>values</code>, <code>count</code>, <code>parse(text)</code> and <code>fromOrdinal(n)</code>; the last two return an optional. <code>count</code> today is <code>length</code> in the specification.</li>
+  <li>There is no integer cast; <code>fromOrdinal</code> is the checked way.</li>
   <li>An enum <code>switch</code> must cover every value, like a union.</li>
 </ul>
 <example name="ref-types-enum"/>
-<note>Planned: members on an enum (<code>public f64 surfaceGravity =&gt; …</code> after the values) are a syntax error today. <code>enum open</code> (unknown values, for C interop) and <code>extensible</code> (callers must supply a fallback case) are not in the compiler yet.</note>
+<note>Planned: enum members (<code>public f64 surfaceGravity =&gt; …</code> after the values) are a syntax error; <code>enum open</code> (unknown values, C interop) and <code>extensible</code> (callers supply a fallback) are not in the compiler.</note>
 
 <h2 id="error-sets">Error sets</h2>
-<p><code>union error</code> declares a set of failures, with or without data. It shares the union grammar. The difference is where it may be used: in <code>fails</code> clauses and in <code>catch switch</code>. The behavior of <code>fails</code>, <code>try</code> and <code>catch</code> is in <a href="ref-expressions.html#catch">Expressions</a> and <a href="errors.html">Errors</a>.</p>
+<p><code>union error</code> declares a set of failures, with or without data, in the union grammar, used only in <code>fails</code> clauses and <code>catch switch</code>; <code>fails</code>, <code>try</code> and <code>catch</code> are in <a href="ref-expressions.html#catch">Expressions</a> and <a href="errors.html">Errors</a>.</p>
 <ul>
-  <li><strong>Compose</strong> sets with <code>=</code> and commas: <code>union error ShipError = CarrierError, StockError</code>. The result has all the cases of its parts, and a part converts to the whole implicitly.</li>
-  <li><strong>Narrow</strong> a set with <code>except</code>: <code>union error Retryable = CarrierError except .rejected</code>.</li>
-  <li>Two parts that share a case name are an error (BYN3202).</li>
-  <li>A case name belongs to its set. <code>EmailError.invalid</code> and <code>UrlError.invalid</code> are different, and an ambiguous <code>.invalid</code> is an error.</li>
-  <li>A doc comment on a case is its message. <code>$"{e}"</code> prints the first line (see <a href="ref-lexical.html#doc-comments">Doc comments</a>).</li>
+  <li><strong>Compose</strong> with <code>=</code> and commas: <code>union error ShipError = CarrierError, StockError</code> takes all their cases, and a part converts to the whole implicitly.</li>
+  <li><strong>Narrow</strong> with <code>except</code>: <code>union error Retryable = CarrierError except .rejected</code>.</li>
+  <li>Two parts sharing a case name are an error (BYN3202); a case name belongs to its set, so <code>EmailError.invalid</code> and <code>UrlError.invalid</code> differ and an ambiguous <code>.invalid</code> is an error.</li>
+  <li>A doc comment on a case is its message; <code>$"{e}"</code> prints its first line (see <a href="ref-lexical.html#doc-comments">Doc comments</a>).</li>
   <li><code>IoError</code> and <code>Utf8Error</code> are built in.</li>
 </ul>
 <example name="ref-types-errors"/>
@@ -327,28 +328,27 @@ print($"{area(.empty)}")</code></pre>
 <h2 id="interfaces">Interfaces</h2>
 <p>An interface is a set of members a type promises to have.</p>
 <ul>
-  <li>Conformance is explicit: <code>struct Square : IShape</code>. Interface names begin with <code>I</code>.</li>
-  <li>A member with a body is a default method. Each conforming type gets its own copy.</li>
-  <li>A property requirement is a bare <code>Type name</code>. A requirement that changes the receiver has <code>ref this</code>, and so must every implementation.</li>
-  <li>A method's <code>uses</code> clause in an interface is an upper bound. An implementation may use fewer effects.</li>
-  <li>Used as a generic constraint (<code>where T : IShape</code>), the call is resolved when the program is built, with no cost at run time.</li>
-  <li>Used as <code>dyn ref IShape</code>, the call goes through a table. A <code>dyn ref</code> parameter needs a <code>var</code> argument, and <code>dyn ref readonly I</code> allows a <code>let</code> but only members without <code>ref this</code> (BYN2813). An interface name alone as a type is BYN2816.</li>
+  <li>Conformance is explicit (<code>struct Square : IShape</code>); interface names begin with <code>I</code>.</li>
+  <li>A member with a body is a default method, copied into each conforming type.</li>
+  <li>A property requirement is a bare <code>Type name</code>. One that changes the receiver has <code>ref this</code>, and so must every implementation.</li>
+  <li>A <code>uses</code> clause is an upper bound; an implementation may use fewer effects.</li>
+  <li>As a generic constraint (<code>where T : IShape</code>) the call resolves at build time, at no run-time cost.</li>
+  <li>As <code>dyn ref IShape</code> the call goes through a table: a <code>dyn ref</code> parameter needs a <code>var</code> argument, and <code>dyn ref readonly I</code> allows a <code>let</code> but only members without <code>ref this</code> (BYN2813). An interface name alone as a type is BYN2816.</li>
   <li>Only structs conform (BYN2815 for unions and enums).</li>
 </ul>
 <example name="ref-types-interface"/>
-<note>Planned: retroactive conformance (<code>extension Money : IJsonEncode</code>), <code>static abstract</code> members and generic interface methods are not in the compiler yet.</note>
+<note>Planned: retroactive conformance (<code>extension Money : IJsonEncode</code>), <code>static abstract</code> members and generic interface methods are not in the compiler.</note>
 
 <h2 id="function-types">Function types</h2>
-<p><code>A -&gt; B</code> is the type of a function from <code>A</code> to <code>B</code>. Write <code>(A, B) -&gt; C</code> for two parameters and <code>() -&gt; void</code> for none. After the return type, <code>uses e</code> and then <code>fails E</code> add effects and error sets. <code>-&gt;</code> is for types. <code>=&gt;</code> is for lambdas and bodies.</p>
+<p><code>A -&gt; B</code> is a function type from <code>A</code> to <code>B</code>; <code>(A, B) -&gt; C</code> takes two, <code>() -&gt; void</code> none. After the return type, <code>uses e</code> adds effects, <code>fails E</code> an error set. <code>-&gt;</code> is for types, <code>=&gt;</code> for lambdas and bodies.</p>
 <ul>
-  <li>A function type before a name needs parentheses: <code>by (i32 -&gt; i32) f</code>. An alias avoids that: <code>type Pred = i32 -&gt; bool</code>, then <code>by Pred p</code>.</li>
-  <li>Two function types are equal when the parameters, return type, error sets and effects are equal. There is no variance.</li>
-  <li>A <em>named function</em> works as a value when it is a non-generic, module-level function whose signature matches exactly. Particles are part of the name, not the type. A mismatch is BYN2202, and a method or generic function used as a value is BYN2824.</li>
-  <li>A <em>lambda</em> is <code>x =&gt; …</code>, <code>(a, b) =&gt; …</code> or <code>() =&gt; …</code>. Its parameters are bare names. Their types come from the type expected at that place.</li>
-  <li><code>it</code>: an argument that mentions <code>it</code>, where a one-parameter function is expected, is a lambda with the parameter <code>it</code>.</li>
-  <li>A lambda copies the <code>let</code> values it reads when it is created. It cannot capture a <code>var</code> (BYN2821) or a <code>unique</code> value.</li>
-  <li>A function value is a borrow of the frame that made it. It may be passed down but not stored or returned.</li>
-  <li>A function type is allowed as a parameter, an alias target and a local. As a field it is BYN2822.</li>
+  <li>A function type before a name needs parentheses (<code>by (i32 -&gt; i32) f</code>); an alias avoids them: <code>type Pred = i32 -&gt; bool</code>, then <code>by Pred p</code>.</li>
+  <li>Two function types are equal when parameters, return type, error sets and effects are equal; no variance.</li>
+  <li>A <em>named function</em> works as a value when it is non-generic, module-level and its signature matches exactly; particles are part of the name, not the type. A mismatch is BYN2202; a method or generic function used as a value is BYN2824.</li>
+  <li>A <em>lambda</em> is <code>x =&gt; …</code>, <code>(a, b) =&gt; …</code> or <code>() =&gt; …</code>, its bare parameters typed from context; an argument mentioning <code>it</code> where a one-parameter function is expected is a lambda with that parameter.</li>
+  <li>A lambda copies the <code>let</code> values it reads when created; it cannot capture a <code>var</code> (BYN2821) or a <code>unique</code> value.</li>
+  <li>A function value borrows the frame that made it; it may be passed down but not stored or returned.</li>
+  <li>A function type may be a parameter, alias target or local; as a field it is BYN2822.</li>
 </ul>
 <example name="ref-types-function"/>
 <pre><code class="byn">type Pricer = i64 -&gt; i64
@@ -378,21 +378,19 @@ let f: i32 -&gt; bool = isBig</code></pre>
   help: pass a function of type `i32 -&gt; bool`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: function-typed fields and return types, generic aliases (<code>type Predicate&lt;T&gt; = T -&gt; bool</code>), typed lambda parameters, <code>move () =&gt; …</code> and <code>dyn (A -&gt; B)</code> are not in the compiler yet. Collection methods that take a lambda (<code>where</code>, <code>select</code>, <code>sumBy</code>) are not either.</note>
+<note>Planned: function-typed fields and returns, generic aliases (<code>type Predicate&lt;T&gt; = T -&gt; bool</code>), typed lambda parameters, <code>move () =&gt; …</code> and <code>dyn (A -&gt; B)</code> are not in the compiler, nor collection methods that take a lambda (<code>where</code>, <code>select</code>, <code>sumBy</code>).</note>
 
 <h2 id="states">Typestate</h2>
-<p>A struct can declare the states it passes through. The state becomes part of its type, so using a value in the wrong state is a compile error that costs nothing at run time.</p>
+<p>A struct can declare the states it passes through; the state is part of its type, so wrong-state use is a compile error at no run-time cost, and layout stays a tag plus payload.</p>
 <ul>
-  <li>States are declared in one <code>states { … }</code> block after the fields, one per line, each with optional named payload. At most one block per struct.</li>
-  <li><code>Order.paid</code> is the type of an <code>Order</code> known to be in state <code>paid</code>. It is valid anywhere a type is. <code>Order</code> alone means any state.</li>
-  <li>A literal names its state, <code>Order.draft { id: 7 }</code>. A plain <code>Order { … }</code> is BYN7005.</li>
-  <li>The receiver's state is written <code>this is .paid</code>, <code>ref this is .draft</code>, or with <code>or</code> for several: <code>this is .paid or .shipped</code>.</li>
-  <li>A payload is readable only when the type fixes the state (BYN7002). With several states, a field is readable if each has it with the same type.</li>
-  <li><code>becomes .paid</code> after the parameter list declares a transition, and <code>become .paid(amount)</code> performs it. Only a <code>ref this</code> method can declare it. It must <code>become</code> on every path that returns normally. A failed call leaves the state unchanged.</li>
-  <li>After a <code>becomes</code> call on a <code>var</code>, the variable has the new state in the rest of the scope.</li>
-  <li>Widening is free: <code>Order.paid</code> goes where <code>Order</code> is expected. Narrowing is done with <code>is</code> or <code>switch</code>.</li>
-  <li>A <code>switch</code> over the states must cover each one, so a new state is an error at every switch that misses it (BYN7004).</li>
-  <li>Layout is the same as the plain struct: a tag plus a payload. States do not exist at run time.</li>
+  <li>States sit in one <code>states { … }</code> block after the fields, one per line with an optional named payload; at most one block per struct.</li>
+  <li><code>Order.paid</code> is an <code>Order</code> known to be <code>paid</code>, valid anywhere a type is; <code>Order</code> alone means any state.</li>
+  <li>A literal names its state (<code>Order.draft { id: 7 }</code>); plain <code>Order { … }</code> is BYN7005.</li>
+  <li>Receiver state: <code>this is .paid</code>, <code>ref this is .draft</code>, <code>this is .paid or .shipped</code>.</li>
+  <li>A payload is readable only when the type fixes the state (BYN7002); with several states, a field needs the same type in each.</li>
+  <li><code>becomes .paid</code> declares a transition after the parameters; <code>become .paid(amount)</code> performs it. Only a <code>ref this</code> method may declare it, every normal return must <code>become</code>, and a failed call leaves the state unchanged. A <code>var</code> that becomes has the new state in the rest of the scope.</li>
+  <li>Widening is free (<code>Order.paid</code> where <code>Order</code> is expected); narrowing uses <code>is</code> or <code>switch</code>.</li>
+  <li>A <code>switch</code> over the states must cover each one; a new state errors at every switch missing it (BYN7004).</li>
 </ul>
 <example name="ref-types-typestate"/>
 <pre><code class="byn">struct Order {
@@ -439,4 +437,4 @@ print($"{o.payment}")</code></pre>
   help: match `.paid` with `is` or `switch` before reading `payment`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: the multi-state alias <code>type Fulfilled = Order is .paid or .shipped</code> and the inline <code>Type name is .a or .b</code> parameter form are described in the specification. The receiver form and the <code>Order.paid</code> spelling work today; test an alias with the compiler before relying on it.</note>
+<note>Planned: the multi-state alias (<code>type Fulfilled = Order is .paid or .shipped</code>) and inline <code>Type name is .a or .b</code> parameters are specified only. The receiver form and <code>Order.paid</code> work today; test an alias first.</note>
