@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4485
-cases	diag	896
+cases	diag	897
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	383
+cases	run	386
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -14265,6 +14265,7 @@ file	e776701a8c6a3ba6c2a83de27f7032cd02237c62	tests/cases/diag/default-reads-fie
 file	2dba2faeea85a1a9e293c6668c3a723956e8087a	tests/cases/diag/defer-declaration-body.diag
 file	b01d0a72d3722a7ec8aad2533dde263adc28ec6d	tests/cases/diag/defer-failing-without-fails.diag
 file	559a5a05c0fd2112a4477c151b256eff1173e348	tests/cases/diag/distinct-bare-literal.diag
+file	1bb1697a1c020145645b6dc071affadf4f17710f	tests/cases/diag/distinct-requires-field-write.diag
 file	5259a42f4d5bdfe0f24256299dbfb62979ee7a0b	tests/cases/diag/division-by-zero.diag
 file	2d7253b227dda9b95faf916a6660d594f649904b	tests/cases/diag/doer-project-verb/main.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/doer-without-verb-clean.diag
@@ -48629,6 +48630,9 @@ file	cc9c7704c8842c5e121f03626ce57c674c173da8	tests/cases/run/data-enums.stdout
 file	681fcdf0ab3123625ba4c8cc6ac4f01ee7a1bb4b	tests/cases/run/defer-call-named-failing.stdout
 file	f982cf711b50ad16ae6f4c043152f1bde028ed99	tests/cases/run/defer-modifier-errdefer.stdout
 file	eee688ec9be51a3548dd7ed697af19a6169a4bfa	tests/cases/run/defer-modifier-registration.stdout
+file	3a2e3f4984a0ee55900f8c7894844c563d2c2744	tests/cases/run/distinct-field-assign.stdout
+file	d00491fd7e5bb6fa28c517a0bb32b8b506539d4d	tests/cases/run/distinct-field-method-write.stdout
+file	0cfbf08886fca9a91cb753ec8734c84fcbe52c9f	tests/cases/run/distinct-field-ref-write.stdout
 file	405e2afe8e26c0f1f1c1b56fa35510b423f54547	tests/cases/run/division-by-zero.exitcode
 file	93cd67d0adb76ccdb710255059b755172d14fc42	tests/cases/run/division-by-zero.stderr
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/run/division-by-zero.stdout
