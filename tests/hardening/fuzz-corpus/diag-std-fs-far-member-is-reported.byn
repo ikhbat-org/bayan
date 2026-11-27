@@ -1,0 +1,4 @@
+// StdFsTests.UnknownMemberIsReported: a member far from every name gets no help (BYN2003).
+void f() uses fs {
+    let x = Fs.zzzzzzzz("A")
+}

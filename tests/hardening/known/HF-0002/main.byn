@@ -1,0 +1,10 @@
+i64 bump(ref i64 n) {
+    n = 20
+    return 20
+}
+
+void main() {
+    var n: i64 = 10
+    let e = bump(ref n) + n
+    print($"{e}")
+}
