@@ -67,6 +67,8 @@ Small, clear, and could be picked up without a design decision.
 - Audit 0.4.0 mediums review-4 LOW: BYN2745 for an interface names an instance one level too deep (src/semantics/generics.byn:978-985 `t13ExpandsWithoutEnd`): the first instance, declared through `pendingInterfaces` (compile.byn:769), is never pushed onto `declaringInstances`, so `interface IFoo<T> { void f(dyn ref IFoo<List<T>> x) }` reports `IFoo<List<List<T>>>` needs `IFoo<List<List<List<T>>>>`; diag/endless-instantiation-interface.diag pins that text.
 - Audit 0.4.0 mediums review-4 LOW: src/semantics/errorcases.byn:27 hard-codes the built-in error sets `IoError`/`Utf8Error`/`ParseError`, a copy of typeresolve.byn:390's list; a new built-in set with a payload variant would bring back audit 06 #6 (BYN2220 on `fail NewSet.v(x)`). Share one list.
 - Audit 0.4.0 mediums LOW, m-lex: docs/laws/002-lexer-never-panics.md proof notes still say 21 lex cases / 10,021 inputs; the test now counts 23 (shebang, bom-shebang). Update the notes when the law owner next touches L002.
+- Audit 0.4.0 chunk 07 #4 follow-up: a `ref this` call on a `requires`/states/`@sealed` field inside a generic instance is not checked for BYN3216/BYN3208; `checkMutation` (src/semantics/generics.byn:1365) takes only the `checkGuardWrite` path when `functionIsInstance(fn)`.
+- Audit 0.4.0 chunk 07 #4 follow-up: `mutableSpan` taken from a `requires`/states/`@sealed` field is not covered; `checkWritable` stops at an index into a `Span` (src/semantics/calls4.byn, `.index` case), so writes through the span skip BYN3216/BYN3208. Untested.
 
 ## Later
 
