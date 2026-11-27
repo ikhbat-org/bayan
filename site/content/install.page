@@ -8,24 +8,24 @@ template: docs
 <h2 id="requirements">What you need</h2>
 <ul>
 <li>A machine running macOS, Linux or Windows, on x64 or arm64.</li>
-<li>A C compiler. Bayan turns your program into C and hands the C to <code>zig cc</code>, so install <a href="https://ziglang.org/download/">zig</a> and put it on your <code>PATH</code>. To use another compiler, set the <code>BAYAN_CC</code> environment variable to it. The compiler looks for <code>zig cc</code>, then <code>BAYAN_CC</code>, then <code>cc</code>.</li>
-<li>To build the compiler yourself: the .NET 10 SDK and <code>git</code>. A release binary needs neither.</li>
+<li>A C compiler. Bayan turns your program into C and hands the C to <code>zig cc</code>, so install <a href="https://ziglang.org/download/">zig</a> and put it on your <code>PATH</code>. To use another compiler, set the <code>BAYAN_CC</code> environment variable to it. The compiler looks for <code>BAYAN_CC</code>, then <code>zig cc</code>, then <code>cc</code>.</li>
+<li>To build the compiler yourself: <code>git</code> and a C compiler. A release binary needs neither.</li>
 </ul>
 
 <h2 id="build">Build the compiler from source</h2>
-<p>The compiler is written in C# and published as a native executable. From a clone of the repository:</p>
+<p>The compiler is written in Bayan and builds from plain C, with no .NET. From a clone of the repository:</p>
 <pre><code>git clone https://github.com/ikhbat-org/bayan
 cd bayan
-dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
-./tmp/publish/bayan --version</code></pre>
-<p>Use your own runtime identifier in place of <code>osx-arm64</code>, for example <code>linux-x64</code> or <code>win-x64</code>. Copy <code>tmp/publish/bayan</code> to a directory on your <code>PATH</code>.</p>
+bash scripts/bootstrap-build.sh
+tmp/bootstrap-build/bayan-stage1 --version</code></pre>
+<p>The script builds <code>bootstrap/bayan.c</code> with your C compiler and then builds the compiler from <code>src/</code> with the result. Copy <code>bayan-stage1</code> as <code>bayan</code> to a directory on your <code>PATH</code>. To compile <code>bootstrap/bayan.c</code> by hand, run <code>cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm</code> (<code>-lshell32</code> instead of <code>-lm</code> on Windows).</p>
 
 <h2 id="dist">Release binaries under dist/</h2>
 <p><code>scripts/dist.sh</code> builds the compiler and keeps it in <code>dist/</code>, one directory per target and version, plus a <code>latest</code> directory per target that every build replaces:</p>
 <pre><code>scripts/dist.sh                 # this machine
-scripts/dist.sh --rid osx-x64   # another architecture of the same OS
+scripts/dist.sh --rid linux-x64 # another target, cross-built through zig
 dist/macos-arm64/latest/bayan --version</code></pre>
-<p>The targets are <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code> and <code>windows-arm64</code>. Each version directory holds the <code>bayan</code> executable (<code>bayan.exe</code> on Windows) and a <code>BUILD-INFO</code> file with the version, target, commit and build time. A native build cannot cross-compile between operating systems, so the Linux and Windows binaries are built on those systems and imported with <code>--from</code>.</p>
+<p>The targets are <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code> and <code>windows-arm64</code>. Each version directory holds the <code>bayan</code> executable (<code>bayan.exe</code> on Windows) and a <code>BUILD-INFO</code> file with the version, target, commit and build time. Other operating systems are cross-built through zig.</p>
 <p>Do not confuse these with <code>bayan dist</code>, a compiler command that builds release binaries of <em>your</em> program into <code>dist/&lt;version&gt;/</code>.</p>
 
 <h2 id="check">Check the install</h2>

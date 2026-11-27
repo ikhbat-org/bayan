@@ -64,21 +64,21 @@ A program starts at `void main()`. A file holding only `print("Salam, world!")`,
 You need two things: the `bayan` binary and a C compiler.
 
 1. **Get `bayan`.** Download the archive for your machine from the
-   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.3.1-macos-arm64.tar.gz`,
-   `bayan-0.3.1-macos-x64.tar.gz`, `bayan-0.3.1-linux-x64.tar.gz`, `bayan-0.3.1-linux-arm64.tar.gz`,
-   `bayan-0.3.1-windows-x64.zip` or `bayan-0.3.1-windows-arm64.zip`. Unpack it and put the
+   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-<version>-macos-arm64.tar.gz`,
+   `bayan-<version>-macos-x64.tar.gz`, `bayan-<version>-linux-x64.tar.gz`, `bayan-<version>-linux-arm64.tar.gz`,
+   `bayan-<version>-windows-x64.zip` or `bayan-<version>-windows-arm64.zip`. Unpack it and put the
    `bayan` binary somewhere on your `PATH`:
 
    ```sh
-   tar -xzf bayan-0.3.1-macos-arm64.tar.gz
-   cp bayan-0.3.1-macos-arm64/bayan ~/.local/bin/
+   tar -xzf bayan-<version>-macos-arm64.tar.gz
+   cp bayan-<version>-macos-arm64/bayan ~/.local/bin/
    ```
 
    On Windows, unzip the archive and put `bayan.exe` on your `PATH`:
 
    ```powershell
-   Expand-Archive bayan-0.3.1-windows-x64.zip -DestinationPath .
-   $env:Path += ";$PWD\bayan-0.3.1-windows-x64"
+   Expand-Archive bayan-<version>-windows-x64.zip -DestinationPath .
+   $env:Path += ";$PWD\bayan-<version>-windows-x64"
    ```
 
 2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), because it can build for
@@ -180,12 +180,13 @@ nothing else to install except a C compiler. The commands are from `bayan --help
 | `bayan doctor` | Check the C compiler, zig, git and the build cache, with a fix for each problem |
 | `bayan dist` | Build release binaries into `dist/<version>/`; `--target all` cross-compiles through zig |
 | `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
+| `bayan fix` | Apply the fix of every style lint to `.byn` files or directories; does not format |
 | `bayan audit` | List every `because` bypass and every `unsafe` or `extern` declaration, with its reason |
 | `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
 | `bayan lex`, `types`, `features --used <path>` | Look inside the compiler: tokens, inferred types, features a build used |
 
 An editor language server, `bayan-lsp`, lives in [`editors/`](editors/README.md) with a VS Code extension.
-The server is early: build it from source, it is not in the release archives yet.
+The server is early; the release archives include `bayan-lsp`.
 
 The standard library is compiled in, so a program needs no package manager to use it:
 
@@ -197,6 +198,9 @@ The standard library is compiled in, so a program needs no package manager to us
 | `StrBuf` | A string builder for loops |
 | `Arena` | Allocate many things, free them all together |
 | `std.json` | A JSON reader and a `Json` value type: `import std.json` |
+| `std.regex` | Regular expressions that run in linear time: `import std.regex` |
+| `std.encoding` | Base64: `import std.encoding` |
+| `std.fs`, `std.path` | Glob matching over files and paths |
 
 `std.time` and `std.db` are specified in [`docs/bayan-spec.md`](docs/bayan-spec.md) but not built yet.
 
@@ -479,39 +483,28 @@ helps most.
 
 ## Working on the compiler
 
-The self-hosted compiler lives in `src/`. The original compiler is written in C# (`csharp/`). It still
-builds the first stage, and it is the reference the tests check the self-hosted compiler against. You need
-the .NET 10 SDK and zig.
+The compiler is written in Bayān and lives in `src/`. It builds with a C compiler and no .NET: `scripts/bootstrap-build.sh`
+compiles `bootstrap/bayan.c` (the compiler as plain C) and then builds `src/driver` with the result. With any `bayan`,
+build it directly. See [`bootstrap/README.md`](bootstrap/README.md).
 
 ```sh
-dotnet test -v q                               # unit and golden tests, for both compilers
-BAYAN_UPDATE=1 dotnet test                     # rewrite golden expected files
-dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
-./tmp/publish/bayan --version                  # the C# compiler
-```
-
-Build the self-hosted compiler with any `bayan`, or with only a C compiler from `bootstrap/bayan.c` (the
-self-hosted compiler as plain C). Both produce the self-hosted `bayan`. See
-[`bootstrap/README.md`](bootstrap/README.md).
-
-```sh
+bash scripts/bootstrap-build.sh                # prints the path of the built bayan (tmp/bootstrap-build/bayan-stage1)
 bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
-cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot
+cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot   # -lshell32 instead of -lm on Windows
 ./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
 ```
 
-The self-hosted compiler's tests are in `src/tests/` and run with the same `dotnet test`.
+The compiler looks for a C compiler in this order: `BAYAN_CC`, then `zig cc`, then `cc`.
 
 Local builds go in `dist/` (gitignored). `scripts/dist.sh` writes `dist/<target>/<version>/` plus a `latest/`
 per target that every build replaces. `bayan dist` writes `dist/<version>/` and one `dist/latest/`.
 
 ```sh
 scripts/dist.sh                                # this host: dist/macos-arm64/0.4.1/bayan
-scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
+scripts/dist.sh --rid linux-x64                # another target, cross-built through zig
 ```
 
-NativeAOT does not cross-compile between operating systems, so Linux and Windows binaries are published on
-those systems and imported with `--from`.
+`scripts/dist.sh` builds every target with no .NET and cross-builds the other operating systems through zig.
 
 The milestones and an index of the project docs are in [`docs/bayan-milestones.md`](docs/bayan-milestones.md), the
 progress log is in [`docs/bayan-progress-log.md`](docs/bayan-progress-log.md), and how a version is cut is
