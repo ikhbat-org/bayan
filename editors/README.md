@@ -20,7 +20,7 @@ Server features: incremental sync; lexical diagnostics (BYN1040 `;`, BYN1047 `/*
 
 - The server never forks the compiler's rules: phase 2 deletes its lexer and indexer instead of syncing.
 - Messages use the compiler's plain-English text and codes; after phase 2, the server adds none.
-- Zero allocation where cheap: each message and document is arena-freed; a replaced document frees its text, tokens, symbols (bounds: `docs/memory-leaks.md`).
+- Bounded memory: each message is answered in its own arena; a document's text, tokens and symbols live in an arena freed when it is replaced or removed (bounds: `docs/memory-leaks.md`).
 
 ## 3. Phase 2: compiler front end in the server
 
