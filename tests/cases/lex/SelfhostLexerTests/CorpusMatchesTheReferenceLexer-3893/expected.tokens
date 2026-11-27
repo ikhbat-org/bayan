@@ -1,7 +1,7 @@
 1:1 Identifier `le`
-1:4 Identifier `jafé`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
+1:5 Identifier `jafé`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
 2:1 Identifier `rings`
 2:6 StringLiteral `" "`
 2:9 StringLiteral `" "`

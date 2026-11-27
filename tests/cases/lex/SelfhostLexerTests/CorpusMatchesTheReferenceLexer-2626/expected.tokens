@@ -22,26 +22,26 @@
 1:35 InterpolatedStringStart `$"`
 1:37 InterpolatedStringText `{{literal \u{202E}`
 1:48 InterpolatedStringEnd
-2:1 InterpolatedStringStart `$"`
-2:3 InterpolatedStringText `{{`
-2:5 InterpolatedStringEnd `"`
-2:8 StringLiteral `"\u{1E}"`
-2:11 StringLiteral `" c"`
-2:15 Identifier `text`
-2:19 StringLiteral `" u16"`
-2:25 Identifier `wide`
-2:29 StringLiteral `" "`
-2:34 Identifier `allowed`
-2:42 InKeyword `in`
-2:45 Identifier `strings`
-2:52 StringLiteral `" "`
-2:55 StringLiteral `" "`
-2:59 Identifier `u`
-2:60 OpenBrace `{`
-2:61 IntegerLiteral `48`
-2:63 CloseBrace `}`
-2:64 Identifier `i`
-2:65 StringLiteral `"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `{{`
+2:6 InterpolatedStringEnd `"`
+2:9 StringLiteral `"\u{1E}"`
+2:12 StringLiteral `" c"`
+2:16 Identifier `text`
+2:20 StringLiteral `" u16"`
+2:26 Identifier `wide`
+2:30 StringLiteral `" "`
+2:35 Identifier `allowed`
+2:43 InKeyword `in`
+2:46 Identifier `strings`
+2:53 StringLiteral `" "`
+2:56 StringLiteral `" "`
+2:60 Identifier `u`
+2:61 OpenBrace `{`
+2:62 IntegerLiteral `48`
+2:64 CloseBrace `}`
+2:65 Identifier `i`
+2:66 StringLiteral `"`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

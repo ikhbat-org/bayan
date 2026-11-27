@@ -1,7 +1,7 @@
 1:1 Identifier `le`
-1:4 Identifier `x`
-1:7 Equals `=`
-1:9 IntegerLiteral `1`
+1:5 Identifier `x`
+1:8 Equals `=`
+1:11 IntegerLiteral `1`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolatedStringText `{{`
 2:6 InterpolatedStringEnd `"`

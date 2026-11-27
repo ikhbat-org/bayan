@@ -1,7 +1,7 @@
-1:2 LetKeyword `let`
-1:6 Identifier `café`
-1:11 Equals `=`
-1:13 IntegerLiteral `2`
+1:6 LetKeyword `let`
+1:10 Identifier `café`
+1:15 Equals `=`
+1:17 IntegerLiteral `2`
 2:1 CharLiteral `'\u{202E}'`
 3:3 Identifier `raw`
 3:7 StringLiteral `"quoted"`

@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `1`
 1:2 NumericSuffix `e`
-1:4 LetKeyword `let`
-1:8 Identifier `b`
-1:10 Equals `=`
-1:12 StringLiteral `"bad \q escae"`
+1:6 LetKeyword `let`
+1:10 Identifier `b`
+1:12 Equals `=`
+1:14 StringLiteral `"bad \q escae"`
 3:2 Hash `#`
 3:3 Identifier `stray`
 3:9 CloseBrace `}`

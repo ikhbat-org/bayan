@@ -4,8 +4,8 @@
 2:1 Identifier `c`
 2:3 Greater `>`
 2:4 GreaterEquals `>=`
-2:7 IntegerLiteral `1`
-4:5 Identifier `각`
+2:8 IntegerLiteral `1`
+4:10 Identifier `각`
     doc `/// Doc line two.`
 6:1 EndOfFile
 

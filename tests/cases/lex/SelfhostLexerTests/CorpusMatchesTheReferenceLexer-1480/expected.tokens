@@ -25,11 +25,11 @@
 2:3 Identifier `aw`
 2:6 StringLiteral `"quoted"`
 3:3 RawStringLiteral `""" c"text" u16\n̈́��   """`
-4:10 CStringLiteral `c"text"`
-4:18 U16StringLiteral `u16"wide"`
-4:28 StringLiteral `"\u{202E} allowed in strings"`
-4:51 StringLiteral `""`
-4:54 StringLiteral `"\u{48}i"`
+4:11 CStringLiteral `c"text"`
+4:19 U16StringLiteral `u16"wide"`
+4:29 StringLiteral `"\u{202E} allowed in strings"`
+4:52 StringLiteral `""`
+4:55 StringLiteral `"\u{48}i"`
 6:1 EndOfFile
 
 error BYN0003: unterminated string literal

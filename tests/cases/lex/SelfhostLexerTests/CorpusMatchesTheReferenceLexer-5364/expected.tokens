@@ -21,10 +21,10 @@
 7:39 Greater `>`
 7:41 Greater `>`
 7:42 GreaterEquals `>=`
-8:2 LetKeyword `let`
-8:6 Identifier `x`
-8:9 Equals `=`
-8:11 IntegerLiteral `1`
+8:4 LetKeyword `let`
+8:8 Identifier `x`
+8:11 Equals `=`
+8:13 IntegerLiteral `1`
 10:1 InterpolatedStringStart `$"`
 10:3 InterpolationStart `{`
 10:4 Identifier `a`

@@ -38,14 +38,14 @@
 3:51 InterpolationStart `{`
 3:52 StringLiteral `$"{$"`
 3:57 OpenBrace `{`
-3:59 OpenBrace `{`
-3:60 StringLiteral `$"{x}"`
-3:66 CloseBrace `}`
-3:67 StringLiteral `"}"`
+3:60 OpenBrace `{`
+3:61 StringLiteral `$"{x}"`
+3:67 CloseBrace `}`
+3:68 StringLiteral `"}"`
 4:1 IntegerLiteral `1`
 4:2 Dot `.`
 4:4 IntegerLiteral `0x`
-4:6 Identifier `__`
+4:7 Identifier `__`
 5:2 EndOfFile
 
 error BYN0003: unterminated string literal

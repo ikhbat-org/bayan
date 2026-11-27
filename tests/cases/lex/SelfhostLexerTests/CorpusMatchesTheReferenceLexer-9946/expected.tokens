@@ -13,8 +13,8 @@
 5:9 Identifier `escape`
 5:15 StringLiteral `"`
 6:1 LetKeyword `let`
-6:5 Identifier `c`
-6:7 Equals `=`
+6:6 Identifier `c`
+6:8 Equals `=`
 8:1 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier

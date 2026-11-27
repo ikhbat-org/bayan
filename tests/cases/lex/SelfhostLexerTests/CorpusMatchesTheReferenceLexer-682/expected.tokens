@@ -1,8 +1,8 @@
-2:4 IntegerLiteral `1`
-2:5 NumericSuffix `ea`
-2:8 Greater `>`
-2:9 Greater `>`
-3:3 IntegerLiteral `0x`
+2:7 IntegerLiteral `1`
+2:8 NumericSuffix `ea`
+2:11 Greater `>`
+2:12 Greater `>`
+3:5 IntegerLiteral `0x`
 4:1 IntegerLiteral `0x_`
 5:1 IntegerLiteral `0b__`
 6:1 IntegerLiteral `1__`

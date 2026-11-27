@@ -1,7 +1,7 @@
 1:1 Identifier `ạ̇`
-1:7 InterpolatedStringStart `$"`
-1:9 InterpolationStart `{`
-1:10 StringLiteral `"`
+1:8 InterpolatedStringStart `$"`
+1:10 InterpolationStart `{`
+1:11 StringLiteral `"`
 2:1 RawStringLiteral `"""\n// line comment\n10000}'\n'x\n`
 6:1 EndOfFile
 

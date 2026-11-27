@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `0b1`
 1:4 NumericSuffix `ms`
-2:4 InterpolatedStringStart `$"`
-2:6 InterpolationStart `{`
-2:7 InterpolationEnd `}`
-2:8 InterpolatedStringEnd `"`
+2:12 InterpolatedStringStart `$"`
+2:14 InterpolationStart `{`
+2:15 InterpolationEnd `}`
+2:16 InterpolatedStringEnd `"`
 3:1 LetKeyword `let`
 3:5 Identifier `a`
 3:7 Equals `=`

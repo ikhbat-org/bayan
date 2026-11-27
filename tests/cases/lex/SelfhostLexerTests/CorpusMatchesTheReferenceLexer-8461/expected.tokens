@@ -26,10 +26,10 @@
 7:18 NeverKeyword `never`
 7:24 NoallocKeyword `noalloc`
 7:32 Identifier `nosuspen`
-7:40 Identifier `d`
-7:42 SuspendsKeyword `suspends`
-7:51 AsyncKeyword `async`
-7:57 AwaitKeyword `await`
+7:41 Identifier `d`
+7:43 SuspendsKeyword `suspends`
+7:52 AsyncKeyword `async`
+7:58 AwaitKeyword `await`
 9:1 InterpolatedStringStart `$"`
 9:3 InterpolationStart `{`
 9:4 Identifier `a`

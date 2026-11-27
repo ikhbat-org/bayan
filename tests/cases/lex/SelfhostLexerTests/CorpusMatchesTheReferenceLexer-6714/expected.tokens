@@ -22,9 +22,9 @@
 3:65 NumericSuffix `ul`
 3:68 IntegerLiteral `7`
 3:69 NumericSuffix `l`
-4:4 IntegerLiteral `1`
-4:5 NumericSuffix `e`
-4:7 EndOfFile
+4:7 IntegerLiteral `1`
+4:8 NumericSuffix `e`
+4:10 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

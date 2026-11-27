@@ -8,19 +8,19 @@
 3:7 Equals `=`
 3:11 CloseBrace `}`
 3:12 StringLiteral `")} d"`
-3:19 InterpolatedStringStart `$"`
-3:21 InterpolatedStringText `{{litera $`
-3:31 InterpolatedStringEnd `"`
-3:32 OpenBrace `{`
-3:33 StringLiteral `"$"`
-3:36 Identifier `x`
-3:37 OpenBrace `{`
-3:39 InterpolatedStringStart `$"`
-3:41 InterpolationStart `{`
-3:43 Identifier `a`
-3:45 Greater `>`
+3:20 InterpolatedStringStart `$"`
+3:22 InterpolatedStringText `{{litera $`
+3:32 InterpolatedStringEnd `"`
+3:33 OpenBrace `{`
+3:34 StringLiteral `"$"`
+3:37 Identifier `x`
+3:38 OpenBrace `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:44 Identifier `a`
 3:46 Greater `>`
-3:48 Identifier `b`
+3:47 Greater `>`
+3:49 Identifier `b`
 5:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

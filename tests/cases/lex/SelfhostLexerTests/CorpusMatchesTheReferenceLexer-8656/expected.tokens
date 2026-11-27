@@ -65,7 +65,7 @@
 2:95 EmbedKeyword `embed`
 2:101 ExternKeyword `extern`
 2:108 UnsafeKeyword `unsafe`
-4:1 CharLiteral `' // comment \u{202E} hidden\r`
+4:1 CharLiteral `' // comment \u{202E} hidden`
 5:1 LetKeyword `let`
 5:5 Identifier `x`
 5:8 Equals `=`

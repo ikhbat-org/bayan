@@ -24,7 +24,7 @@
 3:10 Equals `=`
 3:12 IntegerLiteral `2`
 4:2 Identifier `ạ̇`
-4:7 Identifier `f`
+4:10 Identifier `f`
 7:1 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

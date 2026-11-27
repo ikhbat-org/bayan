@@ -1,24 +1,24 @@
-1:2 IntegerLiteral `0x`
-1:4 NumericSuffix `if`
-1:7 ElseKeyword `else`
-1:12 UnlessKeyword `unless`
-1:19 SwitchKeyword `switch`
-1:26 Identifier `casKe`
-1:32 DefaultKeyword `default`
-1:40 ForKeyword `for`
-1:44 InKeyword `in`
-1:47 WhileKeyword `while`
-1:53 DoKeyword `do`
-1:56 BreakKeyword `break`
-1:62 ContinueKeyword `continue`
-1:71 ReturnKeyword `return`
-1:78 YieldKeyword `yield`
-1:84 DeferKeyword `defer`
-1:90 ErrdeferKeyword `errdefer`
-1:99 UsingKeyword `using`
-1:105 ContextKeyword `context`
-2:6 Identifier `ra`
-2:9 StringLiteral `"quoted"`
+1:3 IntegerLiteral `0x`
+1:5 NumericSuffix `if`
+1:8 ElseKeyword `else`
+1:13 UnlessKeyword `unless`
+1:20 SwitchKeyword `switch`
+1:27 Identifier `casKe`
+1:33 DefaultKeyword `default`
+1:41 ForKeyword `for`
+1:45 InKeyword `in`
+1:48 WhileKeyword `while`
+1:54 DoKeyword `do`
+1:57 BreakKeyword `break`
+1:63 ContinueKeyword `continue`
+1:72 ReturnKeyword `return`
+1:79 YieldKeyword `yield`
+1:85 DeferKeyword `defer`
+1:91 ErrdeferKeyword `errdefer`
+1:100 UsingKeyword `using`
+1:106 ContextKeyword `context`
+2:10 Identifier `ra`
+2:13 StringLiteral `"quoted"`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

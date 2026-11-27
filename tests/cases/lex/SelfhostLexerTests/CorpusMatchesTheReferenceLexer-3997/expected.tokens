@@ -4,7 +4,7 @@
 1:11 IntegerLiteral `3`
 2:2 Identifier `a`
 5:15 Identifier `a`
-    doc `/// Doc line one.\r\n/// Do\r`
+    doc `/// Doc line one.\r\n/// Do`
 8:1 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines

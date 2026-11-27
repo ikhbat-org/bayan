@@ -10,8 +10,8 @@
 3:2 Slash `/`
 3:4 Identifier `line`
 3:9 Identifier `c`
-3:10 Identifier `mment`
-4:2 EndOfFile
+3:11 Identifier `mment`
+4:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

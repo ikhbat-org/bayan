@@ -1,5 +1,5 @@
-1:4 Identifier `comment`
-1:14 Identifier `hidden`
+1:8 Identifier `comment`
+1:18 Identifier `hidden`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 Equals `=`

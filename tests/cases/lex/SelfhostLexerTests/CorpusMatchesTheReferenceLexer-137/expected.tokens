@@ -2,8 +2,8 @@
 1:3 Greater `>`
 1:4 GreaterEquals `>=`
 1:7 IntegerLiteral `1`
-2:4 Equals `=`
-2:6 IntegerLiteral `1`
+2:6 Equals `=`
+2:8 IntegerLiteral `1`
 3:1 LetKeyword `let`
 3:6 Identifier `caf`
 3:11 Equals `=`

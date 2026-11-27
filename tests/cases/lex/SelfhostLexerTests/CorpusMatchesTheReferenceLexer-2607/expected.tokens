@@ -1,10 +1,10 @@
     doc `/// Doc line two\u{1}`
 2:1 Identifier `stru`
-2:5 Identifier `t`
-2:7 Identifier `S`
+2:6 Identifier `t`
+2:8 Identifier `S`
 4:2 InterpolatedStringStart `$"`
 4:4 InterpolatedStringText `�`
-4:4 InterpolatedStringEnd
+4:5 InterpolatedStringEnd
 5:1 Identifier `b`
 6:2 IntegerLiteral `1`
 6:3 NumericSuffix `e`

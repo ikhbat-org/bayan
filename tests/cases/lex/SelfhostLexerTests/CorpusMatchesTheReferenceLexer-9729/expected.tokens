@@ -1,6 +1,6 @@
-1:2 Identifier `y`
-1:4 FloatLiteral `2.5`
-1:8 Identifier `f`
+1:4 Identifier `y`
+1:6 FloatLiteral `2.5`
+1:10 Identifier `f`
 2:1 CloseBrace `}`
 3:1 EndOfFile
 

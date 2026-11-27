@@ -1,10 +1,10 @@
 1:2 Identifier `H250ms`
 1:9 IntegerLiteral `4`
 1:10 NumericSuffix `KiB`
-1:14 IntegerLiteral `1`
-1:15 NumericSuffix `u`
-1:17 IntegerLiteral `0xFF`
-1:21 NumericSuffix `u`
+1:15 IntegerLiteral `1`
+1:16 NumericSuffix `u`
+1:18 IntegerLiteral `0xFF`
+1:22 NumericSuffix `u`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA7)

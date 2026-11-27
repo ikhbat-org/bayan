@@ -6,7 +6,7 @@
 2:9 Greater `>`
 3:1 Identifier `a`
 3:4 Identifier `X`
-3:5 CharLiteral `'\r`
+3:5 CharLiteral `'`
 4:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

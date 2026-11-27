@@ -8,12 +8,12 @@
 3:10 Identifier `_x`
 3:13 Identifier `camelCase2`
 3:24 Identifier `بي`
-3:27 Identifier `ن`
-3:29 Identifier `μετρητ`
-3:36 Identifier `fς`
-3:39 Identifier `x`
-3:41 Identifier `_1`
-3:44 Identifier `é`
+3:28 Identifier `ن`
+3:30 Identifier `μετρητ`
+3:37 Identifier `fς`
+3:40 Identifier `x`
+3:42 Identifier `_1`
+3:45 Identifier `é`
 6:1 StringLiteral `"a\u{2067}b"`
 6:6 EndOfFile
 

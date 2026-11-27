@@ -77,7 +77,7 @@
 5:6 Identifier `b`
 5:8 Equals `=`
 5:10 StringLiteral `"bad \q escape"`
-6:1 EndOfFile
+6:2 EndOfFile
 
 error BYN0003: unterminated string literal
 

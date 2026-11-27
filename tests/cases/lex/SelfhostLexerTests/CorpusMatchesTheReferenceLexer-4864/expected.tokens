@@ -1,11 +1,10 @@
-1:1 Identifier `ς`
-1:3 Identifier `x_1`
+1:2 Identifier `ς`
+1:4 Identifier `x_1`
 2:1 LetKeyword `let`
 2:5 Identifier `a`
 2:7 Equals `=`
 2:9 StringLiteral `"open`
 3:2 Identifier `Å`
-    doc `/// Doc line one.`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`
 6:4 InterpolatedStringStart `$"`

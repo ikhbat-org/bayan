@@ -1,7 +1,7 @@
     doc `/// Doc line two.`
-2:2 Identifier `et`
-2:5 Identifier `c`
-2:7 Equals `=`
+2:3 Identifier `et`
+2:6 Identifier `c`
+2:8 Equals `=`
 3:1 CharLiteral `'\q'`
 5:1 Identifier `b`
 6:2 EndOfFile

@@ -28,11 +28,16 @@ bool tryReadSingleFile(in List<string> args) {
     return true
 }
 
-/// CliApp.cs:108 `Lex`. `--json` is refused (R3, Q940). No style: the dump renders plain (Q941).
+/// CliApp.cs:108 `Lex`. `--json` prints the JSON dump. No style: the dump renders plain (Q941).
 i32 lexCommand(in List<string> kept) {
-    let args = t2Rest(kept)
-    for a in args {
-        return refuse("lex --json") if a == "--json"
+    var args = List<string>()
+    var json = false
+    for a in t2Rest(kept) {
+        if a == "--json" {
+            json = true
+        } else {
+            args.append(a)
+        }
     }
     var bytes = List<u8>()
     var name = "<stdin>"
@@ -48,7 +53,7 @@ i32 lexCommand(in List<string> kept) {
         bytes = Io.readFile(name) catch return exitFailure
     }
     var sb = StrBuf()
-    let failed = lexer.dumpFile(name, from: move bytes, by: lexer.Keywords.build(), to: ref sb, json: false)
+    let failed = lexer.dumpFile(name, from: move bytes, by: lexer.Keywords.build(), to: ref sb, json: json)
     Io.stdout.write(sb.finish())
     return failed ? exitFailure : exitOk
 }

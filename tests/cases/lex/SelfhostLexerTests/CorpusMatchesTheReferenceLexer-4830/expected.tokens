@@ -43,25 +43,25 @@
 1:58 InterpolatedStringEnd `"`
 1:59 InterpolationEnd `}`
 1:60 InterpolatedStringText `�`
-1:60 InterpolatedStringEnd `"`
-1:61 InterpolationEnd `}`
-1:62 InterpolatedStringEnd `"`
-1:63 InterpolationEnd `}`
-1:64 InterpolatedStringEnd `"`
-1:65 InterpolationEnd `}`
-1:66 InterpolatedStringText `�`
-1:67 InterpolatedStringEnd `"`
-1:68 InterpolationEnd `}`
-1:69 InterpolatedStringEnd `"`
-1:70 InterpolationEnd `}`
-1:71 InterpolatedStringEnd `"`
-1:72 CloseBrace `}`
-1:73 StringLiteral `"$"`
-1:76 Identifier `stray`
-1:82 CloseBrace `}`
-1:84 Identifier `here`
-1:88 StringLiteral `"`
-3:1 EndOfFile
+1:61 InterpolatedStringEnd `"`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
+1:64 InterpolationEnd `}`
+1:65 InterpolatedStringEnd `"`
+1:66 InterpolationEnd `}`
+1:67 InterpolatedStringText `�`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 CloseBrace `}`
+1:74 StringLiteral `"$"`
+1:77 Identifier `stray`
+1:83 CloseBrace `}`
+1:85 Identifier `here`
+1:89 StringLiteral `"`
+3:2 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled
 

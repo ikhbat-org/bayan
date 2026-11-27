@@ -1,6 +1,6 @@
 1:4 Identifier `raw`
 1:8 StringLiteral `"quoted"`
-3:6 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n"a\u{2067}b"\n_\nb\n`
+3:10 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n"a\u{2067}b"\n_\nb\n`
 7:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

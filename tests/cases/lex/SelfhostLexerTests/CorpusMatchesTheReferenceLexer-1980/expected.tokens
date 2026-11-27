@@ -30,8 +30,8 @@
 6:96 Identifier `uKsig`
 6:102 ContextKeyword `context`
 8:1 StringLiteral `"�"`
-8:3 StringLiteral `" `
-8:5 EndOfFile
+8:4 StringLiteral `" `
+8:6 EndOfFile
 
 error BYN0002: unexpected character ```
 

@@ -69,10 +69,10 @@
 1:91 InterpolatedStringEnd `"`
 1:92 CloseBrace `}`
 1:93 StringLiteral `"`
-2:2 LetKeyword `let`
-2:6 Identifier `b`
-2:8 Equals `=`
-2:12 IntegerLiteral `2`
+2:4 LetKeyword `let`
+2:8 Identifier `b`
+2:10 Equals `=`
+2:14 IntegerLiteral `2`
 3:4 Identifier `comment`
 3:12 Star `*`
 3:13 Slash `/`

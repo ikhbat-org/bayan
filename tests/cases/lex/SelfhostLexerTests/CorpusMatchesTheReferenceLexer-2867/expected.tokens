@@ -10,15 +10,15 @@
 4:8 UniqueKeyword `unique`
 4:15 UnionKeyword `union`
 4:21 Identifier `e`
-4:22 Identifier `num`
-4:26 FlagsKeyword `flags`
-4:32 OpenKeyword `open`
-4:37 ExtensibleKeyword `extensible`
-4:48 InterfaceKeyword `interface`
-4:58 DelegateKeyword `delegate`
-4:67 ExtensionKeyword `extension`
-4:77 DerivationKeyword `derivation`
-4:88 AttributeKeyword `attribute`
+4:23 Identifier `num`
+4:27 FlagsKeyword `flags`
+4:33 OpenKeyword `open`
+4:38 ExtensibleKeyword `extensible`
+4:49 InterfaceKeyword `interface`
+4:59 DelegateKeyword `delegate`
+4:68 ExtensionKeyword `extension`
+4:78 DerivationKeyword `derivation`
+4:89 AttributeKeyword `attribute`
 6:3 Identifier `raw`
 6:7 StringLiteral `"quoted"`
 8:1 EndOfFile

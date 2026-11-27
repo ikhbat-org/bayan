@@ -1,7 +1,7 @@
 1:1 Identifier `b`
 2:1 Identifier `ever`
 2:6 Identifier `closed`
-3:3 Identifier `Å`
+3:7 Identifier `Å`
 4:1 IntegerLiteral `0xFF`
 4:5 NumericSuffix `s`
 6:1 LetKeyword `let`

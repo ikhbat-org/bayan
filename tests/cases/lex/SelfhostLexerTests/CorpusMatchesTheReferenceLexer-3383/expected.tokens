@@ -20,7 +20,7 @@
 6:1 PlusEquals `+=`
 6:4 MinusEquals `-=`
 6:7 StarEquals `*=`
-6:11 EndOfFile
+6:12 EndOfFile
 
 error BYN0002: unexpected character `$`
 

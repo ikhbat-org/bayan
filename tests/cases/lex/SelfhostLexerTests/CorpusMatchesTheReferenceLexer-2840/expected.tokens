@@ -2,10 +2,8 @@
 1:2 Dot `.`
 2:2 Identifier `comment`
 2:11 IntegerLiteral `0b__`
-4:3 StringLiteral `"{$"`
-4:7 OpenBrace `{`
-4:8 InterpolatedStringStart `$"`
-4:10 InterpolationStart `{`
+4:6 StringLiteral `"{$"`
+4:10 OpenBrace `{`
 4:11 InterpolatedStringStart `$"`
 4:13 InterpolationStart `{`
 4:14 InterpolatedStringStart `$"`
@@ -22,7 +20,9 @@
 4:31 InterpolationStart `{`
 4:32 InterpolatedStringStart `$"`
 4:34 InterpolationStart `{`
-4:37 CharLiteral `'\q'`
+4:35 InterpolatedStringStart `$"`
+4:37 InterpolationStart `{`
+4:40 CharLiteral `'\q'`
 5:1 Identifier `b`
 6:2 Amp `&`
 6:4 AmpAmp `&&`

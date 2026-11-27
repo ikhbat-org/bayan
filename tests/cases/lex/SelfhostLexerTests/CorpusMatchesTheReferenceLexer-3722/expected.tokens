@@ -10,7 +10,7 @@
 2:67 ExtensionKeyword `extension`
 2:77 Identifier `erivation`
 2:87 AttributeKeyword `attribute`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 5:1 StructKeyword `struct`
 5:8 Identifier `S`
 6:2 EndOfFile

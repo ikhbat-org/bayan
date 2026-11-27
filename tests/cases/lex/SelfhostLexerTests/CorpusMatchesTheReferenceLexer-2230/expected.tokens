@@ -62,9 +62,9 @@
 3:63 InterpolationEnd `}`
 3:64 InterpolatedStringEnd `"`
 3:66 Identifier `c`
-3:68 Greater `>`
-3:69 GreaterEquals `>=`
-3:72 IntegerLiteral `1`
+3:69 Greater `>`
+3:70 GreaterEquals `>=`
+3:73 IntegerLiteral `1`
 4:2 LetKeyword `let`
 4:6 Identifier `a`
 4:8 Equals `=`

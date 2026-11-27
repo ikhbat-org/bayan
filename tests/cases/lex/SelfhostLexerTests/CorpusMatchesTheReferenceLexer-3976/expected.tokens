@@ -17,9 +17,9 @@
 1:39 Greater `>`
 1:41 Greater `>`
 1:42 GreaterEquals `>=`
-3:3 Identifier `macDrjo`
-3:11 Identifier `select`
-3:18 BecomeKeyword `become`
+3:7 Identifier `macDrjo`
+3:15 Identifier `select`
+3:22 BecomeKeyword `become`
 5:1 LetKeyword `let`
 5:5 LawKeyword `law`
 5:9 Equals `=`

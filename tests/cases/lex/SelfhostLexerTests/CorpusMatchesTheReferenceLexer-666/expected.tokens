@@ -3,10 +3,10 @@
 1:4 InterpolationEnd `}`
 1:5 InterpolatedStringEnd `"`
 2:1 Identifier `l`
-2:2 Identifier `t`
-2:4 Identifier `b`
-2:6 Equals `=`
-2:10 IntegerLiteral `2`
+2:3 Identifier `t`
+2:5 Identifier `b`
+2:7 Equals `=`
+2:11 IntegerLiteral `2`
 4:1 Comma `,`
 4:3 Dot `.`
 4:5 DotDot `..`

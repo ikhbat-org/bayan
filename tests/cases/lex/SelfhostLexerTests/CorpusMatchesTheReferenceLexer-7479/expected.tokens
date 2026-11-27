@@ -1,16 +1,16 @@
 1:1 IntegerLiteral `0x`
 2:2 LetKeyword `let`
 2:6 Identifier `cafe`
-2:11 Equals `=`
-2:13 IntegerLiteral `1`
-2:14 Semicolon `;`
-2:15 InterpolatedStringStart `$"`
-2:17 InterpolatedStringText `a`
-2:18 InterpolationStart `{`
-2:19 Identifier `b`
-2:20 InterpolationEnd `}`
-2:21 InterpolatedStringText `c`
-2:22 InterpolatedStringEnd
+2:13 Equals `=`
+2:15 IntegerLiteral `1`
+2:16 Semicolon `;`
+2:17 InterpolatedStringStart `$"`
+2:19 InterpolatedStringText `a`
+2:20 InterpolationStart `{`
+2:21 Identifier `b`
+2:22 InterpolationEnd `}`
+2:23 InterpolatedStringText `c`
+2:24 InterpolatedStringEnd
 3:1 CharLiteral `'\u{202E}'`
 4:1 IfKeyword `if`
 4:4 ElseKeyword `else`

@@ -8,7 +8,7 @@
 1:17 Identifier `i64`
 1:20 Greater `>`
 1:21 Greater `>`
-2:3 EndOfFile
+2:4 EndOfFile
 
 error BYN0002: unexpected character `\u{1E}`
 

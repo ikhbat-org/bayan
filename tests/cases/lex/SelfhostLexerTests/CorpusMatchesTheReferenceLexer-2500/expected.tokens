@@ -28,11 +28,11 @@
 4:79 YieldKeyword `yield`
 4:85 DeferKeyword `defer`
 4:91 Identifier `er`
-4:93 Identifier `defe`
-4:97 Comma `,`
-4:98 Identifier `r`
-4:100 UsingKeyword `using`
-4:106 ContextKeyword `context`
+4:94 Identifier `defe`
+4:98 Comma `,`
+4:99 Identifier `r`
+4:101 UsingKeyword `using`
+4:107 ContextKeyword `context`
 6:1 Identifier `a`
 6:3 Greater `>`
 6:4 Greater `>`

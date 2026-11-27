@@ -16,18 +16,18 @@
 5:1 Identifier `macro`
 5:7 Identifier `select`
 5:14 Identifier `b`
-5:17 CloseBrace `}`
-5:18 StringLiteral `"}"`
-5:21 CloseBrace `}`
-5:22 StringLiteral `"}"`
-5:25 CloseBrace `}`
-5:26 StringLiteral `"}"`
-5:29 CloseBrace `}`
-5:30 StringLiteral `"}"`
-5:33 CloseBrace `}`
-5:34 StringLiteral `"}"`
-5:37 CloseBrace `}`
-5:38 StringLiteral `"`
+5:20 CloseBrace `}`
+5:21 StringLiteral `"}"`
+5:24 CloseBrace `}`
+5:25 StringLiteral `"}"`
+5:28 CloseBrace `}`
+5:29 StringLiteral `"}"`
+5:32 CloseBrace `}`
+5:33 StringLiteral `"}"`
+5:36 CloseBrace `}`
+5:37 StringLiteral `"}"`
+5:40 CloseBrace `}`
+5:41 StringLiteral `"`
 6:3 EndOfFile
 
 error BYN0002: unexpected character ```

@@ -14,8 +14,8 @@
 2:33 MinusMinus `--`
 4:1 LetKeyword `let`
 4:5 Identifier `x`
-4:7 Equals `=`
-4:9 IntegerLiteral `1`
+4:9 Equals `=`
+4:11 IntegerLiteral `1`
 5:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xEA)

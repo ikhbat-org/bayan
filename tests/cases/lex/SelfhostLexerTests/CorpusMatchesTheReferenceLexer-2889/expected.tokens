@@ -6,7 +6,7 @@
 1:31 NosuspendKeyword `nosuspend`
 1:41 SuspendsKeyword `suspends`
 1:50 AsyncKeyword `async`
-1:55 AwaitKeyword `await`
+1:56 AwaitKeyword `await`
 3:1 StringLiteral `"`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`

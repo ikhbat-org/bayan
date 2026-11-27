@@ -5,7 +5,7 @@
 1:27 CharLiteral `'é'`
 1:31 CharLiteral `'\\'`
 1:36 CharLiteral `'\0'`
-    doc `/// Doc line twoq.\r`
+    doc `/// Doc line twoq.`
 8:2 EndOfFile
 
 error BYN0004: unterminated block comment

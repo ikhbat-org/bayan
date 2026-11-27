@@ -55,10 +55,10 @@
 2:5 LawKeyword `law`
 2:9 Equals `=`
 2:11 IntegerLiteral `3`
-3:4 Identifier `et`
-3:7 LawKeyword `law`
-3:11 Equals `=`
-3:13 IntegerLiteral `3`
+3:5 Identifier `et`
+3:8 LawKeyword `law`
+3:12 Equals `=`
+3:14 IntegerLiteral `3`
 5:1 LetKeyword `let`
 5:5 Identifier `café`
 5:10 Equals `=`

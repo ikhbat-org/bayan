@@ -1,8 +1,8 @@
-1:3 CharLiteral `' '`
-1:7 CharLiteral `''`
-1:10 CharLiteral `'é'`
-1:14 CharLiteral `'\\'`
-1:19 CharLiteral `'\/// Doc line one.\r`
+1:4 CharLiteral `' '`
+1:8 CharLiteral `''`
+1:11 CharLiteral `'é'`
+1:15 CharLiteral `'\\'`
+1:20 CharLiteral `'\/// Doc line one.`
 2:2 Comma `,`
 2:4 Dot `.`
 2:6 DotDot `..`

@@ -9,8 +9,6 @@
 3:20 OpenBrace `{`
 3:21 Identifier `lite`
 3:25 CharLiteral `'x`
-5:2 InterpolatedStringStart `$"`
-5:4 InterpolationStart `{`
 5:5 InterpolatedStringStart `$"`
 5:7 InterpolationStart `{`
 5:8 InterpolatedStringStart `$"`
@@ -37,24 +35,26 @@
 5:40 InterpolationStart `{`
 5:41 InterpolatedStringStart `$"`
 5:43 InterpolationStart `{`
-5:44 Identifier `x`
-5:45 InterpolationEnd `}`
-5:46 InterpolatedStringEnd `"`
-5:47 InterpolationEnd `}`
-5:48 InterpolatedStringEnd `"`
-5:49 InterpolationEnd `}`
-5:50 InterpolatedStringEnd `"`
-5:51 InterpolationEnd `}`
-5:52 InterpolatedStringEnd `"`
-5:53 InterpolationEnd `}`
-5:54 InterpolatedStringEnd `"`
-5:55 InterpolationEnd `}`
-5:56 InterpolatedStringEnd `"`
-5:57 InterpolationEnd `}`
-5:58 InterpolatedStringEnd `"`
-5:59 InterpolationEnd `}`
-5:60 InterpolatedStringEnd `"`
-5:61 EndOfFile
+5:44 InterpolatedStringStart `$"`
+5:46 InterpolationStart `{`
+5:47 Identifier `x`
+5:48 InterpolationEnd `}`
+5:49 InterpolatedStringEnd `"`
+5:50 InterpolationEnd `}`
+5:51 InterpolatedStringEnd `"`
+5:52 InterpolationEnd `}`
+5:53 InterpolatedStringEnd `"`
+5:54 InterpolationEnd `}`
+5:55 InterpolatedStringEnd `"`
+5:56 InterpolationEnd `}`
+5:57 InterpolatedStringEnd `"`
+5:58 InterpolationEnd `}`
+5:59 InterpolatedStringEnd `"`
+5:60 InterpolationEnd `}`
+5:61 InterpolatedStringEnd `"`
+5:62 InterpolationEnd `}`
+5:63 InterpolatedStringEnd `"`
+5:64 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C
 

@@ -1,6 +1,6 @@
 1:1 IntegerLiteral `0xF__`
-1:6 CharLiteral `' `
-2:3 CharLiteral `'\q'`
+1:7 CharLiteral `' `
+2:7 CharLiteral `'\q'`
 3:2 IntegerLiteral `0b102`
 5:1 CharLiteral `'\q'`
 7:1 EndOfFile

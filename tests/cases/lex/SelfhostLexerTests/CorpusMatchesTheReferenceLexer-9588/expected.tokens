@@ -16,8 +16,8 @@
 1:31 Identifier `y`
 1:33 FloatLiteral `2.5`
 1:36 NumericSuffix `f`
-2:2 StringLiteral `"{`
-4:12 Identifier `ạ`
+2:3 StringLiteral `"{`
+4:16 Identifier `ạ`
 5:3 EndOfFile
 
 error BYN0002: unexpected character `$`

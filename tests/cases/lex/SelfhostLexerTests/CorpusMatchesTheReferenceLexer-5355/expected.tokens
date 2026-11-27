@@ -10,10 +10,10 @@
 5:1 Identifier `macr`
 5:6 Identifier `select`
 5:13 BecomeKeyword `become`
-6:3 Identifier `a`
-6:5 Identifier `X`
-6:6 Greater `>`
-6:8 Identifier `b`
+6:7 Identifier `a`
+6:9 Identifier `X`
+6:10 Greater `>`
+6:12 Identifier `b`
 7:1 NeverKeyword `never`
 7:7 Identifier `closedb`
 8:1 EndOfFile

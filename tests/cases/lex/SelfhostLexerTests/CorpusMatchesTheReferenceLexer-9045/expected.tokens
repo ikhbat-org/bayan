@@ -6,17 +6,17 @@
 3:1 Identifier `str`
 3:5 Identifier `ct`
 3:8 UniqueKeyword `unique`
-3:15 UnionKeyword `union`
-3:21 EnumKeyword `enum`
-3:26 FlagsKeyword `flags`
-3:32 OpenKeyword `open`
-3:37 ExtensibleKeyword `extensible`
-3:48 InterfaceKeyword `interface`
-3:58 DelegateKeyword `delegate`
-3:67 Identifier `extens`
-3:74 Identifier `on`
-3:77 DerivationKeyword `derivation`
-3:88 AttributeKeyword `attribute`
+3:16 UnionKeyword `union`
+3:22 EnumKeyword `enum`
+3:27 FlagsKeyword `flags`
+3:33 OpenKeyword `open`
+3:38 ExtensibleKeyword `extensible`
+3:49 InterfaceKeyword `interface`
+3:59 DelegateKeyword `delegate`
+3:68 Identifier `extens`
+3:75 Identifier `on`
+3:78 DerivationKeyword `derivation`
+3:89 AttributeKeyword `attribute`
 4:1 EndOfFile
 
 error BYN0003: unterminated string literal

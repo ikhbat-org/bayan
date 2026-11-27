@@ -12,7 +12,7 @@
 3:1 Slash `/`
 3:3 Star `*`
 3:5 Identifier `block`
-4:3 StringLiteral `"{ � afé = 2`
+4:5 StringLiteral `"{ � afé = 2`
 5:2 EndOfFile
 
 error BYN0003: unterminated string literal

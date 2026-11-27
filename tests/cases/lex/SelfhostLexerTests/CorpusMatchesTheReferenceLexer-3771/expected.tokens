@@ -74,7 +74,7 @@
 5:12 IntegerLiteral `1`
 6:1 Star `*`
 6:2 Slash `/`
-8:1 CharLiteral `'\r`
+8:1 CharLiteral `'`
 9:1 CharLiteral `'a'`
 9:5 CharLiteral `'\n'`
 9:10 CharLiteral `'\u{1F600}'`

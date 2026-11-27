@@ -56,8 +56,8 @@
 3:67 InterpolatedStringStart `$"`
 3:69 InterpolatedStringText `x`
 3:70 InterpolationStart `{`
-3:73 OpenBrace `{`
-3:75 EndOfFile
+3:74 OpenBrace `{`
+3:76 EndOfFile
 
 error BYN0002: unexpected character `\u{2}`
 

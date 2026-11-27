@@ -301,7 +301,8 @@ FixView applyFix(TextSpan fix, by string replacement, from ref SourceText source
     let firstLine = source.getLineIndex(fix.start)
     let lastLine = source.getLineIndex(fix.end)
     let before = source.getText(TextSpan.fromBounds(source.getLineSpan(firstLine).start, until: fix.start))
-    let after = source.getText(TextSpan.fromBounds(fix.end, until: source.getLineSpan(lastLine).end))
+    let lastEnd = source.getLineSpan(lastLine).end
+    let after = source.getText(TextSpan.fromBounds(fix.end < lastEnd ? fix.end : lastEnd, until: lastEnd))
     let original = source.getText(fix)
     let o = original.bytes
     let r = replacement.bytes

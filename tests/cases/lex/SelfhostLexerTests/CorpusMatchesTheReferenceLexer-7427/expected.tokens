@@ -7,8 +7,8 @@
 3:2 IntegerLiteral `0xF__`
 5:1 LetKeyword `let`
 5:5 Identifier `x`
-5:8 Equals `=`
-5:10 IntegerLiteral `1`
+5:10 Equals `=`
+5:12 IntegerLiteral `1`
 7:1 CloseBrace `}`
 8:1 EndOfFile
 

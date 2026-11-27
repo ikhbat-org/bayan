@@ -10,8 +10,8 @@
 2:21 PlusBar `+|`
 2:24 MinusBar `-|`
 2:27 Star `*`
-2:29 PlusPlus `++`
-2:32 MinusMinus `--`
+2:30 PlusPlus `++`
+2:33 MinusMinus `--`
 4:1 StringLiteral `"text"`
 4:8 StringLiteral `"esc \"q\" \\ \n"`
 4:26 RawStringLiteral `"""\r\n `

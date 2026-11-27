@@ -16,15 +16,15 @@
 1:94 EmbedKeyword `embed`
 1:100 ExternKeyword `extern`
 1:107 UnsafeKeyword `unsafe`
-2:4 LetKeyword `let`
-2:10 Equals `=`
-2:12 IntegerLiteral `2`
+2:5 LetKeyword `let`
+2:11 Equals `=`
+2:13 IntegerLiteral `2`
 3:2 LetKeyword `let`
 3:6 Identifier `actor`
 3:12 Equals `=`
 3:14 IntegerLiteral `1`
-4:4 Identifier `각`
-4:8 EndOfFile
+4:9 Identifier `각`
+4:13 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

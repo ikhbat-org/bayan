@@ -45,14 +45,14 @@
 2:61 InterpolatedStringEnd `"`
 2:62 InterpolationEnd `}`
 2:63 InterpolatedStringText `�}`
-2:64 InterpolatedStringEnd `"`
-2:65 InterpolationEnd `}`
-2:66 InterpolatedStringText `y`
-2:67 InterpolatedStringEnd `"`
-2:68 InterpolationEnd `}`
-2:69 InterpolatedStringEnd `"`
-2:72 OpenBrace `{`
-2:73 EndOfFile
+2:65 InterpolatedStringEnd `"`
+2:66 InterpolationEnd `}`
+2:67 InterpolatedStringText `y`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:76 OpenBrace `{`
+2:77 EndOfFile
 
 error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
 

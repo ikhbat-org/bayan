@@ -11,10 +11,10 @@
 1:35 OpenBrace `{`
 1:37 Identifier `x`
 1:39 Equals `=`
-1:44 LetKeyword `let`
-1:48 EffectKeyword `effect`
-1:55 Equals `=`
-1:57 IntegerLiteral `2`
+1:45 LetKeyword `let`
+1:49 EffectKeyword `effect`
+1:56 Equals `=`
+1:58 IntegerLiteral `2`
 3:1 IntegerLiteral `0x_`
 4:1 LetKeyword `let`
 4:5 Identifier `x`

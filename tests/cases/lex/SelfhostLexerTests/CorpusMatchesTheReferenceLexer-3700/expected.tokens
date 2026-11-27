@@ -5,9 +5,9 @@
 1:23 Identifier `بي`
 1:27 Identifier `ن`
 1:29 Identifier `μετρητ`
-1:38 Identifier `c`
-1:40 Identifier `x_1`
-1:44 Identifier `é`
+1:39 Identifier `c`
+1:41 Identifier `x_1`
+1:45 Identifier `é`
 5:17 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xD8)

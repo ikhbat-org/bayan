@@ -1,5 +1,5 @@
 1:1 RawStringLiteral `"""\n�'\q'\u{F}\n\n�`
-4:1 EndOfFile
+4:2 EndOfFile
 
 error BYN0003: unterminated string literal
 

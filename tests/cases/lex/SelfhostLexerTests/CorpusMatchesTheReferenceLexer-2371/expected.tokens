@@ -4,15 +4,15 @@
 3:1 IntegerLiteral `0b__`
 4:1 IntegerLiteral `1__`
 5:1 IntegerLiteral `0xF__`
-6:3 Identifier `t`
-6:5 Star `*`
-6:6 Slash `/`
-6:8 Identifier `a`
+6:7 Identifier `t`
+6:9 Star `*`
+6:10 Slash `/`
+6:12 Identifier `a`
     doc `/// Doc line one.\n/// Doc line t`
-9:3 Identifier `et`
-9:6 Identifier `b`
-9:8 Equals `=`
-9:12 IntegerLiteral `2`
+9:5 Identifier `et`
+9:8 Identifier `b`
+9:10 Equals `=`
+9:14 IntegerLiteral `2`
 10:1 LetKeyword `let`
 10:5 Identifier `c`
 10:7 Equals `=`

@@ -9,7 +9,7 @@
 1:25 LessLessEquals `<<=`
 3:1 IntegerLiteral `0b1`
 3:4 NumericSuffix `ms`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolationStart `{`
 7:4 StringLiteral `"`

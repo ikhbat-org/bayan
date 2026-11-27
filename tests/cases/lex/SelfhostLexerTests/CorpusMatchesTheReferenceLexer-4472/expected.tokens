@@ -17,7 +17,7 @@
 3:6 LawKeyword `law`
 3:10 Equals `=`
 3:12 IntegerLiteral `3`
-5:2 CharLiteral `'x`
+5:6 CharLiteral `'x`
 7:2 Equals `=`
 7:4 InterpolatedStringStart `$"`
 7:6 InterpolationStart `{`

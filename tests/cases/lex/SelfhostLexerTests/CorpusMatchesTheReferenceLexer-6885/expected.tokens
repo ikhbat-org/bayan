@@ -1,4 +1,4 @@
-1:2 Identifier `_`
+1:5 Identifier `_`
 2:1 PlusEquals `+=`
 2:4 MinusEquals `-=`
 2:7 StarEquals `*=`
@@ -34,8 +34,8 @@
 6:75 YieldKeyword `yield`
 6:81 DeferKeyword `defer`
 6:87 ErrdeferKeyword `errdefer`
-6:96 UsingKeyword `using`
-6:102 ContextKeyword `context`
+6:97 UsingKeyword `using`
+6:103 ContextKeyword `context`
 8:1 CharLiteral `' '`
 8:6 CharLiteral `' '`
 8:10 EndOfFile

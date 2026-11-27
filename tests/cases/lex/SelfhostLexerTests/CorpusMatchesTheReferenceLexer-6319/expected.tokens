@@ -47,7 +47,7 @@
 1:64 InterpolationEnd `}`
 1:65 InterpolatedStringEnd `"`
 2:1 Identifier `각`
-2:7 Identifier `b`
+2:9 Identifier `b`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `{{`
 4:5 InterpolatedStringEnd `"`

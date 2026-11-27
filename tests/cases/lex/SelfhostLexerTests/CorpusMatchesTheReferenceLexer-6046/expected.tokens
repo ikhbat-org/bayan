@@ -38,7 +38,7 @@
 1:54 StringLiteral `"}"`
 1:57 InterpolationEnd `}`
 1:58 InterpolatedStringText `� 0x_`
-1:62 InterpolatedStringEnd
+1:63 InterpolatedStringEnd
 4:1 EndOfFile
 
 error BYN0003: unterminated string literal

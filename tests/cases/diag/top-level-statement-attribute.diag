@@ -1,0 +1,13 @@
+error BYN1069: attribute `@foo` is not allowed before a statement
+
+  1 │ @foo
+    │ ^^^^ before a statement
+    │
+  help: remove the attribute; only `@unobservable` may come before a statement
+
+error BYN8001: `@unobservable` bypasses a safety rule and needs `because "…"`
+
+  5 │ @unobservable
+    │ ^^^^^^^^^^^^^ bypasses a safety rule
+    │
+  help: explain the bypass in a `because` clause

@@ -4,7 +4,7 @@
 1:6 Identifier `b`
 2:2 Identifier `ạ̇`
 2:5 RawStringLiteral `"""\n���� ever closed\nb\n� 0x`
-5:4 EndOfFile
+5:5 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C
 

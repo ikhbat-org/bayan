@@ -58,14 +58,14 @@
 2:114 OpenBrace `{`
 2:115 StringLiteral `$"{$"`
 2:120 OpenBrace `{`
-2:121 StringLiteral `$"{$"`
-2:126 OpenBrace `{`
-2:127 StringLiteral `$"{$"`
-2:132 OpenBrace `{`
-2:133 StringLiteral `$"{x}"`
-2:139 CloseBrace `}`
-2:140 StringLiteral `"}"`
-2:144 EndOfFile
+2:122 StringLiteral `$"{$"`
+2:127 OpenBrace `{`
+2:128 StringLiteral `$"{$"`
+2:133 OpenBrace `{`
+2:134 StringLiteral `$"{x}"`
+2:140 CloseBrace `}`
+2:141 StringLiteral `"}"`
+2:145 EndOfFile
 
 error BYN0003: unterminated string literal
 

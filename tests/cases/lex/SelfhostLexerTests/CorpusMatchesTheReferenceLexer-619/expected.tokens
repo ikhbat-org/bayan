@@ -20,7 +20,7 @@
 5:3 InterpolationStart `{`
 5:4 InterpolationEnd `}`
 5:5 InterpolatedStringEnd `"`
-5:8 IntegerLiteral `0xF__`
+5:13 IntegerLiteral `0xF__`
 6:2 LetKeyword `let`
 6:6 Identifier `a`
 6:8 Equals `=`

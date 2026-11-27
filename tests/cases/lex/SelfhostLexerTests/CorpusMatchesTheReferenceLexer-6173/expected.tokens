@@ -1,9 +1,9 @@
 1:1 LetKeyword `let`
-1:5 Equals `=`
-1:7 Equals `=`
-1:9 IntegerLiteral `1`
-1:10 NumericSuffix `Z`
-1:12 StringLiteral `"{ ��`
+1:6 Equals `=`
+1:8 Equals `=`
+1:10 IntegerLiteral `1`
+1:11 NumericSuffix `Z`
+1:13 StringLiteral `"{ ��`
 2:1 Identifier `é`
 2:3 EndOfFile
 

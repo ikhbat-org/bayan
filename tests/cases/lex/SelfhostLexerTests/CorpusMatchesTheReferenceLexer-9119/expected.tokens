@@ -1,4 +1,3 @@
-    doc `/// Doc line two.`
 5:1 StringLiteral `" $"`
 5:5 StringLiteral `"`
 7:1 PlusEquals `+=`

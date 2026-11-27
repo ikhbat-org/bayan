@@ -1,7 +1,7 @@
 1:1 StringLiteral `"text"`
 1:8 StringLiteral `"esc \"q\" \\ \n"`
 1:26 RawStringLiteral `"""\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{"{$"{$�"{x}"}"}"}"\na >> b\n let effect = 2\n += -= *= /= %= &= |= ^= <<=\n$"a{b}c�����`
-6:9 EndOfFile
+6:13 EndOfFile
 
 error BYN0003: unterminated string literal
 

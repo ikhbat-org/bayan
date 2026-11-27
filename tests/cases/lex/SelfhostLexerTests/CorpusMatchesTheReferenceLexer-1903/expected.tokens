@@ -52,7 +52,7 @@
 3:71 InterpolatedStringEnd `"`
 3:72 InterpolationEnd `}`
 3:73 InterpolatedStringEnd `"`
-4:2 EndOfFile
+4:4 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier
 

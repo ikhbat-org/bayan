@@ -1,8 +1,8 @@
 1:1 Identifier `b`
 2:1 Identifier `ff`
 2:4 IntegerLiteral `0b101`
-2:10 IntegerLiteral `0`
-2:11 NumericSuffix `B`
+2:11 IntegerLiteral `0`
+2:12 NumericSuffix `B`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8F)

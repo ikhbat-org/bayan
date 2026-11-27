@@ -20,7 +20,7 @@
 4:7 CharLiteral `' '`
 4:11 IntegerLiteral `0`
 4:12 CharLiteral `'`
-5:4 EndOfFile
+5:11 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`
 

@@ -1,5 +1,5 @@
 1:9 CharLiteral `'\''`
-1:15 Identifier `a`
+1:16 Identifier `a`
 7:4 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines

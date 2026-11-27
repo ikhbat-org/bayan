@@ -1,9 +1,9 @@
 1:1 StringLiteral `"sray } here"`
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `ope�n `
-2:8 InterpolationStart `{`
-2:9 Identifier `x`
-2:10 StringLiteral `";`
+2:9 InterpolationStart `{`
+2:10 Identifier `x`
+2:11 StringLiteral `";`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

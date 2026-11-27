@@ -5,12 +5,12 @@
 1:8 InterpolationEnd `}`
 1:9 InterpolatedStringText `cb`
 1:11 InterpolatedStringEnd
-2:1 InterpolatedStringStart `$"`
-2:3 InterpolatedStringText `x`
-2:4 InterpolationStart `{`
-2:6 InterpolatedStringStart `$"`
-2:8 InterpolationStart `{`
-2:9 IntegerLiteral `0x`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `x`
+2:5 InterpolationStart `{`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolationStart `{`
+2:10 IntegerLiteral `0x`
 3:1 ErrorKeyword `error`
 3:7 SetKeyword `set`
 3:11 UnitKeyword `unit`

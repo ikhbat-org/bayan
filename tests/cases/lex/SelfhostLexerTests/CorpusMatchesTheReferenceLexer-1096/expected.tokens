@@ -50,19 +50,19 @@
 1:80 InterpolatedStringEnd `"`
 1:81 InterpolationEnd `}`
 1:82 InterpolatedStringEnd `"`
-1:88 Identifier `raw`
-1:92 StringLiteral `"quoted"`
-2:2 Identifier `allowed3`
-2:11 InKeyword `in`
-2:14 Identifier `st_rings`
-2:22 StringLiteral `" "`
-2:25 StringLiteral `" "`
-2:29 Identifier `u`
-2:30 OpenBrace `{`
-2:31 IntegerLiteral `48`
-2:33 CloseBrace `}`
-2:34 Identifier `i`
-2:35 StringLiteral `"`
+1:90 Identifier `raw`
+1:94 StringLiteral `"quoted"`
+2:3 Identifier `allowed3`
+2:12 InKeyword `in`
+2:15 Identifier `st_rings`
+2:23 StringLiteral `" "`
+2:26 StringLiteral `" "`
+2:30 Identifier `u`
+2:31 OpenBrace `{`
+2:32 IntegerLiteral `48`
+2:34 CloseBrace `}`
+2:35 Identifier `i`
+2:36 StringLiteral `"`
 3:2 Identifier `tension`
 3:10 DerivationKeyword `derivation`
 3:21 AttributeKeyword `attribute`

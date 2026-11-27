@@ -42,10 +42,10 @@
 4:67 Identifier `ele`
 4:71 UnlessKeyword `unless`
 4:78 Identifier `swi`
-4:83 Identifier `a`
-4:85 Greater `>`
-4:86 Greater `>`
-4:88 Identifier `b`
+4:85 Identifier `a`
+4:87 Greater `>`
+4:88 Greater `>`
+4:90 Identifier `b`
 5:1 EndOfFile
 
 error BYN0007: empty char literal

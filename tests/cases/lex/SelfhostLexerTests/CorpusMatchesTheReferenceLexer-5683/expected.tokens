@@ -1,6 +1,6 @@
 1:1 Identifier `xց`
-1:3 Equals `=`
-1:5 IntegerLiteral `1`
+1:4 Equals `=`
+1:6 IntegerLiteral `1`
 2:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA7)

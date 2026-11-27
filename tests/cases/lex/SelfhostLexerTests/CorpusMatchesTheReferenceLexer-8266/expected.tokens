@@ -86,34 +86,34 @@
 6:10 InterpolationStart `{`
 6:11 InterpolatedStringStart `$"`
 6:13 InterpolationStart `{`
-6:14 StringLiteral `"{$"`
-6:18 OpenBrace `{`
-6:19 InterpolatedStringStart `$"`
-6:21 InterpolationStart `{`
-6:22 InterpolatedStringStart `$"`
-6:24 InterpolationStart `{`
-6:25 InterpolatedStringStart `$"`
-6:27 InterpolationStart `{`
-6:28 InterpolatedStringStart `$"`
-6:30 InterpolationStart `{`
-6:31 InterpolatedStringStart `$"`
-6:33 InterpolationStart `{`
-6:34 InterpolatedStringStart `$"`
-6:36 InterpolationStart `{`
-6:37 InterpolatedStringStart `$"`
-6:39 InterpolationStart `{`
-6:40 InterpolatedStringStart `$"`
-6:42 InterpolationStart `{`
-6:43 InterpolatedStringStart `$"`
-6:45 InterpolationStart `{`
-6:46 InterpolatedStringStart `$"`
-6:48 InterpolationStart `{`
-6:49 StringLiteral `$"{$"`
-6:54 OpenBrace `{`
-6:55 Identifier `x`
-6:56 CloseBrace `}`
-6:57 StringLiteral `"}"`
-6:60 EndOfFile
+6:15 StringLiteral `"{$"`
+6:19 OpenBrace `{`
+6:20 InterpolatedStringStart `$"`
+6:22 InterpolationStart `{`
+6:23 InterpolatedStringStart `$"`
+6:25 InterpolationStart `{`
+6:26 InterpolatedStringStart `$"`
+6:28 InterpolationStart `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 StringLiteral `$"{$"`
+6:55 OpenBrace `{`
+6:56 Identifier `x`
+6:57 CloseBrace `}`
+6:58 StringLiteral `"}"`
+6:61 EndOfFile
 
 error BYN0008: unterminated char literal
 

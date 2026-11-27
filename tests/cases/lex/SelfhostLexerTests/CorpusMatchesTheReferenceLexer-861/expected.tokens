@@ -3,14 +3,14 @@
 1:10 NotKeyword `not`
 1:14 WithKeyword `with`
 1:19 MoveKeyword `move`
-1:23 RefKeyword `ref`
-1:27 OutKeyword `out`
-1:31 ThisKeyword `this`
-1:36 NullKeyword `null`
-1:41 TrueKeyword `true`
-1:46 FalseKeyword `false`
-1:52 ComptimeKeyword `comptime`
-1:61 CheckedKeyword `checked`
+1:24 RefKeyword `ref`
+1:28 OutKeyword `out`
+1:32 ThisKeyword `this`
+1:37 NullKeyword `null`
+1:42 TrueKeyword `true`
+1:47 FalseKeyword `false`
+1:53 ComptimeKeyword `comptime`
+1:62 CheckedKeyword `checked`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBE)

@@ -1,8 +1,8 @@
-1:2 StringLiteral `"a\u{2067}b"`
+1:3 StringLiteral `"a\u{2067}b"`
 2:2 Identifier `_`
-3:3 Identifier `é`
-3:6 Equals `=`
-3:10 IntegerLiteral `1`
+3:4 Identifier `é`
+3:7 Equals `=`
+3:11 IntegerLiteral `1`
 4:1 LetKeyword `let`
 4:5 Identifier `b`
 4:7 Equals `=`

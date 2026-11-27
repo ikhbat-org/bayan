@@ -11,7 +11,7 @@
 2:6 Identifier `a`
 2:8 Equals `=`
 2:10 IntegerLiteral `1`
-6:2 EndOfFile
+6:4 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)
 

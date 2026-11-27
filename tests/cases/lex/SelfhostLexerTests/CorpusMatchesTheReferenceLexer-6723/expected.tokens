@@ -1,7 +1,7 @@
-1:1 Identifier `et`
-1:4 EffectKeyword `effect`
-1:11 Equals `=`
-1:13 IntegerLiteral `2`
+1:2 Identifier `et`
+1:5 EffectKeyword `effect`
+1:12 Equals `=`
+1:14 IntegerLiteral `2`
 2:1 LetKeyword `let`
 2:5 Identifier `a`
 2:7 Equals `=`

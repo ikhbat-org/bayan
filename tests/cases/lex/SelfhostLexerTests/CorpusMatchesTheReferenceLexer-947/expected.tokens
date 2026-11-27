@@ -12,7 +12,7 @@
 5:37 Identifier `x_1`
 5:41 Identifier `é`
 6:1 RawStringLiteral `"""let b = "bad \q escape"\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"�$"{x}"}"}" `
-8:56 EndOfFile
+8:57 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

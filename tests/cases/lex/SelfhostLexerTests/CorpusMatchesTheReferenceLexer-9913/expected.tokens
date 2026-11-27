@@ -29,7 +29,7 @@
 6:5 Identifier `b`
 6:7 Equals `=`
 6:9 StringLiteral `"bad \q escape"`
-    doc `/// c >>= 1\r`
+    doc `/// c >>= 1`
 8:1 Equals `=`
 8:5 IntegerLiteral `2`
 9:1 LetKeyword `let`

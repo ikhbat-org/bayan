@@ -9,10 +9,10 @@
 1:24 Identifier `i`
 1:25 StringLiteral `"`
 3:1 Identifier `l`
-3:2 Identifier `et`
-3:5 Identifier `café`
-3:10 Equals `=`
-3:12 IntegerLiteral `2`
+3:3 Identifier `et`
+3:6 Identifier `café`
+3:11 Equals `=`
+3:13 IntegerLiteral `2`
 4:2 InterpolatedStringStart `$"`
 4:4 InterpolatedStringText `{{`
 4:6 InterpolatedStringEnd `"`

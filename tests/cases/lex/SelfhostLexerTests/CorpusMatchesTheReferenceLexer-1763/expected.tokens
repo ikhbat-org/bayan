@@ -50,10 +50,10 @@
 1:83 InterpolationEnd `}`
 1:84 InterpolatedStringEnd `"`
 1:85 Identifier `l`
-1:86 Identifier `t`
-1:88 Identifier `x`
-1:91 Equals `=`
-1:93 IntegerLiteral `1`
+1:87 Identifier `t`
+1:89 Identifier `x`
+1:92 Equals `=`
+1:94 IntegerLiteral `1`
 3:3 OpenParen `(`
 3:5 CloseParen `)`
 3:7 OpenBracket `[`

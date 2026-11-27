@@ -6,7 +6,7 @@
 2:15 LawKeyword `law`
 2:19 Equals `=`
 2:21 IntegerLiteral `3`
-3:3 EndOfFile
+3:6 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`
 

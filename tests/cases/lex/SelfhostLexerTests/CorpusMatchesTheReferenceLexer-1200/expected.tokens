@@ -3,8 +3,8 @@
 1:4 InterpolationStart `{`
 1:5 Identifier `b`
 1:6 InterpolationEnd `}`
-1:7 InterpolatedStringText `c\r`
-1:9 InterpolatedStringEnd
+1:7 InterpolatedStringText `c`
+1:8 InterpolatedStringEnd
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 Equals `=`

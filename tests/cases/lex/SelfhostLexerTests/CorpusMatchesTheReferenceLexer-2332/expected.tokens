@@ -44,7 +44,7 @@
 1:71 InterpolatedStringEnd `"`
 1:72 CloseBrace `}`
 1:73 StringLiteral `" _ struct S`
-3:1 CharLiteral `'x\r`
+3:1 CharLiteral `'x`
 4:1 Identifier `et`
 4:4 EffectKeyword `effect`
 4:11 Equals `=`
@@ -52,8 +52,8 @@
 5:1 Identifier `macro`
 5:7 Identifier `select`
 5:14 Identifier `beco`
-6:1 CharLiteral `'\r`
-7:1 CharLiteral `'\u{1100\r`
+6:1 CharLiteral `'`
+7:1 CharLiteral `'\u{1100`
 8:1 EndOfFile
 
 error BYN0003: unterminated string literal

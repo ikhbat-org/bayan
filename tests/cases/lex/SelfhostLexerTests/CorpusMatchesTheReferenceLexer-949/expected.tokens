@@ -2,7 +2,7 @@
 2:6 EffectKeyword `effect`
 2:13 Equals `=`
 2:15 IntegerLiteral `2`
-3:3 CharLiteral `'`
+3:7 CharLiteral `'`
 4:1 Identifier `macro`
 4:7 Identifier `select`
 4:14 BecomeKeyword `become`

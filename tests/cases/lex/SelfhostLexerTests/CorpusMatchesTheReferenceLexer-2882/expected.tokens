@@ -1,6 +1,6 @@
 1:1 Identifier `aw`
 1:4 StringLiteral `"quoted"`
-3:5 IntegerLiteral `0`
+3:7 IntegerLiteral `0`
 4:1 CharLiteral `''`
 4:3 Identifier `G`
 4:4 EndOfFile

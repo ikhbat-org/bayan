@@ -4,9 +4,9 @@
 4:2 OpenBrace `{`
 4:3 Identifier `D800`
 4:7 CloseBrace `}`
-4:8 CharLiteral `'\r`
+4:8 CharLiteral `'`
 5:1 CharLiteral `'\u110000}'`
-6:1 CharLiteral `'x\r`
+6:1 CharLiteral `'x`
 8:1 StructKeyword `struct`
 8:8 Identifier `S`
 9:1 CharLiteral `'ab'`

@@ -75,9 +75,9 @@
 1:109 InterpolatedStringEnd `"`
 1:110 InterpolationEnd `}`
 1:111 InterpolatedStringEnd `"`
-3:2 InterpolatedStringStart `$"`
-3:4 InterpolationStart `{`
-4:1 EndOfFile
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolationStart `{`
+4:2 EndOfFile
 
 error BYN0002: unexpected character `$`
 

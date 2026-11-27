@@ -8,7 +8,7 @@
 3:1 CharLiteral `'ab'`
 3:6 CharLiteral `'\q'`
 4:1 CharLiteral `'\ �� `
-4:6 EndOfFile
+4:7 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar
 

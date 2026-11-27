@@ -2,7 +2,7 @@
 1:5 Identifier `b`
 1:7 Equals `=`
 1:9 StringLiteral `"bad \q scape"`
-3:1 Identifier `_`
+3:2 Identifier `_`
 4:1 IntegerLiteral `0b102`
 5:1 IntegerLiteral `0xFF`
 5:5 NumericSuffix `s`

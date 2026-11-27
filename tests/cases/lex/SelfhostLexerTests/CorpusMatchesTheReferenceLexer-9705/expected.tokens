@@ -1,7 +1,7 @@
-1:1 Identifier `et`
-1:4 Identifier `café`
-1:9 Equals `=`
-1:11 IntegerLiteral `2`
+1:2 Identifier `et`
+1:5 Identifier `café`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
 2:5 Identifier `comm`
 2:10 Identifier `nt`
 2:13 Star `*`
@@ -87,7 +87,7 @@
 6:104 InterpolatedStringEnd `"`
 6:105 CloseBrace `}`
 6:106 StringLiteral `"}"`
-7:2 EndOfFile
+7:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x99)
 

@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
-1:5 Identifier `b`
-1:7 Equals `=`
-1:11 IntegerLiteral `2`
+1:6 Identifier `b`
+1:8 Equals `=`
+1:12 IntegerLiteral `2`
 3:1 Identifier `nt`
 3:4 InterpolatedStringStart `$"`
 3:6 InterpolatedStringText `a`

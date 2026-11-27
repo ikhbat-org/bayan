@@ -5,7 +5,7 @@
 1:6 InterpolatedStringText `if else unsless switch case default for in while do break continu return yield defer errdefer using contxt`
 1:112 InterpolatedStringEnd
 2:1 Identifier `a`
-7:2 EndOfFile
+7:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

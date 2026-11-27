@@ -1,5 +1,5 @@
 1:1 StringLiteral `"_open� {x"`
-1:11 Semicolon `;`
+1:12 Semicolon `;`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x92)

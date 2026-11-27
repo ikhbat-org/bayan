@@ -18,7 +18,7 @@
 1:37 Greater `>`
 1:39 Greater `>`
 1:40 GreaterEquals `>=`
-2:3 OpenBrace `{`
+2:5 OpenBrace `{`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`

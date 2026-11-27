@@ -24,7 +24,7 @@
 5:66 NumericSuffix `ul`
 5:69 IntegerLiteral `7`
 5:70 NumericSuffix `l`
-8:3 EndOfFile
+8:6 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines
 

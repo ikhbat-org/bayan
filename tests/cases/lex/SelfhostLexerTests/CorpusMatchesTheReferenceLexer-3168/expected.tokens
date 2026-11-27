@@ -65,9 +65,9 @@
 8:92 Identifier `camelCase2`
 8:103 Identifier `بيان`
 8:108 Identifier `μετρ`
-8:112 Identifier `τής`
-8:116 Identifier `x_1`
-8:120 Identifier `é`
+8:114 Identifier `τής`
+8:118 Identifier `x_1`
+8:122 Identifier `é`
 10:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)

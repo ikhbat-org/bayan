@@ -1,7 +1,7 @@
 1:1 Identifier `leta`
-1:5 Identifier `tor`
-1:9 Equals `=`
-1:11 IntegerLiteral `1`
+1:6 Identifier `tor`
+1:10 Equals `=`
+1:12 IntegerLiteral `1`
 2:1 IntegerLiteral `1_`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`

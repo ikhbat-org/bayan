@@ -1,7 +1,7 @@
 1:2 Identifier `closed`
 2:1 Identifier `b`
 3:1 CharLiteral `'\q'`
-4:3 CharLiteral `'\0'`
+4:5 CharLiteral `'\0'`
 6:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

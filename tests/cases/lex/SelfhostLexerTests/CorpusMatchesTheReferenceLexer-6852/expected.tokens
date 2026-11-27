@@ -47,25 +47,25 @@
 4:42 InterpolationStart `{`
 4:43 InterpolatedStringStart `$"`
 4:45 InterpolationStart `{`
-4:46 InterpolatedStringStart `$"`
-4:48 InterpolationStart `{`
-4:49 InterpolatedStringStart `$"`
-4:51 InterpolationStart `{`
-4:52 Identifier `x`
-4:53 InterpolationEnd `}`
-4:54 InterpolatedStringEnd `"`
-4:55 InterpolationEnd `}`
-4:56 InterpolatedStringEnd `"`
-4:57 InterpolationEnd `}`
-4:58 InterpolatedStringEnd `"`
-4:59 InterpolationEnd `}`
-4:60 InterpolatedStringEnd `"`
-4:61 InterpolationEnd `}`
-4:62 InterpolatedStringEnd `"`
-4:63 InterpolationEnd `}`
-4:64 InterpolatedStringEnd `"`
-4:65 InterpolationEnd `}`
-4:66 InterpolatedStringEnd `"`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 Identifier `x`
+4:54 InterpolationEnd `}`
+4:55 InterpolatedStringEnd `"`
+4:56 InterpolationEnd `}`
+4:57 InterpolatedStringEnd `"`
+4:58 InterpolationEnd `}`
+4:59 InterpolatedStringEnd `"`
+4:60 InterpolationEnd `}`
+4:61 InterpolatedStringEnd `"`
+4:62 InterpolationEnd `}`
+4:63 InterpolatedStringEnd `"`
+4:64 InterpolationEnd `}`
+4:65 InterpolatedStringEnd `"`
+4:66 InterpolationEnd `}`
+4:67 InterpolatedStringEnd `"`
 5:3 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value

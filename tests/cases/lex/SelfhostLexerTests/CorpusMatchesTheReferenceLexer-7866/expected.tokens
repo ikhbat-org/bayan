@@ -18,7 +18,7 @@
 4:26 StarBar `*|`
 4:29 PlusPlus `++`
 4:32 MinusMinus `--`
-6:3 EndOfFile
+6:4 EndOfFile
 
 error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
 

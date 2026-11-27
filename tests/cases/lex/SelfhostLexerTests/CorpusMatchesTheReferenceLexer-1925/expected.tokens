@@ -1,10 +1,10 @@
 1:1 LetKeyword `let`
 1:5 Identifier `caf`
-1:8 Identifier `é`
-1:11 Equals `=`
-1:13 IntegerLiteral `1`
-1:14 Semicolon `;`
-1:16 IntegerLiteral `0x_`
+1:9 Identifier `é`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+1:15 Semicolon `;`
+1:17 IntegerLiteral `0x_`
 2:2 LetKeyword `let`
 2:6 Identifier `caé`
 2:10 Equals `=`

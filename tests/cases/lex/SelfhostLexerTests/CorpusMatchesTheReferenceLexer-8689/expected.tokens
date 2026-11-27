@@ -6,10 +6,10 @@
 3:4 InterpolatedStringText `stray } h�ere`
 3:17 InterpolatedStringEnd `"`
 5:1 CharLiteral `'abS'`
-6:3 LetKeyword `let`
-6:7 Identifier `a`
-6:9 Equals `=`
-6:11 IntegerLiteral `1`
+6:5 LetKeyword `let`
+6:9 Identifier `a`
+6:11 Equals `=`
+6:13 IntegerLiteral `1`
 8:1 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled

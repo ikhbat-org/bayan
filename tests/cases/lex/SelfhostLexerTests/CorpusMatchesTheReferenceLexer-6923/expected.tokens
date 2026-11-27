@@ -8,9 +8,9 @@
 2:22 MoveKeyword `move`
 2:27 RefKeyword `ref`
 2:31 Identifier `o`
-2:32 Identifier `t`
-2:34 ThisKeyword `this`
-2:39 NullKeyword `null`
+2:33 Identifier `t`
+2:35 ThisKeyword `this`
+2:40 NullKeyword `null`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC9)

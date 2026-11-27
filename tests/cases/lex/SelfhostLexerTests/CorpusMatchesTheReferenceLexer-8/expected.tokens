@@ -22,9 +22,9 @@
 5:25 CloseBrace `}`
 5:26 InterpolationEnd `}`
 5:27 InterpolatedStringText `�!`
-5:28 InterpolatedStringEnd `"`
-5:30 InterpolatedStringStart `$"`
-5:32 InterpolatedStringEnd `"`
+5:29 InterpolatedStringEnd `"`
+5:31 InterpolatedStringStart `$"`
+5:33 InterpolatedStringEnd `"`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolatedStringText `x`
 7:4 InterpolationStart `{`

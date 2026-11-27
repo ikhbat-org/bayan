@@ -21,8 +21,8 @@
 1:69 NumericSuffix `l`
 2:2 CharLiteral `'x`
 4:1 Slash `/`
-4:2 Star `*`
-4:4 Identifier `block`
+4:3 Star `*`
+4:5 Identifier `block`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolationStart `{`
 5:4 InterpolatedStringStart `$"`

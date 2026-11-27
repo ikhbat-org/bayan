@@ -89,9 +89,9 @@
 4:137 FalseKeyword `false`
 4:143 ComptimeKeyword `comptime`
 4:152 CheckedKeyword `checked`
-6:1 Identifier `ρητής`
-6:7 Identifier `x_1`
-6:11 Identifier `é`
+6:2 Identifier `ρητής`
+6:8 Identifier `x_1`
+6:12 Identifier `é`
 7:2 EndOfFile
 
 error BYN0003: unterminated string literal

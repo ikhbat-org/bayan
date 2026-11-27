@@ -35,8 +35,8 @@
 3:48 InterpolatedStringEnd `"`
 3:49 InterpolationEnd `}`
 3:50 InterpolatedStringEnd `"`
-3:52 StringLiteral `"open {x"`
-3:61 Semicolon `;`
+3:53 StringLiteral `"open {x"`
+3:62 Semicolon `;`
     doc `/// Doc line \u{1D}two.`
 5:2 CharLiteral `'x`
 6:2 IntegerLiteral `1__`

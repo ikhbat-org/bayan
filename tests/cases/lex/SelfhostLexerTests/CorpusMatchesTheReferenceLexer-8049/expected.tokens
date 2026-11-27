@@ -64,11 +64,11 @@
 8:66 StringLiteral `"}"`
 8:69 CloseBrace `}`
 8:70 StringLiteral `"}"`
-8:73 InterpolationEnd `}`
-8:74 InterpolatedStringEnd `"`
-8:75 InterpolationEnd `}`
-8:76 InterpolatedStringEnd `"`
-8:78 EndOfFile
+8:74 InterpolationEnd `}`
+8:75 InterpolatedStringEnd `"`
+8:76 InterpolationEnd `}`
+8:77 InterpolatedStringEnd `"`
+8:79 EndOfFile
 
 error BYN0003: unterminated string literal
 

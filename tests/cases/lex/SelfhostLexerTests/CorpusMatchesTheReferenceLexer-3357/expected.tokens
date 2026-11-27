@@ -7,17 +7,17 @@
 1:21 PlusPlus `++`
 1:24 MinusMinus `--`
 2:1 Amp `&`
-2:2 AmpAmp `&&`
-2:5 Bar `|`
-2:7 BarBar `||`
-2:9 TestKeyword `test`
-2:14 AssertKeyword `assert`
-2:21 PropertyKeyword `property`
-2:30 FuzzKeyword `fuzz`
-2:35 ModelKeyword `model`
-2:41 ForeachKeyword `foreach`
-2:49 NewKeyword `new`
-2:53 GotoKeyword `goto`
+2:3 AmpAmp `&&`
+2:6 Bar `|`
+2:8 BarBar `||`
+2:10 TestKeyword `test`
+2:15 AssertKeyword `assert`
+2:22 PropertyKeyword `property`
+2:31 FuzzKeyword `fuzz`
+2:36 ModelKeyword `model`
+2:42 ForeachKeyword `foreach`
+2:50 NewKeyword `new`
+2:54 GotoKeyword `goto`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

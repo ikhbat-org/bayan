@@ -24,7 +24,7 @@
 2:19 CloseBrace `}`
 2:20 CloseBrace `}`
 2:21 StringLiteral `" $"`
-2:25 Identifier `Po`
+2:26 Identifier `Po`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `x`
 3:4 InterpolationStart `{`

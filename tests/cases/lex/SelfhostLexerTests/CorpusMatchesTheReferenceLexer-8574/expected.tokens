@@ -1,6 +1,6 @@
 1:1 Identifier `Å`
-1:6 Identifier `raw`
-1:10 StringLiteral `"quoted"`
+1:7 Identifier `raw`
+1:11 StringLiteral `"quoted"`
 2:1 FloatLiteral `6E+2`
 2:6 FloatLiteral `1.50`
 2:10 NumericSuffix `dec`

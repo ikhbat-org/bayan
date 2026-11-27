@@ -1,8 +1,8 @@
 1:1 Identifier `le`
-1:3 Identifier `J`
-1:5 Identifier `b`
-1:7 Equals `=`
-1:11 IntegerLiteral `2`
+1:4 Identifier `J`
+1:6 Identifier `b`
+1:8 Equals `=`
+1:12 IntegerLiteral `2`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x85)

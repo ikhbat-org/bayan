@@ -8,11 +8,11 @@
 1:29 OutKeyword `out`
 1:33 ThisKeyword `this`
 1:38 NullKeyword `null`
-1:43 Identifier `rue`
-1:47 Identifier `f`
-1:48 Identifier `lse`
-1:52 ComptimeKeyword `comptime`
-1:61 CheckedKeyword `checked`
+1:44 Identifier `rue`
+1:48 Identifier `f`
+1:50 Identifier `lse`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
 2:1 PlusEquals `+=`
 2:4 MinusEquals `-=`
 2:7 StarEquals `*=`
@@ -36,9 +36,9 @@
 4:27 BarEquals `|=`
 4:30 CaretEquals `^=`
 4:33 LessLessEquals `<<=`
-4:36 IntegerLiteral `0b1`
-4:39 NumericSuffix `ms`
-5:3 EndOfFile
+4:37 IntegerLiteral `0b1`
+4:40 NumericSuffix `ms`
+5:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x89)
 

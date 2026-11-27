@@ -31,29 +31,29 @@
 1:46 InterpolatedStringStart `$"`
 1:48 InterpolationStart `{`
 1:49 StringLiteral `$"{�$"`
-1:54 OpenBrace `{`
-1:55 Identifier `x`
-1:56 CloseBrace `}`
-1:57 StringLiteral `"}"`
-1:60 InterpolationEnd `}`
-1:61 InterpolatedStringEnd `"`
-1:62 InterpolationEnd `}`
-1:63 InterpolatedStringEnd `"`
-1:64 InterpolationEnd `}`
-1:65 InterpolatedStringEnd `"`
-1:66 InterpolationEnd `}`
-1:67 InterpolatedStringEnd `"`
-1:68 InterpolationEnd `}`
-1:69 InterpolatedStringEnd `"`
-1:70 InterpolationEnd `}`
-1:71 InterpolatedStringEnd `"`
-1:72 InterpolationEnd `}`
-1:73 InterpolatedStringEnd `"`
-1:74 InterpolationEnd `}`
-1:75 InterpolatedStringEnd `"`
-1:76 InterpolationEnd `}`
-1:77 InterpolatedStringEnd `"`
-1:78 EndOfFile
+1:55 OpenBrace `{`
+1:56 Identifier `x`
+1:57 CloseBrace `}`
+1:58 StringLiteral `"}"`
+1:61 InterpolationEnd `}`
+1:62 InterpolatedStringEnd `"`
+1:63 InterpolationEnd `}`
+1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
+1:67 InterpolationEnd `}`
+1:68 InterpolatedStringEnd `"`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringEnd `"`
+1:71 InterpolationEnd `}`
+1:72 InterpolatedStringEnd `"`
+1:73 InterpolationEnd `}`
+1:74 InterpolatedStringEnd `"`
+1:75 InterpolationEnd `}`
+1:76 InterpolatedStringEnd `"`
+1:77 InterpolationEnd `}`
+1:78 InterpolatedStringEnd `"`
+1:79 EndOfFile
 
 error BYN0003: unterminated string literal
 

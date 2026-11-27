@@ -33,9 +33,9 @@
 5:24 PlusBar `+|`
 5:27 MinusBar `-|`
 5:30 Star `*`
-5:31 Bar `|`
-5:33 PlusPlus `++`
-5:36 MinusMinus `--`
+5:32 Bar `|`
+5:34 PlusPlus `++`
+5:37 MinusMinus `--`
 7:2 IntegerLiteral `0xFF`
 7:7 IntegerLiteral `0x_ff`
 7:13 IntegerLiteral `0b1010`

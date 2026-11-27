@@ -20,16 +20,16 @@
 1:51 InterpolatedStringStart `$"`
 1:53 InterpolationStart `{`
 1:54 Identifier `Poin`
-1:59 OpenBrace `{`
-1:61 Identifier `x`
-1:63 Equals `=`
-1:65 IntegerLiteral `1`
-1:67 CloseBrace `}`
-1:68 InterpolationEnd `}`
-1:69 InterpolatedStringText `!`
-1:70 InterpolatedStringEnd `"`
-1:72 InterpolatedStringStart `$"`
-1:74 InterpolatedStringEnd `"`
+1:60 OpenBrace `{`
+1:62 Identifier `x`
+1:64 Equals `=`
+1:66 IntegerLiteral `1`
+1:68 CloseBrace `}`
+1:69 InterpolationEnd `}`
+1:70 InterpolatedStringText `!`
+1:71 InterpolatedStringEnd `"`
+1:73 InterpolatedStringStart `$"`
+1:75 InterpolatedStringEnd `"`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

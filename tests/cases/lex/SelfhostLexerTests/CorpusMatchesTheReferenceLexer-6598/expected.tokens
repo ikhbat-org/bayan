@@ -9,9 +9,9 @@
 5:8 Identifier `G`
 5:12 IntegerLiteral `1`
 7:1 Identifier `ma`
-7:3 Identifier `ro`
-7:6 Identifier `select`
-7:13 BecomeKeyword `become`
+7:4 Identifier `ro`
+7:7 Identifier `select`
+7:14 BecomeKeyword `become`
 9:1 Identifier `sed`
 11:1 EndOfFile
 

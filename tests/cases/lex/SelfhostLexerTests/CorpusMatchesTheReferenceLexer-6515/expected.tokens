@@ -2,7 +2,7 @@
 2:6 LetKeyword `let`
 2:10 LawKeyword `law`
 2:14 Equals `=`
-2:16 IntegerLiteral `3`
+2:17 IntegerLiteral `3`
 4:1 EndOfFile
 
 error BYN0001: bidirectional control character U+2066 is not allowed outside string literals

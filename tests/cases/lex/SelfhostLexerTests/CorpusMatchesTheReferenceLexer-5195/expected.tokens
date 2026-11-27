@@ -5,14 +5,14 @@
 6:3 Identifier `e`
 7:1 IfKeyword `if`
 7:4 Identifier `e`
-7:5 Identifier `se`
-7:8 UnlessKeyword `unless`
-7:15 SwitchKeyword `switch`
-7:22 CaseKeyword `case`
-7:27 DefaultKeyword `default`
-7:35 InterpolatedStringStart `$"`
-7:37 InterpolatedStringText `stray } here`
-7:49 InterpolatedStringEnd `"`
+7:6 Identifier `se`
+7:9 UnlessKeyword `unless`
+7:16 SwitchKeyword `switch`
+7:23 CaseKeyword `case`
+7:28 DefaultKeyword `default`
+7:36 InterpolatedStringStart `$"`
+7:38 InterpolatedStringText `stray } here`
+7:50 InterpolatedStringEnd `"`
 9:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

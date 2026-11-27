@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `0b__`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `op�n `
-3:7 InterpolationStart `{`
-3:8 Identifier `x`
-3:9 StringLiteral `";`
+3:8 InterpolationStart `{`
+3:9 Identifier `x`
+3:10 StringLiteral `";`
 4:2 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

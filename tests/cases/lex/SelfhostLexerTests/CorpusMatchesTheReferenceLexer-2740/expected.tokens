@@ -24,8 +24,8 @@
 3:55 NumericSuffix `l`
 4:2 StructKeyword `struct`
 4:9 Identifier `S`
-5:2 Identifier `ς`
-5:4 Identifier `x_`
+5:3 Identifier `ς`
+5:5 Identifier `x_`
 6:1 Identifier `mment`
 7:1 EndOfFile
 

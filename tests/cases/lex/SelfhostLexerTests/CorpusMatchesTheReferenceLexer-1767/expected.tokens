@@ -6,9 +6,9 @@
 2:3 InterpolatedStringText `open `
 2:8 InterpolationStart `{`
 2:9 StringLiteral `";`
-4:2 StringLiteral `"text"`
-4:9 StringLiteral `"esc \"q\" \\ \n"`
-4:27 RawStringLiteral `"""\n\n\u{202E} ( ) [ ] { }\n\n'\q'\n\n0b102\n`
+4:3 StringLiteral `"text"`
+4:10 StringLiteral `"esc \"q\" \\ \n"`
+4:28 RawStringLiteral `"""\n\n\u{202E} ( ) [ ] { }\n\n'\q'\n\n0b102\n`
 11:1 EndOfFile
 
 error BYN0003: unterminated string literal

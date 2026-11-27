@@ -8,9 +8,9 @@
 1:19 Identifier `i64`
 1:22 Greater `>`
 1:23 Greater `>`
-2:1 Identifier `macro`
-2:7 Identifier `selct`
-2:13 Identifier `dbecome`
+2:2 Identifier `macro`
+2:8 Identifier `selct`
+2:14 Identifier `dbecome`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x84)

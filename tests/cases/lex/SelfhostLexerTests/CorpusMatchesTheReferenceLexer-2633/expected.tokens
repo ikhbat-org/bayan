@@ -1,7 +1,7 @@
-1:2 Identifier `leq`
-1:6 Identifier `actor`
-1:12 Equals `=`
-1:14 IntegerLiteral `1`
+1:3 Identifier `leq`
+1:7 Identifier `actor`
+1:13 Equals `=`
+1:15 IntegerLiteral `1`
 3:1 Equals `=`
 3:5 IntegerLiteral `1`
 4:1 Identifier `le`

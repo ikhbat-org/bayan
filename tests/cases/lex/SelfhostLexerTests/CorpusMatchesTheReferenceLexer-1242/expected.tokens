@@ -1,7 +1,7 @@
-1:9 Identifier `t`
-1:11 Identifier `a`
-1:13 Equals `=`
-1:15 IntegerLiteral `1`
+1:13 Identifier `t`
+1:15 Identifier `a`
+1:17 Equals `=`
+1:19 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:7 Equals `=`
 2:9 IntegerLiteral `2`

@@ -2,10 +2,10 @@
 1:4 NumericSuffix `xF_`
 3:1 Identifier `ed`
 3:3 StringLiteral `"`
-4:3 LetKeyword `let`
-4:7 Identifier `café`
-4:12 Equals `=`
-4:14 IntegerLiteral `2`
+4:5 LetKeyword `let`
+4:9 Identifier `café`
+4:14 Equals `=`
+4:16 IntegerLiteral `2`
 6:1 IsKeyword `is`
 6:4 AndKeyword `and`
 6:8 OrKeyword `or`

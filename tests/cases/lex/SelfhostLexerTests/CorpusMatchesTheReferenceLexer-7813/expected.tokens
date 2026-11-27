@@ -55,7 +55,7 @@
 2:67 CharLiteral `' '`
 2:72 CharLiteral `' '`
 2:76 IntegerLiteral `0`
-2:77 CharLiteral `'\r`
+2:77 CharLiteral `'`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `open `
 4:8 InterpolationStart `{`

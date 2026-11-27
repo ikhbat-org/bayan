@@ -5,7 +5,7 @@
 2:2 RawStringLiteral `""" let a = $ 1\nb\nlet a = $1\n  \\ \n" """`
 6:3 Identifier `raw`
 6:7 StringLiteral `"quote`
-7:3 EndOfFile
+7:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

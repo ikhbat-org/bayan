@@ -36,8 +36,8 @@
 10:1 IntegerLiteral `0x`
 10:3 CharLiteral `''`
 10:6 CharLiteral `'�'`
-10:9 CharLiteral `'\\'`
-10:14 CharLiteral `'\0'`
+10:10 CharLiteral `'\\'`
+10:15 CharLiteral `'\0'`
 11:1 EndOfFile
 
 error BYN0002: unexpected character `\u{B}`

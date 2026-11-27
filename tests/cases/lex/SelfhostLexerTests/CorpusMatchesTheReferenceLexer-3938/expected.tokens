@@ -1,6 +1,6 @@
 1:1 CharLiteral `'\q'`
 2:1 RawStringLiteral `"""let � = 2\n\n doc comment\nb\n\n�����et `
-7:5 EndOfFile
+7:9 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`
 

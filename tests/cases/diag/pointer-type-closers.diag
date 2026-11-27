@@ -1,0 +1,41 @@
+error BYN1067: pointer types are allowed only in `extern` declarations
+
+  1 │ var a: List<u8*> = List<u8*>()
+    │             ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+
+  1 │ var a: List<u8*> = List<u8*>()
+    │                         ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+
+  2 │ void f((u8*, i32) -> void cb, u8*? d, readonly u8*? e) {}
+    │         ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+
+  2 │ void f((u8*, i32) -> void cb, u8*? d, readonly u8*? e) {}
+    │                               ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+
+  2 │ void f((u8*, i32) -> void cb, u8*? d, readonly u8*? e) {}
+    │                                                ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration
+
+error BYN1067: pointer types are allowed only in `extern` declarations
+
+  4 │     u8*? p
+    │     ^^^ a pointer type
+    │
+  help: wrap the C call in an `extern` declaration

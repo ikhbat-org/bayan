@@ -17,7 +17,7 @@
 4:34 Hash `#`
 5:2 LetKeyword `let`
 5:7 Equals `=`
-5:11 IntegerLiteral `2`
+5:12 IntegerLiteral `2`
 6:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

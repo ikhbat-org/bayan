@@ -84,7 +84,6 @@
 5:13 Identifier `D8`
 6:1 Identifier `ent`
 8:15 Identifier `a`
-    doc `/// Doc line one.\r`
 10:4 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier

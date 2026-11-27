@@ -70,10 +70,10 @@
 4:88 InterpolatedStringEnd `"`
 4:89 InterpolationEnd `}`
 4:90 InterpolatedStringEnd `"`
-5:2 LetKeyword `let`
-5:6 LawKeyword `law`
-5:10 Equals `=`
-5:12 IntegerLiteral `3`
+5:6 LetKeyword `let`
+5:10 LawKeyword `law`
+5:14 Equals `=`
+5:16 IntegerLiteral `3`
 6:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

@@ -1,4 +1,4 @@
-1:1 CharLiteral `' ����\t 0b_\r`
+1:1 CharLiteral `' ����\t 0b_`
 2:3 EndOfFile
 
 error BYN0008: unterminated char literal

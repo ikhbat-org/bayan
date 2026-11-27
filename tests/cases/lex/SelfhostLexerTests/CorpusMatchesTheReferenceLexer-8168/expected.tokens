@@ -6,11 +6,11 @@
 4:1 StringLiteral `"text"`
 4:8 StringLiteral `"esc \"q\" \\ \D"`
 4:26 RawStringLiteral `"""\n������$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"�"}"}"}"}"}"}"}"}"}"}"}"}"let c = """`
-5:87 NeverKeyword `never`
-5:93 Identifier `closed`
-7:1 Star `*`
-7:2 Slash `/`
-7:3 EndOfFile
+5:92 NeverKeyword `never`
+5:98 Identifier `closed`
+7:2 Star `*`
+7:3 Slash `/`
+7:4 EndOfFile
 
 error BYN0006: invalid escape sequence `\D`
 

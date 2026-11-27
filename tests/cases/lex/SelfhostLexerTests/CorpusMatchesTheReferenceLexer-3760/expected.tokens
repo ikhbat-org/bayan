@@ -16,7 +16,7 @@
 6:27 CharLiteral `'é F'`
 6:34 CharLiteral `' '`
 6:38 IntegerLiteral `0`
-6:39 CharLiteral `'\r`
+6:39 CharLiteral `'`
 8:1 EndOfFile
 
 error BYN0003: unterminated string literal

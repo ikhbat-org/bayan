@@ -19,8 +19,8 @@
 3:40 NosuspendKeyword `nosuspend`
 3:50 SuspendsKeyword `suspends`
 3:59 Identifier `asyn`
-3:63 Identifier `c`
-3:65 AwaitKeyword `await`
+3:64 Identifier `c`
+3:66 AwaitKeyword `await`
 5:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

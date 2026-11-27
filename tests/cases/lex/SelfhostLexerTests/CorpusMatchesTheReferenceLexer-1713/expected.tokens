@@ -1,8 +1,8 @@
 1:1 Identifier `j`
-1:3 LetKeyword `let`
-1:7 Identifier `actor`
-1:13 Equals `=`
-1:15 IntegerLiteral `1`
+1:5 LetKeyword `let`
+1:9 Identifier `actor`
+1:15 Equals `=`
+1:17 IntegerLiteral `1`
 3:2 Identifier `hidden`
 4:1 LetKeyword `let`
 4:5 Identifier `x`

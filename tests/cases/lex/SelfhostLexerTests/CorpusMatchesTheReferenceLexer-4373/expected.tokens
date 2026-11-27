@@ -18,7 +18,7 @@
 5:17 AmpEquals `&=`
 5:20 Equals `=`
 5:22 Caret `^`
-5:24 LessLessEquals `<<=`
+5:25 LessLessEquals `<<=`
 6:2 IntegerLiteral `0xFF`
 6:6 NumericSuffix `s`
 7:2 IntegerLiteral `0b__`

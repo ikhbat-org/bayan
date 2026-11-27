@@ -6,7 +6,7 @@
 1:28 Identifier `μετρητής`
 1:37 Identifier `x_1`
 1:41 Identifier `é`
-2:1 EndOfFile
+2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)
 

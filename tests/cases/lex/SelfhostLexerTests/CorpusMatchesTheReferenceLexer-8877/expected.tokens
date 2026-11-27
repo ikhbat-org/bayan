@@ -1,7 +1,7 @@
 1:2 IntegerLiteral `1`
 2:2 CharLiteral `'\u{110000}'`
-4:1 StringLiteral `"{ Å `
-4:6 EndOfFile
+4:2 StringLiteral `"{ Å `
+4:7 EndOfFile
 
 error BYN0013: `\u{110000}` is not a Unicode scalar value
 

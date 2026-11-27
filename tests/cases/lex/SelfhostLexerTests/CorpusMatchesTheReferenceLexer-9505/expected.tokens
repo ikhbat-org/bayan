@@ -5,7 +5,7 @@
 1:8 InterpolationStart `{`
 2:1 StringLiteral `"text"`
 2:8 StringLiteral `"esc \"q\� \\ \n"`
-2:25 RawStringLiteral `"""\n\n`
+2:26 RawStringLiteral `"""\n\n`
 4:1 EndOfFile
 
 error BYN0003: unterminated string literal

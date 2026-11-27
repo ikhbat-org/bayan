@@ -1,6 +1,6 @@
-1:1 StringLiteral `"tex"`
-1:7 StringLiteral `"eDsc \"q\" \\ \n"`
-1:26 RawStringLiteral `"""\n // ok � in com�ent\n`
+1:2 StringLiteral `"tex"`
+1:8 StringLiteral `"eDsc \"q\" \\ \n"`
+1:27 RawStringLiteral `"""\n // ok � in com�ent\n`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)

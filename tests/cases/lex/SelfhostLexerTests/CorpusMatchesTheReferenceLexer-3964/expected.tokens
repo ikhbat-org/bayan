@@ -15,7 +15,7 @@
 5:27 CharLiteral `'é'`
 5:31 CharLiteral `'\\u{14}\' '`
 5:39 IntegerLiteral `0`
-5:40 CharLiteral `'\r`
+5:40 CharLiteral `'`
 6:2 IfKeyword `if`
 6:5 Identifier `elseunless`
 6:16 SwitchKeyword `switch`

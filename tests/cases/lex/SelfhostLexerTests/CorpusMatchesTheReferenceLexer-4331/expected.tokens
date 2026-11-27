@@ -37,11 +37,11 @@
 7:14 Question `?`
 7:16 QuestionQuestion `??`
 7:19 QuestionQuestionEquals `??=`
-7:23 QuestionDot `?.`
-7:26 FatArrow `=>`
-7:29 Arrow `->`
-7:32 At `@`
-7:34 Hash `#`
+7:24 QuestionDot `?.`
+7:27 FatArrow `=>`
+7:30 Arrow `->`
+7:33 At `@`
+7:35 Hash `#`
 8:2 IntegerLiteral `0b102`
 9:2 EndOfFile
 

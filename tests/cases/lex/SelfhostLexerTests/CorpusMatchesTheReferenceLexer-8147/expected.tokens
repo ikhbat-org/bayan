@@ -1,12 +1,12 @@
 1:1 IntegerLiteral `0x`
 2:6 IntegerLiteral `0b102`
-3:2 Identifier `S`
-3:3 PercentEquals `%=`
-3:6 AmpEquals `&=`
-3:9 BarEquals `|=`
-3:12 CloseBrace `}`
-3:13 CaretEquals `^=`
-3:16 LessLessEquals `<<=`
+3:3 Identifier `S`
+3:4 PercentEquals `%=`
+3:7 AmpEquals `&=`
+3:10 BarEquals `|=`
+3:13 CloseBrace `}`
+3:14 CaretEquals `^=`
+3:17 LessLessEquals `<<=`
 4:4 IntegerLiteral `0xF__`
 5:1 EndOfFile
 

@@ -1,10 +1,10 @@
 1:1 IntegerLiteral `2`
 2:2 Identifier `macro`
 2:8 Identifier `se`
-2:10 Identifier `le`
-2:12 Comma `,`
-2:13 Identifier `t`
-2:15 EndOfFile
+2:11 Identifier `le`
+2:13 Comma `,`
+2:14 Identifier `t`
+2:16 EndOfFile
 
 error BYN0002: unexpected character `\u{F}`
 

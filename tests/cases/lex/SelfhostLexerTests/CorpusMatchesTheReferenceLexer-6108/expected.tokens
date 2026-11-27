@@ -4,8 +4,8 @@
 2:1 IntegerLiteral `0xF__`
 3:1 IntegerLiteral `0xF__`
 4:2 IntegerLiteral `0x`
-5:3 InKeyword `in`
-5:6 Identifier `cmment`
+5:7 InKeyword `in`
+5:10 Identifier `cmment`
 6:2 EndOfFile
 
 error BYN0003: unterminated string literal

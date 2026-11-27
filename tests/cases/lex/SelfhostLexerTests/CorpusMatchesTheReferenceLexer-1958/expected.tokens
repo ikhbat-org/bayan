@@ -1,15 +1,15 @@
 1:1 CharLiteral `'\u{D800}'`
-2:1 InterpolatedStringStart `$"`
-2:3 InterpolatedStringText `�`
-2:3 InterpolationStart `{`
-2:4 Identifier `_`
-2:5 StringLiteral `"$"`
-2:8 Identifier `stray`
-2:14 InterpolationEnd `}`
-2:15 InterpolatedStringText ` here`
-2:20 InterpolatedStringEnd `"`
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `�`
+2:5 InterpolationStart `{`
+2:6 Identifier `_`
+2:7 StringLiteral `"$"`
+2:10 Identifier `stray`
+2:16 InterpolationEnd `}`
+2:17 InterpolatedStringText ` here`
+2:22 InterpolatedStringEnd `"`
     doc `/// ����`
-4:6 EndOfFile
+4:9 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value
 

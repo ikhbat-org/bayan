@@ -32,7 +32,7 @@
 5:21 BarEquals `|=`
 5:24 CaretEquals `^=`
 5:27 LessLessEquals `<<=`
-6:5 EndOfFile
+6:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

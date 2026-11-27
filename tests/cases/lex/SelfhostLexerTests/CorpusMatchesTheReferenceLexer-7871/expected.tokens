@@ -14,9 +14,9 @@
 1:82 DerivationKeyword `derivation`
 1:93 AttributeKeyword `attribute`
 3:1 Slash `/`
-3:2 Star `*`
-3:6 Star `*`
-3:7 Slash `/`
+3:3 Star `*`
+3:7 Star `*`
+3:8 Slash `/`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

@@ -1,4 +1,4 @@
-2:4 StringLiteral `"a��b"`
+2:7 StringLiteral `"a��b"`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x81)

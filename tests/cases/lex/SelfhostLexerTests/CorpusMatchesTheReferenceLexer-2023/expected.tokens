@@ -83,24 +83,24 @@
 4:29 InterpolationStart `{`
 4:30 InterpolatedStringStart `$"`
 4:32 InterpolationStart `{`
-4:34 OpenBrace `{`
-4:35 InterpolatedStringStart `$"`
-4:37 InterpolationStart `{`
-4:38 StringLiteral `$"{$"`
-4:43 OpenBrace `{`
-4:44 StringLiteral `$"{$"`
-4:49 OpenBrace `{`
-4:50 StringLiteral `$"{$"`
-4:55 OpenBrace `{`
-4:56 StringLiteral `$"{$"`
-4:61 OpenBrace `{`
-4:62 StringLiteral `$"{$"`
-4:67 OpenBrace `{`
-4:68 Identifier `x`
-4:69 CloseBrace `}`
-4:70 StringLiteral `"}"`
-4:73 CloseBrace `}`
-4:74 StringLiteral `" ạ̇`
+4:35 OpenBrace `{`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolationStart `{`
+4:39 StringLiteral `$"{$"`
+4:44 OpenBrace `{`
+4:45 StringLiteral `$"{$"`
+4:50 OpenBrace `{`
+4:51 StringLiteral `$"{$"`
+4:56 OpenBrace `{`
+4:57 StringLiteral `$"{$"`
+4:62 OpenBrace `{`
+4:63 StringLiteral `$"{$"`
+4:68 OpenBrace `{`
+4:69 Identifier `x`
+4:70 CloseBrace `}`
+4:71 StringLiteral `"}"`
+4:74 CloseBrace `}`
+4:75 StringLiteral `" ạ̇`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

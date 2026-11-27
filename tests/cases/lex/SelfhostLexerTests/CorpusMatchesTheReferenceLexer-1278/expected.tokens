@@ -9,7 +9,7 @@
 2:5 InterpolatedStringEnd `"`
 2:6 CharLiteral `''`
 4:1 IntegerLiteral `0b__`
-6:3 EndOfFile
+6:4 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xD4)
 

@@ -2,7 +2,7 @@
 2:2 IntegerLiteral `0x_`
 3:2 IntegerLiteral `0x`
 3:5 IntegerLiteral `0b_`
-3:8 Identifier `_`
+3:9 Identifier `_`
 5:1 IfKeyword `if`
 5:4 ElseKeyword `else`
 5:9 UnlessKeyword `unless`
@@ -20,7 +20,7 @@
 5:85 ErrdeferKeyword `errdefer`
 5:94 UsingKeyword `using`
 5:100 Identifier `cntext`
-7:2 EndOfFile
+7:3 EndOfFile
 
 error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
 

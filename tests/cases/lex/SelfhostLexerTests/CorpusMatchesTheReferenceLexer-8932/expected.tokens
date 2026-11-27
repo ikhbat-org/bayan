@@ -6,7 +6,7 @@
 6:1 IntegerLiteral `0b1`
 6:4 NumericSuffix `ms`
 7:1 IntegerLiteral `0x_`
-7:4 IntegerLiteral `0b__`
+7:5 IntegerLiteral `0b__`
 8:1 IntegerLiteral `1__`
 9:1 IntegerLiteral `0xF__`
 10:2 EndOfFile

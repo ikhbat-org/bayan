@@ -7,7 +7,7 @@
 1:16 Equals `=`
 1:18 IntegerLiteral `1`
 2:1 RawStringLiteral `"""�  $ 1\nlet b = ` 2\nlet c = \u{7} 3\n\n+ - * / % +% -% *% +| -| *| ++ --\n+= -= *= /= %= &= |= ^= <<=\n\n'⸀�' `
-9:5 EndOfFile
+9:6 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier
 

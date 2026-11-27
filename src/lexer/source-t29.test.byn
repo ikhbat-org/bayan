@@ -52,3 +52,12 @@ test "lexer t29: a CR LF line end, the line count and padded hex" {
     assert hex(0x12345678, to: 1) == "12345678"
     assert hex(0xA, to: 4) == "000A"
 }
+
+test "lexer low041: a stray continuation byte counts as a column" {
+    var bytes = List<u8>()
+    for b in [0x41, 0x42, 0xA9, 0x20, 0x78] {
+        bytes.append(u8(b))
+    }
+    var source = SourceText.create("t.byn", from: move bytes)
+    assert source.getLinePosition(4).column == 5
+}

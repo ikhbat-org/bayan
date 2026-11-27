@@ -26,8 +26,8 @@
 5:4 InterpolationStart `{`
 5:5 Identifier `b`
 5:6 InterpolationEnd `}`
-5:7 InterpolatedStringText `c  1.50dec 1..2 1S..=3 5e x.y 2.5f\r`
-5:42 InterpolatedStringEnd
+5:7 InterpolatedStringText `c  1.50dec 1..2 1S..=3 5e x.y 2.5f`
+5:41 InterpolatedStringEnd
 6:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

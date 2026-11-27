@@ -1,9 +1,9 @@
 1:1 Identifier `_`
 1:3 Identifier `ȧ`
 1:6 Identifier `_`
-1:7 IntegerLiteral `0b102`
-2:3 CloseBracket `]`
-2:5 EndOfFile
+1:8 IntegerLiteral `0b102`
+2:4 CloseBracket `]`
+2:8 EndOfFile
 
 error BYN0005: identifier `ȧ` is not in Unicode normalization form C
 

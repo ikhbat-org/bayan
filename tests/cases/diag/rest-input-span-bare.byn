@@ -1,0 +1,6 @@
+i32 bare(params ReadOnlySpan xs) {
+    return 0
+}
+i32 opt(params ReadOnlySpan<i32>? xs) {
+    return 0
+}

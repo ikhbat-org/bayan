@@ -1,7 +1,7 @@
 1:1 Identifier `oted`
 1:5 StringLiteral `"`
 2:3 RawStringLiteral `""" ct�xt" u16"wde" "\u{202E} all $"{{"\n/* block\n \u{2066} \u{FEFF} ���� `
-4:8 EndOfFile
+4:11 EndOfFile
 
 error BYN0003: unterminated string literal
 

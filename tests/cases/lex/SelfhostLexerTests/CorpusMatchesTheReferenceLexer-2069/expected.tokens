@@ -4,10 +4,10 @@
 1:8 Identifier `actor`
 1:14 Equals `=`
 1:16 IntegerLiteral `1`
-2:1 Identifier `ان`
-2:4 Identifier `μετρητής`
-2:13 Identifier `x_1`
-2:17 Identifier `é`
+2:2 Identifier `ان`
+2:5 Identifier `μετρητής`
+2:14 Identifier `x_1`
+2:18 Identifier `é`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolationEnd `}`

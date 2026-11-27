@@ -3,9 +3,9 @@
 1:8 Equals `=`
 1:10 StringLiteral `"bad \q scape"`
 3:1 IntegerLiteral `3`
-4:3 Identifier `μετρητής`
-4:12 Identifier `x_1`
-4:16 Identifier `é`
+4:4 Identifier `μετρητής`
+4:13 Identifier `x_1`
+4:17 Identifier `é`
 5:2 Identifier `x́́`
 6:1 EndOfFile
 

@@ -77,9 +77,9 @@
 2:94 InterpolatedStringEnd `"`
 2:96 IntegerLiteral `1_`
 3:2 ReadonlyKeyword `readonly`
-3:11 RequiredKeyword `required`
-3:20 ConstKeyword `const`
-3:26 Identifier `s`
+3:12 RequiredKeyword `required`
+3:21 ConstKeyword `const`
+3:27 Identifier `s`
 4:1 IntegerLiteral `0x_`
 5:1 IntegerLiteral `0b__`
 6:1 IntegerLiteral `1__`

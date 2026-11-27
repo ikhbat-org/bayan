@@ -7,8 +7,8 @@
 3:6 InterpolationStart `{`
 3:7 Identifier `b`
 3:8 InterpolationEnd `}`
-3:9 InterpolatedStringText `c\r`
-3:11 InterpolatedStringEnd
+3:9 InterpolatedStringText `c`
+3:10 InterpolatedStringEnd
 4:1 TestKeyword `test`
 4:6 AssertKeyword `assert`
 4:13 PropertyKeyword `property`

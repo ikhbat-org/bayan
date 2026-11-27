@@ -5,7 +5,7 @@
 2:8 InterpolationStart `{`
 2:9 Identifier `x`
 2:10 StringLiteral `";`
-4:2 IntegerLiteral `1`
+4:3 IntegerLiteral `1`
 5:1 LetKeyword `let`
 5:5 Identifier `b`
 5:7 Equals `=`

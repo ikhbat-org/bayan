@@ -68,7 +68,7 @@
 6:110 InterpolationEnd `}`
 6:111 InterpolatedStringEnd `"`
 6:112 StringLiteral `"}"`
-6:116 CharLiteral `'x\r`
+6:116 CharLiteral `'x`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

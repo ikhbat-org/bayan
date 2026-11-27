@@ -29,22 +29,22 @@
 4:32 InterpolatedStringEnd `"`
 4:33 InterpolationEnd `}`
 4:34 InterpolatedStringText `�}`
-4:35 InterpolatedStringEnd `"`
-4:36 InterpolationEnd `}`
-4:37 InterpolatedStringEnd `"`
-4:38 CloseBrace `}`
-4:39 StringLiteral `"}"`
-4:42 CloseBrace `}`
-4:43 StringLiteral `"}"`
-4:46 CloseBrace `}`
-4:47 StringLiteral `"}"`
-4:50 CloseBrace `}`
-4:51 StringLiteral `""`
-4:53 CloseBrace `}`
-4:54 StringLiteral `"}"`
-4:57 CloseBrace `}`
-4:58 StringLiteral `"}"`
-4:62 EndOfFile
+4:36 InterpolatedStringEnd `"`
+4:37 InterpolationEnd `}`
+4:38 InterpolatedStringEnd `"`
+4:39 CloseBrace `}`
+4:40 StringLiteral `"}"`
+4:43 CloseBrace `}`
+4:44 StringLiteral `"}"`
+4:47 CloseBrace `}`
+4:48 StringLiteral `"}"`
+4:51 CloseBrace `}`
+4:52 StringLiteral `""`
+4:54 CloseBrace `}`
+4:55 StringLiteral `"}"`
+4:58 CloseBrace `}`
+4:59 StringLiteral `"}"`
+4:63 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled
 

@@ -12,10 +12,10 @@
 1:35 NumericSuffix `ul`
 1:38 IntegerLiteral `7`
 1:39 NumericSuffix `l`
-2:2 LetKeyword `let`
-2:6 EffectKeyword `effect`
-2:13 Equals `=`
-2:15 IntegerLiteral `2`
+2:3 LetKeyword `let`
+2:7 EffectKeyword `effect`
+2:14 Equals `=`
+2:16 IntegerLiteral `2`
 3:1 LetKeyword `let`
 3:5 Identifier `x`
 3:8 Equals `=`

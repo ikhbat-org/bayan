@@ -1,5 +1,5 @@
 1:1 CharLiteral `'\u{D800}'`
-2:8 EndOfFile
+2:9 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value
 

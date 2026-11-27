@@ -2,15 +2,15 @@
 2:2 PlusEquals `+=`
 2:5 MinusEquals `-=`
 2:8 StarEquals `*=`
-2:11 SlashEquals `/=`
-2:14 PercentEquals `%=`
-2:17 AmpEquals `&=`
-2:20 BarEquals `|=`
-2:23 CaretEquals `^=`
-2:26 LessLessEquals `<<=`
+2:12 SlashEquals `/=`
+2:15 PercentEquals `%=`
+2:18 AmpEquals `&=`
+2:21 BarEquals `|=`
+2:24 CaretEquals `^=`
+2:27 LessLessEquals `<<=`
 3:1 Star `*`
 3:2 Slash `/`
-3:4 CharLiteral `'ab�\r`
+3:4 CharLiteral `'ab�`
 4:2 Identifier `x́́`
     doc `///`
 5:4 EndOfFile

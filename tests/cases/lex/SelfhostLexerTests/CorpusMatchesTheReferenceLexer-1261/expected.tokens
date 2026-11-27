@@ -46,17 +46,17 @@
 4:11 CatchKeyword `catch`
 4:17 NeverKeyword `never`
 4:23 Identifier `noa`
-4:26 Identifier `lloc`
-4:31 NosuspendKeyword `nosuspend`
-4:41 SuspendsKeyword `suspends`
-4:50 AsyncKeyword `async`
-4:56 AwaitKeyword `await`
-5:2 InterpolatedStringStart `$"`
-5:4 InterpolationStart `{`
-5:5 StringLiteral `$"{$"`
-5:10 OpenBrace `{`
-5:11 StringLiteral `$"{$"`
-5:17 EndOfFile
+4:27 Identifier `lloc`
+4:32 NosuspendKeyword `nosuspend`
+4:42 SuspendsKeyword `suspends`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolationStart `{`
+5:9 StringLiteral `$"{$"`
+5:14 OpenBrace `{`
+5:15 StringLiteral `$"{$"`
+5:21 EndOfFile
 
 error BYN0002: unexpected character `$`
 

@@ -53,10 +53,10 @@
 1:86 InterpolatedStringEnd `"`
 1:87 InterpolationEnd `}`
 1:88 InterpolatedStringEnd `"`
-2:2 Identifier `a`
-2:4 Greater `>`
+2:3 Identifier `a`
 2:5 Greater `>`
-2:7 Identifier `b`
+2:6 Greater `>`
+2:8 Identifier `b`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`

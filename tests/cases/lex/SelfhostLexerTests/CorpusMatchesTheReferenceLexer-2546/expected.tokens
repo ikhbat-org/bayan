@@ -87,13 +87,13 @@
 4:98 Identifier `x`
 4:101 Equals `=`
 4:103 IntegerLiteral `1`
-6:2 IntegerLiteral `0x`
+6:4 IntegerLiteral `0x`
 7:1 IntegerLiteral `0xF__`
 8:1 Identifier `comment`
 8:9 Star `*`
-8:10 Slash `/`
-8:12 Identifier `a`
-    doc `/// Doc line one.\r\n/// D7c line two.\r`
+8:11 Slash `/`
+8:13 Identifier `a`
+    doc `/// Doc line one.\r\n/// D7c line two.`
 11:1 Identifier `s`
 11:2 EndOfFile
 

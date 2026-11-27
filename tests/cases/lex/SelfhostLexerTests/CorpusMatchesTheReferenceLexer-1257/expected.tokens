@@ -1,6 +1,6 @@
-1:4 LetKeyword `let`
-1:10 Equals `=`
-1:12 IntegerLiteral `2`
+1:8 LetKeyword `let`
+1:14 Equals `=`
+1:16 IntegerLiteral `2`
 2:1 Identifier `a`
 5:2 EndOfFile
 

@@ -17,9 +17,9 @@
 4:90 VarKeyword `var`
 4:93 CloseParen `)`
 4:94 Identifier `emb`
-4:97 Identifier `ed`
-4:100 ExternKeyword `extern`
-4:107 UnsafeKeyword `unsafe`
+4:98 Identifier `ed`
+4:101 ExternKeyword `extern`
+4:108 UnsafeKeyword `unsafe`
 6:1 StructKeyword `struct`
 6:8 Identifier `S`
 8:1 EndOfFile

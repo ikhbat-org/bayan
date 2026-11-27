@@ -2,15 +2,15 @@
 1:5 LawKeyword `law`
 1:9 Equals `=`
 1:11 IntegerLiteral `3`
-2:1 LetKeyword `let`
-2:5 LawKeyword `law`
-2:9 Equals `=`
-2:11 IntegerLiteral `3`
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
 3:1 IntegerLiteral `1`
 3:2 Dot `.`
 5:1 StringLiteral `"te�xt"`
 5:9 StringLiteral `"esc \"q\" �\ \n"`
-5:26 RawStringLiteral `"""\n`
+5:27 RawStringLiteral `"""\n`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)

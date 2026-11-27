@@ -11,10 +11,10 @@
 6:2 IntegerLiteral `5`
 6:3 NumericSuffix `f`
 7:3 Identifier `le`
-7:5 Identifier `t`
-7:7 Identifier `c`
-7:9 Equals `=`
-7:13 IntegerLiteral `3`
+7:6 Identifier `t`
+7:8 Identifier `c`
+7:10 Equals `=`
+7:14 IntegerLiteral `3`
 8:2 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

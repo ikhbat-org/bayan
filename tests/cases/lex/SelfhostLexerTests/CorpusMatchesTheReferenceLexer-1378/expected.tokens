@@ -15,12 +15,12 @@
 6:10 StringLiteral `";`
 8:1 IntegerLiteral `2`
 8:3 IntegerLiteral `1`
-8:4 Dot `.`
-8:5 IntegerLiteral `50`
-8:7 NumericSuffix `d`
+8:5 Dot `.`
+8:6 IntegerLiteral `50`
+8:8 NumericSuffix `d`
 9:3 Identifier `raw`
 9:7 StringLiteral `"quoted"`
-10:2 EndOfFile
+10:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

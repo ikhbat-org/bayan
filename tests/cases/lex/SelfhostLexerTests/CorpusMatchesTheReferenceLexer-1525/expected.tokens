@@ -1,8 +1,8 @@
 1:2 CharLiteral `'é'`
 1:6 CharLiteral `'\\'`
 1:11 CharLiteral `'\0'`
-3:3 InterpolatedStringStart `$"`
-3:5 InterpolationStart `{`
+3:4 InterpolatedStringStart `$"`
+3:6 InterpolationStart `{`
 4:1 EndOfFile
 
 error BYN0002: unexpected character `‏`

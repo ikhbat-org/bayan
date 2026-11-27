@@ -2,9 +2,9 @@
 1:5 EffectKeyword `effect`
 1:12 Equals `=`
 1:14 IntegerLiteral `2`
-2:3 Greater `>`
 2:4 Greater `>`
-2:6 Identifier `b`
+2:5 Greater `>`
+2:7 Identifier `b`
 4:1 StringLiteral `"text"`
 4:8 StringLiteral `"esc \"q\" \\ \n"`
 4:26 RawStringLiteral `"""\n 1ms\n0x_\n0b__\n1__\n0xF__\n\n��\n_\n`

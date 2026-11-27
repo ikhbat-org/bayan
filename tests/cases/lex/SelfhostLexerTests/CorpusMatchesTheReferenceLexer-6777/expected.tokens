@@ -5,11 +5,11 @@
 3:1 Star `*`
 3:2 Slash `/`
 4:1 CharLiteral `''`
-5:3 Identifier `ᅡᆨ`
-6:2 LetKeyword `let`
-6:6 Identifier `c`
-6:8 Equals `=`
-6:12 IntegerLiteral `3`
+5:5 Identifier `ᅡᆨ`
+6:3 LetKeyword `let`
+6:7 Identifier `c`
+6:9 Equals `=`
+6:13 IntegerLiteral `3`
 7:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

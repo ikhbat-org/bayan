@@ -1,4 +1,4 @@
-1:1 CharLiteral `'x\r`
+1:1 CharLiteral `'x`
 2:1 Plus `+`
 2:3 Minus `-`
 2:5 Star `*`

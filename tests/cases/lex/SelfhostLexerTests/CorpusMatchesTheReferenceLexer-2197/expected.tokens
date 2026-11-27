@@ -3,7 +3,7 @@
 3:1 Identifier `macro`
 3:7 Identifier `select`
 3:14 Identifier `beco`
-3:18 Identifier `me`
+3:19 Identifier `me`
 4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xCC)

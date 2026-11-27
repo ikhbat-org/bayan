@@ -23,19 +23,19 @@
 3:84 ReturnKeyword `return`
 3:91 YieldKeyword `yield`
 3:97 Identifier `def`
-3:100 Identifier `er`
-3:103 ErrdeferKeyword `errdefer`
-3:112 UsingKeyword `using`
-3:118 ContextKeyword `context`
+3:101 Identifier `er`
+3:104 ErrdeferKeyword `errdefer`
+3:113 UsingKeyword `using`
+3:119 ContextKeyword `context`
 5:1 Identifier `adonly`
 5:8 Identifier `requireS`
 5:17 ConstKeyword `const`
 5:23 LetKeyword `let`
 5:27 VarKeyword `var`
 5:31 Identifier `embe`
-5:35 Identifier `d`
-5:37 ExternKeyword `extern`
-5:44 UnsafeKeyword `unsafe`
+5:36 Identifier `d`
+5:38 ExternKeyword `extern`
+5:45 UnsafeKeyword `unsafe`
 6:1 IfKeyword `if`
 6:4 Identifier `els`
 7:1 EndOfFile

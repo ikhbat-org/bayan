@@ -2,7 +2,7 @@
 2:5 Identifier `x`
 2:8 Equals `=`
 2:10 IntegerLiteral `1`
-3:3 IntegerLiteral `0b102`
+3:4 IntegerLiteral `0b102`
 4:2 StringLiteral `"{$"`
 4:6 OpenBrace `{`
 4:7 InterpolatedStringStart `$"`

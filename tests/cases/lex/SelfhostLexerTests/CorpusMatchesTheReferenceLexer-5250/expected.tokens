@@ -20,14 +20,14 @@
 3:42 GreaterEquals `>=`
 5:1 IntegerLiteral `0xF__`
 6:2 Identifier `t`
-6:5 Identifier `x`
-6:7 Equals `=`
-6:9 IntegerLiteral `1`
-6:11 CloseBrace `}`
+6:6 Identifier `x`
+6:8 Equals `=`
+6:10 IntegerLiteral `1`
 6:12 CloseBrace `}`
-6:13 Bang `!`
-6:14 StringLiteral `" $"`
-6:18 StringLiteral `"`
+6:13 CloseBrace `}`
+6:14 Bang `!`
+6:15 StringLiteral `" $"`
+6:19 StringLiteral `"`
 7:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

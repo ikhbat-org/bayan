@@ -7,7 +7,7 @@
 4:1 Slash `/`
 4:3 Identifier `ok`
 4:8 InKeyword `in`
-4:10 Identifier `comment`
+4:11 Identifier `comment`
 5:2 EndOfFile
 
 error BYN0005: identifier `é` is not in Unicode normalization form C

@@ -1,5 +1,5 @@
 1:1 Identifier `b`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 3:1 LetKeyword `let`
 3:5 EffectKeyword `effect`
 3:12 Equals `=`

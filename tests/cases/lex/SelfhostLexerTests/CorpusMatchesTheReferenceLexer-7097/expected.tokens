@@ -14,10 +14,10 @@
 1:31 StarBar `*|`
 1:34 PlusPlus `++`
 1:37 MinusMinus `--`
-2:5 Identifier `comment`
-2:13 Star `*`
-2:14 Slash `/`
-2:16 Identifier `a`
+2:7 Identifier `comment`
+2:15 Star `*`
+2:16 Slash `/`
+2:18 Identifier `a`
 4:1 Identifier `foo`
 4:5 Identifier `Bar`
 4:9 Identifier `_xs`

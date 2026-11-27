@@ -53,18 +53,18 @@
 3:19 StringLiteral `$"{$"`
 3:24 OpenBrace `{`
 3:25 StringLiteral `$"{$�{$"`
-3:32 OpenBrace `{`
-3:33 StringLiteral `$"{$"`
-3:38 OpenBrace `{`
-3:39 StringLiteral `$"{b"`
-3:44 OpenBrace `{`
-3:45 StringLiteral `$"{>"`
-3:50 OpenBrace `{`
-3:51 StringLiteral `$"{x}"`
-3:57 CloseBrace `}`
-3:58 StringLiteral `"}"`
-3:61 CloseBrace `}`
-3:62 StringLiteral `"`
+3:33 OpenBrace `{`
+3:34 StringLiteral `$"{$"`
+3:39 OpenBrace `{`
+3:40 StringLiteral `$"{b"`
+3:45 OpenBrace `{`
+3:46 StringLiteral `$"{>"`
+3:51 OpenBrace `{`
+3:52 StringLiteral `$"{x}"`
+3:58 CloseBrace `}`
+3:59 StringLiteral `"}"`
+3:62 CloseBrace `}`
+3:63 StringLiteral `"`
 4:1 EndOfFile
 
 error BYN0002: unexpected character `‏`

@@ -4,7 +4,6 @@
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
 1:10 IntegerLiteral `0x`
-    doc `/// Doc line one.`
 5:1 IntegerLiteral `0xF__`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`

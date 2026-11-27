@@ -1,6 +1,6 @@
-1:5 Identifier `_`
-1:7 Identifier `h`
-1:9 EndOfFile
+1:9 Identifier `_`
+1:11 Identifier `h`
+1:13 EndOfFile
 
 error BYN0002: unexpected character `\u{F}`
 

@@ -29,7 +29,7 @@
 5:13 IntegerLiteral `1`
 5:14 Semicolon `;`
 5:16 Identifier `ed`
-7:1 EndOfFile
+7:2 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier
 

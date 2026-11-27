@@ -1,5 +1,5 @@
 1:1 StringLiteral `"x{�`
-1:4 EndOfFile
+1:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

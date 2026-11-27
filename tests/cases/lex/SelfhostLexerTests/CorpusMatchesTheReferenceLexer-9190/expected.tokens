@@ -7,7 +7,7 @@
 1:41 SuspendsKeyword `suspends`
 1:50 AsyncKeyword `async`
 1:56 AwaitKeyword `await`
-4:1 CharLiteral `' u $"{��� /// Doc line o�e.\r`
+4:1 CharLiteral `' u $"{��� /// Doc line o�e.`
 6:1 EndOfFile
 
 error BYN0008: unterminated char literal

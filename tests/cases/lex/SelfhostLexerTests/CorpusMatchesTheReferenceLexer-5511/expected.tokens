@@ -67,8 +67,8 @@
 3:85 InterpolationEnd `}`
 3:86 InterpolatedStringEnd `"`
 3:87 Slash `/`
-3:89 Identifier `line`
-3:94 Identifier `comment`
+3:90 Identifier `line`
+3:95 Identifier `comment`
 4:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

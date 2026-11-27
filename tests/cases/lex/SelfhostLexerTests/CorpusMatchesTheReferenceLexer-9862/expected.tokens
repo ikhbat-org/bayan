@@ -7,8 +7,8 @@
 5:7 InterpolatedStringStart `$"`
 5:9 InterpolationStart `{`
 5:10 InterpolationEnd `}`
-5:11 InterpolatedStringText `\r\r`
-5:13 InterpolatedStringEnd
+5:11 InterpolatedStringText `\r`
+5:12 InterpolatedStringEnd
 7:4 Identifier `comment`
 7:12 Star `*`
 7:13 Slash `/`

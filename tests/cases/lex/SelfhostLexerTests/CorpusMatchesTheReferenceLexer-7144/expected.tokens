@@ -17,9 +17,9 @@
 5:28 Identifier `μετρητής`
 5:37 Identifier `x_1`
 5:41 Identifier `é`
-6:2 Identifier `μετρητής`
-6:11 Identifier `x_1`
-6:15 Identifier `é`
+6:3 Identifier `μετρητής`
+6:12 Identifier `x_1`
+6:16 Identifier `é`
 7:1 IntegerLiteral `0b102`
 8:2 CharLiteral `'ab'`
 9:2 OpenBrace `{`

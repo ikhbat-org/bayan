@@ -11,11 +11,11 @@
 3:11 ErrdeferKeyword `errdefer`
 3:20 UsingKeyword `using`
 3:26 ContextKeyword `context`
-3:33 FailsKeyword `fails`
-3:39 TryKeyword `try`
-3:43 Identifier `ca1__`
-4:2 Identifier `a`
-4:4 EndOfFile
+3:34 FailsKeyword `fails`
+3:40 TryKeyword `try`
+3:44 Identifier `ca1__`
+4:3 Identifier `a`
+4:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)
 

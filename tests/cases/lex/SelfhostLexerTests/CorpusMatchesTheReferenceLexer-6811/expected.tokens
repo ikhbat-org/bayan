@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `1_`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `ab}c Å�`
-3:9 InterpolatedStringEnd
+3:10 InterpolatedStringEnd
 4:1 Identifier `a`
 4:3 Greater `>`
 4:5 Identifier `b`

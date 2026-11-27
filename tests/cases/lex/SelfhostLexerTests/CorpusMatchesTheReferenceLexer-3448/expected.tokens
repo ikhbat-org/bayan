@@ -7,12 +7,12 @@
 3:14 Question `?`
 3:16 QuestionQuestion `??`
 3:19 QuestionQuestionEquals `??=`
-3:23 QuestionDot `?.`
-3:26 Equals `=`
-3:28 Greater `>`
-3:30 Arrow `->`
-3:33 At `@`
-3:35 Hash `#`
+3:24 QuestionDot `?.`
+3:27 Equals `=`
+3:29 Greater `>`
+3:31 Arrow `->`
+3:34 At `@`
+3:36 Hash `#`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

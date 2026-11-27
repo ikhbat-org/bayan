@@ -24,15 +24,15 @@
 1:36 InterpolationStart `{`
 1:37 InterpolatedStringStart `$"`
 1:39 InterpolationStart `{`
-1:41 StringLiteral `"{$"`
-1:45 OpenBrace `{`
-1:46 InterpolatedStringStart `$"`
-1:48 InterpolationStart `{`
-1:49 InterpolatedStringStart `$"`
-1:51 InterpolationStart `{`
-1:52 InterpolatedStringStart `$"`
-1:54 InterpolationStart `{`
-1:55 StringLiteral `$"{x y 2.5f`
+1:42 StringLiteral `"{$"`
+1:46 OpenBrace `{`
+1:47 InterpolatedStringStart `$"`
+1:49 InterpolationStart `{`
+1:50 InterpolatedStringStart `$"`
+1:52 InterpolationStart `{`
+1:53 InterpolatedStringStart `$"`
+1:55 InterpolationStart `{`
+1:56 StringLiteral `$"{x y 2.5f`
 2:3 RawStringLiteral `""" "\n// ok � in comment\n'ab'\n '\u{D800}'\n`
 6:1 EndOfFile
 

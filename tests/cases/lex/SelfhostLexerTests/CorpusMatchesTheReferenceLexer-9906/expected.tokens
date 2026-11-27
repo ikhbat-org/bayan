@@ -18,13 +18,13 @@
 1:40 FloatLiteral `2.5`
 1:43 NumericSuffix `f`
 2:1 CharLiteral `''`
-4:2 InterpolatedStringStart `$"`
-4:4 InterpolatedStringText `a`
-4:5 InterpolationStart `{`
-4:6 Identifier `b`
-4:7 InterpolationEnd `}`
-4:8 InterpolatedStringText `c`
-4:9 InterpolatedStringEnd
+4:3 InterpolatedStringStart `$"`
+4:5 InterpolatedStringText `a`
+4:6 InterpolationStart `{`
+4:7 Identifier `b`
+4:8 InterpolationEnd `}`
+4:9 InterpolatedStringText `c`
+4:10 InterpolatedStringEnd
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xD0)

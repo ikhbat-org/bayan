@@ -1,6 +1,6 @@
-1:1 Identifier `A`
-1:2 Tilde `~`
-1:4 EndOfFile
+1:2 Identifier `A`
+1:3 Tilde `~`
+1:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x81)
 

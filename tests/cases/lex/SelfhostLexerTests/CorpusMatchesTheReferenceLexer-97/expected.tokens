@@ -19,7 +19,7 @@
 1:52 Equals `=`
 1:54 IntegerLiteral `2`
 2:2 StringLiteral `"D����� `
-2:6 EndOfFile
+2:10 EndOfFile
 
 error BYN0002: unexpected character `﻿`
 

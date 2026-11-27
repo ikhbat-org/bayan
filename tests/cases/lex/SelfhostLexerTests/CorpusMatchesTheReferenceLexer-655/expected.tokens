@@ -5,7 +5,7 @@
 1:9 OpenBrace `{`
 1:11 CloseBrace `}`
 3:3 StringLiteral `"�{a`
-3:6 EndOfFile
+3:7 EndOfFile
 
 error BYN0002: unexpected character `̈́`
 

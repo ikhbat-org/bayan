@@ -18,7 +18,6 @@
 2:41 Greater `>`
 2:43 Greater `>`
 2:44 GreaterEquals `>=`
-    doc `/// Doc line two.`
 7:1 CharLiteral `'\u{D800}'`
 9:1 StringLiteral `"a\u{2067}b"`
 10:1 OpenParen `(`

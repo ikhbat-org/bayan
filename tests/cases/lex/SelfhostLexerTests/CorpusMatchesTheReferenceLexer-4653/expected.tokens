@@ -1,6 +1,6 @@
 1:1 LetKeyword `let`
 1:7 Equals `=`
-1:9 IntegerLiteral `2`
+1:10 IntegerLiteral `2`
 3:1 Plus `+`
 3:3 Minus `-`
 3:5 Star `*`

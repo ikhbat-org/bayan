@@ -11,9 +11,9 @@
 3:33 ThisKeyword `this`
 3:38 NullKeyword `null`
 3:43 Identifier `tru`
-3:47 FalseKeyword `false`
-3:53 ComptimeKeyword `comptime`
-3:62 CheckedKeyword `checked`
+3:48 FalseKeyword `false`
+3:54 ComptimeKeyword `comptime`
+3:63 CheckedKeyword `checked`
 5:3 Identifier `raw`
 5:7 StringLiteral `"quoted"`
 6:4 StringLiteral `"a {f($"`

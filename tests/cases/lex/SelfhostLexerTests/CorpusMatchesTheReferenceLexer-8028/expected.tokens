@@ -33,16 +33,16 @@
 4:47 CloseBrace `}`
 4:48 StringLiteral `" $"`
 4:52 OpenBrace `{`
-4:53 Identifier `Point`
-4:59 OpenBrace `{`
-4:61 Identifier `x`
-4:63 Equals `=`
-4:65 IntegerLiteral `1`
-4:67 CloseBrace `}`
+4:54 Identifier `Point`
+4:60 OpenBrace `{`
+4:62 Identifier `x`
+4:64 Equals `=`
+4:66 IntegerLiteral `1`
 4:68 CloseBrace `}`
-4:69 Bang `!`
-4:70 StringLiteral `" $"`
-4:74 StringLiteral `"`
+4:69 CloseBrace `}`
+4:70 Bang `!`
+4:71 StringLiteral `" $"`
+4:75 StringLiteral `"`
 6:1 LetKeyword `let`
 6:5 Identifier `a`
 6:7 Equals `=`

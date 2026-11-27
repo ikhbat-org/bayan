@@ -2,8 +2,8 @@
 3:1 Identifier `b`
 4:1 IntegerLiteral `110000`
 4:7 CloseBrace `}`
-4:8 CharLiteral `'\r`
-5:1 CharLiteral `'x\r`
+4:8 CharLiteral `'`
+5:1 CharLiteral `'x`
 6:1 LetKeyword `let`
 6:5 Identifier `actor`
 6:10 Equals `=`

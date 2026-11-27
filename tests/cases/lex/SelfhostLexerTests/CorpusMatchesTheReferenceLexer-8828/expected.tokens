@@ -47,10 +47,10 @@
 1:76 InterpolationEnd `}`
 1:77 InterpolatedStringEnd `"`
 1:78 CharLiteral `'u{110000}'`
-2:3 Equals `=`
-2:5 QuestionDot `?.`
-2:8 FatArrow `=>`
-3:2 EndOfFile
+2:4 Equals `=`
+2:6 QuestionDot `?.`
+2:9 FatArrow `=>`
+3:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

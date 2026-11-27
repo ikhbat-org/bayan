@@ -4,9 +4,9 @@
 2:3 Dot `.`
 2:5 DotDot `..`
 2:8 Dot `.`
-2:9 Equals `=`
-2:11 Colon `:`
-2:13 StringLiteral `";`
+2:10 Equals `=`
+2:12 Colon `:`
+2:14 StringLiteral `";`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA8)

@@ -86,8 +86,8 @@
 5:2 Identifier `Å`
 5:5 GreaterEquals `>=`
 5:8 IntegerLiteral `1`
-6:2 Equals `=`
-6:4 IntegerLiteral `1`
+6:3 Equals `=`
+6:5 IntegerLiteral `1`
 8:1 EndOfFile
 
 error BYN0002: unexpected character `\u{8}`

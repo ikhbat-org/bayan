@@ -1,6 +1,6 @@
-1:3 StringLiteral `"\u{202E} allowed in strin7gs"`
-1:27 StringLiteral `""`
-1:30 StringLiteral `"\u{48}i"`
+1:5 StringLiteral `"\u{202E} allowed in strin7gs"`
+1:29 StringLiteral `""`
+1:32 StringLiteral `"\u{48}i"`
     doc `/// Doc line two.`
 3:2 CharLiteral `''`
 4:2 InterpolatedStringStart `$"`

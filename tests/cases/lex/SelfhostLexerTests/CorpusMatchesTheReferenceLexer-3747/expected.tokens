@@ -1,4 +1,4 @@
-1:3 CharLiteral `'`
+1:7 CharLiteral `'`
 2:2 StructKeyword `struct`
 2:9 Identifier `S`
 3:2 EndOfFile

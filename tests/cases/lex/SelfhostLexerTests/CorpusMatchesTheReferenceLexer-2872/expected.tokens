@@ -85,12 +85,10 @@ error BYN0003: unterminated string literal
     │
   help: close it with `"`; for text spanning lines use a raw `"""` string
 
-error BYN0006: invalid escape sequence `\\u{D}`
+error BYN0006: invalid escape sequence `\`
 
   1 │ $"{$"{$"{$"{$"{$�{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}" hidd  """ c"text" u1"wide" "� allowed in strings" "" "\
     │                                                                                                                         ^
-    │
-  help: use a valid escape: \n \r \t \0 \\ \" \' and \u{…}
 
 error BYN0002: unexpected character `\u{7}`
 

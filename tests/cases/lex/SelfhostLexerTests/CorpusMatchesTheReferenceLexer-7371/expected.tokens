@@ -32,16 +32,14 @@
 2:48 InterpolationStart `{`
 2:49 StringLiteral `$"{$"`
 2:54 OpenBrace `{`
-2:55 StringLiteral `"{$"`
-2:59 OpenBrace `{`
-2:60 StringLiteral `$"{x}"`
-2:66 StringLiteral `"}"`
-2:69 CloseBrace `}`
-2:70 StringLiteral `"}"`
-2:73 CloseBrace `}`
-2:74 StringLiteral `"}"`
-2:77 InterpolationEnd `}`
-2:78 InterpolatedStringEnd `"`
+2:56 StringLiteral `"{$"`
+2:60 OpenBrace `{`
+2:61 StringLiteral `$"{x}"`
+2:68 StringLiteral `"}"`
+2:71 CloseBrace `}`
+2:72 StringLiteral `"}"`
+2:75 CloseBrace `}`
+2:76 StringLiteral `"}"`
 2:79 InterpolationEnd `}`
 2:80 InterpolatedStringEnd `"`
 2:81 InterpolationEnd `}`
@@ -70,13 +68,15 @@
 2:104 InterpolatedStringEnd `"`
 2:105 InterpolationEnd `}`
 2:106 InterpolatedStringEnd `"`
-2:107 CharLiteral `'a'`
-2:111 CharLiteral `'\n'`
-2:116 CharLiteral `'\u{1F600}'`
-2:128 CharLiteral `'\''`
-2:133 CharLiteral `'é'`
-2:137 CharLiteral `'\\'`
-2:142 CharLiteral `'\0'`
+2:107 InterpolationEnd `}`
+2:108 InterpolatedStringEnd `"`
+2:109 CharLiteral `'a'`
+2:113 CharLiteral `'\n'`
+2:118 CharLiteral `'\u{1F600}'`
+2:130 CharLiteral `'\''`
+2:135 CharLiteral `'é'`
+2:139 CharLiteral `'\\'`
+2:144 CharLiteral `'\0'`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)

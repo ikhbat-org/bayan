@@ -13,43 +13,43 @@
 8:5 Identifier `café`
 8:10 Equals `=`
 8:12 IntegerLiteral `2`
-9:4 InterpolatedStringStart `$"`
-9:6 InterpolatedStringText `total `
-9:12 InterpolationStart `{`
-9:13 Identifier `x`
-9:14 InterpolationEnd `}`
-9:15 InterpolatedStringEnd `"`
-9:17 InterpolatedStringStart `$"`
-9:19 InterpolatedStringText `a `
-9:21 InterpolationStart `{`
-9:22 Identifier `f`
-9:23 OpenParen `(`
-9:24 InterpolatedStringStart `$"`
-9:26 InterpolatedStringText `b `
-9:28 InterpolationStart `{`
-9:29 Identifier `c`
-9:30 InterpolationEnd `}`
-9:31 InterpolatedStringEnd `"`
-9:32 CloseParen `)`
-9:33 InterpolationEnd `}`
-9:34 InterpolatedStringText ` d`
-9:36 InterpolatedStringEnd `"`
-9:38 InterpolatedStringStart `$"`
-9:40 InterpolatedStringText `{{literal}}`
-9:51 InterpolatedStringEnd `"`
-9:53 InterpolatedStringStart `$"`
-9:55 InterpolationStart `{`
-9:56 Identifier `Point`
-9:62 OpenBrace `{`
-9:64 Identifier `x`
-9:66 Equals `=`
-9:68 IntegerLiteral `1`
-9:70 CloseBrace `}`
-9:71 InterpolationEnd `}`
-9:72 InterpolatedStringText `!`
-9:73 InterpolatedStringEnd `"`
-9:75 InterpolatedStringStart `$"`
+9:7 InterpolatedStringStart `$"`
+9:9 InterpolatedStringText `total `
+9:15 InterpolationStart `{`
+9:16 Identifier `x`
+9:17 InterpolationEnd `}`
+9:18 InterpolatedStringEnd `"`
+9:20 InterpolatedStringStart `$"`
+9:22 InterpolatedStringText `a `
+9:24 InterpolationStart `{`
+9:26 Identifier `f`
+9:27 OpenParen `(`
+9:28 InterpolatedStringStart `$"`
+9:30 InterpolatedStringText `b `
+9:32 InterpolationStart `{`
+9:33 Identifier `c`
+9:34 InterpolationEnd `}`
+9:35 InterpolatedStringEnd `"`
+9:36 CloseParen `)`
+9:37 InterpolationEnd `}`
+9:38 InterpolatedStringText ` d`
+9:40 InterpolatedStringEnd `"`
+9:42 InterpolatedStringStart `$"`
+9:44 InterpolatedStringText `{{literal}}`
+9:55 InterpolatedStringEnd `"`
+9:57 InterpolatedStringStart `$"`
+9:59 InterpolationStart `{`
+9:60 Identifier `Point`
+9:66 OpenBrace `{`
+9:68 Identifier `x`
+9:70 Equals `=`
+9:72 IntegerLiteral `1`
+9:74 CloseBrace `}`
+9:75 InterpolationEnd `}`
+9:76 InterpolatedStringText `!`
 9:77 InterpolatedStringEnd `"`
+9:79 InterpolatedStringStart `$"`
+9:81 InterpolatedStringEnd `"`
 11:1 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C

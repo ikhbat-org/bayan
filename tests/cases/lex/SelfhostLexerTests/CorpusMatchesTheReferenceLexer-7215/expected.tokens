@@ -7,10 +7,10 @@
 1:37 ExtensibleKeyword `extensible`
 1:48 InterfaceKeyword `interface`
 1:58 Identifier `de`
-1:60 Identifier `egate`
-1:66 ExtensionKeyword `extension`
-1:76 DerivationKeyword `derivation`
-1:87 AttributeKeyword `attribute`
+1:61 Identifier `egate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x89)

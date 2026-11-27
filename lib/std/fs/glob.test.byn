@@ -145,3 +145,10 @@ test "the base of a pattern keeps the `/` after a drive, as after the root" {
     assert baseOf("/*.byn") == "/"
     assert baseOf("*.byn") == ""
 }
+
+test "the walk depth counts the `/` after the base, not those in it" {
+    assert depthOf("a/b/c/d/e/*.byn") == 1
+    assert depthOf("a/b/*/x/*.byn") == 3
+    assert depthOf("*.byn") == 1
+    assert depthOf("a/**/*.byn") == maxDepth
+}

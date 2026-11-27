@@ -13,11 +13,11 @@
 3:33 IntegerLiteral `3`
 3:35 IntegerLiteral `5`
 3:36 NumericSuffix `e`
-3:38 Identifier `x`
-3:39 Dot `.`
-3:40 Identifier `y`
-3:42 FloatLiteral `2.5`
-3:45 NumericSuffix `f`
+3:39 Identifier `x`
+3:40 Dot `.`
+3:41 Identifier `y`
+3:43 FloatLiteral `2.5`
+3:46 NumericSuffix `f`
 4:1 Identifier `e`
 4:2 StringLiteral `"`
 5:1 LetKeyword `let`

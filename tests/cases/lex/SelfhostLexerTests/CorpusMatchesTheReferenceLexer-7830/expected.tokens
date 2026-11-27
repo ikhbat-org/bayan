@@ -7,7 +7,7 @@
 1:41 SuspendsKeyword `suspends`
 1:50 AsyncKeyword `async`
 1:56 AwaitKeyword `await`
-3:3 CharLiteral `'\q'`
+3:4 CharLiteral `'\q'`
 5:1 IntegerLiteral `1`
 5:2 NumericSuffix `eclosed`
 6:1 Identifier `b`
@@ -16,8 +16,8 @@
 8:6 Identifier `here`
 8:10 StringLiteral `"`
 9:1 InterpolatedStringStart `$"`
-9:3 InterpolatedStringText `op\r`
-9:6 InterpolatedStringEnd
+9:3 InterpolatedStringText `op`
+9:5 InterpolatedStringEnd
 10:1 Identifier `b`
 12:1 EndOfFile
 

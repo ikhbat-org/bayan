@@ -2,18 +2,18 @@
 3:1 Amp `&`
 3:3 AmpAmp `&&`
 3:6 Bar `|`
-3:8 BarBar `||`
-3:11 Caret `^`
-3:13 Tilde `~`
-3:15 Bang `!`
-3:17 Equals `=`
-3:19 EqualsEquals `==`
-3:22 BangEquals `!=`
-3:25 Less `<`
-3:27 Identifier `t`
-3:29 LawKeyword `law`
-3:33 Equals `=`
-3:35 IntegerLiteral `3`
+3:9 BarBar `||`
+3:12 Caret `^`
+3:14 Tilde `~`
+3:16 Bang `!`
+3:18 Equals `=`
+3:20 EqualsEquals `==`
+3:23 BangEquals `!=`
+3:26 Less `<`
+3:28 Identifier `t`
+3:30 LawKeyword `law`
+3:34 Equals `=`
+3:36 IntegerLiteral `3`
 4:1 StringLiteral `"a\u{2067}b"`
 4:8 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n struct unique union enum flags open extensible interface dylgate extension derivation attribute\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"\n`
 8:1 EndOfFile

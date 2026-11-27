@@ -41,7 +41,7 @@
 2:9 Identifier `x`
 2:10 StringLiteral `";`
 4:2 Identifier `é`
-5:1 IntegerLiteral `0b102`
+5:2 IntegerLiteral `0b102`
 6:1 IntegerLiteral `0xFF`
 6:5 NumericSuffix `s`
 7:1 IntegerLiteral `0b1`

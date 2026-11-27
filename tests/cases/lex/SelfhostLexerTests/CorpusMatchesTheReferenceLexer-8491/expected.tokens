@@ -1,5 +1,5 @@
-1:5 Identifier `struuct`
-1:13 Identifier `S`
+1:12 Identifier `struuct`
+1:20 Identifier `S`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

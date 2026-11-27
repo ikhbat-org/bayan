@@ -5,8 +5,8 @@
 2:1 Identifier `c`
 2:3 Greater `>`
 2:4 GreaterEquals `>=`
-2:7 IntegerLiteral `0xF`
-2:11 Identifier `Is`
+2:8 IntegerLiteral `0xF`
+2:12 Identifier `Is`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8E)

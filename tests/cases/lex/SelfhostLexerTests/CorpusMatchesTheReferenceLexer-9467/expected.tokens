@@ -11,17 +11,17 @@
 4:40 ForKeyword `for`
 4:44 InKeyword `in`
 4:47 Identifier `wh`
-4:49 Identifier `ile`
-4:53 DoKeyword `do`
-4:56 BreakKeyword `break`
-4:62 ContinueKeyword `continue`
-4:71 ReturnKeyword `return`
-4:78 YieldKeyword `yield`
-4:84 Identifier `defe`
-4:88 CloseBrace `}`
-4:90 ErrdeferKeyword `errdefer`
-4:99 UsingKeyword `using`
-4:105 ContextKeyword `context`
+4:50 Identifier `ile`
+4:54 DoKeyword `do`
+4:57 BreakKeyword `break`
+4:63 ContinueKeyword `continue`
+4:72 ReturnKeyword `return`
+4:79 YieldKeyword `yield`
+4:85 Identifier `defe`
+4:89 CloseBrace `}`
+4:91 ErrdeferKeyword `errdefer`
+4:100 UsingKeyword `using`
+4:106 ContextKeyword `context`
 6:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

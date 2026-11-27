@@ -15,12 +15,12 @@
 7:12 PlusPercent `+%`
 7:15 MinusPercent `-%`
 7:17 Identifier `f`
-7:19 StarPercent `*%`
-7:22 PlusBar `+|`
-7:25 MinusBar `-|`
-7:28 StarBar `*|`
-7:31 PlusPlus `++`
-7:34 MinusMinus `--`
+7:20 StarPercent `*%`
+7:23 PlusBar `+|`
+7:26 MinusBar `-|`
+7:29 StarBar `*|`
+7:32 PlusPlus `++`
+7:35 MinusMinus `--`
 8:1 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

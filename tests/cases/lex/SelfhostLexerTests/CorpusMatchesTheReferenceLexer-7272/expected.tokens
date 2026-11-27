@@ -37,7 +37,7 @@
 7:19 Identifier `i64`
 7:22 Greater `>`
 7:23 Greater `>`
-8:5 EndOfFile
+8:6 EndOfFile
 
 error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
 

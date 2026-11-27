@@ -1,5 +1,5 @@
-1:2 Identifier `o`
-1:3 EndOfFile
+1:5 Identifier `o`
+1:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

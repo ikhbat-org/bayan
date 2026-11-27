@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
-1:5 Identifier `c`
-1:7 Equals `=`
-1:11 IntegerLiteral `3`
+1:6 Identifier `c`
+1:8 Equals `=`
+1:12 IntegerLiteral `3`
 3:1 NotKeyword `not`
 3:5 WithKeyword `with`
 3:10 MoveKeyword `move`
@@ -12,9 +12,9 @@
 3:33 TrueKeyword `true`
 3:38 FalseKeyword `false`
 3:44 Identifier `co`
-3:46 Identifier `mptime`
-3:53 Identifier `checkt`
-3:60 Identifier `la`
+3:47 Identifier `mptime`
+3:54 Identifier `checkt`
+3:61 Identifier `la`
 4:1 Identifier `_`
 5:1 EndOfFile
 

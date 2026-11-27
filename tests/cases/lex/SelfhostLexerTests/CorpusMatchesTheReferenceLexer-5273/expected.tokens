@@ -1,5 +1,5 @@
 1:1 CharLiteral `'��'`
-1:3 CloseBrace `}`
+1:5 CloseBrace `}`
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `stray } here`
 2:15 InterpolatedStringEnd `"`

@@ -3,8 +3,8 @@
 1:4 Identifier `a`
 1:5 Equals `=`
 1:7 StringLiteral `"op � \u{2069} ����� �`
-2:2 Identifier `pe`
-2:4 StringLiteral `"`
+2:3 Identifier `pe`
+2:5 StringLiteral `"`
 3:1 LetKeyword `let`
 3:5 Identifier `c`
 3:7 EndOfFile

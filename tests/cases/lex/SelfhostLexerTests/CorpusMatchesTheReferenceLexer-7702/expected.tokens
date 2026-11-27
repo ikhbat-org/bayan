@@ -20,11 +20,11 @@
 4:23 InterpolatedStringStart `$"`
 4:25 InterpolationStart `{`
 4:27 Greater `>`
-4:31 Identifier `allowed`
-4:39 InKeyword `in`
-4:42 Identifier `strings`
-4:49 StringLiteral `" "`
-4:53 StringLiteral `"\u{48[}i"`
+4:34 Identifier `allowed`
+4:42 InKeyword `in`
+4:45 Identifier `strings`
+4:52 StringLiteral `" "`
+4:56 StringLiteral `"\u{48[}i"`
 5:2 IntegerLiteral `0xF__`
 7:1 EndOfFile
 

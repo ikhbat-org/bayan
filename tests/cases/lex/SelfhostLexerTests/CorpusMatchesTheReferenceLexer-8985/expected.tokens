@@ -1,6 +1,6 @@
-1:4 Identifier `_x`
-1:7 Identifier `cameCase2`
-1:16 EndOfFile
+1:7 Identifier `_x`
+1:10 Identifier `cameCase2`
+1:19 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

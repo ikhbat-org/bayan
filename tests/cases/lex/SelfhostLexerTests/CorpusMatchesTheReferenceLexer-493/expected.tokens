@@ -1,5 +1,5 @@
-1:2 Identifier `x_1`
-1:6 Identifier `é`
+1:3 Identifier `x_1`
+1:7 Identifier `é`
 2:2 LetKeyword `let`
 2:6 Identifier `café`
 2:12 Equals `=`

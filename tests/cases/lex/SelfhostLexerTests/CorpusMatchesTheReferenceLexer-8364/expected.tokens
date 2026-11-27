@@ -1,5 +1,5 @@
-2:3 IntegerLiteral `0b1`
-2:6 NumericSuffix `ms`
+2:4 IntegerLiteral `0b1`
+2:7 NumericSuffix `ms`
 4:1 PlusEquals `+=`
 4:4 MinusEquals `-=`
 4:7 StarEquals `*=`

@@ -13,7 +13,7 @@
 3:34 ForeachKeyword `foreach`
 3:42 NewKeyword `new`
 3:46 GotoKeyword `goto`
-4:2 Identifier `é`
+4:3 Identifier `é`
 5:1 Identifier `le`
 5:4 EffectKeyword `effect`
 5:11 Equals `=`

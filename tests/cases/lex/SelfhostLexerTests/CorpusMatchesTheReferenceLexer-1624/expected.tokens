@@ -1,8 +1,8 @@
 1:1 LetKeyword `let`
-1:5 Identifier `a`
-1:7 Identifier `ctor`
-1:13 Equals `=`
-1:15 IntegerLiteral `1`
+1:6 Identifier `a`
+1:8 Identifier `ctor`
+1:14 Equals `=`
+1:16 IntegerLiteral `1`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x98)

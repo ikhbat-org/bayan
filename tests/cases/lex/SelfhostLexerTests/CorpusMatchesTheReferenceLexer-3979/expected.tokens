@@ -20,14 +20,14 @@
 3:5 Star `*`
 3:7 Slash `/`
 3:9 Percent `%`
-3:11 PlusPercent `+%`
-3:14 MinusPercent `-%`
-3:17 StarPercent `*%`
-3:20 PlusBar `+|`
-3:23 Identifier `c`
-3:25 Greater `>`
-3:26 GreaterEquals `>=`
-3:29 Identifier `T1`
+3:12 PlusPercent `+%`
+3:15 MinusPercent `-%`
+3:18 StarPercent `*%`
+3:21 PlusBar `+|`
+3:24 Identifier `c`
+3:26 Greater `>`
+3:27 GreaterEquals `>=`
+3:30 Identifier `T1`
 4:2 EndOfFile
 
 error BYN0003: unterminated string literal

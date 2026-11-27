@@ -1,10 +1,10 @@
 1:1 LetKeyword `let`
-1:5 EffectKeyword `effect`
-1:12 Equals `=`
-1:14 IntegerLiteral `2`
-1:15 NumericSuffix `acro`
-1:20 Identifier `select`
-1:27 BecomeKeyword `become`
+1:6 EffectKeyword `effect`
+1:13 Equals `=`
+1:15 IntegerLiteral `2`
+1:16 NumericSuffix `acro`
+1:21 Identifier `select`
+1:28 BecomeKeyword `become`
 2:1 Identifier `l`
 3:1 EndOfFile
 

@@ -10,7 +10,7 @@ void t29Same(string got, as string want) uses alloc, console {
     assert got == want
 }
 
-test "driver t29: lex and parse refuse what the self-hosted compiler lacks" {
+test "driver t29: lex --json with no file is a usage error, and parse without --ast is refused" {
     assert lexCommand(["lex", "--json"]) == exitUsage
     assert parseCommand(["parse", "src/driver/commands.byn"]) == exitUsage
     assert refuse("x") == exitUsage
@@ -18,4 +18,11 @@ test "driver t29: lex and parse refuse what the self-hosted compiler lacks" {
 
 test "driver t29: lex - lexes stdin, which bayan test gives empty" {
     t29Same($"{lexCommand(["lex", "-"])}", as: "0")
+}
+
+test "driver t29: lex --json prints the JSON dump of a file" {
+    let dir = t29CacheDir("lex-json")
+    goldenWrite(dir, for: "a.byn", as: "int x = 1\n")
+    assert lexCommand(["lex", "--json", Path.combine(dir, "a.byn")]) == exitOk
+    deleteWorkDir(dir)
 }

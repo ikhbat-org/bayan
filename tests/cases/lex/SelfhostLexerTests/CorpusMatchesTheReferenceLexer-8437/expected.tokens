@@ -41,8 +41,8 @@
 1:69 CloseBrace `}`
 1:70 StringLiteral `"/// Doc line two.`
 3:1 Identifier `ạ̇`
-4:2 StructKeyword `struct`
-4:9 Identifier `S`
+4:3 StructKeyword `struct`
+4:10 Identifier `S`
 6:1 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C

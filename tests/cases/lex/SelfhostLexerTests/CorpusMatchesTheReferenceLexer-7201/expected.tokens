@@ -1,4 +1,4 @@
-1:2 IntegerLiteral `0x`
+1:6 IntegerLiteral `0x`
 3:1 CharLiteral `'\u{D800}'`
 7:1 EndOfFile
 

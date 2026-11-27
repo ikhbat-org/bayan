@@ -9,10 +9,10 @@
 1:15 CloseBracket `]`
 1:17 OpenBrace `{`
 1:19 CloseBrace `}`
-2:2 Identifier `Cas2`
-2:7 Identifier `بيان`
-2:12 Identifier `με`
-2:15 EndOfFile
+2:5 Identifier `Cas2`
+2:10 Identifier `بيان`
+2:15 Identifier `με`
+2:18 EndOfFile
 
 error BYN0003: unterminated string literal
 

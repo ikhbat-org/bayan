@@ -33,8 +33,8 @@
 2:68 Bang `!`
 2:69 StringLiteral `" $"`
 2:73 StringLiteral `"`
-4:2 OpenBrace `{`
-4:3 EndOfFile
+4:3 OpenBrace `{`
+4:4 EndOfFile
 
 error BYN0002: unexpected character `$`
 

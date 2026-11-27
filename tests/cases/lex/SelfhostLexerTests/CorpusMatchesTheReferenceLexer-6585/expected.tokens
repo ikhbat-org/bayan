@@ -18,7 +18,7 @@
 3:12 Identifier `y`
 3:14 IntegerLiteral `2`
 3:16 RawStringLiteral `"""( ) [ ] { \n ���� $"{" 1e`
-4:11 EndOfFile
+4:14 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xD9)
 

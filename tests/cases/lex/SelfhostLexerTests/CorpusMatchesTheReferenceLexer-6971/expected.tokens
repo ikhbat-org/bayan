@@ -2,7 +2,7 @@
 1:5 Identifier `c`
 1:7 Equals `=`
 1:9 RawStringLiteral `"""never closed\n $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"\n�����$"{ `
-3:6 EndOfFile
+3:10 EndOfFile
 
 error BYN0003: unterminated string literal
 

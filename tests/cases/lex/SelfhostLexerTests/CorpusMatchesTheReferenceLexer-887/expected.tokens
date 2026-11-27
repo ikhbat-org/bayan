@@ -5,8 +5,8 @@
 3:11 CharLiteral `'\u{�F600}'`
 3:23 CharLiteral `'\''`
 3:28 CharLiteral `'�'`
-3:31 CharLiteral `'\\'`
-3:36 CharLiteral `'\0'`
+3:32 CharLiteral `'\\'`
+3:37 CharLiteral `'\0'`
 4:1 IntegerLiteral `0x`
 4:3 CharLiteral `'ab'`
 5:1 IntegerLiteral `0xF__`

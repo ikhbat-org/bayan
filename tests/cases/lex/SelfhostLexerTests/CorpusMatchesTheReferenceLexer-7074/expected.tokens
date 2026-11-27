@@ -16,16 +16,16 @@
 4:12 NotKeyword `not`
 4:16 WithKeyword `with`
 4:21 Identifier `mo`
-4:23 Identifier `ve`
-4:26 RefKeyword `ref`
-4:30 OutKeyword `out`
-4:34 ThisKeyword `this`
-4:39 NullKeyword `null`
-4:44 TrueKeyword `true`
-4:49 FalseKeyword `false`
-4:55 ComptimeKeyword `comptime`
-4:64 Identifier `checkedi`
-4:72 EndOfFile
+4:24 Identifier `ve`
+4:27 RefKeyword `ref`
+4:31 OutKeyword `out`
+4:35 ThisKeyword `this`
+4:40 NullKeyword `null`
+4:45 TrueKeyword `true`
+4:50 FalseKeyword `false`
+4:56 ComptimeKeyword `comptime`
+4:65 Identifier `checkedi`
+4:73 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)
 

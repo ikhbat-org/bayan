@@ -6,9 +6,9 @@
 2:5 NumericSuffix `s`
 4:1 LetKeyword `let`
 4:5 Identifier `effe`
-4:9 Identifier `t`
-4:11 Equals `=`
-4:13 IntegerLiteral `2`
+4:10 Identifier `t`
+4:12 Equals `=`
+4:14 IntegerLiteral `2`
 5:1 IntegerLiteral `0xFF`
 5:5 NumericSuffix `s`
 7:1 LetKeyword `let`

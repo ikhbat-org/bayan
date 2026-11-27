@@ -1,5 +1,5 @@
 2:2 IntegerLiteral `0xF__`
-2:7 Identifier `é`
+2:8 Identifier `é`
 3:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

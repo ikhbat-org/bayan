@@ -1,7 +1,7 @@
 1:1 Identifier `pen`
-1:4 OpenBrace `{`
-1:5 Identifier `x`
-1:6 StringLiteral `";`
+1:5 OpenBrace `{`
+1:6 Identifier `x`
+1:7 StringLiteral `";`
 3:1 Identifier `el`
 3:4 ForeachKeyword `foreach`
 3:12 NewKeyword `new`

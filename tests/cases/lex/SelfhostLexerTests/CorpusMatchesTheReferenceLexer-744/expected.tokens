@@ -43,7 +43,7 @@
 12:1 IntegerLiteral `0b__`
 13:1 IntegerLiteral `1__`
 14:1 IntegerLiteral `0xF`
-14:4 Identifier `_`
+14:5 Identifier `_`
 17:1 EndOfFile
 
 error BYN0001: bidirectional control character U+2067 is not allowed outside string literals

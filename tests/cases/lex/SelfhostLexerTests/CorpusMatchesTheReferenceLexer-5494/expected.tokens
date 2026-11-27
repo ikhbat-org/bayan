@@ -55,9 +55,9 @@
 3:33 GreaterEquals `>=`
 3:36 LessLess `<<`
 3:39 Greater `>`
-3:40 Greater `>`
-3:42 Greater `>`
-3:43 GreaterEquals `>=`
+3:41 Greater `>`
+3:43 Greater `>`
+3:44 GreaterEquals `>=`
 5:1 LetKeyword `let`
 5:5 Identifier `café`
 5:10 Equals `=`

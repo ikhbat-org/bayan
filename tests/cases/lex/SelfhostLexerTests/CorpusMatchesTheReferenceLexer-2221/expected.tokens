@@ -76,7 +76,7 @@
 2:108 InterpolatedStringEnd `"`
 2:109 InterpolationEnd `}`
 2:110 InterpolatedStringEnd `"`
-3:3 IntegerLiteral `1_`
+3:4 IntegerLiteral `1_`
 5:1 Identifier `x́́`
 6:1 EndOfFile
 

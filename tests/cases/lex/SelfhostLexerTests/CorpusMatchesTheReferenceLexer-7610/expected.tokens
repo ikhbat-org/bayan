@@ -10,8 +10,7 @@
 3:16 InterpolatedStringText `x`
 3:17 InterpolationStart `{`
 3:19 InterpolatedStringStart `$"`
-3:21 InterpolatedStringText `\r`
-3:22 InterpolatedStringEnd
+3:21 InterpolatedStringEnd
 4:1 LetKeyword `let`
 4:5 Identifier `a`
 4:7 Equals `=`

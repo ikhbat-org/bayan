@@ -1,12 +1,12 @@
 1:1 Identifier `ȧ`
 1:4 Identifier `Z`
-1:6 InterpolatedStringStart `$"`
-1:8 InterpolatedStringText `a`
-1:9 InterpolationStart `{`
-1:10 Identifier `b`
-1:11 InterpolationEnd `}`
-1:12 InterpolatedStringText `c�`
-1:14 InterpolatedStringEnd
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolatedStringText `a`
+1:10 InterpolationStart `{`
+1:11 Identifier `b`
+1:12 InterpolationEnd `}`
+1:13 InterpolatedStringText `c�`
+1:15 InterpolatedStringEnd
 2:1 EndOfFile
 
 error BYN0005: identifier `ȧ` is not in Unicode normalization form C

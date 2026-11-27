@@ -51,19 +51,19 @@
 9:63 StringLiteral `"}"`
 9:66 CloseBrace `}`
 9:67 StringLiteral `"�"`
-9:69 InterpolationEnd `}`
-9:70 InterpolatedStringEnd `"`
-9:71 InterpolationEnd `}`
-9:72 InterpolatedStringEnd `"`
-9:73 InterpolationEnd `}`
-9:74 InterpolatedStringEnd `"`
-9:75 InterpolationEnd `}`
-9:76 InterpolatedStringEnd `"`
-9:77 InterpolationEnd `}`
-9:78 InterpolatedStringEnd `"`
-9:79 InterpolationEnd `}`
-9:80 InterpolatedStringEnd `"`
-9:81 Identifier `b`
+9:70 InterpolationEnd `}`
+9:71 InterpolatedStringEnd `"`
+9:72 InterpolationEnd `}`
+9:73 InterpolatedStringEnd `"`
+9:74 InterpolationEnd `}`
+9:75 InterpolatedStringEnd `"`
+9:76 InterpolationEnd `}`
+9:77 InterpolatedStringEnd `"`
+9:78 InterpolationEnd `}`
+9:79 InterpolatedStringEnd `"`
+9:80 InterpolationEnd `}`
+9:81 InterpolatedStringEnd `"`
+9:82 Identifier `b`
 10:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

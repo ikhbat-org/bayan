@@ -65,8 +65,8 @@
 5:64 OpenBrace `{`
 5:65 IntegerLiteral `110000`
 5:71 CloseBrace `}`
-5:72 CharLiteral `'\r`
-6:1 CharLiteral `'x\r`
+5:72 CharLiteral `'`
+6:1 CharLiteral `'x`
 7:2 EndOfFile
 
 error BYN0002: unexpected character `\u{E}`

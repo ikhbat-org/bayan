@@ -15,11 +15,11 @@
 3:45 Identifier `newgoto`
 5:1 CharLiteral `'\q'`
 6:2 StringLiteral `"{`
-7:3 IntegerLiteral `0000`
-7:7 InterpolationEnd `}`
-7:8 InterpolatedStringText `'\r`
-7:10 InterpolatedStringEnd
-8:1 CharLiteral `'x\r`
+7:7 IntegerLiteral `0000`
+7:11 InterpolationEnd `}`
+7:12 InterpolatedStringText `'`
+7:13 InterpolatedStringEnd
+8:1 CharLiteral `'x`
 9:1 InterpolatedStringStart `$"`
 9:3 InterpolationStart `{`
 9:4 InterpolatedStringStart `$"`

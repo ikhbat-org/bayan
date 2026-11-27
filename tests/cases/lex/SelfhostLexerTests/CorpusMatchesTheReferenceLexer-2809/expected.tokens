@@ -18,11 +18,11 @@
 7:5 Identifier `Bar`
 7:9 Identifier `_x`
 7:12 Identifier `cam`
-7:15 Identifier `elCase2`
-7:23 Identifier `بيان`
-7:28 Identifier `μετρητής`
-7:37 Identifier `x_1`
-7:41 Identifier `é`
+7:16 Identifier `elCase2`
+7:24 Identifier `بيان`
+7:29 Identifier `μετρητής`
+7:38 Identifier `x_1`
+7:42 Identifier `é`
 9:1 InterpolatedStringStart `$"`
 9:3 InterpolationStart `{`
 9:4 StringLiteral `"`

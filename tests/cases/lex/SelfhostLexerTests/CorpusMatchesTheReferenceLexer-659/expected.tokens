@@ -2,7 +2,7 @@
 2:1 Identifier `b`
 5:15 Identifier `a`
     doc `/// Doc line one.\n///  $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"}"let c = \u{7} 3`
-8:2 EndOfFile
+8:3 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines
 

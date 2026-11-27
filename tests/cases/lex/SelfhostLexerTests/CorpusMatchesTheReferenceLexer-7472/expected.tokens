@@ -4,7 +4,7 @@
 1:11 IntegerLiteral `3`
 5:2 Identifier `é`
 6:1 IntegerLiteral `0x_`
-7:3 StringLiteral `"bad \q escape"`
+7:7 StringLiteral `"bad \q escape"`
 8:1 LetKeyword `let`
 8:5 Identifier `c`
 8:7 Equals `=`

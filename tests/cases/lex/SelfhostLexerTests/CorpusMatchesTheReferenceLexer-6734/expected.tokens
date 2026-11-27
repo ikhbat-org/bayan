@@ -21,7 +21,7 @@
 5:3 InterpolatedStringText `stray } here`
 5:15 InterpolatedStringEnd `"`
 7:1 CharLiteral `''`
-9:2 EndOfFile
+9:3 EndOfFile
 
 error BYN0005: identifier `각` is not in Unicode normalization form C
 

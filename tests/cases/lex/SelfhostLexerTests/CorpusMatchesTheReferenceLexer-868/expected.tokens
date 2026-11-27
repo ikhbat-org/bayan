@@ -6,17 +6,17 @@
 2:26 TypeKeyword `type`
 2:31 ImportKeyword `import`
 2:38 AsKeyword `as`
-2:40 PublicKeyword `public`
-2:47 PrivateKeyword `private`
-2:55 StaticKeyword `static`
-2:62 ReadonlyKeyword `readonly`
-2:71 RequiredKeyword `required`
-2:80 ConstKeyword `const`
-2:86 LetKeyword `let`
-2:90 VarKeyword `var`
-2:95 EmbedKeyword `embed`
-2:101 ExternKeyword `extern`
-2:108 UnsafeKeyword `unsafe`
+2:41 PublicKeyword `public`
+2:48 PrivateKeyword `private`
+2:56 StaticKeyword `static`
+2:63 ReadonlyKeyword `readonly`
+2:72 RequiredKeyword `required`
+2:81 ConstKeyword `const`
+2:87 LetKeyword `let`
+2:91 VarKeyword `var`
+2:96 EmbedKeyword `embed`
+2:102 ExternKeyword `extern`
+2:109 UnsafeKeyword `unsafe`
 3:1 Identifier `각`
 3:5 EndOfFile
 

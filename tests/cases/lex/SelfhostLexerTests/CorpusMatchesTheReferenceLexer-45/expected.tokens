@@ -14,9 +14,9 @@
 2:58 FalseKeyword `false`
 2:64 ComptimeKeyword `comptime`
 2:73 CheckedKeyword `checked`
-3:2 LetKeyword `let`
-3:8 Equals `=`
-3:10 StringLiteral `"open`
+3:6 LetKeyword `let`
+3:12 Equals `=`
+3:14 StringLiteral `"open`
 4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

@@ -1,16 +1,16 @@
 1:1 IntegerLiteral `1_`
-3:5 Identifier `se`
-3:8 UnlessKeyword `unless`
-3:15 Identifier `s`
-3:17 Identifier `itch`
-3:22 CaseKeyword `case`
-3:27 DefaultKeyword `default`
-3:35 ForKeyword `for`
-3:39 InKeyword `in`
-3:42 WhileKeyword `while`
-3:48 DoKeyword `do`
-3:51 BreakKeyword `break`
-3:57 Identifier `contin0x`
+3:7 Identifier `se`
+3:10 UnlessKeyword `unless`
+3:17 Identifier `s`
+3:19 Identifier `itch`
+3:24 CaseKeyword `case`
+3:29 DefaultKeyword `default`
+3:37 ForKeyword `for`
+3:41 InKeyword `in`
+3:44 WhileKeyword `while`
+3:50 DoKeyword `do`
+3:53 BreakKeyword `break`
+3:59 Identifier `contin0x`
 4:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\na /* never closed\n `
 6:2 EndOfFile
 

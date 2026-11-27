@@ -1,9 +1,9 @@
-2:2 Identifier `a`
-2:3 OpenBrace `{`
-2:4 Identifier `b`
-2:5 CloseBrace `}`
-2:6 Identifier `c`
-2:7 EndOfFile
+2:3 Identifier `a`
+2:4 OpenBrace `{`
+2:5 Identifier `b`
+2:6 CloseBrace `}`
+2:7 Identifier `c`
+2:8 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`
 

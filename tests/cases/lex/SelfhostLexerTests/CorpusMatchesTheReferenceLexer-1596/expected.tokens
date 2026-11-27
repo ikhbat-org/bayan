@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:7 Equals `=`
 1:9 IntegerLiteral `2`
-7:4 EndOfFile
+7:6 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)
 

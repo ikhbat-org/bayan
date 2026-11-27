@@ -1,4 +1,4 @@
-1:1 CharLiteral `'\u{1F600\u{202E}// ok � in comment\r`
+1:1 CharLiteral `'\u{1F600\u{202E}// ok � in comment`
 2:3 Identifier `raw`
 2:7 StringLiteral `"quoted"`
 3:2 EndOfFile

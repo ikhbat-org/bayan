@@ -16,8 +16,8 @@
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 Identifier `a`
-3:5 CharLiteral `'x\r`
-5:1 CharLiteral `'�\r`
+3:5 CharLiteral `'x`
+5:1 CharLiteral `'�`
 8:1 EndOfFile
 
 error BYN0003: unterminated string literal

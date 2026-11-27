@@ -6,12 +6,12 @@
 3:3 Greater `>`
 3:4 GreaterEquals `>=`
 3:7 IntegerLiteral `1`
-5:3 Identifier `é`
-5:6 InterpolatedStringStart `$"`
-5:8 InterpolatedStringText `open `
-5:13 InterpolationStart `{`
-5:14 Identifier `x`
-5:15 StringLiteral `"; let ef�ect = 2`
+5:4 Identifier `é`
+5:7 InterpolatedStringStart `$"`
+5:9 InterpolatedStringText `open `
+5:14 InterpolationStart `{`
+5:15 Identifier `x`
+5:16 StringLiteral `"; let ef�ect = 2`
 6:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

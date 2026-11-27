@@ -1,10 +1,10 @@
 1:1 Identifier `x_`
 2:1 IntegerLiteral `0b__`
-2:6 Identifier `x`
-2:9 Equals `=`
-2:11 IntegerLiteral `1`
-3:2 Slash `/`
-3:3 Identifier `V`
+2:7 Identifier `x`
+2:10 Equals `=`
+2:12 IntegerLiteral `1`
+3:3 Slash `/`
+3:4 Identifier `V`
 6:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

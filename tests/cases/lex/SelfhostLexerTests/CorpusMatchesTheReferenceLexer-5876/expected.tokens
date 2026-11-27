@@ -15,7 +15,7 @@
 6:32 CharLiteral `'\\'`
 6:37 CharLiteral `'\0'`
 7:1 CharLiteral `'\u{202E}'`
-7:5 EndOfFile
+7:6 EndOfFile
 
 error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal
 

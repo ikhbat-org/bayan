@@ -1,8 +1,8 @@
 1:1 CharLiteral `'\''`
 1:7 CharLiteral `'é" '`
-1:14 CharLiteral `' '`
-1:18 IntegerLiteral `0`
-1:19 CharLiteral `'`
+1:15 CharLiteral `' '`
+1:19 IntegerLiteral `0`
+1:20 CharLiteral `'`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xCF)

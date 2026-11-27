@@ -7,7 +7,7 @@
 1:13 StringLiteral `"}"`
 1:16 CloseBrace `}`
 1:17 StringLiteral `"`
-2:1 EndOfFile
+2:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

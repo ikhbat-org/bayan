@@ -13,7 +13,7 @@
 1:49 FalseKeyword `false`
 1:55 ComptimeKeyword `comptime`
 1:64 CheckedKeyword `checked`
-2:1 EndOfFile
+2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)
 

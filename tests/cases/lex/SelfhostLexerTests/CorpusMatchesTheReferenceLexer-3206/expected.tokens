@@ -5,8 +5,8 @@
 1:27 CharLiteral `'é'`
 1:31 CharLiteral `'\\'`
 1:36 CharLiteral `'\0'`
-2:1 Greater `>`
-2:2 GreaterEquals `>=`
+2:2 Greater `>`
+2:3 GreaterEquals `>=`
 4:1 LetKeyword `let`
 4:5 Identifier `café`
 4:10 Equals `=`

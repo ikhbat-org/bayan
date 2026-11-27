@@ -15,7 +15,7 @@
 11:1 IntegerLiteral `0xF__`
 12:1 StringLiteral `"text"`
 12:8 StringLiteral `"esc \"q\" \\ \n� "`
-12:26 StringLiteral `""`
+12:27 StringLiteral `""`
 15:1 Identifier `a`
 15:4 IntegerLiteral `1`
 15:5 NumericSuffix `e`

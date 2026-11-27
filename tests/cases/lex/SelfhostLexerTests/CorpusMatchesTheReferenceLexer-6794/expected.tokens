@@ -1,15 +1,15 @@
 1:1 CharLiteral `'\u{202E}'`
-1:6 Greater `>`
 1:7 Greater `>`
-1:9 Identifier `b`
+1:8 Greater `>`
+1:10 Identifier `b`
 3:1 StringLiteral `"}"`
 3:4 CloseBrace `}`
 3:5 StringLiteral `"}"`
 3:8 CloseBrace `}`
 3:9 StringLiteral `"}"`
 3:12 CloseBrace `}`
-4:3 IntegerLiteral `0x`
-4:5 Identifier `__`
+4:7 IntegerLiteral `0x`
+4:10 Identifier `__`
 6:1 Identifier `ạ̇`
 6:4 EndOfFile
 

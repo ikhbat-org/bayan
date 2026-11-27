@@ -3,9 +3,9 @@
 1:8 NullKeyword `null`
 1:13 TrueKeyword `true`
 1:18 Identifier `fa`
-1:20 Identifier `se`
-1:23 ComptimeKeyword `comptime`
-1:32 CheckedKeyword `checked`
+1:21 Identifier `se`
+1:24 ComptimeKeyword `comptime`
+1:33 CheckedKeyword `checked`
 2:1 TestKeyword `test`
 2:6 Identifier `assertlet`
 2:16 Identifier `c`

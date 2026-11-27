@@ -129,7 +129,7 @@
 3:76 InterpolatedStringEnd `"`
 3:77 InterpolationEnd `}`
 3:78 InterpolatedStringEnd `"`
-4:1 Identifier `b`
+4:2 Identifier `b`
 5:2 IfKeyword `if`
 5:5 ElseKeyword `else`
 5:10 UnlessKeyword `unless`

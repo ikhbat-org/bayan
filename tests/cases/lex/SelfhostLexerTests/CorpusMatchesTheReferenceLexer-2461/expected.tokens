@@ -10,7 +10,7 @@
 3:17 Identifier `x`
 3:18 StringLiteral `";`
     doc `///� n`
-6:9 EndOfFile
+6:10 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

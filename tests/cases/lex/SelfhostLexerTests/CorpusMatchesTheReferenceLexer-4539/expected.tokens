@@ -77,13 +77,13 @@
 4:75 InterpolatedStringEnd `"`
 4:76 InterpolationEnd `}`
 4:77 InterpolatedStringEnd `"`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 6:2 IntegerLiteral `2`
 6:4 Identifier `ب`
-6:7 Identifier `ان`
-6:10 Identifier `μετρητής`
-6:19 Identifier `x_1`
-6:23 Identifier `é`
+6:8 Identifier `ان`
+6:11 Identifier `μετρητής`
+6:20 Identifier `x_1`
+6:24 Identifier `é`
 8:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

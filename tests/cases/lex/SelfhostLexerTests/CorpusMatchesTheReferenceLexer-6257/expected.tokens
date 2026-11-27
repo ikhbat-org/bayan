@@ -4,9 +4,9 @@
 1:12 Identifier `camelCase2`
 1:23 Identifier `بيان`
 1:28 Identifier `μετρη`
-1:35 Identifier `ς`
-1:37 Identifier `x_1`
-1:41 Identifier `é`
+1:36 Identifier `ς`
+1:38 Identifier `x_1`
+1:42 Identifier `é`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x84)

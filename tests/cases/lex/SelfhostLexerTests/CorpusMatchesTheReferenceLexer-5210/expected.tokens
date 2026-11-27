@@ -34,16 +34,16 @@
 3:42 InterpolationStart `{`
 3:43 InterpolatedStringStart `$"`
 3:45 InterpolationStart `{`
-3:46 StringLiteral `"{$"`
-3:50 OpenBrace `{`
-3:51 InterpolatedStringStart `$"`
-3:53 InterpolationStart `{`
-3:54 StringLiteral `"{x}"`
-3:59 InterpolationEnd `}`
-3:60 InterpolatedStringEnd `"`
-3:61 CloseBrace `}`
-3:62 StringLiteral `"}"`
-3:65 EndOfFile
+3:47 StringLiteral `"{$"`
+3:51 OpenBrace `{`
+3:52 InterpolatedStringStart `$"`
+3:54 InterpolationStart `{`
+3:55 StringLiteral `"{x}"`
+3:60 InterpolationEnd `}`
+3:61 InterpolatedStringEnd `"`
+3:62 CloseBrace `}`
+3:63 StringLiteral `"}"`
+3:66 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal
 

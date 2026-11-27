@@ -1,4 +1,4 @@
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 Equals `=`

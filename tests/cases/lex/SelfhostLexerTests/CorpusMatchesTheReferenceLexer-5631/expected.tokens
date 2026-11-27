@@ -49,11 +49,11 @@
 3:39 OpenKeyword `open`
 3:44 ExtensibleKeyword `extensible`
 3:55 InKeyword `in`
-3:57 Identifier `erface`
-3:64 DelegateKeyword `delegate`
-3:73 ExtensionKeyword `extension`
-3:83 DerivationKeyword `derivation`
-3:94 AttributeKeyword `attribute`
+3:58 Identifier `erface`
+3:65 DelegateKeyword `delegate`
+3:74 ExtensionKeyword `extension`
+3:84 DerivationKeyword `derivation`
+3:95 AttributeKeyword `attribute`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

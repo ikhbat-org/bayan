@@ -30,6 +30,11 @@ string allOf(string pattern, for string text) uses alloc {
     return $"{sb.finish()}"
 }
 
+test "`[:` that opens no POSIX class is a set member (audit 0.4.0 13-std #9)" {
+    assert errorOf("[[:]") == "ok"
+    assert errorOf("[[:alpha:]]") == "unsupported POSIX class @1"
+}
+
 /// `ok`, or the error `Regex.parse(pattern)` fails with as `kind message @offset`.
 string errorOf(string pattern) uses alloc {
     let _ = Regex.parse(pattern) catch switch {

@@ -49,23 +49,23 @@
 1:71 InterpolatedStringEnd `"`
 1:72 InterpolationEnd `}`
 1:73 InterpolatedStringEnd `"`
-1:74 StringLiteral `"}"`
-1:77 InterpolationEnd `}`
-1:78 InterpolatedStringEnd `"`
-1:79 InterpolationEnd `}`
-1:80 InterpolatedStringEnd `"`
-1:81 InterpolationEnd `}`
-1:82 InterpolatedStringEnd `"`
-1:83 InterpolationEnd `}`
-1:84 InterpolatedStringEnd `"`
-1:85 InterpolationEnd `}`
-1:86 InterpolatedStringEnd `"`
-1:87 InterpolationEnd `}`
-1:88 InterpolatedStringEnd `"`
-1:89 InterpolationEnd `}`
-1:90 InterpolatedStringEnd `"`
-1:91 InterpolationEnd `}`
-1:92 InterpolatedStringEnd `"`
+1:75 StringLiteral `"}"`
+1:78 InterpolationEnd `}`
+1:79 InterpolatedStringEnd `"`
+1:80 InterpolationEnd `}`
+1:81 InterpolatedStringEnd `"`
+1:82 InterpolationEnd `}`
+1:83 InterpolatedStringEnd `"`
+1:84 InterpolationEnd `}`
+1:85 InterpolatedStringEnd `"`
+1:86 InterpolationEnd `}`
+1:87 InterpolatedStringEnd `"`
+1:88 InterpolationEnd `}`
+1:89 InterpolatedStringEnd `"`
+1:90 InterpolationEnd `}`
+1:91 InterpolatedStringEnd `"`
+1:92 InterpolationEnd `}`
+1:93 InterpolatedStringEnd `"`
 2:1 LetKeyword `let`
 2:5 Identifier `café`
 2:11 Equals `=`
@@ -81,8 +81,8 @@
 4:58 AwaitKeyword `await`
 5:2 IntegerLiteral `1`
 5:3 Dot `.`
-6:3 PlusPlus `++`
-6:6 MinusMinus `--`
+6:4 PlusPlus `++`
+6:7 MinusMinus `--`
 7:2 EndOfFile
 
 error BYN0003: unterminated string literal

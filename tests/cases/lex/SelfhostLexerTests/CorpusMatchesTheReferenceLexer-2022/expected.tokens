@@ -21,9 +21,9 @@
 5:9 OpenBrace `{`
 5:11 CloseBrace `}`
 7:1 Identifier `ray`
-7:4 CloseBrace `}`
-7:6 Identifier `here`
-7:10 StringLiteral `"`
+7:5 CloseBrace `}`
+7:7 Identifier `here`
+7:11 StringLiteral `"`
 8:1 InterpolatedStringStart `$"`
 8:3 InterpolatedStringText `open `
 8:8 InterpolationStart `{`

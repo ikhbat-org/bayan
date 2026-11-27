@@ -1,5 +1,5 @@
-1:6 Identifier `H`
-1:8 IntegerLiteral `2`
+1:9 Identifier `H`
+1:11 IntegerLiteral `2`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

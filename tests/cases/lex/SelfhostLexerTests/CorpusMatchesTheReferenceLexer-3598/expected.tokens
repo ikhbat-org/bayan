@@ -8,10 +8,10 @@
 2:18 Identifier `nver`
 2:23 NoallocKeyword `noalloc`
 2:31 Identifier `nosuspe`
-2:38 Identifier `nd`
-2:41 SuspendsKeyword `suspends`
-2:50 AsyncKeyword `async`
-2:56 AwaitKeyword `await`
+2:39 Identifier `nd`
+2:42 SuspendsKeyword `suspends`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8B)

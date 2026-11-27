@@ -1,8 +1,8 @@
 1:1 LetKeyword `let`
 1:5 Identifier `c`
-1:6 Identifier `fé`
-1:9 Equals `=`
-1:11 IntegerLiteral `2`
+1:7 Identifier `fé`
+1:10 Equals `=`
+1:12 IntegerLiteral `2`
 3:3 IntegerLiteral `0x`
 5:1 IntegerLiteral `0b102`
 6:1 IntegerLiteral `1`

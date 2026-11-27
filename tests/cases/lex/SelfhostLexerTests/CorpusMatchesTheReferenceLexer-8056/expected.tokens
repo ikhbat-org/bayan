@@ -24,7 +24,7 @@
 4:3 InterpolatedStringText `stray } here`
 4:15 InterpolatedStringEnd `"`
 5:2 IntegerLiteral `0x`
-6:2 EndOfFile
+6:4 EndOfFile
 
 error BYN0013: `\u{110000}` is not a Unicode scalar value
 

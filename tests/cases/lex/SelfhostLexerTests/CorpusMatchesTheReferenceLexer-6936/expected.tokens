@@ -24,28 +24,28 @@
 6:22 InterpolationStart `{`
 6:23 InterpolatedStringStart `$"`
 6:25 InterpolatedStringText `�$`
-6:26 InterpolatedStringEnd `"`
-6:27 OpenBrace `{`
-6:28 InterpolatedStringStart `$"`
-6:30 InterpolationStart `{`
-6:31 InterpolatedStringStart `$"`
-6:33 InterpolationStart `{`
-6:34 InterpolatedStringStart `$"`
-6:36 InterpolationStart `{`
-6:37 InterpolatedStringStart `$"`
-6:39 InterpolationStart `{`
-6:40 InterpolatedStringStart `$"`
-6:42 InterpolationStart `{`
-6:43 InterpolatedStringStart `$"`
-6:45 InterpolationStart `{`
-6:46 InterpolatedStringStart `$"`
-6:48 InterpolationStart `{`
-6:49 InterpolatedStringStart `$"`
-6:51 InterpolationStart `{`
-6:52 StringLiteral `$"{$"`
-6:57 OpenBrace `{`
-6:58 StringLiteral `$"{x}"`
-6:65 EndOfFile
+6:27 InterpolatedStringEnd `"`
+6:28 OpenBrace `{`
+6:29 InterpolatedStringStart `$"`
+6:31 InterpolationStart `{`
+6:32 InterpolatedStringStart `$"`
+6:34 InterpolationStart `{`
+6:35 InterpolatedStringStart `$"`
+6:37 InterpolationStart `{`
+6:38 InterpolatedStringStart `$"`
+6:40 InterpolationStart `{`
+6:41 InterpolatedStringStart `$"`
+6:43 InterpolationStart `{`
+6:44 InterpolatedStringStart `$"`
+6:46 InterpolationStart `{`
+6:47 InterpolatedStringStart `$"`
+6:49 InterpolationStart `{`
+6:50 InterpolatedStringStart `$"`
+6:52 InterpolationStart `{`
+6:53 StringLiteral `$"{$"`
+6:58 OpenBrace `{`
+6:59 StringLiteral `$"{x}"`
+6:66 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier
 

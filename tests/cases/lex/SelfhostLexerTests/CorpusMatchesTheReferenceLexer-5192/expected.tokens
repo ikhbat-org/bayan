@@ -136,20 +136,20 @@
 4:144 Identifier `x`
 4:145 InterpolationEnd `}`
 4:146 InterpolatedStringEnd `"`
-4:147 StringLiteral `"}"`
-4:150 InterpolationEnd `}`
-4:151 InterpolatedStringEnd `"`
-4:152 InterpolationEnd `}`
-4:153 InterpolatedStringEnd `"`
-4:154 InterpolationEnd `}`
-4:155 InterpolatedStringEnd `"`
-4:156 InterpolationEnd `}`
-4:157 InterpolatedStringEnd `"`
-4:158 InterpolationEnd `}`
-4:159 InterpolatedStringEnd `"`
-4:160 InterpolationEnd `}`
-4:161 InterpolatedStringEnd `"`
-4:163 EndOfFile
+4:148 StringLiteral `"}"`
+4:151 InterpolationEnd `}`
+4:152 InterpolatedStringEnd `"`
+4:153 InterpolationEnd `}`
+4:154 InterpolatedStringEnd `"`
+4:155 InterpolationEnd `}`
+4:156 InterpolatedStringEnd `"`
+4:157 InterpolationEnd `}`
+4:158 InterpolatedStringEnd `"`
+4:159 InterpolationEnd `}`
+4:160 InterpolatedStringEnd `"`
+4:161 InterpolationEnd `}`
+4:162 InterpolatedStringEnd `"`
+4:164 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

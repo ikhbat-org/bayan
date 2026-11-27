@@ -14,9 +14,9 @@
 6:9 Identifier `x`
 6:10 StringLiteral `";`
 8:1 Identifier `le`
-8:4 Identifier `x`
-8:7 Equals `=`
-8:9 IntegerLiteral `1`
+8:5 Identifier `x`
+8:8 Equals `=`
+8:10 IntegerLiteral `1`
 11:1 EndOfFile
 
 error BYN0001: bidirectional control character U+2066 is not allowed outside string literals

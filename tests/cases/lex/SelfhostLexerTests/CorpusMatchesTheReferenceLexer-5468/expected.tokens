@@ -1,7 +1,7 @@
-1:2 LetKeyword `let`
-1:6 Identifier `b`
-1:8 Equals `=`
-1:10 StringLiteral `"bad \q escape"`
+1:6 LetKeyword `let`
+1:10 Identifier `b`
+1:12 Equals `=`
+1:14 StringLiteral `"bad \q escape"`
 3:1 CharLiteral `'\u{202E}'`
 3:4 Identifier `et`
 3:7 Identifier `c`

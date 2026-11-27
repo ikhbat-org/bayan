@@ -4,8 +4,8 @@
 2:1 Slash `/`
 2:3 Slash `/`
 2:5 Identifier `ok`
-2:9 InKeyword `in`
-2:12 Identifier `comment`
+2:10 InKeyword `in`
+2:13 Identifier `comment`
 3:2 IntegerLiteral `0b__`
 5:1 EndOfFile
 

@@ -11,12 +11,12 @@
 1:50 DoKeyword `do`
 1:53 BreakKeyword `break`
 1:59 ContinueKeyword `continue`
-1:68 Identifier `eturn`
-1:74 YieldKeyword `yield`
-1:80 Identifier `defe`
-1:85 ErrdeferKeyword `errdefer`
-1:94 UsingKeyword `using`
-1:100 ContextKeyword `context`
+1:69 Identifier `eturn`
+1:75 YieldKeyword `yield`
+1:81 Identifier `defe`
+1:86 ErrdeferKeyword `errdefer`
+1:95 UsingKeyword `using`
+1:101 ContextKeyword `context`
 2:1 Identifier `a`
 2:3 Equals `=`
 3:1 EndOfFile

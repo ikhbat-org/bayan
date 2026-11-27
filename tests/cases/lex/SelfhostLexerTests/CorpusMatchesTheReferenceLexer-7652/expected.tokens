@@ -21,7 +21,7 @@
 5:12 Identifier `c`
 5:14 Equals `=`
 5:16 RawStringLiteral `"""never closed\n/* \u{202D} */ �$"{$"{$"{$"{$"$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}" `
-6:91 EndOfFile
+6:92 EndOfFile
 
 error BYN0003: unterminated string literal
 

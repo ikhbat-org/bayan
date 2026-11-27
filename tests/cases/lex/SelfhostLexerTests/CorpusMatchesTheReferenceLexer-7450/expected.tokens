@@ -11,9 +11,9 @@
 4:4 InterpolationStart `{`
 4:5 InterpolationEnd `}`
 4:6 InterpolatedStringEnd `"`
-4:8 InterpolatedStringStart `$"`
-4:10 InterpolatedStringText `stray } here`
-4:22 InterpolatedStringEnd `"`
+4:9 InterpolatedStringStart `$"`
+4:11 InterpolatedStringText `stray } here`
+4:23 InterpolatedStringEnd `"`
 5:1 OpenBracket `[`
 5:3 IsKeyword `is`
 5:6 AndKeyword `and`

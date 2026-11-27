@@ -61,15 +61,15 @@
 3:86 InterpolatedStringEnd `"`
 3:87 InterpolationEnd `}`
 3:88 InterpolatedStringEnd `"`
-3:89 InterpolationEnd `}`
-3:90 InterpolatedStringEnd `"`
-3:91 InterpolationEnd `}`
-3:92 InterpolatedStringEnd `"`
-3:93 InterpolationEnd `}`
-3:94 InterpolatedStringEnd `"`
-3:95 CloseBrace `}`
-3:96 StringLiteral `"}"`
-3:99 EndOfFile
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+3:92 InterpolationEnd `}`
+3:93 InterpolatedStringEnd `"`
+3:94 InterpolationEnd `}`
+3:95 InterpolatedStringEnd `"`
+3:96 CloseBrace `}`
+3:97 StringLiteral `"}"`
+3:100 EndOfFile
 
 error BYN0002: unexpected character `\`
 

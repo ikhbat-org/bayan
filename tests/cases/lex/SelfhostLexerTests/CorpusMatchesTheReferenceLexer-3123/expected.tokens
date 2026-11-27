@@ -1,8 +1,8 @@
-    doc `///� Doc line two.\r`
-3:2 Identifier `iB`
-3:5 IntegerLiteral `1`
-3:6 NumericSuffix `u`
-3:7 EndOfFile
+    doc `///� Doc line two.`
+3:6 Identifier `iB`
+3:9 IntegerLiteral `1`
+3:10 NumericSuffix `u`
+3:11 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF9)
 

@@ -8,9 +8,9 @@
 1:11 Slash `/`
 1:13 InterpolatedStringStart `$"`
 1:15 InterpolatedStringText `�open `
-1:20 InterpolationStart `{`
-1:21 Identifier `x`
-1:22 StringLiteral `";`
+1:21 InterpolationStart `{`
+1:22 Identifier `x`
+1:23 StringLiteral `";`
 2:2 EndOfFile
 
 error BYN0003: unterminated string literal

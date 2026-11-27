@@ -1,6 +1,6 @@
 1:1 Identifier `ȧO`
-1:5 StructKeyword `struct`
-1:12 Identifier `S`
+1:6 StructKeyword `struct`
+1:13 Identifier `S`
 2:2 EndOfFile
 
 error BYN0005: identifier `ȧO` is not in Unicode normalization form C

@@ -1,7 +1,7 @@
 1:1 StringLiteral `"text"`
 1:8 StringLiteral `"esc \"q\" \\ \n"`
 1:26 StringLiteral `"�"`
-1:28 StringLiteral `"`
+1:29 StringLiteral `"`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 InterpolationEnd `}`

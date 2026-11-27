@@ -1,9 +1,9 @@
-1:1 CharLiteral `'x\r`
+1:1 CharLiteral `'x`
 2:2 LetKeyword `let`
 2:6 Identifier `café`
 2:12 Equals `=`
-2:14 Semicolon `;`
-    doc `/// Doc line two.\r`
+2:15 Semicolon `;`
+    doc `/// Doc line two.`
 5:2 EndOfFile
 
 error BYN0008: unterminated char literal

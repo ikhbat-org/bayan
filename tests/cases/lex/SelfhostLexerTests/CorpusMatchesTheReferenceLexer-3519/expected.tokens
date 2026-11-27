@@ -7,7 +7,7 @@
 1:12 CloseBrace `}`
 1:13 CharLiteral `' '`
 1:17 CharLiteral `''`
-1:20 CharLiteral `' macro select become\r`
+1:20 CharLiteral `' macro select become`
 2:1 EndOfFile
 
 error BYN0002: unexpected character `\`

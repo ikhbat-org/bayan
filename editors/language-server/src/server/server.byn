@@ -773,10 +773,11 @@ public struct Server {
             continue if tooLarge.contains(uri)
             let u = workspace.parseUri(uri)
             if u.kind is .file {
-                if workspace.dirExists(u.localPath) {
-                    ws.loadFolder(u.localPath)
-                } else {
+                // `loadFolder` checks that the path is a folder, after the exclusion test.
+                if Fs.fileExists(u.localPath) {
                     let _ = ws.loadFromDisk(u.localPath)
+                } else {
+                    ws.loadFolder(u.localPath)
                 }
             }
         }

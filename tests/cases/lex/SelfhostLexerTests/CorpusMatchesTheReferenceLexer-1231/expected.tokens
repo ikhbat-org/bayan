@@ -10,17 +10,17 @@
 5:23 Identifier `بيان`
 5:28 Identifier `με`
 5:30 OpenBracket `[`
-5:31 Identifier `ρητής`
-5:37 Identifier `x_1`
-5:41 Identifier `é`
+5:32 Identifier `ρητής`
+5:38 Identifier `x_1`
+5:42 Identifier `é`
 6:1 LetKeyword `let`
 6:5 Identifier `café`
 6:11 Equals `=`
 6:13 IntegerLiteral `1`
-7:4 LetKeyword `let`
-7:8 Identifier `c`
-7:10 Equals `=`
-7:12 RawStringLiteral `"""never closed\n\n`
+7:5 LetKeyword `let`
+7:9 Identifier `c`
+7:11 Equals `=`
+7:13 RawStringLiteral `"""never closed\n\n`
 9:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

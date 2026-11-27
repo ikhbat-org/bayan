@@ -3,8 +3,8 @@
 3:1 Slash `/`
 3:3 NotKeyword `not`
 3:7 Identifier `a`
-3:9 Identifier `doc`
-3:13 Identifier `comment`
+3:10 Identifier `doc`
+3:14 Identifier `comment`
 4:1 Identifier `b`
 6:1 LetKeyword `let`
 6:5 Identifier `c`

@@ -1,11 +1,11 @@
 1:1 Identifier `tes`
-1:5 AssertKeyword `assert`
-1:12 PropertyKeyword `property`
-1:20 FuzzKeyword `fuzz`
-1:25 ModelKeyword `model`
-1:31 ForeachKeyword `foreach`
-1:39 NewKeyword `new`
-1:43 GotoKeyword `goto`
+1:6 AssertKeyword `assert`
+1:13 PropertyKeyword `property`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
 2:1 EndOfFile
 
 error BYN0002: unexpected character `\u{1C}`

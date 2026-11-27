@@ -3,10 +3,10 @@
 1:10 Identifier `_x`
 1:13 Identifier `camelCase2`
 1:25 Identifier `A`
-1:26 Identifier `يان`
-1:30 Identifier `μετρητής`
-1:39 Identifier `x_1`
-1:43 Identifier `é`
+1:27 Identifier `يان`
+1:31 Identifier `μετρητής`
+1:40 Identifier `x_1`
+1:44 Identifier `é`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `open `
 3:8 InterpolationStart `{`

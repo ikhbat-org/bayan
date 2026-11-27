@@ -1,5 +1,5 @@
-1:3 OpenBrace `{`
-1:4 StringLiteral `";`
+1:7 OpenBrace `{`
+1:8 StringLiteral `";`
 2:3 LetKeyword `let`
 2:7 EffectKeyword `effect`
 2:14 Equals `=`
@@ -28,11 +28,11 @@
 3:33 InterpolationStart `{`
 3:34 InterpolatedStringStart `$"`
 3:36 InterpolatedStringText `�$`
-3:37 InterpolatedStringEnd `"`
-3:38 OpenBrace `{`
-3:39 InterpolatedStringStart `$"`
-3:41 InterpolationStart `{`
-3:42 Identifier `x`
+3:38 InterpolatedStringEnd `"`
+3:39 OpenBrace `{`
+3:40 InterpolatedStringStart `$"`
+3:42 InterpolationStart `{`
+3:43 Identifier `x`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

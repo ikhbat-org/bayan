@@ -124,11 +124,14 @@ test "parser t29: rare declarations" {
             Function f() -> void
               Block
             [BYN1001 11+1]
+            [BYN1069 0+2]
+            [BYN1012 11+1]
             == 24
             Attribute @a
             Expr <error>
             Function f() -> void
               Block
+            [BYN1069 0+2]
             [BYN1002 3+7]
             == 25
             Struct S

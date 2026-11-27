@@ -26,7 +26,7 @@
 3:35 ForeachKeyword `foreach`
 3:43 NewKeyword `new`
 3:47 GotoKeyword `goto`
-4:2 IntegerLiteral `0b__`
+4:4 IntegerLiteral `0b__`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xEA)

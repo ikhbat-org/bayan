@@ -39,9 +39,9 @@
 3:72 InterpolatedStringEnd `"`
 3:74 InterpolatedStringStart `$"`
 3:76 InterpolatedStringEnd `"`
-4:5 CharLiteral `'\''`
-4:10 CharLiteral `'é'`
-4:14 CharLiteral `'\'`
+4:13 CharLiteral `'\''`
+4:18 CharLiteral `'é'`
+4:22 CharLiteral `'\'`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

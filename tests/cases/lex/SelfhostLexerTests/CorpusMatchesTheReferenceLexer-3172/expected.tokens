@@ -4,8 +4,8 @@
 2:1 Identifier `macro`
 2:7 Identifier `select`
 2:14 Identifier `becom`
-2:20 InterpolatedStringStart `$"`
-2:22 InterpolationStart `{`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolationStart `{`
 3:1 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier

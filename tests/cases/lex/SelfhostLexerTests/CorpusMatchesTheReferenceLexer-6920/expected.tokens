@@ -19,7 +19,7 @@
 5:1 Identifier `le`
 6:1 IntegerLiteral `0xFF`
 6:5 NumericSuffix `s`
-8:1 EndOfFile
+8:2 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier
 

@@ -34,7 +34,7 @@
 8:1 LetKeyword `let`
 8:5 Identifier `c`
 8:7 Equals `=`
-9:3 CharLiteral `'`
+9:6 CharLiteral `'`
 10:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC6)

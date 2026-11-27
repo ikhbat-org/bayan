@@ -8,8 +8,8 @@
 4:1 IntegerLiteral `0xFF`
 4:5 NumericSuffix `s`
     doc `/// Doc line one.\n/// Doc line two.`
-7:1 Identifier `truct`
-7:7 Identifier `S`
+7:2 Identifier `truct`
+7:8 Identifier `S`
 9:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

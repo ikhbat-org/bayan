@@ -58,9 +58,9 @@
 8:1 OpenBrace `{`
 8:2 Identifier `D800`
 8:6 CloseBrace `}`
-8:7 CharLiteral `'\r`
+8:7 CharLiteral `'`
 9:1 CharLiteral `'\u{110000}'`
-10:1 CharLiteral `'x\r`
+10:1 CharLiteral `'x`
 11:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

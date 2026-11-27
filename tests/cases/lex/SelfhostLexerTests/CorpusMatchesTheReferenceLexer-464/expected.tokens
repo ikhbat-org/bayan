@@ -74,7 +74,7 @@
 1:107 InterpolatedStringEnd `"`
 1:108 InterpolationEnd `}`
 1:109 InterpolatedStringEnd `"`
-10:3 EndOfFile
+10:6 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply
 

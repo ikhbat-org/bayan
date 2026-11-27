@@ -12,7 +12,7 @@
 1:47 FalseKeyword `false`
 1:53 ComptimeKeyword `comptime`
 1:62 Identifier `ch`
-1:64 Identifier `cked`
+1:65 Identifier `cked`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolatedStringText `total `
 2:10 InterpolationStart `{`

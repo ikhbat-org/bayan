@@ -1,15 +1,15 @@
 1:1 StructKeyword `struct`
 1:8 UniqueKeyword `unique`
-1:14 UnionKeyword `union`
-1:20 Identifier `enu`
-1:25 FlagsKeyword `flags`
-1:31 OpenKeyword `open`
-1:36 ExtensibleKeyword `extensible`
-1:47 InterfaceKeyword `interface`
-1:57 DelegateKeyword `delegate`
-1:66 ExtensionKeyword `extension`
-1:76 DerivationKeyword `derivation`
-1:87 AttributeKeyword `attribute`
+1:15 UnionKeyword `union`
+1:21 Identifier `enu`
+1:26 FlagsKeyword `flags`
+1:32 OpenKeyword `open`
+1:37 ExtensibleKeyword `extensible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 ExtensionKeyword `extension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
 2:2 CharLiteral `'\u{0}`
 3:1 LetKeyword `let`
 3:5 Identifier `b`
@@ -19,7 +19,7 @@
 4:5 Identifier `c`
 4:7 Equals `=`
 4:11 IntegerLiteral `3`
-5:2 EndOfFile
+5:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xB4)
 

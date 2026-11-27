@@ -1,6 +1,6 @@
 1:1 Identifier `b`
-2:3 Question `?`
-2:4 EndOfFile
+2:4 Question `?`
+2:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

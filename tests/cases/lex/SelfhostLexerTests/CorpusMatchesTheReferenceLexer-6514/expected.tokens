@@ -8,7 +8,7 @@
 6:11 Star `*`
 6:12 Slash `/`
 6:14 Identifier `a`
-7:3 EndOfFile
+7:7 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

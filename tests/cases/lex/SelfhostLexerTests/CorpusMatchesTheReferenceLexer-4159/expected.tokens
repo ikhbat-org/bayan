@@ -1,5 +1,5 @@
     doc `/// Doc line ne.� `
-1:18 EndOfFile
+1:19 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8D)
 

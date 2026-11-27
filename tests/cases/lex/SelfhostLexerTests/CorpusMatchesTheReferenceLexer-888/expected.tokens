@@ -16,16 +16,16 @@
 5:7 StructKeyword `struct`
 5:14 UniqueKeyword `unique`
 5:21 Identifier `u`
-5:22 Identifier `ion`
-5:26 EnumKeyword `enum`
-5:31 FlagsKeyword `flags`
-5:37 OpenKeyword `open`
-5:43 Identifier `xtensible`
-5:53 InterfaceKeyword `interface`
-5:63 DelegateKeyword `delegate`
-5:72 ExtensionKeyword `extension`
-5:82 Identifier `derivaton`
-5:92 AttributeKeyword `attribute`
+5:23 Identifier `ion`
+5:27 EnumKeyword `enum`
+5:32 FlagsKeyword `flags`
+5:38 OpenKeyword `open`
+5:44 Identifier `xtensible`
+5:54 InterfaceKeyword `interface`
+5:64 DelegateKeyword `delegate`
+5:73 ExtensionKeyword `extension`
+5:83 Identifier `derivaton`
+5:93 AttributeKeyword `attribute`
 6:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

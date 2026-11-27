@@ -21,12 +21,12 @@
 4:5 Identifier `Bar`
 4:9 Identifier `_x`
 4:12 Identifier `camel`
-4:17 Identifier `Case2`
-4:23 Identifier `بيان`
-4:28 Identifier `μετρητής`
-4:37 Identifier `x_1`
-4:41 Identifier `é`
-5:3 EndOfFile
+4:18 Identifier `Case2`
+4:24 Identifier `بيان`
+4:29 Identifier `μετρητής`
+4:38 Identifier `x_1`
+4:42 Identifier `é`
+5:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

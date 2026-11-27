@@ -5,9 +5,9 @@
 2:23 NoallocKeyword `noalloc`
 2:31 NosuspendKeyword `nosuspend`
 2:41 Identifier `suspend`
-2:48 Identifier `s`
-2:50 AsyncKeyword `async`
-2:56 AwaitKeyword `await`
+2:49 Identifier `s`
+2:51 AsyncKeyword `async`
+2:57 AwaitKeyword `await`
 3:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

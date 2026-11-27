@@ -13,10 +13,10 @@
 4:15 Identifier `camelCase2`
 4:26 Identifier `بيان`
 4:31 Identifier `μετϬ`
-4:35 Identifier `ητής`
-4:40 Identifier `x`
-4:41 IntegerLiteral `1`
-4:43 Identifier `éx`
+4:36 Identifier `ητής`
+4:41 Identifier `x`
+4:43 IntegerLiteral `1`
+4:45 Identifier `éx`
 5:2 IntegerLiteral `1__`
 6:2 EndOfFile
 

@@ -1,8 +1,8 @@
-2:3 StringLiteral `"tBxt"`
-2:10 StringLiteral `"esc\�"`
-2:16 Identifier `q`
-2:18 StringLiteral `" \\ \n"`
-2:27 RawStringLiteral `"""\n `
+2:4 StringLiteral `"tBxt"`
+2:11 StringLiteral `"esc\�"`
+2:18 Identifier `q`
+2:20 StringLiteral `" \\ \n"`
+2:29 RawStringLiteral `"""\n `
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

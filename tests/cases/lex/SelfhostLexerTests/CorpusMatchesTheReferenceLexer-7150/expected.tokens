@@ -11,7 +11,7 @@
 11:1 InterpolatedStringStart `$"`
 11:3 InterpolationStart `{`
 11:4 StringLiteral `"let a = 1`
-13:2 EndOfFile
+13:3 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines
 

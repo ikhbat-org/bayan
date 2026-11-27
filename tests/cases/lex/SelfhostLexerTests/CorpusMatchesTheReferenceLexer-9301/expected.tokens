@@ -1,17 +1,17 @@
 1:1 IsKeyword `is`
 1:4 AndKeyword `and`
-1:7 OrKeyword `or`
-1:10 NotKeyword `not`
-1:14 Identifier `witb`
-1:19 MoveKeyword `move`
-1:24 RefKeyword `ref`
-1:28 OutKeyword `out`
-1:32 ThisKeyword `this`
-1:37 Identifier `nul`
-1:41 TrueKeyword `true`
-1:46 FalseKeyword `false`
-1:52 ComptimeKeyword `comptime`
-1:61 CheckedKeyword `checked`
+1:8 OrKeyword `or`
+1:11 NotKeyword `not`
+1:15 Identifier `witb`
+1:20 MoveKeyword `move`
+1:25 RefKeyword `ref`
+1:29 OutKeyword `out`
+1:33 ThisKeyword `this`
+1:38 Identifier `nul`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA9)

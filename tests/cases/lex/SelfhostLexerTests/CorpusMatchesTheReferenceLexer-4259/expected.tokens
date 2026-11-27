@@ -10,16 +10,16 @@
 1:29 DotDot `..`
 1:31 IntegerLiteral `2`
 1:33 IntegerLiteral `1`
-1:34 Dot `.`
-1:35 Equals `=`
-1:36 IntegerLiteral `3`
-1:38 IntegerLiteral `5`
-1:39 NumericSuffix `e`
-1:41 Identifier `x`
-1:42 Dot `.`
-1:43 Identifier `y`
-1:45 FloatLiteral `2.5`
-1:48 NumericSuffix `f`
+1:35 Dot `.`
+1:36 Equals `=`
+1:37 IntegerLiteral `3`
+1:39 IntegerLiteral `5`
+1:40 NumericSuffix `e`
+1:42 Identifier `x`
+1:43 Dot `.`
+1:44 Identifier `y`
+1:46 FloatLiteral `2.5`
+1:49 NumericSuffix `f`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAE)

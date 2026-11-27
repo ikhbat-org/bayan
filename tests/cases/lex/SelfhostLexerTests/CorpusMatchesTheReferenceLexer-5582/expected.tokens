@@ -47,10 +47,10 @@
 8:11 Identifier `camelCase2`
 8:22 Identifier `بيان`
 8:27 Identifier `μετρητή`
-8:38 Identifier `comment`
-8:46 Star `*`
-8:47 Slash `/`
-8:49 Identifier `a`
+8:41 Identifier `comment`
+8:49 Star `*`
+8:50 Slash `/`
+8:52 Identifier `a`
 12:1 EndOfFile
 
 error BYN0003: unterminated string literal

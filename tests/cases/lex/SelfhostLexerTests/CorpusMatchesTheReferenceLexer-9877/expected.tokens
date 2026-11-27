@@ -10,43 +10,43 @@
 4:5 Identifier `café`
 4:10 Equals `=`
 4:12 IntegerLiteral `2`
-5:3 InterpolatedStringStart `$"`
-5:5 InterpolatedStringText `total `
-5:11 InterpolationStart `{`
-5:12 Identifier `x`
-5:13 InterpolationEnd `}`
-5:14 InterpolatedStringEnd `"`
-5:16 InterpolatedStringStart `$"`
-5:18 InterpolatedStringText `a `
-5:20 InterpolationStart `{`
-5:21 Identifier `f`
-5:22 OpenParen `(`
-5:23 InterpolatedStringStart `$"`
-5:25 InterpolatedStringText `b `
-5:27 InterpolationStart `{`
-5:28 Identifier `c`
-5:29 InterpolationEnd `}`
-5:30 InterpolatedStringEnd `"`
-5:31 CloseParen `)`
+5:6 InterpolatedStringStart `$"`
+5:8 InterpolatedStringText `total `
+5:14 InterpolationStart `{`
+5:15 Identifier `x`
+5:16 InterpolationEnd `}`
+5:17 InterpolatedStringEnd `"`
+5:19 InterpolatedStringStart `$"`
+5:21 InterpolatedStringText `a `
+5:23 InterpolationStart `{`
+5:24 Identifier `f`
+5:25 OpenParen `(`
+5:26 InterpolatedStringStart `$"`
+5:28 InterpolatedStringText `b `
+5:30 InterpolationStart `{`
+5:31 Identifier `c`
 5:32 InterpolationEnd `}`
-5:33 InterpolatedStringText ` d`
-5:35 InterpolatedStringEnd `"`
-5:37 InterpolatedStringStart `$"`
-5:39 InterpolatedStringText `{{literal}}`
-5:50 InterpolatedStringEnd `"`
-5:52 InterpolatedStringStart `$"`
-5:54 InterpolationStart `{`
-5:55 Identifier `Point`
-5:61 OpenBrace `{`
-5:63 Identifier `x`
-5:65 Equals `=`
-5:67 IntegerLiteral `1`
-5:69 CloseBrace `}`
-5:70 InterpolationEnd `}`
-5:71 InterpolatedStringText `!`
-5:72 InterpolatedStringEnd `"`
-5:74 InterpolatedStringStart `$"`
-5:76 InterpolatedStringEnd `"`
+5:33 InterpolatedStringEnd `"`
+5:34 CloseParen `)`
+5:35 InterpolationEnd `}`
+5:36 InterpolatedStringText ` d`
+5:38 InterpolatedStringEnd `"`
+5:40 InterpolatedStringStart `$"`
+5:42 InterpolatedStringText `{{literal}}`
+5:53 InterpolatedStringEnd `"`
+5:55 InterpolatedStringStart `$"`
+5:57 InterpolationStart `{`
+5:58 Identifier `Point`
+5:64 OpenBrace `{`
+5:66 Identifier `x`
+5:68 Equals `=`
+5:70 IntegerLiteral `1`
+5:72 CloseBrace `}`
+5:73 InterpolationEnd `}`
+5:74 InterpolatedStringText `!`
+5:75 InterpolatedStringEnd `"`
+5:77 InterpolatedStringStart `$"`
+5:79 InterpolatedStringEnd `"`
 6:2 StructKeyword `struct`
 6:9 UniqueKeyword `unique`
 6:16 UnionKeyword `union`

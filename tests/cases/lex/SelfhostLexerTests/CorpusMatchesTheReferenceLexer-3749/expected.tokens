@@ -1,5 +1,5 @@
-3:4 Identifier `raw`
-3:8 StringLiteral `"quoted"`
+3:7 Identifier `raw`
+3:11 StringLiteral `"quoted"`
 4:2 LetKeyword `let`
 4:6 Identifier `b`
 4:8 Equals `=`

@@ -2,8 +2,8 @@
 1:3 Identifier `closed`
 2:1 Identifier `b`
 4:1 CharLiteral `'����'`
-4:5 Plus `+`
-4:7 EndOfFile
+4:7 Plus `+`
+4:9 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF6)
 

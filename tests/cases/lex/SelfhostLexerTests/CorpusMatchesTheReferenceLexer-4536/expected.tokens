@@ -20,8 +20,8 @@
 4:86 LetKeyword `let`
 4:90 VarKeyword `var`
 4:94 EmbedKeyword `embed`
-4:100 ExternKeyword `extern`
-4:107 UnsafeKeyword `unsafe`
+4:101 ExternKeyword `extern`
+4:108 UnsafeKeyword `unsafe`
 5:1 LetKeyword `let`
 5:5 EffectKeyword `effect`
 5:12 Equals `=`

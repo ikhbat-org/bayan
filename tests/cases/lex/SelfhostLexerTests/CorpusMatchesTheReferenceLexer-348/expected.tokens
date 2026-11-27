@@ -10,8 +10,8 @@
 3:20 PlusBar `+|`
 3:23 MinusBar `-|`
 3:26 StarBar `*|`
-3:29 PlusPlus `++`
-3:32 MinusMinus `--`
+3:30 PlusPlus `++`
+3:33 MinusMinus `--`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:5 EndOfFile

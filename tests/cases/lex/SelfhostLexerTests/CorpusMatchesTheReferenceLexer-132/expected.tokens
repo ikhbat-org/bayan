@@ -1,11 +1,11 @@
 1:1 CharLiteral `'\u{D80}C`
-2:1 InterpolatedStringStart `$"`
-2:3 InterpolatedStringText `a`
-2:4 InterpolationStart `{`
-2:5 Identifier `b`
-2:6 InterpolationEnd `}`
-2:7 InterpolatedStringText `c '\q'`
-2:13 InterpolatedStringEnd
+2:2 InterpolatedStringStart `$"`
+2:4 InterpolatedStringText `a`
+2:5 InterpolationStart `{`
+2:6 Identifier `b`
+2:7 InterpolationEnd `}`
+2:8 InterpolatedStringText `c '\q'`
+2:14 InterpolatedStringEnd
 3:1 EndOfFile
 
 error BYN0008: unterminated char literal

@@ -15,7 +15,7 @@
 6:15 InterpolatedStringEnd `"`
 7:2 LetKeyword `let`
 7:6 Identifier `c`
-7:11 IntegerLiteral `3`
+7:13 IntegerLiteral `3`
 8:2 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled

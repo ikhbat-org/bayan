@@ -1,7 +1,7 @@
 1:1 Identifier `가`
 1:4 Identifier `O`
-1:5 StringLiteral `"{`
-1:7 EndOfFile
+1:7 StringLiteral `"{`
+1:9 EndOfFile
 
 error BYN0005: identifier `가` is not in Unicode normalization form C
 

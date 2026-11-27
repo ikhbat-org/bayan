@@ -5,7 +5,7 @@
 6:1 CharLiteral `'x`
 7:2 CharLiteral `'ab'`
 8:1 IntegerLiteral `0b__`
-11:3 EndOfFile
+11:4 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar
 

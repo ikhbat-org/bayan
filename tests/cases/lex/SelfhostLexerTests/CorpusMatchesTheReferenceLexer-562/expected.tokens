@@ -9,8 +9,8 @@
 1:49 GotoKeyword `goto`
 2:1 Identifier `select`
 2:8 Identifier `beco`
-3:9 Identifier `é`
-3:11 CharLiteral `''`
+3:11 Identifier `é`
+3:13 CharLiteral `''`
 4:2 EndOfFile
 
 error BYN0012: `select` is reserved and cannot be used as an identifier

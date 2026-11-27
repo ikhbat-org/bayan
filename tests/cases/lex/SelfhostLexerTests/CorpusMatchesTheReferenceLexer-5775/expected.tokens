@@ -1,6 +1,6 @@
-3:3 InterpolatedStringStart `$"`
-3:5 InterpolationStart `{`
-3:7 EndOfFile
+3:6 InterpolatedStringStart `$"`
+3:8 InterpolationStart `{`
+3:10 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

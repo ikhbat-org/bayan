@@ -48,22 +48,22 @@
 3:67 InterpolatedStringEnd `"`
 3:68 InterpolationEnd `}`
 3:69 InterpolatedStringEnd `"`
-3:70 InterpolationEnd `}`
-3:71 InterpolatedStringEnd `"`
-3:72 InterpolationEnd `}`
-3:73 InterpolatedStringEnd `"`
-3:74 InterpolationEnd `}`
-3:75 InterpolatedStringEnd `"`
-3:76 InterpolationEnd `}`
-3:77 InterpolatedStringEnd `"`
-3:78 InterpolationEnd `}`
-3:79 InterpolatedStringEnd `"`
-3:80 InterpolationEnd `}`
-3:81 InterpolatedStringEnd `"`
-3:82 InterpolatedStringStart `$"`
-3:84 InterpolationStart `{`
-3:85 StringLiteral `"`
-3:86 EndOfFile
+3:71 InterpolationEnd `}`
+3:72 InterpolatedStringEnd `"`
+3:73 InterpolationEnd `}`
+3:74 InterpolatedStringEnd `"`
+3:75 InterpolationEnd `}`
+3:76 InterpolatedStringEnd `"`
+3:77 InterpolationEnd `}`
+3:78 InterpolatedStringEnd `"`
+3:79 InterpolationEnd `}`
+3:80 InterpolatedStringEnd `"`
+3:81 InterpolationEnd `}`
+3:82 InterpolatedStringEnd `"`
+3:83 InterpolatedStringStart `$"`
+3:85 InterpolationStart `{`
+3:86 StringLiteral `"`
+3:87 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

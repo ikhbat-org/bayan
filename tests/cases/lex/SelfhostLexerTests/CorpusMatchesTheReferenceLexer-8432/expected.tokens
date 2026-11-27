@@ -6,8 +6,8 @@
 2:3 InterpolationStart `{`
 2:4 InterpolationEnd `}`
 2:5 InterpolatedStringEnd `"`
-2:6 Identifier `truct`
-2:12 Identifier `S`
+2:7 Identifier `truct`
+2:13 Identifier `S`
 3:2 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier

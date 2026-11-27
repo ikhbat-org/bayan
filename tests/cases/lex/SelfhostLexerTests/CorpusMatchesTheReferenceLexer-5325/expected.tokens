@@ -2,7 +2,7 @@
 1:5 EffectKeyword `effect`
 1:12 Equals `=`
 1:14 IntegerLiteral `2`
-3:2 IntegerLiteral `0x`
+3:3 IntegerLiteral `0x`
 5:1 Identifier `le`
 5:4 LawKeyword `law`
 5:8 Equals `=`

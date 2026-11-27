@@ -1,5 +1,5 @@
-1:2 IntegerLiteral `0xFF`
-1:6 NumericSuffix `s`
+1:3 IntegerLiteral `0xFF`
+1:7 NumericSuffix `s`
 2:2 Comma `,`
 2:4 Dot `.`
 2:6 DotDot `..`

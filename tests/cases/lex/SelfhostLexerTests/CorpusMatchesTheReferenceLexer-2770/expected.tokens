@@ -1,8 +1,8 @@
-2:5 Identifier `comment`
-2:13 Star `*`
-2:14 Slash `/`
-2:16 Identifier `a`
-3:2 CharLiteral `'\r`
+2:9 Identifier `comment`
+2:17 Star `*`
+2:18 Slash `/`
+2:20 Identifier `a`
+3:2 CharLiteral `'`
 4:1 IntegerLiteral `0xF__`
 5:2 RawStringLiteral `""" let law = 3\r\n\r\n`
 7:1 EndOfFile

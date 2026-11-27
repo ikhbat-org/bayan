@@ -28,8 +28,8 @@
 6:1 ReturnKeyword `return`
 6:8 YieldKeyword `yield`
 6:14 DeferKeyword `defer`
-6:23 IntegerLiteral `1`
-6:24 NumericSuffix `e`
+6:27 IntegerLiteral `1`
+6:28 NumericSuffix `e`
 7:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)

@@ -8,8 +8,8 @@
 2:23 CharLiteral `'\''`
 2:28 CharLiteral `'é'`
 2:32 CharLiteral `'\' '`
-2:38 IntegerLiteral `0`
-2:39 CharLiteral `'`
+2:39 IntegerLiteral `0`
+2:40 CharLiteral `'`
 4:1 Identifier `k`
 4:5 InKeyword `in`
 4:8 Identifier `commen`

@@ -22,7 +22,7 @@
 4:28 PlusPlus `++`
 4:31 MinusMinus `--`
 5:1 IntegerLiteral `0x`
-6:1 CharLiteral `'ạ̇ 1.\r`
+6:1 CharLiteral `'ạ̇ 1.`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

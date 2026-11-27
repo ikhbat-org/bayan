@@ -2,7 +2,7 @@
 1:5 Identifier `c`
 1:7 Equals `=`
 1:9 RawStringLiteral `"""never closd\nver closed\nb\n\n  raw "quoted"\nif else unless switch casedefault for in while do break coninue return yield defer errdefer using context\n 0b__\n �����`
-8:3 EndOfFile
+8:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -1,8 +1,8 @@
 1:1 CharLiteral `'\q'`
-1:5 LetKeyword `let`
-1:9 Identifier `a`
-1:11 Equals `=`
-1:15 IntegerLiteral `1`
+1:6 LetKeyword `let`
+1:10 Identifier `a`
+1:12 Equals `=`
+1:16 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:5 Identifier `a`
 2:7 Equals `=`

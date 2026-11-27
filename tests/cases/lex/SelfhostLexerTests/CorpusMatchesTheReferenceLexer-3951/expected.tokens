@@ -49,14 +49,14 @@
 4:5 Star `*`
 4:7 Slash `/`
 4:9 Percent `%`
-4:10 PlusPercent `+%`
-4:13 MinusPercent `-%`
-4:16 StarPercent `*%`
-4:19 PlusBar `+|`
-4:22 MinusBar `-|`
-4:25 StarBar `*|`
-4:28 PlusPlus `++`
-4:31 MinusMinus `--`
+4:11 PlusPercent `+%`
+4:14 MinusPercent `-%`
+4:17 StarPercent `*%`
+4:20 PlusBar `+|`
+4:23 MinusBar `-|`
+4:26 StarBar `*|`
+4:29 PlusPlus `++`
+4:32 MinusMinus `--`
 5:5 IntegerLiteral `2`
 6:1 Identifier `leẗ́`
 7:1 EndOfFile

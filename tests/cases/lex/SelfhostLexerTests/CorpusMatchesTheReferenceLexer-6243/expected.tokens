@@ -30,10 +30,10 @@
 8:5 LawKeyword `law`
 8:9 Equals `=`
 8:11 IntegerLiteral `3`
-9:1 Identifier `t`
-9:3 Identifier `b`
-9:5 Equals `=`
-9:9 IntegerLiteral `2`
+9:2 Identifier `t`
+9:4 Identifier `b`
+9:6 Equals `=`
+9:10 IntegerLiteral `2`
 10:1 LetKeyword `let`
 10:5 Identifier `c`
 10:7 Equals `=`

@@ -1,5 +1,5 @@
-3:1 CharLiteral `'$"{a // \u{202E}x`
-5:3 EndOfFile
+3:2 CharLiteral `'$"{a // \u{202E}x`
+5:7 EndOfFile
 
 error BYN0002: unexpected character `‏`
 

@@ -1,8 +1,8 @@
-1:2 Identifier `List`
-1:6 Less `<`
-1:7 Identifier `L`
-1:8 Identifier `ist`
-1:12 EndOfFile
+1:4 Identifier `List`
+1:8 Less `<`
+1:9 Identifier `L`
+1:11 Identifier `ist`
+1:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

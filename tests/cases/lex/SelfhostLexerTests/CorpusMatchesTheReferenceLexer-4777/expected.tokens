@@ -23,9 +23,9 @@
 6:20 BarEquals `|=`
 6:23 CaretEquals `^=`
 6:26 LessLessEquals `<<=`
-7:3 InterpolatedStringStart `$"`
-7:5 InterpolatedStringText `stray } here`
-7:17 InterpolatedStringEnd `"`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolatedStringText `stray } here`
+7:18 InterpolatedStringEnd `"`
 9:1 CloseBrace `}`
 9:2 StringLiteral `" $`
 9:5 EndOfFile

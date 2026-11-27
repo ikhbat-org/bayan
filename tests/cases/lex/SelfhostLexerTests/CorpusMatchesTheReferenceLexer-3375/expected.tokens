@@ -27,11 +27,11 @@
 2:34 PlusPercent `+%`
 2:37 MinusPercent `-%`
 2:40 StarPercent `*%`
-2:42 PlusBar `+|`
-2:45 MinusBar `-|`
-2:48 StarBar `*|`
-2:51 PlusPlus `++`
-2:54 MinusMinus `--`
+2:43 PlusBar `+|`
+2:46 MinusBar `-|`
+2:49 StarBar `*|`
+2:52 PlusPlus `++`
+2:55 MinusMinus `--`
 3:1 Identifier `각`
 4:1 Identifier `en`
 4:4 OpenBrace `{`

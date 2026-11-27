@@ -1,8 +1,8 @@
 1:1 LetKeyword `let`
 1:5 Identifier `caf`
 1:8 Star `*`
-1:10 Equals `=`
-1:12 IntegerLiteral `2`
+1:11 Equals `=`
+1:13 IntegerLiteral `2`
 2:1 Star `*`
 2:2 Slash `/`
 2:3 Identifier `E`

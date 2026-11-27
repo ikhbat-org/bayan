@@ -2,11 +2,11 @@
 4:4 InterpolationStart `{`
 4:5 InterpolationEnd `}`
 4:6 InterpolatedStringEnd `"`
-4:8 LetKeyword `let`
-4:12 Identifier `café`
-4:18 Equals `=`
-4:20 IntegerLiteral `1`
-4:21 Semicolon `;`
+4:9 LetKeyword `let`
+4:13 Identifier `café`
+4:19 Equals `=`
+4:21 IntegerLiteral `1`
+4:22 Semicolon `;`
 5:1 Identifier `ff`
 5:4 IntegerLiteral `0b1010`
 5:10 NumericSuffix `n0B11`

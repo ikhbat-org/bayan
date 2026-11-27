@@ -4,9 +4,9 @@
 1:22 FuzzKeyword `fuzz`
 1:27 ModelKeyword `model`
 1:33 Identifier `fo`
-1:35 Identifier `each`
-1:40 NewKeyword `new`
-1:44 GotoKeyword `goto`
+1:36 Identifier `each`
+1:41 NewKeyword `new`
+1:45 GotoKeyword `goto`
 3:2 Equals `=`
 3:4 EqualsEquals `==`
 3:7 BangEquals `!=`

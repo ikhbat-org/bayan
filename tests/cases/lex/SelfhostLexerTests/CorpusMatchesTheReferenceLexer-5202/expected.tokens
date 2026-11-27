@@ -1,8 +1,8 @@
-1:3 InterpolatedStringStart `$"`
-1:5 InterpolatedStringText `open `
-1:10 InterpolationStart `{`
-1:11 Identifier `x`
-1:12 StringLiteral `";`
+1:4 InterpolatedStringStart `$"`
+1:6 InterpolatedStringText `open `
+1:11 InterpolationStart `{`
+1:12 Identifier `x`
+1:13 StringLiteral `";`
 2:2 Identifier `a`
 2:4 Greater `>`
 2:5 Greater `>`

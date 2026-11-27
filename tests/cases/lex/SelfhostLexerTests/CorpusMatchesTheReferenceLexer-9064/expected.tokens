@@ -11,11 +11,11 @@
 3:31 OpenKeyword `open`
 3:36 ExtensibleKeyword `extensible`
 3:47 InKeyword `in`
-3:49 Identifier `erface`
-3:56 DelegateKeyword `delegate`
-3:65 ExtensionKeyword `extension`
-3:75 DerivationKeyword `derivation`
-3:86 AttributeKeyword `attribute`
+3:50 Identifier `erface`
+3:57 DelegateKeyword `delegate`
+3:66 ExtensionKeyword `extension`
+3:76 DerivationKeyword `derivation`
+3:87 AttributeKeyword `attribute`
 4:3 FloatLiteral `3.14`
 4:8 FloatLiteral `1e5`
 4:12 FloatLiteral `2.5e-3`

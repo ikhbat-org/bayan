@@ -1,4 +1,4 @@
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolationStart `{`
 3:5 InterpolatedStringStart `$"`

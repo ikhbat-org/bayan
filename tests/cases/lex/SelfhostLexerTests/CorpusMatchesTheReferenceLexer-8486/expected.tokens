@@ -1,5 +1,5 @@
-1:3 IntegerLiteral `0b1`
-1:6 NumericSuffix `ms`
+1:5 IntegerLiteral `0b1`
+1:8 NumericSuffix `ms`
 3:1 IntegerLiteral `0x`
 5:1 EndOfFile
 

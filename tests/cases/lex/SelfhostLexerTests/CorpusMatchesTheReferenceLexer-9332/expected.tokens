@@ -27,9 +27,9 @@
 3:14 StringLiteral `"}"`
 3:17 CloseBrace `}`
 3:18 StringLiteral `"`
-5:4 StringLiteral `"{Point { x = 1 }}!"`
-5:25 InterpolatedStringStart `$"`
-5:27 InterpolatedStringEnd `"`
+5:8 StringLiteral `"{Point { x = 1 }}!"`
+5:29 InterpolatedStringStart `$"`
+5:31 InterpolatedStringEnd `"`
 6:2 Amp `&`
 6:4 AmpAmp `&&`
 6:7 Bar `|`

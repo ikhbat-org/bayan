@@ -19,8 +19,8 @@
 2:30 InterpolatedStringText ` d`
 2:32 InterpolatedStringEnd `"`
 2:34 InterpolatedStringStart `$"`
-2:36 InterpolatedStringText `{{lit �\r`
-2:44 InterpolatedStringEnd
+2:36 InterpolatedStringText `{{lit �`
+2:43 InterpolatedStringEnd
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

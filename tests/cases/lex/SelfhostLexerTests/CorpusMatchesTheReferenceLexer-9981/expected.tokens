@@ -10,9 +10,9 @@
 4:17 StarPercent `*%`
 4:20 PlusBar `+|`
 4:23 MinusBar `-|`
-4:26 StarBar `*|`
-4:29 PlusPlus `++`
-4:32 MinusMinus `--`
+4:27 StarBar `*|`
+4:30 PlusPlus `++`
+4:33 MinusMinus `--`
 5:1 Identifier `a`
 12:2 EndOfFile
 

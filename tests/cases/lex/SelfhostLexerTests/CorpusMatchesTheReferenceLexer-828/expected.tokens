@@ -8,7 +8,7 @@
 4:11 CloseBrace `}`
 5:2 Equals `=`
 5:4 IntegerLiteral `2`
-6:12 EndOfFile
+6:14 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

@@ -99,7 +99,7 @@
 5:47 Identifier `y`
 5:49 FloatLiteral `2.5`
 5:52 NumericSuffix `f`
-6:3 EndOfFile
+6:4 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply
 

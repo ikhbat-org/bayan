@@ -1,7 +1,7 @@
-1:6 Identifier `comment`
-1:14 Star `*`
-1:15 Slash `/`
-1:17 Identifier `a`
+1:9 Identifier `comment`
+1:17 Star `*`
+1:18 Slash `/`
+1:20 Identifier `a`
 3:1 StringLiteral `"text"`
 3:8 StringLiteral `"esc \"q\" \\ \n"`
 3:26 RawStringLiteral `"""\n>>\na >> b\nc >>= 1\n\nlet b = ` 2\n $"{\n1100C0�'\n'x\n`

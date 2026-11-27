@@ -15,9 +15,9 @@
 1:63 NullKeyword `null`
 1:68 TrueKeyword `true`
 1:73 FalseKeyword `false`
-1:79 Identifier `com`
-1:82 Identifier `time`
-1:87 Identifier `caecked`
+1:80 Identifier `com`
+1:84 Identifier `time`
+1:89 Identifier `caecked`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBE)

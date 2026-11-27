@@ -7,7 +7,7 @@
 3:1 LetKeyword `let`
 3:5 Identifier `c`
 3:7 Equals `=`
-3:11 IntegerLiteral `3`
+3:12 IntegerLiteral `3`
 5:1 StringLiteral `"/// Doc line one.`
 7:1 Identifier `comment`
 7:11 Identifier `hidden`
@@ -32,8 +32,8 @@
 8:66 NumericSuffix `ul`
 8:69 IntegerLiteral `7`
 8:70 NumericSuffix `l`
-9:1 Identifier `ab`
-9:3 CharLiteral `'`
+9:2 Identifier `ab`
+9:4 CharLiteral `'`
 10:1 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

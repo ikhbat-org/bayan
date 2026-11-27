@@ -1,6 +1,6 @@
 1:1 IntegerLiteral `1`
 1:2 Dot `.`
-2:2 CloseBrace `}`
+2:4 CloseBrace `}`
 3:2 IntegerLiteral `0xFF`
 3:6 NumericSuffix `s`
 4:2 EndOfFile

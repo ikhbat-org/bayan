@@ -2,9 +2,9 @@
 4:2 CharLiteral `'x`
 5:1 Identifier `ever`
 5:6 Identifier `close`
-5:11 Identifier `db`
-5:13 StringLiteral `"`
-5:14 EndOfFile
+5:12 Identifier `db`
+5:14 StringLiteral `"`
+5:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)
 

@@ -1,8 +1,8 @@
 2:1 Identifier `xy`
 2:4 FloatLiteral `2.5`
 2:7 NumericSuffix `f`
-3:1 CloseBrace `}`
-3:2 EndOfFile
+3:2 CloseBrace `}`
+3:3 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`
 

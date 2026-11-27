@@ -1,6 +1,6 @@
 1:1 Identifier `bA`
 2:1 IntegerLiteral `1__`
-3:2 EndOfFile
+3:4 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

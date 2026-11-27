@@ -10,9 +10,9 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 Identifier `a`
-4:6 Identifier `τρητής`
-4:13 Identifier `x_1`
-4:17 Identifier `é`
+4:7 Identifier `τρητής`
+4:14 Identifier `x_1`
+4:18 Identifier `é`
 5:2 Identifier `c`
 5:4 Greater `>`
 5:5 GreaterEquals `>=`

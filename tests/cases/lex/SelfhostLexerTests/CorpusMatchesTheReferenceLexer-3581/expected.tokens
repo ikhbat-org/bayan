@@ -32,11 +32,11 @@
 6:3 Greater `>`
 6:4 GreaterEquals `>=`
 6:7 IntegerLiteral `1`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 8:2 LetKeyword `let`
 8:6 Identifier `la`
-8:9 Equals `=`
-8:11 IntegerLiteral `3`
+8:10 Equals `=`
+8:12 IntegerLiteral `3`
 9:2 RawStringLiteral `""" 0x\r\nlet café = 2\r\n\r\n`
 12:1 EndOfFile
 

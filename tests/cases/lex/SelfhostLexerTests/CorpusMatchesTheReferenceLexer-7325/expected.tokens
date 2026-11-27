@@ -1,5 +1,5 @@
 1:1 Identifier `b`
-2:3 Identifier `hidden`
+2:5 Identifier `hidden`
 4:1 Identifier `ds`
 4:4 AsyncKeyword `async`
 4:10 AwaitKeyword `await`

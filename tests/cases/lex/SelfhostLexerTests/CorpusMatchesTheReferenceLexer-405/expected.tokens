@@ -5,10 +5,10 @@
 1:14 Identifier `q`
 1:16 Identifier `escape`
 1:22 StringLiteral `"`
-3:2 StructKeyword `struct`
-3:9 Identifier `S`
+3:6 StructKeyword `struct`
+3:13 Identifier `S`
 4:1 StringLiteral `"a���b"`
-4:6 CharLiteral `'\q'`
+4:9 CharLiteral `'\q'`
 5:2 EndOfFile
 
 error BYN0002: unexpected character `\`

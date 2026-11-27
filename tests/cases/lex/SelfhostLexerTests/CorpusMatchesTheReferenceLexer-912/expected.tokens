@@ -45,10 +45,10 @@
 2:63 InterpolatedStringEnd `"`
 2:64 InterpolationEnd `}`
 2:65 InterpolatedStringText `�`
-2:65 InterpolatedStringEnd `"`
-2:67 InterpolatedStringStart `$"`
-2:69 InterpolationStart `{`
-2:70 EndOfFile
+2:66 InterpolatedStringEnd `"`
+2:68 InterpolatedStringStart `$"`
+2:70 InterpolationStart `{`
+2:71 EndOfFile
 
 error BYN0014: `}` in an interpolated string must be doubled
 

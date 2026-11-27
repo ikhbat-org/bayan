@@ -1,6 +1,6 @@
-1:2 StringLiteral `"text"`
-1:9 StringLiteral `"esc \"q\" \\ \n"`
-1:27 RawStringLiteral `"""\n\nnot with move ref out this nu\n`
+1:6 StringLiteral `"text"`
+1:13 StringLiteral `"esc \"q\" \\ \n"`
+1:31 RawStringLiteral `"""\n\nnot with move ref out this nu\n`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

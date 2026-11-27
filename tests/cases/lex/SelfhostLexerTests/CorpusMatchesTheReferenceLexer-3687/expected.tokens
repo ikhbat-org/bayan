@@ -16,10 +16,10 @@
 9:7 Identifier `selec`
 9:12 CharLiteral `'\q'`
 10:2 Identifier `b`
-11:3 LetKeyword `let`
-11:7 Identifier `a`
-11:9 Equals `=`
-11:11 StringLiteral `"Popen`
+11:4 LetKeyword `let`
+11:8 Identifier `a`
+11:10 Equals `=`
+11:12 StringLiteral `"Popen`
 13:1 EndOfFile
 
 error BYN0003: unterminated string literal

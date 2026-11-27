@@ -11,12 +11,12 @@
 7:7 Equals `=`
 7:11 IntegerLiteral `3`
 8:2 StringLiteral `"{�"`
-8:5 OpenBrace `{`
-8:6 InterpolatedStringStart `$"`
-8:8 InterpolationStart `{`
-8:9 InterpolatedStringStart `$"`
-8:11 InterpolationStart `{`
-8:13 Identifier `Å0xFFs`
+8:6 OpenBrace `{`
+8:7 InterpolatedStringStart `$"`
+8:9 InterpolationStart `{`
+8:10 InterpolatedStringStart `$"`
+8:12 InterpolationStart `{`
+8:14 Identifier `Å0xFFs`
 9:1 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal

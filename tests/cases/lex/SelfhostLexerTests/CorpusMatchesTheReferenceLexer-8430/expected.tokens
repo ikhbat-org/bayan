@@ -23,7 +23,7 @@
 2:20 Identifier `i64`
 2:23 Greater `>`
 2:24 Greater `>`
-3:2 EndOfFile
+3:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

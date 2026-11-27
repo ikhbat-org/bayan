@@ -7,7 +7,7 @@
 3:13 Slash `/`
 3:15 Identifier `a`
 5:1 OpenBrace `{`
-6:6 EndOfFile
+6:9 EndOfFile
 
 error BYN0003: unterminated string literal
 

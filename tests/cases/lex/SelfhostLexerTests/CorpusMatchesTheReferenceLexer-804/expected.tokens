@@ -5,7 +5,7 @@
 2:2 Identifier `letc`
 2:7 Equals `=`
 2:9 RawStringLiteral `"""never closed\r\n\r\n�' '\\' '\0'\r\n� 0b1ms\r\n�`
-6:1 EndOfFile
+6:2 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

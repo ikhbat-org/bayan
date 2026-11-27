@@ -34,8 +34,8 @@
 2:4 InterpolationStart `{`
 2:5 Identifier `b`
 2:6 InterpolationEnd `}`
-2:7 InterpolatedStringText `c\r`
-2:9 InterpolatedStringEnd
+2:7 InterpolatedStringText `c`
+2:8 InterpolatedStringEnd
 3:1 Identifier `a`
 3:3 Greater `>`
 3:4 Greater `>`

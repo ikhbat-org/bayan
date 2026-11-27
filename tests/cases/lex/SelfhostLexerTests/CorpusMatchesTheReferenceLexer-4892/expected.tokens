@@ -1,7 +1,7 @@
-1:1 CloseBrace `}`
-1:2 Identifier `q`
-1:4 Identifier `Å`
-1:6 EndOfFile
+1:3 CloseBrace `}`
+1:4 Identifier `q`
+1:7 Identifier `Å`
+1:9 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA3)
 

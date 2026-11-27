@@ -5,24 +5,24 @@
 1:13 CloseBrace `}`
 1:14 Identifier `i`
 1:15 StringLiteral `"`
-2:4 FloatLiteral `3.14`
-2:9 FloatLiteral `1e5`
-2:13 FloatLiteral `2.5e-3`
-2:20 FloatLiteral `6E+2`
-2:25 FloatLiteral `1.50`
-2:29 NumericSuffix `dec`
-2:33 IntegerLiteral `1`
-2:34 DotDot `..`
-2:36 IntegerLiteral `21`
-2:38 DotDotEquals `..=`
-2:41 IntegerLiteral `3`
-2:43 IntegerLiteral `5`
-2:44 NumericSuffix `e`
-2:46 Identifier `x`
-2:47 Dot `.`
-2:48 Identifier `y`
-2:50 FloatLiteral `2.5`
-2:53 NumericSuffix `f`
+2:6 FloatLiteral `3.14`
+2:11 FloatLiteral `1e5`
+2:15 FloatLiteral `2.5e-3`
+2:22 FloatLiteral `6E+2`
+2:27 FloatLiteral `1.50`
+2:31 NumericSuffix `dec`
+2:35 IntegerLiteral `1`
+2:36 DotDot `..`
+2:38 IntegerLiteral `21`
+2:40 DotDotEquals `..=`
+2:43 IntegerLiteral `3`
+2:45 IntegerLiteral `5`
+2:46 NumericSuffix `e`
+2:48 Identifier `x`
+2:49 Dot `.`
+2:50 Identifier `y`
+2:52 FloatLiteral `2.5`
+2:55 NumericSuffix `f`
 3:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n1__\n\n`
 7:1 EndOfFile
 

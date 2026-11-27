@@ -9,7 +9,7 @@
 2:7 Identifier `t`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
-4:2 EndOfFile
+4:5 EndOfFile
 
 error BYN0001: bidirectional control character U+2069 is not allowed outside string literals
 

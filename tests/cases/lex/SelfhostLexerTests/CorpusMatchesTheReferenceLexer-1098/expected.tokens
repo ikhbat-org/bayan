@@ -13,10 +13,10 @@
 2:82 DerivationKeyword `derivation`
 2:93 AttributeKeyword `attribute`
 5:1 IntegerLiteral `0xF__`
-7:2 LetKeyword `let`
-7:6 Identifier `actor`
-7:12 Equals `=`
-7:14 IntegerLiteral `1`
+7:4 LetKeyword `let`
+7:8 Identifier `actor`
+7:14 Equals `=`
+7:16 IntegerLiteral `1`
 8:2 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

@@ -36,8 +36,8 @@
 1:56 StringLiteral `$"{$"`
 1:61 OpenBrace `{`
 1:62 StringLiteral `$"{xfoo Bar _x camelCase2 بيان μετρητής x_1 é`
-3:2 Identifier `c`
-3:4 Identifier `comment`
+3:5 Identifier `c`
+3:7 Identifier `comment`
 4:1 Identifier `b`
 6:2 EndOfFile
 

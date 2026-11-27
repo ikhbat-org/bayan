@@ -61,7 +61,7 @@
 5:10 RawStringLiteral `"""never closed\r\nlet a = "open\r\n let c = """`
 7:13 NeverKeyword `never`
 7:19 Identifier `closed`
-8:4 EndOfFile
+8:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

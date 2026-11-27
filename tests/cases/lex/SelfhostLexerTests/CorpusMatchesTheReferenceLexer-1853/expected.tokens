@@ -32,10 +32,10 @@
 4:24 LessLessEquals `<<=`
 6:3 Identifier `raw`
 6:7 StringLiteral `"quoted"`
-8:5 Identifier `comment`
-8:13 Star `*`
-8:14 Slash `/`
-8:16 Identifier `a`
+8:9 Identifier `comment`
+8:17 Star `*`
+8:18 Slash `/`
+8:20 Identifier `a`
 10:1 EndOfFile
 
 error BYN0001: bidirectional control character U+2067 is not allowed outside string literals

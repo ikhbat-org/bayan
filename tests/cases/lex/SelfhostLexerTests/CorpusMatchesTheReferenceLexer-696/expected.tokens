@@ -1,8 +1,8 @@
 1:1 StructKeyword `struct`
-2:1 Identifier `a`
-2:3 Greater `>`
+2:2 Identifier `a`
 2:4 Greater `>`
-2:6 Identifier `b`
+2:5 Greater `>`
+2:7 Identifier `b`
 4:1 Identifier `m`
 7:1 EndOfFile
 

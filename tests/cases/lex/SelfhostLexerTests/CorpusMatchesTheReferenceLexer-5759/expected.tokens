@@ -8,8 +8,8 @@
 3:5 GreaterEquals `>=`
 3:8 IntegerLiteral `1`
 4:1 StringLiteral `"a\u{2067}b"`
-4:8 CloseBrace `}`
-4:10 EndOfFile
+4:11 CloseBrace `}`
+4:13 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`
 

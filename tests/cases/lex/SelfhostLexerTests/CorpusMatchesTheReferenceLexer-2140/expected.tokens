@@ -3,7 +3,7 @@
 1:4 Identifier `ạ̇`
 1:8 Identifier `k`
 1:10 RawStringLiteral `""" c"text" u16"ide" �\u{202E} allowed in strings" "" "\u{48}i"\n/* block\n\n���� `
-4:3 EndOfFile
+4:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

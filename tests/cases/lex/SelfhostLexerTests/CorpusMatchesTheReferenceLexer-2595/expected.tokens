@@ -1,9 +1,9 @@
-1:2 Identifier `et`
-1:5 Identifier `e`
-1:6 CloseParen `)`
-1:7 Identifier `fect`
-1:12 Equals `=`
-1:14 IntegerLiteral `2`
+1:4 Identifier `et`
+1:7 Identifier `e`
+1:8 CloseParen `)`
+1:9 Identifier `fect`
+1:14 Equals `=`
+1:16 IntegerLiteral `2`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)

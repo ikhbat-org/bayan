@@ -7,10 +7,10 @@
 3:8 CloseBrace `}`
 3:9 CharLiteral `' '`
 3:13 CharLiteral `''`
-3:16 CharLiteral `'é� '`
-3:23 CharLiteral `' '`
-3:27 IntegerLiteral `0`
-3:28 CharLiteral `'`
+3:17 CharLiteral `'é� '`
+3:24 CharLiteral `' '`
+3:28 IntegerLiteral `0`
+3:29 CharLiteral `'`
 5:1 StringLiteral `"a\u{2067}b"`
 5:6 EndOfFile
 

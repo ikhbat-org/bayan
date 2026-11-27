@@ -14,8 +14,8 @@
 4:7 InterpolatedStringStart `$"`
 4:9 InterpolationStart `{`
 4:10 Identifier `a`
-4:12 Equals `=`
-4:14 IntegerLiteral `1`
+4:14 Equals `=`
+4:16 IntegerLiteral `1`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

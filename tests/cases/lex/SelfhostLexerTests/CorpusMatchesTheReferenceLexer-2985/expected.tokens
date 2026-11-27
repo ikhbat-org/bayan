@@ -9,7 +9,7 @@
 2:9 CloseBrace `}`
 2:11 Identifier `here`
 2:15 StringLiteral `"`
-3:3 CharLiteral `'x`
+3:6 CharLiteral `'x`
 5:1 EndOfFile
 
 error BYN0002: unexpected character `\`

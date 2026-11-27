@@ -101,9 +101,9 @@
 5:109 InterpolatedStringEnd `"`
 6:1 IntegerLiteral `0x`
 6:4 LetKeyword `let`
-6:8 Identifier `b`
-6:10 Equals `=`
-6:12 StringLiteral `"bad \q escape"`
+6:9 Identifier `b`
+6:11 Equals `=`
+6:13 StringLiteral `"bad \q escape"`
 7:2 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

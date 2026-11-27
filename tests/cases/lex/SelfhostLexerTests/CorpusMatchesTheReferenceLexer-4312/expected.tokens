@@ -3,8 +3,8 @@
 1:11 CharLiteral `'\u{1F60�0}'`
 1:24 CharLiteral `'\''`
 1:29 CharLiteral `'é'`
-1:32 CharLiteral `'\\'`
-1:37 CharLiteral `'\0'`
+1:33 CharLiteral `'\\'`
+1:38 CharLiteral `'\0'`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

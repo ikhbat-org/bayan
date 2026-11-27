@@ -2,8 +2,8 @@
     doc `/// Doc line two.`
 3:1 StructKeyword `struct`
 3:8 Identifier `S`
-5:3 Identifier `x_1`
-5:7 Identifier `é`
+5:4 Identifier `x_1`
+5:8 Identifier `é`
 6:2 StringLiteral `"text"`
 6:9 StringLiteral `"esc \"q\" \\ \n"`
 6:27 RawStringLiteral `"""\n "a\u{2067}b" 1.oo Bar _x cam `

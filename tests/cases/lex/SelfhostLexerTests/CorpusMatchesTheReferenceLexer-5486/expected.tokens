@@ -1,16 +1,16 @@
-4:3 Plus `+`
-4:5 Minus `-`
-4:7 Star `*`
-4:9 Slash `/`
-4:11 Percent `%`
-4:13 PlusPercent `+%`
-4:16 MinusPercent `-%`
-4:19 StarPercent `*%`
-4:22 PlusBar `+|`
-4:25 MinusBar `-|`
-4:28 StarBar `*|`
-4:31 PlusPlus `++`
-4:34 MinusMinus `--`
+4:7 Plus `+`
+4:9 Minus `-`
+4:11 Star `*`
+4:13 Slash `/`
+4:15 Percent `%`
+4:17 PlusPercent `+%`
+4:20 MinusPercent `-%`
+4:23 StarPercent `*%`
+4:26 PlusBar `+|`
+4:29 MinusBar `-|`
+4:32 StarBar `*|`
+4:35 PlusPlus `++`
+4:38 MinusMinus `--`
 5:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

@@ -5,8 +5,8 @@
 1:23 Identifier `بيان`
 1:28 Identifier `μετ`
 1:32 Identifier `S`
-1:33 Identifier `ητής`
-1:38 Identifier `x_1é`
+1:34 Identifier `ητής`
+1:39 Identifier `x_1é`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xCF)

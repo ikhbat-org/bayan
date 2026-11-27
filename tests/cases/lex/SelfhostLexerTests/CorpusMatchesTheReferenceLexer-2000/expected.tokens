@@ -1,9 +1,9 @@
 1:1 IntegerLiteral `1_`
 2:1 LetKeyword `let`
 2:5 Identifier `b`
-2:10 IntegerLiteral `2`
-2:11 NumericSuffix `O`
-2:14 Identifier `o`
+2:11 IntegerLiteral `2`
+2:12 NumericSuffix `O`
+2:19 Identifier `o`
 3:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

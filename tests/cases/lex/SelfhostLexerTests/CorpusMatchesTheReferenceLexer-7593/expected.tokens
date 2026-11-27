@@ -1,27 +1,27 @@
 1:8 InterpolatedStringStart `$"`
 1:10 InterpolatedStringText `�`
-1:10 InterpolatedStringEnd `"`
-1:13 IntegerLiteral `0xFF`
-1:18 IntegerLiteral `0x_ff`
-1:24 IntegerLiteral `0`
-1:25 NumericSuffix `bM010`
-1:31 IntegerLiteral `0B11`
-1:36 IntegerLiteral `5`
-1:37 NumericSuffix `s`
-1:39 IntegerLiteral `250`
-1:42 NumericSuffix `ms`
-1:45 IntegerLiteral `4`
-1:46 NumericSuffix `KiB`
-1:50 IntegerLiteral `1`
-1:51 NumericSuffix `u`
-1:53 IntegerLiteral `0xFF`
-1:58 IntegerLiteral `0b1`
-1:61 NumericSuffix `ul`
-1:64 IntegerLiteral `7`
-1:65 NumericSuffix `l`
+1:11 InterpolatedStringEnd `"`
+1:14 IntegerLiteral `0xFF`
+1:19 IntegerLiteral `0x_ff`
+1:25 IntegerLiteral `0`
+1:26 NumericSuffix `bM010`
+1:32 IntegerLiteral `0B11`
+1:37 IntegerLiteral `5`
+1:38 NumericSuffix `s`
+1:40 IntegerLiteral `250`
+1:43 NumericSuffix `ms`
+1:46 IntegerLiteral `4`
+1:47 NumericSuffix `KiB`
+1:51 IntegerLiteral `1`
+1:52 NumericSuffix `u`
+1:54 IntegerLiteral `0xFF`
+1:59 IntegerLiteral `0b1`
+1:62 NumericSuffix `ul`
+1:65 IntegerLiteral `7`
+1:66 NumericSuffix `l`
 2:2 IntegerLiteral `1`
 2:3 NumericSuffix `e`
-2:7 EndOfFile
+2:12 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines
 

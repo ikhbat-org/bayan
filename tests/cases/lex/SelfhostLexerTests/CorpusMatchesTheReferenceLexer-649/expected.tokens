@@ -13,7 +13,6 @@
 2:30 PlusPlus `++`
 2:33 MinusMinus `--`
 4:1 IntegerLiteral `1_`
-    doc `/// Doc li �����`
 7:1 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C
