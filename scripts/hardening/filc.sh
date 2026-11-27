@@ -2,14 +2,17 @@
 # Plan 020 step 3: the golden run/ cases through $BAYAN_EXE with the runtime and program built by the Fil-C clang (install-filc.sh,
 # or $FILC_CC), via cc-wrap.sh, in tmp/hardening/filc-cell/ (the golden runner's child cache is $PWD/tmp/cache). First an audit
 # pass over the runtime C for constructs Fil-C treats badly (inline asm, pointer/integer casts). A finding is a case whose exit
-# differs from its expected one (a `failed `/`timed out ` entry in the golden output, whose detail carries the case's stderr, kept in
-# the cell's log/golden.txt) and whose entry matches the marker, the case-insensitive extended regex "filc (panic|safety)" (Fil-C's
-# "filc panic"/"filc safety error" text).
-# Output: audit count, golden counts, finding names; logs in the cell dir. Exits 0 when it ran, 1 on harness failure, 2 on usage.
-usage() { echo "usage: BAYAN_EXE=<driver> $0 [--only <case filter>] (default filter run/)" >&2; exit 2; }
+# differs from its expected one (the case's .exitcode, else 0) and whose own stderr names Fil-C: the golden runner keeps no program
+# stderr, so each run/ case is also built and run by differential.sh's run_case (sourced, run through its `--case`), which records
+# the program's stderr under the cell's out/. The marker is the case-insensitive extended regex "filc (panic|safety)" (Fil-C's
+# "filc panic"/"filc safety error" text). A case that did not build (a compile error) is not a finding.
+# Output: audit count, golden counts, finding names (also in log/findings.txt); logs in the cell dir. Exits 0 when it ran, 1 on harness failure, 2 on usage.
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 wrap="$root/scripts/hardening/cc-wrap.sh"
+# shellcheck source=differential.sh
+source "$root/scripts/hardening/differential.sh"
+usage() { echo "usage: BAYAN_EXE=<driver> $0 [--only <case filter>] (default filter run/)" >&2; exit 2; }
 [ -n "$BAYAN_EXE" ] || usage
 only="run/"
 while [ $# -gt 0 ]; do
@@ -47,8 +50,23 @@ if [ "$gp" = 0 ] && [ "$gf" = 0 ] && [ $rc != 0 ]; then
     echo "filc: the golden runner did not run (exit $rc), see $dir/log/golden.txt"; tail -n 3 "$dir/log/golden.txt"
     exit 1
 fi
-awk '/^(passed|failed|skipped|timed out) /{n=($1=="failed"||$1=="timed")?$0:""; sub(/^(failed|timed out) /,"",n); next}
-    n!="" && tolower($0) ~ /filc (panic|safety)/ {print n; n=""}' "$dir/log/golden.txt" >"$dir/log/findings.txt"
+selected="$dir/selected.txt"
+mkdir -p "$dir/rec" "$dir/out" "$dir/run" "$dir/run-build"
+list_cases | LC_ALL=C sort | while read -r n f; do
+    case "run/$n" in *"$only"*) head -n 2 "$f" | tr -d '\r' | grep -qx '// os: windows' || echo "$n $f" ;; esac
+done >"$selected"
+env BAYAN_CC="$wrap" HARDEN_CC="$cc" HARDEN_STRIP="" BAYAN_CC_TIMEOUT_S=1800 BAYAN_CACHE="$dir/cache" \
+    xargs -n 2 -P 4 bash "$root/scripts/hardening/differential.sh" --case "$dir" <"$selected"
+cat "$dir"/rec/* 2>/dev/null | LC_ALL=C sort >"$dir/records.tsv"
+: >"$dir/log/findings.txt"
+while IFS=$'\t' read -r c rc _; do
+    case "$rc" in build|debug) continue ;; esac
+    n=${c#run/}
+    f=$(awk -v n="$n" '$1 == n { print $2 }' "$selected")
+    want=0; [ -f "${f%.byn}.exitcode" ] && want=$(tr -d ' \r\n' <"${f%.byn}.exitcode")
+    [ "$rc" != "$want" ] || continue
+    grep -qiE 'filc (panic|safety)' "$dir/out/run_${n//\//_}.stderr" && echo "$c" >>"$dir/log/findings.txt"
+done <"$dir/records.tsv"
 findings=$(wc -l <"$dir/log/findings.txt" | tr -d ' ')
 echo "filc: golden $gp passed, $gf failed; findings $findings"
 sed -nE "s/^(failed|timed out) /  golden \1 /p" "$dir/log/golden.txt"
