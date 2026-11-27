@@ -24,7 +24,7 @@ $env:Path += ";$PWD\bayan-0.4.1-windows-x64"</code></pre>
 <h2 id="check">Check the install</h2>
 <pre><code>bayan --version
 bayan doctor</code></pre>
-<p><code>--version</code> prints <code>bayan 0.4.1 (selfhost)</code>. <code>doctor</code> checks the C compiler, zig, git and the build cache and gives fixes; on a working machine every line starts with a diamond and names a path. Without a C compiler, <code>bayan run</code> and <code>bayan build</code> exit 4.</p>
+<p><code>--version</code> prints <code>bayan 0.4.1</code>. <code>doctor</code> checks the C compiler, zig, git and the build cache and gives fixes; on a working machine every line starts with a diamond and names a path. Without a C compiler, <code>bayan run</code> and <code>bayan build</code> exit 4.</p>
 <p>Run the first program:</p>
 <example name="hello"/>
 <pre><code>bayan run hello.byn</code></pre>
