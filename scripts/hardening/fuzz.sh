@@ -13,7 +13,8 @@
 #   --triage: reruns $BAYAN_EXE check on each out/default/crashes file, copied alone into triage/<n>/main.byn, and prints
 #     `<file>\t<exit code>\t<first ASan/panic line>`; an exit 0 or 1 without such a line is diagnostics only, not a finding.
 # The tools are $FUZZ_AFL (default afl-fuzz), $FUZZ_CC and $FUZZ_VALGRIND (default valgrind). Exits 0 when it ran (findings or
-# not), 1 when the harness could not run (naming the missing tool), 2 on usage.
+# not), 1 when the harness could not run (naming the missing tool), 2 on usage. --afl and --triage start under `setarch <arch> -R`
+# ($FUZZ_SETARCH, default setarch, skipped when it cannot run): see sanitize.sh for the ASan DEADLYSIGNAL loop it avoids.
 usage() { echo "usage: [BAYAN_EXE=<driver>] $0 --build | --afl [--minutes N] | --valgrind | --triage" >&2; exit 2; }
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -23,6 +24,9 @@ dir="${FUZZ_DIR:-$root/tmp/hardening/fuzz}"
 corpus="${FUZZ_CORPUS:-$root/tests/hardening/fuzz-corpus}"
 afl="${FUZZ_AFL:-afl-fuzz}"
 vg="${FUZZ_VALGRIND:-valgrind}"
+norand=()
+sa="${FUZZ_SETARCH:-setarch}"
+if "$sa" "$(uname -m)" -R true >/dev/null 2>&1; then norand=("$sa" "$(uname -m)" -R); fi
 
 # --vg-cc <cc arguments>: the C compiler run.sh calls in --valgrind mode (see above). $FUZZ_VG_DIR is the log directory.
 if [ "$1" = --vg-cc ]; then
@@ -104,7 +108,7 @@ case $mode in
     # then reach this log, so it keeps only its last 4 MB.
     env AFL_SKIP_CPUFREQ=1 AFL_NO_UI=1 AFL_DEBUG_CHILD=1 BAYAN_CACHE="$dir/cache" \
         ASAN_OPTIONS=abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=0 \
-        "$afl" -V $((minutes * 60)) -t "${FUZZ_TIMEOUT_MS:-5000}" -m none -i "$dir/seeds" -o "$dir/out" -f "$dir/in/main.byn" \
+        ${norand[@]+"${norand[@]}"} "$afl" -V $((minutes * 60)) -t "${FUZZ_TIMEOUT_MS:-5000}" -m none -i "$dir/seeds" -o "$dir/out" -f "$dir/in/main.byn" \
         -- "$dir/bayan-afl" check "$dir/in/main.byn" 2>&1 | tail -c 4000000 >"$dir/afl.log"
     rc=${PIPESTATUS[0]}
     stats="$dir/out/default/fuzzer_stats"
@@ -141,7 +145,7 @@ case $mode in
         [ -f "$f" ] || continue
         i=$((i + 1)); t="$dir/triage/$i"
         mkdir -p "$t"; cp "$f" "$t/main.byn"
-        (cd "$t" && env BAYAN_CACHE="$dir/cache" "$BAYAN_EXE" check main.byn) >"$t/stdout" 2>"$t/stderr"
+        (cd "$t" && ${norand[@]+"${norand[@]}"} env BAYAN_CACHE="$dir/cache" "$BAYAN_EXE" check main.byn) >"$t/stdout" 2>"$t/stderr"
         rc=$?
         line=$(grep -m 1 -E 'ERROR: AddressSanitizer|panic' "$t/stderr" | cut -c1-160)
         if [ -n "$line" ] || { [ $rc != 0 ] && [ $rc != 1 ]; }; then findings=$((findings + 1)); fi

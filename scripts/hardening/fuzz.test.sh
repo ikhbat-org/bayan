@@ -9,6 +9,10 @@ trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/bin" "$tmp/fuzz" "$tmp/corpus" "$tmp/big"
 export PATH="$tmp/bin:$PATH" FUZZ_DIR="$tmp/fuzz" FUZZ_CORPUS="$tmp/corpus"
 unset FUZZ_AFL FUZZ_CC FUZZ_VALGRIND FUZZ_RUNSH HARDEN_CC BAYAN_EXE
+export FUZZ_SETARCH="$tmp/no-setarch"
+# setarch: records its arguments and runs the command after <arch> -R.
+printf '#!/bin/sh\nprintf "%%s\\n" "$*" >>"%s/setarch.args"\nshift 2\nexec "$@"\n' "$tmp" >"$tmp/setarch"
+chmod +x "$tmp/setarch"
 
 cat >"$tmp/fuzzer_stats" <<'STATS'
 start_time        : 1700000000
@@ -108,7 +112,7 @@ out=$(FUZZ_CORPUS="$tmp/big" bash "$fuzz" --afl 2>&1); rc=$?
 printf '%s' "$out" | grep -q "big.byn is 5000 bytes, over 4096"; check "the corpus check names the big file" $?
 [ ! -f "$tmp/afl.args" ]; check "afl-fuzz does not run on a refused corpus" $?
 
-out=$(bash "$fuzz" --afl --minutes 2 2>&1); rc=$?
+out=$(FUZZ_SETARCH="$tmp/setarch" bash "$fuzz" --afl --minutes 2 2>&1); rc=$?
 [ $rc = 0 ]; check "--afl exits 0 with crashes" $?
 has "$out" "afl: execs 123456, paths 78, crashes 3, hangs 1"; check "the stats line holds the fixture's counts" $?
 has "$out" "  $tmp/fuzz/out/default/crashes/id:000000,sig:06"; check "--afl lists the crash file" $?
@@ -121,6 +125,7 @@ check "afl-fuzz runs bayan-afl check in/main.byn" $?
 [ "$(ls "$tmp/fuzz/seeds")" = a.byn ]; check "afl-fuzz is seeded with the corpus .byn files" $?
 grep -q 'abort_on_error=1:symbolize=0:detect_leaks=0' "$tmp/afl.asan"; check "ASAN_OPTIONS aborts, does not symbolize or check leaks" $?
 [ "$(cat "$tmp/afl.debugchild")" = 1 ]; check "afl-fuzz runs with AFL_DEBUG_CHILD=1 (fork server crash on WSL otherwise)" $?
+grep -qx -- "$(uname -m) -R afl-fuzz .*" "$tmp/setarch.args"; check "afl-fuzz starts under setarch <arch> -R (ASan DEADLYSIGNAL loop, 2026-11-27)" $?
 
 echo CRASH >"$tmp/fuzz/out/default/crashes/id:000001"
 out=$(BAYAN_EXE="$tmp/bin/fakebayan" bash "$fuzz" --triage 2>&1); rc=$?

@@ -5,11 +5,21 @@
 # fresh per cell. Sanitizer reports go to tmp/hardening/<cell>/log/san.<program>.<pid>; a finding is a report file holding
 # `runtime error:` or `ERROR: AddressSanitizer`, and the golden programs are named run_<case>. Prints counts per cell and the
 # failing names; full logs are under tmp/hardening/<cell>/log. Exits 0 when it ran, 1 when the harness could not run, 2 on usage.
-# The real compiler is $HARDEN_CC (default cc).
+# The real compiler is $HARDEN_CC (default cc). On Linux both runners start under `setarch <arch> -R` (address randomization
+# off, $HARDEN_SETARCH, default setarch, skipped when it cannot run): on wp1 WSL (kernel 6.18, gcc 12) 4 of 30 ASan starts of
+# path-relative-cases.exe looped on `AddressSanitizer:DEADLYSIGNAL` and wrote 25 GB in 68 min; 0 of 30 with -R (2026-11-27). Each runner
+# also runs under `ulimit -f` ($HARDEN_FSIZE blocks of 512 bytes, default 2000000, about 1 GB), so a loop stops at SIGXFSZ. Overrides
+# for the tests: $HARDEN_DIR (default tmp/hardening), $HARDEN_RUNSH (default runtime/tests/run.sh).
 usage() { echo "usage: BAYAN_EXE=<driver> $0 --ubsan|--asan|--all [--only <case filter>] (default filter run/)" >&2; exit 2; }
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 wrap="$root/scripts/hardening/cc-wrap.sh"
+base="${HARDEN_DIR:-$root/tmp/hardening}"
+runsh="${HARDEN_RUNSH:-$root/runtime/tests/run.sh}"
+fsize="${HARDEN_FSIZE:-2000000}"
+norand=()
+sa="${HARDEN_SETARCH:-setarch}"
+if "$sa" "$(uname -m)" -R true >/dev/null 2>&1; then norand=("$sa" "$(uname -m)" -R); fi
 [ -n "$BAYAN_EXE" ] || usage
 modes=""; only="run/"
 while [ $# -gt 0 ]; do
@@ -31,10 +41,10 @@ export BAYAN_EXE
 harness=0
 # cell <name> <extra flags> <stripped flags> <sanitizer options variable> <options>
 cell() {
-    local name=$1 dir="$root/tmp/hardening/$1"
+    local name=$1 dir="$base/$1"
     rm -rf "$dir"; mkdir -p "$dir/log" "$dir/cache"
     local opts="$5:log_path=$dir/log/san:log_exe_name=1"
-    (cd "$dir" && env BAYAN_CC="$wrap" HARDEN_CFLAGS="$2" HARDEN_STRIP="$3" BAYAN_CACHE="$dir/cache" "$4=$opts" \
+    (cd "$dir" && ulimit -f "$fsize" && exec ${norand[@]+"${norand[@]}"} env BAYAN_CC="$wrap" HARDEN_CFLAGS="$2" HARDEN_STRIP="$3" BAYAN_CACHE="$dir/cache" "$4=$opts" \
         "$BAYAN_EXE" test "$root/tests/cases" --only "$only" --jobs 4) >"$dir/log/golden.txt" 2>&1
     local rc=$?
     local gp gf
@@ -44,9 +54,9 @@ cell() {
         echo "$name: the golden runner did not run (exit $rc), see $dir/log/golden.txt"; tail -n 3 "$dir/log/golden.txt"
         harness=1
     fi
-    local rt="runtime skipped (runtime/tests/run.sh missing)" rp=0 rf=0
-    if [ -f "$root/runtime/tests/run.sh" ]; then
-        env CC="$wrap" HARDEN_CFLAGS="$2" HARDEN_STRIP="$3" "$4=$opts" bash "$root/runtime/tests/run.sh" >"$dir/log/runtime.txt" 2>&1
+    local rt="runtime skipped ($runsh missing)" rp=0 rf=0
+    if [ -f "$runsh" ]; then
+        (ulimit -f "$fsize" && exec ${norand[@]+"${norand[@]}"} env CC="$wrap" HARDEN_CFLAGS="$2" HARDEN_STRIP="$3" "$4=$opts" bash "$runsh") >"$dir/log/runtime.txt" 2>&1
         rp=$(grep -c '^ok ' "$dir/log/runtime.txt")
         rf=$(grep -c '^FAIL ' "$dir/log/runtime.txt")
         rt="runtime $rp ok, $rf failed"
