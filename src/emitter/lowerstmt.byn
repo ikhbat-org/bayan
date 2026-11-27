@@ -659,10 +659,11 @@ void lowerFor(ref Ctx c, through ref LCtx l, for BStmt s) uses alloc {
 
     // Spans and lists are small headers: iterate over a copy. Arrays are iterated in place.
     let sequence = semantics.kindOf(iterableType) == .array
-        && isLvalue(in c, through: in l, for: iterable) ? lowerStable(
+        && isLvalue(c, through: l, for: iterable) ? lowerStable(
             ref c,
             through: ref l,
             for: iterable,
+            until: forBody,
         ) : spill(ref c, through: ref l, for: iterable)
     var lengthMember: semantics.BuiltinMember = .arrayLength
     var element: Type = -1

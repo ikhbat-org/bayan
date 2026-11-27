@@ -612,16 +612,20 @@ public BExpr lowerBuiltinCall(ref Ctx c, through ref LCtx l, for BExpr e) uses a
     return copy
 }
 
-/// Whether `e` can be evaluated on both sides of `place op= rhs` without changing value.
-bool t5StableIndex(Ctx c, through LCtx l, for BExpr e, until BExpr rhs) uses alloc {
+/// Whether `e` can be evaluated on both sides of `place op= rhs` (or across a loop body) without changing value.
+bool t5StableIndex(Ctx c, through LCtx l, for BExpr e, until semantics.BNode rhs) uses alloc {
     return false unless isRepeatable(c, through: l, for: e)
     return true if rhs == -1
-    let local = rootLocal(c, for: e)
-    return local == -1 || !anyNode(c, through: l, for: rhs, by: .writesLocal(local))
+    let local = rootLocal(c, through: l, for: e)
+    if local != -1 {
+        return !anyNode(c, through: l, for: rhs, by: .writesLocal(local))
+    }
+    return !anyNode(c, through: l, for: rhs, by: .writesThis) if isThisRoot(c, through: l, for: e)
+    return true
 }
 
 /// Lowerer.cs:1609 `Stable` (Q844): `place` with every operand that a later write could change spilled to a temporary.
-public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place, until BExpr rhs = -1) uses alloc {
+public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place, until semantics.BNode rhs = -1) uses alloc {
     if ltree.isLowered(place) {
         if ltree.lKindOf(place) == .optionalValue {
             let i = ltree.lIndexOf(place)
