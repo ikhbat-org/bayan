@@ -1,4 +1,7 @@
 # Hardening handoff (written against 0.3.3), checked against `dev` at 0.4.1
+Status: final (Opus audit, 2026-11-27)
+Release: 0.4.1 (dev 36d332a87)
+Sources: `docs/handoffs/2026-11-27-hardening.md` and the repo at 36d332a87
 
 Base checked: worktree `hardening-handoff` at 6a2ad3a4d (dev 36d332a87 plus the handoff). This is the first pass, so there is no earlier report to compare against.
 

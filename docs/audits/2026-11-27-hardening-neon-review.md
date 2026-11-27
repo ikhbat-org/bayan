@@ -1,3 +1,8 @@
+# Hardening plan: Gemini Neon review
+Status: final (gw-think, 2026-11-27); items 22, 24, 26 checked in plan 020
+Release: 0.4.1
+Sources: `docs/handoffs/2026-11-27-hardening.md`, `docs/audits/2026-11-27-hardening-reconcile.md`
+
 ## A. Verdict on Audit Integration Order (Section 6)
 
 1. **[HIGH] Disagree with the audit's integration order.** Section 6 orders work by low-friction setup and original H-numbering (docs, H2 delta, 27x H3 matrix, H6 lint, H7 manual indexing) instead of bugs found per hour of engineering and triage effort; it leaves zero-coverage sanitizers behind an already-mostly-covered H2, bundles a redundant 27x H3 matrix ahead of high-yield fuzzing and Fil-C, and delays automated reduction entirely. Pick the re-ordered sequence below; what would change this judgement is if `fix/audit-040-highs-2` already fixes known UB/memory bugs across `run/`, which would make running H4 before that merge noisy rather than high-yield.

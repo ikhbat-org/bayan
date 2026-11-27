@@ -1,4 +1,7 @@
 # Bayān hardening handoff
+Status: received (2026-11-27); superseded for order and facts by plan 020
+Release: unscheduled (report-only tooling)
+Sources: the owner
 
 For: the coding agent. Base: `dev`, 0.3.3-dev, revisions 0001–0024 applied. Written 2026-11-27.
 
