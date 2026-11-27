@@ -572,7 +572,7 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
     var sourceBuf = StrBuf()
     var outputBuf = StrBuf()
     var hasOutput = false
-    // A script that imports a module of its own is compiled every run: its key cannot name files it has not read yet.
+    // A script whose compilation reads any other user file (an imported module or a sibling) is compiled every run: its key cannot name files it has not read yet.
     var ownModules = false
     {
         using let frontend = Arena()
@@ -592,11 +592,7 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
                 return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols)
             }
             return exitUsage if refuseLibrary(compiled, by: "run")
-            for f in compiled.files {
-                if !f.isEntry && f.path != "<builtin>" && !compiled.modules[f.module].directory.startsWith("<std>/") {
-                    ownModules = true
-                }
-            }
+            ownModules = t5HasOtherFiles(ref compiled, for: o.path)
             let source = t5EmitC(ref compiled, by: o.mode)
             if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
                 outputBuf.append(
@@ -626,6 +622,19 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
         rememberScript(k, by: built.key, through: ref d) unless ownModules
     }
     return t5Start(built.exe, by: in o.programArgs)
+}
+
+/// Whether `compiled` read any user source file other than `entryPath` (imported modules or sibling files in the entry
+/// module); a script whose build depends on other files cannot be cached by its own bytes alone.
+bool t5HasOtherFiles(ref semantics.Ctx compiled, for string entryPath) uses alloc, fs {
+    let full = Path.fullPath(entryPath)
+    for f in compiled.files {
+        continue if f.path == "<builtin>"
+        continue if compiled.modules[f.module].directory.startsWith("<std>/")
+        let path = Path.isRooted(f.path) ? Path.fullPath(f.path) : Path.fullPath(Path.combine(compiled.displayRoot, f.path))
+        return true if path != full
+    }
+    return false
 }
 
 /// CliApp.cs:573 `Start`: runs `executable` with `programArgs`; `Io.run` captures its output, written stdout then stderr
@@ -827,5 +836,30 @@ test "build --coverage: --emit-c, --schemata-files and a --counters without it a
         assert(o.exitCode == exitUsage && goldenLf(o.stderr) == said[i] && o.stdout == "")
     }
     assert(failure == "")
+    deleteWorkDir(p)
+}
+
+test "run: t5HasOtherFiles flags sibling files in the entry module as well as imported modules, not a solo script" {
+    let p = Path.combine(Path.combine(Path.fullPath("tmp"), "script-other-files"), "check")
+    deleteWorkDir(p)
+    goldenWrite(p, for: "solo.byn", as: "#!/usr/bin/env bayan\nprint(\"ok\")\n")
+    let soloPath = Path.combine(p, "solo.byn")
+    var solo = semantics.fromPath(soloPath, by: T5CompilationOptions {}, wholeDirectory: false)
+    assert(!t5HasErrors(solo))
+    assert(!t5HasOtherFiles(ref solo, for: soloPath))
+
+    goldenWrite(p, for: "sib/tool.byn", as: "print(h())\n")
+    goldenWrite(p, for: "sib/util.byn", as: "string h() => \"v1\"\n")
+    let sibPath = Path.combine(p, "sib/tool.byn")
+    var sib = semantics.fromPath(sibPath, by: T5CompilationOptions {}, wholeDirectory: true)
+    assert(!t5HasErrors(sib))
+    assert(t5HasOtherFiles(ref sib, for: sibPath))
+
+    goldenWrite(p, for: "imp/tool.byn", as: "#!/usr/bin/env bayan\nimport helper\nprint(helper.h())\n")
+    goldenWrite(p, for: "imp/helper/h.byn", as: "public string h() => \"v1\"\n")
+    let impPath = Path.combine(p, "imp/tool.byn")
+    var imp = semantics.fromPath(impPath, by: T5CompilationOptions {}, wholeDirectory: false)
+    assert(!t5HasErrors(imp))
+    assert(t5HasOtherFiles(ref imp, for: impPath))
     deleteWorkDir(p)
 }
