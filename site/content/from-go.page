@@ -198,7 +198,7 @@ for _, w := range strings.Fields("a b a c a b") {
 <p><code>let _ = load()</code> says you mean it; an unreassigned <code>var</code> warns and asks for <code>let</code>.</p>
 
 <h3 id="s-immutable">Bindings are fixed by default</h3>
-<p><code>let</code> cannot be reassigned, and a <code>ref this</code> method cannot be called on it; <code>var</code> is the exception. Parameters are always immutable: copy it to a <code>var</code> to change it.</p>
+<p><code>let</code> cannot be reassigned, and a <code>ref this</code> method cannot be called on it; <code>var</code> is the exception. Parameters are always immutable: to change one, copy it to a <code>var</code>.</p>
 
 <h3 id="s-switch">switch is exhaustive and does not fall through</h3>
 <p>Go's <code>switch</code> stops at a case's end already. Bayan's must cover every union or enum case, or the program does not build; there is no <code>default</code> unless you write one.</p>

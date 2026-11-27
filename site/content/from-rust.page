@@ -153,7 +153,7 @@ fn show&lt;T: Describe&gt;(x: T) { println!("{}", x.describe()); }</code></pre>
 <note>Planned: <code>extension</code> declarations, which add members to an existing type (BYN2022 today), and interfaces for numbers and ordering. Until then, an interface a type implements must be named on the type itself.</note>
 
 <h2 id="memory">Where memory comes from</h2>
-<p>No <code>Box</code>, <code>Rc</code> or <code>Arc</code> in day-to-day code: locals live on the stack, and collections allocate from <code>context.allocator</code>, which <code>provide allocator: arena { … }</code> swaps for a block an <code>Arena</code> frees at once. A public function that allocates declares <code>uses alloc</code>. This is where Rust's lifetime annotations went: the allocator is the region.</p>
+<p>No <code>Box</code>, <code>Rc</code> or <code>Arc</code> in day-to-day code: locals live on the stack, and collections allocate from <code>context.allocator</code>. Swap it for a block with <code>provide allocator: arena { … }</code>, and an <code>Arena</code> frees everything at once. A public function that allocates declares <code>uses alloc</code>. This is where Rust's lifetime annotations went: the allocator is the region.</p>
 <p>The effect system extends this: a public function lists what it can do beyond computing (<code>alloc</code>, <code>fs</code>, <code>net</code>, <code>process</code>, <code>env</code>, <code>console</code>), and the compiler holds it to that. Rust has no counterpart. See <a href="features.html#effects">Effects</a>.</p>
 
 <h2 id="surprises">What will surprise you</h2>

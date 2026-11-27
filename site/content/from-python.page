@@ -3,7 +3,7 @@ nav: Guides
 order: 45
 template: docs
 ---
-<p>Bayan looks like Python with the types written in: short lines, no ceremony, a <code>for</code> loop over anything. But types are checked before the run, integers have a size, values are copied or moved on purpose, and a failing function says so in its signature. It maps Python tasks to Bayan and explains the surprises; every output is real compiler output.</p>
+<p>Bayan looks like Python with the types written in: short lines, no ceremony, a <code>for</code> loop over anything. But types are checked before the run, integers have a size, values are copied or moved on purpose, and a failing function says so in its signature. This guide maps Python tasks to Bayan and explains the surprises; every output is real compiler output.</p>
 
 <h2 id="table">Common tasks side by side</h2>
 <table>
@@ -83,7 +83,7 @@ a.deposit(50)
 b = replace(a, owner="maryam")
 a.deposit(25)</code></pre>
 <example name="guide-py-class"/>
-<p>A changing method takes <code>ref this</code> first; without it it can only read and cannot be called on a <code>let</code>. <code>b</code> is separate: <code>a with { owner: "maryam" }</code> copies <code>a</code> with one field replaced, so the later <code>a.deposit(25)</code> leaves <code>b</code> alone. Two Python names can share one object; Bayan names cannot without a <code>ref</code>.</p>
+<p>A changing method takes <code>ref this</code> first and cannot be called on a <code>let</code>; without it a method can only read. <code>b</code> is separate: <code>a with { owner: "maryam" }</code> copies <code>a</code> with one field replaced, so the later <code>a.deposit(25)</code> leaves <code>b</code> alone. Two Python names can share one object; Bayan names cannot without a <code>ref</code>.</p>
 
 <h2 id="none">None becomes an optional</h2>
 <p>An optional value's type ends in <code>?</code>. The compiler will not treat it as present, so there is no <code>AttributeError: 'NoneType'</code>. Test with <code>is not null</code>, which narrows it in the block, or fall back with <code>??</code>.</p>

@@ -3,7 +3,7 @@ nav: Guides
 order: 48
 template: docs
 ---
-<p>TypeScript adds types to a running language; Bayan starts with them. Unions, narrowing, <code>switch</code>, <code>strict</code> mode and <code>null</code> only where the type allows will look right. Bayan builds a native program with no runtime: sized integers, owned memory, and a wrong type stops the build instead of being erased.</p>
+<p>TypeScript adds types to a running language; Bayan starts with them. Unions and narrowing will look right: a value is a union of shapes, which <code>switch</code> narrows. So will <code>strict</code> mode and <code>null</code> only where the type allows. Bayan builds a native program with no runtime: sized integers, owned memory, and a wrong type stops the build instead of being erased.</p>
 <p>Every program ran with the compiler; the output is real.</p>
 
 <h2 id="table">Common tasks side by side</h2>
@@ -94,7 +94,7 @@ function render(r: Outcome): string {
 <p>The compiler always catches a missing case; TypeScript needs a <code>never</code> check. A taken name cannot be reused: <code>Result</code> is built in, so this union is <code>Outcome</code>.</p>
 
 <h2 id="errors">Promises and exceptions become fails</h2>
-<p>Nothing throws. A function that can fail lists its errors in the signature, so failure is in the type TypeScript's <code>throw</code> leaves out. The caller handles it with <code>catch</code> or passes it up with <code>try</code>; a <code>catch switch</code> covers every case.</p>
+<p>Nothing throws. A function that can fail lists its errors in the signature, so failure is in the type TypeScript's <code>throw</code> leaves out. The caller handles it with <code>catch</code> or passes it up with <code>try</code>; a <code>catch switch</code> must cover every case.</p>
 <pre><code class="other" data-lang="TypeScript">async function show(name: string): Promise&lt;string&gt; {
   try {
     return await load(name);
@@ -126,7 +126,7 @@ applyTwice(5, (n) =&gt; n * 3);</code></pre>
   explain: bayan explain BYN2218</pre>
 <figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
-<p>Write the type: <code>let inc: i64 -&gt; i64 = x =&gt; x + 1</code>.</p>
+<p>Write the type, <code>let inc: i64 -&gt; i64 = x =&gt; x + 1</code>, as the compiler suggests.</p>
 
 <h2 id="loops">map, filter and reduce</h2>
 <p>Callback array methods are not in the compiler yet; a <code>for</code> loop does the same, with a postfix <code>if</code> or <code>continue if</code> to filter on one line, and <code>break</code> where TypeScript uses <code>.find</code>.</p>
@@ -140,7 +140,7 @@ const found = prices.find((p) =&gt; p &gt; 10);</code></pre>
 <h2 id="surprises">What will surprise you</h2>
 
 <h3 id="s-numbers">Numbers have a size</h3>
-<p>TypeScript has one <code>number</code>; Bayan has only sized types: <code>i32</code>, <code>i64</code>, <code>u8</code>, <code>f64</code>. Integer division gives an integer (<code>7 / 2</code> is <code>3</code>), overflow panics, and lossy conversion is explicit: widening is implicit, but <code>i64</code> to <code>i32</code> needs <code>i32(a)</code>. <b>Why:</b> <code>number</code> hides a count from an id from a measurement, and has a 2<sup>53</sup> limit easy to hit.</p>
+<p>TypeScript has one <code>number</code>; Bayan has only sized types: <code>i32</code>, <code>i64</code>, <code>u8</code>, <code>f64</code> and so on. Integer division gives an integer (<code>7 / 2</code> is <code>3</code>), overflow panics, and lossy conversion is explicit: widening is implicit, but <code>i64</code> to <code>i32</code> needs <code>i32(a)</code>. <b>Why:</b> <code>number</code> hides a count from an id from a measurement, and has a 2<sup>53</sup> limit easy to hit.</p>
 <figure class="diag">
 <pre><span class="err">error BYN2202:</span> expected `i32`, found `i64`
   --&gt; narrow.byn:3:18
