@@ -1,0 +1,275 @@
+#!/usr/bin/env bayan
+// Safety mutants of one .byn source (plan 020 step 8b, handoff §H7): each is the source with one edit that a safety rule
+// of the checker must reject, written to `<out>/<case-stem>.<kind>.<n>.byn` with a first line `// expect: BYN####`
+// naming the code that rule reports (tests/hardening/must-reject/index.md, docs/diagnostics). Prints one
+// `<kind>\t<path>\t<code>` line per mutant; a kind whose pattern finds no site writes none. The edits are on lines
+// found without a parser, so a mutant can also fail for another reason; scripts/hardening/safety-mutate.sh checks them.
+// The case stem of a `<dir>/main.byn` is `<dir>`.
+// Usage: bash scripts/bayan-tool.sh safety-mutate <source.byn> <out dir>
+
+import std.path
+
+struct Mutant {
+    string kind
+    string code
+    string text
+}
+
+/// Whether `b` can be part of an identifier.
+bool identByte(u8 b) {
+    return (b >= 'a' && b <= 'z') || (b >= 'A' && b <= 'Z') || (b >= '0' && b <= '9') || b == '_'
+}
+
+/// Whether `s` is one identifier.
+bool isIdent(string s) {
+    if s.isEmpty || (s.bytes[0] >= '0' && s.bytes[0] <= '9') { return false }
+    for b in s.bytes {
+        if !identByte(b) { return false }
+    }
+    return true
+}
+
+/// The leading spaces and tabs of `line`.
+string indentOf(string line) uses alloc {
+    var i = 0
+    while i < line.length && (line.bytes[i] == ' ' || line.bytes[i] == '\t') { i += 1 }
+    return line[0..i]
+}
+
+/// `text` split into lines, `\r` dropped; no last empty line.
+List<string> lines(string text) uses alloc {
+    var result = List<string>()
+    for p in text.replaced("\r\n", by: "\n").parts(by: "\n") { result.append(p) }
+    if result.length > 0 && result[result.length - 1].isEmpty { let _ = result.removeLast() }
+    return result
+}
+
+/// `ls` with `line` inserted ahead of line `k` (`ls.length`: at the end; -1: nowhere).
+List<string> withLine(List<string> ls, at i64 k, by string line) uses alloc {
+    var result = List<string>()
+    for i in 0..ls.length {
+        if i == k { result.append($"{line}") }
+        result.append($"{ls[i]}")
+    }
+    if k == ls.length { result.append($"{line}") }
+    return result
+}
+
+/// `ls` joined, each line ended by a newline.
+string joined(List<string> ls) uses alloc {
+    var sb = StrBuf()
+    for l in ls { sb.append($"{l}\n") }
+    return sb.finish()
+}
+
+/// The identifier at the start of `s`.
+string identAt(string s) uses alloc {
+    var i = 0
+    while i < s.length && identByte(s.bytes[i]) { i += 1 }
+    return s[0..i]
+}
+
+/// Whether trimmed line `t` is a function or method header ending a line with `{`: `[public ]<type> <name>[<T>](...)...{`,
+/// whose first word is no statement or declaration keyword.
+bool isHeader(string t) uses alloc {
+    if !t.endsWith(" {") { return false }
+    let s = t.startsWith("public ") ? t[7..] : t
+    let first = identAt(s)
+    for k in ["if", "else", "for", "while", "switch", "return", "let", "var", "const", "defer", "using", "test", "bench",
+              "struct", "union", "enum", "interface", "type", "import", "fail", "try", "catch", "provide", "become"] {
+        if first == k { return false }
+    }
+    let p = s.position("(") ?? -1
+    if p < 1 { return false }
+    let head = s[0..p]
+    if head.contains("=") { return false }
+    var sp = -1
+    for i in 0..head.length {
+        if head.bytes[i] == ' ' { sp = i }
+    }
+    if sp < 1 { return false }
+    var name = head[sp + 1..]
+    let lt = name.position("<") ?? -1
+    if lt > 0 { name = name[0..lt] }
+    return isIdent(name) && isIdent(identAt(head))
+}
+
+/// The mutants of source lines `ls`, kind by kind.
+List<Mutant> mutants(List<string> ls) uses alloc {
+    var found = List<Mutant>()
+
+    // use-after-move (BYN2781, diag/unique-use-after-move): a line holding `move <x>` outside a string literal, with `x` an
+    // identifier followed by the line's end or `)`, `,`, `}`, `]` (not `move T x`, a parameter), the line not a `return`,
+    // `defer`, `=>` or comment line and not ending in `{`, `(`, `,`, `[`; `let _ = <x>` is inserted after it.
+    for i in 0..ls.length {
+        let t = ls[i].trimmed()
+        if t.startsWith("return") || t.startsWith("defer") || t.startsWith("//") || t.startsWith("}") || t.contains("=>") {
+            continue
+        }
+        if t.endsWith("{") || t.endsWith("(") || t.endsWith(",") || t.endsWith("[") { continue }
+        var from = 0
+        while true {
+            let p = t.position("move ", from: from) ?? -1
+            if p < 0 { break }
+            from = p + 5
+            if p > 0 && identByte(t.bytes[p - 1]) { continue }
+            var quotes = 0
+            for q in 0..p {
+                if t.bytes[q] == '"' { quotes += 1 }
+            }
+            if quotes % 2 == 1 { continue }
+            let x = identAt(t[p + 5..])
+            if !isIdent(x) { continue }
+            var e = p + 5 + x.length
+            while e < t.length && t.bytes[e] == ' ' { e += 1 }
+            if e < t.length && t.bytes[e] != ')' && t.bytes[e] != ',' && t.bytes[e] != '}' && t.bytes[e] != ']' { continue }
+            let text = joined(withLine(ls, at: i + 1, by: $"{indentOf(ls[i])}let _ = {x}"))
+            found.append(Mutant { kind: "use-after-move", code: "BYN2781", text: text })
+        }
+    }
+
+    // borrow-escape (BYN3002, diag/ref-out-return-one): a `using let|var <a> = Arena()` line whose enclosing block opens on
+    // a `{`, `if … {`, `for … {` or `while … {` line (the nearest line above it with less indent); `var mutantKept = ""`
+    // is inserted ahead of that line and `mutantKept = "m".copy(to: <a>)` after the arena line, so a string in the arena
+    // is kept by a local that outlives it.
+    for i in 0..ls.length {
+        let t = ls[i].trimmed()
+        if !(t.startsWith("using let ") || t.startsWith("using var ")) || !t.endsWith(" = Arena()") { continue }
+        let a = t[10..t.length - 10]
+        if !isIdent(a) { continue }
+        let ind = indentOf(ls[i]).length
+        var j = i - 1
+        while j >= 0 && (ls[j].trimmed().isEmpty || indentOf(ls[j]).length >= ind) { j -= 1 }
+        if j < 0 { continue }
+        let o = ls[j].trimmed()
+        if !(o == "{" || ((o.startsWith("if ") || o.startsWith("for ") || o.startsWith("while ")) && o.endsWith("{"))) {
+            continue
+        }
+        let kept = withLine(ls, at: i + 1, by: $"{indentOf(ls[i])}mutantKept = \"m\".copy(to: {a})")
+        let text = joined(withLine(kept, at: j, by: $"{indentOf(ls[j])}var mutantKept = \"\""))
+        found.append(Mutant { kind: "borrow-escape", code: "BYN3002", text: text })
+    }
+
+    // write-while-borrowed (BYN3004, diag/mutated-while-borrowed): a `let|var <v> = <x>.span` line gets
+    // `let _ = <x>.removeLast()` and `let _ = <v>.length` after it; a `using var <a> = Arena()` line followed by a
+    // `let|var <n> = ….copy(to: <a>)` line gets `<a>.reset()` and `let _ = <n>` after the first such line.
+    for i in 0..ls.length {
+        let t = ls[i].trimmed()
+        if !(t.startsWith("let ") || t.startsWith("var ")) || !t.endsWith(".span") { continue }
+        let v = identAt(t[4..])
+        if !isIdent(v) || !t[4 + v.length..].startsWith(" = ") { continue }
+        let x = t[7 + v.length..t.length - 5]
+        if !isIdent(x) { continue }
+        let ind = indentOf(ls[i])
+        let text = joined(withLine(ls, at: i + 1, by: $"{ind}let _ = {x}.removeLast()\n{ind}let _ = {v}.length"))
+        found.append(Mutant { kind: "write-while-borrowed", code: "BYN3004", text: text })
+    }
+    for i in 0..ls.length {
+        let t = ls[i].trimmed()
+        if !t.startsWith("using var ") || !t.endsWith(" = Arena()") { continue }
+        let a = t[10..t.length - 10]
+        if !isIdent(a) { continue }
+        for k in i + 1..ls.length {
+            let u = ls[k].trimmed()
+            if !(u.startsWith("let ") || u.startsWith("var ")) || !u.endsWith($".copy(to: {a})") { continue }
+            let n = identAt(u[4..])
+            if !isIdent(n) || !u[4 + n.length..].startsWith(" = ") { continue }
+            let ind = indentOf(ls[k])
+            let text = joined(withLine(ls, at: k + 1, by: $"{ind}{a}.reset()\n{ind}let _ = {n}"))
+            found.append(Mutant { kind: "write-while-borrowed", code: "BYN3004", text: text })
+            break
+        }
+    }
+
+    // effect-outside-uses (BYN6002, diag/effect-not-declared): a function header (isHeader) that declares its effects and
+    // not `console`: `public` without `uses` (pure, spec §14) or a `uses` clause without `console`; `print("mutant")`, a
+    // call of a function that uses `console`, is inserted as the first line of its body. `main` is left out: the entry
+    // function is exempt from BYN6002 (spec §14).
+    for i in 0..ls.length {
+        let t = ls[i].trimmed()
+        if !isHeader(t) || t.contains(" main(") { continue }
+        let at = t.position(") uses ") ?? -1
+        if at < 0 && !t.startsWith("public ") { continue }
+        if at >= 0 && t[at..].contains("console") { continue }
+        let text = joined(withLine(ls, at: i + 1, by: $"{indentOf(ls[i])}    print(\"mutant\")"))
+        found.append(Mutant { kind: "effect-outside-uses", code: "BYN6002", text: text })
+    }
+
+    // untrusted-to-trusted (BYN2202, diag/untrusted-no-implicit; BYN2786, diag/run-untrusted): a one-line
+    // `let|var <x>: Untrusted<T> = …` gets `let mutantTrusted: T = <x>` after it; each `.trustUnchecked() because "…"`
+    // is removed, leaving the `Untrusted` value where the trusted one was (BYN2786 on a line calling `Io.run`).
+    for i in 0..ls.length {
+        let t = ls[i].trimmed()
+        if !(t.startsWith("let ") || t.startsWith("var ")) { continue }
+        let x = identAt(t[4..])
+        let rest = t[4 + x.length..]
+        if !isIdent(x) || !rest.startsWith(": Untrusted<") { continue }
+        var depth = 1
+        var e = 12
+        while e < rest.length && depth > 0 {
+            if rest.bytes[e] == '<' { depth += 1 }
+            if rest.bytes[e] == '>' { depth -= 1 }
+            e += 1
+        }
+        if depth > 0 || !rest[e..].startsWith(" = ") { continue }
+        let text = joined(withLine(ls, at: i + 1, by: $"{indentOf(ls[i])}let mutantTrusted: {rest[12..e - 1]} = {x}"))
+        found.append(Mutant { kind: "untrusted-to-trusted", code: "BYN2202", text: text })
+    }
+    for i in 0..ls.length {
+        var from = 0
+        while true {
+            let line = ls[i]
+            let p = line.position(".trustUnchecked() because \"", from: from) ?? -1
+            if p < 0 { break }
+            from = p + 1
+            let q = line.position("\"", from: p + 27) ?? -1
+            if q < 0 { break }
+            var edited = List<string>()
+            for k in 0..ls.length { edited.append(k == i ? $"{line[0..p]}{line[q + 1..]}" : $"{ls[k]}") }
+            let code = line.contains("Io.run") ? "BYN2786" : "BYN2202"
+            found.append(Mutant { kind: "untrusted-to-trusted", code: code, text: joined(edited) })
+        }
+    }
+    return found
+}
+
+/// The case stem of `source`: its file name without `.byn`, or its directory's name for a `main.byn`.
+string stem(string source) uses alloc {
+    let base = Path.fileName(source)
+    let s = base.endsWith(".byn") ? base[0..base.length - 4] : base
+    if s != "main" { return $"{s}" }
+    let dir = Path.directoryName(source) ?? ""
+    return dir.isEmpty ? $"{s}" : Path.fileName(dir)
+}
+
+i32 main(ReadOnlySpan<string> argv) uses fs, console, alloc {
+    if argv.length != 2 {
+        print("usage: safety-mutate <source.byn> <out dir>", to: .stderr)
+        return 2
+    }
+    let text = Io.readText(argv[0]) catch {
+        print($"safety-mutate: cannot read {argv[0]}", to: .stderr)
+        return 1
+    }
+    Io.createDirectory(argv[1]) catch {
+        print($"safety-mutate: cannot create {argv[1]}", to: .stderr)
+        return 1
+    }
+    let name = stem(argv[0])
+    var kind = ""
+    var n = 0
+    for m in mutants(lines(text)) {
+        if m.kind != kind {
+            kind = m.kind
+            n = 0
+        }
+        n += 1
+        let path = Path.combine(argv[1], $"{name}.{m.kind}.{n}.byn")
+        Io.writeFile(path, $"// expect: {m.code}\n{m.text}".bytes) catch {
+            print($"safety-mutate: cannot write {path}", to: .stderr)
+            return 1
+        }
+        print($"{m.kind}\t{path}\t{m.code}")
+    }
+    return 0
+}
