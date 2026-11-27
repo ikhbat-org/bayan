@@ -3,7 +3,7 @@ nav: Guides
 order: 30
 template: docs
 ---
-<p>Bayan has no garbage collector. You decide where memory comes from, and the compiler checks who owns it and how long a borrow can live. This guide covers where values live, allocators, moves, copies, borrows and cleanup.</p>
+<p>Bayan has no garbage collector: you decide where memory comes from, and the compiler checks who owns it and how long a borrow lives.</p>
 
 <h2 id="where">Where values live</h2>
 <table>
@@ -13,44 +13,52 @@ template: docs
 <tr><td>Heap</td><td><code>Owned&lt;T&gt;</code> through an allocator</td><td>When the owner is disposed</td></tr>
 <tr><td>Static</td><td>Literals, <code>const</code></td><td>Never</td></tr>
 </table>
-<p>Data is made of structs, which are values. There are no classes and no inheritance. A <code>string</code> is an immutable view of UTF-8 bytes: a literal lives in static data, and other strings borrow from, or own, their bytes.</p>
+<p>Data is made of structs, which are values; there are no classes or inheritance. A <code>string</code> is an immutable UTF-8 view: a literal lives in static data, others borrow or own their bytes.</p>
 
 <h2 id="allocators">Allocators</h2>
-<p>Today the compiler runs one allocator type, <code>Arena</code>. Collections such as <code>List</code>, <code>Map</code> and <code>StrBuf</code> take their memory from <code>context.allocator</code>.</p>
-<p><strong>Planned.</strong> The specification also lists <code>Pool&lt;T&gt;</code>, <code>FixedBuffer</code>, <code>General</code> and <code>Page</code>, and none of them is in the compiler yet. <code>General</code> is specified to detect leaks, double frees and use after free in debug mode. The specification also sets a default allocator per entry point: <code>General</code> for <code>main</code>, a per-request <code>Arena</code> with a 16 MiB cap for an HTTP request, an <code>Arena</code> that is never freed for a script, and <code>General</code> with leak checking for a test. These defaults are planned, and HTTP is a later version.</p>
-<p>A function that allocates declares <code>uses alloc</code> if it is public. See <a href="features.html#effects">Effects</a>.</p>
-<p><code>provide allocator: arena { … }</code> sets the allocator for a block, including for the functions it calls, without passing it as an argument. <code>using var arena = Arena()</code> creates one for the current scope. <code>xs.copy(to: arena)</code> copies into a given allocator, and <code>arena.reset()</code> frees everything in it at once.</p>
+<p>The compiler has one allocator type, <code>Arena</code>. Collections such as <code>List</code>, <code>Map</code> and <code>StrBuf</code> take memory from <code>context.allocator</code>.</p>
+<p><strong>Planned.</strong> The specification also lists <code>FixedBuffer</code>, <code>General</code> and <code>Page</code>, none in the compiler. <code>General</code> would detect leaks, double frees and use after free in debug mode. The planned default per entry point:</p>
+<table>
+<tr><th>Entry point</th><th>Default allocator</th></tr>
+<tr><td><code>main</code></td><td><code>General</code></td></tr>
+<tr><td>HTTP request</td><td>A per-request <code>Arena</code>, capped at 16 MiB</td></tr>
+<tr><td>Script</td><td>An <code>Arena</code> that is never freed</td></tr>
+<tr><td>Test</td><td><code>General</code>, with leak checking</td></tr>
+</table>
+<p>HTTP is a later version.</p>
+<p>A public function that allocates declares <code>uses alloc</code>; see <a href="features.html#effects">Effects</a>.</p>
+<p><code>provide allocator: arena { … }</code> sets the allocator for a block and the functions it calls, without an argument. <code>using var arena = Arena()</code> creates one for the current scope; <code>xs.copy(to: arena)</code> copies into it, and <code>arena.reset()</code> frees everything at once.</p>
 <example name="memory-arena"/>
-<p>Everything allocated inside the <code>provide</code> block comes from the arena. The <code>List</code> after the block uses the default allocator.</p>
+<p>Inside the block everything comes from the arena; the <code>List</code> after it uses the default allocator.</p>
 
 <h2 id="ownership">Ownership and move</h2>
-<p>A type that owns a resource is <code>unique</code>: it cannot be copied, only moved. Every allocator-backed collection is <code>unique</code>. So is a struct that has a <code>unique</code> field. You can also mark a struct yourself: <code>struct unique File</code>. A <code>unique</code> value is cleaned up exactly once, when its single owner goes away.</p>
-<p><code>move</code> hands a value to a new owner. Using the old name after that is a compile error. A parameter that takes ownership is declared <code>move xs</code>, and the call writes <code>move d</code>.</p>
+<p>A type that owns a resource is <code>unique</code>: it cannot be copied, only moved. Every allocator-backed collection is <code>unique</code>, as is a struct with a <code>unique</code> field or one marked <code>struct unique File</code>. A <code>unique</code> value is cleaned up exactly once, when its single owner goes away.</p>
+<p><code>move</code> hands a value to a new owner; using the old name is then a compile error. An ownership-taking parameter is declared <code>move xs</code>, and the call writes <code>move d</code>.</p>
 <example name="memory-move"/>
-<p>Only a local or a <code>move</code> parameter can be moved from. Moving out of a field or an element is an error, because it would leave a half-moved value. <code>x.take()</code> moves a value out of a place that can be written and leaves an empty one behind. It exists on <code>List</code>, <code>Map</code> and <code>StrBuf</code>.</p>
-<p>An implicit copy of a <code>unique</code> value is error BYN2780. The fixes it offers are <code>move x</code>, <code>x.copy(to: alloc)</code> or passing it by <code>ref</code>. Debug builds also check ownership at run time: a second owner, or a read through a moved-from local, panics with both source locations.</p>
+<p>Only a local or a <code>move</code> parameter can be moved from; moving out of a field or element would leave a half-moved value and is an error. <code>x.take()</code> moves a value out of a writable place, leaving an empty one, on <code>List</code>, <code>Map</code> and <code>StrBuf</code>.</p>
+<p>An implicit copy of a <code>unique</code> value is error BYN2780, fixed by <code>move x</code>, <code>x.copy(to: alloc)</code> or <code>ref</code>. Debug builds also check ownership at run time: a second owner, or a read through a moved-from local, panics with both source locations.</p>
 
 <h2 id="copy">Copying and reading without owning</h2>
-<p>A copy is something you write: <code>xs.copy()</code> allocates from <code>context.allocator</code>, and <code>xs.copy(to: arena)</code> from the allocator you name. To read a collection without owning it, pass it as a <code>ReadOnlySpan&lt;T&gt;</code>, as a plain parameter, or by <code>ref</code> when you need to change it.</p>
+<p>Copies are explicit: <code>xs.copy()</code> allocates from <code>context.allocator</code>, <code>xs.copy(to: arena)</code> from the named allocator. To read a collection without owning it, pass a <code>ReadOnlySpan&lt;T&gt;</code>, a plain parameter, or <code>ref</code> to change it.</p>
 <example name="memory-copy"/>
 
 <h2 id="borrows">Borrows and regions</h2>
-<p>A borrow is a <code>ref</code>, a <code>Span&lt;T&gt;</code>, a slice of a string, or a struct that holds one. Every scope that frees memory is a region, and a borrow carries the region of what it points into. The compiler infers this, so you do not write lifetimes in the common case. The rules:</p>
+<p>A borrow is a <code>ref</code>, a <code>Span&lt;T&gt;</code>, a string slice or a struct holding one. Each scope that frees memory is a region; a borrow carries its region, which the compiler infers, so you rarely write lifetimes. The rules:</p>
 <ul>
-<li>A borrow cannot be stored anywhere that outlives its region. The fix is <code>.copy()</code> or <code>.copy(to: alloc)</code>.</li>
-<li>While a borrow into a value is alive, you cannot change the value's structure, for example by appending to a list you are looping over. Loans are tracked per local variable, not per field.</li>
+<li>A borrow cannot outlive its region; the fix is <code>.copy()</code> or <code>.copy(to: alloc)</code>.</li>
+<li>While a borrow into a value is alive, you cannot change its structure, such as appending to a list you are looping over; loans are tracked per local, not per field.</li>
 <li>Passing <code>x</code> and <code>ref x</code> in one call is an error.</li>
-<li>A returned borrow comes from all the borrowed arguments, unless the signature narrows it, with a <code>borrows</code> clause (planned): <code>string head(string s, at string sep) borrows s</code>.</li>
+<li>A returned borrow comes from all borrowed arguments unless a <code>borrows</code> clause narrows it (planned): <code>string head(string s, at string sep) borrows s</code>.</li>
 <li>Literals and <code>const</code> data are static and can go anywhere.</li>
-<li>A struct that holds a mutable reference, such as a <code>Span&lt;T&gt;</code>, is itself <code>unique</code>, so two mutable aliases cannot exist.</li>
+<li>A struct holding a mutable reference such as a <code>Span&lt;T&gt;</code> is itself <code>unique</code>, so two mutable aliases cannot exist.</li>
 </ul>
 <pre><code class="byn">for line in cart.lines {
     cart.add(line)      // error: `cart.lines` is borrowed by the loop
 }</code></pre>
-<p>Bounds checks apply in every build mode. Raw pointers and pointer arithmetic need an <code>unsafe because "…"</code> block, and region checks do not apply inside it. The <code>unsafe</code> block is planned.</p>
+<p>Bounds checks apply in every build mode. Raw pointers and pointer arithmetic need an <code>unsafe because "…"</code> block (planned), where region checks do not apply.</p>
 
 <h2 id="defer">Cleanup with defer</h2>
-<p><code>defer</code> runs a statement when the scope ends, however it ends, in reverse order of registration. It is the way to release anything that is not owned by a <code>unique</code> value, such as a shared arena.</p>
+<p><code>defer</code> runs a statement when the scope ends, however it ends, in reverse order of registration: the way to release anything not owned by a <code>unique</code> value, such as a shared arena.</p>
 <pre><code class="byn">void render() {
     using var arena = Arena()
     defer arena.reset()
@@ -58,13 +66,13 @@ template: docs
         …
     }
 }</code></pre>
-<p><code>defer failing</code> runs only when the function fails, and <code>defer panicking</code> only during a panic. After a panic, plain <code>defer</code> does not run, because a panic aborts without unwinding. See <a href="errors.html#cleanup">Errors</a>.</p>
+<p><code>defer failing</code> runs only when the function fails, <code>defer panicking</code> only during a panic; after a panic, plain <code>defer</code> does not run, because a panic aborts without unwinding. See <a href="errors.html#cleanup">Errors</a>.</p>
 
 <h2 id="uninit">Uninitialized memory</h2>
-<p><code>stackalloc i64[4]</code> reserves a fixed-size array on the stack. The specification adds <code>stackalloc T[n] uninit</code>, a buffer that cannot be read before it is written, and <code>stackalloc u8[n] max 4KiB</code> for a size known only at run time. Those two forms are planned.</p>
+<p><code>stackalloc i64[4]</code> reserves a fixed-size stack array. The specification adds <code>stackalloc T[n] uninit</code>, a buffer unreadable before written, and <code>stackalloc u8[n] max 4KiB</code> for a run-time size; both are planned.</p>
 
 <h2 id="later">Planned</h2>
 <ul>
-<li><code>Pool&lt;T&gt;</code> with <code>Handle&lt;T&gt;</code>, a generation-checked index that detects stale handles. The specification adds it only when a program shows a need. Typed indices cover trees and graphs first.</li>
-<li>A garbage collector. If it is added, it is an allocator and a <code>Gc&lt;T&gt;</code> handle that a package opts into, never a language mode. <code>Gc</code> and <code>gc</code> are reserved words now.</li>
+<li><code>Pool&lt;T&gt;</code> with <code>Handle&lt;T&gt;</code>, a generation-checked index that detects stale handles, added when a program shows a need; typed indices cover trees and graphs first.</li>
+<li>A garbage collector: if added, an allocator plus a <code>Gc&lt;T&gt;</code> handle a package opts into, never a language mode. <code>Gc</code> and <code>gc</code> are reserved words now.</li>
 </ul>
