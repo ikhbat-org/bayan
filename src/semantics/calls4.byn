@@ -619,6 +619,53 @@ bool t39CheckFieldWrite(ref Binder b, through ref Ctx c, for BExpr target, at Te
     return false
 }
 
+/// Whether `t39CheckFieldWrite` allows writing `target`, without reporting diagnostics or marking `written`.
+bool t39CanWriteField(ref Binder b, through ref Ctx c, for BExpr target) {
+    return true if boundKind(target) != .field
+    let field = c.bFields[boundIndex(target)].field
+    let owner = c.fields[field].owner
+    let ownerDecl = c.structs[owner].template != -1 ? c.structs[owner].template : owner
+    var own = false
+    if b.owner != -1 {
+        let s = b.owner
+        own = s == owner || (c.structs[s].template != -1 ? c.structs[s].template : s) == ownerDecl
+    }
+    if !own {
+        return t39Invariant(ref c, for: ownerDecl) is null
+    }
+    return (b.fn != -1 && c.functions[b.fn].kind == .constructor) || !c.checksOf.contains(ownerDecl)
+}
+
+/// Walks through a `ReadOnlySpan` slice chain to report BYN3216 / BYN3208 when the slice's underlying place is a
+/// field protected by `requires`, states or `@sealed`. Returns true if no protected field blocked the write.
+bool t39CheckSliceFieldWrite(ref Binder b, through ref Ctx c, for BExpr e, at TextSpan span) {
+    let i = boundIndex(e)
+    switch boundKind(e) {
+        case .slice:
+            let sliced = c.bSlices[i].target
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: sliced, at: span) if boundKind(sliced) == .slice
+            return true if kindOf(exprType(in c, for: sliced)) == .span
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: sliced, at: span)
+        case .field:
+            return false if !t39CheckFieldWrite(ref b, through: ref c, for: e, at: span)
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: c.bFields[i].receiver, at: span)
+        case .tupleElement:
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: c.bTupleElements[i].receiver, at: span)
+        case .index:
+            let indexed = c.bIndexes[i].target
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: indexed, at: span) if boundKind(indexed) == .slice
+            return true if kindOf(exprType(in c, for: indexed)) == .span
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: indexed, at: span)
+        case .builtinCall:
+            let member = c.bBuiltinCalls[i].member
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: c.bBuiltinCalls[i].receiver, at: span) if member is .mapIndexSet
+                or .mapSlot
+            return true
+        default:
+            return true
+    }
+}
+
 /// Why BYN3216 protects `s`'s fields, the first of `requires`, states and `@sealed`; null for plain data.
 string? t39Invariant(ref Ctx c, for StructId s) {
     let file = c.structs[s].file
@@ -815,6 +862,8 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
             let tt = exprType(in c, for: indexed)
             if kindOf(tt) == .span {
                 if c.spanTypes[typeIndex(tt)].readOnly {
+                    return false if boundKind(indexed) == .slice
+                        && !t39CheckSliceFieldWrite(ref b, through: ref c, for: indexed, at: span)
                     report(
                         ref b,
                         through: ref c,
@@ -898,6 +947,7 @@ bool isWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpan s
                 && c.functions[b.fn].kind == .constructor
                 && c.functions[b.fn].owner == c.fields[field].owner
                 && boundKind(receiver) == .thisRef)
+            return false if !t39CanWriteField(ref b, through: ref c, for: target)
             return isWritable(ref b, through: ref c, for: receiver, at: span)
         case .tupleElement:
             return isWritable(ref b, through: ref c, for: c.bTupleElements[i].receiver, at: span)

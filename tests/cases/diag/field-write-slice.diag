@@ -1,0 +1,70 @@
+error BYN3208: fields of `Checked` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  6 │         a[0..1][0] = -1
+    │         ^^^^^^^^^^
+    │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Checked` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  7 │         items[0..1][0] = -1
+    │         ^^^^^^^^^^^^^^
+    │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN2202: expected `Span<i64>`, found `ReadOnlySpan<i64>`
+
+  8 │         writeSpan(a[0..1])
+    │                   ^^^^^^^
+
+error BYN3216: `Checked.a` can be written only by `Checked`'s own methods or with `with`: `Checked`
+has `requires`
+
+  41 │     p.a[0..1][0] = -1
+     │     ^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Checked`, or build a new value with `with`
+
+error BYN3216: `Checked.a` can be written only by `Checked`'s own methods or with `with`: `Checked`
+has `requires`
+
+  42 │     p.a[0..2][0..1][0] = -1
+     │     ^^^^^^^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Checked`, or build a new value with `with`
+
+error BYN3216: `Checked.items` can be written only by `Checked`'s own methods or with `with`:
+`Checked` has `requires`
+
+  43 │     p.items[0..1][0] = -1
+     │     ^^^^^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Checked`, or build a new value with `with`
+
+error BYN2106: cannot modify this value
+
+  45 │     s[0] = -1
+     │     ^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2202: expected `Span<i64>`, found `ReadOnlySpan<i64>`
+
+  46 │     writeSpan(p.a[0..1])
+     │               ^^^^^^^^^
+
+error BYN3216: `Machine.a` can be written only by `Machine`'s own methods or with `with`: `Machine`
+has states
+
+  47 │     m.a[0..1][0] = -1
+     │     ^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Machine`, or build a new value with `with`
+
+error BYN3216: `Sealed.a` can be written only by `Sealed`'s own methods or with `with`: `Sealed` is
+`@sealed`
+
+  48 │     se.a[0..1][0] = -1
+     │     ^^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Sealed`, or build a new value with `with`

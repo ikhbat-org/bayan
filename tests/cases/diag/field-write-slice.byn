@@ -1,0 +1,49 @@
+struct Checked {
+    i64[2] a requires it[0] > 0
+    List<i64> items requires it.length > 0
+
+    void own(ref this) {
+        a[0..1][0] = -1
+        items[0..1][0] = -1
+        writeSpan(a[0..1])
+    }
+}
+
+struct Machine {
+    states {
+        open
+        closed
+    }
+    i64[2] a
+
+    void own(ref this) {
+        a[0..1][0] = 5
+    }
+}
+
+@sealed
+struct Sealed {
+    i64[2] a
+
+    void own(ref this) {
+        a[0..1][0] = 5
+    }
+}
+
+void writeSpan(Span<i64> s) {
+    s[0] = -1
+}
+
+i64 readSpan(ReadOnlySpan<i64> s) => s[0]
+
+void outside(ref Checked p, by ref Machine m, for ref Sealed se) {
+    let _ = readSpan(p.a[0..1])
+    p.a[0..1][0] = -1
+    p.a[0..2][0..1][0] = -1
+    p.items[0..1][0] = -1
+    let s = p.a[0..1]
+    s[0] = -1
+    writeSpan(p.a[0..1])
+    m.a[0..1][0] = -1
+    se.a[0..1][0] = -1
+}
