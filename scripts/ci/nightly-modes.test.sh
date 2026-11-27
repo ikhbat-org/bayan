@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Tests scripts/ci/nightly-modes.sh on a copy of three `run` cases (two programs and a test case), at most 3 cases per mode: the
 # copy passes in every mode; an altered .stdout of the copy fails mutate and coverage naming the case; a stand-in driver that
-# drops `build --coverage` fails coverage on the missing counter file, naming the case; a stand-in driver whose `--emit-c` adds
+# drops `build --coverage` fails coverage on the missing counter file, naming the case; a case expecting exit 137 (SIGKILL) passes
+# coverage with no counter file; a stand-in driver whose `--emit-c` adds
 # `byn_own` fails ownership naming the case; a stand-in driver whose `--emit-c` adds a call to an unlisted function fails libc
 # naming the case; a hanging program and a hanging driver are killed at their limits, failing the case as timed out; libc with no --limit runs the corpus check, which the three cases alone fail; bound runs the golden runner
 # bound block through a stand-in driver over the full tree with a 5 hour timeout and fails on a failed or pending block; an
@@ -49,6 +50,12 @@ chmod +x "$tmp/stand-in"
 [ "$(run "$tmp/stand-in" --mode coverage --only arithmetic)" = fail ] || fail "a coverage build with no counters passed" "$(cat "$tmp/out")"
 grep -qx 'nightly-modes: FAIL coverage run/arithmetic.byn: BAYAN_COVERAGE set: no counter file cov.<pid>' "$tmp/out" \
   || fail "the case with no counter file was not named" "$(cat "$tmp/out")"
+
+# a case that SIGKILLs itself (.exitcode 137) cannot write counters, and coverage passes it
+mkdir -p "$tmp/killed/run"; cp "$root"/tests/cases/run/io-stdin-flush.* "$tmp/killed/run/"
+BAYAN_EXE=$bayan bash "$tmp/repo/scripts/ci/nightly-modes.sh" --cases "$tmp/killed/run" --mode coverage > "$tmp/out" 2>&1 \
+  || fail "a SIGKILLed case failed coverage on its missing counter file" "$(cat "$tmp/out")"
+grep -q '^nightly-modes: coverage 1 ok, 0 failed' "$tmp/out" || fail "the SIGKILLed case was not counted ok" "$(cat "$tmp/out")"
 
 # a stand-in driver: the real one, with `byn_own` added to what `build --emit-c` prints
 printf '#!/usr/bin/env bash\n"%s" "$@"; s=$?\n[ "${1:-} ${2:-}" != "build --emit-c" ] || echo "void byn_own_check(void);"\nexit $s\n' "$bayan" > "$tmp/stand-in"
