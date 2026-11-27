@@ -191,6 +191,8 @@ check zero-resize "hex 0, zero-byte requests 0
 "
 check strbuf-grow "cap 128, taken text unchanged 1, old blocks handed back 0
 "
+check sort-wide "size 104, sorted 1, stable 1, payload intact 1
+"
 
 check io-read-some 'stdout: "reply/#"
 short: err 0 got 3 "hel"
