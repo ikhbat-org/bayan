@@ -2,49 +2,40 @@
 
 Version: 0.4.1 (matches `bayan --version`)
 
-How a version is cut, checked, tagged and published, and where the version and the versioned docs live.
+How a version is cut, checked, tagged, published; where the version and its docs live.
 
 ## Where the version lives
 
-`VERSION` at the repo root is the source: `X.Y.Z` on a release commit, `X.Y.Z-dev` between releases. It is mirrored in
-(`bayan_mirrors` in `scripts/release/version.sh`):
+`VERSION` at the root is the source: `X.Y.Z` on a release commit, `X.Y.Z-dev` between releases. Its mirrors (`bayan_mirrors`, `scripts/release/version.sh`) are:
 
 - `src/driver/main.byn`: `version`, what `bayan --version` prints;
-- `tests/cases/out/dist.tree`: the `"compiler": "bayan …"` lines of the `bayan dist` golden;
-- `README.md`: the `dist/<target>/<version>/bayan` path in the build example.
+- `tests/cases/out/dist.tree`: the `bayan dist` golden's `"compiler"` lines;
+- `README.md`: the build example's `dist/<target>/<version>/bayan` path.
 
-`bootstrap/bayan.c` is generated from `src/` by `scripts/selfhost/land.sh`; regenerate it after the version
-changes, never edit it.
+`bootstrap/bayan.c` is generated from `src/` by `scripts/selfhost/land.sh`; regenerate after a version change, never edit it.
 
-The versioned docs carry a header in their first lines (`bayan_header_docs`): `docs/bayan-spec.md`,
-`docs/bayan-grammar.md`, `docs/bayan-style.md`, `docs/DIAGNOSTICS.md` and `docs/STATUS.md`.
+The versioned docs (`bayan_header_docs`: `docs/bayan-spec.md`, `docs/bayan-grammar.md`, `docs/bayan-style.md`, `docs/DIAGNOSTICS.md`, `docs/STATUS.md`) open with:
 
 ```text
 Version: X.Y.Z (matches `bayan --version`)
 Revisions applied: 0001–0023
 ```
 
-`Revisions applied` names the highest `docs/revisions/NNNN-*.md`; the range covers every revision from 0001.
+`Revisions applied` names the highest `docs/revisions/NNNN-*.md`; the range covers 0001 to it.
 
-Each doc under `docs/` is one of three kinds (`docs/decisions/2026-11-14-003-versioned-docs-and-provenance.md`):
+`docs/` has three doc kinds (`docs/decisions/2026-11-14-003-versioned-docs-and-provenance.md`), headers in the first ten lines:
 
-- **Release docs** (`bayan_release_docs`: the header docs, this file and the other maintained docs) carry the
-  `Version:` line in their first ten lines.
-- **Record docs** (specs, plans, decisions, revisions, audits, the progress log, the proposals) carry `Status:`,
-  `Release:` and `Sources:` lines in their first ten lines; the laws carry `release:` and `sources:` keys in their
-  frontmatter. `Release:` is a released version, the version being built, or `unscheduled`.
-- **Snapshot docs** (`docs/export/`, `docs/misc/`, the design rounds, the Sūq reports and other dated notes) carry
-  `Snapshot: <date>; not maintained. Current text: <path|none>`.
+| Kind | Docs | Header |
+|---|---|---|
+| Release | `bayan_release_docs`: header docs, this file, other maintained docs | `Version:` |
+| Record | specs, plans, decisions, revisions, audits, progress log, proposals; laws as `release:`/`sources:` keys | `Status:`, `Release:`, `Sources:`; `Release:` is released, being built or `unscheduled` |
+| Snapshot | `docs/export/`, `docs/misc/`, the design rounds, the Sūq reports and other dated notes | `Snapshot: <date>; not maintained. Current text: <path|none>` |
 
-`bash scripts/release/set-version.sh <version>` writes `VERSION`, every mirror and the `Version:` line of every release
-doc, and prints each file it changed.
+`bash scripts/release/set-version.sh <version>` writes `VERSION`, every mirror and release doc header, and prints each changed file.
 
 ## Generated docs
 
-`docs/DIAGNOSTICS.md`, the keyword and stdlib rows of `docs/STATUS.md` and the spec index `docs/specs/README.md` are
-generated. Regenerate them after changing
-`DiagnosticCodes.cs`, a diagnostic page, `Keywords.cs`, `TokenKind.cs`, `BuiltinMembers.cs`, the header of a spec or the
-version:
+`docs/DIAGNOSTICS.md`, the keyword and stdlib rows of `docs/STATUS.md` and the spec index `docs/specs/README.md` are generated. Regenerate after changing `DiagnosticCodes.cs`, a diagnostic page, `Keywords.cs`, `TokenKind.cs`, `BuiltinMembers.cs`, a spec header or the version:
 
 ```sh
 bash scripts/docs/gen-diagnostics.sh --write   # docs/DIAGNOSTICS.md
@@ -52,106 +43,63 @@ bash scripts/docs/gen-status.sh --write        # docs/STATUS.md, between the <!-
 bash scripts/docs/gen-spec-index.sh --write    # docs/specs/README.md
 ```
 
-Without `--write` each prints to stdout. Output is sorted and has no dates. All three generated docs are release docs: each
-generator writes the `Version:` and `Revisions applied:` header itself, from `VERSION` and the highest revision.
+Each generator writes that header from `VERSION` and the highest revision; without `--write` it prints to stdout, sorted, undated.
 
-- `gen-diagnostics.sh` reads the diagnostic tables of `src/`, and `scripts/docs/data/csharp-facts.tsv` for what they do not
-  give (read once from the retired C# `DiagnosticCodes.cs`: the `// BYNnnnn is retired|reserved` comments and the
-  `// Reserved: round 4` block). It also checks which `docs/diagnostics/BYNnnnn.md`
-  pages exist. Codes with no machine-readable source are in the hand-kept `docs/diagnostics-allocated.txt`, and the
-  generator reads that file too. The file lists plan codes (allocated in a plan, spec or revision, with no descriptor
-  yet), reservations with no descriptor, and retirements recorded only in a code's page. It holds one code per line:
-  `plan|reserved|retired BYNnnnn Name-or-- note`. Edit it when such a code is allocated, reserved or retired, then
-  regenerate.
-- `gen-status.sh` reads the `kw` and `mem` rows of `scripts/docs/data/csharp-facts.tsv` for keywords and stdlib members
-  (extracted once from the retired C# `Keywords.cs`, `TokenKind.cs` and `BuiltinMembers.cs`).
-- `gen-spec-index.sh` reads the title and the `Status:`, `Release:` and `Sources:` header lines of each
-  `docs/specs/NNN-*/NNN-spec.md`, and which plan, tasks and api files sit beside it. It fails on a Status that starts
-  with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
+<!-- prose-check: off -->
+- `gen-diagnostics.sh` reads the diagnostic tables of `src/`, `scripts/docs/data/csharp-facts.tsv` (read once from the retired C# `DiagnosticCodes.cs`: its `// BYNnnnn is retired|reserved` comments and `// Reserved: round 4` block) and the hand-kept `docs/diagnostics-allocated.txt` (`plan|reserved|retired BYNnnnn Name-or-- note` per line: plan codes with no descriptor, reservations with none, retirements only in a page), and which `docs/diagnostics/BYNnnnn.md` pages exist. Edit it on a new allocation, reservation or retirement, then regenerate.
+<!-- prose-check: on -->
+<!-- prose-check: off -->
+- `gen-status.sh` reads the `kw` and `mem` rows of `scripts/docs/data/csharp-facts.tsv` for keywords and stdlib members (extracted once from the retired C# `Keywords.cs`, `TokenKind.cs` and `BuiltinMembers.cs`).
+<!-- prose-check: on -->
+- `gen-spec-index.sh` reads each `docs/specs/NNN-*/NNN-spec.md` title and header lines, plus any plan, tasks and api files beside it. It fails on a Status that starts with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
 
-The feature, pattern, effect and unbuilt-keyword tables of `docs/STATUS.md` are hand-kept. Change a row's status
-cell when that feature's status changes; `cut.sh` lists those changes in the CHANGELOG.
+The feature, pattern, effect and unbuilt-keyword tables of `docs/STATUS.md` are hand-kept: change a status cell with the feature's status; `cut.sh` lists those in the CHANGELOG.
 
 ## What CI checks
 
-The Linux job of `.github/workflows/ci.yml` (step "Docs and release script tests") runs `set-version.test.sh`,
-`cut.test.sh`, `scripts/docs/*.test.sh` and `bash scripts/docs/check.sh`; `package.test.sh` runs in step "Script
-tests" on Linux and macOS. `check.sh` prints one line per failure and fails when:
+The Linux job of `.github/workflows/ci.yml` (step "Docs and release script tests") runs `set-version.test.sh`, `cut.test.sh`, `scripts/docs/*.test.sh` and `bash scripts/docs/check.sh`; `package.test.sh` runs in step "Script tests" on Linux and macOS. `check.sh` prints one line per failure; among its checks, it fails when:
 
-- (a) a release doc's `Version:` line is not `Version: <VERSION> (matches \`bayan --version\`)`;
-- (b) the revision files do not run 0001 to the highest with no gap or repeat, or a `Revisions applied:` line does
-  not name the highest;
-- (c) `docs/DIAGNOSTICS.md`, `docs/STATUS.md` or `docs/specs/README.md` differs from what its generator prints;
+- (a) a release doc's `Version:` is not `Version: <VERSION> (matches \`bayan --version\`)`;
+- (b) revisions do not run 0001 to the highest without gaps or repeats, or `Revisions applied:` is not the highest;
+- (c) `docs/DIAGNOSTICS.md`, `docs/STATUS.md` or `docs/specs/README.md` differs from its generator;
 - (d) a mirror's version differs from `VERSION`;
-- (e) SPEC, GRAMMAR or STYLE has a `(not in A.B` or `(partial in A.B` status tag whose `A.B` is not the major.minor
-  of `VERSION` (`-dev` stripped);
-- (h) a record doc lacks its `Status:`, `Release:` or `Sources:` line (a law, its `status:`, `release:` or `sources:`
-  key), or its release is not a `## [X.Y.Z]` version of `CHANGELOG.md`, the `VERSION` target or `unscheduled`; or a
-  snapshot doc lacks its `Snapshot:` line;
-- (i) a `docs/revisions/NNNN-*.md` file is not cited in `docs/bayan-feature-history.md`, or a numbered section of the
-  spec has no `### §N.` row there (`scripts/docs/check-history.sh`).
+- (e) SPEC, GRAMMAR or STYLE has a `(not in A.B`/`(partial in A.B` tag whose `A.B` is not `VERSION`'s major.minor (`-dev` stripped);
+- (h) a record doc lacks `Status:`, `Release:` or `Sources:`, or its release is not a `## [X.Y.Z]` CHANGELOG version, `VERSION` or `unscheduled`; or a snapshot doc lacks `Snapshot:`;
+- (i) a revision is not cited in `docs/bayan-feature-history.md`, or a numbered spec section has no `### §N.` row there (`scripts/docs/check-history.sh`).
 
-So a new revision, a new diagnostic or a version change lands with its headers and generated docs in the same
-commit.
+So each change lands with headers and generated docs.
 
 ## Cutting a release
 
-Run it from `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
+From `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
-1. **Cut.** First update `docs/bayan-roadmap.md` (the states, the order, the `State of `dev` at <sha>, <date>.` line);
-   `cut.sh` refuses a roadmap dated before the previous release. Then run `bash scripts/release/cut.sh X.Y.Z`. It:
-   - sets `VERSION`, the mirrors and the headers to `X.Y.Z`, with `Revisions applied` at the highest revision;
+1. **Cut.** Update `docs/bayan-roadmap.md` first (states, order, the `State of `dev` at <sha>, <date>.` line); `cut.sh` refuses a roadmap dated before the previous release. Then `bash scripts/release/cut.sh X.Y.Z`, which:
+   - sets `VERSION`, mirrors and headers to `X.Y.Z`, `Revisions applied` at the highest;
    - regenerates the generated docs;
-   - turns the `## [Unreleased]` body of `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty.
+   - turns `## [Unreleased]` in `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty;
+   - adds `### Revisions` (revision files since the last `v*` tag, the highest `vA.B.C` below `X.Y.Z`, reachable or not) and `### Status changes` (`docs/STATUS.md` rows changed or new since it).
 
-   The new section gets two lists:
-   - `### Revisions`: the revision files added since the previous `v*` tag (the highest `vA.B.C` below `X.Y.Z`, reachable from HEAD
-     or not);
-   - `### Status changes`: the hand-kept `docs/STATUS.md` rows whose status cell changed or that are new since that
-     tag.
-
-   It fails, before it touches the CHANGELOG, when a tracked file still contains the previous `-dev` version
-   (for example `1.2.0-dev`). It prints each file it changed and the new section. It never commits, tags or pushes.
-2. **Regenerate `bootstrap/bayan.c`** with `scripts/selfhost/land.sh`, so the bootstrap compiler reports the new
-   version.
-3. **Review.** Edit the CHANGELOG section (a summary, known limits). Run the tests, `bash scripts/docs/check.sh` and
-   the memory gate (`bash scripts/release/memory-gate.sh`, `docs/memory-leaks.md`).
-4. **Commit** the release as one commit, and merge it to `main`.
-5. **Dry run.** Run the release workflow by hand on that commit (Actions, `release`, Run workflow) with `dry_run:
-   true` and version `X.Y.Z-rc.N`. It runs every job but the draft. The release job refuses a `-rc` tag or a
-   dispatch run (`scripts/release/refuse-draft.sh`), so a dry run never drafts a release.
+   It fails, before touching the CHANGELOG, if a tracked file still contains the previous `-dev` version (such as `1.2.0-dev`); prints each changed file and the new section; never commits, tags or pushes.
+2. **Regenerate `bootstrap/bayan.c`** with `scripts/selfhost/land.sh`, so the bootstrap compiler reports the new version.
+3. **Review.** Edit the CHANGELOG section (a summary, known limits). Run the tests, `bash scripts/docs/check.sh` and the memory gate (`bash scripts/release/memory-gate.sh`, `docs/memory-leaks.md`).
+4. **Commit** the release as one commit and merge it to `main`.
+5. **Dry run.** Run the release workflow by hand on that commit (Actions, `release`, Run workflow) with `dry_run: true`, version `X.Y.Z-rc.N`: every job but the draft. The release job refuses a `-rc` tag or dispatch (`scripts/release/refuse-draft.sh`), so no dry run drafts.
 6. **Tag** that commit `vX.Y.Z` and push the tag.
 7. **The workflow.** The tag starts `.github/workflows/release.yml`:
-   - `package.sh check-tag` refuses a tag that is not `v` + `VERSION`, or a prerelease `VERSION`, and
-     `scripts/docs/check.sh` refuses a `VERSION` its mirrors do not match;
-   - each target builds the NativeAOT compiler, smoke-tests `--version` and packs
-     `bayan-X.Y.Z-<target>.tar.gz` (`.zip` on Windows). The binary, `README.md` and the docs go under
-     `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md` and `CHANGELOG.md`;
-   - the memory gate runs on Linux and macOS, the editor gate (`bayan-lsp` memory tests, the extension packaged under a
-     size bound) on Linux, and the full tier of every enacted law (`laws-nightly.yml`, up to 180 minutes);
-   - once spec 019 adds the R27 job (diverse double-compiling), a red R27 run means fix the job's environment (the SDK download,
-     the runner image) and re-run it; it does not mean the release is broken (decided 2026-11-17);
-   - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the same six docs, and every other release doc under its path
-     below `docs/`, among them `specs/README.md` and `bayan-feature-history.md`, under `bayan-X.Y.Z-docs/share/doc/bayan/`)
-     and `SHA256SUMS`, and opens a draft GitHub Release whose notes are the CHANGELOG section. While the major version is 0 the draft
-     is marked a prerelease (`package.sh release-flags`; user, 2026-11-14).
+   - `package.sh check-tag` refuses a tag that is not `v` + `VERSION` or a prerelease; `scripts/docs/check.sh` refuses a `VERSION` its mirrors do not match;
+   - each target builds the self-hosted compiler (stage 1 from `bootstrap/bayan.c`, stage 2 from `src/driver`), smoke-tests `--version` and packs `bayan-X.Y.Z-<target>.tar.gz` (`.zip` on Windows); binary and `README.md` at the root, docs under `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md`, `CHANGELOG.md`;
+   - the memory gate runs on Linux and macOS; the editor gate (`bayan-lsp` memory tests, the extension under a size bound) on Linux; every enacted law's full tier (`laws-nightly.yml`, up to 180 minutes);
+   - a red R27 run (diverse double-compiling) means its environment changed (SDK download, runner image): fix that and re-run; the release is not broken (decided 2026-11-17);
+   - the release job adds `bayan-X.Y.Z-docs.tar.gz` (the six docs plus every other release doc at its `docs/` path, including `specs/README.md` and `bayan-feature-history.md`, under `bayan-X.Y.Z-docs/share/doc/bayan/`) and `SHA256SUMS`, and opens a draft GitHub Release with the CHANGELOG section as notes; while the major version is 0 it is a prerelease (`package.sh release-flags`; user, 2026-11-14).
 
    Publishing the draft is a manual step.
-8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome; `CHROME` names it; `BAYAN` names the compiler that runs the book's examples, default the CLI
-   built from `HEAD` by `scripts/pinned-bayan.sh`) and attach `dist/bayan-manifesto-X.Y.Z.pdf`
-   and `dist/bayan-book-X.Y.Z.pdf` to the GitHub release.
-9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors
-   and the headers to `-dev` and regenerates the generated docs. Regenerate `bootstrap/bayan.c` and commit all of it
-   as one commit on `dev`.
+8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome, named by `CHROME`; `BAYAN` names the compiler running the book's examples, default the `HEAD` CLI of `scripts/pinned-bayan.sh`); attach `dist/bayan-manifesto-X.Y.Z.pdf` and `dist/bayan-book-X.Y.Z.pdf` to the GitHub release.
+9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors and headers to `-dev`, regenerates the generated docs and `bootstrap/bayan.c`, and commits all of it as one commit on `dev`.
 
 ## Known limits
 
-Until the per-phase arenas are finished (Q31), the stage-2 build of `src/driver` peaks at 1.69 GB of memory
-(macOS, 2026-11-14; 2.94 GB on 2026-11-12). `scripts/release/package.sh notes` prints that line after the CHANGELOG section, so every release's notes
-carry it.
+Until the per-phase arenas finish (Q31), the stage-2 build of `src/driver` peaks at 1.69 GB (macOS, 2026-11-14; 2.94 GB on 2026-11-12). `scripts/release/package.sh notes` prints that line after the CHANGELOG section, so every release carries it.
 
 ## Archive
 
-Git tags are the archive. The docs of any release are the files at its `vX.Y.Z` tag, and the release's
-`bayan-X.Y.Z-docs.tar.gz`. Past versions are not copied into the repo. `docs/export/` is a dated snapshot
-(821afa40); it is not shipped, and `check.sh` checks only its `Snapshot:` line.
+Git tags are the archive: a release's docs are the files at its `vX.Y.Z` tag and its `bayan-X.Y.Z-docs.tar.gz`; past versions are not in the repo. `docs/export/` is a dated snapshot (821afa40), not shipped; `check.sh` checks only its `Snapshot:` line.
