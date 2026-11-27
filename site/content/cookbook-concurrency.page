@@ -3,20 +3,20 @@ nav: Guides
 order: 57
 template: docs
 ---
-<p>How do I run work concurrently in Bayan? The design uses structured concurrency with <code>scope</code> blocks and <code>spawn</code> (Revision 0019, replacing earlier <code>async</code>/<code>await</code> drafts). The compiler does not run it yet. Every section below is Planned, and none has a runnable example. Nothing here compiles yet.</p>
-<note>The concurrency design is not implemented yet. <code>spawn</code> is legal only inside a <code>scope</code> block, and functions are ordinary functions without special declaration keywords.</note>
+<p>The design uses structured concurrency: <code>scope</code> blocks and <code>spawn</code> (Revision 0019, replacing earlier <code>async</code>/<code>await</code> drafts). The compiler does not run it: every section is Planned, none runnable, and nothing compiles yet.</p>
+<note>Functions are ordinary functions without special declaration keywords.</note>
 
 <h2 id="spawn">Start a task</h2>
-<p><strong>Planned.</strong> <code>spawn</code> starts a child task inside a <code>scope</code> block. <code>spawn</code> is valid only inside a <code>scope</code>. The scope waits for every child before it exits, so no task outlives its enclosing scope. Children are canceled only on the first failure, on a <code>timeout:</code> or <code>until:</code> deadline, or by a cancel from outside the scope.</p>
+<p><strong>Planned.</strong> <code>spawn</code> starts a child task inside a <code>scope</code> block and is valid nowhere else. The scope waits for every child, so no task outlives it. Children are canceled only on the first failure, on a <code>timeout:</code> or <code>until:</code> deadline, or by an outside cancel.</p>
 <pre><code class="byn">scope {
     let task = spawn prepareIftar("Aisha")
     let meal = try task.join()
 }</code></pre>
 <pre><code class="other" data-lang="Go">go prepareIftar("Aisha")</code></pre>
-<p>A function that can suspend must say so in its effects (<code>uses suspend</code>), and the compiler reports a suspension point in a function that does not.</p>
+<p>A function that can suspend must declare <code>uses suspend</code>; the compiler reports a suspension point in a function that does not.</p>
 
 <h2 id="wait">Wait for tasks to finish</h2>
-<p><strong>Planned.</strong> Calling <code>join()</code> on a task handle waits for its result. When a child task fails, the first failure cancels sibling tasks and propagates from the scope. If you do not call <code>join()</code>, the enclosing <code>scope</code> waits for every child before exiting. A scope can set a deadline with <code>scope(timeout:)</code> or cap concurrency with <code>scope(limit:)</code>.</p>
+<p><strong>Planned.</strong> <code>join()</code> on a task handle waits for its result. The first child failure cancels siblings and propagates from the scope; without <code>join()</code>, the scope still waits for every child. A scope can set a deadline with <code>scope(timeout:)</code> or cap concurrency with <code>scope(limit:)</code>.</p>
 <pre><code class="byn">scope(timeout: 5s) {
     let prayer = spawn checkPrayerTimes("Bilal")
     let iftar = spawn prepareIftar("Khadija")
@@ -25,7 +25,7 @@ template: docs
 }</code></pre>
 
 <h2 id="channels">Send messages between tasks</h2>
-<p><strong>Planned.</strong> Channels send messages between tasks without shared mutable memory. Opening a channel returns a sender and receiver pair:</p>
+<p><strong>Planned.</strong> Channels pass messages between tasks without shared mutable memory. Opening one returns a sender and receiver:</p>
 <pre><code class="byn">let (sender, inbox) = Channel<String>.open(capacity: 64)
 scope {
     spawn deliverReminders(from: inbox)
@@ -33,11 +33,11 @@ scope {
 }</code></pre>
 
 <h2 id="mutex">Share state with a lock</h2>
-<p><strong>Planned.</strong> Shared mutable state uses <code>Mutex&lt;T&gt;</code>, <code>AsyncMutex&lt;T&gt;</code>, atomics, or channels. Calling <code>lock()</code> on a <code>Mutex</code> returns a guard. The lock is released when the guard goes out of scope, or early with <code>guard.unlock()</code>. Holding a <code>Mutex</code> guard across a suspend point is a compile error. For locks held across suspend points, use <code>AsyncMutex&lt;T&gt;</code>.</p>
+<p><strong>Planned.</strong> Shared mutable state uses <code>Mutex&lt;T&gt;</code>, <code>AsyncMutex&lt;T&gt;</code>, atomics or channels. <code>lock()</code> returns a guard; the lock releases when the guard leaves scope, or with <code>guard.unlock()</code>. Holding a <code>Mutex</code> guard across a suspend point is a compile error; use <code>AsyncMutex&lt;T&gt;</code> for those.</p>
 <pre><code class="byn">let schedule = prayerSchedule.lock()
 schedule.update("Umar", fajrTime)
 schedule.unlock()</code></pre>
 <pre><code class="other" data-lang="Go">mu.Lock()
 counter++
 mu.Unlock()</code></pre>
-<p>Read-only borrows can be shared by child tasks without a lock. A <code>ref</code> borrow belongs to one child task at a time.</p>
+<p>Child tasks share read-only borrows without a lock; a <code>ref</code> borrow belongs to one child task at a time.</p>
