@@ -6,7 +6,7 @@ template: docs
 <p>Tests are part of the language: a <code>test</code> block, an <code>assert</code> statement, and <code>bayan test</code>.</p>
 
 <h2 id="unit-tests">Write and run unit tests</h2>
-<p><strong>Runnable.</strong> A <code>test "name" { … }</code> block sits in the same file or a sibling <code>x.test.byn</code>. <code>assert</code> is a statement, not a function; a failure prints the value of every sub-expression. There is no assertion library; plain expressions cover it. <code>assert f() fails E.case</code> checks the error without a <code>catch</code> and a <code>panic</code>. <code>@cases(…)</code> turns one test into a table: each row runs and is reported separately. Failing functions are errors as values, so tests call them with <code>try</code>. <code>bayan run</code> ignores tests; <code>bayan test</code> runs them.</p>
+<p><strong>Runnable.</strong> A <code>test "name" { … }</code> block sits in the same file or a sibling <code>x.test.byn</code>. <code>assert</code> is a statement, not a function; a failure prints the value of every sub-expression. There is no assertion library; plain expressions cover it. <code>assert f() fails E.case</code> checks the error without a <code>catch</code> and a <code>panic</code>. <code>@cases(…)</code> turns one test into a table: each row runs and is reported separately. Failing functions are errors as values, so tests call them with <code>try</code>. <code>bayan run</code> ignores tests and runs <code>main</code>; <code>bayan test</code> runs the tests.</p>
 <example name="cookbook-testing-unit"/>
 <p>Running <code>bayan test cookbook-testing-unit.byn</code> prints:</p>
 <pre><code class="other" data-lang="bayan test">running 5 tests in 1 module
