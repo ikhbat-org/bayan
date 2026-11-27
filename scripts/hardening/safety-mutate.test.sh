@@ -31,14 +31,12 @@ E
 one uam use-after-move BYN2781 '    let _ = x'; check "a move of a local gets a read after it" $?
 
 cat >"$tmp/esc.byn" <<'E'
-void main() {
-    {
-        using let arena = Arena()
-    }
+string name(i64 n) {
+    return "a"
 }
 E
-one esc borrow-escape BYN3002 '        mutantKept = "m".copy(to: arena)' && grep -qxF '    var mutantKept = ""' "$tmp/out-esc/esc.borrow-escape.1.byn"
-check "an arena in a block gets a string of it kept outside the block" $?
+one esc borrow-escape BYN3003 '    return mutantSb.finish()' && grep -qxF '    let mutantBuf = stackalloc u8[16]' "$tmp/out-esc/esc.borrow-escape.1.byn"
+check "a function returning string gets a returned borrow of a stackalloc local" $?
 
 cat >"$tmp/wwb.byn" <<'E'
 void main() {
@@ -85,9 +83,12 @@ E
 one untr untrusted-to-trusted BYN2786 '    let _ = try Io.run(u, [])'; check "a trustUnchecked passed to Io.run is removed" $?
 
 # decoys: a moved parameter type, a deferred move, a move in a string, a function-level arena, a span of a field, a
-# function with an inferred or console effect, the entry function, a list of Untrusted
+# function with an inferred or console effect, the entry function, a list of Untrusted, a string? or `=>` function
 cat >"$tmp/none.byn" <<'E'
 T pick<T>(move T a, by move T b) => move a
+string? opt() {
+}
+string label() => "a"
 void consume(List<i64> xs) {
 }
 void h(List<i64> y) uses console {

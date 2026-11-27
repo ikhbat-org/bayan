@@ -128,26 +128,18 @@ List<Mutant> mutants(List<string> ls) uses alloc {
         }
     }
 
-    // borrow-escape (BYN3002, diag/ref-out-return-one): a `using let|var <a> = Arena()` line whose enclosing block opens on
-    // a `{`, `if … {`, `for … {` or `while … {` line (the nearest line above it with less indent); `var mutantKept = ""`
-    // is inserted ahead of that line and `mutantKept = "m".copy(to: <a>)` after the arena line, so a string in the arena
-    // is kept by a local that outlives it.
+    // borrow-escape (BYN3003, diag/borrow-returned): a function header (isHeader) returning `string` (`[public ]string <name>`,
+    // not `string?`); its body gets, as first lines, a `stackalloc` buffer local, a StrBuf on it and
+    // `return mutantSb.finish()`, so the returned value borrows a local freed when the function returns.
     for i in 0..ls.length {
         let t = ls[i].trimmed()
-        if !(t.startsWith("using let ") || t.startsWith("using var ")) || !t.endsWith(" = Arena()") { continue }
-        let a = t[10..t.length - 10]
-        if !isIdent(a) { continue }
-        let ind = indentOf(ls[i]).length
-        var j = i - 1
-        while j >= 0 && (ls[j].trimmed().isEmpty || indentOf(ls[j]).length >= ind) { j -= 1 }
-        if j < 0 { continue }
-        let o = ls[j].trimmed()
-        if !(o == "{" || ((o.startsWith("if ") || o.startsWith("for ") || o.startsWith("while ")) && o.endsWith("{"))) {
-            continue
-        }
-        let kept = withLine(ls, at: i + 1, by: $"{indentOf(ls[i])}mutantKept = \"m\".copy(to: {a})")
-        let text = joined(withLine(kept, at: j, by: $"{indentOf(ls[j])}var mutantKept = \"\""))
-        found.append(Mutant { kind: "borrow-escape", code: "BYN3002", text: text })
+        if !isHeader(t) { continue }
+        let s = t.startsWith("public ") ? t[7..] : t
+        if !s.startsWith("string ") { continue }
+        let ind = $"{indentOf(ls[i])}    "
+        let buf = $"{ind}let mutantBuf = stackalloc u8[16]\n{ind}var mutantSb = StrBuf(mutantBuf)\n"
+        let body = $"{buf}{ind}mutantSb.append(\"m\")\n{ind}return mutantSb.finish()"
+        found.append(Mutant { kind: "borrow-escape", code: "BYN3003", text: joined(withLine(ls, at: i + 1, by: body)) })
     }
 
     // write-while-borrowed (BYN3004, diag/mutated-while-borrowed): a `let|var <v> = <x>.span` line gets

@@ -8,6 +8,10 @@
 # site in an input counts as `no-site`. Prints the counts, the counts per kind and the accepted mutants (20 at most); the
 # check output of every mutant goes to tmp/hardening/mutants.log. Exits 0 when it ran, 1 when the harness could not run,
 # 2 on usage. Not `bayan test --mutate`, which grades tests; these attack the checker.
+# macOS smoke (2026-11-27, driver built as plan 020 step 8b item 5): `--only 'run/assert-'` has no site
+# (inputs 11, mutants 0, killed 0, discarded 0, accepted 0, no-site 55), so the class used is run/region-:
+#   BAYAN_EXE=$PWD/tmp/s1 bash scripts/hardening/safety-mutate.sh --only 'run/region-'
+#   inputs 5, mutants 6, killed 6, discarded 0, accepted 0, no-site 22
 usage() {
     echo "usage: BAYAN_EXE=<driver> $0 [--only <case filter>] (default run/)" >&2
     exit 2
