@@ -3,7 +3,7 @@ nav: Learn
 order: 200
 template: docs
 ---
-<p class="lede">You will build a word counter: it reads a text file, counts each word, and prints the most common first, in five steps.</p>
+<p class="lede">You will build a word counter: it reads a text file, counts each word, and prints the most common first, in five steps; you run it after each one.</p>
 
 <p>This chapter uses forms later chapters explain: <code>struct</code>, <code>Map</code>, <code>List</code>, functions and errors. Type and run the programs; a new form gets a sentence on what it does, with its chapter linked. Read <a href="book-01-start.html">chapter 1</a> first if you have not run a Bayan program.</p>
 
