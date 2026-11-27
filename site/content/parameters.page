@@ -3,7 +3,7 @@ nav: Reference
 order: 50
 template: docs
 ---
-<p>A parameter says how a function may use a value. A call says in what role each value takes part. Bayan makes both explicit, so a call site reads as a sentence and a swapped pair of arguments is a compile error rather than a bug.</p>
+<p>A parameter says how a function may use a value; a call says what role each value takes. Both are explicit, so a call site reads as a sentence and a swapped pair is a compile error, not a bug.</p>
 
 <h2 id="modifiers">Parameter modifiers</h2>
 <div class="tablewrap"><table>
@@ -40,16 +40,15 @@ public void insert(ref this, T item, at Index i) uses alloc
 copy(from: old, to: backup)
 xs.insert(item, at: 0)</code></pre>
 <ul>
-  <li>A function has at most one unlabeled parameter, the object (BYN5004). The receiver does not count as the object.</li>
-  <li>Every other required parameter takes a particle (BYN5006), and call sites must write it (BYN5005).</li>
-  <li>The particles are part of the function’s name: <code>copy(from:to:)</code>.</li>
-  <li><code>bool</code> parameters must be passed by name.</li>
+  <li>A function has at most one unlabeled parameter, the object (BYN5004); the receiver does not count.</li>
+  <li>Every other required parameter takes a particle (BYN5006), written at the call (BYN5005).</li>
+  <li>Particles are part of the name (<code>copy(from:to:)</code>); <code>bool</code> parameters pass by name.</li>
 </ul>
 
 <h2 id="overloads">Overloading by particle set</h2>
-<p>Overloads may differ by particle set or by parameter type. The checks run at the declaration, so a call never needs ambiguity resolution: the labels a call writes select the overload.</p>
+<p>Overloads may differ by particle set or parameter type. The checks run at the declaration, so a call needs no ambiguity resolution: its labels select the overload.</p>
 <example name="overloads"/>
-<p>Two overloads that one call could match are rejected where the second is declared (BYN2006), and the second is dropped. Here <code>shift(1, by: 2)</code> would fit both:</p>
+<p>Two overloads one call could match are rejected where the second is declared (BYN2006), and the second is dropped. Here <code>shift(1, by: 2)</code> would fit both:</p>
 <pre><code class="byn">void shift(i32 a, by i32 d) { print("by") }
 void shift(i32 a, by i32 d, to i32 e = 0) { print("by2") }</code></pre>
 <figure class="diag">
@@ -60,11 +59,11 @@ void shift(i32 a, by i32 d, to i32 e = 0) { print("by2") }</code></pre>
 <span class="gut">    │</span>      <span class="hl">^^^^^ already declared on line 1</span></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>Overloads that differ only by parameter type, with the same particles, are also BYN2006 today: give them different particles. Overloads may not differ only by <code>ref</code> or <code>out</code>.</p>
-<note>Planned: not in the compiler yet. The rule that overloads differing only by type must not overlap through an implicit conversion (BYN3213) is described in the specification, for example <code>void f(Grams g)</code> beside <code>void f(Kilograms k)</code> when <code>Kilograms</code> converts to <code>Grams</code>. The code is reserved and never reported. Likewise a reference to an overloaded name needs a target type (BYN3215), and overloads may not differ only by function-type parameters.</note>
+<p>Overloads differing only by type, with the same particles, are also BYN2006 today: give them different particles. Nor may they differ only by <code>ref</code> or <code>out</code>.</p>
+<note>Planned: not in the compiler. The specification forbids type-only overloads that overlap through an implicit conversion (BYN3213), e.g. <code>void f(Grams g)</code> beside <code>void f(Kilograms k)</code> when <code>Kilograms</code> converts to <code>Grams</code>; the code is reserved and never reported. A reference to an overloaded name needs a target type (BYN3215); overloads may not differ only by function-type parameters.</note>
 
 <h2 id="repeat">A particle once per function</h2>
-<p>A particle may appear only once in a signature. Two parameters with the same role would make a label ambiguous. Group the values in a struct, or pick another particle (BYN5013).</p>
+<p>A particle may appear only once per signature: two parameters with the same role make an ambiguous label. Group the values in a struct, or pick another particle (BYN5013).</p>
 <pre><code class="byn">void move2(from i32 a, from i32 b) {
     print($"{a} {b}")
 }</code></pre>
@@ -78,7 +77,7 @@ void shift(i32 a, by i32 d, to i32 e = 0) { print("by2") }</code></pre>
 <span class="gut">  help:</span> group the values in a struct, or choose another particle</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>The set is closed. A word that is not one of the eight is BYN5008, and the message lists the eight:</p>
+<p>The set is closed: a word outside the eight is BYN5008, and the message lists them:</p>
 <pre><code class="byn">void shift(i32 a, over i32 b) {
     print($"{a} {b}")
 }</code></pre>
@@ -94,7 +93,7 @@ void shift(i32 a, by i32 d, to i32 e = 0) { print("by2") }</code></pre>
 </figure>
 
 <h2 id="diagnostic">When a particle is missing</h2>
-<p>Write the argument without its particle and the compiler names the particle, points at the argument and shows the fix. A swapped pair of arguments of the same type lands here too, which is why Bayan needs no separate same-type naming rule.</p>
+<p>An argument written without its particle gets the particle named, the argument pointed at and the fix shown. A swapped same-type pair lands here too, so Bayan needs no separate same-type naming rule.</p>
 <pre><code class="byn">// A swapped pair is a particle mismatch (BYN5005).
 i32 width(i32 start, until i32 end) =&gt; end - start
 
@@ -115,9 +114,13 @@ print($"{width(start, until: end)}")</code></pre>
 </figure>
 
 <h2 id="ref-move">ref and move</h2>
-<p>A <code>ref</code> parameter borrows the caller’s variable and may change it. The call must say <code>ref</code> too, and the variable must be a <code>var</code>. A <code>move</code> parameter takes ownership: the caller writes <code>move</code> and cannot use the value afterwards.</p>
+<p>A missing keyword at the call is an error, with the fix shown.</p>
+<table>
+<tr><th>Keyword</th><th>Declaration</th><th>Call</th></tr>
+<tr><td><code>ref</code></td><td>Borrows the caller’s variable and may change it</td><td>Write <code>ref</code>; the variable must be a <code>var</code></td></tr>
+<tr><td><code>move</code></td><td>Takes ownership</td><td>Write <code>move</code>; the value cannot be used afterwards</td></tr>
+</table>
 <example name="param-refmove"/>
-<p>Leaving out the keyword at the call is an error, with the fix shown.</p>
 <pre><code class="byn">void bump(ref i32 n) {
     n += 1
 }
@@ -153,19 +156,20 @@ print($"{count(xs)}")</code></pre>
 <p>See <a href="ref-memory.html#ownership">Memory model</a> for what moving does to the original.</p>
 
 <h2 id="out">out parameters</h2>
-<p>An <code>out</code> parameter hands a value back through the argument. The call writes <code>out</code> before the variable, after its particle. An <code>out</code> parameter is a required parameter like any other, so it takes a particle unless it is the object. Prefer returning an optional or a tuple; <code>out</code> exists for interop with code that uses it. <code>in</code> is accepted and means nothing; the formatter removes it.</p>
+<p>An <code>out</code> parameter hands a value back through the argument; the call writes <code>out</code> before the variable, after its particle. It is a required parameter, so it takes a particle unless it is the object. Prefer an optional or a tuple: <code>out</code> is for interop. <code>in</code> is accepted, ignored, and removed by the formatter.</p>
 <example name="param-out"/>
 
 <h2 id="rest">Variable argument lists: rest</h2>
-<p>A <code>rest</code> parameter collects any number of trailing arguments into a read-only span. It must be the last positional parameter, and a function has one. Write the span type out in full.</p>
+<p>A <code>rest</code> parameter collects any number of trailing arguments into a read-only span. It must be the last positional parameter, and a function has one. Write the span type in full.</p>
 <example name="param-rest"/>
-<ul>
-  <li>Call it with no arguments and the span is empty.</li>
-  <li><code>..xs</code> in an argument position passes an existing list or span without copying.</li>
-  <li>The span is borrowed for the call. Returning it or storing it is BYN3214. Call <code>items.copy()</code> to keep the values.</li>
-  <li>Named optional parameters may follow the <code>rest</code> parameter, and are passed by name.</li>
-  <li>A second <code>rest</code> parameter is BYN1001.</li>
-</ul>
+<table>
+<tr><th>Case</th><th>Behaviour</th></tr>
+<tr><td>No arguments</td><td>Empty span</td></tr>
+<tr><td><code>..xs</code></td><td>Passes an existing list or span without copying</td></tr>
+<tr><td>Returning or storing the span</td><td>BYN3214, because it is borrowed for the call; call <code>items.copy()</code> to keep the values</td></tr>
+<tr><td>Named optional parameters after <code>rest</code></td><td>Passed by name</td></tr>
+<tr><td>A second <code>rest</code></td><td>BYN1001</td></tr>
+</table>
 <example name="param-restopt"/>
 <pre><code class="byn">ReadOnlySpan&lt;i64&gt; keep(rest ReadOnlySpan&lt;i64&gt; items) =&gt; items</code></pre>
 <figure class="diag">
@@ -178,8 +182,8 @@ print($"{count(xs)}")</code></pre>
 <span class="gut">  help:</span> copy it first: `items.copy()`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note><code>params</code> from other languages is not accepted. Today the compiler reports it as BYN5008 (“`params` is not a particle”), not as the BYN1058 hint the specification describes (section 10).</note>
+<note><code>params</code> from other languages is rejected as BYN5008 (“<code>params</code> is not a particle”), not the specification’s BYN1058 hint (section 10).</note>
 
 <h2 id="positional">@positional structs</h2>
-<p>The constructor of a struct marked <code>@positional</code> takes its fields in order with no particles or names. Use it only when the fields are the same kind and their order is universal, such as a point. A struct without the attribute has no constructor call at all (BYN2112): build it with a struct literal. The struct literal form works on both.</p>
+<p><code>@positional</code> gives a struct a constructor that takes its fields in order, with no particles or names. Use it only when the fields are the same kind and their order universal, such as a point. A struct without the attribute has no constructor call (BYN2112): build it with a struct literal, which works on both.</p>
 <example name="param-positional"/>

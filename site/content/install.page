@@ -3,52 +3,52 @@ nav: Start
 order: 15
 template: docs
 ---
-<p class="lede">The current release is Bayan 0.4.1, a prerelease. Download the archive for your machine, or build the compiler from source with only a C compiler. Either way your programs need a C compiler too.</p>
+<p class="lede">The current release is Bayan 0.4.1, a prerelease. Download the archive for your machine, or build the compiler from source with only a C compiler.</p>
 
 <h2 id="requirements">What you need</h2>
 <ul>
 <li>A machine running macOS, Linux or Windows, on x64 or arm64.</li>
-<li>A C compiler. Bayan turns your program into C and hands the C to a C compiler. Install <a href="https://ziglang.org/download/">zig</a> and put it on your <code>PATH</code>: <code>zig cc</code> also builds for other targets. The compiler uses <code>BAYAN_CC</code> if you set it, else <code>zig cc</code>, else <code>cc</code>, <code>clang</code> or <code>gcc</code> from your <code>PATH</code>.</li>
+<li>A C compiler, which your programs also need: Bayan turns your program into C and hands it over. Install <a href="https://ziglang.org/download/">zig</a> on your <code>PATH</code>; <code>zig cc</code> also builds for other targets. The compiler uses <code>BAYAN_CC</code> if set, else <code>zig cc</code>, else <code>cc</code>, <code>clang</code> or <code>gcc</code> from <code>PATH</code>.</li>
 </ul>
 
 <h2 id="download">Download a release</h2>
-<p>Download the archive for your machine from the <a href="https://github.com/ikhbat-org/bayan/releases">releases page</a>, with the <code>SHA256SUMS</code> file beside it. The archives are named <code>bayan-0.4.1-&lt;target&gt;</code>: <code>bayan-0.4.1-macos-arm64.tar.gz</code>, <code>bayan-0.4.1-macos-x64.tar.gz</code>, <code>bayan-0.4.1-linux-x64.tar.gz</code>, <code>bayan-0.4.1-linux-arm64.tar.gz</code>, <code>bayan-0.4.1-windows-x64.zip</code> and <code>bayan-0.4.1-windows-arm64.zip</code>. Each holds a <code>bayan-0.4.1-&lt;target&gt;/</code> folder with <code>bayan</code> and the language server <code>bayan-lsp</code> (<code>bayan.exe</code> and <code>bayan-lsp.exe</code> on Windows).</p>
-<p>Check the archive against <code>SHA256SUMS</code>, unpack it, and put <code>bayan</code> on your <code>PATH</code>:</p>
+<p>Download the archive for your machine from the <a href="https://github.com/ikhbat-org/bayan/releases">releases page</a>, with <code>SHA256SUMS</code> beside it. Names follow <code>bayan-&lt;version&gt;-&lt;os&gt;-&lt;arch&gt;.tar.gz</code> (<code>.zip</code> on Windows), and each holds a <code>bayan-&lt;version&gt;-&lt;os&gt;-&lt;arch&gt;/</code> folder with <code>bayan</code> and the language server <code>bayan-lsp</code> (<code>bayan.exe</code> and <code>bayan-lsp.exe</code> on Windows).</p>
+<p>Check it against <code>SHA256SUMS</code>, unpack, and put <code>bayan</code> on your <code>PATH</code>:</p>
 <pre><code>grep macos-arm64.tar.gz SHA256SUMS | shasum -a 256 -c
 tar -xzf bayan-0.4.1-macos-arm64.tar.gz
 cp bayan-0.4.1-macos-arm64/bayan ~/.local/bin/</code></pre>
-<p>On Linux, <code>sha256sum -c</code> does the same as <code>shasum -a 256 -c</code>. On Windows, unzip the archive and put <code>bayan.exe</code> on your <code>PATH</code>:</p>
+<p>On Linux, <code>sha256sum -c</code> replaces <code>shasum -a 256 -c</code>; on Windows, unzip and put <code>bayan.exe</code> on your <code>PATH</code>:</p>
 <pre><code>Expand-Archive bayan-0.4.1-windows-x64.zip -DestinationPath .
 $env:Path += ";$PWD\bayan-0.4.1-windows-x64"</code></pre>
 
 <h2 id="check">Check the install</h2>
 <pre><code>bayan --version
 bayan doctor</code></pre>
-<p><code>--version</code> prints the compiler version, <code>bayan 0.4.1 (selfhost)</code>. <code>doctor</code> checks the C compiler, zig, git and the build cache, and says how to fix what is missing. On a working machine every line starts with a diamond and names a path. If the C compiler is missing, <code>bayan run</code> and <code>bayan build</code> exit with code 4.</p>
-<p>Then run the first program:</p>
+<p><code>--version</code> prints <code>bayan 0.4.1 (selfhost)</code>. <code>doctor</code> checks the C compiler, zig, git and the build cache and gives fixes; on a working machine every line starts with a diamond and names a path. Without a C compiler, <code>bayan run</code> and <code>bayan build</code> exit 4.</p>
+<p>Run the first program:</p>
 <example name="hello"/>
 <pre><code>bayan run hello.byn</code></pre>
-<p>Your next stop is <a href="tutorial.html">Your first Bayan program</a>.</p>
+<p>Next: <a href="tutorial.html">Your first Bayan program</a>.</p>
 
 <h2 id="build">Build the compiler from source</h2>
-<p>The compiler is written in Bayan and compiles itself. The repository also keeps it as one C file, <code>bootstrap/bayan.c</code>, so a C11 compiler is all you need to build it. From a clone of the repository:</p>
+<p>The compiler is written in Bayan and compiles itself; the repository also keeps it as one C file, <code>bootstrap/bayan.c</code>, so a C11 compiler is enough. From a clone:</p>
 <pre><code>git clone https://github.com/ikhbat-org/bayan
 cd bayan
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm
 ./a.out --version</code></pre>
-<p>The C compiler may print many warnings about the generated C; they do not stop the build. The result is <code>a.out</code>; copy it to a directory on your <code>PATH</code> as <code>bayan</code>. To rebuild the compiler from its Bayan source in <code>src/</code> with that one:</p>
+<p>Warnings about the generated C do not stop the build. The result is <code>a.out</code>; copy it onto your <code>PATH</code> as <code>bayan</code>. To rebuild from the Bayan source in <code>src/</code> with that compiler:</p>
 <pre><code>bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver</code></pre>
 
 <h2 id="dist">Release binaries under dist/</h2>
-<p><code>scripts/dist.sh</code> builds the compiler from <code>src/</code>, starting from <code>bootstrap/bayan.c</code>, and keeps it in <code>dist/</code>, one directory per target and version, plus a <code>latest</code> directory per target that every build replaces:</p>
+<p><code>scripts/dist.sh</code> builds the compiler from <code>src/</code>, starting from <code>bootstrap/bayan.c</code>, into <code>dist/</code>: one directory per target and version, plus a per-target <code>latest</code> that every build replaces:</p>
 <pre><code>scripts/dist.sh                 # this machine
 scripts/dist.sh --rid osx-x64   # another target, cross-built through zig
 dist/macos-arm64/latest/bayan --version</code></pre>
-<p>The targets are <code>linux-x64</code>, <code>linux-arm64</code>, <code>macos-x64</code>, <code>macos-arm64</code>, <code>windows-x64</code> and <code>windows-arm64</code>. Each version directory holds the <code>bayan</code> executable, <code>bayan-lsp</code> (with <code>.exe</code> on Windows) and a <code>BUILD-INFO</code> file with the version, target, commit and build time. A binary built on another machine can be imported with <code>--from</code>.</p>
-<p>Do not confuse these with <code>bayan dist</code>, a compiler command that builds release binaries of <em>your</em> program into <code>dist/&lt;version&gt;/</code>.</p>
+<p>Targets are <code>linux-x64</code>, <code>linux-arm64</code>, and the same for <code>macos</code> and <code>windows</code>. Each version directory holds <code>bayan</code>, <code>bayan-lsp</code> (with <code>.exe</code> on Windows) and <code>BUILD-INFO</code> with the version, target, commit and build time; a binary built on another machine can be imported with <code>--from</code>.</p>
+<p><code>bayan dist</code> is different: it builds release binaries of <em>your</em> program into <code>dist/&lt;version&gt;/</code>.</p>
 
 <h2 id="commands">The commands</h2>
-<p>This is the output of <code>bayan --help</code>, as the compiler prints it.</p>
+<p>Output of <code>bayan --help</code>, as the compiler prints it:</p>
 <pre><code>usage: bayan &lt;command&gt; [args]
 
 commands:

@@ -8,30 +8,30 @@ template: docs
 <ol class="steps">
   <li>
     <h2 id="get">Get the compiler</h2>
-    <p>Download the Bayan 0.4.1 archive for your machine from the <a href="https://github.com/ikhbat-org/bayan/releases">releases page</a>, unpack it and put <code>bayan</code> on your <code>PATH</code>. You also need <code>zig</code> (or another C compiler) on your <code>PATH</code> to turn the generated C into an executable. <a href="install.html">Install Bayan</a> has the archive names, the checksum step and how to build from source.</p>
+    <p>Download the 0.4.1 archive for your machine from the <a href="https://github.com/ikhbat-org/bayan/releases">releases page</a>, unpack it and put <code>bayan</code> on <code>PATH</code>. A C compiler such as <code>zig</code> must also be on <code>PATH</code> to turn the generated C into an executable. <a href="install.html">Install Bayan</a> covers archive names, checksum and source build.</p>
 <pre><code>bayan --version
 bayan doctor</code></pre>
-    <p><code>bayan doctor</code> checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
+    <p><code>bayan doctor</code> checks the C compiler, zig, git and the build cache, and reports gaps and fixes.</p>
   </li>
   <li>
     <h2 id="write">Write hello</h2>
-    <p>Create <code>hello.byn</code>. Bayan files end in <code>.byn</code>, and newlines end statements, so there is no semicolon.</p>
+    <p>Create <code>hello.byn</code>; files end in <code>.byn</code>, and newlines end statements, so no semicolon.</p>
     <example name="hello"/>
   </li>
   <li>
     <h2 id="build">Build it</h2>
-    <p><code>bayan build</code> compiles to C, then to a native executable. <code>-o</code> names the result.</p>
+    <p><code>bayan build</code> compiles to C, then to a native executable; <code>-o</code> names the result.</p>
 <pre><code>bayan build hello.byn -o hello</code></pre>
-    <p>Add <code>--emit-c</code> to see the C that was generated.</p>
+    <p><code>--emit-c</code> shows the generated C.</p>
   </li>
   <li>
     <h2 id="run">Run it</h2>
 <pre><code>./hello</code></pre>
-    <p>It prints <code>Salam, world!</code>. <code>bayan run hello.byn</code> does both steps at once.</p>
+    <p>It prints <code>Salam, world!</code>; <code>bayan run hello.byn</code> does both at once.</p>
   </li>
   <li>
     <h2 id="error">Read an error, then fix it</h2>
-    <p>Save this as <code>width.byn</code>. The second parameter carries the particle <code>until</code>, and the call leaves it out.</p>
+    <p>Save this as <code>width.byn</code>. The second parameter carries the particle <code>until</code>, which the call leaves out.</p>
 <pre><code class="byn">i32 width(i32 start, until i32 end) =&gt; end - start
 
 let start: i32 = 2
@@ -53,10 +53,10 @@ print($"{width(end, start)}")</code></pre>
 <span class="gut">  explain: bayan explain BYN5005</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>width.byn</code>.</figcaption>
     </figure>
-    <p>The message says what is wrong (an argument without its particle), where (line 5, column 21) and how to fix it (add <code>until:</code>). The suggested edit would keep the arguments in the wrong order, though, and the particle belongs on <code>end</code>, the end of the range. Put it there and run it again:</p>
+    <p>It names the fault (a missing particle), the place (line 5, column 21) and the fix (add <code>until:</code>). But the suggested edit keeps them in the wrong order: the particle belongs on <code>end</code>, the end of the range. Fix that and run again:</p>
     <example name="width"/>
     <div class="next-box">
-      <p>That is the loop: write, build, read the message, fix. Next, read how <a href="parameters.html#particles">argument particles</a> work, or run <code>bayan explain BYN5005</code> in your terminal.</p>
+      <p>Next, read how <a href="parameters.html#particles">argument particles</a> work, or run <code>bayan explain BYN5005</code>.</p>
     </div>
   </li>
 </ol>

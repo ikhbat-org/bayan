@@ -3,11 +3,10 @@ nav: Guides
 order: 58
 template: docs
 ---
-<p>How do I test code in Bayan? Tests are part of the language: a <code>test</code> block, an <code>assert</code> statement, and <code>bayan test</code> to run them.</p>
+<p>Tests are part of the language: a <code>test</code> block, an <code>assert</code> statement, and <code>bayan test</code>.</p>
 
 <h2 id="unit-tests">Write and run unit tests</h2>
-<p><strong>Runnable.</strong> A <code>test "name" { … }</code> block goes in the same file as the code, or in a sibling <code>x.test.byn</code>. <code>assert</code> is a statement, not a function, and a failed one prints the value of every sub-expression. There is no assertion library; plain expressions cover it. <code>assert f() fails E.case</code> checks that a call fails with a given error, so you do not write a <code>catch</code> and a <code>panic</code>. <code>@cases(…)</code> turns one test into a table: each row runs and is reported separately.</p>
-<p>Functions that <code>fail</code> are errors as values, so a test calls them with <code>try</code> like any other code. <code>bayan run</code> ignores the tests and runs <code>main</code>; <code>bayan test</code> runs the tests.</p>
+<p><strong>Runnable.</strong> A <code>test "name" { … }</code> block sits in the same file or a sibling <code>x.test.byn</code>. <code>assert</code> is a statement, not a function; a failure prints the value of every sub-expression. There is no assertion library; plain expressions cover it. <code>assert f() fails E.case</code> checks the error without a <code>catch</code> and a <code>panic</code>. <code>@cases(…)</code> turns one test into a table: each row runs and is reported separately. Failing functions are errors as values, so tests call them with <code>try</code>. <code>bayan run</code> ignores tests and runs <code>main</code>; <code>bayan test</code> runs the tests.</p>
 <example name="cookbook-testing-unit"/>
 <p>Running <code>bayan test cookbook-testing-unit.byn</code> prints:</p>
 <pre><code class="other" data-lang="bayan test">running 5 tests in 1 module
@@ -26,12 +25,12 @@ template: docs
 <pre><code class="other" data-lang="Python">def test_check_percent():
     with pytest.raises(RangeError):
         check_percent(101)</code></pre>
-<p>Other test features in the spec (§20), such as <code>@pairwise</code>, <code>property</code>, <code>fuzz</code>, snapshots and doctests, are Planned. Doctests are marked "Not in v0.1". Check <code>bayan test --help</code> for what your build runs.</p>
+<p>Spec §20 lists <code>@pairwise</code>, <code>property</code>, <code>fuzz</code>, snapshots and doctests, all Planned; doctests are "Not in v0.1". <code>bayan test --help</code> shows what your build runs.</p>
 
 <h2 id="benchmark">Benchmark a block of code</h2>
-<p><strong>Planned</strong> for <code>bench</code> (§20, "Not in v0.1"). The spec form reports time per operation, allocations per operation and variance:</p>
+<p><strong>Planned</strong> for <code>bench</code> (§20, "Not in v0.1"): the spec form reports time and allocations per operation, and variance:</p>
 <pre><code class="byn">bench "parse ledger" { measure Ledger.read(sample) }</code></pre>
-<p><strong>Runnable today:</strong> time a loop by hand with <code>Io.monotonicNanos()</code> and divide by the number of runs. One loop is a rough number, with no warm-up and no variance, so use it to compare orders of magnitude only.</p>
+<p><strong>Runnable today:</strong> time a loop by hand with <code>Io.monotonicNanos()</code> and divide by the runs. One loop has no warm-up or variance, so compare orders of magnitude only.</p>
 <example name="cookbook-testing-bench"/>
 <pre><code class="other" data-lang="Go">func BenchmarkCollatz(b *testing.B) {
     for i := 0; i &lt; b.N; i++ { collatzSteps(27) }
