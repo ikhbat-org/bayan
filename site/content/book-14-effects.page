@@ -3,24 +3,26 @@ nav: Learn
 order: 1400
 template: docs
 ---
-<p>A function signature in Bayan tells you what the function returns. It also tells you what the function <em>does to the outside world</em>: whether it prints, reads files, uses the network, asks for the time, or allocates. These are called <em>effects</em>. The compiler checks them, so a signature cannot hide a file read.</p>
+<p>A signature tells you what a function returns and what it <em>does to the outside world</em>: print, read files, use the network, ask for the time, allocate. These are <em>effects</em>, and the compiler checks them, so a signature cannot hide a file read.</p>
 
 <h2 id="pure">Pure by default</h2>
-<p>A function with no <code>uses</code> clause does nothing but compute. It cannot print, read a file or allocate. That makes it easy to test and safe to call from anywhere.</p>
-<p>The effects are <code>alloc</code>, <code>suspend</code>, <code>net</code>, <code>fs</code>, <code>clock</code>, <code>random</code>, <code>env</code>, <code>process</code> and <code>console</code>. You list the ones a function needs after the parameters:</p>
+<p>A function with no <code>uses</code> clause only computes: it cannot print, read a file or allocate, so it is easy to test and safe to call anywhere.</p>
+<p>The effects are <code>alloc</code>, <code>suspend</code>, <code>net</code>, <code>fs</code>, <code>clock</code>, <code>random</code>, <code>env</code>, <code>process</code> and <code>console</code>. List the ones a function needs after the parameters:</p>
 <example name="book-14-effects"/>
-<p>Look at each function in turn.</p>
-<ul>
-<li><code>square</code> is pure.</li>
-<li><code>squares</code> builds a list, so it says <code>uses alloc</code>.</li>
-<li><code>show</code> prints and walks a list. It says <code>uses store</code>, where <code>store</code> is an alias declared on the first line: <code>effect store = console, alloc</code>. An alias is only a short name for a set of effects.</li>
-<li><code>traced</code> calls <code>log(...)</code>. Logging is allowed anywhere, so <code>traced</code> stays pure. The text goes to standard error, which is why it shows as <code>info: tracing 1</code> and not in the program's normal output.</li>
-<li><code>main</code> uses <code>console</code> and <code>alloc</code> because it calls <code>print</code> and builds a list.</li>
-</ul>
-<p>Some standard library calls and their effects: <code>print</code> uses <code>console</code>, <code>Io.readText</code> uses <code>fs</code>, and <code>Io.monotonicNanos()</code> uses <code>clock</code>.</p>
+<div class="tablewrap">
+<table>
+<tr><th>Function</th><th>Effect</th><th>Why</th></tr>
+<tr><td><code>square</code></td><td>none</td><td>Pure.</td></tr>
+<tr><td><code>squares</code></td><td><code>alloc</code></td><td>Builds a list.</td></tr>
+<tr><td><code>show</code></td><td><code>store</code></td><td>Prints and walks a list. <code>store</code> is the alias <code>effect store = console, alloc</code> on the first line: a short name for a set of effects.</td></tr>
+<tr><td><code>traced</code></td><td>none</td><td>Calls <code>log(...)</code>, which is allowed anywhere. It writes to standard error, showing as <code>info: tracing 1</code>, not in the program's output.</td></tr>
+<tr><td><code>main</code></td><td><code>console, alloc</code></td><td>Calls <code>print</code> and builds a list.</td></tr>
+</table>
+</div>
+<p>Standard library calls and their effects: <code>print</code> uses <code>console</code>, <code>Io.readText</code> uses <code>fs</code>, and <code>Io.monotonicNanos()</code> uses <code>clock</code>.</p>
 
 <h2 id="checked">Public functions must declare their effects</h2>
-<p>Inside one file, the compiler works out effects for private helpers. A <code>public</code> function is part of a module's contract, so it has to state its effects. Leave one out and you get this:</p>
+<p>Inside a file the compiler infers effects for private helpers; a <code>public</code> function, part of the module's contract, must state them. Leave one out and you get this:</p>
 <pre><code class="byn">public void greet(string name) {
     print($"Salam {name}")
 }
@@ -43,8 +45,8 @@ void main() uses console {
 <span class="gut">  explain: bayan explain BYN6002</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>missing-uses.byn</code>.</figcaption>
     </figure>
-<p>The error points at the call that needs the effect. The fix-it shows the exact clause to add. Calling a function that uses an effect makes the caller use it too, all the way up to <code>main</code>.</p>
-<p>A misspelled effect has its own error. It also lists every valid name:</p>
+<p>The error points at the call that needs the effect; the fix-it shows the clause to add. Calling such a function makes the caller use the effect too, up to <code>main</code>.</p>
+<p>A misspelled effect gets its own error, listing every valid name:</p>
 <pre><code class="byn">public void greet(string name) uses printing {
     print($"Salam {name}")
 }
@@ -78,7 +80,7 @@ void main() uses console {
     </figure>
 
 <h2 id="capabilities">Capabilities: the package decides</h2>
-<p>Effects are what code <em>asks</em> for. A package also states what it is <em>allowed</em> to do, in <code>capabilities</code> in <code>package.byn</code>. A new project from <code>bayan new</code> starts with none:</p>
+<p>Effects are what code <em>asks</em> for; a package also states what it is <em>allowed</em> to do, in <code>capabilities</code> in <code>package.byn</code>. A new <code>bayan new</code> project has none:</p>
 <pre><code class="byn">Package {
     name: "local/demo",
     version: "0.1.0",
@@ -88,7 +90,7 @@ void main() uses console {
     deps: [],
     dist: Dist { targets: [.host], mode: .safe },
 }</code></pre>
-<p>Now add a function that reads a file:</p>
+<p>Add a function that reads a file:</p>
 <pre><code class="byn">public string load(string path) uses fs, alloc fails IoError {
     return try Io.readText(path)
 }</code></pre>
@@ -105,16 +107,16 @@ void main() uses console {
 <span class="gut">  explain: bayan explain BYN6004</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>capabilities.txt</code>.</figcaption>
     </figure>
-<p>Do as the help says: write <code>capabilities: [.fs]</code>. The list is a summary of what the package can touch, and it is checked at build time. Anyone who reads <code>package.byn</code> sees at a glance whether a library can reach the network or the disk.</p>
+<p>The fix is <code>capabilities: [.fs]</code>. The list is a summary of what the package can touch and is checked at build time, so anyone reading <code>package.byn</code> sees whether a library can reach the network or the disk.</p>
 
 <h2 id="provide">Choosing where memory comes from: provide</h2>
-<p><code>provide</code> installs a handler for a block of code. Chapter 13 used it for the allocator:</p>
+<p><code>provide</code> installs a handler for a block of code; <a href="book-13-memory.html">chapter 13</a> used it for the allocator:</p>
 <pre><code class="byn">using var arena = Arena()
 provide allocator: arena {
     // every `uses alloc` call in here allocates from the arena
 }</code></pre>
-<p>In this compiler release only the allocator handlers work: <code>provide alloc</code> and <code>provide allocator: …</code>. Trying one for another effect, such as <code>console</code>, <code>fs</code>, <code>clock</code> or <code>net</code>, is rejected with BYN2022, "handler is not supported in v0.1". An unknown name is BYN6007.</p>
-<note>Planned: not in the compiler yet. Handlers for the other effects, so a test could <code>provide clock: fixedClock { … }</code> and run code against a fake clock or a fake file system. Also <code>context</code> values, which carry a setting such as a logger down the call chain without passing it as a parameter. A <code>suspend</code> effect is accepted in <code>uses</code>, but nothing can suspend yet; see <a href="book-17-concurrency.html">chapter 17</a>.</note>
+<p>Only allocator handlers work in this release: <code>provide alloc</code> and <code>provide allocator: …</code>. A handler for <code>console</code>, <code>fs</code>, <code>clock</code> or <code>net</code> is rejected with BYN2022, "not supported in v0.1"; an unknown name is BYN6007.</p>
+<note>Planned: not in the compiler yet. Handlers for the other effects, so a test could <code>provide clock: fixedClock { … }</code> against a fake clock or file system; <code>context</code> values, carrying a setting such as a logger down the call chain without a parameter; and <code>suspend</code>, accepted in <code>uses</code> but unable to suspend yet (see <a href="book-17-concurrency.html">chapter 17</a>).</note>
 <pre><code class="byn">// planned
 provide clock: Clock.fixed(1_000) {
     check(expired(token))
@@ -122,17 +124,17 @@ provide clock: Clock.fixed(1_000) {
 
 <h2 id="quiz">Check your understanding</h2>
 <details class="quiz"><summary>1. In <code>book-14-effects</code>, why does <code>traced</code> declare no <code>uses</code> even though it calls <code>log</code>?</summary>
-<p>Logging is allowed in any function and is not an effect you declare. That is why it prints <code>info: tracing 1</code> on standard error and the program output shows only <code>traced 2</code>. It is not because <code>log</code> does nothing. Nor is it because <code>traced</code> is private: it is <code>public</code>, which would require a declaration for <code>console</code>.</p></details>
+<p>Logging is allowed in any function and is not a declared effect: <code>info: tracing 1</code> goes to standard error, and the output shows only <code>traced 2</code>. <code>traced</code> is <code>public</code>, so a <code>console</code> use would need a declaration (<a href="#pure">details</a>).</p></details>
 <details class="quiz"><summary>2. A public function calls <code>print</code> and has no <code>uses</code>. What does the compiler say?
 <ol type="a"><li>Nothing, <code>print</code> is built in.</li><li>BYN6002, with a fix-it that adds <code>uses console</code>.</li><li>BYN6003, because <code>print</code> is not an effect.</li></ol></summary>
-<p>b. The first is wrong: <code>print</code> uses <code>console</code>. The third mixes up errors: BYN6003 is for a name in the <code>uses</code> clause that is not an effect, like <code>uses printing</code>.</p></details>
+<p>b. <code>print</code> uses <code>console</code>, so (a) is wrong; BYN6003 is for a <code>uses</code> name that is not an effect, like <code>uses printing</code> (<a href="#checked">details</a>).</p></details>
 <details class="quiz"><summary>3. What does <code>effect store = console, alloc</code> do?</summary>
-<p>It gives a name to a set of effects, so <code>uses store</code> means <code>uses console, alloc</code>. It does not create a new capability or install a handler.</p></details>
+<p>It names a set of effects, so <code>uses store</code> means <code>uses console, alloc</code>. It creates no capability and installs no handler.</p></details>
 <details class="quiz"><summary>4. The code says <code>uses fs</code> and the project builds with BYN6004. What do you change?</summary>
-<p>Add <code>.fs</code> to <code>capabilities</code> in <code>package.byn</code>, or remove the file access. Adding <code>uses fs</code> to more functions does not help: the function already declares it. The package is the one that has not agreed to it.</p></details>
+<p>Add <code>.fs</code> to <code>capabilities</code> in <code>package.byn</code>, or remove the file access. More <code>uses fs</code> declarations do not help: the function already declares it, and the package has not agreed (<a href="#capabilities">details</a>).</p></details>
 <details class="quiz"><summary>5. Can you write <code>provide console: myConsole { … }</code> today?</summary>
-<p>No. Only <code>alloc</code> and <code>allocator:</code> handlers work now. Others give BYN2022. The feature is planned.</p></details>
+<p>No: only <code>alloc</code> and <code>allocator:</code> handlers work; others give BYN2022 (<a href="#provide">details</a>).</p></details>
 
 <div class="next-box">
-  <p>Next: <a href="book-15-cleanup.html">15. Cleanup and resources (<code>defer</code>, move-only types, handles)</a> shows how <code>defer</code> and unique types clean up resources when a scope ends or their owner goes away.</p>
+  <p>Next: <a href="book-15-cleanup.html">15. Cleanup and resources (<code>defer</code>, move-only types, handles)</a>: how <code>defer</code> and unique types free resources when a scope ends or an owner goes away.</p>
 </div>
