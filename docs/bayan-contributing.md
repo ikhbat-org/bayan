@@ -2,7 +2,7 @@
 
 Version: 0.4.1 (matches `bayan --version`)
 
-How compiler work is done; `AGENTS.md` has the rules. Milestones: `docs/bayan-milestones.md`.
+How compiler work is done. The language: `docs/bayan-spec.md`; agent rules: `AGENTS.md`; this file holds only what neither says. Milestones: `docs/bayan-milestones.md`.
 
 ## Ground rules
 
