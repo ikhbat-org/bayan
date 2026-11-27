@@ -102,7 +102,7 @@ bayan run
 Salam, world!
 ```
 
-`bayan new` created three files that matter: `package.byn` (name, version, dependencies),
+`bayan new` created a few files; three matter: `package.byn` (name, version, dependencies),
 `src/app/main.byn` (the program) and `tests/app.test.byn` (a test).
 
 Open `src/app/main.byn`:
@@ -174,7 +174,7 @@ listed there yet.
 | `bayan dist` | Build release binaries into `dist/<version>/`; `--target all` cross-compiles through zig |
 | `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
 | `bayan audit` | List every `because` bypass and `unsafe` or `extern` declaration, with its reason |
-| `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/` or the cache on request); show the shared build cache |
+| `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
 | `bayan lex`, `types`, `features --used <path>` | Tokens, inferred types and features a build used |
 
 `bayan-lsp`, an early language server with a VS Code extension, is in
