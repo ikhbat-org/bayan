@@ -21,6 +21,7 @@ static void show(const char* label, int outcome, uint32_t raw) {
 #ifndef _WIN32
 /* A real waitpid status: a child that exits with `exit_code`, or kills itself with SIGKILL when `exit_code` is -1. */
 static uint32_t child_status(int exit_code) {
+    fflush(stdout); /* a child killed under valgrind flushes the inherited buffer otherwise (2026-11-27) */
     pid_t pid = fork();
     if (pid < 0) return 0xFFFFFFFFu;
     if (pid == 0) {
