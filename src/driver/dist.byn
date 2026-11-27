@@ -230,7 +230,14 @@ i32 distBuild(
 List<string>? distResolveTargets(string? arg, by in List<string> manifestTargets) uses alloc, console {
     var names = List<string>()
     if arg == "all" {
-        names = targetNames()
+        // The runtime includes <signal.h> and <sys/wait.h> (bayan-rt.c), which wasm32-wasi lacks; `--target wasm32` still tries it.
+        for name in targetNames() {
+            if name == "wasm32" {
+                Io.stderr.write("bayan: skipping wasm32: the runtime needs signals and processes, which wasm32-wasi lacks\n")
+                continue
+            }
+            names.append(name)
+        }
     } else if arg is not null {
         names.append(arg)
     } else if manifestTargets.length > 0 {

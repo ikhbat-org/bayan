@@ -10,9 +10,10 @@ void t29Same(string got, as string want) uses alloc, console {
     assert got == want
 }
 
-test "driver t29: lex and parse refuse what the self-hosted compiler lacks" {
+test "driver t29: lex --json wants a file, and parse without --ast checks a clean file" {
     assert lexCommand(["lex", "--json"]) == exitUsage
-    assert parseCommand(["parse", "src/driver/commands.byn"]) == exitUsage
+    let d = newDCtx()
+    assert parseCommand(["parse", "src/driver/commands.byn"], by: d) == exitOk
     assert refuse("x") == exitUsage
 }
 

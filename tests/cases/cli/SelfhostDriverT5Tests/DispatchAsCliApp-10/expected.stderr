@@ -35,7 +35,7 @@ commands:
   explain <code>       explain a diagnostic, e.g. `bayan explain BYN0003`
   <script>.byn         run a script, so `#!/usr/bin/env bayan` works
   doctor               check the C compiler, zig, git and the build cache, with fixes
-  --version            print the compiler version and the commit it was built from
+  --version            print the compiler version and the `(selfhost)` marker
   --help               print this message
 
 check, types, build, run, test and features take a project directory (one with `package.byn`; the
