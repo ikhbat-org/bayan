@@ -3,7 +3,7 @@ nav: Reference
 order: 90
 template: docs
 ---
-<p>Closed choices: each entry says what it does, what it rules out, and why, from the settled decisions (Appendix A) and principles (§0). Reopening one needs an argument; the compiler's message follows where it enforces one.</p>
+<p>Closed choices: each says what Bayan does, what it rules out, why, from the language specification's list of settled decisions (Appendix A) and principles (§0). Reopening needs a new argument, not a restatement of the old wish; compiler messages follow where enforced.</p>
 
 <h2 id="principles">Principles behind the choices</h2>
 <ul>

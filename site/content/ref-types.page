@@ -387,7 +387,7 @@ let f: i32 -&gt; bool = isBig</code></pre>
   <li><code>Order.paid</code> is an <code>Order</code> known to be <code>paid</code>, valid anywhere a type is; <code>Order</code> alone means any state.</li>
   <li>A literal names its state (<code>Order.draft { id: 7 }</code>); plain <code>Order { … }</code> is BYN7005.</li>
   <li>Receiver state: <code>this is .paid</code>, <code>ref this is .draft</code>, <code>this is .paid or .shipped</code>.</li>
-  <li>A payload is readable only when the type fixes the state (BYN7002); with several states, a field needs the same type in each.</li>
+  <li>A payload is readable only when the type fixes the state (BYN7002); with several states, a field is readable when every state has it with the same type.</li>
   <li><code>becomes .paid</code> declares a transition after the parameters; <code>become .paid(amount)</code> performs it. Only a <code>ref this</code> method may declare it, every normal return must <code>become</code>, and a failed call leaves the state unchanged. A <code>var</code> that becomes has the new state in the rest of the scope.</li>
   <li>Widening is free (<code>Order.paid</code> where <code>Order</code> is expected); narrowing uses <code>is</code> or <code>switch</code>.</li>
   <li>A <code>switch</code> over the states must cover each one; a new state errors at every switch missing it (BYN7004).</li>

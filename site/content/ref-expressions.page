@@ -6,7 +6,30 @@ template: docs
 <p>Covers operators, conversions, target-typed literals, copy-and-update, patterns, interpolation, equality, expressions' error handling and <code>except</code>. Rules are compiler-checked; planned features are marked.</p>
 
 <h2 id="operators">Operators</h2>
-<p>Operators and precedence are the ones C programmers know; Bayan adds these:</p>
+<p>Precedence, tightest first:</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Operators</th><th scope="col">Notes</th></tr></thead>
+  <tbody>
+    <tr><td><code>()</code> <code>[]</code> <code>.</code> <code>?.</code></td><td>Call, index, member.</td></tr>
+    <tr><td><code>switch { … }</code></td><td>Tighter than a prefix operator.</td></tr>
+    <tr><td><code>! not - + ~</code> <code>^x</code>, <code>move</code>, casts</td><td>Prefix.</td></tr>
+    <tr><td><code>with { … }</code></td><td>Looser than a prefix operator.</td></tr>
+    <tr><td><code>* / % *% *|</code></td><td></td></tr>
+    <tr><td><code>+ - +% -% +| -|</code></td><td></td></tr>
+    <tr><td><code>&lt;&lt; &gt;&gt;</code></td><td></td></tr>
+    <tr><td><code>.. ..=</code></td><td>Looser than arithmetic and shift, tighter than comparison.</td></tr>
+    <tr><td><code>&lt; &gt; &lt;= &gt;= is in except</code></td><td></td></tr>
+    <tr><td><code>== !=</code></td><td></td></tr>
+    <tr><td><code>&amp;</code></td><td></td></tr>
+    <tr><td><code>^</code></td><td>Binary xor.</td></tr>
+    <tr><td><code>|</code></td><td></td></tr>
+    <tr><td><code>&amp;&amp; and</code></td><td></td></tr>
+    <tr><td><code>|| or</code></td><td></td></tr>
+    <tr><td><code>??</code>, <code>catch</code></td><td><code>??</code> is right-associative.</td></tr>
+    <tr><td><code>c ? a : b</code></td><td></td></tr>
+  </tbody>
+</table></div>
+<p>Bayan's own operators:</p>
 <div class="tablewrap"><table>
   <thead><tr><th scope="col">Operator</th><th scope="col">Meaning</th></tr></thead>
   <tbody>
