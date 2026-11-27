@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4485
-cases	diag	894
+cases	diag	896
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	381
+cases	run	382
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -14224,6 +14224,7 @@ file	e10324bf24032e00586a3fa95eaaa6ed6ef89844	tests/cases/diag/catch-switch-bloc
 file	7807d6acfaad2b2c8b688e07f11c326fe744dcd8	tests/cases/diag/catch-switch-foreign-set.diag
 file	6cc069a6e4e5717264f0d69b6ecbbe3b18a16f76	tests/cases/diag/char-input.diag
 file	c38f6394c7e8f235b6af3e3dfa6737b32cee9877	tests/cases/diag/checked-field-assignment.diag
+file	a9484c529af7e0bca9400ec00593f9963538e5c3	tests/cases/diag/checked-field-write-indirect.diag
 file	e028774b328ead47c3abf9324428106974b99a49	tests/cases/diag/circular-alias.diag
 file	b1ce45f8864885af6aef982c52064e67fb5f4481	tests/cases/diag/circular-constant.diag
 file	f14c20ecce82b9ce14be1c40e0cfaf223fd67ecc	tests/cases/diag/circular-field-default-generic-growing-list.diag
@@ -14337,6 +14338,7 @@ file	0bcbfea9babb2420f1191fb18b726a143a38011c	tests/cases/diag/fail-undeclared-c
 file	a1bb83f4a3046541b0d1d17ca9cd6e442fd5ef73	tests/cases/diag/fails-shorthand-before-uses.diag
 file	c2212611e6c4fd626aecee79ea78601b87349951	tests/cases/diag/fails-shorthand-comment.diag
 file	b0114bc197ed73f613e76439f887da71f339fa40	tests/cases/diag/fails-shorthand-two-fails.diag
+file	3736b4968e09674c7c796e583ab31d1ea90b607f	tests/cases/diag/field-write-outside-indirect.diag
 file	663eef000f53910d70a6b5afb8f43b2947857131	tests/cases/diag/field-write-outside.diag
 file	65d78379fb9825454c29b1917d859c8f5503d34f	tests/cases/diag/field-write-sealed.diag
 file	351fe7a0d151e868350a9d742f3bbc54f8d1e04d	tests/cases/diag/field-write-states.diag
@@ -48666,6 +48668,7 @@ file	18d19083b6f7058686fe1e68602b007ce34b7c0d	tests/cases/run/errors-result.stde
 file	702955f6f7c0161f19c8fd57943379375db37297	tests/cases/run/errors-result.stdout
 file	9fc243e087eb418a0589926053ecfb6e99eb0828	tests/cases/run/fail-narrows.stdout
 file	9073b2f808f96cde37c525ed51fa9085672f1135	tests/cases/run/fail-statement.stdout
+file	0586d9f1556dacb97f07f1951aec985277cf7d82	tests/cases/run/field-write-own-indirect.stdout
 file	06871cf6593b5e66f49c478892160547cb73b477	tests/cases/run/float-format.stdout
 file	b1258bb27d396648eb5082f27c451f785557fd37	tests/cases/run/float-try-parse.stdout
 file	a2c3207f7cc7a8af072920b9fb6c7ba129fa8be1	tests/cases/run/flow-out-catch-clean.stdout

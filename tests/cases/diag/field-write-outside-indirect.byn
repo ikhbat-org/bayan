@@ -1,0 +1,52 @@
+interface IBump {
+    void bump(ref this)
+}
+
+struct Inner : IBump {
+    i64 x
+
+    void bump(ref this) {
+        x = -5
+    }
+}
+
+struct Outer {
+    Inner inner requires it.x > 0
+    i64 n requires it > 0
+    List<i64> items requires it.length > 0
+    List<Inner> inners requires it.length > 0
+    Map<string, i64> m requires it.length > 0
+}
+
+void set(ref i64 v) {
+    v = -1
+}
+
+void fill(out Inner v) {
+    v = Inner { x: -2 }
+}
+
+void poke(dyn ref IBump r) {
+    r.bump()
+}
+
+void outside(ref Outer o) {
+    set(ref o.n)
+    set(ref o.inner.x)
+    fill(out o.inner)
+    o.inner.x = -7
+    o.inner.x += 1
+    o.inner.x++
+    o.inner.bump()
+    o.items.clear()
+    o.items[0] = 3
+    o.m["a"] = 1
+    poke(o.inner)
+    let r: dyn ref IBump = o.inner
+    r.bump()
+    for e: dyn ref IBump in o.inners {
+        e.bump()
+    }
+    o.inners[0].x = 4
+    o.inners[0].bump()
+}
