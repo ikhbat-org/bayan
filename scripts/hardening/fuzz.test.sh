@@ -27,6 +27,7 @@ cat >"$tmp/bin/afl-fuzz" <<STUB
 #!/bin/sh
 printf '%s\n' "\$@" >"$tmp/afl.args"
 echo "\$ASAN_OPTIONS" >"$tmp/afl.asan"
+echo "\$AFL_DEBUG_CHILD" >"$tmp/afl.debugchild"
 while [ \$# -gt 0 ]; do [ "\$1" = -o ] && out=\$2; shift; done
 mkdir -p "\$out/default/crashes" "\$out/default/hangs"
 cp "$tmp/fuzzer_stats" "\$out/default/fuzzer_stats"
@@ -119,6 +120,7 @@ has "$args" "none"; check "afl-fuzz runs with -m none" $?
 check "afl-fuzz runs bayan-afl check in/main.byn" $?
 [ "$(ls "$tmp/fuzz/seeds")" = a.byn ]; check "afl-fuzz is seeded with the corpus .byn files" $?
 grep -q 'abort_on_error=1:symbolize=0:detect_leaks=0' "$tmp/afl.asan"; check "ASAN_OPTIONS aborts, does not symbolize or check leaks" $?
+[ "$(cat "$tmp/afl.debugchild")" = 1 ]; check "afl-fuzz runs with AFL_DEBUG_CHILD=1 (fork server crash on WSL otherwise)" $?
 
 echo CRASH >"$tmp/fuzz/out/default/crashes/id:000001"
 out=$(BAYAN_EXE="$tmp/bin/fakebayan" bash "$fuzz" --triage 2>&1); rc=$?

@@ -99,11 +99,14 @@ case $mode in
         export AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1
         echo "afl: core_pattern pipes to a handler (not changed, no root): set AFL_I_DONT_CARE_ABOUT_MISSING_CRASHES=1"
     fi
-    env AFL_SKIP_CPUFREQ=1 AFL_NO_UI=1 BAYAN_CACHE="$dir/cache" \
+    # AFL_DEBUG_CHILD=1: on wp1 WSL (afl-fuzz++4.04c) the fork server dies with signal 11 when afl-fuzz redirects the target's
+    # stdout/stderr itself; with the child's output passed through it runs (7291 execs in 20 s, 2026-11-27). The diagnostics
+    # then reach this log, so it keeps only its last 4 MB.
+    env AFL_SKIP_CPUFREQ=1 AFL_NO_UI=1 AFL_DEBUG_CHILD=1 BAYAN_CACHE="$dir/cache" \
         ASAN_OPTIONS=abort_on_error=1:symbolize=0:detect_leaks=0:detect_stack_use_after_return=0 \
         "$afl" -V $((minutes * 60)) -t "${FUZZ_TIMEOUT_MS:-5000}" -m none -i "$dir/seeds" -o "$dir/out" -f "$dir/in/main.byn" \
-        -- "$dir/bayan-afl" check "$dir/in/main.byn" >"$dir/afl.log" 2>&1
-    rc=$?
+        -- "$dir/bayan-afl" check "$dir/in/main.byn" 2>&1 | tail -c 4000000 >"$dir/afl.log"
+    rc=${PIPESTATUS[0]}
     stats="$dir/out/default/fuzzer_stats"
     if [ ! -f "$stats" ]; then
         echo "fuzz: afl-fuzz did not run (exit $rc), see $dir/afl.log" >&2; tail -n 5 "$dir/afl.log" >&2; exit 1
