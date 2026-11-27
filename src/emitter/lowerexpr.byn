@@ -225,7 +225,7 @@ BExpr lowerExprNode(ref Ctx c, through ref LCtx l, for BExpr e) uses alloc {
                 ref l.tree,
                 from: T4LOptionalValue { span: span, optional: operand, type: c.bConversions[i].type },
             ) if kind == .narrow
-            if kind == .listToSpan && !isTrivial(in c, through: in l, for: operand) {
+            if (kind is .listToSpan or .stringToBytes) && !isRepeatable(in c, through: in l, for: operand) {
                 operand = spill(ref c, through: ref l, for: operand)
             }
             return t4Keep(

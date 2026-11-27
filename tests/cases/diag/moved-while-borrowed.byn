@@ -52,7 +52,7 @@ Span<i64> items(ref Slot slot, by Span<i64> none) => none
 
 void switchMove() {
     var slot = Slot.full(make())
-    let none: i64[1] = [0]
+    var none: i64[1] = [0]
     let sp: Span<i64> = items(ref slot, by: none)
     switch move slot {
         case .full(var x):

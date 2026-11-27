@@ -196,47 +196,8 @@ void lowerAssign(ref Ctx c, through ref LCtx l, for BStmt s) uses alloc {
     }
     // `t op= v`: the target is evaluated once, so its index (if any) must be stable.
     var target = lowerLvalue(ref c, through: ref l, for: aTarget)
-    if !ltree.isLowered(target) && semantics.boundKind(target) == .index {
-        let k = i64(target & 0xFFFFFFFF)
-        let index = c.bIndexes[k].index
-        if !isTrivial(in c, through: in l, for: index) {
-            let stable = spill(ref c, through: ref l, for: index)
-            target = semantics.addIndex(
-                ref c,
-                from: T3BIndex {
-                    span: c.bIndexes[k].span,
-                    target: c.bIndexes[k].target,
-                    index: stable,
-                    fromEnd: c.bIndexes[k].fromEnd,
-                    type: c.bIndexes[k].type,
-                },
-            )
-        }
-    } else if !ltree.isLowered(target) && semantics.boundKind(target) == .builtinCall
-            && (c.bBuiltinCalls[i64(target & 0xFFFFFFFF)].member == .mapIndexSet
-            // coverage-exempt: Q780 through `arguments.length > 0 {`
-            || c.bBuiltinCalls[i64(target & 0xFFFFFFFF)].member == .mapSlot)
-            && c.bBuiltinCalls[i64(target & 0xFFFFFFFF)].arguments.length > 0 {
-        let k = i64(target & 0xFFFFFFFF)
-        let key = c.bBuiltinCalls[k].arguments[0]
-        if !isTrivial(in c, through: in l, for: key) {
-            var arguments = List<BExpr>()
-            arguments.append(spill(ref c, through: ref l, for: key))
-            for m in 1..c.bBuiltinCalls[k].arguments.length {
-                arguments.append(c.bBuiltinCalls[k].arguments[m])
-            }
-            target = semantics.addBuiltinCall(
-                ref c,
-                from: T3BBuiltinCall {
-                    span: c.bBuiltinCalls[k].span,
-                    member: c.bBuiltinCalls[k].member,
-                    receiver: c.bBuiltinCalls[k].receiver,
-                    arguments: move arguments,
-                    type: c.bBuiltinCalls[k].type,
-                },
-            )
-        }
-    }
+    return if isNeverExpr(target)
+    target = lowerStable(ref c, through: ref l, for: target, until: aValue)
     // The old value is read before `v` runs, which may change or move the target.
     // `map[k] op= v` reads through the panicking index: only `slot` inserts a missing key.
     var current: BExpr = -1
@@ -698,7 +659,12 @@ void lowerFor(ref Ctx c, through ref LCtx l, for BStmt s) uses alloc {
 
     // Spans and lists are small headers: iterate over a copy. Arrays are iterated in place.
     let sequence = semantics.kindOf(iterableType) == .array
-        && isLvalue(in c, through: in l, for: iterable) ? iterable : spill(ref c, through: ref l, for: iterable)
+        && isLvalue(c, through: l, for: iterable) ? lowerStable(
+            ref c,
+            through: ref l,
+            for: iterable,
+            until: forBody,
+        ) : spill(ref c, through: ref l, for: iterable)
     var lengthMember: semantics.BuiltinMember = .arrayLength
     var element: Type = -1
     switch semantics.kindOf(iterableType) {

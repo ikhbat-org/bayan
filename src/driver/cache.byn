@@ -1164,8 +1164,10 @@ void t9Remember(string scriptKey, by string programKey, through ref DCtx d)
     try Fs.rename(temp, to: Path.combine(scripts, scriptKey))
 }
 
-/// Toolchain.cs:623 `ScriptKey`: compiler version and build, mode, host and the script's bytes. `build` null is `CompilerBuild`.
-string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) uses alloc, env, fs {
+/// Toolchain.cs:623 `ScriptKey`: compiler version and build, mode, host and the script's bytes; then, when `path` is given, the
+/// script's full path and the `--package` root ("" without one), which name the files the program was compiled from. `build` null is `CompilerBuild`.
+string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build, string path = "", string? package = null)
+        uses alloc, env, fs {
     var sb = StrBuf()
     sb.append("script")
     sb.append("\0")
@@ -1178,6 +1180,14 @@ string scriptKey(ReadOnlySpan<u8> script, by string mode, for string? build) use
     sb.append(targetHost() ?? "")
     sb.append("\0")
     sb.append(Hex.encode(sha256(script).span))
+    if path != "" {
+        sb.append("\0")
+        sb.append(Path.fullPath(path))
+        sb.append("\0")
+        if (package is { } p) {
+            sb.append(Path.fullPath(p))
+        }
+    }
     return t9Hash(sb.finish())
 }
 
@@ -1211,6 +1221,16 @@ test "script-key: a script's key depends on the compiler build, the same build g
     assert(scriptKey(script.bytes, by: "safe", for: "a") != scriptKey(script.bytes, by: "safe", for: "b"))
     assert(scriptKey(script.bytes, by: "safe", for: "a") == scriptKey(script.bytes, by: "safe", for: "a"))
     assert(compilerBuild() != "")
+}
+
+test "script-key: a script's key depends on its path and its --package root, and without a path is the key of its bytes" {
+    let script = "print(\"hi\")\n"
+    let plain = scriptKey(script.bytes, by: "safe", for: "a")
+    let here = scriptKey(script.bytes, by: "safe", for: "a", path: "tmp/a.byn")
+    assert(here != plain)
+    assert(here != scriptKey(script.bytes, by: "safe", for: "a", path: "tmp/b.byn"))
+    assert(here != scriptKey(script.bytes, by: "safe", for: "a", path: "tmp/a.byn", package: "tmp"))
+    assert(here == scriptKey(script.bytes, by: "safe", for: "a", path: "tmp/a.byn"))
 }
 
 // CacheTests.ASingleWordOrZigCompilerKeepsItsStamp, the rows that name the compiler by its path: the rows that find `cc` and `zig`

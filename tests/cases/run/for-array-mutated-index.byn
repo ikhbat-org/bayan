@@ -1,0 +1,35 @@
+// Fixed-array `for` spills an index mutated by the loop body so every iteration reads the same array.
+i64 bump(ref i64 i) {
+    i += 1
+    return i
+}
+
+struct Holder {
+    List<i64[2]> arrs
+    i64 k = 0
+
+    void run(ref this) {
+        for v in this.arrs[this.k] {
+            this.k = 1
+            print($"{v}")
+        }
+    }
+}
+
+void main() {
+    var i: i64 = 0
+    let arrs: List<i64[2]> = [[1, 2], [3, 4]]
+    for v in arrs[i] {
+        i = 1
+        print($"{v}")
+    }
+
+    var j: i64 = 0
+    for v in arrs[j] {
+        let _ = bump(ref j)
+        print($"{v}")
+    }
+
+    var h = Holder { arrs: [[10, 20], [30, 40]], k: 0 }
+    h.run()
+}

@@ -1,0 +1,57 @@
+// Implicit `string` -> `ReadOnlySpan<u8>` (`.stringToBytes`) and `.listToSpan` evaluate their operand once.
+string next(ref i64 c) {
+    c += 1
+    if c == 1 {
+        return "a"
+    }
+    return "0123456789abcdef"
+}
+
+i64 nextIdx(ref i64 c) {
+    c += 1
+    return c - 1
+}
+
+List<i64> makeList(ref i64 c) {
+    c += 1
+    return [c, c + 10]
+}
+
+void showBytes(ReadOnlySpan<u8> b) {
+    print($"{b.length}")
+}
+
+void showTwo(ReadOnlySpan<u8> a, to ReadOnlySpan<u8> b) {
+    print($"{a.length} {b.length}")
+}
+
+void showInts(ReadOnlySpan<i64> xs) {
+    print($"{xs.length} {xs[0]}")
+}
+
+void main() {
+    var c: i64 = 0
+    showBytes(next(ref c))
+    print($"{c}")
+
+    var c2: i64 = 0
+    showTwo(next(ref c2), to: next(ref c2))
+    print($"{c2}")
+
+    var c3: i64 = 0
+    let ss: List<string> = ["hi", "there"]
+    showBytes(ss[nextIdx(ref c3)])
+    print($"{c3}")
+
+    var c4: i64 = 0
+    showBytes($"v={next(ref c4)}")
+    print($"{c4}")
+
+    var c5: i64 = 0
+    showBytes(next(ref c5).bytes)
+    print($"{c5}")
+
+    var c6: i64 = 0
+    showInts(makeList(ref c6))
+    print($"{c6}")
+}

@@ -1,0 +1,71 @@
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  20 │         set(ref n)
+     │                 ^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  21 │         set(ref inner.x)
+     │                 ^^^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  22 │         fill(out inner)
+     │                  ^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  23 │         inner.x = -7
+     │         ^^^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  24 │         inner.bump()
+     │         ^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  25 │         items.clear()
+     │         ^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  26 │         items[0] = 3
+     │         ^^^^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  27 │         m["a"] = 1
+     │         ^^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`
+
+error BYN3208: fields of `Outer` cannot be assigned one at a time; its `requires` are checked at
+construction
+
+  28 │         poke(inner)
+     │              ^^^^^
+     │
+  help: build a new value with `with`: `try x with { f: v }`

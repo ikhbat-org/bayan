@@ -20,7 +20,7 @@ b9: assign(local t#1:List<i64> collection:List<i64>) exprStmt(builtinCall m42:vo
 c1: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i32[2] locals=1
 c2: assign(local t#1:Map<string, i64> collection:Map<string, i64>) exprStmt(call panic:never(literal "x":string="x")) => neverValue:Map<string, i64> locals=2
 c3: exprStmt(call panic:never(literal "x":string="x")) => neverValue:Span<i64> locals=1
-c4: exprStmt(call panic:never(literal "x":string="x")) => neverValue:Span<i64> locals=1
+c4: exprStmt(call panic:never(literal "x":string="x")) => neverValue:ReadOnlySpan<i64> locals=1
 c5: exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64 locals=1
 c6: assign(local t#1:i64 local k#-:i64) exprStmt(call panic:never(literal "x":string="x")) => neverValue:bool locals=2
 c7: assign(local t#1:i64[3] local arr#-:i64[3]) exprStmt(call panic:never(literal "x":string="x")) => neverValue:i64[4] locals=2

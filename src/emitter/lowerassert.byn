@@ -612,14 +612,26 @@ public BExpr lowerBuiltinCall(ref Ctx c, through ref LCtx l, for BExpr e) uses a
     return copy
 }
 
+/// Whether `e` can be evaluated on both sides of `place op= rhs` (or across a loop body) without changing value.
+bool t5StableIndex(Ctx c, through LCtx l, for BExpr e, until semantics.BNode rhs) uses alloc {
+    return false unless isRepeatable(c, through: l, for: e)
+    return true if rhs == -1
+    let local = rootLocal(c, through: l, for: e)
+    if local != -1 {
+        return !anyNode(c, through: l, for: rhs, by: .writesLocal(local))
+    }
+    return !anyNode(c, through: l, for: rhs, by: .writesThis) if isThisRoot(c, through: l, for: e)
+    return true
+}
+
 /// Lowerer.cs:1609 `Stable` (Q844): `place` with every operand that a later write could change spilled to a temporary.
-public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place) uses alloc {
+public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place, until semantics.BNode rhs = -1) uses alloc {
     if ltree.isLowered(place) {
         if ltree.lKindOf(place) == .optionalValue {
             let i = ltree.lIndexOf(place)
             let span = l.tree.optionalValues[i].span
             let type = l.tree.optionalValues[i].type
-            let optional = lowerStable(ref c, through: ref l, for: l.tree.optionalValues[i].optional)
+            let optional = lowerStable(ref c, through: ref l, for: l.tree.optionalValues[i].optional, until: rhs)
             return ltree.addLOptionalValue(
                 ref l.tree,
                 from: T5LOptionalValue { span: span, optional: optional, type: type },
@@ -632,7 +644,7 @@ public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place) uses al
                 let span = c.bFields[i].span
                 let field = c.bFields[i].field
                 let type = c.bFields[i].type
-                let receiver = lowerStable(ref c, through: ref l, for: c.bFields[i].receiver)
+                let receiver = lowerStable(ref c, through: ref l, for: c.bFields[i].receiver, until: rhs)
                 return t5Copied(
                     ref c,
                     from: place,
@@ -645,7 +657,7 @@ public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place) uses al
                 let span = c.bTupleElements[i].span
                 let index = c.bTupleElements[i].index
                 let type = c.bTupleElements[i].type
-                let receiver = lowerStable(ref c, through: ref l, for: c.bTupleElements[i].receiver)
+                let receiver = lowerStable(ref c, through: ref l, for: c.bTupleElements[i].receiver, until: rhs)
                 return t5Copied(
                     ref c,
                     from: place,
@@ -660,8 +672,13 @@ public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place) uses al
                 let fromEnd = c.bIndexes[i].fromEnd
                 let type = c.bIndexes[i].type
                 let index = c.bIndexes[i].index
-                let target = lowerStable(ref c, through: ref l, for: c.bIndexes[i].target)
-                let at = isTrivial(c, through: l, for: index) ? index : spill(ref c, through: ref l, for: index)
+                let target = lowerStable(ref c, through: ref l, for: c.bIndexes[i].target, until: rhs)
+                let at = t5StableIndex(
+                    c,
+                    through: l,
+                    for: index,
+                    until: rhs,
+                ) ? index : spill(ref c, through: ref l, for: index)
                 return t5Copied(
                     ref c,
                     from: place,
@@ -673,11 +690,13 @@ public BExpr lowerStable(ref Ctx c, through ref LCtx l, for BExpr place) uses al
             case .builtinCall:
                 let member = c.bBuiltinCalls[i].member
                 if member is .mapIndexSet or .mapSlot {
-                    let receiver = lowerStable(ref c, through: ref l, for: c.bBuiltinCalls[i].receiver)
+                    let receiver = lowerStable(ref c, through: ref l, for: c.bBuiltinCalls[i].receiver, until: rhs)
                     var arguments = List<BExpr>()
                     for k in 0..c.bBuiltinCalls[i].arguments.length {
                         let a = c.bBuiltinCalls[i].arguments[k]
-                        arguments.append(isTrivial(c, through: l, for: a) ? a : spill(ref c, through: ref l, for: a))
+                        arguments.append(
+                            t5StableIndex(c, through: l, for: a, until: rhs) ? a : spill(ref c, through: ref l, for: a),
+                        )
                     }
                     return t5Builtin(ref c, from: place, as: member, to: receiver, by: move arguments)
                 }

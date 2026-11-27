@@ -1,0 +1,31 @@
+// Compound assignment to an index through `this` spills the index when the rhs mutates `this`.
+struct P {
+    i64 x = 0
+}
+
+i64 bumpRef(ref i64 k) {
+    k += 1
+    return 7
+}
+
+struct S {
+    List<P> xs
+    i64 k = 0
+
+    i64 bump(ref this) {
+        this.k += 1
+        return 5
+    }
+
+    void run(ref this) {
+        this.xs[this.k].x += this.bump()
+        this.xs[this.k].x += bumpRef(ref this.k)
+        this.xs[this.k].x += 1
+    }
+}
+
+void main() {
+    var s = S { xs: [P { x: 1 }, P { x: 2 }, P { x: 3 }], k: 0 }
+    s.run()
+    print($"{s.xs[0].x} {s.xs[1].x} {s.xs[2].x} {s.k}")
+}

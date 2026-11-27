@@ -1,0 +1,19 @@
+error BYN2106: cannot modify this value
+
+  13 │     fill(make())
+     │          ^^^^^^ it is borrowed as `Span<i64>`
+
+error BYN2106: cannot modify this value
+
+  14 │     fill(m["a"])
+     │          ^^^^^^ it is borrowed as `Span<i64>`
+
+error BYN2202: expected `Span<i64>`, found `ReadOnlySpan<i64>`
+
+  15 │     fill(m["a"][0..2])
+     │          ^^^^^^^^^^^^
+
+error BYN2106: cannot modify this value
+
+  16 │     m["a"][0] = 9
+     │     ^^^^^^^^^
