@@ -203,8 +203,9 @@ program_case() {
     got=$(cat "$d/w.c"); [ "$got" != 0 ] || got=""
     [ "$want" = "$got" ] || { echo "$at: exit code '${got}', $kind/${name%.byn}.exitcode says '${want}'"; return; }
   done
-  # a panic writes them too (bayan-rt.c `byn_cov_flush`)
-  if [ "$mode" = coverage ] && ! ls "$d/counters" | grep -q '^cov\.'; then
+  # a panic writes them too (bayan-rt.c `byn_cov_flush`); a case that expects 137 is SIGKILLed (run/io-stdin-flush,
+  # run/io-stdin-bytes-flush), so nothing can write them
+  if [ "$mode" = coverage ] && [ "$want" != 137 ] && ! ls "$d/counters" | grep -q '^cov\.'; then
     echo "BAYAN_COVERAGE set: no counter file cov.<pid>"
   fi
 }
