@@ -7,11 +7,11 @@ a5: assign(local t#0:i64[3] local arr#-:i64[3]) assign(local t#1:i64[4] collecti
 a6: assign(local t#0:i64[3] local arr#-:i64[3]) assign(local t#1:i64 call h:i64) => collection:i64[4](indexUnchecked:i64(local t#0:i64[3] literal 0:0:i64=0:0) indexUnchecked:i64(local t#0:i64[3] literal 0:1:i64=0:1) indexUnchecked:i64(local t#0:i64[3] literal 0:2:i64=0:2) local t#1:i64) locals=2
 a7: assign(local t#0:List<i64> collection:List<i64>) assign(local t#1:Span<i64> local sp#-:Span<i64>) assign(local t#2:i64 literal 0:0:i64=0:0) loop(block(ifStmt(unary op2:bool(binary op13:bool(local t#2:i64 builtinCall m34:i64(local t#1:Span<i64>))) block(gotoStmt break_1)) exprStmt(builtinCall m42:void(local t#0:List<i64> indexUnchecked:i64(local t#1:Span<i64> local t#2:i64))) assign(local t#2:i64 binary op5:i64(local t#2:i64 literal 0:1:i64=0:1)))) label break_1 => local t#0:List<i64> locals=3
 a8: => collection:List<i64> locals=0
-a9: => slice:Span<i64>(local xs#-:List<i64> local k#-:i64) locals=0
-b1: => slice:Span<i64>(local xs#-:List<i64> local k#-:i64) locals=0
-b2: => slice:Span<i64>(local arr#-:i64[3] literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=0
-b3: assign(local t#0:i64[3] call mkArr:i64[3]) => slice:Span<i64>(local t#0:i64[3] literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=1
-b4: assign(local t#0:List<i64> call mkList:List<i64>) => slice:Span<i64>(local t#0:List<i64> literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=1
+a9: => slice:ReadOnlySpan<i64>(local xs#-:List<i64> local k#-:i64) locals=0
+b1: => slice:ReadOnlySpan<i64>(local xs#-:List<i64> local k#-:i64) locals=0
+b2: => slice:ReadOnlySpan<i64>(local arr#-:i64[3] literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=0
+b3: assign(local t#0:i64[3] call mkArr:i64[3]) => slice:ReadOnlySpan<i64>(local t#0:i64[3] literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=1
+b4: assign(local t#0:List<i64> call mkList:List<i64>) => slice:ReadOnlySpan<i64>(local t#0:List<i64> literal 0:1:i64=0:1 literal 0:2:i64=0:2) locals=1
 b5: => index:i64(local arr#-:i64[3] local k#-:i64) locals=0
 b6: assign(local t#0:i64[3] call mkArr:i64[3]) => index:i64(local t#0:i64[3] local k#-:i64) locals=1
 b7: => binary op22:bool(binary op16:bool(literal 0:3:i64=0:3 literal 0:1:i64=0:1) binary op13:bool(literal 0:3:i64=0:3 call h:i64)) locals=0
@@ -28,7 +28,7 @@ c9: => binary op22:bool(binary op17:bool(field:i64(local p#-:P) literal 0:1:i64=
 d1: => literal true:bool=true locals=0
 d2: => binary op17:bool(tupleElement:i64(local tu#-:(i64 x, i64 y)) literal 0:1:i64=0:1) locals=0
 d4: assign(local t#0:i64[4] defaultValue:i64[4]) => conversion:Span<i64>(local t#0:i64[4]) locals=1
-d5: => slice:Span<i64>(local xs#-:List<i64> local k#-:i64 local k#-:i64) locals=0
+d5: => slice:ReadOnlySpan<i64>(local xs#-:List<i64> local k#-:i64 local k#-:i64) locals=0
 d6: => optionalValue:i64(local o#-:i64?) locals=0
 z1: => errorVariant:E locals=0
 z2: => binary op0:i32=0:3(literal 0:1:i32=0:1 literal 0:2:i32=0:2) locals=0

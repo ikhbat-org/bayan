@@ -18,7 +18,7 @@ g10: => tuple:(i32 x, i64 y)(literal 0:1:i32=0:1 call h:i64) locals=0
 g11: => tuple:(i64, i64, bool)(literal 0:1:i64=0:1 local k#-:i64 literal false:bool=false) locals=0
 g13: assign(local t#0:List<i64> collection:List<i64>) exprStmt(builtinCall m42:void(local t#0:List<i64> literal 0:1:i64=0:1)) exprStmt(builtinCall m42:void(local t#0:List<i64> call h:i64)) => local t#0:List<i64> locals=1
 g16: => index:i64(local xs#-:List<i64> local k#-:i64) locals=0
-g17: => slice:Span<i64>(local xs#-:List<i64> literal 0:1:i64=0:1 local k#-:i64) locals=0
+g17: => slice:ReadOnlySpan<i64>(local xs#-:List<i64> literal 0:1:i64=0:1 local k#-:i64) locals=0
 g18: => binary op23:bool(binary op17:bool(local k#-:i64 literal 0:1:i64=0:1) binary op17:bool(local k#-:i64 literal 0:2:i64=0:2)) locals=0
 g19: assign(local t#0:i64 local k#-:i64) => binary op22:bool(binary op16:bool(local t#0:i64 literal 0:1:i64=0:1) binary op13:bool(local t#0:i64 call h:i64)) locals=1
 g22: => functionValue h:() -> i64 locals=0
