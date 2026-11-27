@@ -12,6 +12,13 @@ HF-0001  Untrusted<bool> assigns to bool without trustUnchecked (string and i64 
   severity:   unsound
   first seen: 70be08e7e (dev)
   status:     open
+
+HF-0002  A read after a `ref` call in the same expression is unsequenced in the emitted C (gcc prints 30, zig 40)
+  oracle:     H1 sanitizer matrix, gcc cells on wp1 WSL (golden run/operand-ref-spill, every cell)
+  repro:      tests/hardening/known/HF-0002/
+  severity:   miscompile
+  first seen: 51379f861 (dev)
+  status:     open
 ```
 
 ## Harness notes (not compiler findings)
