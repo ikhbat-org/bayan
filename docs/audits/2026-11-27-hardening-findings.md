@@ -25,7 +25,16 @@ HF-0003  List.sort swaps elements a byte at a time; Fil-C stops on the swapped s
   repro:      tests/hardening/known/HF-0003/
   severity:   crash
   first seen: 507c90184 (dev)
-  status:     open
+  status:     fixed on fix/hf0003-sort-swap-memcpy (95cadacbd; runtime/tests 25 ok incl. new sort-wide.c, break-tested), Fil-C proof on wp1 WSL pending; merge after HF-0002
+
+HF-0004  Debug-mode binaries record the build directory: `-g` writes the compiler's cwd as DWARF `DW_AT_comp_dir`
+  oracle:     H2 determinism (scripts/hardening/determinism.sh, binary leg, Linux); goldens run/strbuf-over-debug, run/switch-move-guard,
+              run/switch-move-loop, run/unique-checker-clean (the four `// mode: debug` cases; safe and fast binaries match)
+  repro:      build any `--mode debug` program from two directories and compare; `readelf --debug-dump=info` shows each path
+  severity:   nondeterminism (debug builds only; emitted C matches)
+  first seen: 507c90184 (dev)
+  status:     open, owner call: mapping the cwd to `.` (`-fdebug-prefix-map=<cwd>=.` beside src/driver/cc.byn's `-g`) makes debug
+              builds reproducible, but a debugger then finds sources only when started from the source directory
 ```
 
 ## Harness notes (not compiler findings)
