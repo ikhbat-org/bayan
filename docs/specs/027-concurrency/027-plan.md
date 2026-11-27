@@ -32,7 +32,7 @@ implementations, stdin, child processes, the abort path, `wasm32`, bounds and th
 golden cases.
 
 ```cs
-i32 streamLog(Sender<Untrusted<string>> lines) uses process, suspend, alloc fails IoError, ChannelError {
+i32 streamLog(ref Sender<Untrusted<string>> lines) uses process, suspend, alloc fails IoError, ChannelError {
     var child = try Io.start("git", args: ["log", "--oneline"])
     var output = child.takeStdout() ?? return -1
     while let line = try output.readLine(max: 1048576) {
