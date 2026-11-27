@@ -8,7 +8,7 @@ template: docs
 
 <h2 id="notation">How signatures are written</h2>
 <p>Signatures read as declared: return type, name, parameters. A role particle labels the argument; see <a href="parameters.html">Parameters and arguments</a>. <code>fails E</code> means a call can fail with an error from <code>E</code> and needs <code>try</code> or <code>catch</code>; <code>T?</code> means the result may be <code>null</code>; <code>= x</code> marks an optional parameter.</p>
-<p>Effects (<code>uses fs</code>, <code>uses net</code>) are unchecked on built-in functions; the entries say when a call leaves the program.</p>
+<p>Effects and capabilities (<code>uses fs</code>, <code>uses net</code>) are not checked for the built-in functions yet; the entries say when a call reaches outside the program.</p>
 
 <h2 id="free-functions">Free functions</h2>
 
@@ -111,7 +111,7 @@ List&lt;u8&gt; Hex.decode(string text) fails ParseError</code></pre>
 <pre><code class="byn">T T.parse(string text, Radix as = .decimal) fails ParseError
 T? T.tryParse(string text, Radix as = .decimal)
 string string(n, as: Radix)</code></pre>
-<p><code>parse</code> exists on every integer type (<code>i8</code> to <code>i64</code>, <code>u8</code> to <code>u64</code>). It fails with <code>ParseError.badDigit(at)</code> (the first non-digit byte, or <code>at: 0</code> when empty) or <code>ParseError.overflow</code> (the number does not fit). <code>tryParse</code> returns <code>null</code> for either; <code>f64.tryParse</code> reads floating-point text. <code>Radix</code> has <code>.binary</code>, <code>.octal</code>, <code>.decimal</code> and <code>.hex</code>. <code>string(n, as: .hex)</code> writes lowercase digits without a prefix.</p>
+<p><code>parse</code> exists on every integer type (<code>i8</code> to <code>i64</code>, <code>u8</code> to <code>u64</code>). It fails with <code>ParseError.badDigit(at)</code> (the byte offset of the first character that is not a digit, or <code>at: 0</code> when empty) or <code>ParseError.overflow</code> (the number does not fit). <code>tryParse</code> returns <code>null</code> for either; <code>f64.tryParse</code> reads floating-point text. <code>Radix</code> has <code>.binary</code>, <code>.octal</code>, <code>.decimal</code> and <code>.hex</code>. <code>string(n, as: .hex)</code> writes lowercase digits without a prefix.</p>
 <example name="std-parse"/>
 <p>Two lines show <code>catch</code> turning failures into fallbacks: <code>12x</code> is not a number, and <code>300</code> does not fit a <code>u8</code>.</p>
 

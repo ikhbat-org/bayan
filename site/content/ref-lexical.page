@@ -131,7 +131,8 @@ print($"{a}")</code></pre>
     <tr><td><code>unlikely</code>, <code>never</code></td><td>after <code>if</code></td></tr>
     <tr><td><code>it</code></td><td>inside a lambda argument and inside a <code>requires</code> clause</td></tr>
     <tr><td><code>bench</code>, <code>measure</code></td><td>in benchmarks</td></tr>
-    <tr><td><code>states</code>, <code>becomes</code></td><td>at the start of a member when a <code>{</code> follows, and after a parameter list</td></tr>
+    <tr><td><code>states</code></td><td>at the start of a member when a <code>{</code> follows</td></tr>
+    <tr><td><code>becomes</code></td><td>after a parameter list</td></tr>
     <tr><td><code>pattern</code></td><td>after <code>=</code> in a <code>const</code> declaration</td></tr>
     <tr><td>the effect names <code>alloc suspend net fs clock random env process console</code></td><td>inside a <code>uses</code> clause</td></tr>
     <tr><td>the particles <code>from to until through at by for as</code></td><td>labels, not keywords; <code>for</code> and <code>as</code> stay reserved and are allowed only in label position, as in <code>for:</code></td></tr>

@@ -128,7 +128,7 @@ let c: i64 = .red</code></pre>
   <li><code>width: 6</code> pads to six characters; <code>fill: '0'</code> chooses the padding character.</li>
   <li><code>digits: 2</code>: a float's digits after the point.</li>
   <li><code>as: .debug</code>: a struct's literal form.</li>
-  <li>Floats print the shortest exact digits; fixed notation from <code>1e-5</code> to below <code>1e15</code>, exponent outside, lowercase, no <code>+</code>. Whole values drop the point: <code>1.0</code> prints <code>1</code>.</li>
+  <li>Floats print the shortest digits that read back to the same value; fixed notation from <code>1e-5</code> to below <code>1e15</code>, exponent outside, lowercase, no <code>+</code>. Whole values drop the point: <code>1.0</code> prints <code>1</code>.</li>
   <li>A distinct type prints as its underlying value, a payload-free union case as its name, an error as its doc-comment summary.</li>
   <li>A struct has no default display (BYN2225): add <code>formatInto</code> or write <code>{x, as: .debug}</code>.</li>
   <li>Lists and maps cannot be interpolated (BYN2225); loop over them.</li>

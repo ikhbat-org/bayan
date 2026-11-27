@@ -98,7 +98,7 @@ m.n = 5</code></pre>
     <tr><td>A line starting with <code>[</code></td><td>A collection literal, not an attribute; <code>[Name(args)]</code> is rejected (BYN1045).</td></tr>
   </tbody>
 </table></div>
-<p>No attribute takes a <code>because</code>.</p>
+<p>Ordinary attributes take no <code>because</code>.</p>
 <pre><code class="byn">@noEquality
 struct A { i32 x }</code></pre>
 <figure class="diag">

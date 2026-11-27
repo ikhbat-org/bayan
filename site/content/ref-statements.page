@@ -121,7 +121,7 @@ print("slow") unless fast</code></pre>
 <span class="gut">    │</span>   │ +++++</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: <code>for x in xs except pattern</code> (BYN2022), <code>xs.indexed()</code>, <code>let (a, b)</code> destructuring, and lazy queries/readers for <code>for try</code>, which are not in the specification's first version.</note>
+<note>Planned: <code>for x in xs except pattern</code> (BYN2022), <code>xs.indexed()</code>, <code>let (a, b)</code> destructuring. Lazy queries and readers for <code>for try</code> are not in the specification's first version.</note>
 
 <h2 id="defer">Cleanup: defer</h2>
 <ul>
