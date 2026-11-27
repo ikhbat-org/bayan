@@ -187,7 +187,7 @@ let c = 1e</code></pre>
 </figure>
 
 <h3 id="byn0012">BYN0012: reserved word used as identifier</h3>
-<p><strong>Why.</strong> Every keyword is reserved, including those kept for future features (<code>actor</code>, <code>macro</code>, <code>select</code>, <code>become</code>), so adding a feature later cannot break existing code. The C# primitive type names (<code>sbyte</code>, <code>byte</code>, <code>short</code>, <code>ushort</code>, <code>int</code>, <code>uint</code>, <code>long</code>, <code>ulong</code>, <code>nint</code>, <code>nuint</code>, <code>float</code>, <code>double</code>) are reserved too: they name the sized types in every project, so none can be declared as a name (<code>i32 int</code>, <code>let long = 4</code>).</p>
+<p><strong>Why.</strong> Every keyword is reserved, including those kept for future features (<code>actor</code>, <code>macro</code>, <code>select</code>, <code>become</code>), so adding a feature later cannot break existing code. The other primitive type names (<code>sbyte</code>, <code>byte</code>, <code>short</code>, <code>ushort</code>, <code>int</code>, <code>uint</code>, <code>long</code>, <code>ulong</code>, <code>nint</code>, <code>nuint</code>, <code>float</code>, <code>double</code>) are reserved too: they name the sized types in every project, so none can be declared as a name (<code>i32 int</code>, <code>let long = 4</code>).</p>
 <p><strong>Fix.</strong> Choose another name, e.g. <code>actorId</code>.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">let actor = 1</code></pre>
@@ -714,7 +714,7 @@ let q = p with { y = 3 }</code></pre>
 </figure>
 
 <h3 id="byn1028">BYN1028: <code>delegate</code></h3>
-<p><strong>Why.</strong> Bayan writes function types directly: <code>Order -&gt; bool</code>. A name for one is a type alias. The C# <code>delegate</code> declaration is an input form.</p>
+<p><strong>Why.</strong> Bayan writes function types directly: <code>Order -&gt; bool</code>. A name for one is a type alias. A <code>delegate</code> declaration is an input form.</p>
 <p><strong>Message.</strong> <code>delegate</code> is not Bayan; write a function type <code>type {0} = {1}</code></p>
 <p><strong>Help.</strong> declare it as <code>type {0} = {1}</code></p>
 <p><strong>Fix.</strong> Write a type alias for the function type:</p>
@@ -931,7 +931,7 @@ distinct type Sku = string</code></pre>
 </figure>
 
 <h3 id="byn1045">BYN1045: bracket attribute</h3>
-<p><strong>Why.</strong> Bayan writes an attribute as <code>@name</code> or <code>@name(args)</code> before the declaration, with a camelCase name, so <code>[</code> only ever opens a list or an index. The C# spelling <code>[Name(args)]</code> is an input form.</p>
+<p><strong>Why.</strong> Bayan writes an attribute as <code>@name</code> or <code>@name(args)</code> before the declaration, with a camelCase name, so <code>[</code> only ever opens a list or an index. The bracket spelling <code>[Name(args)]</code> is an input form.</p>
 <p><strong>Fix.</strong> Write the attribute with <code>@</code> and a camelCase name:</p>
 <pre><code class="byn">@cases(1, 2, 3)
 test "positive" (i32 n) {
@@ -1003,7 +1003,7 @@ i64 total(i64 price) =&gt; price</code></pre>
 </figure>
 
 <h3 id="byn1048">BYN1048: <code>char</code> is now <code>rune</code></h3>
-<p><strong>Why.</strong> A Bayan character is a Unicode scalar value, not a UTF-16 unit as in C#, so it is named <code>rune</code>. <code>char</code> is an input form; a character literal such as <code>'a'</code> is a <code>rune</code>.</p>
+<p><strong>Why.</strong> A Bayan character is a Unicode scalar value, not a UTF-16 unit, so it is named <code>rune</code>. <code>char</code> is an input form; a character literal such as <code>'a'</code> is a <code>rune</code>.</p>
 <p><strong>Fix.</strong> Rename the type to <code>rune</code>:</p>
 <pre><code class="byn">bool isVowel(rune c) =&gt; c == 'a' or c == 'e'</code></pre>
 <p>The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it.</p>
@@ -1242,7 +1242,7 @@ let small = (u8)big</code></pre>
 </figure>
 
 <h3 id="byn1058">BYN1058: <code>params</code> or <code>T...</code> for a variadic parameter</h3>
-<p><strong>Why.</strong> A variadic parameter is written <code>rest ReadOnlySpan&lt;T&gt; name</code>: the caller's extra arguments arrive as a read-only span. C#'s <code>params T[]</code> and C's <code>T...</code> are input forms.</p>
+<p><strong>Why.</strong> A variadic parameter is written <code>rest ReadOnlySpan&lt;T&gt; name</code>: the caller's extra arguments arrive as a read-only span. <code>params T[]</code> and <code>T...</code> are input forms.</p>
 <p><strong>Fix.</strong> Write <code>rest ReadOnlySpan&lt;T&gt;</code>:</p>
 <pre><code class="byn">i32 sum(rest ReadOnlySpan&lt;i32&gt; xs) { … }</code></pre>
 <p>The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it.</p>
@@ -1300,7 +1300,7 @@ i32 total(i32... xs) { … }</code></pre>
 </figure>
 
 <h3 id="byn1060">BYN1060: <code>{ get }</code> on an interface member</h3>
-<p><strong>Why.</strong> A field-shaped interface member, <code>Type name</code>, is already a read-only property requirement. C#'s <code>Type name { get }</code> is an input form.</p>
+<p><strong>Why.</strong> A field-shaped interface member, <code>Type name</code>, is already a read-only property requirement. <code>Type name { get }</code> is an input form.</p>
 <p><strong>Fix.</strong> Remove <code>{ get }</code>: <code>i64 length</code>. The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">interface Sized {
@@ -1419,7 +1419,7 @@ print(trust(name, reason: "checked against the allow list"))</code></pre>
 </figure>
 
 <h3 id="byn1066">BYN1066: prefix pointer type</h3>
-<p><strong>Why.</strong> A pointer type is written after its pointee, as in C#: <code>T*</code>, and <code>readonly T*</code> for a pointee that cannot be written through it. Rust's <code>*const T</code> and <code>*mut T</code>, and a bare <code>*T</code>, are input forms.</p>
+<p><strong>Why.</strong> A pointer type is written after its pointee: <code>T*</code>, and <code>readonly T*</code> for a pointee that cannot be written through it. Rust's <code>*const T</code> and <code>*mut T</code>, and a bare <code>*T</code>, are input forms.</p>
 <p><strong>Fix.</strong> Write the pointer after the type: <code>readonly u8* from</code>, <code>u8* to</code>. The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it; a nested <code>**T</code> is fixed from the inside out. Pointer types are allowed only in <code>extern</code> declarations (BYN1067).</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">extern void copy(*const u8 from, *mut u8 to)</code></pre>
@@ -1453,7 +1453,7 @@ print(trust(name, reason: "checked against the allow list"))</code></pre>
 </figure>
 
 <h3 id="byn1068">BYN1068: compact format spec in an interpolation hole</h3>
-<p><strong>Why.</strong> An interpolation hole takes its format specs as named arguments after the value: <code>{n, as: .hex}</code>, <code>{x, digits: 2}</code>, <code>{id, width: 6, fill: '0'}</code>. The C#-style compact forms <code>{n:hex}</code>, <code>{n:binary}</code>, <code>{n:octal}</code>, <code>{x:.2}</code>, <code>{d:iso}</code> and <code>{x:debug}</code> are input forms.</p>
+<p><strong>Why.</strong> An interpolation hole takes its format specs as named arguments after the value: <code>{n, as: .hex}</code>, <code>{x, digits: 2}</code>, <code>{id, width: 6, fill: '0'}</code>. The compact forms <code>{n:hex}</code>, <code>{n:binary}</code>, <code>{n:octal}</code>, <code>{x:.2}</code>, <code>{d:iso}</code> and <code>{x:debug}</code> are input forms.</p>
 <p><strong>Fix.</strong> Write the spec as named arguments: <code>print($"{n, as: .hex} {x, digits: 2}")</code>. The diagnostic carries a machine-applicable fix, and <code>bayan format</code> applies it. Other compact specs (<code>{x:N2}</code>) are not recognized and are a syntax error.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">print($"{n:hex} {x:.2}")</code></pre>
@@ -1520,7 +1520,7 @@ print(trust(name, reason: "checked against the allow list"))</code></pre>
 </figure>
 
 <h3 id="byn2003">BYN2003: unknown member</h3>
-<p><strong>Why.</strong> Members are fixed by the type's declaration; Bayan has no dynamic members or extension methods in v0.1.</p>
+<p><strong>Why.</strong> Members are fixed by the type's declaration; Bayan has no dynamic members, and the compiler does not support extension methods yet.</p>
 <p><strong>Fix.</strong> Use a member the type has. For strings, spans and lists the size is always <code>length</code>.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">let name = "bayan"
@@ -2597,7 +2597,7 @@ const n: i64 = compute()</code></pre>
 </figure>
 
 <h3 id="byn2220">BYN2220: not callable</h3>
-<p><strong>Why.</strong> Only functions, methods and types with a constructor (or built-ins such as <code>List&lt;T&gt;()</code>) can be called. Bayan has no function values in v0.1.</p>
+<p><strong>Why.</strong> Only functions, methods and types with a constructor (or built-ins such as <code>List&lt;T&gt;()</code>) can be called, and so can a value of a function type.</p>
 <p><strong>Fix.</strong> Call a function, or for numbers convert with a cast: <code>(i64)x</code>.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">let n = 5
@@ -2682,7 +2682,7 @@ print($"{xs}")</code></pre>
 </figure>
 
 <h3 id="byn2226">BYN2226: not disposable</h3>
-<p><strong>Why.</strong> <code>using</code> releases a value's memory at the end of the scope; only <code>Arena</code> and <code>List&lt;T&gt;</code> own memory in v0.1.</p>
+<p><strong>Why.</strong> <code>using</code> releases a value's memory at the end of the scope; only <code>Arena</code> and <code>List&lt;T&gt;</code> own memory.</p>
 <p><strong>Fix.</strong> Remove <code>using</code>.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">using let n = 5</code></pre>
@@ -5393,7 +5393,7 @@ let byWeight = Map&lt;Weight, string&gt;()</code></pre>
 <h2 id="g30">Memory and borrowing (BYN30xx)</h2>
 <p>Where a value lives and how long a borrow of it may last.</p>
 <h3 id="byn3001">BYN3001: borrowed value in a struct field</h3>
-<p><strong>Why.</strong> A <code>string</code>, <code>Span&lt;T&gt;</code> or <code>StrBuf</code> points into memory owned elsewhere. Storing it in a struct would let the struct outlive that memory; v0.1 has no way to check that, so it is not allowed.</p>
+<p><strong>Why.</strong> A <code>string</code>, <code>Span&lt;T&gt;</code> or <code>StrBuf</code> points into memory owned elsewhere. Storing it in a struct would let the struct outlive that memory; the compiler has no way to check that, so it is not allowed.</p>
 <p><strong>Fix.</strong> Storing borrows in structs arrives in a later version; copy the data instead (for example into a <code>List&lt;u8&gt;</code>), or store an index.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">struct Window {
@@ -5752,7 +5752,7 @@ void main() {
 <p><strong>Help.</strong> "copy it first: <code>{0}.copy()</code>"</p>
 <p><strong>What.</strong> A <code>rest</code> parameter is returned, or stored somewhere that outlives the call: a <code>ref</code> or <code>out</code> parameter, or a field of <code>this</code>.</p>
 <p><strong>Why.</strong> The values of a <code>rest</code> tail live in the caller's stack frame for the one call, so passing them allocates nothing. Once the call returns, the slots are reused, and a stored span would point at whatever comes next.</p>
-<p><strong>Fix.</strong> Copy the values into a list that owns them. In v0.1, <code>copy</code> takes the allocator to copy into:</p>
+<p><strong>Fix.</strong> Copy the values into a list that owns them. <code>copy</code> takes the allocator to copy into:</p>
 <pre><code class="byn">List&lt;i64&gt; keep(ref Arena arena, rest ReadOnlySpan&lt;i64&gt; xs) {
     return xs.copy(to: arena)
 }</code></pre>
@@ -6195,7 +6195,7 @@ void copy(from Sources sources) {
 <p><strong>What.</strong> A word of a member name is not in the checker's built-in word list or in the project dictionary, so the checker cannot tell whether it is a verb, a noun or an adjective. Each word of a name is checked (<code>upsertRow</code> → <code>upsert</code>, <code>row</code>), on all code, public or not.</p>
 <p><strong>Message.</strong> <code>{0}</code> is not a known verb or noun</p>
 <p><strong>Help.</strong> add it to <code>grammar</code> in package.byn: <code>verbs: ["{0}"]</code>, <code>nouns: ["{0}"]</code> or <code>adjectives: ["{0}"]</code></p>
-<p><strong>What counts as known.</strong> A word in the built-in list (<code>csharp/Bayan.Semantics/Lexicon.cs</code>; its verbs are also the verbs a help text may start with), a particle, or a word declared in <code>grammar</code> in <code>package.byn</code>, compared in lowercase. Regular forms of a known word are known too: <code>-s</code>, <code>-es</code>, <code>-ies</code>, <code>-ed</code>, <code>-ing</code>, <code>-er</code>, <code>-or</code>, <code>-est</code>, <code>-ly</code>, with a doubled consonant undone, and <code>un-</code> or <code>re-</code> before a known word. An irregular form is declared in <code>forms</code>. Not checked: math vocabulary (<code>sqrt</code>, <code>log2</code>, <code>radians</code>, …), single letters and digits (<code>x</code>, <code>v2</code>), names with letters outside ASCII, and typestate states.</p>
+<p><strong>What counts as known.</strong> A word in the built-in list (<code>src/semantics/naming.byn</code>, <code>buildLexicon</code>; its verbs are also the verbs a help text may start with), a particle, or a word declared in <code>grammar</code> in <code>package.byn</code>, compared in lowercase. Regular forms of a known word are known too: <code>-s</code>, <code>-es</code>, <code>-ies</code>, <code>-ed</code>, <code>-ing</code>, <code>-er</code>, <code>-or</code>, <code>-est</code>, <code>-ly</code>, with a doubled consonant undone, and <code>un-</code> or <code>re-</code> before a known word. An irregular form is declared in <code>forms</code>. Not checked: math vocabulary (<code>sqrt</code>, <code>log2</code>, <code>radians</code>, …), single letters and digits (<code>x</code>, <code>v2</code>), names with letters outside ASCII, and typestate states.</p>
 <p><strong>Why.</strong> The grammar rules ([grammar guide](../bayan-grammar.md) §1) depend on the class of each word: a <code>ref this</code> member is named with a verb, a property with a noun. A domain word (<code>upsert</code>, <code>sku</code>, <code>kyc</code>) is declared once for the project rather than suppressed member by member.</p>
 <p><strong>Fix.</strong> Declare the word in <code>package.byn</code>:</p>
 <pre><code class="byn">grammar: Grammar {
@@ -6424,7 +6424,7 @@ struct Logged : IPricer {
 <pre><code class="byn">    provide alloc: arena {
         print("x")
     }</code></pre>
-<p><code>allocator</code> is still accepted for <code>alloc</code>. v0.1 lowers only <code>alloc</code>; the other handler names are BYN2022.</p>
+<p><code>allocator</code> is still accepted for <code>alloc</code>. The compiler lowers only <code>alloc</code>; the other handler names are BYN2022.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">void run(Arena arena) {
     provide memory: arena {

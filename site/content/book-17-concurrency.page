@@ -30,7 +30,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN1002</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>async-try.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>async-try.byn</code>.</figcaption>
     </figure>
 <p>The error tells you the parser rejects the keywords from earlier drafts. The new design is not implemented yet: <code>scope</code> and <code>spawn</code> are not recognized, and types like <code>Mutex</code> and <code>Channel</code> are unknown types (BYN2002).</p>
 <p>Two parts are accepted but do nothing yet. A function may say <code>uses suspend</code> in its effect list (see <a href="book-14-effects.html">chapter 14</a>), and a file may start with <code>#:io evented</code>. Nothing can suspend, so neither changes how your program runs.</p>

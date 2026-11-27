@@ -73,7 +73,7 @@ const b = { ...a, name: "maryam", email: "m@example.com" };</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2202</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 
 <h2 id="unions">Tagged unions</h2>
@@ -124,7 +124,7 @@ applyTwice(5, (n) =&gt; n * 3);</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2218</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Write the function type, <code>let inc: i64 -&gt; i64 = x =&gt; x + 1</code>, as the compiler suggests.</p>
 
@@ -154,7 +154,7 @@ const found = prices.find((p) =&gt; p &gt; 10);</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2202</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 
 <h3 id="s-equality">== compares like with like</h3>
@@ -179,7 +179,7 @@ const found = prices.find((p) =&gt; p &gt; 10);</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2780</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Hand it over with <code>move a</code>, make another with <code>a.copy()</code>, or share it with <code>ref</code>. <b>Why:</b> there is no garbage collector, so every list has exactly one owner that frees it. See <a href="memory.html">Memory and ownership</a>.</p>
 
@@ -198,7 +198,7 @@ const found = prices.find((p) =&gt; p &gt; 10);</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2209</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 
 <h3 id="s-classes">No classes, no this</h3>

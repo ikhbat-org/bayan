@@ -3,7 +3,7 @@ nav: Reference
 order: 80
 template: docs
 ---
-<p>Every part of the toolchain is one program, <code>bayan</code>. This page lists each subcommand and flag, the exit codes, what a project looks like on disk, and where outputs go. Everything here was run against the current compiler (<code>bayan --version</code> prints its version and the commit it was built from). <code>bayan --help</code> prints the short form of this page.</p>
+<p>Every part of the toolchain is one program, <code>bayan</code>. This page lists each subcommand and flag, the exit codes, what a project looks like on disk, and where outputs go. Everything here was run against the current compiler (<code>bayan --version</code> prints its version). <code>bayan --help</code> prints the short form of this page.</p>
 <p>Commands that are in the design but not in the compiler are under <a href="#planned">Planned</a>.</p>
 
 <h2 id="overview">Overview</h2>
@@ -196,12 +196,12 @@ print($"{a}")</code></pre>
 <h3 id="doctor"><code>bayan doctor</code></h3>
 <p>Checks the compiler, the host target, the C compiler, <code>zig</code>, <code>git</code> and the build cache. Each line is a ◆ when the check passes. A failure prints how to fix it, and the command exits 4.</p>
 <pre><code>$ bayan doctor
-◆ bayan       0.2.0-dev (commit 8940c0154e51)
+◆ bayan       0.4.1 (commit selfhost)
 ◆ host        macos-arm64
-◆ C compiler  /opt/homebrew/bin/zig cc (Homebrew clang version 22.1.8)
-◆ zig         /opt/homebrew/bin/zig (0.17.0)
-◆ git         /opt/homebrew/bin/git (git version 2.56.0)
-◆ cache       /Users/sy/Library/Caches/bayan (writable, 1258 programs, 228.7 MB)</code></pre>
+◆ C compiler  /Users/sy/.local/bin/zig cc (clang version 22.1.8)
+◆ zig         /Users/sy/.local/bin/zig (0.17.0)
+◆ git         /opt/homebrew/bin/git (git version 2.56.1)
+◆ cache       /Users/sy/Library/Caches/bayan (writable, 1218 programs, 2039.8 MB)</code></pre>
 
 <h3 id="clean"><code>bayan clean [&lt;dir&gt;]</code></h3>
 <p>Removes <code>out/</code>. <code>--dist</code> also removes <code>dist/</code>, and <code>--cache</code> also empties the shared build cache. It removes only what you ask for.</p>

@@ -30,5 +30,5 @@ template: landing
       <li>Memory safety is not a build mode. Bounds and region checks apply in every build.</li>
       <li>One spelling per construct: <code>bayan format</code> rewrites any second spelling.</li>
     </ul>
-    <p><a href="tutorial.html">Start the tutorial</a>, or read about <a href="parameters.html">parameters and arguments</a>. The ideas behind the language are in <a href="manifesto.html">the manifesto</a>. Source and issues are at <a href="https://github.com/ikhbat-org/bayan">github.com/ikhbat-org/bayan</a>.</p>
+    <p><a href="tutorial.html">Start the tutorial</a>, see <a href="whats-new.html">what is new in 0.4.1</a>, or read about <a href="parameters.html">parameters and arguments</a>. The ideas behind the language are in <a href="manifesto.html">the manifesto</a>. Source and issues are at <a href="https://github.com/ikhbat-org/bayan">github.com/ikhbat-org/bayan</a>.</p>
   </section>

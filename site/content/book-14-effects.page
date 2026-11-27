@@ -41,7 +41,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN6002</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>missing-uses.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>missing-uses.byn</code>.</figcaption>
     </figure>
 <p>The error points at the call that needs the effect. The fix-it shows the exact clause to add. Calling a function that uses an effect makes the caller use it too, all the way up to <code>main</code>.</p>
 <p>A misspelled effect has its own error. It also lists every valid name:</p>
@@ -74,7 +74,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN6003</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>unknown-effect.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>unknown-effect.byn</code>.</figcaption>
     </figure>
 
 <h2 id="capabilities">Capabilities: the package decides</h2>
@@ -103,7 +103,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN6004</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>capabilities.txt</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>capabilities.txt</code>.</figcaption>
     </figure>
 <p>Do as the help says: write <code>capabilities: [.fs]</code>. The list is a summary of what the package can touch, and it is checked at build time. Anyone who reads <code>package.byn</code> sees at a glance whether a library can reach the network or the disk.</p>
 

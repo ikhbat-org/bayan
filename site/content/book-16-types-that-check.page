@@ -29,7 +29,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN2202</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>mix-ids.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>mix-ids.byn</code>.</figcaption>
     </figure>
 <p>A bare number does not convert either. The fix-it shows the wrapping:</p>
 <pre><code class="byn">type distinct UserId = i64
@@ -50,7 +50,7 @@ void main() {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN3204</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>raw-int.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>raw-int.byn</code>.</figcaption>
     </figure>
 <p>Arithmetic and comparison across a distinct type are also closed off. <code>u + u</code> is BYN2208, and so is <code>u &lt; v</code>. A cast such as <code>i64(u)</code> is BYN2206, and <code>{u}</code> in an interpolation is BYN2225 because the type has no text form. Go through <code>.value</code> when you mean the number. That is on purpose: it makes each place where an id turns back into a plain number visible in the source.</p>
 
@@ -74,7 +74,7 @@ void main() {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN2321</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>zero-grams.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>zero-grams.byn</code>.</figcaption>
     </figure>
 <p>When the argument is only known at run time, the check happens when the program runs, and it can fail. The constructor then fails with <code>ValidationError&lt;Grams&gt;</code>, and the caller has to handle that, like any other error. Calling it without handling is BYN2602:</p>
 <pre><code class="byn">type distinct Grams = i64 requires it &gt; 0
@@ -109,7 +109,7 @@ void main() fails ValidationError&lt;Grams&gt; {
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN2602</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>no-try.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>no-try.byn</code>.</figcaption>
     </figure>
 <p>Use <code>try</code> to pass the error on, or <code>catch</code> to deal with it. <code>parse</code> in <code>book-16-distinct</code> does the first, and <code>main</code> does the second: <code>parse(40) catch Grams(1)</code> gives a fallback value and <code>catch switch { .invalid e =&gt; … }</code> picks a branch. The call with 0 took the second branch, so <code>bad</code> is 2. The result is that a <code>Grams</code> anywhere in your program is known to be positive. You checked it once, at the door.</p>
 <p>The same <code>requires</code> clause works on a struct to state a rule about its fields. Functions can state rules about their arguments with <code>expects</code>. See <a href="features.html">What makes Bayan different</a> for both.</p>
@@ -155,7 +155,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN7001</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>wrong-state.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>wrong-state.byn</code>.</figcaption>
     </figure>
 <p>After the first <code>send</code> the compiler knows <code>p</code> is <code>.sent</code>. The second call needs <code>.packed</code>, so it is rejected. The program that ships a parcel twice does not compile. State fields are protected in the same way: reading a field that exists in only one state, when you have not shown the variable is in it, is an error.</p>
 <pre><code class="byn">struct Parcel {
@@ -180,7 +180,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN7002</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>payload-early.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>payload-early.byn</code>.</figcaption>
     </figure>
 <p>Other typestate errors you may see: BYN7003, a <code>become</code> in a method that has no <code>becomes</code>; BYN7004, a <code>switch</code> over the states that misses one; BYN7005, a struct literal that does not name its state, such as <code>Parcel {…}</code> instead of <code>Parcel.packed {…}</code>.</p>
 

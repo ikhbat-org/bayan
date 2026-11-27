@@ -79,7 +79,7 @@ template: docs
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN2780</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>copy-list.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>copy-list.byn</code>.</figcaption>
     </figure>
 <p>A type that owns storage is called <em>unique</em>: there is one owner at a time. Every <code>List</code>, <code>Map</code>, <code>Set</code> and <code>StrBuf</code> is unique. So is a struct that has a unique field. The error names the type, says why, and offers three fixes. Pick by what you mean:</p>
 <ul>
@@ -111,7 +111,7 @@ template: docs
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN2781</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>use-after-move.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>use-after-move.byn</code>.</figcaption>
     </figure>
 <p>The fix is in the help line: give the name a new value before you use it again, or move a copy instead.</p>
 
@@ -152,7 +152,7 @@ template: docs
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN3004</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>modify-borrowed.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>modify-borrowed.byn</code>.</figcaption>
     </figure>
 <p>Read the label on the caret: it names the later use of the borrow. Two fixes work. Finish with <code>first</code> before the <code>append</code>, or copy the one value you need (<code>let first = xs[0]</code>). Moving the <code>print</code> above the <code>append</code> is enough, because the compiler looks at the last <em>use</em> of the borrow, not at the end of the block.</p>
 <p>The same rule covers a loop. A <code>for</code> loop borrows what it walks. Here a method that changes <code>cart</code> is called while the loop over <code>cart.lines</code> is running:</p>
@@ -182,7 +182,7 @@ void main() {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN3004</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>loop-borrow.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>loop-borrow.byn</code>.</figcaption>
     </figure>
 <p>Loans are tracked per variable, not per field. The method call changes <code>cart</code> as a whole, so it conflicts with a borrow of <code>cart.lines</code>. Do as the help line says: collect the changes in another list, then apply them after the loop.</p>
 
@@ -215,7 +215,7 @@ void main() {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN3002</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>arena-escape.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>arena-escape.byn</code>.</figcaption>
     </figure>
 <p>The fix named in the help line is to copy into an allocator that lives long enough: <code>.copy(to: alloc)</code>, with an outer arena or the default allocator. A function cannot return an arena-backed string for the same reason, because the arena dies when the function returns:</p>
 <pre><code class="byn">string label() {
@@ -238,7 +238,7 @@ void main() {
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN3003</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>return-arena.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>return-arena.byn</code>.</figcaption>
     </figure>
 <p>The usual shape is to let the caller decide. The caller makes the arena (or doesn't) and wraps the call in <code>provide allocator: …</code>, and the function allocates from the current allocator and returns the result. <code>arena.reset()</code> frees everything in an arena but keeps the arena for reuse.</p>
 <note>Planned: not in the compiler yet. Pool and handle allocation, a <code>borrows</code> clause on functions, and <code>unsafe</code> blocks are described in the specification but are not available today.</note>

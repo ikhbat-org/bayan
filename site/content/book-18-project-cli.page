@@ -64,7 +64,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN5004</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>two-params.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>two-params.byn</code>.</figcaption>
     </figure>
 <p>The fix is in the final program: <code>search(string text, by Options opts, as string name, to bool showName)</code>. A call then reads <code>search(text, by: opts, as: path, to: true)</code>.</p>
 <p>Here is the whole tool in one file. With no arguments it writes a small file and searches it, so you can run it as is. The loop uses <code>text.lines</code>, and <code>Io.readText</code> with a <code>catch</code> that reports the problem on standard error and moves to the next file.</p>

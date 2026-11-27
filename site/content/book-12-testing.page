@@ -64,7 +64,7 @@ string grade(i32 score) fails GradeError {
   help: propagate the error with `try`, or handle it with `catch`
      │ 17 │     assert try grade(90) == "A"
      │    │            ++++</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened to <code>grade.byn</code>.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened to <code>grade.byn</code>.</figcaption>
 </figure>
 <p>The suggestion is half right. Put <code>try</code> in front of the whole comparison and the compiler objects, because the comparison itself cannot fail:</p>
 <figure class="diag">
@@ -77,7 +77,7 @@ string grade(i32 score) fails GradeError {
   help: wrap the part that fails in parentheses: `(try grade(90))`
      │ 17 │     assert (try grade(90)) == "A"
      │    │            ++++++++++++++</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened to <code>grade.byn</code>.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened to <code>grade.byn</code>.</figcaption>
 </figure>
 <p>That is the form used above: <code>assert (try grade(90)) == "A"</code>.</p>
 <p>To check the <em>error</em> path you do not write a <code>catch</code>. <code>assert f() fails E.case</code> passes when the call fails with exactly that case. <code>assert f() fails E</code> accepts any case of <code>E</code>.</p>
@@ -123,7 +123,7 @@ test "flags" (i32 n, bool ok) {
 
   1 │ @cases((1, "yes"), (2, true))
     │            ^^^^^</pre>
-<figcaption>Real output from the v0.1 compiler, from <code>tests/cases/diag/cases-type-mismatch.test</code>.</figcaption>
+<figcaption>Real output from the compiler, from <code>tests/cases/diag/cases-type-mismatch.test</code>.</figcaption>
 </figure>
 <note>Planned: not in the compiler yet. <code>@cases(someConstList)</code> takes its rows from a constant list; today it is error BYN2774, "cases from a const list are not supported yet". Write each row out.</note>
 

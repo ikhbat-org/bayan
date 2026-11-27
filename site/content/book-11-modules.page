@@ -70,7 +70,7 @@ let c = money.round(1)</code></pre>
     │               ^^^^^ not `public`
     │
   help: mark `round` `public` to use it from another module</pre>
-<figcaption>Real output from the v0.1 compiler, from the test <code>tests/cases/diag/not-visible</code>.</figcaption>
+<figcaption>Real output from the compiler, from the test <code>tests/cases/diag/not-visible</code>.</figcaption>
 </figure>
 <p>Module-level constants (<code>const rate: i32 = 8</code>) have no <code>public</code> form today. Asking for one from another module is the same error, with a different label: <code>module constants are not visible outside their module</code>. Share a value by returning it from a <code>public</code> function.</p>
 <p>The same rule applies to types and to the fields of a type. Suppose <code>orders</code> declares <code>struct Draft { string note }</code> with no <code>public</code> anywhere. Another module cannot name the type or build it:</p>
@@ -107,7 +107,7 @@ error BYN2005: `note` is not visible here
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2005</pre>
-<figcaption>Real output from the v0.1 compiler.</figcaption>
+<figcaption>Real output from the compiler.</figcaption>
 </figure>
 <p>The message tells you which type owns the field. The fix is a <code>public</code> method such as <code>balance()</code>, not a looser field. Building the struct by hand from outside (<code>Account { cents: 5, … }</code>) fails the same way, because the literal names the field. That is why <code>Account</code> offers <code>open</code>: it is the only way in, so every account starts at zero.</p>
 <note>The specification says tests in a sibling <code>x.test.byn</code> file have private access. The compiler does not give it today: a test that reads a private field gets the same BYN2005. Test through the type's public methods.</note>
@@ -147,7 +147,7 @@ limit 10</code></pre>
     │        ^^^^
     │
   help: put the module's `.byn` files in `mony/` next to the entry file; a module is a directory</pre>
-<figcaption>Real output from the v0.1 compiler, from <code>tests/cases/diag/unknown-module</code>.</figcaption>
+<figcaption>Real output from the compiler, from <code>tests/cases/diag/unknown-module</code>.</figcaption>
 </figure>
 <h3 id="entry">Statements outside the entry module</h3>
 <p>A statement that is not a declaration belongs in the entry module. Put <code>print("hi")</code> in <code>src/orders/</code> and you get:</p>
@@ -160,7 +160,7 @@ limit 10</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2015</pre>
-<figcaption>Real output from the v0.1 compiler.</figcaption>
+<figcaption>Real output from the compiler.</figcaption>
 </figure>
 <p>Two files with top-level statements in the same directory fail for the same reason, which is why a directory of scratch programs does not build as a whole.</p>
 <h3 id="cycles">Import cycles</h3>
@@ -173,7 +173,7 @@ limit 10</code></pre>
     │        ^
     │
   help: move the shared declarations into a module both can import</pre>
-<figcaption>Real output from the v0.1 compiler, from <code>tests/cases/diag/import-cycle</code>.</figcaption>
+<figcaption>Real output from the compiler, from <code>tests/cases/diag/import-cycle</code>.</figcaption>
 </figure>
 <p>Follow the help: put what both need in a third module and have each import that.</p>
 <h3 id="duplicates">The same name twice</h3>
@@ -191,7 +191,7 @@ limit 10</code></pre>
 
   3 │     let sum = money.Money.dollars(1).adding(money.Money.dollars(2))
     │               ^^^^^</pre>
-<figcaption>Real output from the v0.1 compiler. The compiler reports each use of <code>money</code>; the first is shown.</figcaption>
+<figcaption>Real output from the compiler. The compiler reports each use of <code>money</code>; the first is shown.</figcaption>
 </figure>
 <p>Run <code>bayan test</code> and both files run, each module reported by name:</p>
 <pre><code class="other" data-lang="bayan test -v">running 2 tests in 2 modules
