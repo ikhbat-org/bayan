@@ -3,7 +3,7 @@
 Version: 0.4.1 (matches `bayan --version`)
 Revisions applied: 0001–0024
 
-> **Status:** normative for `bayan 0.3.0` unless a section says otherwise. It describes the language as designed; a `(not in 0.4)` or `(partial in 0.4: …)` tag marks what `bayan 0.3.0` does not implement yet.
+> **Status:** normative for `bayan 0.4` unless a section says otherwise. It describes the language as designed; a `(not in 0.4)` or `(partial in 0.4: …)` tag marks what `bayan 0.4` does not implement yet.
 > **Provisional text (rev 0023):** a section or item tagged `(not in 0.4)`, `(not in 0.x)`, `(partial in 0.4: …)` or `spec-only` describes a design, not a promise: building it may change it by revision at no compatibility cost (§19.4), and a conflict between provisional texts is resolved when the feature is built.
 > **Syntax freeze (rev 0023):** no keyword, operator, clause or grammar form changes until 0.3.0 is released; revision 0024 (numeric conversions) is the last syntax change admitted.
 > **Source files:** `.byn` · **CLI:** `bayan` · **Manifest:** `package.byn` · **Build script:** `build.byn`
@@ -59,7 +59,7 @@ Bayan (بيان, "clarity, eloquent exposition") is a value-oriented, natively c
 | Comptime | Ordinary Bayan run at compile time by the interpreter; deterministic and sandboxed. |
 | Modules | A directory is a module. `import`. No cycles. Default visibility: module. |
 | Safety | No undefined behavior outside `unsafe`. Taint tracking, `Secret<T>`, capability declarations. |
-| Output | Native executables and libraries via C; WASM via clang `wasm32`. |
+| Output | Native executables and libraries via C; WASM via clang `wasm32` (not in 0.4). |
 
 Hello world:
 
@@ -209,7 +209,7 @@ Lowercase type names are reserved for the language. C interop types: `c_int`, `c
 - `==` is **ordinal**; `a.equals(b, as: .caseless)`; there is no ambient culture, and culture-aware comparison is only through `kit.intl` (`Collator(for: culture)`, §16.4).
 - `s.utf16` is a view of UTF-16 code units (`u16`), beside `s.runes` and `s.bytes`; `s.utf16.copy()` returns an owned `List<u16>` (`uses alloc`), and `try Utf16.decode(units)` decodes a `ReadOnlySpan<u16>` (a codec in `std.text`). `string16` exists for UTF-16 interop; nul-terminated UTF-16 for FFI is in §18.
 - Raw strings: `"""…"""`.
-- (not in 0.4: the `std.text` and `kit` members of §16.4 (`graphemes`, `Collator`, `truncated`, `Base64`, encodings other than UTF-8, …); §16.4 lists the 0.3 scope)
+- (not in 0.4: the `std.text` and `kit` members of §16.4 (`graphemes`, `Collator`, `truncated`, encodings other than UTF-8, …); §16.4 lists the 0.3 scope)
 
 > Round 2 §12: `+` on strings hid allocation. Codes: BYN2201, BYN2209.
 
@@ -1852,7 +1852,7 @@ Only parameterized `sql"…"` literals with `$n` placeholders are in scope now; 
 `Random` (seeded, reproducible) and `CryptoRandom` are separate types; token, key and nonce APIs accept only `CryptoRandom`. Cryptography APIs are misuse-resistant (AEAD with nonce management; no ECB; raw block ciphers only in `unsafe`).
 
 ### 15.4 Resource limits
-Decoders default to safe limits (JSON nesting depth 128, maximum size). Per-request arenas have a memory cap. Regexes (`std.regex`, not in 0.3) run in linear time with no backtracking (no ReDoS); a pattern built from `Untrusted` input still needs `Regex.escape` (§15.1).
+Decoders default to safe limits (JSON nesting depth 128, maximum size). Per-request arenas have a memory cap. Regexes (`std.regex`) run in linear time with no backtracking (no ReDoS); a pattern built from `Untrusted` input still needs `Regex.escape` (§15.1).
 
 ### 15.5 Invariants versus validation
 Function `expects` contracts (§7.9) detect bugs and panic in every build mode (§0). **Construction of a type with `requires` is the security boundary:** it is checked in every build, reports every violation, and is the only way to remove taint (§15.1).
@@ -2052,7 +2052,7 @@ for try u in db.query<User>(sql"SELECT * FROM users") { … }          // stream
 | `count(x)` | `i64` | no | Non-overlapping occurrences |
 | `words`, `graphemes` | views | no | `std.text` (Unicode segmentation) |
 
-**Assertions:** `contains(x)`, `startsWith(x)`, `endsWith(x)`, `equals(t, as: .caseless)`. Plain equality is `==`. `matches(re)` and `replaced(re, by: y)` arrive with `std.regex` (§15.4; not in 0.3).
+**Assertions:** `contains(x)`, `startsWith(x)`, `endsWith(x)`, `equals(t, as: .caseless)`. Plain equality is `==`. `matches(re)` and `replaced(re, by: y)` arrive with `std.regex` (§15.4).
 
 **Copies**
 
@@ -2136,7 +2136,7 @@ Compact input forms, expanded by `bayan format` (BYN1068): `{n:hex}`, `{n:binary
 
 **Scope.**
 - 0.3: the model; `length`, `isEmpty`, `isAscii`, `runeCount`, `bytes`, `runes`, `utf16`, `lines`, `parts`, slices, `position`, `lastPosition`, `count`; the assertions (`equals(as: .caseless)` ASCII-only until `std.text`); `trimmed`, `lowercased`/`uppercased` (Unicode simple case mapping; U+0130 and U+0131 map to themselves, as .NET's invariant casing; revision 0015), `replaced` (literal), `joined`, `repeated`; `StrBuf`; `string(x)`, `string(n, as:)`, `parse`/`tryParse`; `Utf8` and `Hex`; `Display.formatInto` and the specs `as`, `width`, `fill`, `align`, `digits`, `debug`; BYN1068.
-- (not in 0.4) `std.text`: `words`, `graphemes`, full Unicode case mapping and folding, `normalized`, `truncated` (needs graphemes), `wrapped`, the identifier-case members, `slugged`, `escaped`, `Utf16.decode`, `Base64`, regex `replaced`, `grouping`, date specs.
+- (not in 0.4) `std.text`: `words`, `graphemes`, full Unicode case mapping and folding, `normalized`, `truncated` (needs graphemes), `wrapped`, the identifier-case members, `slugged`, `escaped`, `Utf16.decode`, regex `replaced`, `grouping`, date specs.
 - `kit`: `kit.intl` (`Culture`, `Collator`, `for:` on case, formatting and sorting, `titlecased`), `Latin1` and other encodings.
 
 > Revision 0003 §3–§6: one place for the string model, the API, culture and formatting (round 2's pending `format()` item); no operation depends on the machine's locale, and specs are named arguments like every other option. Codes: BYN1068, BYN2230.
@@ -2593,25 +2593,25 @@ Every diagnostic states **what**, **where**, **why** and a **fix** (machine-appl
 |---|---|
 | `bayan new X`, `bayan init` | Create an app (`--lib` library, `--script` script) in a new or existing directory (§21.4) |
 | `bayan run` | Build and run a program or script |
-| `bayan build` | Build (`--mode debug\|safe\|fast\|small`, `--target`) |
-| `bayan test` | Tests (`--json`, `--changed [--base <ref>]`, `--tier`, `--mutate`, `--explore`, `--sanitize`, `--update`, `--triage`) |
+| `bayan build` | Build (`--mode debug\|safe\|fast`, `small` (not in 0.4), `--target`) |
+| `bayan test` | Tests (`--json`, `--changed [--base <ref>]`, `--tier`, `--mutate`, `--explore`, `--sanitize`, `--update`, `--triage`; `--tier`, `--explore`, `--sanitize`, `--update` and `--triage` not in 0.4) |
 | `bayan dist` | Release builds into `dist/<version>/` (`--target t\|all`, `--mode`, `--force`, `--allow-dirty`; §21.4) |
 | `bayan clean` | Remove `out/` (`--dist` also `dist/`, `--cache` the build cache) |
 | `bayan cache stats` | Location, entries and size of the shared build cache (§21.4) |
 | `bayan doctor` | Check the compiler, host target, C compiler, `zig`, git and cache; every failure prints a fix; exits 4 on any failure |
-| `bayan --version` | Compiler version and the commit it was built from |
+| `bayan --version` | Compiler version; the commit it was built from is not in 0.4 (the self-hosted compiler prints `(selfhost)`) |
 | `bayan format [--check] <path>` | Lay out the `.byn` files of a file or directory by `style` in `package.byn` (§19.2) and rewrite input forms (§21.5). `--check` writes nothing, prints each file that would change and exits 1 if any would. `--prose`, `--from-prose`, `--check-prose` are prose translation (§22) (not in 0.4) |
 | `bayan fix [<path>…]` | Apply the machine fix of every style lint (BYN1072–BYN1080), whatever its severity in `lints` (§19.2), to the `.byn` files or directories named (default `.`); repeats until nothing changes (at most 10 passes), rewrites only changed files and prints each one's fix count. It does not format. A missing path exits 2 |
-| `bayan lint`, `bayan doc`, `bayan repl`, `bayan lsp` | |
-| `bayan pkg` | Packages (`add`, `audit`, `export --json`) |
+| `bayan lint`, `bayan doc`, `bayan repl`, `bayan lsp` | (not in 0.4) |
+| `bayan pkg` | Packages (`add`, `audit`, `export --json`) (not in 0.4) |
 | `bayan expand X` | Show every derived member and the derived effects of each function (not in 0.4) |
 | `bayan features --used` | Report the language features a build used (feeds the reference-app coverage matrix) |
 | `bayan audit` | List every `because` bypass, `unsafe` block, `extern` declaration and C source, with reasons (§19.3) |
 | `bayan explain CODE` | Long explanation of a diagnostic |
-| `bayan migrate` | Rename casing, upgrade editions, apply same-shape `@deprecated(by:)` |
-| `bayan new test X` | Test scaffolds |
+| `bayan migrate` | Rename casing, upgrade editions, apply same-shape `@deprecated(by:)` (not in 0.4) |
+| `bayan new test X` | Test scaffolds (not in 0.4) |
 
-Every command takes `--color auto|always|never` (before any `--`). `auto` colors output that goes to a terminal, unless `NO_COLOR` is set. `bayan test --changed` runs only the tests of modules with a file that differs from `HEAD` (or `--base <ref>`, which implies `--changed`), untracked files included; a changed `package.byn` runs everything. It uses git read-only.
+Every command takes `--color auto|always|never` (before any `--`). `auto` colors output that goes to a terminal, unless `NO_COLOR` is set (not in 0.4: `auto` currently means no colour unless `BAYAN_TERMINAL` is set; there is no terminal detection yet). `bayan test --changed` runs only the tests of modules with a file that differs from `HEAD` (or `--base <ref>`, which implies `--changed`), untracked files included; a changed `package.byn` runs everything. It uses git read-only.
 
 `bayan fmt` is not a command; its message names `bayan format` (HANDOFF §29).
 
@@ -2629,7 +2629,7 @@ Exit codes, documented in `bayan --help`:
 
 `bayan run` uses the CLI's codes until the program starts (1 for compile errors, 4 for toolchain problems), then passes the program's own exit code through unchanged, as `cargo run` and `go run` do. It therefore cannot tell a build failure from a program that exits 1; anything that needs the distinction runs `bayan build` first or reads `--diagnostics json`.
 
-The language server runs inside the compiler process. Display-only views (inferred types, inferred error sets and effects, expanded derived members) are **language-server inlay hints**, never a stored form. `dbg(expr)` prints the expression text and value and is an error in release builds.
+The language server runs inside the compiler process (not in 0.4: `bayan-lsp` is a separate executable). Display-only views (inferred types, inferred error sets and effects, expanded derived members) are **language-server inlay hints**, never a stored form. `dbg(expr)` prints the expression text and value and is an error in release builds.
 
 > Round 2 §15, §18: there are no terse/explicit formatter modes; `--explicit` and `--terse` are removed and their views are inlay hints.
 
@@ -2650,7 +2650,7 @@ Incremental rebuild under 100 ms on a reference project; cold-build budget track
 
 **Layout.** In a project, `src/` holds the modules (`src/orders/` is `import orders`), the entry module is `src/app/` for an app and `src/<name>/` for a library, and in test builds every `tests/*.test.byn` joins the entry module. Commands given no path use the current directory when it has a `package.byn`. A library has no program, so `bayan build` and `bayan run` on one are usage errors. A file starting with `#!` is a script and compiles alone, and `bayan <file>.byn` runs it.
 
-**Outputs.** In a project, `bayan build`, `run` and `test` write to `out/<mode>/<target>/` (the binary, the test binary `<name>-test`, and the emitted C in `c/` for inspection), and `bayan test` writes `out/test/results.json`, the same JSON that `bayan test --json` prints. `out/` is disposable. `--target` takes `linux-x64`, `linux-arm64`, `macos-x64`, `macos-arm64`, `windows-x64`, `windows-arm64`, `wasm32` or `host`; any target other than the host needs zig. `bayan dist` builds the targets in `dist.targets` (or `--target`, `all` for every one) into `dist/<version>/<target>/`, with `SHA256SUMS` (`sha256sum` format) and `BUILDINFO.json` (package, version, compiler, mode, targets, source commit and dirtiness, a hash of the inputs; no timestamps). A version directory is immutable: `bayan dist` refuses to rebuild one without `--force` and says to bump the version. It refuses a dirty git tree without `--allow-dirty`. `dist/latest/` is a copy (not a symlink) of the highest semantic version present, plus a `VERSION` file. Libraries get distributions once FFI export exists; scripts have none. `bayan clean` removes `out/`, and `dist/` or the cache only when asked.
+**Outputs.** In a project, `bayan build`, `run` and `test` write to `out/<mode>/<target>/` (the binary, the test binary `<name>-test`, and the emitted C in `c/` for inspection), and `bayan test` writes `out/test/results.json`, the same JSON that `bayan test --json` prints. `out/` is disposable. `--target` takes `linux-x64`, `linux-arm64`, `macos-x64`, `macos-arm64`, `windows-x64`, `windows-arm64`, `wasm32` (not in 0.4: the runtime does not build for it, so `--target all` fails) or `host`; any target other than the host needs zig. `bayan dist` builds the targets in `dist.targets` (or `--target`, `all` for every one) into `dist/<version>/<target>/`, with `SHA256SUMS` (`sha256sum` format) and `BUILDINFO.json` (package, version, compiler, mode, targets, source commit and dirtiness, a hash of the inputs; no timestamps). A version directory is immutable: `bayan dist` refuses to rebuild one without `--force` and says to bump the version. It refuses a dirty git tree without `--allow-dirty`. `dist/latest/` is a copy (not a symlink) of the highest semantic version present, plus a `VERSION` file. Libraries get distributions once FFI export exists; scripts have none. `bayan clean` removes `out/`, and `dist/` or the cache only when asked.
 
 **Cache.** Compiled programs live in one cache per machine, shared by every project, worktree and process: `$BAYAN_CACHE`, else `%LOCALAPPDATA%\bayan\cache` (Windows), `~/Library/Caches/bayan` (macOS), `$XDG_CACHE_HOME/bayan` or `~/.cache/bayan` (elsewhere). Keys hash the compiler version, mode, target, C compiler, flags and the emitted C, and the emitted C names files relative to the project root, so a second worktree or a moved project compiles nothing. An entry is built in a private directory and renamed into place with no lock; one whose executable no longer matches its recorded SHA-256 is rebuilt. `bayan run script.byn` remembers the program for the script's exact bytes, mode and compiler version and starts it directly next time. `out/` stays per worktree. `bayan cache stats` reports the location, entry count and size; `bayan clean --cache` empties it.
 
