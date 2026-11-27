@@ -3,54 +3,68 @@ nav: Start
 order: 30
 template: docs
 ---
-<p>Each feature below exists in other languages. The combination does not. Every example on this page is a complete program that compiles and runs. Features that the specification has but the compiler does not run yet are marked "planned" and shown as fragments.</p>
+<p>Each feature exists in other languages; the combination does not. Every example is a complete program that compiles and runs. Features in the specification but not the compiler are marked "planned" and shown as fragments.</p>
 
 <h2 id="particles">Particles: argument roles in the name</h2>
-<p>A required parameter after the first one carries a role word: <code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code> or <code>for</code>, or <code>as</code>. A call must write the same word. The particles are part of the function's name, so you can read it as <code>transfer(from:to:)</code>.</p>
+<p>A required parameter after the first carries a role word: <code>from</code>, <code>to</code>, <code>until</code>, <code>through</code>, <code>at</code>, <code>by</code>, <code>for</code> or <code>as</code>; the call writes the same word. The particle is part of the name: <code>transfer(from:to:)</code>.</p>
 <example name="features-particles"/>
-<p>Swapping the two accounts means swapping the labels, so the mistake shows up in the text. A particle appears at most once per signature. A <code>bool</code> argument must be named.</p>
+<p>Swapping the accounts swaps the labels, so the mistake shows in the text. A particle appears at most once per signature; a <code>bool</code> argument must be named.</p>
 
 <h2 id="errors">Errors as values: fails, try, catch</h2>
-<p>A function lists the errors it can produce with <code>fails</code>. <code>fail .x</code> leaves with one. <code>try</code> passes a failure up to the caller. <code>catch</code> handles it: with a fallback value, with a block that must leave (<code>return</code>, <code>break</code>, <code>continue</code>), or with an exhaustive <code>catch switch</code>.</p>
+<p>A function lists its errors with <code>fails</code>:</p>
+<table>
+<tr><th>Written</th><th>What it does</th></tr>
+<tr><td><code>fail .x</code></td><td>Leaves with an error.</td></tr>
+<tr><td><code>try f()</code></td><td>Passes a failure up.</td></tr>
+<tr><td><code>f() catch value</code></td><td>Uses a fallback.</td></tr>
+<tr><td><code>f() catch { … }</code></td><td>Runs a block that must leave: <code>return</code>, <code>break</code> or <code>continue</code>.</td></tr>
+<tr><td><code>f() catch switch { … }</code></td><td>Matches the error exhaustively.</td></tr>
+</table>
 <example name="features-errors"/>
-<p>Error sets compose: <code>union error ShipError = CarrierError, StockError</code>. They can also be narrowed: <code>union error Retryable = CarrierError except .rejected</code>. The <a href="errors.html">Errors guide</a> covers all of it.</p>
+<p>Errors compose (<code>union error ShipError = CarrierError, StockError</code>) and narrow (<code>union error Retryable = CarrierError except .rejected</code>); see the <a href="errors.html">Errors guide</a>.</p>
 
 <h2 id="defer-failing">defer failing</h2>
-<p><code>defer</code> runs a statement when the scope ends. <code>defer failing</code> runs it only when the function leaves by failing, which is the place for a rollback. Deferred statements run in reverse order, and they cannot fail.</p>
+<p><code>defer</code> runs a statement at scope end, <code>defer failing</code> only when the function leaves by failing, for rollback. Deferred statements run in reverse and cannot fail.</p>
 <example name="features-defer"/>
-<p>On the failing path the output shows <code>rollback</code> before <code>always</code>: the later <code>defer</code> runs first.</p>
+<p>On the failing path <code>rollback</code> prints before <code>always</code>: the later <code>defer</code> runs first.</p>
 
 <h2 id="effects">Effects: uses</h2>
-<p>A public function declares what it does besides computing. <code>checksum</code> has no <code>uses</code> clause, so it is pure: it allocates nothing and does no I/O. <code>squares</code> allocates, and says so.</p>
+<p>A public function declares what it does besides computing. <code>checksum</code> has no <code>uses</code> clause, so it is pure: no allocation, no I/O. <code>squares</code> allocates, and says so.</p>
 <example name="features-effects"/>
-<p>Leaving out <code>uses alloc</code> is a compile error (BYN6002). The effects are <code>alloc suspend net fs clock random env process console</code>. Replacing a handler with <code>provide</code>, for example <code>provide net: FakeNet(…) { … }</code>, so a test of network code needs no network, is planned. <code>provide allocator:</code> works today.</p>
+<p>Omitting <code>uses alloc</code> is a compile error (BYN6002). Effects: <code>alloc suspend net fs clock random env process console</code>. Replacing a handler with <code>provide</code> is planned, so a network test needs no network: <code>provide net: FakeNet(…) { … }</code>. <code>provide allocator:</code> works today.</p>
 
 <h2 id="units">Units</h2>
-<p><strong>Planned.</strong> The specification has units as types, with literal suffixes. The compiler does not parse <code>unit</code> declarations yet.</p>
+<p><strong>Planned.</strong> The specification has units as types with literal suffixes; the compiler does not parse <code>unit</code> declarations yet.</p>
 <pre><code class="byn">unit Seconds(s): i64
 unit Millis(ms) = Seconds / 1000
 
 let t = 2s + 500ms        // Millis 2500: conversion goes to the finer unit
 let whole = t.floor&lt;Seconds&gt;()   // going coarser names its rounding</code></pre>
-<p>Mixing units is a compile error. A bare <code>0</code> never becomes a unit value, so you write <code>0g</code>. Units are erased at run time.</p>
+<p>Mixing units is a compile error. A bare <code>0</code> never becomes a unit value; write <code>0g</code>. Units are erased at run time.</p>
 
 <h2 id="untrusted">Untrusted&lt;T&gt;</h2>
-<p>A value from outside the program can be wrapped as <code>Untrusted&lt;T&gt;</code>. There is no implicit conversion either way. Unwrapping needs <code>trustUnchecked()</code> followed by <code>because</code> and a written reason.</p>
+<p>A value from outside can be wrapped as <code>Untrusted&lt;T&gt;</code>, with no implicit conversion either way; unwrapping needs <code>trustUnchecked()</code> plus <code>because</code> and a written reason.</p>
 <example name="features-untrusted"/>
-<p>The specification goes further: sinks such as file paths, redirect URLs and process arguments reject <code>Untrusted</code> values, and only constructing a type with <code>requires</code> clears the taint. In the compiler today, request and input sources are not wrapped yet, so that part is planned.</p>
+<p>The specification adds sinks such as file paths, redirect URLs and process arguments, which reject <code>Untrusted</code> values, and only a type constructed with <code>requires</code> clears the taint. Request and input sources are not wrapped yet: planned.</p>
 
 <h2 id="states">Struct states</h2>
-<p>A struct can declare a lifecycle in a <code>states</code> block. <code>Order.paid</code> is then a type. A method says which state it needs (<code>ref this is .paid</code>) and which one it leaves behind (<code>becomes .shipped</code>).</p>
+<p>A struct can declare a lifecycle in <code>states</code>; <code>Order.paid</code> is then a type. A method names the state it needs (<code>ref this is .paid</code>) and the one it leaves (<code>becomes .shipped</code>).</p>
 <example name="features-states"/>
-<p>Calling <code>ship</code> on an order that is still a draft is a compile error. The payload of a state (<code>payment</code>, <code>tracking</code>) is readable only where the type guarantees the state. States cost nothing at run time: the checks happen at compile time.</p>
+<p>Calling <code>ship</code> on a draft is a compile error. A state's payload (<code>payment</code>, <code>tracking</code>) is readable only where the type guarantees the state. States cost nothing at run time: checks happen at compile time.</p>
 
 <h2 id="requires">requires</h2>
-<p><code>requires</code> on a type or a field is checked when a value is constructed. A <code>Box</code> that breaks its rules cannot exist. Within a line, <code>it</code> means the value being checked. A rule that names other fields belongs to the struct, and <code>at .w</code> says which field a violation points at.</p>
+<p><code>requires</code> on a type or field is checked at construction: a <code>Box</code> that breaks its rules cannot exist. In a clause, <code>it</code> is the value checked; a rule naming other fields belongs to the struct, and <code>at .w</code> names the field a violation points at.</p>
 <example name="features-requires"/>
-<p>Building a type with <code>requires</code> is fallible, so it needs <code>try</code> or <code>catch</code>, and the error is <code>ValidationError&lt;Box&gt;</code>. Updates go through <code>with</code>, which checks again. Function preconditions are a separate word, <code>expects</code>, which panics on a violation in every build mode.</p>
+<p>Building such a type is fallible: it needs <code>try</code> or <code>catch</code>, and the error is <code>ValidationError&lt;Box&gt;</code>. Updates go through <code>with</code>, which checks again. Function preconditions are <code>expects</code>, which panics on a violation in every build mode.</p>
 
 <h2 id="because">@attr because "…"</h2>
-<p>Anywhere code bypasses a safety rule, a written reason is required: <code>@allow(BYN5102) because "…"</code>, <code>x.trustUnchecked() because "…"</code> and <code>unsafe because "…" { … }</code>. The <code>because</code> forms on <code>@allow</code> and <code>unsafe</code> are planned; the compiler does not run them yet, and only <code>trustUnchecked() because</code> works today. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit &lt;path&gt;</code> lists each bypass with its reason; today it finds the <code>trustUnchecked() because</code> ones.</p>
+<p>Anywhere code bypasses a safety rule, a written reason is required. A missing <code>because</code> is a compile error (BYN8001). <code>bayan audit &lt;path&gt;</code> lists each bypass with its reason, today only the <code>trustUnchecked() because</code> ones.</p>
+<table>
+<tr><th>Form</th><th>Today</th></tr>
+<tr><td><code>@allow(BYN5102) because "…"</code></td><td>Planned</td></tr>
+<tr><td><code>x.trustUnchecked() because "…"</code></td><td>Works</td></tr>
+<tr><td><code>unsafe because "…" { … }</code></td><td>Planned</td></tr>
+</table>
 <pre><code class="byn">let name = x.trustUnchecked() because "checked by the caller"
 
 unsafe because "the C API wants a raw pointer" {
@@ -58,32 +72,31 @@ unsafe because "the C API wants a raw pointer" {
 }</code></pre>
 
 <h2 id="postfix-if">Statement if suffixes</h2>
-<p>A simple statement can end with <code>if</code> or <code>unless</code>. The condition is evaluated first, and the statement runs only if it applies. It must be on the same line.</p>
+<p>A simple statement can end with <code>if</code> or <code>unless</code>, on the same line and evaluated first; the statement runs only if it applies. Allowed on <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, <code>panic</code>, a single call and a single assignment, not blocks or chains.</p>
 <example name="features-postfix"/>
-<p>The suffix works on <code>return</code>, <code>fail</code>, <code>break</code>, <code>continue</code>, <code>panic</code>, a single call and a single assignment. Blocks and chains are not allowed.</p>
 
 <h2 id="ref-this">ref this: mutation in the signature</h2>
-<p>A method is read-only unless its first parameter is <code>ref this</code>. You cannot call a changing method on a <code>let</code>, and you can tell from the signature which methods change the value.</p>
+<p>A method is read-only unless its first parameter is <code>ref this</code>. A changing method cannot be called on a <code>let</code>, and the signature says which methods change the value.</p>
 <example name="reading-ref-this"/>
 
 <h2 id="context-names">.member and it: names the compiler can supply</h2>
-<p>A leading dot names a member of the type the compiler already expects: <code>.red</code> for <code>Color.red</code>, <code>fail .told</code> for an error variant. In a call that expects a one-argument function, <code>it</code> stands for the argument. You leave out what can be recovered, and you still write what carries meaning. The <a href="reading.html">reading guide</a> has both.</p>
+<p>A leading dot names a member of the expected type: <code>.red</code> for <code>Color.red</code>, <code>fail .told</code> for an error variant. In a call expecting a one-argument function, <code>it</code> is the argument. Leave out what can be recovered; write what carries meaning. The <a href="reading.html">reading guide</a> has both.</p>
 <example name="reading-target"/>
 
 <h2 id="with">Copy-and-update</h2>
-<p><code>a with { qty: 5 }</code> is a copy of <code>a</code> with the listed fields replaced. It is the only copy-with-changes form, and a type with <code>requires</code> checks the result again.</p>
+<p><code>a with { qty: 5 }</code> copies <code>a</code> with the listed fields replaced. It is the only copy-with-changes form; a type with <code>requires</code> checks the result again.</p>
 <example name="reading-with"/>
 
 <h2 id="except">except</h2>
-<p><code>except</code> takes a pattern out of a set. On an error set it narrows what a function can fail with, so a caller sees exactly which errors remain. <code>except</code> on a list or loop (<code>for x in xs except null</code>) is planned.</p>
+<p><code>except</code> removes a pattern from a set. On an error set it narrows <code>fails</code>, so a caller sees exactly which errors remain; on a list or loop (<code>for x in xs except null</code>) it is planned.</p>
 <example name="reading-except"/>
 
 <h2 id="concurrency">Structured concurrency</h2>
-<p><strong>Planned.</strong> Tasks run inside a <code>scope</code> block with <code>spawn</code>. A task cannot outlive the scope that started it: the scope waits for every child before it exits, and children may borrow from the caller's stack. The first failure, a <code>timeout:</code> or <code>until:</code> deadline, or a cancel from outside cancels the children, which runs their <code>defer failing</code> and <code>defer canceling</code> handlers:</p>
+<p><strong>Planned.</strong> Tasks run inside a <code>scope</code> block with <code>spawn</code>. A task cannot outlive its scope: the scope waits for every child before exiting, and children may borrow the caller's stack. The first failure, a <code>timeout:</code> or <code>until:</code> deadline, or an outside cancel cancels the children, running their <code>defer failing</code> and <code>defer canceling</code> handlers:</p>
 <pre><code class="byn">scope(timeout: 5s) {
     let aisha = spawn prepareIftar("Aisha")
     let bilal = spawn prepareIftar("Bilal")
     let mealA = try aisha.join()
     let mealB = try bilal.join()
 }</code></pre>
-<p>A scope can cap concurrent children with <code>limit:</code> or set a deadline with <code>timeout:</code>. Structured concurrency is not implemented in the current compiler yet.</p>
+<p>A scope can cap concurrent children with <code>limit:</code> or set a deadline with <code>timeout:</code>. Not implemented yet.</p>
