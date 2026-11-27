@@ -16,10 +16,9 @@ A small, explicit language that compiles to native executables. Errors are value
 [![GC](https://img.shields.io/badge/GC-none-C08A2E)](#memory-you-can-see)
 [![License: ISL-P](https://img.shields.io/badge/license-ISL--P%201.2-1F3A5F)](LICENSE.md)
 
-Bayān (بيان, "clear statement") compiles to a small native executable, with no runtime to install, no
-garbage collector and no exceptions. Values are copied by default, errors are return values the compiler
-makes you handle, and memory comes from scopes and allocators you can see. The compiler is written in
-Bayān itself and turns your program into C for a C compiler.
+Bayān (بيان, "clear statement") compiles to a small native executable: no runtime, garbage collector or
+exceptions. Values copy by default, errors are return values you must handle, and memory comes from
+scopes and allocators you can see. The compiler, written in Bayān, lowers your program to C.
 
 ```swift
 string greeting() {
@@ -35,11 +34,12 @@ void main() {
 Salam, world!
 ```
 
-A program starts at `void main()`. A file holding only `print("Salam, world!")`, with no `main`, runs too: `bayan run hello.byn`.
+A program starts at `void main()`; a file holding only `print("Salam, world!")` and no `main` also runs:
+`bayan run hello.byn`.
 
 > [!NOTE]
-> Bayān is young (version 0.4.x). The language is usable and the compiler builds itself, but expect rough
-> edges, and expect things to change between versions.
+> Bayān is young (version 0.4.x): usable and self-hosting, but expect rough edges and changes between
+> versions.
 
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
 
@@ -61,28 +61,24 @@ A program starts at `void main()`. A file holding only `print("Salam, world!")`,
 
 ## Install
 
-You need two things: the `bayan` binary and a C compiler.
-
-1. **Get `bayan`.** Download the archive for your machine from the
-   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.4.1-macos-arm64.tar.gz`,
-   `bayan-0.4.1-macos-x64.tar.gz`, `bayan-0.4.1-linux-x64.tar.gz`, `bayan-0.4.1-linux-arm64.tar.gz`,
-   `bayan-0.4.1-windows-x64.zip` or `bayan-0.4.1-windows-arm64.zip`. Unpack it and put the
-   `bayan` binary somewhere on your `PATH`:
+1. **Get `bayan`.** Download `bayan-<version>-<os>-<arch>.tar.gz` from the
+   [releases page](https://github.com/ikhbat-org/bayan/releases) — `os` is `macos`, `linux` or `windows`,
+   `arch` is `x64` or `arm64`, and Windows uses `.zip`. Unpack it and put `bayan` on your `PATH`:
 
    ```sh
    tar -xzf bayan-0.4.1-macos-arm64.tar.gz
    cp bayan-0.4.1-macos-arm64/bayan ~/.local/bin/
    ```
 
-   On Windows, unzip the archive and put `bayan.exe` on your `PATH`:
+   On Windows, unzip and put `bayan.exe` on your `PATH`:
 
    ```powershell
    Expand-Archive bayan-0.4.1-windows-x64.zip -DestinationPath .
    $env:Path += ";$PWD\bayan-0.4.1-windows-x64"
    ```
 
-2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), because it can build for
-   other platforms too. If zig is not installed, it uses `cc`, `clang` or `gcc` from your `PATH`.
+2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), which also builds for other
+   platforms; without zig it uses `cc`, `clang` or `gcc` from `PATH`.
 
 3. **Check your setup:**
 
@@ -90,8 +86,7 @@ You need two things: the `bayan` binary and a C compiler.
    bayan doctor
    ```
 
-   This lists the compiler, zig, git and the build cache that `bayan` found. If something is missing, it
-   tells you how to fix it.
+   Lists the compiler, zig, git and build cache that `bayan` found, with a fix for each missing one.
 
 ---
 
@@ -107,11 +102,8 @@ bayan run
 Salam, world!
 ```
 
-`bayan new` created a few files; these are the ones that matter:
-
-- `package.byn` describes the project: its name, version and dependencies.
-- `src/app/main.byn` is the program.
-- `tests/app.test.byn` is a test.
+`bayan new` created a few files; three matter: `package.byn` (name, version, dependencies),
+`src/app/main.byn` (the program) and `tests/app.test.byn` (a test).
 
 Open `src/app/main.byn`:
 
@@ -124,12 +116,12 @@ string greeting() {
 print(greeting())
 ```
 
-It has top-level statements and no `main`: the compiler runs them as the program. Change the greeting to `"Salam, Aisha!"` and run `bayan run` again. To run the tests, use `bayan test`.
-The test will now fail, because it still expects the old greeting. Change it to `"Salam, Aisha!"` too
-and it passes.
+It has top-level statements and no `main`, so the compiler runs them. Change the greeting to
+`"Salam, Aisha!"` and run `bayan run` again; `bayan test` fails until you change the expected greeting
+too.
 
-`main` can do real work. Save this as `guests.byn` outside the project. It fails with an error, and
-`@exitCode` sets the process exit code:
+Save this as `guests.byn` outside the project: it fails with an error, and `@exitCode` sets the
+process exit code:
 
 ```swift
 union error GuestError {
@@ -158,45 +150,46 @@ error: The guest list is empty.
 3
 ```
 
-`int` and `long` also compile, and `bayan format` rewrites them to the spelling set by `style.primitives`
-in `package.byn` (spec §3.1).
+`int` and `long` also compile; `bayan format` rewrites them to the spelling `style.primitives` in
+`package.byn` sets (spec §3.1).
 
 ---
 
 ## Batteries included
 
-One `bayan` binary holds the compiler, the formatter, the test runner and the release builder. There is
-nothing else to install except a C compiler. The commands are from `bayan --help`, except `bayan test --coverage`, which works but is not in the help text yet.
+One `bayan` binary holds the compiler, formatter, test runner and release builder; else only a C compiler
+is needed. Commands come from `bayan --help`, except `bayan test --coverage`, which works but is not
+listed there yet.
 
 | Command | What it does |
 |---|---|
-| `bayan new`, `bayan init` | Create an app, library (`--lib`) or script (`--script`), in a new or an existing directory |
-| `bayan run` | Compile and run a project, a script or a file |
+| `bayan new`, `bayan init` | Create an app, library (`--lib`) or script (`--script`), new or existing directory |
+| `bayan run` | Compile and run a project, script or file |
 | `bayan build` | Compile to an executable; `--mode debug\|safe\|fast`, `--target`, `--emit-c` |
-| `bayan test` | Run each test in its own process; `--coverage` for a report of lines, branches and error paths; `--mutate` for mutation testing; `--changed` for modules touched since `HEAD`; `--json` |
+| `bayan test` | One process per test; `--coverage` (lines, branches, error paths); `--mutate` (mutation testing); `--changed` (modules touched since `HEAD`); `--json` |
 | `bayan check` | Report diagnostics without building; `--diagnostics json` for tools |
 | `bayan format` | Rewrite input forms and apply the `style` in `package.byn`; `--check` writes nothing |
 | `bayan explain` | Explain a diagnostic code, for example `bayan explain BYN6002` |
-| `bayan doctor` | Check the C compiler, zig, git and the build cache, with a fix for each problem |
+| `bayan doctor` | Check the C compiler, zig, git and build cache, with a fix for each problem |
 | `bayan dist` | Build release binaries into `dist/<version>/`; `--target all` cross-compiles through zig |
 | `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
-| `bayan audit` | List every `because` bypass and every `unsafe` or `extern` declaration, with its reason |
+| `bayan audit` | List every `because` bypass and `unsafe` or `extern` declaration, with its reason |
 | `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
-| `bayan lex`, `types`, `features --used <path>` | Look inside the compiler: tokens, inferred types, features a build used |
+| `bayan lex`, `types`, `features --used <path>` | Tokens, inferred types and features a build used |
 
-An editor language server, `bayan-lsp`, lives in [`editors/`](editors/README.md) with a VS Code extension.
-The server is early. Each release archive holds it beside `bayan` (`bayan-lsp.exe` on Windows).
+`bayan-lsp`, an early language server with a VS Code extension, is in
+[`editors/`](editors/README.md); each release archive holds it beside `bayan` (`bayan-lsp.exe` on Windows).
 
-The standard library is compiled in, so a program needs no package manager to use it:
+The standard library is compiled in, so no package manager is needed:
 
 | Piece | What it gives you |
 |---|---|
-| `Io` | Files (`Io.readText`), standard streams, processes, random numbers; each use shows up in `uses` |
+| `Io` | Files (`Io.readText`), standard streams, processes, random numbers; each use appears in `uses` |
 | `Path` | File names and paths, for example `Path.fileName` |
-| `List`, `Map` | Growable collections that take their memory from an allocator |
+| `List`, `Map` | Growable collections that allocate from an allocator |
 | `StrBuf` | A string builder for loops |
-| `Arena` | Allocate many things, free them all together |
-| `std.json` | A JSON reader and a `Json` value type: `import std.json` |
+| `Arena` | Allocate many things, free them together |
+| `std.json` | A JSON reader and `Json` value type: `import std.json` |
 
 `std.time` and `std.db` are specified in [`docs/bayan-spec.md`](docs/bayan-spec.md) but not built yet.
 
@@ -204,7 +197,7 @@ The standard library is compiled in, so a program needs no package manager to us
 
 ## How it works
 
-`bayan` parses and checks your `.byn` files, lowers them to C, and hands the C to `zig cc` (or `cc`). The
+`bayan` parses and checks your `.byn` files, lowers them to C and hands it to `zig cc` (or `cc`); the
 output is one native executable.
 
 ```mermaid
@@ -215,17 +208,18 @@ flowchart LR
     D --> E["native executable"]
 ```
 
-`bayan build --emit-c` prints the generated C. A project build keeps it in `out/<mode>/<target>/c/main.c`.
+`bayan build --emit-c` prints the generated C; a project build keeps it in
+`out/<mode>/<target>/c/main.c`.
 
 ---
 
 ## A taste of the language
 
-Small programs around a community iftar. Each runs as it is with `bayan run main.byn`.
+Programs around a community iftar; each runs with `bayan run main.byn`.
 
 ### Errors are values
 
-Booking can fail, and the signature says so (`fails BookingError`). The compiler checks that the caller
+Booking can fail, and the signature says so (`fails BookingError`): the compiler checks that every caller
 handles every error. An error can carry data, like `notEnough(i32 left)`.
 
 ```swift
@@ -275,15 +269,14 @@ Yusuf booked 1, 0 left
 Sorry Maryam, the iftar is full
 ```
 
-`///` is a doc comment, and on an error case its first line is the error's message (`$"{e}"` prints `Every seat is taken.`). A plain `//` comment, also allowed at the end of a line, is not part of the program.
-
-`fail` returns the error. A call that can fail is marked `try` (pass it on) or `catch` (handle it here).
+`///` is a doc comment; on an error case its first line is the error's message, so `$"{e}"` prints
+`Every seat is taken.`. A plain `//` comment, even trailing, is not part of the program. `fail` returns
+the error; a failing call is `try` (pass it on) or `catch` (handle it here).
 
 ### Effects are part of the signature
 
 A public function lists what it touches: files (`fs`), memory (`alloc`), the console, the network and so
-on. With no `uses` clause it only computes. Private functions, `main` and scripts work their effects out
-from their calls.
+on; with no `uses` clause it only computes. Private functions, `main` and scripts infer their effects.
 
 ```swift
 /// Counts the names in a guest list, one per line. No `uses` clause: it only computes.
@@ -316,7 +309,8 @@ With a `guests.txt` of three names:
 3 guests, 9 dates to break the fast
 ```
 
-Without the file it prints `No guest list yet`. Leave `alloc` out of `uses` and the compiler says so, with the fix:
+Without the file it prints `No guest list yet`. Leaving `alloc` out of `uses` gets a compiler error with
+the fix:
 
 <details>
 <summary>The compiler error</summary>
@@ -340,8 +334,8 @@ error BYN6002: `guestsIn` uses `alloc` but does not declare it
 
 ### States the compiler tracks
 
-An order is placed, then paid, then delivered. Each method names the state it needs (`is .paid`) and the
-one it leaves (`becomes .delivered`). A state can carry data (`paid(i32 amount)`).
+An order moves placed → paid → delivered. Each method names the state it needs (`is .paid`) and the one it
+leaves (`becomes .delivered`); a state can carry data (`paid(i32 amount)`).
 
 ```mermaid
 stateDiagram-v2
@@ -414,8 +408,8 @@ error BYN7001: `deliver` needs `order` to be `.paid`, but it is `Order.placed`
 
 ### Memory you can see
 
-Text and lists come from an allocator, and `provide` picks which. Here one arena holds every invitation
-and frees them together at the end of its scope.
+Text and lists come from an allocator, and `provide` picks which; here one arena holds every invitation
+and frees them together at scope end.
 
 ```swift
 void main() {
@@ -438,12 +432,11 @@ Assalamu alaykum Bilal, join us for iftar on Friday
 
 ### A few more things
 
-- **Particles.** At most one parameter is unlabeled; the rest carry a word such as `for`, and the call
-  says it too: `iftar.book("Umar", for: 2)`. You can't swap two arguments by accident.
-- **Locals** are `let` or `var`: `let list = …`, or `let list: string = …` with a type. Declarations put
-  the type first (`i32 countGuests(…)`), local bindings put the name first; write it the other way and the
-  error message shows you the fix.
-- **`stmt if condition`** guards a statement, as in `fail .full if left == 0`.
+- **Particles.** At most one parameter is unlabeled; the rest carry a word such as `for`, said at the
+  call: `iftar.book("Umar", for: 2)`, so arguments can't swap.
+- **Locals** are `let` or `var`: `let list = …` or `let list: string = …`. Declarations put the type
+  first (`i32 countGuests(…)`), local bindings the name first; the reverse shows the fix in the error.
+- **`stmt if condition`** guards a statement: `fail .full if left == 0`.
 - **Errors teach.** Each has a code; `bayan explain BYN1043` explains it.
 
 ---
@@ -456,34 +449,32 @@ Assalamu alaykum Bilal, join us for iftar on Friday
 | Garbage collector | Scopes and allocators; `Arena` and `provide allocator:` |
 | Runtime to install | None; the output is one native executable |
 | Hidden side effects | `uses` clauses on public functions |
-| Run-time checks of object lifecycle | `states`, `is` and `becomes`, checked at compile time |
+| Run-time lifecycle checks | `states`, `is` and `becomes`, checked at compile time |
 
 ---
 
 ## Where to go next
 
 - `bayan --help` lists every command.
-- [`docs/bayan-spec.md`](docs/bayan-spec.md) is the language specification, the full reference.
-- [Bayān grammar guide](docs/bayan-grammar.md) is the naming guide; [Bayān style guide](docs/bayan-style.md)
-  is the style guide.
-- [`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md) lists every error and warning.
-- [`CHANGELOG.md`](CHANGELOG.md) says what changed in each version.
-- [`docs/bayan-roadmap.md`](docs/bayan-roadmap.md) says what is coming next; [`docs/bayan-not-planned.md`](docs/bayan-not-planned.md)
-  lists what Bayān will not do, and [`docs/bayan-nice-to-have.md`](docs/bayan-nice-to-have.md) the ideas with no slot yet.
-- Home: <https://bayan.run>. Repository: <https://github.com/ikhbat-org/bayan> (Ikhbat Foundation).
+- Full language reference: [`docs/bayan-spec.md`](docs/bayan-spec.md).
+- Naming: [grammar guide](docs/bayan-grammar.md). Style: [style guide](docs/bayan-style.md).
+- Every error and warning: [`docs/DIAGNOSTICS.md`](docs/DIAGNOSTICS.md). Changes per version:
+  [`CHANGELOG.md`](CHANGELOG.md).
+- Next: [`docs/bayan-roadmap.md`](docs/bayan-roadmap.md). Not planned:
+  [`docs/bayan-not-planned.md`](docs/bayan-not-planned.md). No slot yet:
+  [`docs/bayan-nice-to-have.md`](docs/bayan-nice-to-have.md).
+- Home <https://bayan.run>; repository <https://github.com/ikhbat-org/bayan> (Ikhbat Foundation).
 
-Found a bug or a confusing error message? Please open an issue. A small program that shows the problem
-helps most.
+Found a bug or a confusing error message? Open an issue with a small program that shows it.
 
 ---
 
 ## Working on the compiler
 
-The compiler lives in `src/` and is written in Bayān. You need a C compiler; zig is optional.
+The compiler is in `src/`, written in Bayān; you need a C compiler (zig is optional).
 
-Build the self-hosted compiler with any `bayan`, or with only a C compiler from `bootstrap/bayan.c` (the
-self-hosted compiler as plain C). Both produce the self-hosted `bayan`. See
-[`bootstrap/README.md`](bootstrap/README.md).
+Build the self-hosted `bayan` with any `bayan`, or with only a C compiler from `bootstrap/bayan.c` (the
+self-hosted compiler as plain C); see [`bootstrap/README.md`](bootstrap/README.md).
 
 ```sh
 bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
@@ -491,22 +482,23 @@ cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstr
 ./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
 ```
 
-`bash scripts/test.sh` runs the whole suite (golden cases, Bayān `test` blocks, CLI parity, script tests, runtime C
+`bash scripts/test.sh` runs the suite (golden cases, `test` blocks, CLI parity, script tests, runtime C
 tests); `--only <part>` runs one part.
 
-Local builds go in `dist/` (gitignored). `scripts/dist.sh` writes `dist/<target>/<version>/` plus a `latest/`
-per target that every build replaces. `bayan dist` writes `dist/<version>/` and one `dist/latest/`.
+Local builds go in `dist/` (gitignored); `scripts/dist.sh` writes `dist/<target>/<version>/` plus a
+per-target `latest/` that every build replaces, while `bayan dist` writes `dist/<version>/` and one
+`dist/latest/`.
 
 ```sh
 scripts/dist.sh                                # this host: dist/macos-arm64/0.4.1/bayan
 scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
 ```
 
-`scripts/dist.sh --rid <rid>` cross-builds another target through zig; `--from` imports a binary built elsewhere.
+`--rid <rid>` cross-builds another target through zig; `--from` imports a binary built elsewhere.
 
-The milestones and an index of the project docs are in [`docs/bayan-milestones.md`](docs/bayan-milestones.md), the
-progress log is in [`docs/bayan-progress-log.md`](docs/bayan-progress-log.md), and how a version is cut is
-in [`docs/RELEASING.md`](docs/RELEASING.md).
+Milestones and a doc index: [`docs/bayan-milestones.md`](docs/bayan-milestones.md). Progress log:
+[`docs/bayan-progress-log.md`](docs/bayan-progress-log.md). Cutting a version:
+[`docs/RELEASING.md`](docs/RELEASING.md).
 
 Code fences in this README use Swift highlighting until GitHub knows `.byn`.
 
@@ -514,4 +506,5 @@ Code fences in this README use Swift highlighting until GitHub knows `.byn`.
 
 ## License
 
-Bayān is released under the Islamic Software License - Permissive (ISL-P), Version 1.2. See [`LICENSE.md`](LICENSE.md).
+Bayān is released under the Islamic Software License - Permissive (ISL-P), Version 1.2; see
+[`LICENSE.md`](LICENSE.md).
