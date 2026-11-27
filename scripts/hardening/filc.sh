@@ -5,7 +5,8 @@
 # differs from its expected one (the case's .exitcode, else 0) and whose own stderr names Fil-C: the golden runner keeps no program
 # stderr, so each run/ case is also built and run by differential.sh's run_case (sourced, run through its `--case`), which records
 # the program's stderr under the cell's out/. The marker is the case-insensitive extended regex "filc (panic|safety)" (Fil-C's
-# "filc panic"/"filc safety error" text). A case that did not build (a compile error) is not a finding.
+# "filc panic"/"filc safety error" text). A case that did not build (a compile error) is not a finding, nor is Fil-C's abort():
+# exit 133 with "filc user error: abort() called" and no safety error, where the case expects SIGABRT's 134.
 # Output: audit count, golden counts, finding names (also in log/findings.txt); logs in the cell dir. Exits 0 when it ran, 1 on harness failure, 2 on usage.
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -65,7 +66,13 @@ while IFS=$'\t' read -r c rc _; do
     f=$(awk -v n="$n" '$1 == n { print $2 }' "$selected")
     want=0; [ -f "${f%.byn}.exitcode" ] && want=$(tr -d ' \r\n' <"${f%.byn}.exitcode")
     [ "$rc" != "$want" ] || continue
-    grep -qiE 'filc (panic|safety)' "$dir/out/run_${n//\//_}.stderr" && echo "$c" >>"$dir/log/findings.txt"
+    e="$dir/out/run_${n//\//_}.stderr"
+    # Fil-C reports abort() as exit 133 with "filc user error: abort() called" (and "filc panic: user thwarted themselves."),
+    # where a native build gets SIGABRT's 134: a panic case doing that is the expected abort, unless a safety error came first.
+    if [ "$want" = 134 ] && [ "$rc" = 133 ] && grep -qF 'filc user error: abort() called' "$e" && ! grep -qi 'filc safety' "$e"; then
+        continue
+    fi
+    grep -qiE 'filc (panic|safety)' "$e" && echo "$c" >>"$dir/log/findings.txt"
 done <"$dir/records.tsv"
 findings=$(wc -l <"$dir/log/findings.txt" | tr -d ' ')
 echo "filc: golden $gp passed, $gf failed; findings $findings"
