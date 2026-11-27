@@ -52,7 +52,7 @@ build=$(awk '/^  build:/{j=1;next} j&&/^  [^ #]/{exit} j' "$wf")
 echo "$build" | grep -qi 'dotnet' && fail "release.yml's build job still uses .NET"
 echo "$build" | grep -q 'bash scripts/bootstrap-build.sh' || fail "release.yml's build job does not build from the bootstrap"
 echo "$build" | grep -qF -- '--mode safe --package src -o publish/' || fail "release.yml's build job does not build the shipped stage from src/"
-echo "$build" | grep -qF -- '(selfhost)' || fail "release.yml's build job lost the (selfhost) smoke test"
+echo "$build" | grep -qF -- '--version | grep -Fx "bayan $(cat VERSION)"' || fail "release.yml's build job lost the bayan <VERSION> smoke test"
 mg=$(awk '/^  memory-gate:/{j=1;next} j&&/^  [^ #]/{exit} j' "$wf")
 [ -n "$mg" ] || fail "release.yml has no memory-gate job"
 echo "$mg" | grep -qi 'dotnet' && fail "release.yml's memory-gate job still uses .NET"

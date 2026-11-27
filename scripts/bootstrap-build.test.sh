@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tests scripts/bootstrap-build.sh: usage errors exit 2; a CC that fails makes stage 0 fail, named, exit 1; a real run
-# (skipped with a reason when there is no C compiler) prints a stage-1 path whose --version says "(selfhost)". bash 3.2.
+# (skipped with a reason when there is no C compiler) prints a stage-1 path whose --version is exactly "bayan <VERSION>". bash 3.2.
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 s="$root/scripts/bootstrap-build.sh"
@@ -26,5 +26,5 @@ rc=0; out="$("$BASH" "$s" --out "$tmp/real" 2>&1)" || rc=$?
 s1="$(tail -n 1 <<<"$out")"
 [ -x "$s1" ] || fail "stage-1 path '$s1' is not an executable: $out"
 v="$("$s1" --version 2>&1)" || fail "stage 1 --version failed: $v"
-grep -q '(selfhost)' <<<"$v" || fail "stage 1 --version has no (selfhost): $v"
+[ "$v" = "bayan $(cat "$root/VERSION")" ] || fail "stage 1 --version is not 'bayan $(cat "$root/VERSION")': $v"
 echo "ok"

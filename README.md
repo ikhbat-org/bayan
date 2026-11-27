@@ -484,7 +484,7 @@ self-hosted compiler as plain C); see [`bootstrap/README.md`](bootstrap/README.m
 bash scripts/bootstrap-build.sh                # prints the path of the built bayan (tmp/bootstrap-build/bayan-stage1)
 bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot   # -lshell32 instead of -lm on Windows
-./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
+./tmp/bayan-selfhost --version                 # bayan <version>
 ```
 
 `bash scripts/test.sh` runs the suite (golden cases, `test` blocks, CLI parity, script tests, runtime C

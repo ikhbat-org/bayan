@@ -139,19 +139,19 @@ mkdir -p "$t/empty"; bash "$s" sums "$t/empty" 2>/dev/null && fail "sums over no
 [ "$(bash "$s" notes 1.2.3)" = "$(printf '\n### Added\n- one\n\nKnown limit: the stage-2 build of `src/driver` peaks at 1.69 GB of memory.')" ] || fail "notes: $(bash "$s" notes 1.2.3)"
 bash "$s" notes 9.9.9 2>/dev/null && fail "missing CHANGELOG section accepted"
 
-# release.yml builds the shipped bayan as stage 2 from the bootstrap (stage 0 by bootstrap-build.sh, no .NET) and smoke-tests the "(selfhost)" version line (spec 017 R5).
+# release.yml builds the shipped bayan as stage 2 from the bootstrap (stage 0 by bootstrap-build.sh, no .NET) and smoke-tests the exact `bayan <VERSION>` version line (spec 017 R5).
 y="$root/.github/workflows/release.yml"
 yline() { grep -nxF -m1 -- "$1" "$y" | cut -d: -f1 || true; } # the line number of a whole line, with its indent; empty when absent
 l_pkg="$(yline '      - name: Package')"; l_mg="$(yline '  memory-gate:')"
 l_zig="$(yline '        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"')"
 l_s1="$(yline '          s1="$(bash scripts/bootstrap-build.sh)" || { tail -n 40 tmp/bootstrap-build/stage*.log; exit 1; }')"
 l_s2="$(yline '          "$STAGE1" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver')"
-l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"')"
+l_sm="$(yline '        run: ./publish/${{ matrix.exe }} --version | grep -Fx "bayan $(cat VERSION)"')"
 [ -n "$l_pkg" ] && [ -n "$l_mg" ] || fail "release.yml lacks the Package step or the memory-gate job"
 [ -n "$l_zig" ] && [ "$l_zig" -lt "$l_mg" ] || fail "release.yml: no Install zig run in the build job"
 [ -n "$l_s1" ] || fail "release.yml lacks the stage 1 build"
 [ -n "$l_s2" ] || fail "release.yml lacks the stage 2 build"
-[ -n "$l_sm" ] || fail "release.yml smoke test lacks (selfhost)"
+[ -n "$l_sm" ] || fail "release.yml smoke test does not check the exact bayan <VERSION> line"
 [ "$l_zig" -lt "$l_s1" ] && [ "$l_s1" -lt "$l_s2" ] && [ "$l_s2" -lt "$l_sm" ] && [ "$l_sm" -lt "$l_pkg" ] || fail "release.yml: zig, stage 1, stage 2, smoke test and Package are out of order"
 grep -qxF -- '    needs: [build, memory-gate, editor-gate, laws, ddc]' "$y" || fail "release job no longer needs build, memory-gate, editor-gate, laws and ddc"
 # The dry run: workflow_dispatch with a version input, one tag value per job, the release job only on a tag push or a non-dry dispatch (which refuse-draft.sh stops).

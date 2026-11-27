@@ -14,74 +14,314 @@ const exitToolchain: i32   = 4
 /// Toolchain.CompilerVersion (Toolchain.cs:33).
 const version: string = "0.4.1"
 
-/// Messages.Usage (Messages.cs:32), kept equal by SelfhostDriverTests.
+/// `bayan --help`, `-h` and `help` (owner decision 2026-11-16): one line per command; `commandHelp` has each command's options.
+/// `mutate` and `cache` are left out to stay within 28 lines: `bayan help test` and `bayan help clean` name them, and
+/// `bayan help mutate` and `bayan help cache` describe them.
 const usageText: string = """
-usage: bayan <command> [args]
+Usage: bayan <command> [options]
 
-commands:
-  new <name>           create an app in a new directory [--lib|--script] [--vcs git|none] [--ci github|none]
-  init [<dir>]         add a project's missing files to a directory (same options as new)
-  lex [--json] <file>  print the token stream [--json: as one JSON object] (`-` reads stdin)
-  parse [--ast] <file> check syntax; with --ast print the syntax tree
-  types <path>         print each function's parameter and local types as JSON
-  check <path>         report diagnostics for a program (a file or directory)
-  build <path>         compile to an executable [-o <file>] [--mode debug|safe|fast] [--target <t>] [--emit-c]
-                       [-v: print each phase's time and the output path]
-  run <path>           compile and run [--mode debug|safe|fast] [-- <program args>]
-  test <path>          compile and run the tests, each in its own process [--mode debug|safe|fast]
-                       [--json: print the results as JSON instead]
-                       [--changed [--base <ref>]: only modules with files changed since HEAD or <ref>]
-                       [--only <text>: only tests whose name contains <text>; repeatable]
-                       [-v: also list the passing and pending tests]
-                       [--mutate: run every mutant against the tests that reach it; with --run <cmd>, run <cmd> once
-                       per mutant instead, with BAYAN_MUTANT set (exit 0 survived, non-zero killed)]
-  mutate --binary <exe> --sites <map.json> -- <cmd>
-                       run <cmd> once per mutant site of a prebuilt --mutate binary, as test --mutate --run does
-  dist [<dir>]         build release binaries into dist/<version>/ [--target <t>|all] [--mode m]
-                       [--force: rebuild an existing version] [--allow-dirty: build from a dirty git tree]
-  clean [<dir>]        remove out/ [--dist: also dist/] [--cache: also the global build cache]
-  cache stats          show the shared build cache's location and size
-  format <path>        rewrite input forms (those with a fix-it) in a `.byn` file or a directory of them,
-                       and booleans and primitives to `style` in `package.byn` [--check: list, don't write]
-  fix [<path>…]        apply every style lint's fix (whatever its severity in `lints`) to `.byn` files
-                       or directories of them (default: the current directory); does not format
-  audit <path>         list every `because` bypass and `unsafe` or `extern` declaration, with its reason
-  features --used <path>
-                       print the syntax node kinds, builtins and diagnostics a build touched, as JSON
-  explain <code>       explain a diagnostic, e.g. `bayan explain BYN0003`
-  <script>.byn         run a script, so `#!/usr/bin/env bayan` works
-  doctor               check the C compiler, zig, git and the build cache, with fixes
-  --version            print the compiler version and the `(selfhost)` marker
-  --help               print this message
+  new              Create a project in a new directory
+  init             Add a project's missing files to a directory
 
-check, types, build, run, test and features take a project directory (one with `package.byn`; the
-default inside a project), a script (a file starting with `#!`), or a file or directory of `.byn` files.
+  build            Compile a program to an executable
+  run              Compile and run a program
+  test             Compile and run a program's tests
+  check            Report a program's diagnostics
+  <script>.byn     Run a script, so `#!/usr/bin/env bayan` works
 
-options for every command:
-  --color auto|always|never
-                       color for terminals (auto: on unless piped or NO_COLOR is set;
-                       FORCE_COLOR turns it on, TERM=dumb off)
-  --ascii              use ASCII symbols instead of ◆ ✗ │ (also with TERM=dumb or a non-UTF-8 locale)
+  format           Rewrite `.byn` files into their canonical form
+  fix              Apply every style lint's fix
+  audit            List every `because` bypass and `unsafe` or `extern`
+  explain          Explain a diagnostic, e.g. `bayan explain BYN0003`
+  doctor           Check the C compiler, zig, git and the build cache
+  clean            Remove out/, and dist/ or the build cache
+  dist             Build release binaries into dist/<version>/
 
-options for check, types, build, run and test:
-  --all                show every error instead of the first 20 (JSON is never capped)
-  --diagnostics json   print each diagnostic to stderr as one JSON object per line
-                       (code, severity, file, span, message, label, help, fixes)
+  lex              Print a file's token stream
+  parse            Check a file's syntax or print its syntax tree
+  types            Print each function's parameter and local types
+  features         Print the syntax, builtins and diagnostics a build used
 
-exit codes:
+General options:
+  -h, --help       Print this help, or after a command that command's help
+  -v, --version    Print the version line, `bayan <version>`
+Run 'bayan help <command>' for a command's options.
+"""
+
+/// What `check`, `types`, `build`, `run`, `test` and `features` take as `<path>`.
+const pathHelp: string = """
+<path> is a project directory (one with `package.byn`; the default inside a
+project), a script (a file starting with `#!`), or a file or directory of
+`.byn` files.
+"""
+
+/// The options of `check`, `types`, `build`, `run` and `test`, and their exit codes.
+const compileHelp: string = """
+  --all                show every error instead of the first 20 (JSON is never
+                       capped)
+  --diagnostics json   print each diagnostic to stderr as one JSON object per
+                       line (code, severity, file, span, message, label, help,
+                       fixes)
+
+Exit codes:
   0  success
   1  compile errors
   2  usage errors (unknown command or option, missing path)
   3  test failures, or a coverage or mutation score below its minimum
   4  toolchain problems (no C compiler, unwritable cache, C compiler failure)
-
-`bayan run` exits 1 when compilation fails and otherwise passes the program's own exit code
-through unchanged, so it cannot tell a build failure from a program that exits 1. When that
-matters, run `bayan build` first or read `--diagnostics json`.
 """
 
-/// CliApp.cs:33 `VersionLine` with the commit replaced by `selfhost` (spec Q3).
-string versionLine() => $"bayan {version} (selfhost)"
+/// The options of `new` and `init`.
+const newHelp: string = """
+Options:
+  --lib                create a library instead of an app
+  --script             create a script instead of an app
+  --vcs git|none       start a git repository, or not
+  --ci github|none     add a GitHub workflow, or not
+"""
+
+/// The options every command takes.
+const generalHelp: string = """
+General options:
+  --color auto|always|never
+                       color for terminals (auto: on unless piped or NO_COLOR
+                       is set; FORCE_COLOR turns it on, TERM=dumb off)
+  --ascii              use ASCII symbols instead of ◆ ✗ │ (also with
+                       TERM=dumb or a non-UTF-8 locale)
+  -h, --help           print this help
+"""
+
+/// `bayan help <command>` and `bayan <command> --help`: `command`'s usage and options; null for a command that has none.
+string? commandHelp(string command) uses alloc {
+    var body = ""
+    var compile = false
+    var path = false
+    switch command {
+        case "new" or "init":
+            let usage = command == "new" ? "new <name>" : "init [<dir>]"
+            let what = command == "new" ? "Create an app in a new directory <name>." : "Add a project's missing files to <dir> (default: the current directory)."
+            body = $"Usage: bayan {usage} [options]\n\n{what}\n\n{newHelp}"
+        case "build":
+            compile = true
+            path = true
+            body = """
+Usage: bayan build [<path>] [options]
+
+Compile a program to an executable.
+
+Options:
+  -o <file>            write the executable to <file>
+  --mode debug|safe|fast
+                       the build mode
+  --target <t>         build for target <t>
+  --emit-c             write the C instead of an executable
+  -v                   print each phase's time and the output path
+"""
+        case "run":
+            compile = true
+            path = true
+            body = """
+Usage: bayan run [<path>] [options] [-- <program args>]
+       bayan <script>.byn [<program args>]
+
+Compile and run a program, passing it <program args>. A script runs by its
+name alone, so `#!/usr/bin/env bayan` works.
+
+`bayan run` exits 1 when compilation fails and otherwise passes the program's
+own exit code through unchanged, so it cannot tell a build failure from a
+program that exits 1. When that matters, run `bayan build` first or read
+`--diagnostics json`.
+
+Options:
+  --mode debug|safe|fast
+                       the build mode
+  -- <program args>    pass the rest to the program
+"""
+        case "test":
+            compile = true
+            path = true
+            body = """
+Usage: bayan test [<path>] [options]
+
+Compile and run the tests, each in its own process.
+
+Options:
+  --mode debug|safe|fast
+                       the build mode
+  --json               print the results as JSON instead
+  --changed            only modules with files changed since HEAD
+  --base <ref>         with --changed: changed since <ref> instead of HEAD
+  --only <text>        only tests whose name contains <text>; repeatable
+  -v                   also list the passing and pending tests
+  --mutate             run every mutant against the tests that reach it
+  --run <cmd>          with --mutate: run <cmd> once per mutant instead, with
+                       BAYAN_MUTANT set (exit 0 survived, non-zero killed),
+                       as `bayan mutate` does for a prebuilt binary
+"""
+        case "check":
+            compile = true
+            path = true
+            body = """
+Usage: bayan check [<path>] [options]
+
+Report diagnostics for a program (a file or directory).
+
+Options:
+"""
+        case "types":
+            compile = true
+            path = true
+            body = """
+Usage: bayan types [<path>] [options]
+
+Print each function's parameter and local types as JSON.
+
+Options:
+"""
+        case "features":
+            path = true
+            body = """
+Usage: bayan features --used <path>
+
+Print the syntax node kinds, builtins and diagnostics a build touched, as JSON.
+
+Options:
+  --used <path>        the program whose build to report
+"""
+        case "mutate":
+            body = """
+Usage: bayan mutate --binary <exe> --sites <map.json> -- <cmd>
+
+Run <cmd> once per mutant site of a prebuilt --mutate binary, as
+`bayan test --mutate --run` does.
+
+Options:
+  --binary <exe>       the binary built with --mutate
+  --sites <map.json>   its mutant site map
+  -- <cmd>             the command to run once per mutant
+"""
+        case "lex":
+            body = """
+Usage: bayan lex [--json] <file>
+
+Print the token stream of <file> (`-` reads stdin).
+
+Options:
+  --json               print it as one JSON object
+"""
+        case "parse":
+            body = """
+Usage: bayan parse [--ast] <file>
+
+Check the syntax of <file>.
+
+Options:
+  --ast                print the syntax tree
+"""
+        case "format":
+            body = """
+Usage: bayan format [--check] <path>
+
+Rewrite input forms (those with a fix-it) in a `.byn` file or a directory of
+them, and booleans and primitives to `style` in `package.byn`.
+
+Options:
+  --check              list the files, don't write them
+"""
+        case "fix":
+            body = """
+Usage: bayan fix [<path>…]
+
+Apply every style lint's fix (whatever its severity in `lints`) to `.byn`
+files or directories of them (default: the current directory); does not
+format.
+"""
+        case "audit":
+            body = """
+Usage: bayan audit <path>
+
+List every `because` bypass and `unsafe` or `extern` declaration, with its
+reason.
+"""
+        case "explain":
+            body = """
+Usage: bayan explain <code>
+
+Explain a diagnostic, e.g. `bayan explain BYN0003`.
+"""
+        case "doctor":
+            body = """
+Usage: bayan doctor
+
+Check the C compiler, zig, git and the build cache, with fixes.
+"""
+        case "clean":
+            body = """
+Usage: bayan clean [<dir>] [options]
+
+Remove out/ (default: in the current directory). `bayan cache stats` shows
+the build cache's location and size.
+
+Options:
+  --dist               also remove dist/
+  --cache              also empty the global build cache
+"""
+        case "cache":
+            body = """
+Usage: bayan cache stats
+
+Show the shared build cache's location and size (`bayan clean --cache`
+empties it).
+"""
+        case "dist":
+            body = """
+Usage: bayan dist [<dir>] [options]
+
+Build release binaries into dist/<version>/.
+
+Options:
+  --target <t>|all     build for target <t>, or for every target
+  --mode debug|safe|fast
+                       the build mode
+  --force              rebuild an existing version
+  --allow-dirty        build from a dirty git tree
+"""
+        default:
+            return null
+    }
+    var text = StrBuf()
+    text.append(body)
+    if compile {
+        text.append($"\n{compileHelp}")
+    }
+    if path {
+        text.append($"\n\n{pathHelp}")
+    }
+    text.append($"\n\n{generalHelp}")
+    return text.finish()
+}
+
+/// `bayan help <command>` and `bayan <command> --help`: the help of `command` on stdout, or a usage error naming it.
+i32 helpCommand(string command) {
+    if (commandHelp(command) is not { } text) {
+        Io.stderr.write($"bayan: unknown command `{command}`; `bayan help` lists the commands\n")
+        return exitUsage
+    }
+    Io.stdout.write($"{text}\n")
+    return exitOk
+}
+
+/// True when an argument of `kept` after the command and before any `--` is `--help` or `-h`.
+bool asksHelp(List<string> kept) {
+    for i in 1..kept.length {
+        return false if kept[i] == "--"
+        return true if kept[i] is "--help" or "-h"
+    }
+    return false
+}
+
+/// CliApp.cs:33 `VersionLine` without its build detail: `bayan <version>` alone (owner 2026-11-27).
+string versionLine() => $"bayan {version}"
 
 /// CliApp.cs:37 `Run`.
 i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
@@ -101,14 +341,20 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         return exitUsage
     }
     let command = kept[0]
+    if commandHelp(command) is not null && asksHelp(kept) {
+        return helpCommand(command)
+    }
     switch command {
-        case "--version" or "version":
+        case "--version" or "-v" or "version":
             Io.stdout.write($"{versionLine()}\n")
             return exitOk
         case "doctor":
             // coverage-exempt: Q1219 the C# `doctor` prints its own version line (Q1112), so no row compares it
             return doctorCommand(by: in d)
         case "--help" or "-h" or "help":
+            if kept.length > 1 && command == "help" {
+                return helpCommand(kept[1])
+            }
             Io.stdout.write($"{usageText}\n")
             return exitOk
         case "lex":
