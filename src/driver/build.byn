@@ -561,7 +561,7 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
     if t1IsScript(o.path) {
         // coverage-exempt: Q1018 the catch is reached only if the script changes between `t1IsScript` and this read (a race no test can stage)
         let bytes = Io.readFile(o.path) catch return exitFailure
-        let scripted = scriptKey(bytes.span, by: o.mode, for: null)
+        let scripted = scriptKey(bytes.span, by: o.mode, for: null, path: o.path, package: o.package)
         key = scripted
         if (lookupScript(scripted, by: targetExecutableName("program", for: host), through: ref d) is { } remembered) {
             return t5Start(remembered, by: in o.programArgs)
@@ -572,6 +572,8 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
     var sourceBuf = StrBuf()
     var outputBuf = StrBuf()
     var hasOutput = false
+    // A script that imports a module of its own is compiled every run: its key cannot name files it has not read yet.
+    var ownModules = false
     {
         using let frontend = Arena()
         provide allocator: frontend {
@@ -590,6 +592,11 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
                 return semantics.t26Failed(in t5T26(in o), from: in reported, by: in symbols)
             }
             return exitUsage if refuseLibrary(compiled, by: "run")
+            for f in compiled.files {
+                if !f.isEntry && f.path != "<builtin>" && !compiled.modules[f.module].directory.startsWith("<std>/") {
+                    ownModules = true
+                }
+            }
             let source = t5EmitC(ref compiled, by: o.mode)
             if (t5PrepareOut(in compiled, by: o.mode, for: host, from: source) is { } dir) {
                 outputBuf.append(
@@ -616,7 +623,7 @@ i32 runProgram(in List<string> args, by ref DCtx d) uses alloc, clock, console, 
         return exitToolchain
     }
     if (key is { } k) {
-        rememberScript(k, by: built.key, through: ref d)
+        rememberScript(k, by: built.key, through: ref d) unless ownModules
     }
     return t5Start(built.exe, by: in o.programArgs)
 }

@@ -1,0 +1,8 @@
+exit 134
+panic: moved
+  at tool.byn:2
+
+exit 134
+panic: moved
+  at moved.byn:2
+
