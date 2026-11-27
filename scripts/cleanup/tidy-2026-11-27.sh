@@ -82,6 +82,8 @@ if [ -d "$main/tmp" ]; then
 fi
 printf 'tmp/ old entries: %d GB\n' $(( total / 1048576 ))
 
+# tmp/ entries above may have held worktrees (tmp/mb-*); clear their registrations too.
+[ "$execute" = 1 ] && [ "$tmpdel" = 1 ] && git worktree prune
 echo "== remaining"
 printf 'worktrees: %s\n' "$(git worktree list | wc -l | tr -d ' ')"
 df -h "$main" | tail -1
