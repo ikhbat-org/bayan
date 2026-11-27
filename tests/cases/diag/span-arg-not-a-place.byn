@@ -1,0 +1,17 @@
+void fill(Span<i64> s) {
+    s[0] = 9
+}
+
+List<i64> make() {
+    let xs: List<i64> = [1, 2]
+    return xs
+}
+
+void main() {
+    var m = Map<string, List<i64>>()
+    m["a"] = make()
+    fill(make())
+    fill(m["a"])
+    fill(m["a"][0..2])
+    m["a"][0] = 9
+}

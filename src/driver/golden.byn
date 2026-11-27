@@ -2560,7 +2560,7 @@ test "lex, parse and typed cases pass over tests/cases" {
 test "diag, manifest and diag-json cases pass over tests/cases" {
     var count: i64 = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag", to: ref count).length == 0)
-    assert(count == 898)
+    assert(count == 899)
     count = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "manifest", to: ref count).length == 0)
     assert(count == 21)

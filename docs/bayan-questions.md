@@ -53,6 +53,7 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 | Q1286 | 019 T29c: lines no test reaches, exempt from the coverage ratchet (cov8) | see the entry | each item under a `// coverage-exempt: Q1286` marker, cited in the entry | none (recorded) |
 | Q1287 | 0.4.0 audit 05 (B): the failing path of a `try` or `catch` on a call of a `never … fails` function | see the entry | the failing path starts unreachable, as in csharp-final and dev | the user (designer) |
 | Q1288 | 0.4.0 audit 10 #2: restore the frontend skip for multi-module scripts with a full key | see the entry | a script that imports a module of its own is compiled on every run and never remembered | the user (designer) |
+| Q1289 | 0.4.0 audit 07 #3/#4: a `Span` argument or slice from a value that is not a writable place | see the entry | rejected, like a direct write: `fill(make())` and `fill(m["a"])` give BYN2106, `fill(m["a"][0..2])` gives a `ReadOnlySpan` (BYN2202) | the user (designer) |
 
 ### Q60
 
@@ -221,6 +222,10 @@ In each entry, *Current choice* or *Conservative option* is the option in force,
 ### Q1288
 
 1288. **0.4.0 audit 10 #2 (fix/audit-040-highs-2): restore the frontend skip for multi-module scripts with a full key.** `bayan run script.byn` looks up its remembered program by `scriptKey` (src/driver/cache.byn) before it compiles, so the key cannot name the module files the compile is about to read; a key over the script's bytes alone started a stale program after an imported module was edited. `runProgram` (src/driver/build.byn) now keys the script's full path and `--package` root as well, and does not remember a script whose compile read a file other than the script, the builtin source and `std` (bounds.byn, the "run: a script that imports a module of its own" block). Such a script loses the frontend skip; its C compile still comes from the program cache. *Conservative option:* that, in force. *Options:* (a) keep it; (b) a key over every module file read: remember, beside the pointer, the module files the last compile read and their content hashes, and on lookup take the pointer only when every one still hashes the same (content hashes, not mtime and size, which an edit can keep). Worth it if the frontend of a typical multi-module script costs more than about 100 ms a run. Status: open.
+
+### Q1289
+
+1289. **0.4.0 audit 07 #3/#4 (fix/audit-040-highs-2): a writable `Span` from a value that is not a writable place.** The fix checks the operand of every `List`/array → `Span` argument conversion, and of every non-span slice, with the rule a direct element write uses. Besides `let` places it now rejects temporaries (`fill(make())`, accepted on dev) and map values (`fill(m["a"])`; `m["a"][0] = 9` was already BYN2106 on dev). Spec §5 (`List<T>` → `Span<T>`, implicit only as a function argument) does not say which operands qualify. *Conservative option in force:* rejected, pinned by `tests/cases/diag/span-arg-not-a-place`. *Other option:* accept temporaries, since a write into a dropped value harms nothing. Status: open.
 
 ## Self-hosting ports (specs 009 and 010)
 
