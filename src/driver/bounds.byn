@@ -401,14 +401,14 @@ test "run: a script that imports a module of its own runs the edited module and 
     assert(pointers.length == 0)
 }
 
-test "run: a file whose helper lives in a sibling file runs the edited sibling and is not remembered" {
+test "run: a script never reads its sibling files, so an edited sibling cannot change it and it is remembered" {
     if Target.os == "windows" {
         todo("`sh` and `ps` sample the resident set; Windows has neither")
     }
     let exe = boundExe()
     let root = boundFresh("script-sibling")
-    goldenWrite(root, for: "tool.byn", as: "print(h())\n")
-    goldenWrite(root, for: "util.byn", as: "string h() => \"v1\"\n")
+    goldenWrite(root, for: "tool.byn", as: "#!/usr/bin/env bayan\nprint(\"s1\")\n")
+    goldenWrite(root, for: "util.byn", as: "this is not bayan (((\n")
     let none = List<string>()
     let first = boundStart(boundList([exe, "run", "tool.byn"]), at: root, as: none)
     print(first.stderr)
@@ -418,10 +418,10 @@ test "run: a file whose helper lives in a sibling file runs the edited sibling a
     let pointers = boundFiles(Path.combine(Path.combine(Path.combine(root, "cache"), "v1"), "scripts"))
     deleteWorkDir(root)
     assert(first.exit == 0)
-    assert(first.stdout == "v1\n")
+    assert(first.stdout == "s1\n")
     assert(second.exit == 0)
-    assert(second.stdout == "v2\n")
-    assert(pointers.length == 0)
+    assert(second.stdout == "s1\n")
+    assert(pointers.length == 1)
 }
 
 // ── M6, F13 ──────────────────────────────────────────────────────────────────
