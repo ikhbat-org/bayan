@@ -745,6 +745,24 @@ test "emitter t29: isTrivial, isRepeatable, isLvalue and anyNode on made-up node
     assert !anyNode(in c, through: in l, for: other, by: .readsLocalMovedBy(moved))
 }
 
+test "emitter t29: a call writing a local by ref is stored before a later operand reads it" {
+    let source = """
+        i64 bump(ref i64 n) {
+            n = 20
+            return 20
+        }
+
+        void main() {
+            var n: i64 = 10
+            let e = bump(ref n) + n
+            print($"{e}")
+        }
+        """
+    let emitted = t29Emit(source)
+    assert emitted.contains("    t2 = byn_main__bump(&l0_n);\n")
+    assert emitted.contains("    l1_e = byn_add_i64(t2, l0_n, byn_file_0, 8);\n")
+}
+
 test "emitter t29: states, interface slots by ref, out, failing and never, and function values emit" {
     let source = """
         union error E {
