@@ -1,0 +1,87 @@
+// Compound assignment (`+=`, `-=`, `*=`, `??=`, `++`, `--`) and fixed-array `for` evaluate target indices/keys once.
+struct P {
+    i64 x = 0
+}
+
+struct OptP {
+    i64? x
+}
+
+struct WithList {
+    List<i64> b
+}
+
+struct WithArr {
+    i64[2] b
+}
+
+i64 next(ref i64 c) {
+    c += 1
+    return c - 1
+}
+
+string nextKey(ref i64 c) {
+    c += 1
+    return c == 1 ? "a" : "b"
+}
+
+i64 bump(ref i64 i) {
+    i += 1
+    return 5
+}
+
+void main() {
+    var c1: i64 = 0
+    var xs: List<P> = [P { x: 1 }, P { x: 2 }, P { x: 3 }]
+    xs[next(ref c1)].x += 5
+    print($"{xs[0].x} {xs[1].x} {xs[2].x} {c1}")
+
+    var c2: i64 = 0
+    xs[next(ref c2)].x -= 2
+    xs[next(ref c2)].x *= 4
+    xs[next(ref c2)].x++
+    print($"{xs[0].x} {xs[1].x} {xs[2].x} {c2}")
+
+    var c3: i64 = 0
+    var os: List<OptP> = [OptP { x: null }, OptP { x: 10 }]
+    os[next(ref c3)].x ??= 7
+    print($"{os[0].x} {os[1].x} {c3}")
+
+    var c4: i64 = 0
+    var ts: List<(i64 a, i64 b)> = [(1, 2), (3, 4)]
+    ts[next(ref c4)].a += 10
+    print($"{ts[0].a} {ts[1].a} {c4}")
+
+    var c5: i64 = 0
+    var wl: List<WithList> = [WithList { b: [10, 20] }, WithList { b: [30, 40] }]
+    wl[next(ref c5)].b[next(ref c5)] += 3
+    print($"{wl[0].b[0]} {wl[0].b[1]} {wl[1].b[0]} {wl[1].b[1]} {c5}")
+
+    var c6: i64 = 0
+    var wa: List<WithArr> = [WithArr { b: [10, 20] }, WithArr { b: [30, 40] }]
+    wa[next(ref c6)].b[next(ref c6)] += 3
+    print($"{wa[0].b[0]} {wa[0].b[1]} {wa[1].b[0]} {wa[1].b[1]} {c6}")
+
+    var c7: i64 = 0
+    var m: Map<string, P> = ["a": P { x: 1 }, "b": P { x: 2 }]
+    m.slot(nextKey(ref c7)).x += 5
+    print($"{m["a"].x} {m["b"].x} {c7}")
+
+    var c8: i64 = 0
+    var ms: List<Map<string, i64>> = [["k": 1], ["k": 2]]
+    ms[next(ref c8)]["k"] += 5
+    print($"{ms[0]["k"]} {ms[1]["k"]} {c8}")
+
+    var i: i64 = 0
+    var ys: List<P> = [P { x: 1 }, P { x: 2 }]
+    ys[i].x += bump(ref i)
+    print($"{ys[0].x} {ys[1].x} {i}")
+
+    var c9: i64 = 0
+    let arrs: List<i64[2]> = [[1, 2], [3, 4]]
+    var sum: i64 = 0
+    for v in arrs[next(ref c9)] {
+        sum += v
+    }
+    print($"{sum} {c9}")
+}

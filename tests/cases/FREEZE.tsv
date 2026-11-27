@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	379
+cases	run	381
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -15303,7 +15303,7 @@ file	8df590a89e0ddaa4d50f736c8b9814a1f0bb4e97	tests/cases/emit-c/SelfhostDefault
 file	d8d4ccdefb6fad1d3f37990c8ad4dbed4a66ca8f	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-map-key-tuple.byn --coverage/expected.c
 file	a00d21afbc7b83ff3f60bc874058c2e2a99a5339	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-map-many.byn --coverage/expected.c
 file	4969fb5a07457056729c7d950a09e25158c32df3	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-map-model.byn --coverage/expected.c
-file	799e9b5e3c73d92dce44ee0aa3ba433c7c156a41	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-map-slot.byn --coverage/expected.c
+file	c4c5af1650c76e2a15576a4b388793d932c1d5f4	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-map-slot.byn --coverage/expected.c
 file	6f102130e42496f6ba8f56d097e01cce20b8af19	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-memory-arena-padded-too-large.byn --coverage/expected.c
 file	b76095dbbf67bdb0b6d8506faf4a6335b61dee56	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-memory-arena-repeated-too-large.byn --coverage/expected.c
 file	63df978a5aabe27ba3c87c67aaf79bbbb8be9bd1	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-memory-arena.byn --coverage/expected.c
@@ -15347,7 +15347,7 @@ file	c3e2e7d6b825cc8c2c6fc3c5e313058902c1e491	tests/cases/emit-c/SelfhostDefault
 file	0aa6e5d9b8999963000d69b5658dcb6cecf872a6	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-pending-peers-negate.byn --coverage/expected.c
 file	ea90fd79f8472050192d45235a872fcbce69abfc	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-pending-peers-q74-mirror.byn --coverage/expected.c
 file	bf3a567ed441914ca82a3468afa19062dd7345eb	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-pending-peers-q74.byn --coverage/expected.c
-file	128ea8f64db2c390e5125c731c1b27e5a7dbb849	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-plain-field-write.byn --coverage/expected.c
+file	4e2d847fad37e7721d3ec7125efe447f7446e907	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-plain-field-write.byn --coverage/expected.c
 file	62303067a9929358a086f830070dab3ad08314be	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-positional-requires.byn --coverage/expected.c
 file	255162f74ae95f09fbe69024be7f78c2992482eb	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-positional.byn --coverage/expected.c
 file	b4bf7777d90bc161e28d1576fbfb7ffe39200c04	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-postfix-modifiers.byn --coverage/expected.c
@@ -15668,7 +15668,7 @@ file	aebe95672440d8e961b7212df45dad45d5cb9db7	tests/cases/emit-c/SelfhostDefault
 file	bf0814e9e572cf4a3f552253411d856fb4feff45	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-map-key-tuple.byn --mutate/expected.c
 file	ccff780a1dcedd9e9c4449e6a25797e9eca8ca33	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-map-many.byn --mutate/expected.c
 file	6fa3694c96a1ad5e8304c0a36be918dc738cd505	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-map-model.byn --mutate/expected.c
-file	75c70f879aedc929232ad95697fec2af60eea062	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-map-slot.byn --mutate/expected.c
+file	428f94b19d6b227a28b0a61dbd2bdf94d53761fd	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-map-slot.byn --mutate/expected.c
 file	298b4dbafc6d9dcd5e14464fb825909a7b5d261f	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-memory-arena-padded-too-large.byn --mutate/expected.c
 file	98619b736efe3aea8fc7c755e1108443530aaf1c	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-memory-arena-repeated-too-large.byn --mutate/expected.c
 file	b0a2209a9de4b59e736a9f93d2f855acc31f6a38	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-memory-arena.byn --mutate/expected.c
@@ -15712,7 +15712,7 @@ file	226e207af4b5d73116a95b9a85232b894d709c17	tests/cases/emit-c/SelfhostDefault
 file	0a04089eaba4bcd26411f88545da017fba2c3c97	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-pending-peers-negate.byn --mutate/expected.c
 file	3665e88e09bce787ddfb037927fefcda05a77e7a	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-pending-peers-q74-mirror.byn --mutate/expected.c
 file	53a14fb14259fc19a39a9946a85d1e006042c434	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-pending-peers-q74.byn --mutate/expected.c
-file	3bd0da65e953f8dabf47a29f9d85551f734871d5	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-plain-field-write.byn --mutate/expected.c
+file	762e1f09cfd0a64d22552ad34e19af09fcb82403	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-plain-field-write.byn --mutate/expected.c
 file	0ad7c13c78750223898e0cd4e563667fbedb90e2	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-positional-requires.byn --mutate/expected.c
 file	f98ff72d101052985da13f23c1021700f60a3dd9	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-positional.byn --mutate/expected.c
 file	99b408db86831605abdfd778f6d50303061e2e3d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-postfix-modifiers.byn --mutate/expected.c
@@ -22325,7 +22325,7 @@ file	078c94d918d6a452c5a9ff367cc902b67ed01ade	tests/cases/emit-c/SelfhostEmitter
 file	5d6c86b1fa320e2f5a027acec4c51c4855026669	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_map-key-tuple.byn/expected.c
 file	11d0d680342cd25ff6c36c5ba5154c333abd6b0d	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_map-many.byn/expected.c
 file	2f3c0ffd40aa22bed061414e2b418d8d24e60ae0	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_map-model.byn/expected.c
-file	7175d0f0e63b364be97b97b9b126a05c0181182e	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_map-slot.byn/expected.c
+file	abb6f1d2702de8bc99f23e7e78843dec7fcef321	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_map-slot.byn/expected.c
 file	d5bd84182b8e12b264651869715ea22be2ce5dd5	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_memory-arena-padded-too-large.byn/expected.c
 file	25fd0609290da8e1056aff4333bf204d0989a1d8	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_memory-arena-repeated-too-large.byn/expected.c
 file	7fabf5cd7d7bc0beff2c4d8cd44385da0c146c85	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_memory-arena.byn/expected.c
@@ -22369,7 +22369,7 @@ file	e5d4465119fe3ba4bdf758f4319a1464e4495a6d	tests/cases/emit-c/SelfhostEmitter
 file	f87184f5e94d21049994c340652636c9e0a6f6d1	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_pending-peers-negate.byn/expected.c
 file	c118c5511f390b2b6acc12e5f3684ff0beeb64c7	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_pending-peers-q74-mirror.byn/expected.c
 file	be125342fa6433bcacb361b295e7dd99c4d20c6a	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_pending-peers-q74.byn/expected.c
-file	7063e69cae8d1adce610bc49d6febf1ba876b458	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_plain-field-write.byn/expected.c
+file	7e0e9cb2e15871bdcc26eee2bca8b187a33b70dc	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_plain-field-write.byn/expected.c
 file	0355af73536869ad92b3f5407ffeaa4e0541dd86	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_positional-requires.byn/expected.c
 file	3056b10e4e1d5b4a078ca6ea97f04738a933fd2e	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_positional.byn/expected.c
 file	a5a74df203f5320a617e7d4e7226f2d411f845a6	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_postfix-modifiers.byn/expected.c
@@ -23591,7 +23591,7 @@ file	a7d413fa9251bb699cd33ac0fad4bc23e97ef50e	tests/cases/emit-c/SelfhostEmitter
 file	2fb3385b1c8d1e6566e48dac3ee11fd5a8527f6b	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-765/expected.sections
 file	da1999c64d440514c78e90e1ca7999aa13316f50	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-766/expected.sections
 file	825f59b438b0ef1565a7ed832d76f323ece607f9	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-767/expected.sections
-file	1e17f939dadfc75f90f471c14c77c3ab25d31f83	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-768/expected.sections
+file	471a27dd727dbc17aaacfacf87e4cb186cc6779d	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-768/expected.sections
 file	b01b3c604a1459d927142876461266681db5c6a0	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-769/expected.sections
 file	c37861ea1d2630d31b9b96410b7cd0893bd29e81	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-77/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-770/expected.sections
@@ -23787,7 +23787,7 @@ file	ce27f39550b24be8f4c1eadd6c478ac0d5b37643	tests/cases/emit-c/SelfhostEmitter
 file	357fa5e8b668867ec78f003cd20a7566db566cab	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-941/expected.sections
 file	f458beffa786180ba3b0a71be0fb6e1e4d3a4de4	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-942/expected.sections
 file	5f52bda2165a1668e349e0d6c4f24de4b0b03286	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-943/expected.sections
-file	4329be1a0cec65ef3c7a4c07660a2272e30637d8	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-944/expected.sections
+file	077ad67833b4ad1456e98b71984975ab3aaa08ac	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-944/expected.sections
 file	5f26d9f457228d058c464ee81e4babaee0fc5a20	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-945/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-946/expected.sections
 file	c8bd43af56f94184c6e05948f1d590d2e50a6d55	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-947/expected.sections
@@ -24088,7 +24088,7 @@ file	458c08ab1d219f84e23cc1ca2eb2b223619d4c36	tests/cases/emit-c/SelfhostEmitter
 file	70b17b2ac1897cba9d8380b7c594ce13d491ba67	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-map-key-tuple.byn/expected.c
 file	df82c8984528f243664e51102aa1acae1b385347	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-map-many.byn/expected.c
 file	9eaab89e570a90642fb6b78b75f802a24c6d92ed	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-map-model.byn/expected.c
-file	d28571fa042ace1fd98ef1f6398055a875cc2ead	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-map-slot.byn/expected.c
+file	fb68039ef702309b1ae17554a2949a2e58ab558f	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-map-slot.byn/expected.c
 file	9f59769dc8ab7f28b0482a77dcce31d98c76a618	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-memory-arena-padded-too-large.byn/expected.c
 file	9f59769dc8ab7f28b0482a77dcce31d98c76a618	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-memory-arena-repeated-too-large.byn/expected.c
 file	6051a79a5e28e5413ddbf71d0e32bb830daa8ea6	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-memory-arena.byn/expected.c
@@ -24132,7 +24132,7 @@ file	ca9c67fe763c87032b40384718796c29618426f9	tests/cases/emit-c/SelfhostEmitter
 file	0d862f00e65d4a00fd1dd75dc2f85abf77f95481	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-pending-peers-negate.byn/expected.c
 file	8c910c8d724ff78f4c319cbc236f5273748f61fc	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-pending-peers-q74-mirror.byn/expected.c
 file	7ee0fb467ec7886bd343609491d005e5b8758a37	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-pending-peers-q74.byn/expected.c
-file	2d213e6d5613bbee28c5119b086bd10e1084f05c	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-plain-field-write.byn/expected.c
+file	5271a683e36305c1f471dccb2b6d09649af400f1	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-plain-field-write.byn/expected.c
 file	c0deb77e7ecac9b0c86ca0e90807369cfbdd3f3d	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-positional.byn/expected.c
 file	c745a4ebc54f91276defda1301bd21fffeffcb89	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-postfix-modifiers.byn/expected.c
 file	d83198c9c62e53f335c330f57dfcb8f7470182ed	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-print-stderr.byn/expected.c
@@ -27130,7 +27130,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	1f86e7ec0bed6cc8f9e58cb5684ee95f510489f1	tests/cases/emit/run-c.sha256
+file	20962c3629b295a336d43eb116a7dec846a7eb60	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -48605,6 +48605,7 @@ file	8d04f961a037117c1eaa69ac60eb363d37ae78d1	tests/cases/run/call-result-ref-pl
 file	8253c6c3df1762477a1877780996580e6d5291c2	tests/cases/run/catch-switch-block-arm.stdout
 file	c8b5dff1e41f216d91d352b21bca4739c1d398b5	tests/cases/run/collection-copy.stdout
 file	42ef6efeaeb2d5cf536b2dc80a6d9f1807c5435f	tests/cases/run/collection-literals.stdout
+file	6fe0d7af0c83451d3639d07a9592e96148079f16	tests/cases/run/compound-assign-target-once.stdout
 file	efc7498dbcd7a218d81572147b054cc140e9d3c9	tests/cases/run/condition-cast.stdout
 file	35ebd06180d6d893b558728f3f0f66f0d282d210	tests/cases/run/condition-paren-in.stdout
 file	c67a85fa0a8b80c24ba4b735b4ba4d9dbc98d9b2	tests/cases/run/const-mul-sat-u64.stdout
@@ -49007,6 +49008,7 @@ file	6f236474574db7d82778fd2e602174ecc776c62c	tests/cases/run/string-position.st
 file	528dfe43a02b074504ee115c0b6cc88f95503824	tests/cases/run/string-radix.stdout
 file	391fbe1ceb138b3fee49361581e7c919e81623a7	tests/cases/run/string-rune-count.stdout
 file	458d1b39b6486c73c0f728c519e75599da8de701	tests/cases/run/string-rune-views.stdout
+file	4b3c45e834398da84d57efdb0f3cf5d4ce08ce66	tests/cases/run/string-to-bytes-once.stdout
 file	4e27a7fbb445164838dd32e874ba98aeef0ab5a4	tests/cases/run/string-trimmed.stdout
 file	cb1f405073af43f6b003d5540aceca36d9793112	tests/cases/run/string-views.stdout
 file	7f8f011eb73d6043d2e6db9d2c101195ae2801f2	tests/cases/run/struct-default-forward-struct.stdout

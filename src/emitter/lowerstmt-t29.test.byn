@@ -416,3 +416,55 @@ test "lowerstmt t29: hand-built lvalues, returns and loops" {
     lowerStatement(ref c, through: ref l, for: semantics.makeBound(.forStmt, at: userFor))
     assert $"{semantics.boundKind(f1)} {semantics.boundKind(f2)} {semantics.boundKind(f3)} {ltree.isLowered(f4)} {semantics.boundKind(f5)} {semantics.boundKind(f6)} {before} {afterReturn} {afterBare} {l.outs[0].length}" == "field tupleElement index true builtinCall local 8 10 12 17"
 }
+
+test "lowerstmt t29: a compound assignment and an array loop evaluate each index once" {
+    let text = lsEmit(
+        """
+        struct P {
+            i64 x
+        }
+
+        i64 id(i64 x) => x
+
+        i64 bump(ref i64 i) {
+            i += 1
+            return 5
+        }
+
+        void main() {
+            var i: i64 = 0
+            var xs: List<P> = [P { x: 1 }, P { x: 2 }]
+            xs[id(1)].x += 2
+            xs[0].x += 1
+            xs[i].x += 1
+            xs[i].x += bump(ref i)
+            let arrs: List<i64[2]> = [[1, 2], [3, 4]]
+            var s: i64 = 0
+            for v in arrs[id(0)] {
+                s += v
+            }
+            for v in arrs[0] {
+                s += v
+            }
+            print($"{s}")
+        }
+        """,
+        by: false,
+        as: false,
+    )
+    assert text.contains(
+        "    t3 = byn_main__id(INT64_C(1));\n#line 15 \"ls.byn\"\n    (*bynh_at_list_main__P(l1_xs, (int64_t)t3, false, byn_file_0, 15)).x = byn_add_i64((*bynh_at_list_main__P(l1_xs, (int64_t)t3, false, byn_file_0, 15)).x, INT64_C(2), byn_file_0, 15);\n",
+    )
+    assert text.contains(
+        "    (*bynh_at_list_main__P(l1_xs, (int64_t)INT64_C(0), false, byn_file_0, 16)).x = byn_add_i64((*bynh_at_list_main__P(l1_xs, (int64_t)INT64_C(0), false, byn_file_0, 16)).x, INT64_C(1), byn_file_0, 16);\n",
+    )
+    assert text.contains(
+        "    (*bynh_at_list_main__P(l1_xs, (int64_t)l0_i, false, byn_file_0, 17)).x = byn_add_i64((*bynh_at_list_main__P(l1_xs, (int64_t)l0_i, false, byn_file_0, 17)).x, INT64_C(1), byn_file_0, 17);\n",
+    )
+    assert text.contains(
+        "    t4 = l0_i;\n#line 18 \"ls.byn\"\n    t5 = (*bynh_at_list_main__P(l1_xs, (int64_t)t4, false, byn_file_0, 18)).x;\n#line 18 \"ls.byn\"\n    t6 = byn_main__bump(&l0_i);\n#line 18 \"ls.byn\"\n    (*bynh_at_list_main__P(l1_xs, (int64_t)t4, false, byn_file_0, 18)).x = byn_add_i64(t5, t6, byn_file_0, 18);\n",
+    )
+    assert text.contains("    t11 = byn_main__id(INT64_C(0));\n")
+    assert text.contains("        l10_v = (*bynh_at_list_arr2_i64(l7_arrs, (int64_t)t11, false, byn_file_0, 21)).v[t12];\n")
+    assert text.contains("(*bynh_at_list_arr2_i64(l7_arrs, (int64_t)INT64_C(0), false, byn_file_0, 24))")
+}

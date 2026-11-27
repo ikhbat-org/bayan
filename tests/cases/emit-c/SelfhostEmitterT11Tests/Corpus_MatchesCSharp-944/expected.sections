@@ -1,2 +1,2 @@
 == locals
-main: modes depth p
+main: modes depth t t t p
