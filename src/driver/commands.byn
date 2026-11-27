@@ -28,11 +28,16 @@ bool tryReadSingleFile(in List<string> args) {
     return true
 }
 
-/// CliApp.cs:108 `Lex`. `--json` is refused (R3, Q940). No style: the dump renders plain (Q941).
+/// CliApp.cs:108 `Lex`. No style: the dump renders plain (Q941).
 i32 lexCommand(in List<string> kept) {
-    let args = t2Rest(kept)
-    for a in args {
-        return refuse("lex --json") if a == "--json"
+    var json = false
+    var args = List<string>()
+    for i in 1..kept.length {
+        if kept[i] == "--json" {
+            json = true
+        } else {
+            args.append(kept[i])
+        }
     }
     var bytes = List<u8>()
     var name = "<stdin>"
@@ -48,13 +53,13 @@ i32 lexCommand(in List<string> kept) {
         bytes = Io.readFile(name) catch return exitFailure
     }
     var sb = StrBuf()
-    let failed = lexer.dumpFile(name, from: move bytes, by: lexer.Keywords.build(), to: ref sb, json: false)
+    let failed = lexer.dumpFile(name, from: move bytes, by: lexer.Keywords.build(), to: ref sb, json: json)
     Io.stdout.write(sb.finish())
     return failed ? exitFailure : exitOk
 }
 
-/// CliApp.cs:125 `Parse`.
-i32 parseCommand(in List<string> kept) {
+/// CliApp.cs:125 `Parse`: without `--ast`, the tree's diagnostics on stderr in the error style, exit 1 if there are any.
+i32 parseCommand(in List<string> kept, by DCtx d) {
     var printAst = false
     var rest = List<string>()
     for i in 1..kept.length {
@@ -71,8 +76,27 @@ i32 parseCommand(in List<string> kept) {
     if printAst {
         return parser.parseOne(rest[0] == "-" ? "./-" : rest[0], by: lexer.Keywords.build())
     }
-    // stub: T2 parse without --ast (blocked: Q940)
-    return refuse("parse")
+    let file = rest[0]
+    // coverage-exempt: Q943 reached only if the file changes between the reads of `t1FileExists` and here
+    let bytes = Io.readFile(file) catch return exitFailure
+    var text = List<u8>()
+    for b in bytes {
+        text.append(b)
+    }
+    // SyntaxTree.cs: Parse, with the lints that add to the tree's diagnostics (as semantics/compile.byn `loadModule`).
+    var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move text), by: lexer.Keywords.build()))
+    let unit = parser.parseCompilationUnit(ref p)
+    parser.lintBanners(ref p)
+    parser.lintPatterns(ref p)
+    var diagnostics = List<lexer.Diagnostic>()
+    for diag in p.lexed.diagnostics {
+        // A report the parser withdrew (`unreport`, Q440) is gone from the C# bag.
+        continue if diag.code == ""
+        diagnostics.append(diag)
+    }
+    return exitOk if diagnostics.length == 0
+    Io.stderr.write(t8RenderAllBy(file, from: bytes, for: diagnostics, through: t19Symbols(in d.styleErr)))
+    return exitFailure
 }
 
 /// `s_styleErr` for the diagnostic renderer and the failure line (CliApp.cs:310 `Report`, :521 `Failed`): the symbols, the width and, with colour, the
