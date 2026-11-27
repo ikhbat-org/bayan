@@ -25,7 +25,7 @@ HF-0003  List.sort swaps elements a byte at a time; Fil-C stops on the swapped s
   repro:      tests/hardening/known/HF-0003/
   severity:   crash
   first seen: 507c90184 (dev)
-  status:     fixed on fix/hf0003-sort-swap-memcpy (95cadacbd; runtime/tests 25 ok incl. new sort-wide.c, break-tested), Fil-C proof on wp1 WSL pending; merge after HF-0002
+  status:     fixed on fix/hf0003-sort-swap-memcpy (95cadacbd; runtime/tests 25 ok incl. new sort-wide.c, break-tested); Fil-C 0.687 on wp1 WSL: run/list-sort passes, all run/ 0 findings; merge after HF-0002
 
 HF-0004  Debug-mode binaries record the build directory: `-g` writes the compiler's cwd as DWARF `DW_AT_comp_dir`
   oracle:     H2 determinism (scripts/hardening/determinism.sh, binary leg, Linux); goldens run/strbuf-over-debug, run/switch-move-guard,
