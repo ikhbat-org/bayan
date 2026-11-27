@@ -111,7 +111,7 @@ let billed: Minutes = duration.ceiling()</code></pre>
   </tbody>
 </table></div>
 <p>A compile-time index out of range is an error (BYN2213); <code>xs[^1]</code> counts from the end and <code>xs[1..3]</code> spans positions 1 and 2. A <code>List</code> or array becomes a span as an argument; elsewhere <code>xs.span</code> is a read-only view.</p>
-<p><code>xs.remove(from: a, until: b)</code> removes positions <code>a</code> up to <code>b</code> and keeps the rest in order; <code>through:</code> includes the end. A bad range panics.</p>
+<p><code>xs.remove(from: a, until: b)</code> removes positions <code>a</code> up to but not including <code>b</code> and keeps the rest in order; <code>through:</code> includes the end. A bad range panics.</p>
 <ul>
   <li><code>Map</code> keeps insertion order and is the only hash map; <code>HashMap</code> is rejected with a fix (BYN2830).</li>
   <li>A <code>Map</code> key is an integer, <code>rune</code>, <code>bool</code>, <code>string</code>, plain enum, <code>Symbol</code>, or a tuple or struct of keys; anything else is BYN2760, a non-key struct or tuple BYN2831.</li>

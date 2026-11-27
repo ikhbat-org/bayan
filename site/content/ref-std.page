@@ -62,7 +62,7 @@ T value.trustUnchecked() because "reason"</code></pre>
 List&lt;u8&gt; Io.readFile(string path) fails IoError
 void Io.writeFile(string path, ReadOnlySpan&lt;u8&gt; bytes) fails IoError
 List&lt;string&gt; Io.listDir(string path) fails IoError</code></pre>
-<p><code>readText</code> reads the whole file as text, failing with <code>.invalidUtf8</code> on bad bytes; <code>readFile</code> reads it as bytes. <code>writeFile</code> replaces the file with the bytes, creating it if needed; for text pass <code>text.bytes</code>. No append call: read, add and write back. <code>listDir</code> returns entry names (not paths), byte-sorted. Both return new values from <code>context.allocator</code>.</p>
+<p><code>readText</code> reads the whole file as text, failing with <code>.invalidUtf8</code> on bad bytes; <code>readFile</code> reads it as bytes. <code>writeFile</code> replaces the file with the bytes, creating it if needed; for text pass <code>text.bytes</code>. No append call: read, add and write back. <code>listDir</code> returns entry names (not paths), byte-sorted. <code>readText</code> and <code>readFile</code> return new values from <code>context.allocator</code>.</p>
 <example name="std-io-files"/>
 
 <h3 id="io-run">Running programs</h3>
