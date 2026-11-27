@@ -10,7 +10,7 @@
 A small, explicit language that compiles to native executables. Errors are values, memory is visible.
 
 [![CI](https://github.com/ikhbat-org/bayan/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/ikhbat-org/bayan/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.3.x-1F3A5F)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.4.x-1F3A5F)](CHANGELOG.md)
 [![Platforms](https://img.shields.io/badge/platforms-macOS%20%7C%20Linux%20%7C%20Windows-1F3A5F)](#install)
 [![Runtime](https://img.shields.io/badge/runtime-none-C08A2E)](#what-bayān-has-instead)
 [![GC](https://img.shields.io/badge/GC-none-C08A2E)](#memory-you-can-see)
@@ -38,7 +38,7 @@ Salam, world!
 A program starts at `void main()`. A file holding only `print("Salam, world!")`, with no `main`, runs too: `bayan run hello.byn`.
 
 > [!NOTE]
-> Bayān is young (version 0.3.x). The language is usable and the compiler builds itself, but expect rough
+> Bayān is young (version 0.4.x). The language is usable and the compiler builds itself, but expect rough
 > edges, and expect things to change between versions.
 
 *Bayān (ASCII: Bayan). The CLI, package names, URLs and identifiers use `bayan`.*
@@ -64,21 +64,21 @@ A program starts at `void main()`. A file holding only `print("Salam, world!")`,
 You need two things: the `bayan` binary and a C compiler.
 
 1. **Get `bayan`.** Download the archive for your machine from the
-   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.3.1-macos-arm64.tar.gz`,
-   `bayan-0.3.1-macos-x64.tar.gz`, `bayan-0.3.1-linux-x64.tar.gz`, `bayan-0.3.1-linux-arm64.tar.gz`,
-   `bayan-0.3.1-windows-x64.zip` or `bayan-0.3.1-windows-arm64.zip`. Unpack it and put the
+   [releases page](https://github.com/ikhbat-org/bayan/releases): `bayan-0.4.1-macos-arm64.tar.gz`,
+   `bayan-0.4.1-macos-x64.tar.gz`, `bayan-0.4.1-linux-x64.tar.gz`, `bayan-0.4.1-linux-arm64.tar.gz`,
+   `bayan-0.4.1-windows-x64.zip` or `bayan-0.4.1-windows-arm64.zip`. Unpack it and put the
    `bayan` binary somewhere on your `PATH`:
 
    ```sh
-   tar -xzf bayan-0.3.1-macos-arm64.tar.gz
-   cp bayan-0.3.1-macos-arm64/bayan ~/.local/bin/
+   tar -xzf bayan-0.4.1-macos-arm64.tar.gz
+   cp bayan-0.4.1-macos-arm64/bayan ~/.local/bin/
    ```
 
    On Windows, unzip the archive and put `bayan.exe` on your `PATH`:
 
    ```powershell
-   Expand-Archive bayan-0.3.1-windows-x64.zip -DestinationPath .
-   $env:Path += ";$PWD\bayan-0.3.1-windows-x64"
+   Expand-Archive bayan-0.4.1-windows-x64.zip -DestinationPath .
+   $env:Path += ";$PWD\bayan-0.4.1-windows-x64"
    ```
 
 2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), because it can build for
@@ -185,7 +185,7 @@ nothing else to install except a C compiler. The commands are from `bayan --help
 | `bayan lex`, `types`, `features --used <path>` | Look inside the compiler: tokens, inferred types, features a build used |
 
 An editor language server, `bayan-lsp`, lives in [`editors/`](editors/README.md) with a VS Code extension.
-The server is early: build it from source, it is not in the release archives yet.
+The server is early. Each release archive holds it beside `bayan` (`bayan-lsp.exe` on Windows).
 
 The standard library is compiled in, so a program needs no package manager to use it:
 
@@ -479,16 +479,7 @@ helps most.
 
 ## Working on the compiler
 
-The self-hosted compiler lives in `src/`. The original compiler is written in C# (`csharp/`). It still
-builds the first stage, and it is the reference the tests check the self-hosted compiler against. You need
-the .NET 10 SDK and zig.
-
-```sh
-dotnet test -v q                               # unit and golden tests, for both compilers
-BAYAN_UPDATE=1 dotnet test                     # rewrite golden expected files
-dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
-./tmp/publish/bayan --version                  # the C# compiler
-```
+The compiler lives in `src/` and is written in Bayān. You need a C compiler; zig is optional.
 
 Build the self-hosted compiler with any `bayan`, or with only a C compiler from `bootstrap/bayan.c` (the
 self-hosted compiler as plain C). Both produce the self-hosted `bayan`. See
@@ -500,7 +491,8 @@ cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstr
 ./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
 ```
 
-The self-hosted compiler's tests are in `src/tests/` and run with the same `dotnet test`.
+`bash scripts/test.sh` runs the whole suite (golden cases, Bayān `test` blocks, CLI parity, script tests, runtime C
+tests); `--only <part>` runs one part.
 
 Local builds go in `dist/` (gitignored). `scripts/dist.sh` writes `dist/<target>/<version>/` plus a `latest/`
 per target that every build replaces. `bayan dist` writes `dist/<version>/` and one `dist/latest/`.
@@ -510,8 +502,7 @@ scripts/dist.sh                                # this host: dist/macos-arm64/0.4
 scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
 ```
 
-NativeAOT does not cross-compile between operating systems, so Linux and Windows binaries are published on
-those systems and imported with `--from`.
+`scripts/dist.sh --rid <rid>` cross-builds another target through zig; `--from` imports a binary built elsewhere.
 
 The milestones and an index of the project docs are in [`docs/bayan-milestones.md`](docs/bayan-milestones.md), the
 progress log is in [`docs/bayan-progress-log.md`](docs/bayan-progress-log.md), and how a version is cut is

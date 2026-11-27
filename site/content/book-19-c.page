@@ -40,7 +40,7 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN1016</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>extern-try.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>extern-try.byn</code>.</figcaption>
     </figure>
 <p>This is a sketch of the design, not working code:</p>
 <pre><code class="byn">// planned

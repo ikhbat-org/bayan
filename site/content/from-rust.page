@@ -104,7 +104,7 @@ fn sum(a: &amp;str, b: &amp;str) -&gt; Result&lt;i64, ParseError&gt; {
 
 ✗ build failed: 2 errors, 0 warnings
   explain: bayan explain BYN1054</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Wrap the part that fails in parentheses, <code>(try parse(a)) + (try parse(b))</code>, or bind each result as above. In Rust each <code>?</code> binds to one call, and in Bayan one <code>try</code> reaches the end of the expression. <b>Why:</b> a <code>try</code> that quietly covers only one half of an expression is easy to misread, and the compiler tells you when the reach is wrong.</p>
 <p>Bugs are panics: an index out of range, an overflow, a division by zero, a violated <code>expects</code> precondition. A panic prints a message and aborts. There is no unwinding and no <code>catch_unwind</code>. See <a href="errors.html">Errors</a>.</p>
@@ -148,7 +148,7 @@ fn show&lt;T: Describe&gt;(x: T) { println!("{}", x.describe()); }</code></pre>
 
 ✗ build failed: 2 errors, 0 warnings
   explain: bayan explain BYN2743</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>The <code>unique</code> error comes from the same rule: a <code>T</code> might be a type that owns memory, and using it twice would copy it.</p>
 <note>Planned: <code>extension</code> declarations, which add members to an existing type (BYN2022 today), and interfaces for numbers and ordering. Until then, an interface a type implements must be named on the type itself.</note>
@@ -186,7 +186,7 @@ type distinct EdgeId = i64</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2202</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 
 <h3 id="s-shadow">Shadowing needs a new type</h3>
@@ -207,7 +207,7 @@ type distinct EdgeId = i64</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2104</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 
 <h3 id="s-strings">One string type</h3>

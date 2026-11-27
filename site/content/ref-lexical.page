@@ -108,7 +108,7 @@ print($"{a}")</code></pre>
     <tr><td>Held back</td><td><code>actor macro select ensures Gc gc</code></td></tr>
   </tbody>
 </table></div>
-<p>The C# primitive names <code>sbyte byte short ushort int uint long ulong nint nuint float double</code> are reserved in every project. Lowercase type names belong to the language.</p>
+<p>The primitive names <code>sbyte byte short ushort int uint long ulong nint nuint float double</code> are reserved in every project. Lowercase type names belong to the language.</p>
 <pre><code class="byn">void main() {
     let reserved = 1
     let int = 2

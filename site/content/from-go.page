@@ -122,7 +122,7 @@ func Total[T Shape](shapes []T) float64 {
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2807</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p><b>Why:</b> a method that happens to share a name with an interface method is not a promise. A declaration is a promise, and it is where a reader looks to find every type that implements an interface.</p>
 <p>Generics are checked once, at the definition. Inside <code>total</code>, a <code>T</code> can only do what its bound allows. A bare <code>T</code> with no bound can be copied, compared with <code>==</code>, passed and returned, nothing more: there is no <code>constraints.Ordered</code> to reach for yet, so a generic <code>max</code> is not writable today.</p>
@@ -157,7 +157,7 @@ for _, w := range strings.Fields("a b a c a b") {
 <figure class="diag">
 <pre><span class="err">panic:</span> arithmetic overflow
   at overflow.byn:3</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 
 <h3 id="s-copy">A list is moved or copied by name</h3>
@@ -176,7 +176,7 @@ for _, w := range strings.Fields("a b a c a b") {
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2780</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Use <code>move a</code> to give the list away, <code>a.copy()</code> for another one, or <code>ref</code> to share it. Plain numbers and booleans copy freely. <b>Why:</b> two names for one buffer is how Go programs get data races and spooky edits. See <a href="memory.html">Memory and ownership</a>.</p>
 
@@ -193,7 +193,7 @@ for _, w := range strings.Fields("a b a c a b") {
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN3201</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Write <code>let _ = load()</code> to say you mean it. A <code>var</code> that is never reassigned is a warning that asks for <code>let</code>.</p>
 

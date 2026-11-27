@@ -153,7 +153,7 @@ squares = [x * x for x in xs]</code></pre>
 <figure class="diag">
 <pre><span class="err">panic:</span> arithmetic overflow
   at overflow.byn:3</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>A smaller integer converts to a wider one on its own, but never the other way. You write <code>i32(a)</code> and you decide that the value fits.</p>
 <figure class="diag">
@@ -169,7 +169,7 @@ squares = [x * x for x in xs]</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2202</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p><b>Why:</b> a silent wraparound or a silent loss of bits is a bug that shows up far from its cause. Bayan makes the narrowing visible and the overflow loud.</p>
 
@@ -184,7 +184,7 @@ squares = [x * x for x in xs]</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2202</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p><b>Why:</b> <code>if items:</code> cannot tell "no items" from "items is None". Spelling the test removes the guess.</p>
 
@@ -204,7 +204,7 @@ squares = [x * x for x in xs]</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2780</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Plain values such as numbers and <code>bool</code> copy freely. Only types that own storage, such as lists and maps, must be moved or copied by name.</p>
 <p><b>Why:</b> a copy of a big list costs time and memory, and a shared one can change under you. Bayan makes you choose and shows the choice in the source. See <a href="memory.html">Memory and ownership</a>.</p>
@@ -224,7 +224,7 @@ squares = [x * x for x in xs]</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2104</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Declare <code>var</code> where a value really changes, and the compiler warns when a <code>var</code> is never reassigned. <b>Why:</b> when you read a function, every <code>let</code> is a fact you do not need to track.</p>
 
@@ -243,7 +243,7 @@ squares = [x * x for x in xs]</code></pre>
 
 ✗ build failed: 1 error, 0 warnings
   explain: bayan explain BYN2209</pre>
-<figcaption>Real output from the v0.1 compiler. The path is shortened.</figcaption>
+<figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
 <p>Use interpolation, <code>$"{a}y"</code>, or a <code>StrBuf</code> in a loop. <b>Why:</b> repeated <code>+</code> copies the text each time, and the cost hides in a line that looks free.</p>
 

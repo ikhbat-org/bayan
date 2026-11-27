@@ -1,0 +1,36 @@
+title: What's new in 0.4.1
+nav: Start
+order: 12
+template: docs
+---
+<p class="lede">Bayan 0.4.1 is the current release, a prerelease. It builds on 0.4.0, the release where the compiler became a Bayan program that needs only a C compiler. This page covers both. The full list is in the <a href="https://github.com/ikhbat-org/bayan/blob/v0.4.1/CHANGELOG.md">CHANGELOG</a>.</p>
+
+<h2 id="self-hosted">A compiler written in Bayan</h2>
+<p>The compiler, its test runner and the language server are Bayan programs. The repository keeps the compiler as one C file, <code>bootstrap/bayan.c</code>, so you can build it with any C11 compiler and nothing else. <a href="install.html#build">Install Bayan</a> has the command.</p>
+
+<h2 id="lsp">The language server ships with the compiler</h2>
+<p>Every release archive holds <code>bayan-lsp</code> (<code>bayan-lsp.exe</code> on Windows) beside <code>bayan</code>. Point your editor's language client at it; <a href="https://github.com/ikhbat-org/bayan/blob/v0.4.1/editors/README.md">editors/README.md</a> describes the VS Code extension.</p>
+
+<h2 id="test">bayan test runs golden cases</h2>
+<p><code>bayan test tests/cases</code> runs the compiler's golden cases itself, programs beside the output they must give, and prints one line per failing case with its first differing line.</p>
+
+<h2 id="std">New in the standard library</h2>
+<ul>
+<li><code>std.regex</code>: <code>Regex.parse</code>, then <code>matches</code>, <code>find</code>, <code>findAll</code>, <code>replaced(text, by:)</code> and <code>Regex.escaped</code>. Matching takes time linear in the length of the text.</li>
+<li><code>std.encoding</code>: <code>Base64.encode</code> and <code>Base64.decode</code>.</li>
+<li>Glob patterns: <code>Glob.matches(pattern, for: path)</code> in <code>std.path</code>, and <code>glob(pattern)</code> in <code>std.fs</code>, which lists the files a pattern names.</li>
+</ul>
+<example name="start-whats-new"/>
+
+<h2 id="fixes">Fixes in 0.4.1</h2>
+<p>0.4.1 closes holes where the compiler accepted unsafe programs: borrows kept across loop iterations, returned through <code>out</code> or read in <code>defer</code>; moves inside <code>defer</code>; an undeclared effect after a call to a function that declares <code>uses</code>; and interfaces whose methods differ in states or error sets. A branch that ends in <code>fail</code> now narrows the rest of the block as <code>return</code> does, and a raw string whose text shares the closing <code>"""</code> line keeps that text.</p>
+
+<h2 id="limits">Known limits</h2>
+<p>These are still open in 0.4.1:</p>
+<ul>
+<li>A mutable <code>Span</code> can write through a <code>let</code> binding.</li>
+<li><code>requires</code> checks on fields miss <code>ref</code> and <code>out</code> arguments and nested fields.</li>
+<li>The implicit conversion from a string to bytes, and compound assignment through <code>xs[i].f</code>, evaluate an operand twice.</li>
+<li>A <code>#!</code> script's cache entry does not cover the modules it imports, so after you change only an imported module <code>bayan run</code> can start the old binary. <code>bayan clean --cache</code> empties the cache.</li>
+<li>A <code>become</code> payload that borrows a parameter is not fully checked.</li>
+</ul>

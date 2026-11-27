@@ -1,0 +1,20 @@
+import std.regex
+import std.encoding
+import std.path
+
+void main() uses alloc {
+    let date = regex.Regex.parse("(\\d{4})-(\\d{2})-(\\d{2})") catch {
+        print("bad pattern")
+        return
+    }
+    if (date.find("released 2026-11-27, a prerelease") is { } m) {
+        print($"year {m.group(1) ?? ""}, month {m.group(2) ?? ""}")
+    }
+    print(date.replaced("from 2026-11-24 to 2026-11-27", by: "<date>"))
+
+    let encoded = encoding.Base64.encode("Salam".bytes)
+    print(encoded)
+
+    print($"{path.Glob.matches("src/**/*.byn", for: "src/driver/main.byn")}")
+    print($"{path.Glob.matches("src/*.byn", for: "src/driver/main.byn")}")
+}

@@ -8,12 +8,10 @@ template: docs
 <ol class="steps">
   <li>
     <h2 id="get">Get the compiler</h2>
-    <p>The v0.1 compiler is built from source. It needs the .NET 10 SDK, and <code>zig</code> on your <code>PATH</code> to turn the generated C into an executable.</p>
-<pre><code>git clone https://github.com/ikhbat-org/bayan
-cd bayan
-dotnet publish csharp/Bayan.Cli -c Release -r osx-arm64 -o tmp/publish
-./tmp/publish/bayan --version</code></pre>
-    <p>Use your own runtime identifier in place of <code>osx-arm64</code>. <a href="install.html">Install Bayan</a> has the details and the release binaries. Then run <code>bayan doctor</code>: it checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
+    <p>Download the Bayan 0.4.1 archive for your machine from the <a href="https://github.com/ikhbat-org/bayan/releases">releases page</a>, unpack it and put <code>bayan</code> on your <code>PATH</code>. You also need <code>zig</code> (or another C compiler) on your <code>PATH</code> to turn the generated C into an executable. <a href="install.html">Install Bayan</a> has the archive names, the checksum step and how to build from source.</p>
+<pre><code>bayan --version
+bayan doctor</code></pre>
+    <p><code>bayan doctor</code> checks the C compiler, zig, git and the build cache, and says how to fix what is missing.</p>
   </li>
   <li>
     <h2 id="write">Write hello</h2>
@@ -53,7 +51,7 @@ print($"{width(end, start)}")</code></pre>
 
 <span class="gut">✗ build failed: 1 error, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN5005</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>width.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>width.byn</code>.</figcaption>
     </figure>
     <p>The message says what is wrong (an argument without its particle), where (line 5, column 21) and how to fix it (add <code>until:</code>). The suggested edit would keep the arguments in the wrong order, though, and the particle belongs on <code>end</code>, the end of the range. Put it there and run it again:</p>
     <example name="width"/>
