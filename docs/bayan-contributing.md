@@ -7,7 +7,7 @@ How compiler work is done; `AGENTS.md` has the rules. Milestones: `docs/bayan-mi
 ## Ground rules
 
 - The spec (`docs/bayan-spec.md`) is the source of truth; Appendix A holds settled decisions (`AGENTS.md`). Gaps go to `docs/bayan-questions.md`; implement the most conservative option until answered.
-- Log each session in `docs/bayan-progress-log.md`.
+- Update `docs/bayan-progress-log.md` at the end of every working session.
 - Small, test-backed steps; a milestone must pass its CI acceptance criteria.
 
 ## Stack and constraints
@@ -90,7 +90,7 @@ error BYN2104: `total` is immutable
 
 - Names: `byn_<module>_<name>`; struct `T` → `typedef struct byn_<module>_T byn_<module>_T;`.
 - `string` → `typedef struct { const uint8_t* ptr; int64_t len; } byn_str;`, literals static arrays.
-- `Span<T>` → `{ T* ptr; int64_t len; }` per element type.
+- `Span<T>` → `{ T* ptr; int64_t len; }`, one instantiation per element type.
 - `byn_panic(const char* msg, const char* file, int line)` prints `panic: <msg>` and location, then `abort()`.
 - `debug`/`safe`: `__builtin_add_overflow` and friends, panicking on overflow; `fast`: plain arithmetic, `-fwrapv`.
 - **Bounds checks in every mode** (spec principle 9); remove only checks proven redundant (start with `for (let i in 0..xs.length) xs[i]`).
@@ -107,13 +107,13 @@ error BYN2104: `total` is immutable
 
 ## Before a push
 
-The ci job's script tests are one list, `scripts/ci/script-tests.sh`, which `.github/workflows/ci.yml` reaches through `scripts/test.sh` and runs no script test of its own. Run it under macOS's system bash, as the macOS job does. No group runs `unix` (ci splits it into `fast`, the other-parts job, and `slow`, its own job) and `docs` (Linux only):
+The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` reaches it through `scripts/test.sh` (its `scripts` part) and runs no script test of its own. Run it under macOS's system bash, as the macOS job does. With no group it runs both `unix` (ci splits it into `fast`, the other-parts job, and `slow`, its own job) and `docs` (Linux only):
 
 ```
 /bin/bash scripts/ci/script-tests.sh
 ```
 
-Pushes to `dev` or `main` go through `scripts/ci/pre-push.sh <sha>` (git's pre-push hook): it checks the commit out under `tmp/pre-push/`, runs them there, and refuses the push on failure (`--no-verify` bypasses it once). By hand: `scripts/ci/pre-push.sh HEAD`; a passed tree is skipped.
+Pushes to `dev` or `main` run `scripts/ci/pre-push.sh <sha>` through git's pre-push hook: the hook checks the pushed commit out under `tmp/pre-push/`, runs the script tests there, and refuses the push if they fail (`--no-verify` bypasses it once). By hand: `scripts/ci/pre-push.sh HEAD`; a tree that already passed is skipped.
 
 macOS ships bash 3.2: a `$( … )`, `<( … )` or `>( … )` body parses only when its line runs, so a bare `pat)` case arm closes the substitution; `bash -n` passes and the script dies later. Inside one, write `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` on every OS.
 
@@ -124,6 +124,6 @@ These rules cover every user-facing page (`README.md`, `site/content/`, `bootstr
 1. A pattern over a list: `bayan-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows), not six archive names.
 2. Say each thing once, where a reader looks for it; link from elsewhere.
 3. The current version only; history lives in `CHANGELOG.md`.
-4. Bayān on its own terms: no other language explains a rule; the `from-*.page` guides are the exception.
+4. Bayān on its own terms: no comparison with another language explains a rule; the `from-*.page` guides are the exception.
 5. Show, then tell: a real-world example first (code when the point is code), a table for two or more dimensions, a diagram when one beats a paragraph.
 6. Clear, plain words: short sentences, the concrete thing named, no filler; `scripts/docs/prose-words.txt` lists the rejected words.

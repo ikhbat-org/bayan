@@ -43,15 +43,15 @@ bash scripts/docs/gen-status.sh --write        # docs/STATUS.md, between the <!-
 bash scripts/docs/gen-spec-index.sh --write    # docs/specs/README.md
 ```
 
-Each generator writes that header from `VERSION` and the highest revision; without `--write` it prints to stdout, sorted, undated.
+All three generated docs are release docs: each generator writes the `Version:` and `Revisions applied:` header from `VERSION` and the highest revision; without `--write` it prints to stdout, sorted, undated.
 
 <!-- prose-check: off -->
-- `gen-diagnostics.sh` reads the diagnostic tables of `src/`, `scripts/docs/data/csharp-facts.tsv` (read once from the retired C# `DiagnosticCodes.cs`: its `// BYNnnnn is retired|reserved` comments and `// Reserved: round 4` block) and the hand-kept `docs/diagnostics-allocated.txt` (`plan|reserved|retired BYNnnnn Name-or-- note` per line: plan codes with no descriptor, reservations with none, retirements only in a page), and which `docs/diagnostics/BYNnnnn.md` pages exist. Edit it on a new allocation, reservation or retirement, then regenerate.
+- `gen-diagnostics.sh` reads the diagnostic tables of `src/`, `scripts/docs/data/csharp-facts.tsv` (read once from the retired C# `DiagnosticCodes.cs`: its `// BYNnnnn is retired|reserved` comments and `// Reserved: round 4` block) and the hand-kept `docs/diagnostics-allocated.txt` (`plan|reserved|retired BYNnnnn Name-or-- note` per line: plan codes with no descriptor, reservations with none, retirements only in a page), and which `docs/diagnostics/BYNnnnn.md` pages exist. Edit `docs/diagnostics-allocated.txt` on a new allocation, reservation or retirement, then regenerate.
 <!-- prose-check: on -->
 <!-- prose-check: off -->
 - `gen-status.sh` reads the `kw` and `mem` rows of `scripts/docs/data/csharp-facts.tsv` for keywords and stdlib members (extracted once from the retired C# `Keywords.cs`, `TokenKind.cs` and `BuiltinMembers.cs`).
 <!-- prose-check: on -->
-- `gen-spec-index.sh` reads each `docs/specs/NNN-*/NNN-spec.md` title and header lines, plus any plan, tasks and api files beside it. It fails on a Status that starts with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
+- `gen-spec-index.sh` reads each `docs/specs/NNN-*/NNN-spec.md` title and `Status:`, `Release:` and `Sources:` header lines, plus any plan, tasks and api files beside it. It fails on a Status that starts with none of `done`, `in progress`, `approved`, `open`, `deferred`, `draft`, `rejected` or `superseded`.
 
 The feature, pattern, effect and unbuilt-keyword tables of `docs/STATUS.md` are hand-kept: change a status cell with the feature's status; `cut.sh` lists those in the CHANGELOG.
 
@@ -64,10 +64,10 @@ The Linux job of `.github/workflows/ci.yml` (step "Docs and release script tests
 - (c) `docs/DIAGNOSTICS.md`, `docs/STATUS.md` or `docs/specs/README.md` differs from its generator;
 - (d) a mirror's version differs from `VERSION`;
 - (e) SPEC, GRAMMAR or STYLE has a `(not in A.B`/`(partial in A.B` tag whose `A.B` is not `VERSION`'s major.minor (`-dev` stripped);
-- (h) a record doc lacks `Status:`, `Release:` or `Sources:`, or its release is not a `## [X.Y.Z]` CHANGELOG version, `VERSION` or `unscheduled`; or a snapshot doc lacks `Snapshot:`;
+- (h) a record doc lacks `Status:`, `Release:` or `Sources:` (a law, its `status:`, `release:` or `sources:` key), or its release is not a `## [X.Y.Z]` CHANGELOG version, `VERSION` or `unscheduled`; or a snapshot doc lacks `Snapshot:`;
 - (i) a revision is not cited in `docs/bayan-feature-history.md`, or a numbered spec section has no `### §N.` row there (`scripts/docs/check-history.sh`).
 
-So each change lands with headers and generated docs.
+So a new revision, a new diagnostic or a version change lands with its headers and generated docs in the same commit.
 
 ## Cutting a release
 
@@ -77,7 +77,7 @@ From `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
    - sets `VERSION`, mirrors and headers to `X.Y.Z`, `Revisions applied` at the highest;
    - regenerates the generated docs;
    - turns `## [Unreleased]` in `CHANGELOG.md` into `## [X.Y.Z] - <today>`, leaving `[Unreleased]` empty;
-   - adds `### Revisions` (revision files since the last `v*` tag, the highest `vA.B.C` below `X.Y.Z`, reachable or not) and `### Status changes` (`docs/STATUS.md` rows changed or new since it).
+   - adds `### Revisions` (revision files since the last `v*` tag, the highest `vA.B.C` below `X.Y.Z`, reachable or not) and `### Status changes` (the hand-kept `docs/STATUS.md` rows whose status cell changed or that are new since it).
 
    It fails, before touching the CHANGELOG, if a tracked file still contains the previous `-dev` version (such as `1.2.0-dev`); prints each changed file and the new section; never commits, tags or pushes.
 2. **Regenerate `bootstrap/bayan.c`** with `scripts/selfhost/land.sh`, so the bootstrap compiler reports the new version.
@@ -86,7 +86,7 @@ From `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 5. **Dry run.** Run the release workflow by hand on that commit (Actions, `release`, Run workflow) with `dry_run: true`, version `X.Y.Z-rc.N`: every job but the draft. The release job refuses a `-rc` tag or dispatch (`scripts/release/refuse-draft.sh`), so no dry run drafts.
 6. **Tag** that commit `vX.Y.Z` and push the tag.
 7. **The workflow.** The tag starts `.github/workflows/release.yml`:
-   - `package.sh check-tag` refuses a tag that is not `v` + `VERSION` or a prerelease; `scripts/docs/check.sh` refuses a `VERSION` its mirrors do not match;
+   - `package.sh check-tag` refuses a tag that is not `v` + `VERSION`, or a prerelease `VERSION`; `scripts/docs/check.sh` refuses a `VERSION` its mirrors do not match;
    - each target builds the self-hosted compiler (stage 1 from `bootstrap/bayan.c`, stage 2 from `src/driver`), smoke-tests `--version` and packs `bayan-X.Y.Z-<target>.tar.gz` (`.zip` on Windows); binary and `README.md` at the root, docs under `share/doc/bayan/`: `SPEC.md`, `GRAMMAR.md`, `STYLE.md`, `DIAGNOSTICS.md`, `STATUS.md`, `CHANGELOG.md`;
    - the memory gate runs on Linux and macOS; the editor gate (`bayan-lsp` memory tests, the extension under a size bound) on Linux; every enacted law's full tier (`laws-nightly.yml`, up to 180 minutes);
    - a red R27 run (diverse double-compiling) means its environment changed (SDK download, runner image): fix that and re-run; the release is not broken (decided 2026-11-17);
@@ -94,7 +94,7 @@ From `dev`, with `VERSION` at `X.Y.Z-dev` and `check.sh` passing.
 
    Publishing the draft is a manual step.
 8. **PDFs.** Run `bash scripts/release/docs-pdf.sh` (needs Chrome, named by `CHROME`; `BAYAN` names the compiler running the book's examples, default the `HEAD` CLI of `scripts/pinned-bayan.sh`); attach `dist/bayan-manifesto-X.Y.Z.pdf` and `dist/bayan-book-X.Y.Z.pdf` to the GitHub release.
-9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors and headers to `-dev`, regenerates the generated docs and `bootstrap/bayan.c`, and commits all of it as one commit on `dev`.
+9. **Next dev version.** `bash scripts/release/next-dev.sh X.Y.(Z+1)` (or the next minor) sets `VERSION`, the mirrors and headers to `-dev`, and regenerates the generated docs. Then regenerate `bootstrap/bayan.c` and commit all of it as one commit on `dev`.
 
 ## Known limits
 

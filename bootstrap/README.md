@@ -14,7 +14,9 @@ cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstr
 
 It builds `a.out`; `./a.out version` prints `bayan <version> (selfhost)`.
 
-To regenerate the three files (spec 019 R26), copy `runtime/bayan-rt.h` and `runtime/bayan-rt.c` here, run `scripts/ci/bootstrap-check.sh`; it fails on a file stale against `src/`, `runtime/` or the previous commit's bootstrap. When it names `bootstrap/bayan.c`, copy the kept C (stage 1 and its C stay in `tmp/bootstrap-check/`) and rerun:
+<!-- prose-check: off -->
+To regenerate the three files with no .NET (spec 019 R26), copy `runtime/bayan-rt.h` and `runtime/bayan-rt.c` here, run `scripts/ci/bootstrap-check.sh`; it fails on a file stale against `src/`, `runtime/` or the previous commit's bootstrap. When it names `bootstrap/bayan.c`, copy the kept C (stage 1 and its C stay in `tmp/bootstrap-check/`) and rerun:
+<!-- prose-check: on -->
 
 ```
 bash scripts/ci/bootstrap-check.sh
