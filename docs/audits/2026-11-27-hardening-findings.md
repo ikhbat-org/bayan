@@ -19,6 +19,13 @@ HF-0002  A read after a `ref` call in the same expression is unsequenced in the 
   severity:   miscompile
   first seen: 51379f861 (dev)
   status:     fixed on fix/hf0002-ref-call-read (ce57bc3dd; gcc 12 and clang: run/ 376 passed on wp1 WSL), merge to dev after the audit-040 HIGHs branches
+
+HF-0003  List.sort swaps elements a byte at a time; Fil-C stops on the swapped string pointers (ISO C allows the byte copy)
+  oracle:     H5 Fil-C 0.687 (scripts/hardening/filc.sh; golden run/list-sort)
+  repro:      tests/hardening/known/HF-0003/
+  severity:   crash
+  first seen: 507c90184 (dev)
+  status:     open
 ```
 
 ## Harness notes (not compiler findings)
