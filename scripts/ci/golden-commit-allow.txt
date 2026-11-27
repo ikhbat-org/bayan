@@ -99,3 +99,5 @@ cfdf2314f62340f9214c4060ccdc30474254abcd  # 0.4.2 audit 040: chore(worker): h2fi
 eafa3409e2f4c433b7eebbcc180b5178d7c2a822  # 0.4.2 audit 040: test: pin Span arguments from non-places (Q1289); review LOW
 c031c2e2cba484bcfaf9a6fc283267bea09a04d5  # 0.4.0 audit chunk 17: d17-code worker commit: lex --json/parse refusals, dist --target all wasm32 skip, with their regenerated cli goldens
 313c3a484f2b8938d0a2793c7d4d768b120d54c8  # 0.4.2 hardening: chore(worker): hf0002: HF-0002 is fixed: bump(ref n) + n now
+613ca2a32150a5580db665318c083d0ae40b0b47  # 0.4.2 help: chore(worker): helpshort: Short grouped bayan --help and per
+807ce0ccd9104e124a7155ce06d4a3497982f155  # 0.4.2 help: chore(worker): helpshort: The background poller b0inqo5p2 fi
