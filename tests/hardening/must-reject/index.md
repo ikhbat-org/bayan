@@ -138,7 +138,7 @@ Spec: `docs/bayan-spec.md` §14. Codes: BYN6002, BYN6003, BYN6004, BYN6005.
 
 ### Gaps
 
-- none found (every code BYN6002 to BYN6005 has a case).
+- Event types, `Event<T> uses ...` exceeded by a handler, BYN6005 (spec §14, §16): no case contains `Event<`.
 
 ## `Untrusted<T>` taint
 
