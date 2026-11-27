@@ -196,7 +196,7 @@ print($"{a}")</code></pre>
 <h3 id="doctor"><code>bayan doctor</code></h3>
 <p>Checks the compiler, the host target, the C compiler, <code>zig</code>, <code>git</code> and the build cache. Each line is a ◆ when the check passes. A failure prints how to fix it, and the command exits 4.</p>
 <pre><code>$ bayan doctor
-◆ bayan       0.4.1 (commit selfhost)
+◆ bayan       0.4.1
 ◆ host        macos-arm64
 ◆ C compiler  /Users/sy/.local/bin/zig cc (clang version 22.1.8)
 ◆ zig         /Users/sy/.local/bin/zig (0.17.0)
