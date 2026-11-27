@@ -265,14 +265,19 @@ surface still uses.
 - D8 `1d` without a visible `d` unit reports `RetiredDoubleSuffix` (R5).
 
 ## Open questions
+None open.
+
+Answered in the plan (`./028-plan.md`, Decisions):
 - **OQ1 (Units and `Uptime` as `Map` keys and in `const` declarations).** `docs/bayan-spec.md:298` lists integer
   types, `rune`, `bool`, `string`, plain enums, `Symbol`, tuples, and structs as `Map` keys without explicitly
   naming units. Confirm whether unit types and `Uptime` are valid `Map` keys and valid module-level `const` values
-  in 028. For /plan.
+  in 028. Answered in D-OQ1: unit types (including `Duration`) are `Map` keys and scalar `const` values; `Uptime`
+  is neither; `const` unit arrays stay BYN2229.
 - **OQ2 (Diagnostic code allocation, existing `Time` and `Io.monotonicNanos`, and fake clock naming).** New
   diagnostics in R1, R2, R4, R5, R8, R14 and R16 need `BYN####` codes in `docs/DIAGNOSTICS.md` (next free number in
   each area), and `RetiredDoubleSuffix` needs one if it has none. Confirm that `Io.monotonicNanos()` and the
   existing `Time` stay unchanged during 028. (`docs/specs/021-std-time/021-spec.md:170,272` names the fake
   clock `FixedClock` while `docs/bayan-spec.md:2257` and
   `docs/specs/023-spec-catch-up/023-spec.md:80,166` settle `FakeClock`; that
-  stays out of scope for 028.) For /plan.
+  stays out of scope for 028.) Answered in D-OQ2a–d: BYN2237–BYN2244 and BYN4003, R14 reuses BYN2225;
+  `Io.monotonicNanos()` and `Time` stay unchanged; fake clock naming stays out of scope.
