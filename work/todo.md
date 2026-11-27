@@ -11,6 +11,10 @@ wish list; the value is in recording the ones nobody has got to yet.
 
 Small, clear, and could be picked up without a design decision.
 
+- LOW (review 36d332a87..7f0f70f7c, 2026-11-28): `src/driver/main.byn` `asksHelp` treats `-h`/`--help` as a help request even when it is an option's value (`bayan test --only -h`, `bayan build -o -h` print help, exit 0).
+- LOW (review 36d332a87..7f0f70f7c): `src/driver/main.byn` `case "--help" or "-h" or "help"`: `bayan help --help` / `bayan help -h` print "unknown command `--help`", exit 2, instead of the general help.
+- LOW (review 36d332a87..7f0f70f7c): `src/semantics/express2.byn:1890` range slices of non-writable targets (`let` list, non-`ref` param, call result) are now `ReadOnlySpan`; passing one to a `Span<T>` parameter stops compiling. Name it in CHANGELOG / whats-new for 0.4.2.
+- LOW (review 36d332a87..7f0f70f7c): `src/driver/commands.byn` `parseCommand`: `Io.readFile(file) catch return exitFailure` exits 1 with no stderr on a read error after the existence check (unreadable file).
 - ~~CI: install zig (or set `BAYAN_CC`) on all three runners so `run/` goldens execute there.~~ (done: ci.yml:40-42 installs zig; triage 2026-11-09)
 - `bayan build --emit-c file.byn` (0.3.1) leaves a stray `a.o` in the current directory (README v3 writer, 2026-11-16).
 - Spec §21.4 says `bayan dist` writes `dist/<version>/<target>/`; 0.3.1 writes `dist/<version>/` and `dist/latest/` (README follows the binary). Reconcile spec or code.
