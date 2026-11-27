@@ -3,8 +3,8 @@ nav: Guides
 order: 46
 template: docs
 ---
-<p>Go and Bayan share a taste: small languages, plain code, fast builds, one way to format. The differences are in what the compiler checks. Bayan has no <code>nil</code>, no <code>if err != nil</code>, no pointers, and no interface that a type satisfies by accident. This guide maps Go habits to Bayan, then explains what will surprise you.</p>
-<p>Every Bayan program on this page was run with the compiler, and the output shown is its real output.</p>
+<p>Go and Bayan share small languages, plain code, fast builds and one formatter. Bayan checks differently: no <code>nil</code>, no <code>if err != nil</code>, no pointers, and no interface satisfied by accident.</p>
+<p>Every program ran with the compiler; the output is real.</p>
 
 <h2 id="table">Common tasks side by side</h2>
 <table>
@@ -50,7 +50,7 @@ template: docs
 </table>
 
 <h2 id="structs">Structs, methods and ref this</h2>
-<p>A Bayan struct is a value, like a Go struct. Fields are written type first, as in a declaration. The methods live inside the struct instead of beside it. A Go pointer receiver (<code>*Stack</code>) becomes <code>ref this</code>: it says the method changes the struct. A method without it can only read.</p>
+<p>A Bayan struct is a value like Go's, but fields are type first and methods live inside it. A pointer receiver (<code>*Stack</code>) becomes <code>ref this</code>, marking a mutating method; without it, a method can only read.</p>
 <pre><code class="other" data-lang="Go">type Stack struct{ items []int }
 
 func (s *Stack) Push(x int) { s.items = append(s.items, x) }
@@ -64,16 +64,16 @@ func (s *Stack) Pop() (int, bool) {
     return last, true
 }</code></pre>
 <example name="guide-go-basics"/>
-<p><code>Pop</code> returns an <code>i32?</code> where Go returns a pair. The caller cannot ignore the "was there one" half, because the type does not let it use the value until it has dealt with <code>null</code>. Here <code>?? -1</code> supplies a fallback for the empty stack.</p>
-<p>A struct literal must set every field that has no default. Leave one out and the compiler stops: <code>P needs a value for y</code> (BYN2109). Go fills in zero values silently, and Bayan does not.</p>
+<p><code>Pop</code> returns an <code>i32?</code> where Go returns a pair. The caller must handle <code>null</code> before use, so the "was there one" half is not optional; <code>?? -1</code> is the empty-stack fallback.</p>
+<p>A struct literal must set every defaultless field; leave one out and the compiler stops: <code>P needs a value for y</code> (BYN2109). Go fills zero values silently.</p>
 
 <h2 id="ref">Pointers become ref and spans</h2>
-<p>There are no pointers. You pass a variable by <code>ref</code> when the callee must change it, and you write <code>ref</code> at the call too, so the change is visible where it happens. For reading part of a collection without copying it, use a span, which is a view like a Go slice but cannot grow.</p>
+<p>Pass a variable by <code>ref</code> when the callee must change it; write <code>ref</code> at the call too, so the change is visible. For a copy-free view of part of a collection, use a span: a slice-like view that cannot grow.</p>
 <example name="guide-go-ref"/>
-<p><code>total(xs.span[1..3])</code> sums the elements at positions 1 and 2. The range excludes its end, as in Go. A <code>ReadOnlySpan</code> parameter takes a view of a list, an array or part of either, and the callee cannot change it.</p>
+<p><code>total(xs.span[1..3])</code> sums positions 1 and 2; the range excludes its end, as in Go. A <code>ReadOnlySpan</code> parameter views a list, array or part of either, and the callee cannot change it.</p>
 
 <h2 id="errors">Errors without if err != nil</h2>
-<p>A Go function returns <code>(T, error)</code> and every call is followed by a check. A Bayan function returns <code>T</code> and lists what it can fail with. The check is <code>try</code>: if the call fails, the function returns the same failure. <code>catch</code> handles it where you are.</p>
+<p>A Go function returns <code>(T, error)</code> and checks every call. A Bayan function returns <code>T</code> and lists its failures; <code>try</code> returns the same failure, <code>catch</code> handles it where you are.</p>
 <pre><code class="other" data-lang="Go">func readPort(text string) (int, error) {
     if text == "" {
         return 0, ErrMissing
@@ -93,10 +93,10 @@ func doubled(text string) (int, error) {
     return port * 2, nil
 }</code></pre>
 <example name="guide-go-errors"/>
-<p>The error type is a closed list of cases, not an open <code>error</code> interface. <code>catch switch</code> must cover every case, so adding a case to <code>ConfigError</code> breaks every caller that does not handle it. In Go you would find out with a <code>switch</code> that falls to <code>default</code>, or not at all. There is no wrapping and no <code>errors.Is</code>: the case itself is what you match on. Errors can also carry data. See <a href="errors.html">Errors</a>.</p>
+<p>The error type is a closed case list, not an open <code>error</code> interface. <code>catch switch</code> must cover every case, so a new <code>ConfigError</code> case breaks every caller missing it; in Go a <code>switch</code> with a <code>default</code> would reveal this, or nothing would. No wrapping or <code>errors.Is</code>: match the case itself. Errors can carry data. See <a href="errors.html">Errors</a>.</p>
 
 <h2 id="interfaces">Interfaces are declared, not discovered</h2>
-<p>A Go type satisfies an interface by having the methods. A Bayan type says so: <code>struct Square : IShape</code>. Interface names start with <code>I</code>. A generic function names the interface it needs with <code>where T : IShape</code>, and the compiler checks the type at the call.</p>
+<p>A Go type satisfies an interface by having its methods; a Bayan type declares it: <code>struct Square : IShape</code>. Interface names start with <code>I</code>. A generic function names the needed interface with <code>where T : IShape</code>; the compiler checks the type at the call.</p>
 <pre><code class="other" data-lang="Go">type Shape interface {
     Area() float64
     Name() string
@@ -110,7 +110,7 @@ func Total[T Shape](shapes []T) float64 {
     return sum
 }</code></pre>
 <example name="guide-go-iface"/>
-<p><code>name</code> is a property in the interface (no parentheses), so <code>r.name</code> reads like a field. If a type has the methods but not the <code>: IShape</code>, passing it to <code>total</code> is an error:</p>
+<p><code>name</code> is an interface property (no parentheses), so <code>r.name</code> reads like a field. A type with the methods but not <code>: IShape</code> fails when passed to <code>total</code>:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2807:</span> `S` does not conform to `IShape`: missing `area`
   --&gt; conform.byn:10:14
@@ -124,18 +124,18 @@ func Total[T Shape](shapes []T) float64 {
   explain: bayan explain BYN2807</pre>
 <figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
-<p><b>Why:</b> a method that happens to share a name with an interface method is not a promise. A declaration is a promise, and it is where a reader looks to find every type that implements an interface.</p>
-<p>Generics are checked once, at the definition. Inside <code>total</code>, a <code>T</code> can only do what its bound allows. A bare <code>T</code> with no bound can be copied, compared with <code>==</code>, passed and returned, nothing more: there is no <code>constraints.Ordered</code> to reach for yet, so a generic <code>max</code> is not writable today.</p>
+<p><b>Why:</b> a matching method name is not a promise; a declaration is, and readers look there for every implementer.</p>
+<p>Generics are checked at definition: inside <code>total</code>, <code>T</code> is limited by its bound. A bare <code>T</code> can be copied, compared with <code>==</code>, passed and returned, nothing more. No <code>constraints.Ordered</code> yet, so a generic <code>max</code> is not writable.</p>
 
 <h2 id="defer">defer</h2>
-<p><code>defer</code> works as in Go: the statement runs when the scope ends, last registered first. One difference: the scope is the enclosing block, not the whole function. A <code>defer</code> inside a loop body runs at the end of each pass, not when the function returns.</p>
+<p><code>defer</code> runs at scope end, last registered first. The scope is the enclosing block, not the whole function, so one in a loop body runs at each pass's end, not when the function returns.</p>
 <pre><code class="other" data-lang="Go">func work(name string) {
     fmt.Println("open", name)
     defer fmt.Println("close", name)
     fmt.Println("use", name)
 }</code></pre>
 <example name="guide-go-defer"/>
-<p>Two modifiers do what you would do by hand with a flag: <code>defer failing</code> runs only if the function fails, and <code>defer panicking</code> only during a panic. A deferred statement cannot fail.</p>
+<p><code>defer failing</code> runs only if the function fails; <code>defer panicking</code> only during a panic. Both replace a hand-kept flag, and a deferred statement cannot fail.</p>
 
 <h2 id="slices">Slices, strings and maps</h2>
 <pre><code class="other" data-lang="Go">mid := xs[1:3]
@@ -145,15 +145,15 @@ for _, w := range strings.Fields("a b a c a b") {
     counts[w]++
 }</code></pre>
 <example name="guide-go-slice"/>
-<p>A <code>List</code> is not a slice. It owns its storage, so there is no capacity, no aliasing between two lists, and no "append may or may not reallocate" surprise. A span is the slice-like view, and it borrows. A <code>Map</code> iterates in insertion order. A string is immutable UTF-8 text, and like Go's it indexes by byte.</p>
+<p>A <code>List</code> is not a slice: it owns its storage, so no capacity, no aliasing, no "append may or may not reallocate" surprise. A span is the borrowing, slice-like view; a <code>Map</code> iterates in insertion order; a string is immutable UTF-8, indexed by byte like Go's.</p>
 
 <h2 id="surprises">What will surprise you</h2>
 
 <h3 id="s-nil">Reading a missing key stops the program</h3>
-<p>In Go <code>m["x"]</code> gives the zero value. In Bayan it panics with <code>key not found in map</code>, the same way <code>xs[9]</code> panics with <code>index out of range</code>. Use <code>tryGet(at:)</code> when absence is normal. <b>Why:</b> a zero value cannot be told apart from a stored zero.</p>
+<p>Go gives <code>m["x"]</code> the zero value; Bayan panics with <code>key not found in map</code>, as <code>xs[9]</code> panics with <code>index out of range</code>. Use <code>tryGet(at:)</code> when absence is normal: a zero value cannot be told apart from a stored zero.</p>
 
 <h3 id="s-overflow">Integers do not wrap</h3>
-<p>Go wraps on overflow. A Bayan integer panics with <code>arithmetic overflow</code>, and a narrowing conversion is written out (<code>i32(a)</code>). A value converts to a wider type on its own, but never to a narrower one. Dividing by zero panics too.</p>
+<p>Go wraps; Bayan panics with <code>arithmetic overflow</code>, and narrowing is written out (<code>i32(a)</code>). Values widen implicitly but never narrow. Division by zero panics too.</p>
 <figure class="diag">
 <pre><span class="err">panic:</span> arithmetic overflow
   at overflow.byn:3</pre>
@@ -178,10 +178,10 @@ for _, w := range strings.Fields("a b a c a b") {
   explain: bayan explain BYN2780</pre>
 <figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
-<p>Use <code>move a</code> to give the list away, <code>a.copy()</code> for another one, or <code>ref</code> to share it. Plain numbers and booleans copy freely. <b>Why:</b> two names for one buffer is how Go programs get data races and spooky edits. See <a href="memory.html">Memory and ownership</a>.</p>
+<p><code>move a</code> gives the list away, <code>a.copy()</code> makes another, <code>ref</code> shares it. Numbers and booleans copy freely. Two names for one buffer cause Go's data races and spooky edits. See <a href="memory.html">Memory and ownership</a>.</p>
 
 <h3 id="s-unused">A value you drop is an error</h3>
-<p>Go lets you call a function and ignore its result, and rejects an unused variable. Bayan does the reverse for results:</p>
+<p>Go ignores results but rejects unused variables; Bayan reverses this:</p>
 <figure class="diag">
 <pre><span class="err">error BYN3201:</span> the value of this `load()` is unused
   --&gt; unused.byn:3:5
@@ -195,18 +195,25 @@ for _, w := range strings.Fields("a b a c a b") {
   explain: bayan explain BYN3201</pre>
 <figcaption>Real output from the compiler. The path is shortened.</figcaption>
 </figure>
-<p>Write <code>let _ = load()</code> to say you mean it. A <code>var</code> that is never reassigned is a warning that asks for <code>let</code>.</p>
+<p><code>let _ = load()</code> says you mean it; an unreassigned <code>var</code> warns and asks for <code>let</code>.</p>
 
 <h3 id="s-immutable">Bindings are fixed by default</h3>
-<p><code>let</code> cannot be reassigned, and a <code>ref this</code> method cannot be called on it. <code>var</code> is the exception you mark. Parameters are always immutable: copy to a <code>var</code> inside the function if you need to change one.</p>
+<p><code>let</code> cannot be reassigned, and a <code>ref this</code> method cannot be called on it; <code>var</code> is the exception. Parameters are always immutable: to change one, copy it to a <code>var</code>.</p>
 
 <h3 id="s-switch">switch is exhaustive and does not fall through</h3>
-<p>Go's <code>switch</code> stops at the end of a case already. Bayan's <code>switch</code> over a union or an enum must also cover every case, or the program does not build. There is no <code>default</code> to hide behind unless you write one.</p>
+<p>Go's <code>switch</code> stops at a case's end already. Bayan's must cover every union or enum case, or the program does not build; there is no <code>default</code> unless you write one.</p>
 
 <h3 id="s-concurrency">No goroutines yet</h3>
-<note>Planned: structured concurrency with <code>async</code> and <code>await</code> at the call site. The compiler rejects both today. Channels and mutexes are named in the specification and have no methods yet. See the <a href="cookbook-concurrency.html">Concurrency cookbook</a>.</note>
-<p>The design differs from <code>go f()</code>: a function is not declared async, a task cannot outlive the block that started it, and leaving the block cancels unfinished tasks.</p>
+<note>Planned: structured concurrency with <code>async</code> and <code>await</code> at the call site; the compiler rejects both today. Channels and mutexes are named in the specification but have no methods yet. See the <a href="cookbook-concurrency.html">Concurrency cookbook</a>.</note>
+<p>Unlike <code>go f()</code>: a function is not declared async, a task cannot outlive its block, and leaving it cancels unfinished tasks.</p>
 
 <h3 id="s-names">Names and labels</h3>
-<p>Types are <code>PascalCase</code> and everything else is <code>camelCase</code>, whether public or not. There is no exported-by-capital rule: visibility is a keyword (<code>public</code> for other packages, nothing for the module, <code>private</code> for the type). A directory is a module. Arguments after the first carry a label such as <code>by:</code> or <code>from:</code>. See <a href="parameters.html">Parameters and arguments</a>.</p>
+<p>Types are <code>PascalCase</code>, the rest <code>camelCase</code>, public or not. Visibility is a keyword, not exported-by-capital:</p>
+<table>
+<tr><th>Keyword</th><th>Visible to</th></tr>
+<tr><td><code>public</code></td><td>other packages</td></tr>
+<tr><td>nothing</td><td>the module</td></tr>
+<tr><td><code>private</code></td><td>the type</td></tr>
+</table>
+<p>A directory is a module. Arguments after the first carry a label such as <code>by:</code> or <code>from:</code>. See <a href="parameters.html">Parameters and arguments</a>.</p>
 <p>Next: <a href="effective.html">Effective Bayan</a> says which form to choose.</p>
