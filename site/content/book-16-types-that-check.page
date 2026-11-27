@@ -3,14 +3,14 @@ nav: Learn
 order: 1600
 template: docs
 ---
-<p>Most bugs that reach production are not exotic. A user id passed where an order id was expected. A zero where the code assumed a positive number. A parcel that was shipped twice. This chapter shows four ways to make the compiler reject those programs for you, from the cheapest to the most precise.</p>
+<p>Most production bugs are not exotic: a user id passed where an order id was expected, a zero where the code assumed a positive number, a parcel shipped twice. Four ways to make the compiler reject such programs, from cheapest to most precise.</p>
 
 <h2 id="distinct">Distinct types: same number, different meaning</h2>
-<p>An <code>i64</code> is an <code>i64</code> whether it is a user id, an order id or a count of bananas. A <em>distinct type</em> gives the same representation a new identity:</p>
+<p>An <code>i64</code> is an <code>i64</code> whether it is a user id, an order id or a count of bananas. A <em>distinct type</em> gives that representation a new identity:</p>
 <pre><code class="byn">type distinct UserId = i64</code></pre>
-<p>You build one with the type's name, <code>UserId(7)</code>, and read the number back with <code>.value</code>. Nothing converts silently in either direction.</p>
+<p>Build one with the type's name, <code>UserId(7)</code>, and read the number with <code>.value</code>; nothing converts silently in either direction.</p>
 <example name="book-16-distinct"/>
-<p>Both ids hold 7, and <code>same number: true</code> shows that comparing the raw values still works. What you cannot do is pass one where the other is expected.</p>
+<p>Both ids hold 7, and <code>same number: true</code> shows raw values compare; you cannot pass one where the other is expected.</p>
 <pre><code class="byn">type distinct UserId = i64
 type distinct OrderId = i64
 
@@ -31,7 +31,7 @@ void main() uses console {
 <span class="gut">  explain: bayan explain BYN2202</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>mix-ids.byn</code>.</figcaption>
     </figure>
-<p>A bare number does not convert either. The fix-it shows the wrapping:</p>
+<p>A bare number does not convert either; the fix-it wraps it:</p>
 <pre><code class="byn">type distinct UserId = i64
 
 void main() {
@@ -52,12 +52,12 @@ void main() {
 <span class="gut">  explain: bayan explain BYN3204</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>raw-int.byn</code>.</figcaption>
     </figure>
-<p>Arithmetic and comparison across a distinct type are also closed off. <code>u + u</code> is BYN2208, and so is <code>u &lt; v</code>. A cast such as <code>i64(u)</code> is BYN2206, and <code>{u}</code> in an interpolation is BYN2225 because the type has no text form. Go through <code>.value</code> when you mean the number. That is on purpose: it makes each place where an id turns back into a plain number visible in the source.</p>
+<p>Arithmetic and comparison across a distinct type are closed off: <code>u + u</code> and <code>u &lt; v</code> are BYN2208, a cast <code>i64(u)</code> is BYN2206, and <code>{u}</code> in an interpolation is BYN2225 because the type has no text form. Go through <code>.value</code>, so each place where an id turns into a plain number stays visible in the source.</p>
 
 <h2 id="requires">Values that must satisfy a rule</h2>
-<p>Add <code>requires</code> to a distinct type and its constructor checks the rule. <code>it</code> is the value being checked.</p>
+<p>Add <code>requires</code> to a distinct type and its constructor checks the rule against <code>it</code>, the value being checked.</p>
 <pre><code class="byn">type distinct Grams = i64 requires it &gt; 0</code></pre>
-<p>When the argument is a constant, the compiler checks it while compiling:</p>
+<p>A constant argument is checked while compiling:</p>
 <pre><code class="byn">type distinct Grams = i64 requires it &gt; 0
 
 void main() {
@@ -76,7 +76,7 @@ void main() {
 <span class="gut">  explain: bayan explain BYN2321</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>zero-grams.byn</code>.</figcaption>
     </figure>
-<p>When the argument is only known at run time, the check happens when the program runs, and it can fail. The constructor then fails with <code>ValidationError&lt;Grams&gt;</code>, and the caller has to handle that, like any other error. Calling it without handling is BYN2602:</p>
+<p>When the argument is known only at run time, the check can fail: the constructor fails with <code>ValidationError&lt;Grams&gt;</code>, which the caller must handle like any other error. Not handling it is BYN2602:</p>
 <pre><code class="byn">type distinct Grams = i64 requires it &gt; 0
 
 Grams make(i64 raw) fails ValidationError&lt;Grams&gt; {
@@ -111,19 +111,13 @@ void main() fails ValidationError&lt;Grams&gt; {
 <span class="gut">  explain: bayan explain BYN2602</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>no-try.byn</code>.</figcaption>
     </figure>
-<p>Use <code>try</code> to pass the error on, or <code>catch</code> to deal with it. <code>parse</code> in <code>book-16-distinct</code> does the first, and <code>main</code> does the second: <code>parse(40) catch Grams(1)</code> gives a fallback value and <code>catch switch { .invalid e =&gt; … }</code> picks a branch. The call with 0 took the second branch, so <code>bad</code> is 2. The result is that a <code>Grams</code> anywhere in your program is known to be positive. You checked it once, at the door.</p>
-<p>The same <code>requires</code> clause works on a struct to state a rule about its fields. Functions can state rules about their arguments with <code>expects</code>. See <a href="features.html">What makes Bayan different</a> for both.</p>
+<p>Use <code>try</code> to pass the error on, or <code>catch</code> to handle it: <code>parse</code> in <code>book-16-distinct</code> does the first, <code>main</code> the second. <code>parse(40) catch Grams(1)</code> gives a fallback; <code>catch switch { .invalid e =&gt; … }</code> picks a branch, which the call with 0 took, so <code>bad</code> is 2. A <code>Grams</code> is then known positive: checked once, at the door.</p>
+<p>The same <code>requires</code> clause applies to a struct's fields, and <code>expects</code> to a function's arguments; <a href="features.html">What makes Bayan different</a> covers both.</p>
 
 <h2 id="typestate">Typestate: the order of operations in the type</h2>
-<p>Some bugs come from calling the right method at the wrong time: sending a parcel twice, reading a signature before delivery. A <em>typestate</em> struct lists its states and the methods that move between them. The compiler tracks which state a variable is in.</p>
+<p>Bugs come from calling the right method at the wrong time: sending a parcel twice, reading a signature before delivery. A <em>typestate</em> struct lists its states and the methods between them; the compiler tracks each variable's state.</p>
 <example name="book-16-typestate"/>
-<p>Read it from the top.</p>
-<ul>
-<li>The <code>states</code> block lists <code>packed</code>, <code>sent</code> and <code>delivered</code>. A state can carry its own fields, such as <code>carrier</code>, that exist only in that state.</li>
-<li><code>send</code> takes <code>ref this is .packed</code>: it may only be called on a parcel in the packed state. <code>becomes .sent</code> says where it ends up, and <code>become .sent(carrier: carrier)</code> does the move.</li>
-<li><code>receipt</code> takes <code>Parcel.delivered p</code>, so it cannot be called on any other state.</li>
-<li>After <code>deliver</code>, <code>main</code> reads <code>p.carrier</code>, a field of the delivered state.</li>
-</ul>
+<p>The <code>states</code> block lists <code>packed</code>, <code>sent</code> and <code>delivered</code>; a state can carry fields of its own, such as <code>carrier</code>. <code>send</code> takes <code>ref this is .packed</code>, so only a packed parcel may call it: <code>becomes .sent</code> says where it ends up, and <code>become .sent(carrier: carrier)</code> moves it. <code>receipt</code> takes <code>Parcel.delivered p</code>, no other state will do; after <code>deliver</code>, <code>main</code> reads <code>p.carrier</code>, a delivered-state field.</p>
 <p>The output is <code>parcel 1 signed by Umar</code>, then <code>DHL</code>. Now send twice:</p>
 <pre><code class="byn">type distinct Id = i64
 
@@ -157,7 +151,7 @@ void main() uses console {
 <span class="gut">  explain: bayan explain BYN7001</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>wrong-state.byn</code>.</figcaption>
     </figure>
-<p>After the first <code>send</code> the compiler knows <code>p</code> is <code>.sent</code>. The second call needs <code>.packed</code>, so it is rejected. The program that ships a parcel twice does not compile. State fields are protected in the same way: reading a field that exists in only one state, when you have not shown the variable is in it, is an error.</p>
+<p>After the first <code>send</code>, <code>p</code> is <code>.sent</code>; the second call needs <code>.packed</code>, so it is rejected: a parcel cannot ship twice. State fields are protected too: reading a one-state field without proving the variable is in that state is an error.</p>
 <pre><code class="byn">struct Parcel {
     states {
         packed
@@ -182,10 +176,10 @@ void main() uses console {
 <span class="gut">  explain: bayan explain BYN7002</span></pre>
       <figcaption>Real output from the compiler. The path is shortened to <code>payload-early.byn</code>.</figcaption>
     </figure>
-<p>Other typestate errors you may see: BYN7003, a <code>become</code> in a method that has no <code>becomes</code>; BYN7004, a <code>switch</code> over the states that misses one; BYN7005, a struct literal that does not name its state, such as <code>Parcel {…}</code> instead of <code>Parcel.packed {…}</code>.</p>
+<p>Other typestate errors: BYN7003, a <code>become</code> in a method without <code>becomes</code>; BYN7004, a <code>switch</code> over the states that misses one; BYN7005, a struct literal that names no state, such as <code>Parcel {…}</code> for <code>Parcel.packed {…}</code>.</p>
 
 <h2 id="units">Units of measure</h2>
-<note>Planned: not in the compiler yet. A <code>unit</code> declaration, so that <code>3.0 m</code> and <code>2.0 s</code> carry their dimension and adding metres to seconds is a compile error, while <code>m / s</code> gives a speed. The compiler does not parse <code>unit</code> declarations today. Until then, use a distinct type for each quantity, with the checks above.</note>
+<note>Planned, not in the compiler yet: a <code>unit</code> declaration, so <code>3.0 m</code> and <code>2.0 s</code> carry their dimension, adding metres to seconds is a compile error, and <code>m / s</code> gives a speed. The compiler does not parse <code>unit</code> today; until then, use a distinct type per quantity, with the checks above.</note>
 <pre><code class="byn">// planned
 unit m
 unit s
@@ -196,16 +190,16 @@ let v = d / t        // m / s</code></pre>
 <h2 id="quiz">Check your understanding</h2>
 <details class="quiz"><summary>1. <code>describe(o)</code> takes a <code>UserId</code> and is given an <code>OrderId</code> holding the same number. What happens?
 <ol type="a"><li>It works, since both are <code>i64</code>.</li><li>BYN2202, expected <code>UserId</code>, found <code>OrderId</code>.</li><li>It panics at run time.</li></ol></summary>
-<p>b. Distinct types have separate identities even with the same representation, so (a) is wrong. The check is at compile time, so (c) is wrong. The output of the working program shows what remains: <code>u.value == o.value</code> is <code>true</code>.</p></details>
+<p>b. Same representation, separate identity, so (a) is wrong; checked at compile time, so (c) is wrong. The working program shows <code>u.value == o.value</code> as <code>true</code>.</p></details>
 <details class="quiz"><summary>2. What does <code>Grams(0)</code> do when <code>Grams</code> requires <code>it &gt; 0</code>?</summary>
-<p>It is a compile error, BYN2321, because the argument is a constant that breaks the rule. It is not a run-time failure. For a value known only at run time, <code>Grams(raw)</code> fails with <code>ValidationError&lt;Grams&gt;</code> and needs <code>try</code> or <code>catch</code>.</p></details>
+<p>A compile error, BYN2321, because the constant breaks the rule; not a run-time failure. A run-time value instead fails with <code>ValidationError&lt;Grams&gt;</code> and needs <code>try</code> or <code>catch</code>.</p></details>
 <details class="quiz"><summary>3. In <code>book-16-distinct</code>, why is <code>bad</code> equal to 2?</summary>
-<p><code>parse(0)</code> fails the <code>requires</code> check, so its error reaches the <code>catch switch</code>, whose <code>.invalid</code> branch gives <code>Grams(2)</code>. <code>ok</code> is 40 because 40 passed the check and the <code>catch</code> fallback was not used.</p></details>
+<p><code>parse(0)</code> fails the <code>requires</code> check, so its error reaches the <code>catch switch</code>, whose <code>.invalid</code> branch gives <code>Grams(2)</code>. <code>ok</code> is 40 because 40 passed and the fallback was unused.</p></details>
 <details class="quiz"><summary>4. Why does the second <code>p.send(by: "UPS")</code> not compile?</summary>
-<p>The first <code>send</code> moved <code>p</code> to <code>.sent</code>, and <code>send</code> needs <code>.packed</code> (BYN7001). It is not a move error: <code>p</code> is still a valid variable. It is also not a run-time check: the program is rejected before it runs.</p></details>
+<p>The first <code>send</code> moved <code>p</code> to <code>.sent</code>, and <code>send</code> needs <code>.packed</code> (BYN7001); <code>p</code> is still valid, so it is no move error. It is no run-time check either: the program is rejected before it runs.</p></details>
 <details class="quiz"><summary>5. Can you declare <code>unit m</code> today?</summary>
 <p>No, units are planned. Use <code>type distinct</code> per quantity.</p></details>
 
 <div class="next-box">
-  <p>Next: <a href="book-17-concurrency.html">17. Concurrency</a> explains what is planned for concurrency, what the compiler rejects today, and the habits that carry over.</p>
+  <p>Next: <a href="book-17-concurrency.html">17. Concurrency</a> explains what is planned, what the compiler rejects today, and the habits that carry over.</p>
 </div>

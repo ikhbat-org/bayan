@@ -3,9 +3,9 @@ nav: Learn
 order: 200
 template: docs
 ---
-<p class="lede">You will build a word counter: it reads a text file, counts how often each word appears, and prints the most common words first. You write it in five small steps, and you run it after each one.</p>
+<p class="lede">You will build a word counter: it reads a text file, counts each word, and prints the most common first, in five steps.</p>
 
-<p>This chapter uses forms the later chapters explain properly: <code>struct</code>, <code>Map</code>, <code>List</code>, functions and errors. Type the programs and run them. Where a form is new, a sentence says what it does, and the chapter that covers it is linked. You can read <a href="book-01-start.html">chapter 1</a> first if you have not run a Bayan program yet.</p>
+<p>This chapter uses forms later chapters explain: <code>struct</code>, <code>Map</code>, <code>List</code>, functions and errors. Type and run the programs; a new form gets a sentence on what it does, with its chapter linked. Read <a href="book-01-start.html">chapter 1</a> first if you have not run a Bayan program.</p>
 
 <h2 id="plan">The plan</h2>
 <p>The program has four jobs:</p>
@@ -15,19 +15,19 @@ template: docs
   <li>Count each word.</li>
   <li>Sort the counts, highest first, and print them.</li>
 </ol>
-<p>To have something to read, each program starts by writing a small file named <code>sample.txt</code> in the folder you run it from. The last step reads any file you name on the command line instead.</p>
+<p>Each program first writes <code>sample.txt</code> in its working folder for something to read; the last step reads any file named on the command line instead.</p>
 
 <h2 id="read">Step 1: read a file</h2>
 <example name="book-02-read"/>
-<p>Run it with <code>bayan run book-02-read.byn</code>, or any name you saved it under. Here is what is new:</p>
+<p>Run it with <code>bayan run book-02-read.byn</code>, or your file's name. New:</p>
 <ul>
-  <li><code>void main() fails IoError</code> declares the entry point and says it can fail with an <code>IoError</code>. Reading and writing files can fail, and Bayan makes you say so in the signature.</li>
-  <li><code>try</code> in front of a call means "if this fails, stop here and pass the failure up". Because <code>main</code> declares <code>fails IoError</code>, passing it up is allowed. <a href="book-08-errors.html">Chapter 8</a> covers errors.</li>
-  <li><code>Io.writeFile(path, bytes)</code> writes bytes to a file. <code>"…".bytes</code> is the text as bytes. <code>Io.readText(path)</code> reads a file back as a string.</li>
-  <li><code>text.length</code> is the size in bytes. <code>text.lines</code> goes through the lines one at a time.</li>
-  <li><code>var lines = 0</code> is a variable you can change. <code>let</code> would not allow <code>lines += 1</code>. <a href="book-03-basics.html">Chapter 3</a> covers both.</li>
+  <li><code>void main() fails IoError</code> declares the entry point and says it can fail with an <code>IoError</code>; reading and writing files can fail, and Bayan makes you say so in the signature.</li>
+  <li><code>try</code> before a call means "if this fails, stop here and pass the failure up"; because <code>main</code> declares <code>fails IoError</code>, passing it up is allowed. <a href="book-08-errors.html">Chapter 8</a> covers errors.</li>
+  <li><code>Io.writeFile(path, bytes)</code> writes bytes to a file; <code>"…".bytes</code> is the text as bytes. <code>Io.readText(path)</code> reads a file back as a string.</li>
+  <li><code>text.length</code> is the size in bytes; <code>text.lines</code> walks the lines.</li>
+  <li><code>var lines = 0</code> is a variable you can change; <code>let</code> would not allow <code>lines += 1</code>. <a href="book-03-basics.html">Chapter 3</a> covers both.</li>
 </ul>
-<p>If you leave out <code>try</code>, the compiler tells you the call can fail:</p>
+<p>Without <code>try</code>, the compiler says the call can fail:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2602:</span> `readText` can fail; handle the error or pass it on
   <span class="gut">--&gt;</span> nottry.byn:2:16
@@ -43,7 +43,7 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2602</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check nottry.byn</code>). The path is shortened to <code>nottry.byn</code>.</figcaption>
 </figure>
-<p>If you keep <code>try</code> but remove <code>fails IoError</code> from <code>main</code>, it tells you there is nowhere for the error to go:</p>
+<p>Keep <code>try</code> but drop <code>fails IoError</code> from <code>main</code>, and it says the error has nowhere to go:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2604:</span> `main` cannot fail, so it cannot pass on `IoError`
   <span class="gut">--&gt;</span> nofails.byn:2:16
@@ -57,38 +57,38 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2604</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check nofails.byn</code>). The path is shortened to <code>nofails.byn</code>.</figcaption>
 </figure>
-<p>Both messages offer the two ways out. You can pass the error up, or you can handle it with <code>catch</code> where it happens.</p>
+<p>Both messages offer two ways out: pass the error up, or <code>catch</code> it where it happens.</p>
 
 <h2 id="split">Step 2: split the lines into words</h2>
-<p>Next, cut each line at the spaces, strip punctuation and ignore case.</p>
+<p>Cut each line at spaces, strip punctuation and ignore case.</p>
 <example name="book-02-split"/>
 <ul>
   <li><code>line.parts(by: " ")</code> splits a string at every space.</li>
-  <li><code>part.trimmed(by: ['.', ',', '!', '?'])</code> removes any of those characters from both ends. A character literal uses single quotes. <code>[…]</code> with a type given by the parameter is a list of them.</li>
+  <li><code>part.trimmed(by: ['.', ',', '!', '?'])</code> strips any of those characters from both ends. A character literal uses single quotes; <code>[…]</code> with a type from the parameter is a list of them.</li>
   <li><code>.lowercased()</code> returns a lowercase copy, so <code>The</code> and <code>the</code> are one word.</li>
-  <li><code>continue if word.isEmpty</code> is a postfix <code>if</code>: it skips the rest of this pass when the word is empty. It is the same as <code>if word.isEmpty { continue }</code> on one line.</li>
+  <li><code>continue if word.isEmpty</code> is a postfix <code>if</code> that skips the rest of the pass for an empty word, same as <code>if word.isEmpty { continue }</code> on one line.</li>
 </ul>
-<p>Notice what you did not write: no helper to find word boundaries, and no loop over characters. Strings in Bayan are UTF-8 text, and the string methods work with that for you.</p>
+<p>Notice what you did not write: no word-boundary helper, no character loop. Bayan strings are UTF-8, and the string methods handle it.</p>
 
 <h2 id="count">Step 3: count the words</h2>
-<p>A <code>Map&lt;string, i32&gt;</code> maps a string to a 32-bit integer. Use the word as the key and the count as the value.</p>
+<p><code>Map&lt;string, i32&gt;</code> maps a string to a 32-bit integer: word as key, count as value.</p>
 <example name="book-02-count"/>
 <ul>
-  <li><code>Map&lt;string, i32&gt;()</code> makes an empty map. The type goes in the angle brackets.</li>
-  <li><code>counts.tryGet(at: word)</code> looks a key up and gives back <code>i32?</code>, a number or <code>null</code> for "not there". <code>?? 0</code> replaces <code>null</code> with <code>0</code>. So the line reads: the new count is the old count, or zero, plus one.</li>
-  <li><code>for e in counts</code> goes through the entries, and each has a <code>.key</code> and a <code>.value</code>.</li>
+  <li><code>Map&lt;string, i32&gt;()</code> makes an empty map; the type goes in the angle brackets.</li>
+  <li><code>counts.tryGet(at: word)</code> looks a key up and gives <code>i32?</code>: a number, or <code>null</code> for "not there". <code>?? 0</code> turns <code>null</code> into <code>0</code>, so the line reads: the new count is the old count, or zero, plus one.</li>
+  <li><code>for e in counts</code> goes through the entries, each with a <code>.key</code> and <code>.value</code>.</li>
 </ul>
-<p>The output is in the order the words first appeared, not in order of count. A <code>Map</code> in Bayan remembers insertion order.</p>
-<p>Why not write <code>counts[word] += 1</code>? Reading a key that is not in the map is a bug, so it stops the program. This is a panic, not an error you can handle:</p>
+<p>The output follows first appearance, not count: a Bayan <code>Map</code> remembers insertion order.</p>
+<p>Why not <code>counts[word] += 1</code>? Reading an absent key is a bug, so it stops the program: a panic, not an error you can handle:</p>
 <figure class="diag">
 <pre>panic: key not found in map
   at mapmissing2.byn:4</pre>
 <figcaption>Real output from the compiler (<code>bayan run mapmissing2.byn</code>). The path is shortened to <code>mapmissing2.byn</code>.</figcaption>
 </figure>
-<p>The panic names the line. <code>tryGet</code> is the checked version: it returns <code>null</code> instead.</p>
+<p>The panic names the line. <code>tryGet</code> is the checked version, returning <code>null</code>.</p>
 
 <h2 id="sort">Step 4: sort the counts</h2>
-<p>A <code>Map</code> has no order by count. You need a list of (word, count) pairs, and a way to order them. Define a <code>struct</code> for a pair:</p>
+<p><code>Map</code> has no order by count. You need a list of (word, count) pairs and a way to order them. Define a <code>struct</code> for a pair:</p>
 <pre><code class="byn">struct Entry {
     string word
     i32 count
@@ -98,8 +98,8 @@ template: docs
         return word &lt; other.word
     }
 }</code></pre>
-<p>A struct is a group of named fields. <code>Entry</code> also has a method, <code>isBefore</code>, which says whether this entry should come before another one: a higher count first, and for equal counts, the word that is first in alphabetical order. Strings compare byte by byte, so every capital letter sorts before every lowercase letter. All our words are lowercase, so that does not matter here. <a href="book-05-structs.html">Chapter 5</a> covers structs.</p>
-<p>The standard <code>sort()</code> works on lists of numbers and strings. Sorting a list of your own type by a rule is not available yet, so you write the sort. An insertion sort is short. Take each entry in turn, and swap it left while it belongs before its neighbour:</p>
+<p>A struct groups named fields. <code>Entry</code>'s <code>isBefore</code> method says whether this entry comes before another: higher count first, then the alphabetically first word. Strings compare byte by byte, so capitals sort before lowercase; our words are all lowercase, so it does not matter. <a href="book-05-structs.html">Chapter 5</a> covers structs.</p>
+<p>The standard <code>sort()</code> works on lists of numbers and strings; sorting your own type by a rule is not available yet, so you write the sort. An insertion sort is short: take each entry and swap it left while it belongs before its neighbour:</p>
 <pre><code class="byn">void sortEntries(ref List&lt;Entry&gt; entries) {
     for i in 1..entries.length {
         var j = i
@@ -111,16 +111,16 @@ template: docs
         }
     }
 }</code></pre>
-<p><code>ref List&lt;Entry&gt;</code> means the function changes the caller's list in place. The call site says <code>ref</code> too: <code>sortEntries(ref entries)</code>. <a href="book-04-functions.html">Chapter 4</a> covers this. <code>1..entries.length</code> is a range that starts at 1 and stops before the length.</p>
-<p>The loop is quadratic. For a few thousand distinct words it is fine. A word counter for a large corpus would want a better sort once <code>sort(by:)</code> arrives.</p>
+<p><code>ref List&lt;Entry&gt;</code> means the function changes the caller's list in place; the call says <code>ref</code> too: <code>sortEntries(ref entries)</code>. <a href="book-04-functions.html">Chapter 4</a> covers this. <code>1..entries.length</code> is a range from 1 to before the length.</p>
+<p>The loop is quadratic: fine for a few thousand distinct words; a large corpus wants a better sort once <code>sort(by:)</code> arrives.</p>
 
 <h2 id="together">Step 5: put it together</h2>
-<p>Now the whole program, with three changes. The counting is in its own function, <code>countWords</code>. <code>main</code> takes the command-line arguments, and uses the first one as the path when there is one. And it prints a summary line first.</p>
+<p>Now the whole program, with three changes: counting moved into <code>countWords</code>; <code>main</code> takes the command-line arguments, using the first as the path when given; and prints a summary line first.</p>
 <example name="book-02-words"/>
-<p>Some notes on the new parts:</p>
+<p>New parts:</p>
 <ul>
-  <li><code>void main(ReadOnlySpan&lt;string&gt; args)</code> receives the arguments after the program name. <code>ReadOnlySpan&lt;string&gt;</code> is a read-only view of a run of strings. It has a <code>length</code> and you index it with <code>args[0]</code>.</li>
-  <li>The function <code>countWords</code> has no <code>uses</code> clause, because it is private to the file. A function marked <code>public</code> must declare when it allocates memory, so a public version of <code>countWords</code> would need <code>uses alloc</code>. Even a public function that only makes an empty map is refused without it:</li>
+  <li><code>void main(ReadOnlySpan&lt;string&gt; args)</code> receives the arguments after the program name; <code>ReadOnlySpan&lt;string&gt;</code> is a read-only view of strings, with a <code>length</code>, indexed as <code>args[0]</code>.</li>
+  <li><code>countWords</code> has no <code>uses</code> clause, being private to the file. A <code>public</code> function must declare when it allocates memory, so a public <code>countWords</code> would need <code>uses alloc</code>; even one making an empty map is refused:</li>
 </ul>
 <figure class="diag">
 <pre><span class="err">error BYN6002:</span> `emptyCounts` uses `alloc` but does not declare it
@@ -138,55 +138,55 @@ template: docs
 <figcaption>Real output from the compiler (<code>bayan check publicalloc.byn</code>). The path is shortened to <code>publicalloc.byn</code>.</figcaption>
 </figure>
 <p><a href="book-14-effects.html">Chapter 14</a> explains effects.</p>
-<p>Run it on a file of your own:</p>
+<p>Run it on your file:</p>
 <pre><code>bayan run book-02-words.byn -- notes.txt</code></pre>
-<p>If the file is missing, the <code>try</code> in <code>main</code> passes an <code>IoError</code> out of the program. The program prints a message and exits with status 1:</p>
+<p>If the file is missing, <code>main</code>'s <code>try</code> passes an <code>IoError</code> out of the program, which prints a message and exits with status 1:</p>
 <pre><code>error: The file does not exist.</code></pre>
 
 <h3 id="as-a-project">As a project</h3>
-<p>To keep it, make a project (<a href="book-01-start.html#projects">chapter 1</a>), and paste the program into <code>src/app/main.byn</code>. It reads a file, so add the file-system capability to <code>package.byn</code> as chapter 1 showed:</p>
+<p>To keep it, make a project (<a href="book-01-start.html#projects">chapter 1</a>) and paste the program into <code>src/app/main.byn</code>. It reads a file, so add the file-system capability to <code>package.byn</code> as chapter 1 showed:</p>
 <pre><code class="byn">capabilities: [.fs],</code></pre>
-<p>Then <code>bayan run</code> runs it, and <code>bayan run -- notes.txt</code> passes the file name through.</p>
+<p>Then <code>bayan run</code> runs it; <code>bayan run -- notes.txt</code> passes the name through.</p>
 
 <h2 id="try-next">Make it yours</h2>
-<p>Each of these needs only what you have already seen:</p>
+<p>Each needs only what you have seen:</p>
 <ul>
-  <li>Print only the top 3 words. Use a loop over <code>0..3</code> and index <code>entries[i]</code>. What happens when the file has fewer than three words? Fix it with <code>min</code>-style logic of your own.</li>
+  <li>Print only the top 3 words: loop over <code>0..3</code>, indexing <code>entries[i]</code>. What if there are fewer than three? Fix it with <code>min</code>-style logic of your own.</li>
   <li>Strip more punctuation: <code>;</code>, <code>:</code>, quotes.</li>
-  <li>Count lines too, using the loop from step 1.</li>
-  <li>Count characters instead of words: loop over <code>for ch in text</code>.</li>
+  <li>Count lines too, using step 1's loop.</li>
+  <li>Count characters instead of words: <code>for ch in text</code>.</li>
 </ul>
 
 <h2 id="quiz">Check your understanding</h2>
 <example name="book-02-q1" output="no"/>
 <details class="quiz">
   <summary>What does this program print?</summary>
-  <p>It prints:</p>
+  <p>Prints:</p>
 <pre><code>b 3
 a 2
 c 1</code></pre>
-  <p>The map keeps the order in which keys first appeared: <code>b</code>, then <code>a</code>, then <code>c</code>. It does not sort by key or by count. A common wrong answer is <code>a 2</code> first, which would be right for a sorted map. Bayan's <code>Map</code> is not one.</p>
+  <p>The map keeps first-appearance order (<code>b</code>, <code>a</code>, <code>c</code>), not sorting by key or count. A common wrong answer, <code>a 2</code> first, suits a sorted map; Bayan's <code>Map</code> is not one.</p>
 </details>
 <details class="quiz">
-  <summary>In <code>counts[word] = (counts.tryGet(at: word) ?? 0) + 1</code>, what does <code>?? 0</code> do, and what would happen to a word you had not seen before without it?</summary>
-  <p><code>tryGet</code> returns <code>i32?</code>. <code>??</code> picks the right side when the left is <code>null</code>, so a new word starts from 0. Without <code>?? 0</code> the value is a number that might be missing, and you cannot add <code>1</code> to that. Reading with <code>counts[word]</code> instead does compile, but it panics on the first new word, because reading an absent key is a panic. <code>tryGet</code> is how you ask "is it there?" without stopping the program.</p>
+  <summary>In <code>counts[word] = (counts.tryGet(at: word) ?? 0) + 1</code>, what does <code>?? 0</code> do, and what happens to an unseen word without it?</summary>
+  <p><code>tryGet</code> returns <code>i32?</code>; <code>??</code> picks the right side when the left is <code>null</code>, so a new word starts from 0. Without <code>?? 0</code> the value might be missing, and <code>1</code> cannot be added to that. <code>counts[word]</code> compiles but panics on the first new word: absent keys panic. <code>tryGet</code> asks "is it there?" without stopping the program.</p>
 </details>
 <example name="book-02-q2" output="no"/>
 <details class="quiz">
   <summary>What does this line print?</summary>
-  <p>It prints:</p>
+  <p>Prints:</p>
 <pre><code>true true true false</code></pre>
-  <p>Strings compare by their bytes, not by dictionary order. <code>"fig" &lt; "pear"</code> is true because <code>f</code> comes before <code>p</code>. <code>"Yusuf" &lt; "apple"</code> is true because a capital letter has a lower byte value than any lowercase letter. <code>"a" &lt; "ab"</code> is true because a prefix is smaller than the longer string. <code>"b" &lt; "ab"</code> is false because <code>b</code> is greater than <code>a</code>. This is why step 2 lowercases every word before it is counted.</p>
+  <p>Strings compare by bytes, not dictionary order: <code>"fig" &lt; "pear"</code> because <code>f</code> precedes <code>p</code>; <code>"Yusuf" &lt; "apple"</code> because a capital has a lower byte than lowercase; <code>"a" &lt; "ab"</code> because a prefix is smaller; <code>"b" &lt; "ab"</code> is false because <code>b</code> is greater than <code>a</code>. So step 2 lowercases every word before counting.</p>
 </details>
 <details class="quiz">
   <summary>You delete <code>fails IoError</code> from <code>main</code> but leave the <code>try</code> calls. What does the compiler do?</summary>
-  <p>It refuses to build the program (<code>BYN2604</code>): <code>main</code> cannot fail, so it cannot pass on an <code>IoError</code>. The help line offers two fixes: put <code>fails IoError</code> back, or replace <code>try</code> with <code>catch</code> and handle the error in place. It does not silently ignore the error, and it does not turn it into a crash.</p>
+  <p>It refuses to build (<code>BYN2604</code>): <code>main</code> cannot fail, so it cannot pass on an <code>IoError</code>. The help line offers two fixes: restore <code>fails IoError</code>, or <code>catch</code> the error in place. It neither ignores the error silently nor turns it into a crash.</p>
 </details>
 <details class="quiz">
   <summary>Why does <code>sortEntries</code> take <code>ref List&lt;Entry&gt;</code> and not <code>List&lt;Entry&gt;</code>?</summary>
-  <p>A parameter without <code>ref</code> is read-only: the function cannot change it. <code>sortEntries</code> swaps elements, so it must change the caller's list, and <code>ref</code> says so in the signature and at the call (<code>sortEntries(ref entries)</code>). Without <code>ref</code> the function would only get a read-only view, and the compiler would reject the swaps. The marker at the call tells the reader of <code>main</code> that <code>entries</code> may change there.</p>
+  <p>A parameter without <code>ref</code> is read-only: the function cannot change it. <code>sortEntries</code> swaps elements, so it needs <code>ref</code> in the signature and at the call; without it the compiler rejects the swaps. The call marker tells <code>main</code>'s reader that <code>entries</code> may change.</p>
 </details>
 
 <div class="next-box">
-  <p>Next: <a href="book-03-basics.html">3. Values, types and control flow</a> goes back over the pieces this project used (<code>let</code> and <code>var</code>, numbers, strings, <code>if</code>, loops) one at a time.</p>
+  <p>Next: <a href="book-03-basics.html">3. Values, types and control flow</a> covers this project's pieces (<code>let</code> and <code>var</code>, numbers, strings, <code>if</code>, loops), one at a time.</p>
 </div>

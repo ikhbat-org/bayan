@@ -3,18 +3,16 @@ nav: Learn
 order: 500
 template: docs
 ---
-<p class="lede">A struct groups named values into one type. You give it fields, methods and a way to print itself. This chapter builds a few small structs and shows what copying, changing and printing them looks like.</p>
+<p class="lede">A struct groups named values into one type, with fields, methods and printing.</p>
 
 <h2 id="struct">Fields and values</h2>
 <example name="book-05-point"/>
 <ul>
-  <li><code>struct Point { i32 x  i32 y }</code> declares a type with two fields, type first, one per line.</li>
-  <li><code>Point { x: 3, y: 4 }</code> makes a value. Every field is named in the construction.</li>
-  <li>A struct is a value. <code>var q = p</code> makes a copy, so changing <code>q.x</code> leaves <code>p</code> alone: the output shows <code>p.x is 3, q.x is 10</code>.</li>
-  <li><code>==</code> compares all fields. <code>p == Point { x: 3, y: 4 }</code> is true.</li>
-  <li><code>{p, as: .debug}</code> prints every field with its name, which is what you want while you are working.</li>
+  <li><code>struct Point { i32 x  i32 y }</code> declares two fields, type first, one per line; <code>Point { x: 3, y: 4 }</code> makes a value, naming each field.</li>
+  <li>A struct is a value: <code>var q = p</code> copies, so changing <code>q.x</code> leaves <code>p</code> alone.</li>
+  <li><code>==</code> compares all fields (<code>p == Point { x: 3, y: 4 }</code> is true), and <code>{p, as: .debug}</code> prints them with their names.</li>
 </ul>
-<p>Leave out a field and the compiler names it:</p>
+<p>A field with a default (<code>i32 count = 0</code>, below) may be left out; without one the compiler names it:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2109:</span> `Point` needs a value for `y`
   <span class="gut">--&gt;</span> missingfield.byn:6:9
@@ -28,17 +26,15 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2109</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check missingfield.byn</code>). The path is shortened to <code>missingfield.byn</code>.</figcaption>
 </figure>
-<p>A field can have a default (<code>i32 count = 0</code>, below), and then it may be left out.</p>
 
 <h2 id="methods">Methods</h2>
 <example name="book-05-methods"/>
 <ul>
-  <li>A method is a function declared inside the struct. <code>string describe() =&gt; $"{name}: {count}"</code> reads the fields directly.</li>
-  <li>A field-like member with no parentheses, <code>bool isZero =&gt; count == 0</code>, is called without them: <code>hits.isZero</code>.</li>
-  <li>A method is read-only by default. One that changes the value says so with <code>ref this</code> as its first parameter: <code>void add(ref this, i32 amount = 1)</code>. At the call it is plain: <code>hits.add()</code>. Other parameters work as in <a href="book-04-functions.html">chapter 4</a>: here <code>amount</code> has a default and is passed by name.</li>
-  <li><code>static</code> declares a function on the type itself, called as <code>Counter.named("hits")</code>. Use it to build values.</li>
+  <li>A method is a function in the struct: <code>string describe() =&gt; $"{name}: {count}"</code> reads the fields directly. A field-like member with no parentheses, <code>bool isZero =&gt; count == 0</code>, is called plainly: <code>hits.isZero</code>.</li>
+  <li>Methods are read-only by default; a changing one takes <code>ref this</code> first: <code>void add(ref this, i32 amount = 1)</code>, called as <code>hits.add()</code>. Other parameters work as in <a href="book-04-functions.html">chapter 4</a>: <code>amount</code> has a default and is passed by name.</li>
+  <li><code>static</code> declares a function on the type itself, called as <code>Counter.named("hits")</code>, to build values.</li>
 </ul>
-<p>If you forget <code>ref this</code>, the compiler finds the line that changes the field:</p>
+<p>Forget <code>ref this</code> and the compiler finds the changing line, and warns the example's <code>var</code> is never reassigned:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2115:</span> `add` modifies `this` but is not declared `ref this`
   <span class="gut">--&gt;</span> noreflhis.byn:5:9
@@ -64,8 +60,8 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2115</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check noreflhis.byn</code>). The path is shortened to <code>noreflhis.byn</code>.</figcaption>
 </figure>
-<p>It also warns that the <code>var</code> in the program is never reassigned. That is a side effect of the example: the fix to the method comes first.</p>
-<p>A <code>ref this</code> method cannot be called on a <code>let</code>:</p>
+<p>The warning is a side effect of the example; fix the method first.</p>
+<p>A <code>ref this</code> method cannot be called on a <code>let</code>; the fix is <code>var</code>:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2104:</span> `c` is immutable
   <span class="gut">--&gt;</span> letref.byn:10:1
@@ -81,14 +77,13 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2104</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check letref.byn</code>). The path is shortened to <code>letref.byn</code>.</figcaption>
 </figure>
-<p>The label under <code>c</code> says why: <code>add</code> modifies it. The fix is <code>var</code>.</p>
 
 <h2 id="with">Copy and update with <code>with</code></h2>
 <example name="book-05-with"/>
-<p><code>aisha with { age: 37 }</code> makes a new <code>User</code> with the same fields except the ones you list. <code>aisha</code> itself is unchanged, which is why this works on a <code>let</code>. Use it when you would rather build a new value than change one in place.</p>
+<p><code>aisha with { age: 37 }</code> copies <code>aisha</code> with the listed fields replaced; <code>aisha</code> is unchanged, so it works on a <code>let</code> and builds rather than changes.</p>
 
 <h2 id="format">Printing your own types</h2>
-<p>A struct does not print by itself. Interpolating one is refused:</p>
+<p>A struct does not print itself:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2225:</span> `Point` cannot be formatted
   <span class="gut">--&gt;</span> formatstruct.byn:7:10
@@ -102,16 +97,16 @@ template: docs
 <span class="gut">  explain: bayan explain BYN2225</span></pre>
 <figcaption>Real output from the compiler (<code>bayan check formatstruct.byn</code>). The path is shortened to <code>formatstruct.byn</code>.</figcaption>
 </figure>
-<p>The help gives both options. <code>{p, as: .debug}</code> prints the fields. For output users see, give the type a <code>formatInto</code> method:</p>
+<p>The help gives both: <code>{p, as: .debug}</code>, or <code>formatInto</code> for output users see:</p>
 <example name="book-05-format"/>
 <ul>
-  <li><code>formatInto(ref StrBuf sb)</code> appends the text to a string buffer. Inside, you can interpolate again: <code>width: 2, fill: '0'</code> pads the cents to two digits with zeros.</li>
-  <li>Once <code>Money</code> has it, <code>{tea.price}</code> prints <code>$4.50</code>.</li>
-  <li>The debug form still shows the structure: <code>Line { item: "tea", price: Money { cents: 450 }, qty: 2 }</code>. It uses the field names, not your <code>formatInto</code>.</li>
+  <li><code>formatInto(ref StrBuf sb)</code> appends to a string buffer; interpolate inside, and <code>width: 2, fill: '0'</code> pads the cents with zeros.</li>
+  <li>Then <code>{tea.price}</code> prints <code>$4.50</code>.</li>
+  <li>The debug form shows field names instead: <code>Line { item: "tea", price: Money { cents: 450 }, qty: 2 }</code>.</li>
 </ul>
 
 <h2 id="extensions">Methods on types you do not own</h2>
-<p>You cannot add a method to <code>string</code> or <code>i64</code> yet. The specification has <code>extension</code> declarations for this, and the compiler refuses them:</p>
+<p>You cannot add a method to <code>string</code> or <code>i64</code> yet: the specification has <code>extension</code>, which the compiler refuses:</p>
 <figure class="diag">
 <pre><span class="err">error BYN2022:</span> `extension` declarations is not supported in v0.1
   <span class="gut">--&gt;</span> extension.byn:1:11
@@ -135,46 +130,43 @@ template: docs
 }
 
 "  ".isBlank   // true</code></pre>
-<p>For now, write a plain function that takes the value:</p>
+<p>For now, write a plain function:</p>
 <example name="book-05-extension"/>
 
 <h2 id="recap">What you have now</h2>
 <ul>
-  <li>Structs hold named fields. Values are copied; <code>==</code> compares fields.</li>
-  <li>Methods read by default; <code>ref this</code> marks the ones that change the value, and they need a <code>var</code>.</li>
-  <li><code>with</code> makes a changed copy.</li>
-  <li><code>formatInto</code> controls printing; <code>as: .debug</code> prints fields.</li>
+  <li>Structs hold named fields; values copy and <code>==</code> compares fields.</li>
+  <li>Read-only by default; <code>ref this</code> marks changing methods, which need a <code>var</code>.</li>
+  <li><code>with</code> makes a changed copy; <code>formatInto</code> controls printing, and <code>as: .debug</code> prints fields.</li>
 </ul>
 
 <h2 id="quiz">Check your understanding</h2>
 <example name="book-05-q1" output="no"/>
 <details class="quiz">
   <summary>What does this program print?</summary>
-  <p>It prints:</p>
 <pre><code>1 2 3</code></pre>
-  <p><code>b</code> is a copy of <code>a</code>, so changing it leaves <code>a.w</code> at 1. <code>c</code> is made from <code>b</code> with <code>w</code> replaced by 3, and <code>b</code> stays 2. If you answered <code>2 2 3</code> you treated <code>b</code> as another name for <code>a</code>.</p>
+  <p><code>b</code> copies <code>a</code>, so <code>a.w</code> stays 1; <code>c</code> replaces <code>b.w</code> and <code>b</code> stays 2. <code>2 2 3</code> treats <code>b</code> as another name for <code>a</code>.</p>
 </details>
 <example name="book-05-q2" output="no"/>
 <details class="quiz">
   <summary>What does this program print?</summary>
-  <p>It prints:</p>
 <pre><code>5
 Tally { n: 5 }</code></pre>
-  <p><code>add()</code> uses the default 1 and <code>add(amount: 4)</code> adds 4, so <code>n</code> is 5. The second line is the debug form. A line such as <code>Tally { n: 1 }</code> would mean only the first call took effect.</p>
+  <p><code>add()</code> uses the default 1, <code>add(amount: 4)</code> adds 4, so <code>n</code> is 5. The second line is the debug form; <code>Tally { n: 1 }</code> means only the first call ran.</p>
 </details>
 <details class="quiz">
   <summary>A method does <code>count += 1</code> but its signature is <code>void add()</code>. What happens?</summary>
-  <p>The compiler refuses (<code>BYN2115</code>) and points at the line that changes the field. The help adds <code>ref this</code>. It does not compile and then fail later, and the method does not quietly work on a copy.</p>
+  <p>It is a compile error (<code>BYN2115</code>): the compiler points at the changing line and the help adds <code>ref this</code>. It does not quietly work on a copy.</p>
 </details>
 <details class="quiz">
-  <summary>You write <code>let c = Counter {}</code> then <code>c.add()</code>, where <code>add</code> is a <code>ref this</code> method. Why is it an error?</summary>
-  <p>A <code>let</code> value cannot change, and <code>add</code> changes it (<code>BYN2104</code>). Declare <code>var c</code>. The method is not wrong, and neither is the call; the declaration is what has to change.</p>
+  <summary>Why is <code>c.add()</code> an error after <code>let c = Counter {}</code>, with <code>add</code> a <code>ref this</code> method?</summary>
+  <p>A <code>let</code> cannot change and <code>add</code> changes it (<code>BYN2104</code>). Declare <code>var c</code>: the method and call are right, the declaration is not.</p>
 </details>
 <details class="quiz">
   <summary>Why does <code>print($"{p}")</code> fail for a struct <code>Point</code>?</summary>
-  <p>The compiler does not guess how your type should look (<code>BYN2225</code>). Add <code>formatInto(ref StrBuf)</code> to the struct, or print with <code>{p, as: .debug}</code>.</p>
+  <p>The compiler does not guess your type's shape (<code>BYN2225</code>). Add <code>formatInto(ref StrBuf)</code>, or print with <code>{p, as: .debug}</code>.</p>
 </details>
 
 <div class="next-box">
-  <p>Next: <a href="book-06-unions.html">6. Unions, enums and patterns</a> covers types whose value is one of several shapes.</p>
+  <p>Next: <a href="book-06-unions.html">6. Unions, enums and patterns</a> covers one-of-several types.</p>
 </div>
