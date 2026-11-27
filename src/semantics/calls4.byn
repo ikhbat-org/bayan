@@ -641,6 +641,10 @@ string? t39Invariant(ref Ctx c, for StructId s) {
                 return "is `@sealed`" if t11Text(in c, from: file, at: a.name) == "sealed"
             }
             return null
+        case .typeAliasDecl(let a):
+            // A `type distinct` has no states and no `@sealed`; its `requires` guard `value` like a struct's.
+            return "has `requires`" if a.value.requiresClauses.length > 0
+            return null
         default:
             panic("internal error: a struct without a struct declaration")
     }

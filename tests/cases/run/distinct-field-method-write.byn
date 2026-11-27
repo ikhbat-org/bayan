@@ -1,0 +1,7 @@
+type distinct Ids = List<i64>
+
+void main() {
+    var d = Ids(List<i64>())
+    d.value.append(2)
+    print($"{d.value.length}")
+}

@@ -1,0 +1,13 @@
+type distinct Percent = i32 requires it in 0..=100
+
+void reset(ref Percent p) {
+    p.value = 200
+}
+
+void bump(ref i32 v) {
+    v = 300
+}
+
+void raise(ref Percent p) {
+    bump(ref p.value)
+}
