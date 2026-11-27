@@ -12,7 +12,7 @@ template: docs
 f, err := strconv.ParseFloat("2.5e-3", 64)</code></pre>
 
 <h2 id="json-encode">Serialize a value to JSON</h2>
-<p><strong>Planned.</strong> The spec derives JSON with <code>@derive(Json)</code> on a struct (§5.3, §7.9), and names <code>Json.encode</code>, rejecting non-finite floats as <code>JsonError.nonFinite</code> (§6.6). The compiler has no derivation: <code>import std.json</code> encodes a <code>JsonValue</code> tree but derives nothing from a struct.</p>
+<p><strong>Planned.</strong> The spec derives JSON with <code>@derive(Json)</code> on a struct (§5.3, §7.9), and names <code>Json.encode</code>, rejecting non-finite floats as <code>JsonError.nonFinite</code> (§6.6). The compiler has no derivation: <code>import std.json</code> encodes a <code>JsonValue</code> tree but derives nothing from a struct. The spec's declaration:</p>
 <pre><code class="byn">@derive(Json)
 struct SignupForm {
     string username

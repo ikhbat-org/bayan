@@ -14,7 +14,7 @@ template: docs
 <h2 id="map-filter-fold">Map, filter and fold</h2>
 <p><strong>Runnable today as a loop.</strong> Accumulate into a <code>var</code>, appending to a new list.</p>
 <example name="cookbook-fold"/>
-<p><strong>Planned.</strong> The spec lists lazy <code>where</code>, <code>select</code> and <code>sumBy</code> (lambda with implicit <code>it</code>, §16), marked "Not in v0.1". The compiler reserves <code>select</code>, not list <code>where</code>.</p>
+<p><strong>Planned.</strong> The spec lists lazy <code>where</code>, <code>select</code> and <code>sumBy</code> (lambda with implicit <code>it</code>, §16), marked "Not in v0.1". The compiler reserves <code>select</code> and has no list <code>where</code> yet. The spec's form:</p>
 <pre><code class="byn">let valid = events.where(it.isValid)</code></pre>
 <pre><code class="other" data-lang="Python">total = sum(x for x in xs if x % 2 == 0)</code></pre>
 
