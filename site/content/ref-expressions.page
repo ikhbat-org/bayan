@@ -6,7 +6,7 @@ template: docs
 <p>Covers operators, conversions, target-typed literals, copy-and-update, patterns, interpolation, equality, expressions' error handling and <code>except</code>. Rules are compiler-checked; planned features are marked.</p>
 
 <h2 id="operators">Operators</h2>
-<p>Operators and precedence are familiar; Bayan adds these:</p>
+<p>Operators and precedence are the ones C programmers know; Bayan adds these:</p>
 <div class="tablewrap"><table>
   <thead><tr><th scope="col">Operator</th><th scope="col">Meaning</th></tr></thead>
   <tbody>

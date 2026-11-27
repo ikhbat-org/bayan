@@ -38,7 +38,7 @@ template: docs
 <note>Planned: <code>x.truncate&lt;u8&gt;()</code>, <code>bitcast&lt;T&gt;(x)</code> and <code>checked(expr)</code> are specified, not in the compiler.</note>
 
 <h2 id="strings">Strings</h2>
-<p>A <code>string</code> is immutable UTF-8 and a view of bytes: a literal, a slice, or text it owns.</p>
+<p>A <code>string</code> is always valid UTF-8, immutable, and a view of bytes: a literal, a slice, or text it owns.</p>
 <ul>
   <li><code>s.length</code> is the byte count and costs nothing; <code>s.runeCount</code> reads the whole string to count runes.</li>
   <li>Offsets are bytes: <code>s[a..b]</code> slices by bytes and panics if an end falls inside a character.</li>
@@ -381,7 +381,7 @@ let f: i32 -&gt; bool = isBig</code></pre>
 <note>Planned: function-typed fields and returns, generic aliases (<code>type Predicate&lt;T&gt; = T -&gt; bool</code>), typed lambda parameters, <code>move () =&gt; …</code> and <code>dyn (A -&gt; B)</code> are not in the compiler, nor collection methods that take a lambda (<code>where</code>, <code>select</code>, <code>sumBy</code>).</note>
 
 <h2 id="states">Typestate</h2>
-<p>A struct can declare the states it passes through; the state is part of its type, so wrong-state use is a compile error at no run-time cost, and layout stays a tag plus payload.</p>
+<p>A struct can declare the states it passes through; the state is part of its type, so wrong-state use is a compile error at no run-time cost, and its layout is the plain struct's: a tag plus a payload. States do not exist at run time.</p>
 <ul>
   <li>States sit in one <code>states { … }</code> block after the fields, one per line with an optional named payload; at most one block per struct.</li>
   <li><code>Order.paid</code> is an <code>Order</code> known to be <code>paid</code>, valid anywhere a type is; <code>Order</code> alone means any state.</li>
