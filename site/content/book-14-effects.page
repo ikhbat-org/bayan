@@ -115,7 +115,7 @@ void main() uses console {
 provide allocator: arena {
     // every `uses alloc` call in here allocates from the arena
 }</code></pre>
-<p>Only allocator handlers work in this release: <code>provide alloc</code> and <code>provide allocator: …</code>. A handler for <code>console</code>, <code>fs</code>, <code>clock</code> or <code>net</code> is rejected with BYN2022, "not supported in v0.1"; an unknown name is BYN6007.</p>
+<p>Only allocator handlers work in this release: <code>provide alloc</code> and <code>provide allocator: …</code>. A handler for <code>console</code>, <code>fs</code>, <code>clock</code> or <code>net</code> is rejected with BYN2022, "handler is not supported in v0.1"; an unknown name is BYN6007.</p>
 <note>Planned: not in the compiler yet. Handlers for the other effects, so a test could <code>provide clock: fixedClock { … }</code> against a fake clock or file system; <code>context</code> values, carrying a setting such as a logger down the call chain without a parameter; and <code>suspend</code>, accepted in <code>uses</code> but unable to suspend yet (see <a href="book-17-concurrency.html">chapter 17</a>).</note>
 <pre><code class="byn">// planned
 provide clock: Clock.fixed(1_000) {

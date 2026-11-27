@@ -171,6 +171,14 @@ template: docs
 <pre><code class="byn">let _ = list.removeLast()</code></pre>
 <p>Some calls, such as <code>removeLast()</code>, must have their result bound or used; otherwise the compiler reports <code>BYN3201</code>. Help text sometimes suggests <code>_ = f()</code>; that form does not work yet, so write <code>let _ = f()</code>.</p>
 
+<h2 id="recap">What you have now</h2>
+<ul>
+  <li>Type first: <code>i32 square(i32 x)</code>; <code>=&gt;</code> for one-expression bodies.</li>
+  <li>One unlabeled parameter; every other required parameter has a particle.</li>
+  <li>Defaults are passed by name; <code>ref</code> is written at the declaration and at the call.</li>
+  <li>Parameters are read-only unless <code>ref</code>.</li>
+  <li>Overloads differ by particle set.</li>
+</ul>
 <p>The full rules are in <a href="parameters.html">Parameters and arguments</a>.</p>
 
 <h2 id="quiz">Check your understanding</h2>

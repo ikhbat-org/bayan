@@ -9,7 +9,7 @@ template: docs
 <example name="book-06-union"/>
 <ul>
   <li>Each line is a case: <code>circle(f64 radius)</code> carries a radius, <code>rect</code> two numbers, <code>point</code> nothing.</li>
-  <li>A leading dot means the member of the expected type; otherwise write the type with field names: <code>Shape.rect(width: 10.0, height: 2.0)</code>.</li>
+  <li>A leading dot means the member of the type expected here, where the type is known: <code>.circle(2.0)</code>. Otherwise write the type with field names: <code>Shape.rect(width: 10.0, height: 2.0)</code>.</li>
   <li>A <code>switch</code> expression takes it apart; <code>.circle(let r)</code> binds the radius to <code>r</code>.</li>
   <li>Printing shows the case and its fields; whole floats drop the decimal point, so <code>12.0</code> shows as <code>12</code>.</li>
   <li>Case names are camelCase; only types are PascalCase:</li>
@@ -187,13 +187,13 @@ template: docs
 <details class="quiz">
   <summary>What does this program print?</summary>
 <pre><code>7 3</code></pre>
-  <p><code>x</code> is null, so <code>??</code> uses 7; <code>y</code> holds 3, so the fallback is ignored.</p>
+  <p><code>x</code> is null, so <code>??</code> uses 7; <code>y</code> holds 3, so the fallback is ignored. An answer of <code>7 7</code> assumes <code>??</code> always picks the right side.</p>
 </details>
 <example name="book-06-q3" output="no"/>
 <details class="quiz">
   <summary>What does this program print?</summary>
 <pre><code>2 mid</code></pre>
-  <p><code>ordinal</code> counts from 0: <code>low</code> 0, <code>mid</code> 1, <code>high</code> 2. An enum value prints as its name.</p>
+  <p><code>ordinal</code> counts from 0: <code>low</code> 0, <code>mid</code> 1, <code>high</code> 2. An enum value prints as its name. The answer <code>3 mid</code> counts from 1.</p>
 </details>
 <details class="quiz">
   <summary>You add a case <code>triangle</code> to a union. What happens to a <code>switch</code> over it with no <code>_</code> arm?</summary>

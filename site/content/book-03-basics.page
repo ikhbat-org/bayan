@@ -237,6 +237,16 @@ template: docs
 </ul>
 <p>Chapter 6 uses the same <code>switch</code> to take apart unions and enums, where leaving out a case is a compile error.</p>
 
+<h2 id="recap">What you have now</h2>
+<ul>
+  <li><code>let</code> by default, <code>var</code> when it changes, <code>const</code> for compile-time values.</li>
+  <li>Numbers have sizes; convert with the type name, and <code>T.tryFrom</code> checks.</li>
+  <li>Strings are UTF-8: interpolate, slice by byte offsets, iterate by rune.</li>
+  <li>Conditions are <code>bool</code>; single statements can end in <code>if</code>/<code>unless</code>.</li>
+  <li>Loops: <code>for</code> over ranges and collections, <code>while</code>, <code>do … while</code>, labels.</li>
+  <li><code>switch</code> as an expression or a statement.</li>
+</ul>
+
 <h2 id="quiz">Check your understanding</h2>
 <example name="book-03-q1" output="no"/>
 <details class="quiz">

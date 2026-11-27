@@ -136,7 +136,7 @@ test "flags" (i32 n, bool ok) {
 <pre><code class="other" data-lang="bayan test">running 2 tests in 1 module
 
 ◆ 2 passed · 0.06s</code></pre>
-<p>In a project (chapter 11), <code>bayan test</code> with no path runs every module's tests: sibling test files in <code>src/</code> and the files in <code>tests/</code>, which join the entry module and need their own imports. A fresh <code>bayan new</code> project passes with no edits.</p>
+<p>In a project (chapter 11), <code>bayan test</code> with no path runs every module's tests: sibling test files in <code>src/</code> and the files in <code>tests/</code>, which join the entry module and need their own imports. A project made by <code>bayan new</code> already has one passing test, so a fresh project passes with no edits.</p>
 <note>The specification says tests in <code>tests/</code> see only a module's public API and tests beside the code can read private members; today a sibling test cannot read one either (BYN2005). Test through the public methods.</note>
 
 <h2 id="running">Running and filtering</h2>
@@ -226,7 +226,7 @@ grade.byn:7:41 literal `0` -&gt; `1`: survived
 …
 grade.byn:10:28 literal `80` -&gt; `79`: not reached
 11 killed, 6 survived, 0 timeout, 8 not reached, 0 marked, 0 not emitted</code></pre>
-<p>The survivor at <code>score &lt; 0</code> to <code>score &lt;= 0</code> says no test tries a score of 0; a boundary test would kill it. Each line gives the position, old and new text, and result.</p>
+<p>The survivor at <code>score &lt; 0</code> to <code>score &lt;= 0</code> says no test tries a score of 0; a boundary test would kill it. Each line gives the position, the kind of change, the old and new text, and the result.</p>
 
 <h2 id="planned">Planned test features</h2>
 <note>Planned: not in the compiler yet. Each fragment below comes from the specification (§20). The compiler rejects them today: <code>@pairwise</code> is "unknown attribute", and <code>property</code>, <code>bench</code> and <code>snapshot</code> are not recognised.</note>

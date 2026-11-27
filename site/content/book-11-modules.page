@@ -200,7 +200,11 @@ limit 10</code></pre>
 ◆ 2 passed · 0.69s</code></pre>
 
 <h2 id="build">Build and the project layout</h2>
-<p><code>bayan build</code> in the project root compiles the app into <code>out/&lt;mode&gt;/&lt;target&gt;/</code>: the program <code>tidy</code>, its test program <code>tidy-test</code>, and the generated C under <code>c/</code>. Test results land in <code>out/test/results.json</code>.</p>
+<p><code>bayan build</code> in the project root compiles the app. It writes to <code>out/&lt;mode&gt;/&lt;target&gt;/</code>:</p>
+<pre><code>out/safe/macos-arm64/tidy         the program
+out/safe/macos-arm64/tidy-test    the test program
+out/safe/macos-arm64/c/           the C that was generated
+out/test/results.json             the last bayan test results</code></pre>
 <p><code>out/</code> is disposable and ignored by git; <code>bayan clean</code> removes it. Compiled programs live in one cache per machine, so a second build of the same code, even in another checkout, compiles nothing.</p>
 <p>A <em>library</em> has no program. <code>bayan new stock --lib</code> puts its code in <code>src/stock/stock.byn</code>, making <code>stock</code> the imported module, and its tests in <code>tests/stock.test.byn</code>. Building or running one is refused:</p>
 <pre><code>bayan: `local/stock` is a library, so there is no program to run; `bayan test` runs its tests</code></pre>
