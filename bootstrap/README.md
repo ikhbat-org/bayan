@@ -12,7 +12,9 @@ Build from the repository root with a C11 compiler, no .NET or Zig (flags: the `
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm
 ```
 
-It builds `a.out`; `./a.out version` prints `bayan <version> (selfhost)`.
+On Windows use `-lshell32` instead of `-lm`.
+
+The result is `a.out`; `./a.out version` prints `bayan <version> (selfhost)`.
 
 <!-- prose-check: off -->
 To regenerate the three files with no .NET (spec 019 R26), copy `runtime/bayan-rt.h` and `runtime/bayan-rt.c` here, run `scripts/ci/bootstrap-check.sh`; it fails on a file stale against `src/`, `runtime/` or the previous commit's bootstrap. When it names `bootstrap/bayan.c`, copy the kept C (stage 1 and its C stay in `tmp/bootstrap-check/`) and rerun:

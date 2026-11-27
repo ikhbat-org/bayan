@@ -90,7 +90,7 @@ created app `local/my-app` in `my-app`
 <tr><td><code>-o &lt;file&gt;</code></td><td>Write the executable to this file instead of the default place.</td></tr>
 <tr><td><code>--mode</code></td><td><code>debug</code>, <code>safe</code> (the default) or <code>fast</code>. Bounds checks and region checks run in every mode; the mode only changes optimization and debug information.</td></tr>
 <tr><td><code>--target</code></td><td>The platform to build for. See the list below.</td></tr>
-<tr><td><code>--emit-c</code></td><td>Keep the generated C next to the executable, in <code>c/</code>.</td></tr>
+<tr><td><code>--emit-c</code></td><td>Print the generated C to stdout instead of building.</td></tr>
 <tr><td><code>--coverage</code></td><td>Build with the counters <code>bayan test --coverage</code> inserts. The program behaves as the plain build. When <code>BAYAN_COVERAGE</code> is set to a prefix, it writes its counts at exit, a panic included, to <code>&lt;prefix&gt;.&lt;pid&gt;</code>; when it is unset or empty, it writes nothing. Not with <code>--emit-c</code>.</td></tr>
 <tr><td><code>--counters &lt;prefix&gt;</code></td><td>With <code>--coverage</code>: build nothing, add up every <code>&lt;prefix&gt;.*</code> counter file of the program's coverage build and print and write the coverage report as <code>bayan test --coverage</code> does, to <code>out/test/</code>.</td></tr>
 <tr><td><code>-v</code></td><td>Print the time each phase took and the output path.</td></tr>
@@ -212,7 +212,7 @@ print($"{a}")</code></pre>
 <h2 id="options">Options for every command</h2>
 <table>
 <tr><th>Option</th><th>Meaning</th></tr>
-<tr><td><code>--color auto|always|never</code></td><td>Colour on a terminal. <code>auto</code> turns it on unless the output is piped or <code>NO_COLOR</code> is set. <code>FORCE_COLOR</code> turns it on and <code>TERM=dumb</code> turns it off.</td></tr>
+<tr><td><code>--color auto|always|never</code></td><td>Colour on a terminal. <code>auto</code> currently means no colour unless <code>BAYAN_TERMINAL</code> is set; there is no terminal detection yet. <code>FORCE_COLOR</code> turns it on and <code>TERM=dumb</code> turns it off.</td></tr>
 <tr><td><code>--ascii</code></td><td>Use ASCII symbols instead of ◆ ✗ │. Also the default under <code>TERM=dumb</code> or a non-UTF-8 locale.</td></tr>
 </table>
 <p>For <code>check</code>, <code>types</code>, <code>build</code>, <code>run</code> and <code>test</code>:</p>

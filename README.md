@@ -66,15 +66,15 @@ A program starts at `void main()`; a file holding only `print("Salam, world!")` 
    `arch` is `x64` or `arm64`, and Windows uses `.zip`. Unpack it and put `bayan` on your `PATH`:
 
    ```sh
-   tar -xzf bayan-0.4.1-macos-arm64.tar.gz
-   cp bayan-0.4.1-macos-arm64/bayan ~/.local/bin/
+   tar -xzf bayan-<version>-macos-arm64.tar.gz
+   cp bayan-<version>-macos-arm64/bayan ~/.local/bin/
    ```
 
    On Windows, unzip and put `bayan.exe` on your `PATH`:
 
    ```powershell
-   Expand-Archive bayan-0.4.1-windows-x64.zip -DestinationPath .
-   $env:Path += ";$PWD\bayan-0.4.1-windows-x64"
+   Expand-Archive bayan-<version>-windows-x64.zip -DestinationPath .
+   $env:Path += ";$PWD\bayan-<version>-windows-x64"
    ```
 
 2. **Get a C compiler.** Bayān prefers [zig](https://ziglang.org) (`zig cc`), which also builds for other
@@ -173,7 +173,8 @@ listed there yet.
 | `bayan doctor` | Check the C compiler, zig, git and build cache, with a fix for each problem |
 | `bayan dist` | Build release binaries into `dist/<version>/`; `--target all` cross-compiles through zig |
 | `bayan mutate` | Run a command once per mutant site of a prebuilt `--mutate` binary |
-| `bayan audit` | List every `because` bypass and `unsafe` or `extern` declaration, with its reason |
+| `bayan fix` | Apply the fix of every style lint to `.byn` files or directories; does not format |
+| `bayan audit` | List every `because` bypass and every `unsafe` or `extern` declaration, with its reason |
 | `bayan clean`, `bayan cache stats` | Remove `out/` (and `dist/`, the cache on request); show the shared build cache |
 | `bayan lex`, `types`, `features --used <path>` | Tokens, inferred types and features a build used |
 
@@ -188,8 +189,11 @@ The standard library is compiled in, so no package manager is needed:
 | `Path` | File names and paths, for example `Path.fileName` |
 | `List`, `Map` | Growable collections that allocate from an allocator |
 | `StrBuf` | A string builder for loops |
-| `Arena` | Allocate many things, free them together |
-| `std.json` | A JSON reader and `Json` value type: `import std.json` |
+| `Arena` | Allocate many things, free them all together |
+| `std.json` | A JSON reader and a `Json` value type: `import std.json` |
+| `std.regex` | Regular expressions that run in linear time: `import std.regex` |
+| `std.encoding` | Base64: `import std.encoding` |
+| `std.fs`, `std.path` | Glob matching over files and paths |
 
 `std.time` and `std.db` are specified in [`docs/bayan-spec.md`](docs/bayan-spec.md) but not built yet.
 
@@ -477,13 +481,16 @@ Build the self-hosted `bayan` with any `bayan`, or with only a C compiler from `
 self-hosted compiler as plain C); see [`bootstrap/README.md`](bootstrap/README.md).
 
 ```sh
+bash scripts/bootstrap-build.sh                # prints the path of the built bayan (tmp/bootstrap-build/bayan-stage1)
 bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
-cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot
+cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot   # -lshell32 instead of -lm on Windows
 ./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
 ```
 
 `bash scripts/test.sh` runs the suite (golden cases, `test` blocks, CLI parity, script tests, runtime C
 tests); `--only <part>` runs one part.
+
+The compiler looks for a C compiler in this order: `BAYAN_CC`, then `zig cc`, then `cc`.
 
 Local builds go in `dist/` (gitignored); `scripts/dist.sh` writes `dist/<target>/<version>/` plus a
 per-target `latest/` that every build replaces, while `bayan dist` writes `dist/<version>/` and one
@@ -491,7 +498,7 @@ per-target `latest/` that every build replaces, while `bayan dist` writes `dist/
 
 ```sh
 scripts/dist.sh                                # this host: dist/macos-arm64/0.4.1/bayan
-scripts/dist.sh --from <publish-dir> --rid win-x64 --commit <sha>   # import a binary published on another OS
+scripts/dist.sh --rid linux-x64                # another target, cross-built through zig
 ```
 
 `--rid <rid>` cross-builds another target through zig; `--from` imports a binary built elsewhere.

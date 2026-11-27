@@ -281,6 +281,16 @@ parser.Parser t8Parser(string file, from in List<u8> bytes) uses alloc {
 /// `DiagnosticRenderer.RenderAll(diagnostics, includePath: true)` of the tree's errors: rendered against a `Ctx` holding `bytes` as file 0,
 /// named `file` as the C# `SourceText` names it.
 string t8RenderAll(string file, from in List<u8> bytes, for in List<T8Diagnostic> diagnostics) uses alloc {
+    return t8RenderAllBy(file, from: bytes, for: diagnostics, through: semantics.t26Symbols(ascii: false))
+}
+
+/// `t8RenderAll` in `symbols` (the C# `RenderAll(diagnostics, includePath: true, s_styleErr)` of CliApp.cs `Parse`).
+string t8RenderAllBy(
+    string file,
+    from List<u8> bytes,
+    for List<T8Diagnostic> diagnostics,
+    through semantics.T26Symbols symbols
+) uses alloc {
     let empty = List<u8>()
     var p = parser.Parser.create(lexer.lex(lexer.SourceText.create(file, from: move empty), by: lexer.Keywords.build()))
     let unit = parser.parseCompilationUnit(ref p)
@@ -314,7 +324,7 @@ string t8RenderAll(string file, from in List<u8> bytes, for in List<T8Diagnostic
         })
     }
     var omitted: i64 = 0
-    return semantics.renderAll(in c, from: in diags, by: true, until: 2147483647, to: ref omitted)
+    return semantics.renderAllBy(in c, from: in diags, by: true, until: 2147483647, to: ref omitted, through: symbols)
 }
 
 /// `DiagnosticRenderer.RenderAll(manifest.Diagnostics, includePath: true)` (Format.cs:72): the manifest's diagnostics, which have no file (Q565),

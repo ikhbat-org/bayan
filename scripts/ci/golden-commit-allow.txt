@@ -97,4 +97,4 @@ f7a58f6ffef7dce90b1d4d07197e09cf4df3c9fa  # 0.4.2 audit 040: chore(bootstrap): r
 cfdf2314f62340f9214c4060ccdc30474254abcd  # 0.4.2 audit 040: chore(worker): h2fix-emit: Waiting for the initial stage1 bu
 9523fad33b4abae43e5f56a658626d400130253f  # 0.4.2 audit 040: fix: regenerate bootstrap and record emit checksums for the 
 eafa3409e2f4c433b7eebbcc180b5178d7c2a822  # 0.4.2 audit 040: test: pin Span arguments from non-places (Q1289); review LOW
-14  # 0.4.2 audit 040: 
+c031c2e2cba484bcfaf9a6fc283267bea09a04d5  # 0.4.0 audit chunk 17: d17-code worker commit: lex --json/parse refusals, dist --target all wasm32 skip, with their regenerated cli goldens

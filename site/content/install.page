@@ -92,7 +92,7 @@ default inside a project), a script (a file starting with `#!`), or a file or di
 
 options for every command:
   --color auto|always|never
-                       color for terminals (auto: on unless piped or NO_COLOR is set;
+                       color for terminals (auto: currently no colour unless BAYAN_TERMINAL is set, no terminal detection yet;
                        FORCE_COLOR turns it on, TERM=dumb off)
   --ascii              use ASCII symbols instead of ◆ ✗ │ (also with TERM=dumb or a non-UTF-8 locale)
 
