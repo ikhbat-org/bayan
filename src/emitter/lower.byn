@@ -588,7 +588,7 @@ bool operands(
     for i in 0..n {
         let type = t2Type(in c, through: in l, for: values[i])
         let scalar = plainValue(ref c, for: type, at: 0)
-        let read = scalar ? rootLocal(c, for: values[i]) : -1
+        let read = scalar ? rootLocal(c, through: l, for: values[i]) : -1
         var moved = false
         for j in i + 1..n {
             if anyNode(in c, through: in l, for: values[j], by: .readsLocalMovedBy(values[i]))
@@ -629,8 +629,10 @@ union T2AnyTest {
     movesLocal(LocalId local)
     /// `x => x is BoundLocal r && Moves(mover, r.Local)` (`Operands`).
     readsLocalMovedBy(BExpr mover)
-    /// A call taking `local` (or a field of it) as a `ref`/`out` argument or as its `ref this` receiver (`Operands`).
+    /// A call or assignment mutating `local` (or a field of it).
     writesLocal(LocalId local)
+    /// A call, assignment or `become` mutating `this` (or a field of it).
+    writesThis
 }
 
 bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest probe) uses alloc {
@@ -646,32 +648,85 @@ bool t2Passes(in Ctx c, through in LCtx l, for semantics.BNode x, by T2AnyTest p
         case .readsLocalMovedBy(let mover):
             return semantics.boundKind(x) == .local && moves(in c, through: in l, for: mover, by: c.bLocals[i].local)
         case .writesLocal(let local):
-            return false if semantics.boundKind(x) != .call
-            let fn = c.bCalls[i].function
-            let receiver = c.bCalls[i].receiver
-            return true if receiver != -1 && c.functions[fn].isMutating && rootLocal(c, for: receiver) == local
-            for k in 0..c.bCalls[i].arguments.length {
-                break if k >= c.functions[fn].parameters.length
-                let param = c.functions[fn].parameters[k]
-                if c.locals[param].modifier is .refKeyword or .outKeyword
-                        && rootLocal(c, for: c.bCalls[i].arguments[k]) == local {
-                    return true
-                }
+            switch semantics.boundKind(x) {
+                case .call:
+                    let fn = c.bCalls[i].function
+                    let receiver = c.bCalls[i].receiver
+                    return true if receiver != -1
+                        && c.functions[fn].isMutating
+                        && rootLocal(c, through: l, for: receiver) == local
+                    for k in 0..c.bCalls[i].arguments.length {
+                        break if k >= c.functions[fn].parameters.length
+                        let param = c.functions[fn].parameters[k]
+                        if c.locals[param].modifier is .refKeyword or .outKeyword
+                                && rootLocal(c, through: l, for: c.bCalls[i].arguments[k]) == local {
+                            return true
+                        }
+                    }
+                    return false
+                case .assign:
+                    return rootLocal(c, through: l, for: c.bAssigns[i].target) == local
+                default:
+                    return false
             }
-            return false
+        case .writesThis:
+            switch semantics.boundKind(x) {
+                case .call:
+                    let fn = c.bCalls[i].function
+                    let receiver = c.bCalls[i].receiver
+                    return true if receiver != -1
+                        && c.functions[fn].isMutating
+                        && isThisRoot(c, through: l, for: receiver)
+                    for k in 0..c.bCalls[i].arguments.length {
+                        break if k >= c.functions[fn].parameters.length
+                        let param = c.functions[fn].parameters[k]
+                        if c.locals[param].modifier is .refKeyword or .outKeyword
+                                && isThisRoot(c, through: l, for: c.bCalls[i].arguments[k]) {
+                            return true
+                        }
+                    }
+                    return false
+                case .assign:
+                    return isThisRoot(c, through: l, for: c.bAssigns[i].target)
+                case .becomeStmt:
+                    return true
+                default:
+                    return false
+            }
+    }
+}
+
+/// The innermost receiver of a repeatable place (`n`, `n.f`, `n.0`, `n!`, union/error payload).
+BExpr rootPlace(Ctx c, through LCtx l, for BExpr e) {
+    if ltree.isLowered(e) {
+        let i = ltree.lIndexOf(e)
+        switch ltree.lKindOf(e) {
+            case .optionalValue: return rootPlace(c, through: l, for: l.tree.optionalValues[i].optional)
+            case .unionTag: return rootPlace(c, through: l, for: l.tree.unionTags[i].unionValue)
+            case .unionField: return rootPlace(c, through: l, for: l.tree.unionFields[i].unionValue)
+            case .errorCode: return rootPlace(c, through: l, for: l.tree.errorCodes[i].error)
+            case .errorField: return rootPlace(c, through: l, for: l.tree.errorFields[i].error)
+            default: return e
+        }
+    }
+    let i = i64(e & 0xFFFFFFFF)
+    switch semantics.boundKind(e) {
+        case .field: return rootPlace(c, through: l, for: c.bFields[i].receiver)
+        case .tupleElement: return rootPlace(c, through: l, for: c.bTupleElements[i].receiver)
+        default: return e
     }
 }
 
 /// The local a place `n`, `n.f` or `n.0` reads, or -1.
-LocalId rootLocal(Ctx c, for BExpr e) {
-    return -1 if ltree.isLowered(e)
-    let i = i64(e & 0xFFFFFFFF)
-    switch semantics.boundKind(e) {
-        case .local: return c.bLocals[i].local
-        case .field: return rootLocal(c, for: c.bFields[i].receiver)
-        case .tupleElement: return rootLocal(c, for: c.bTupleElements[i].receiver)
-        default: return -1
-    }
+LocalId rootLocal(Ctx c, through LCtx l, for BExpr e) {
+    let r = rootPlace(c, through: l, for: e)
+    return !ltree.isLowered(r) && semantics.boundKind(r) == .local ? c.bLocals[i64(r & 0xFFFFFFFF)].local : -1
+}
+
+/// Whether a place `this`, `this.f` or `this.0` reads `this`.
+bool isThisRoot(Ctx c, through LCtx l, for BExpr e) {
+    let r = rootPlace(c, through: l, for: e)
+    return !ltree.isLowered(r) && semantics.boundKind(r) == .thisRef
 }
 
 /// Lowerer.cs:275 `Any`: whether `node` or a node inside it passes `test`.
