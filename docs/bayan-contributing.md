@@ -114,3 +114,14 @@ The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/w
 Pushes to `dev` or `main` run `scripts/ci/pre-push.sh <sha>` through the machine's git pre-push hook: it checks the pushed commit out under `tmp/pre-push/`, runs the script tests there, and refuses the push if they fail (`--no-verify` on the push bypasses it once). To run it by hand, use `scripts/ci/pre-push.sh HEAD`; a tree that already passed is skipped.
 
 macOS ships bash 3.2. It parses the body of `$( … )`, `<( … )` and `>( … )` only when the line runs, and a bare `pat)` case arm there closes the substitution, so `bash -n` passes and the script dies later. Inside a substitution, write every case pattern as `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` file on every OS.
+
+## Writing docs
+
+For every page a user reads: `README.md`, `site/content/`, `bootstrap/README.md`, `editors/README.md` and the release docs (`Version:` header). Records (handoffs, audits, plans, decisions, revisions, the progress log, released `CHANGELOG.md` sections) keep their text.
+
+1. A pattern over a list: `bayan-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows), not six archive names.
+2. Say each thing once, where a reader looks for it; link from elsewhere.
+3. The current version only. History lives in `CHANGELOG.md`.
+4. Bayān on its own terms: no comparison with another language to explain a rule. The `from-*.page` guides are the exception.
+5. Show, then tell: a real-world example first (code when the point is code), a table for anything with two or more dimensions, a diagram where a picture beats a paragraph.
+6. Clear, concise, plain words: short sentences, the concrete thing named, no filler. `scripts/docs/prose-words.txt` lists the words the prose check rejects.
