@@ -252,3 +252,37 @@ cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-84	974e0bc64	driver	audit
 cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-85	974e0bc64	driver	audit 0.4.0 09 #2/#7: a radix hole evaluates its operand once and an over-capacity StrBuf write goes through BYN_WRITE_OVER; the C# at the freeze emitted the operand twice and BYN_WRITE_GROW
 cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-86	974e0bc64	driver	audit 0.4.0 09 #2/#7: a radix hole evaluates its operand once and an over-capacity StrBuf write goes through BYN_WRITE_OVER; the C# at the freeze emitted the operand twice and BYN_WRITE_GROW
 cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-267	974e0bc64	driver	audit 0.4.0 09 #2/#7: a radix hole evaluates its operand once and an over-capacity StrBuf write goes through BYN_WRITE_OVER; the C# at the freeze emitted the operand twice and BYN_WRITE_GROW
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-13	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-15	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-18	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-2	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-20	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-3	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-22	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-2	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-3	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-10	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-13	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-15	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-17	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-19	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-20	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-22	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-23	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-5	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-6	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-7	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-9	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-10	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-2	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-3	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-6	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-7	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-8	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-9	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT5Tests/DispatchAsCliApp	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-10	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-11	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-4	af9029219	driver	short grouped --help, owner decision 2026-11-16
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-9	af9029219	driver	short grouped --help, owner decision 2026-11-16
