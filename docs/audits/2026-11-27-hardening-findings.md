@@ -18,7 +18,7 @@ HF-0002  A read after a `ref` call in the same expression is unsequenced in the 
   repro:      tests/hardening/known/HF-0002/
   severity:   miscompile
   first seen: 51379f861 (dev)
-  status:     open
+  status:     fixed on fix/hf0002-ref-call-read (ce57bc3dd; gcc 12 and clang: run/ 376 passed on wp1 WSL), merge to dev after the audit-040 HIGHs branches
 ```
 
 ## Harness notes (not compiler findings)
