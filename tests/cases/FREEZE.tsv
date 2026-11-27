@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4485
-cases	diag	897
+cases	diag	898
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	386
+cases	run	388
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -14342,6 +14342,7 @@ file	b0114bc197ed73f613e76439f887da71f339fa40	tests/cases/diag/fails-shorthand-t
 file	3736b4968e09674c7c796e583ab31d1ea90b607f	tests/cases/diag/field-write-outside-indirect.diag
 file	663eef000f53910d70a6b5afb8f43b2947857131	tests/cases/diag/field-write-outside.diag
 file	65d78379fb9825454c29b1917d859c8f5503d34f	tests/cases/diag/field-write-sealed.diag
+file	65b056fde180164ff73ce28601e3c41da3cb592b	tests/cases/diag/field-write-slice.diag
 file	351fe7a0d151e868350a9d742f3bbc54f8d1e04d	tests/cases/diag/field-write-states.diag
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/flow-catch-never-body.diag
 file	0e6889f1ea847ed78d82423c3a84ac878641c587	tests/cases/diag/flow-catch-never-call.diag
@@ -27133,7 +27134,7 @@ file	ca7477ba324e6700e65d2909abdc95961c690a8d	tests/cases/emit/exit/expected.typ
 file	529aa41685db69912fc86b8555bdba90469be384	tests/cases/emit/modes/expected.debug.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.fast.sha256
 file	5a5fad7016020032de2848130e8f43be6ec0462c	tests/cases/emit/modes/expected.safe.sha256
-file	918e4558d43a4ef0a46d670df02f2dad29dd6e67	tests/cases/emit/run-c.sha256
+file	a0624aea34054f5e828e16bee8c4bdd1959f3fd7	tests/cases/emit/run-c.sha256
 file	5632f257bed073221ea48c32c421b3d2d3dec760	tests/cases/lex/SelfhostLexerCaseTests/FirstScalarCaseMatchesCSharpCharIsUpperAndIsLower/expected.stdout
 file	8b6aef7042b6694802718d15bd5aabe01d9c479e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-10/expected.json
 file	94f7f1fbb15d649c6560b1dd9c16eb9c3a235d3e	tests/cases/lex/SelfhostLexerTests/BayanLexJsonEqualsTheReferenceLexerOnEveryInput-100/expected.json
@@ -48609,6 +48610,7 @@ file	8253c6c3df1762477a1877780996580e6d5291c2	tests/cases/run/catch-switch-block
 file	c8b5dff1e41f216d91d352b21bca4739c1d398b5	tests/cases/run/collection-copy.stdout
 file	42ef6efeaeb2d5cf536b2dc80a6d9f1807c5435f	tests/cases/run/collection-literals.stdout
 file	6fe0d7af0c83451d3639d07a9592e96148079f16	tests/cases/run/compound-assign-target-once.stdout
+file	6345077b861ba541321f6fac1e07a7b54c3493e4	tests/cases/run/compound-assign-this-index.stdout
 file	efc7498dbcd7a218d81572147b054cc140e9d3c9	tests/cases/run/condition-cast.stdout
 file	35ebd06180d6d893b558728f3f0f66f0d282d210	tests/cases/run/condition-paren-in.stdout
 file	c67a85fa0a8b80c24ba4b735b4ba4d9dbc98d9b2	tests/cases/run/const-mul-sat-u64.stdout
@@ -48676,6 +48678,7 @@ file	0586d9f1556dacb97f07f1951aec985277cf7d82	tests/cases/run/field-write-own-in
 file	06871cf6593b5e66f49c478892160547cb73b477	tests/cases/run/float-format.stdout
 file	b1258bb27d396648eb5082f27c451f785557fd37	tests/cases/run/float-try-parse.stdout
 file	a2c3207f7cc7a8af072920b9fb6c7ba129fa8be1	tests/cases/run/flow-out-catch-clean.stdout
+file	0ec5f08b772fc0676429ab75ca7039b84c81d88b	tests/cases/run/for-array-mutated-index.stdout
 file	348a214a36aa824b170c89f20e8f7eefd5731024	tests/cases/run/for-constraint.stdout
 file	b1bd38b62a0800a4f6a80c34e21c5acffae52c7e	tests/cases/run/for-dyn-ref-array.stdout
 file	7a392d51355a08b6f80b083ad123f4da9b6c9a30	tests/cases/run/for-dyn-ref-list.stdout
