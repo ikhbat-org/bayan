@@ -3,7 +3,7 @@ nav: Guides
 order: 46
 template: docs
 ---
-<p>Go and Bayan share small languages, plain code, fast builds and one formatter. Bayan checks differently: no <code>nil</code>, no <code>if err != nil</code>, no pointers, and no interface satisfied by accident.</p>
+<p>Go and Bayan share small languages, plain code, fast builds and one way to format. Bayan checks differently: no <code>nil</code>, no <code>if err != nil</code>, no pointers, and no interface satisfied by accident.</p>
 <p>Every program ran with the compiler; the output is real.</p>
 
 <h2 id="table">Common tasks side by side</h2>
