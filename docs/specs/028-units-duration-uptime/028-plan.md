@@ -99,6 +99,13 @@ The work lands in this order (details under Order):
 ### Driver
 - `src/driver/cc.byn` (`:273`, `:290`) — `timeout: Milliseconds(limit)` in T8b — R17
 - The other `Millis` names in `src/driver/` (`test.byn`, `goldenprograms.byn`, `mutate.byn`, `nopanic-l018.test.byn`, `diagdocs.byn`, `golden.byn`, `cache.byn`) — renamed in T8b — R17
+- The remaining `Millis` names under `src/` outside the driver, from `git grep -nw Millis -- src` on `dev` 9e26b3dbc, all renamed or removed in T8b — R17:
+  - `src/semantics/express.byn:1396` (`if name == "Millis"` → `builtinType(.millis)`), removed with `BuiltinKind.millis`;
+  - `src/semantics/calls2.byn:355` (the `Millis(n)` comment) and `src/semantics/builtins.byn:76` (the `DetailVariants` comment), reworded to `Duration`;
+  - `src/semantics/calls2-t29.test.byn:61`, `:93` (test names and sources that construct `Millis`), rewritten to `Milliseconds` with their expected offsets regenerated from the compiler;
+  - `src/parser/spans-t29.test.byn:593` (`timeout(Millis after)` in a parser fixture), rewritten to `timeout(Duration after)` with its span expectations regenerated;
+  - `src/driver/runtime.byn:451`, the generated copy of `runtime/bayan-rt.c`, follows the runtime comment change above.
+  T8b runs the R17 grep over `src` before its commit; any site it still finds joins this list.
 
 ### Not touched
 - `src/sabk/`: it consumes SIR, not bound trees, and has no clock or `Millis` path.
