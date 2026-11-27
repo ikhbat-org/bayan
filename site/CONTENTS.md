@@ -13,6 +13,7 @@ What the site holds, page by page, and who writes it. Format: `FORMAT.md`. Sourc
 
 ## Rules for every page
 
+- The writing rules in `docs/bayan-contributing.md` (*Writing docs*) apply to every page.
 - Every program whose output a page shows is an `<example>` that `check-examples.sh` runs. Outputs come from the compiler, never typed by hand (`check-examples.sh --update`, then read the `.out` and confirm it is what the text says).
 - A feature the compiler does not implement yet is described from the spec with a `<note>` saying "Planned: not in the compiler yet", and shown only as a `<pre><code class="byn">` fragment. Never present it as working. If unsure, try it with the compiler.
 - A compiler error shown on a page is the compiler's real output pasted into a `<figure class="diag">` (see `NOTES.md`).
