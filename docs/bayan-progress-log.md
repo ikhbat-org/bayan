@@ -580,3 +580,9 @@ One entry per working session, added at the end of the session. Entries are kept
 
 ## 2026-11-27 (unattended: 0.4.1-rc.1 dry run, branch fix/nightly-modes-sigkill-coverage)
 - Release dry run 45931652906 (main f02762b82, 0.4.1-rc.1): builds, editor-gate, memory-gate and l028 shards passed; `laws` failed in `nightly-modes.sh --jobs 4` coverage on `run/io-stdin-flush` and `run/io-stdin-bytes-flush` (new in bf273e3c4): both SIGKILL themselves (`.exitcode` 137), so no `cov.<pid>` file can be written. Coverage mode now skips the counter-file check when the case expects 137; nightly-modes.test.sh copies io-stdin-flush and checks it passes (break-test: without the exemption it fails naming the case).
+
+## 2026-11-27 (unattended: hardening handoff reconciled, branch docs/hardening-handoff)
+- The owner's hardening handoff (written against 0.3.3) is kept as received in `docs/handoffs/2026-11-27-hardening.md`. An Opus audit checked it against dev 36d332a87 (`docs/audits/2026-11-27-hardening-reconcile.md`); Gemini Neon (gw-think) reviewed both (`docs/audits/2026-11-27-hardening-neon-review.md`).
+- Result: plan 020 (`docs/plans/2026-11-27-020-hardening.md`) corrects the stale facts (one CLI, `BAYAN_CC` built, fixpoint/DDC built, `--sanitize` not built, `-w` hides warnings, `#line "main.c"` for generated code), re-orders the phases by Neon's bugs-per-hour ranking (cc wrapper + reduction, sanitizers, Fil-C 0.687, pruned gcc/clang differential, AFL++ fuzzing, EMI) and lists the noise traps each step must handle. Fil-C 0.687 assets and SHA-256s checked against the GitHub release API.
+- Spot checks: `CC` in `bootstrap-build.sh` reaches stage 0 only; `t9Key` does not hash the wrapper's environment, so each matrix cell needs its own `BAYAN_CACHE`; `fixpoint-check.sh` compares stage 1 with stage 2.
+- Open: the `#line` text for generated code (spec vs emitter) before step 9; R1–R12 stay proposals for the owner.
