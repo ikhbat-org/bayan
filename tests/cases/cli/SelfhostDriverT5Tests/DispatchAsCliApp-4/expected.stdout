@@ -24,5 +24,5 @@ Usage: bayan <command> [options]
 
 General options:
   -h, --help       Print this help, or after a command that command's help
-  -v, --version    Print the version line, `bayan <version> (selfhost)`
+  -v, --version    Print the version line, `bayan <version>`
 Run 'bayan help <command>' for a command's options.

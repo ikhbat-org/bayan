@@ -588,7 +588,7 @@ g checkout -q -- .
 # which runs the tool. The set it rechecks is committed and holds no task, so no scored step runs: the sandbox lets a step
 # exec the program alone, so the fake could not hand a step on.
 real=$(bash scripts/pinned-bayan.sh)
-printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "bayan 0.3.3-dev (selfhost)"; exit 0; fi\nexec "%s" "$@"\n' "$real" > "$root/fake-bayan"
+printf '#!/bin/sh\nif [ "$1" = --version ]; then echo "bayan 0.3.3-dev"; exit 0; fi\nexec "%s" "$@"\n' "$real" > "$root/fake-bayan"
 chmod +x "$root/fake-bayan"
 mkdir -p "$root/sets/empty"
 printf 'No tasks.\n' > "$root/sets/empty/README.md"
@@ -599,7 +599,7 @@ pincommit=$(git rev-parse HEAD)
 pstamp=$LLM_EVAL_STAMP_DIR/$ecommit-$pincommit
 PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=HEAD recheck empty
 check "recheck: version line without a commit, the stamp takes the pin's commit" \
-  "$code $(grep -c "^stamp: $pstamp\$" "$root/rec/rc-empty") $(sed -n 's/^compilerCommit: //p' "$pstamp" 2> /dev/null) $(grep -c '^compiler: bayan 0.3.3-dev (selfhost)$' "$pstamp" 2> /dev/null)" "0 1 $pincommit 1"
+  "$code $(grep -c "^stamp: $pstamp\$" "$root/rec/rc-empty") $(sed -n 's/^compilerCommit: //p' "$pstamp" 2> /dev/null) $(grep -c '^compiler: bayan 0.3.3-dev$' "$pstamp" 2> /dev/null)" "0 1 $pincommit 1"
 PINNED_BAYAN=$root/fake-bayan PINNED_BAYAN_REF=no-such-ref recheck empty
 check "recheck: no commit from the version line or the pin, no stamp" \
   "$code $(grep -c '^no stamp: neither' "$root/rec/rc-empty") $(ls "$LLM_EVAL_STAMP_DIR" | wc -l | tr -d ' ')" "0 1 2"

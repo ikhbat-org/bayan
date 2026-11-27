@@ -72,7 +72,7 @@ jobs:
           "$STAGE1" build --mode safe --package src -o publish/${{ matrix.exe }} src/driver
       - name: Smoke test
         shell: bash
-        run: ./publish/${{ matrix.exe }} --version | grep -F "bayan $(cat VERSION) (selfhost)"
+        run: ./publish/${{ matrix.exe }} --version | grep -Fx "bayan $(cat VERSION)"
       # bayan-lsp ships beside bayan, built by this release's own bayan (spec 019 R37); package.sh refuses an archive without it.
       - name: Build bayan-lsp
         shell: bash

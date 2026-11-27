@@ -28,9 +28,6 @@ enum T5Role {
 
 const t5ZigUrl: string = "https://ziglang.org"
 
-/// CliApp.cs:33 `VersionLine`'s commit has no source in the driver (Q1091): the row prints `(commit selfhost)`.
-const t5Commit: string = "selfhost"
-
 /// `Style.Paint` (Style.cs:68) with the palette of `style` (`t7Prefix`) when `style.color`.
 string t5Paint(T5Role role, by DStyle style, for string text) uses alloc {
     unless style.color {
@@ -54,8 +51,8 @@ string t5Paint(T5Role role, by DStyle style, for string text) uses alloc {
 /// CliApp.cs:101 `Doctor.Run` (Doctor.cs:19): the checks in order, rendered to stdout; 4 when one fails.
 i32 doctorCommand(by in DCtx d) uses alloc, clock, console, env, fs, process {
     var checks = List<T5Check>()
-    // `Messages.DoctorVersion` with the commit of Q1091
-    checks.append(T5Check { level: .ok, name: "bayan", detail: $"{version} (commit {t5Commit})" })
+    // `Messages.DoctorVersion` without its commit: the driver has none (Q1091), so the row is the version alone (owner 2026-11-27)
+    checks.append(T5Check { level: .ok, name: "bayan", detail: $"{version}" })
     // coverage-exempt: Q1092 `Target.os` is a constant of the host, so no row runs on a machine with no Bayan target
     if (targetHost() is { } host) {
         checks.append(T5Check { level: .ok, name: "host", detail: $"{host}" })

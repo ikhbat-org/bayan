@@ -12,7 +12,7 @@ Build it with a C11 compiler and no .NET or Zig, from the repository root (the f
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm
 ```
 
-The result is `a.out`; `./a.out version` prints `bayan <version> (selfhost)`.
+The result is `a.out`; `./a.out version` prints `bayan <version>`.
 
 Regenerate the three files with no .NET (spec 019 R26): copy `runtime/bayan-rt.h` and `runtime/bayan-rt.c` here, then
 run `bash scripts/ci/bootstrap-check.sh`. When it reports that `bootstrap/bayan.c` is not the C that `src/driver` emits,

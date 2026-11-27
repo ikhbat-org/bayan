@@ -919,9 +919,11 @@ string goldenCliTimes(string text, from string lead, by string repl, bool two = 
 }
 
 /// SelfhostDriverTests.cs:31 `Mask` on one line: `^(bayan \S+) \(.*\)$` as `$1 (masked)`, the version then as `<version>`, as the
-/// land-time mask of land-export.sh wrote the expected side (T19: the tree's version moves on from the export's).
+/// land-time mask of land-export.sh wrote the expected side (T19: the tree's version moves on from the export's). The driver's
+/// own line, `bayan <version>` with no build detail (owner 2026-11-27), is masked the same way.
 string goldenCliVersionLine(string line) uses alloc {
     return line unless line.startsWith("bayan ")
+    return "bayan <version> (masked)" if line == $"bayan {version}"
     let b = line.bytes
     var k: i64 = 6
     while k < line.length && !(b[k] is 0x20 or 0x09 or 0x0b or 0x0c or 0x0d) {
@@ -2662,6 +2664,7 @@ test "`version-seconds-masked` masks the version line and times (SelfhostDriverT
     assert(goldenCliVersion(
         goldenCliT2("bayan 0.3.3-dev (selfhost)\nchecked in 1.25s\nbayan: x (y)\n"),
     ) == "bayan <version> (masked)\nchecked in masked\nbayan: x (y)\n")
+    assert(goldenCliVersion($"bayan {version}\nbayan {version}x\n") == $"bayan <version> (masked)\nbayan {version}x\n")
 }
 
 test "`seconds-masked` masks ` in <seconds>s` (SelfhostDriverT2Tests.cs:30, :50), a changed exit code fails" {

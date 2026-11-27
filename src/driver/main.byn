@@ -44,7 +44,7 @@ Usage: bayan <command> [options]
 
 General options:
   -h, --help       Print this help, or after a command that command's help
-  -v, --version    Print the version line, `bayan <version> (selfhost)`
+  -v, --version    Print the version line, `bayan <version>`
 Run 'bayan help <command>' for a command's options.
 """
 
@@ -320,8 +320,8 @@ bool asksHelp(List<string> kept) {
     return false
 }
 
-/// CliApp.cs:33 `VersionLine` with the commit replaced by `selfhost` (spec Q3).
-string versionLine() => $"bayan {version} (selfhost)"
+/// CliApp.cs:33 `VersionLine` without its build detail: `bayan <version>` alone (owner 2026-11-27).
+string versionLine() => $"bayan {version}"
 
 /// CliApp.cs:37 `Run`.
 i32 run(ReadOnlySpan<string> args, through ref DCtx d) {

@@ -497,7 +497,7 @@ self-hosted compiler as plain C). Both produce the self-hosted `bayan`. See
 ```sh
 bayan build --mode safe --package src -o tmp/bayan-selfhost src/driver
 cc -std=c11 -O2 -DBYN_NDEBUG -fwrapv -ffp-contract=off bootstrap/bayan.c bootstrap/bayan-rt.c -lm -o tmp/bayan-boot
-./tmp/bayan-selfhost --version                 # bayan <version> (selfhost)
+./tmp/bayan-selfhost --version                 # bayan <version>
 ```
 
 The self-hosted compiler's tests are in `src/tests/` and run with the same `dotnet test`.
