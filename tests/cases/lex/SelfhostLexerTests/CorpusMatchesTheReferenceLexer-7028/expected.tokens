@@ -36,7 +36,7 @@
 4:38 Greater `>`
 4:40 Greater `>`
 4:41 GreaterEquals `>=`
-5:2 EndOfFile
+5:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

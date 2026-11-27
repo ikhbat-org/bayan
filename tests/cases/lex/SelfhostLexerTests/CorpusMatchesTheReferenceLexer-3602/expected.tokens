@@ -22,40 +22,40 @@
 2:27 InterpolationStart `{`
 2:28 InterpolatedStringStart `$"`
 2:30 InterpolatedStringText `�$`
-2:31 InterpolatedStringEnd `"`
-2:32 OpenBrace `{`
-2:33 InterpolatedStringStart `$"`
-2:35 InterpolationStart `{`
-2:36 InterpolatedStringStart `$"`
-2:38 InterpolationStart `{`
-2:39 InterpolatedStringStart `$"`
-2:41 InterpolationStart `{`
-2:42 InterpolatedStringStart `$"`
-2:44 InterpolationStart `{`
-2:45 InterpolatedStringStart `$"`
-2:47 InterpolationStart `{`
-2:48 InterpolatedStringStart `$"`
-2:50 InterpolationStart `{`
-2:51 Identifier `x`
-2:52 InterpolationEnd `}`
-2:53 InterpolatedStringEnd `"`
-2:54 InterpolationEnd `}`
-2:55 InterpolatedStringEnd `"`
-2:56 InterpolationEnd `}`
-2:57 InterpolatedStringEnd `"`
-2:58 InterpolationEnd `}`
-2:59 InterpolatedStringEnd `"`
-2:60 InterpolationEnd `}`
-2:61 InterpolatedStringEnd `"`
-2:62 InterpolationEnd `}`
-2:63 InterpolatedStringEnd `"`
-2:64 CloseBrace `}`
-2:65 StringLiteral `" "`
-2:68 Identifier `text`
-2:72 StringLiteral `" "`
-2:75 Identifier `esc`
-2:80 StringLiteral `"q\" \\ \n"`
-2:92 RawStringLiteral `"""\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x let a = "open\n\na >> b\n\net café = 1\nlet caf\n`
+2:32 InterpolatedStringEnd `"`
+2:33 OpenBrace `{`
+2:34 InterpolatedStringStart `$"`
+2:36 InterpolationStart `{`
+2:37 InterpolatedStringStart `$"`
+2:39 InterpolationStart `{`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolationStart `{`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 InterpolatedStringStart `$"`
+2:48 InterpolationStart `{`
+2:49 InterpolatedStringStart `$"`
+2:51 InterpolationStart `{`
+2:52 Identifier `x`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringEnd `"`
+2:55 InterpolationEnd `}`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 CloseBrace `}`
+2:66 StringLiteral `" "`
+2:69 Identifier `text`
+2:73 StringLiteral `" "`
+2:76 Identifier `esc`
+2:81 StringLiteral `"q\" \\ \n"`
+2:93 RawStringLiteral `"""\n\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"$"{$"{x let a = "open\n\na >> b\n\net café = 1\nlet caf\n`
 10:1 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`

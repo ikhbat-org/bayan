@@ -60,7 +60,7 @@
 4:51 NumericSuffix `f`
 5:2 IntegerLiteral `0b__`
 6:2 Identifier `x́́`
-6:5 EndOfFile
+6:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -17,7 +17,6 @@
 1:46 Identifier `y`
 1:48 FloatLiteral `2.5`
 1:51 NumericSuffix `f`
-    doc `/// Doc line one.`
 5:1 Identifier `a`
 5:3 Greater `>`
 5:4 Greater `>`

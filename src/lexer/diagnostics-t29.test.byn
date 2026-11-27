@@ -79,3 +79,8 @@ test "lexer t29: format keeps a stray brace" {
     assert format("{0", by: (arg0: "x", arg1: "y")) == "{0"
     assert format("{0x}", by: (arg0: "x", arg1: "y")) == "{0x}"
 }
+
+test "lexer low041: render a fix that ends inside a line terminator" {
+    let got = t29Render("ab\r\ncd", at: TextSpan { start: 2, length: 1 }, by: "x", hasFix: true)
+    assert got == "error BYN0002: m\n\n  1 │ ab\n    │   ^\n    │\n    │ 1 │ abx\n    │   │   +\n"
+}

@@ -14,9 +14,9 @@
 5:5 Identifier `camelCase2`
 5:16 Identifier `بيان`
 5:21 Identifier `μετ`
-5:26 Identifier `ητής`
-5:31 Identifier `x_1`
-5:35 Identifier `é`
+5:27 Identifier `ητής`
+5:32 Identifier `x_1`
+5:36 Identifier `é`
 6:1 CharLiteral `'\u{D800}'`
 7:1 CharLiteral `'\u{110000}'`
 8:1 CharLiteral `'x`

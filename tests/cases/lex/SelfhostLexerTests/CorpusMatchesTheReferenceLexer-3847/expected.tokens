@@ -2,7 +2,7 @@
 1:5 Identifier `a`
 1:7 Identifier `Y`
 1:9 OpenKeyword `open`
-2:4 OpenBrace `{`
+2:5 OpenBrace `{`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

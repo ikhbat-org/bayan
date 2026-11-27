@@ -3,15 +3,15 @@
 2:4 Greater `>`
 2:5 GreaterEquals `>=`
 2:8 IntegerLiteral `1`
-3:3 Identifier `a`
-3:4 OpenBrace `{`
-3:5 Identifier `b`
-3:6 CloseBrace `}`
-3:7 Identifier `c`
+3:4 Identifier `a`
+3:5 OpenBrace `{`
+3:6 Identifier `b`
+3:7 CloseBrace `}`
+3:8 Identifier `c`
 5:1 LetKeyword `let`
-5:5 Identifier `aw`
-5:8 Equals `=`
-5:10 IntegerLiteral `3`
+5:6 Identifier `aw`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
 9:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

@@ -5,16 +5,16 @@
 2:8 StringLiteral `" $"`
 2:12 OpenBrace `{`
 2:13 Identifier `P`
-2:15 Identifier `oint`
-2:20 OpenBrace `{`
-2:22 Identifier `x`
-2:24 Equals `=`
-2:26 IntegerLiteral `1`
-2:28 CloseBrace `}`
+2:16 Identifier `oint`
+2:21 OpenBrace `{`
+2:23 Identifier `x`
+2:25 Equals `=`
+2:27 IntegerLiteral `1`
 2:29 CloseBrace `}`
-2:30 Bang `!`
-2:31 StringLiteral `" $"`
-2:35 StringLiteral `"`
+2:30 CloseBrace `}`
+2:31 Bang `!`
+2:32 StringLiteral `" $"`
+2:36 StringLiteral `"`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`
 6:4 InterpolatedStringStart `$"`

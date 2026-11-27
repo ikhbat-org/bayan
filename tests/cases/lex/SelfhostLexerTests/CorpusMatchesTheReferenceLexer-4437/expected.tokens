@@ -17,7 +17,7 @@
 2:10 CharLiteral `'`
 3:1 CharLiteral `'\u{110000}'`
 4:1 CharLiteral `'x`
-5:1 IntegerLiteral `1_`
+5:2 IntegerLiteral `1_`
 6:1 EndOfFile
 
 error BYN0008: unterminated char literal

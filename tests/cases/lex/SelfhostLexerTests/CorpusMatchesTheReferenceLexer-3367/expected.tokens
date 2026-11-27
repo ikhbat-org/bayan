@@ -11,7 +11,7 @@
 4:5 EffectKeyword `effect`
 4:12 Equals `=`
 4:14 IntegerLiteral `2`
-5:4 RawStringLiteral `"""H � = 2\n// o� � in comment\n`
+5:6 RawStringLiteral `"""H � = 2\n// o� � in comment\n`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

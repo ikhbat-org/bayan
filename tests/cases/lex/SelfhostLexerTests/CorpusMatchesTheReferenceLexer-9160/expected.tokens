@@ -1,7 +1,7 @@
 2:1 LetKeyword `let`
 2:5 Identifier `cafe`
-2:10 Equals `=`
-2:12 IntegerLiteral `1`
+2:11 Equals `=`
+2:13 IntegerLiteral `1`
 3:2 FloatLiteral `3.14`
 3:7 FloatLiteral `1e5`
 3:11 FloatLiteral `2.5e-3`
@@ -11,14 +11,14 @@
 3:31 IntegerLiteral `1`
 3:32 DotDot `..`
 3:34 IntegerLiteral `2`
-3:36 DotDotEquals `..=`
-3:39 IntegerLiteral `3`
-3:41 IntegerLiteral `5`
-3:42 NumericSuffix `ex`
-3:44 Dot `.`
-3:45 Identifier `y`
-3:47 FloatLiteral `2.5`
-3:50 NumericSuffix `f`
+3:37 DotDotEquals `..=`
+3:40 IntegerLiteral `3`
+3:42 IntegerLiteral `5`
+3:43 NumericSuffix `ex`
+3:45 Dot `.`
+3:46 Identifier `y`
+3:48 FloatLiteral `2.5`
+3:51 NumericSuffix `f`
 4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

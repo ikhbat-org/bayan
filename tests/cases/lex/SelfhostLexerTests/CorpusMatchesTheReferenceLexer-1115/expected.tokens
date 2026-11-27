@@ -18,7 +18,7 @@
 3:84 Colon `:`
 3:85 Identifier `ion`
 3:89 AttributeKeyword `attribute`
-4:3 EndOfFile
+4:4 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C
 

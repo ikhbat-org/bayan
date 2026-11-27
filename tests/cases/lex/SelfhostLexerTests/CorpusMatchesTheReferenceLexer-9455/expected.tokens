@@ -26,7 +26,7 @@
 5:48 FloatLiteral `2.5`
 5:51 NumericSuffix `f`
 6:2 CharLiteral `'\u{202E}'`
-7:1 EndOfFile
+7:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

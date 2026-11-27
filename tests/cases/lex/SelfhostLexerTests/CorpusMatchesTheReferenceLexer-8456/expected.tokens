@@ -1,6 +1,6 @@
 1:1 Identifier `O`
-1:2 CharLiteral `'�\u{7}��'`
-1:7 RawStringLiteral `"""\n/* �뀭 */\n"\n\n`
+1:6 CharLiteral `'�\u{7}��'`
+1:13 RawStringLiteral `"""\n/* �뀭 */\n"\n\n`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x88)

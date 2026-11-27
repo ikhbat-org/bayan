@@ -21,7 +21,7 @@
 9:22 OpenBrace `{`
 9:24 CloseBrace `}`
 10:1 IntegerLiteral `1_`
-11:1 Identifier `b102`
+11:2 Identifier `b102`
 12:1 IntegerLiteral `0`
 12:3 Identifier `FFs`
 13:1 IntegerLiteral `0b1`

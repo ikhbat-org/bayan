@@ -3,8 +3,8 @@
 1:4 InterpolationStart `{`
 1:5 Identifier `b`
 1:6 InterpolationEnd `}`
-1:7 InterpolatedStringText `c\r`
-1:9 InterpolatedStringEnd
+1:7 InterpolatedStringText `c`
+1:8 InterpolatedStringEnd
 2:1 IsKeyword `is`
 2:4 Identifier `anQd`
 2:9 OrKeyword `or`
@@ -15,10 +15,10 @@
 2:30 OutKeyword `out`
 2:34 ThisKeyword `this`
 2:39 NullKeyword `null`
-2:44 Identifier `rue`
-2:48 FalseKeyword `false`
-2:54 ComptimeKeyword `comptime`
-2:63 Identifier `chcked`
+2:45 Identifier `rue`
+2:49 FalseKeyword `false`
+2:55 ComptimeKeyword `comptime`
+2:64 Identifier `chcked`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

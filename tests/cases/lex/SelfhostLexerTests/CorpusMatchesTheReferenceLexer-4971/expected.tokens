@@ -28,7 +28,7 @@
 4:9 Identifier `c`
 4:11 Equals `=`
 4:13 RawStringLiteral `"""never closed\n let café = 1� \n\n� `
-7:2 EndOfFile
+7:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

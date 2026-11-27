@@ -10,19 +10,19 @@
 3:22 CharLiteral `'`
 5:1 Identifier `e`
 5:3 Identifier `unio`
-5:8 EnumKeyword `enum`
-5:13 FlagsKeyword `flags`
-5:19 OpenKeyword `open`
-5:24 Identifier `extensibl`
-5:33 CharLiteral `'a'`
-5:37 CharLiteral `'\n'`
-5:42 CharLiteral `'\u{1F600}'`
-5:54 CharLiteral `'\' '`
-5:59 Identifier `é`
-5:60 CharLiteral `' '`
-5:65 CharLiteral `' '`
-5:69 IntegerLiteral `0`
-5:70 CharLiteral `'`
+5:9 EnumKeyword `enum`
+5:14 FlagsKeyword `flags`
+5:20 OpenKeyword `open`
+5:25 Identifier `extensibl`
+5:34 CharLiteral `'a'`
+5:38 CharLiteral `'\n'`
+5:43 CharLiteral `'\u{1F600}'`
+5:55 CharLiteral `'\' '`
+5:60 Identifier `é`
+5:61 CharLiteral `' '`
+5:66 CharLiteral `' '`
+5:70 IntegerLiteral `0`
+5:71 CharLiteral `'`
 6:2 Equals `=`
 6:4 InterpolatedStringStart `$"`
 6:6 InterpolationStart `{`

@@ -35,10 +35,10 @@
 3:41 Greater `>`
 3:42 GreaterEquals `>=`
     doc `/// Dc line one.`
-6:2 Identifier `c`
-6:4 Greater `>`
-6:5 GreaterEquals `>=`
-6:8 IntegerLiteral `1`
+6:3 Identifier `c`
+6:5 Greater `>`
+6:6 GreaterEquals `>=`
+6:9 IntegerLiteral `1`
 7:2 CharLiteral `'\u{110000}'`
 8:2 EndOfFile
 

@@ -2,7 +2,7 @@
 1:3 InterpolatedStringText `open `
 1:8 InterpolationStart `{`
 1:9 Identifier `x`
-1:10 Semicolon `;`
+1:11 Semicolon `;`
 2:2 CharLiteral `'q'`
 3:1 EndOfFile
 

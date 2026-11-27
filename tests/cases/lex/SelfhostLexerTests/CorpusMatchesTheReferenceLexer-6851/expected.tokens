@@ -1,19 +1,19 @@
-2:3 OpenBrace `{`
-2:4 Identifier `f`
-2:5 OpenParen `(`
-2:6 InterpolatedStringStart `$"`
-2:8 InterpolatedStringText `b `
-2:10 InterpolationStart `{`
-2:11 Identifier `c`
-2:12 InterpolationEnd `}`
-2:13 InterpolatedStringEnd `"`
-2:14 CloseParen `)`
-2:15 CloseBrace `}`
-2:17 Identifier `d`
-2:18 StringLiteral `" $"`
-2:22 OpenBrace `{`
+2:4 OpenBrace `{`
+2:5 Identifier `f`
+2:6 OpenParen `(`
+2:7 InterpolatedStringStart `$"`
+2:9 InterpolatedStringText `b `
+2:11 InterpolationStart `{`
+2:12 Identifier `c`
+2:13 InterpolationEnd `}`
+2:14 InterpolatedStringEnd `"`
+2:15 CloseParen `)`
+2:16 CloseBrace `}`
+2:18 Identifier `d`
+2:19 StringLiteral `" $"`
 2:23 OpenBrace `{`
-2:24 Identifier `literal`
+2:24 OpenBrace `{`
+2:25 Identifier `literal`
 3:2 Identifier `Å`
 3:4 InterpolatedStringStart `$"`
 3:6 InterpolatedStringText `total `

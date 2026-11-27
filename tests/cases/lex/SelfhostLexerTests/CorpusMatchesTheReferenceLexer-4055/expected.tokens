@@ -12,8 +12,8 @@
 4:27 CharLiteral `'é'`
 4:31 CharLiteral `'\\'`
 4:36 CharLiteral `'\0'`
-6:5 Identifier `raw`
-6:9 StringLiteral `"quoted"`
+6:7 Identifier `raw`
+6:11 StringLiteral `"quoted"`
 7:2 OpenBrace `{`
 7:3 EndOfFile
 

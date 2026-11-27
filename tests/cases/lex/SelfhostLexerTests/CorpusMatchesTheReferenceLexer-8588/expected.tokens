@@ -11,7 +11,7 @@
 3:9 InterpolationStart `{`
 3:10 Identifier `x`
 3:11 StringLiteral `";`
-5:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n/* block\n\nb\n 1_\n\n`
+5:7 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n/* block\n\nb\n 1_\n\n`
 12:1 EndOfFile
 
 error BYN0003: unterminated string literal

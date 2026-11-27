@@ -13,25 +13,25 @@
 6:27 LessLessEquals `<<=`
 7:2 IntegerLiteral `0`
 7:4 IntegerLiteral `42`
-7:7 IntegerLiteral `1_000_000`
-7:17 IntegerLiteral `0xFF`
-7:22 IntegerLiteral `0x_ff`
-7:28 IntegerLiteral `0b1010`
-7:35 IntegerLiteral `0B11`
-7:40 IntegerLiteral `5`
-7:41 NumericSuffix `s`
-7:43 IntegerLiteral `250`
-7:46 NumericSuffix `ms`
-7:49 IntegerLiteral `4`
-7:50 NumericSuffix `KiB`
-7:54 IntegerLiteral `1`
-7:55 NumericSuffix `u`
-7:57 IntegerLiteral `0xFF`
-7:61 NumericSuffix `u`
-7:63 IntegerLiteral `0b1`
-7:66 NumericSuffix `ul`
-7:69 IntegerLiteral `7`
-7:70 NumericSuffix `l`
+7:8 IntegerLiteral `1_000_000`
+7:18 IntegerLiteral `0xFF`
+7:23 IntegerLiteral `0x_ff`
+7:29 IntegerLiteral `0b1010`
+7:36 IntegerLiteral `0B11`
+7:41 IntegerLiteral `5`
+7:42 NumericSuffix `s`
+7:44 IntegerLiteral `250`
+7:47 NumericSuffix `ms`
+7:50 IntegerLiteral `4`
+7:51 NumericSuffix `KiB`
+7:55 IntegerLiteral `1`
+7:56 NumericSuffix `u`
+7:58 IntegerLiteral `0xFF`
+7:62 NumericSuffix `u`
+7:64 IntegerLiteral `0b1`
+7:67 NumericSuffix `ul`
+7:70 IntegerLiteral `7`
+7:71 NumericSuffix `l`
 8:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

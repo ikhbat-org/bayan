@@ -11,10 +11,10 @@
 2:20 Identifier `i64`
 2:23 Greater `>`
 2:24 Greater `>`
-3:2 CharLiteral `' '`
-3:7 CharLiteral `' '`
-3:11 IntegerLiteral `0`
-3:12 CharLiteral `'`
+3:3 CharLiteral `' '`
+3:8 CharLiteral `' '`
+3:12 IntegerLiteral `0`
+3:13 CharLiteral `'`
 4:1 IntegerLiteral `0x`
 5:1 IntegerLiteral `1_`
 6:2 Identifier `her`

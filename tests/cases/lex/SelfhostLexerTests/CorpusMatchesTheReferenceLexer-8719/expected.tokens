@@ -2,7 +2,7 @@
 1:12 Identifier `c`
 1:14 Equals `=`
 1:18 IntegerLiteral `3`
-2:3 EndOfFile
+2:7 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines
 

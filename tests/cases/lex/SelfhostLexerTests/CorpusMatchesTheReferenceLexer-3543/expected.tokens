@@ -9,7 +9,7 @@
 5:8 Equals `=`
 5:10 StringLiteral `"bad \q escape"`
 7:1 Identifier `가ن`
-7:4 EndOfFile
+7:5 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C
 

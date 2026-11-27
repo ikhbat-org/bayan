@@ -55,25 +55,25 @@
 1:82 InterpolatedStringEnd `"`
 1:83 InterpolationEnd `}`
 1:84 InterpolatedStringEnd `"`
-1:88 Amp `&`
-1:90 AmpAmp `&&`
-1:93 Bar `|`
-1:95 BarBar `||`
-1:98 Caret `^`
-1:100 Tilde `~`
-1:102 Bang `!`
-1:104 Equals `=`
-1:106 EqualsEquals `==`
-1:109 BangEquals `!=`
-1:112 Less `<`
-1:114 LessEquals `<=`
-1:117 Greater `>`
-1:119 GreaterEquals `>=`
-1:122 LessLess `<<`
-1:125 Greater `>`
+1:89 Amp `&`
+1:91 AmpAmp `&&`
+1:94 Bar `|`
+1:96 BarBar `||`
+1:99 Caret `^`
+1:101 Tilde `~`
+1:103 Bang `!`
+1:105 Equals `=`
+1:107 EqualsEquals `==`
+1:110 BangEquals `!=`
+1:113 Less `<`
+1:115 LessEquals `<=`
+1:118 Greater `>`
+1:120 GreaterEquals `>=`
+1:123 LessLess `<<`
 1:126 Greater `>`
-1:128 Greater `>`
-1:129 GreaterEquals `>=`
+1:127 Greater `>`
+1:129 Greater `>`
+1:130 GreaterEquals `>=`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

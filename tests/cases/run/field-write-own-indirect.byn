@@ -1,0 +1,40 @@
+struct Counter {
+    i64 n
+
+    void bump(ref this) {
+        n += 1
+    }
+}
+
+void inc(ref i64 v) {
+    v += 1
+}
+
+struct Door {
+    states {
+        closed
+        open
+    }
+    Counter visits
+    List<i64> log
+    i64 count
+
+    void touch(ref this) {
+        visits.bump()
+        log.append(1)
+        inc(ref count)
+    }
+}
+
+struct Plain {
+    Counter c
+}
+
+void main() {
+    var d = Door.closed { visits: Counter { n: 0 }, log: [], count: 0 }
+    d.touch()
+    var p = Plain { c: Counter { n: 0 } }
+    p.c.bump()
+    inc(ref p.c.n)
+    print($"{d.visits.n} {d.count} {p.c.n}")
+}

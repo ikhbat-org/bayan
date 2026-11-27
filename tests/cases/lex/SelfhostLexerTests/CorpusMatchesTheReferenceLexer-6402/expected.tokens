@@ -10,9 +10,9 @@
 3:8 Equals `=`
 3:10 StringLiteral `"open`
 4:1 Identifier `ạ̇`
-4:4 Identifier `macro`
-4:10 Identifier `select`
-4:17 BecomeKeyword `become`
+4:5 Identifier `macro`
+4:11 Identifier `select`
+4:18 BecomeKeyword `become`
 5:1 RawStringLiteral `"""\n\u{3}��� \n `
 7:2 EndOfFile
 

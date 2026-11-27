@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `café`
 1:11 Equals `=`
-1:13 IntegerLiteral `1`
+1:14 IntegerLiteral `1`
 2:1 Identifier `b`
 3:1 Identifier `Å`
 3:5 EndOfFile

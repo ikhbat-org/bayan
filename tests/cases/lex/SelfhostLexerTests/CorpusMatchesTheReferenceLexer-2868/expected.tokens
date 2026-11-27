@@ -1,5 +1,5 @@
 2:1 Identifier `osed`
-2:8 IntegerLiteral `0x_`
+2:11 IntegerLiteral `0x_`
 3:2 EndOfFile
 
 error BYN0002: unexpected character `⁕`

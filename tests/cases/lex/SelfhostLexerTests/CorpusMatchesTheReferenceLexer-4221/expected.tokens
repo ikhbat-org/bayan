@@ -11,14 +11,14 @@
 1:62 Identifier `r`
 1:63 Tilde `~`
 1:64 Identifier `e`
-1:65 Identifier `adonly`
-1:72 RequiredKeyword `required`
-1:81 ConstKeyword `const`
-1:87 LetKeyword `let`
-1:91 VarKeyword `var`
-1:95 EmbedKeyword `embed`
-1:101 ExternKeyword `extern`
-1:108 UnsafeKeyword `unsafe`
+1:66 Identifier `adonly`
+1:73 RequiredKeyword `required`
+1:82 ConstKeyword `const`
+1:88 LetKeyword `let`
+1:92 VarKeyword `var`
+1:96 EmbedKeyword `embed`
+1:102 ExternKeyword `extern`
+1:109 UnsafeKeyword `unsafe`
 8:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x85)

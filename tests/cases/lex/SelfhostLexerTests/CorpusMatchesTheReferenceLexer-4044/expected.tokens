@@ -1,4 +1,4 @@
-1:2 RawStringLiteral `""" ere�"\r\n$ let c = """`
+1:4 RawStringLiteral `""" ere�"\r\n$ let c = """`
 2:14 NeverKeyword `never`
 2:20 Identifier `closed`
 3:1 Plus `+`

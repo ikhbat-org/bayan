@@ -12,7 +12,7 @@
 4:6 InterpolatedStringEnd `"`
 4:7 CloseBrace `}`
 4:8 StringLiteral `"}`
-5:3 EndOfFile
+5:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

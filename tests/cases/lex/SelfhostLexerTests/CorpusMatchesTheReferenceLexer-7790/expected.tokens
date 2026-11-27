@@ -3,10 +3,10 @@
 1:4 InterpolationStart `{`
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
-2:1 Identifier `lt`
-2:4 Identifier `a`
-2:6 Equals `=`
-2:8 IntegerLiteral `1`
+2:2 Identifier `lt`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 IntegerLiteral `1`
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

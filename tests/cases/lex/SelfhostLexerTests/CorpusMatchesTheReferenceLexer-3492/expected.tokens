@@ -13,10 +13,10 @@
 9:12 Identifier `_x`
 9:15 Identifier `camelCase2`
 9:27 Identifier `ب`
-9:29 Identifier `ان`
-9:32 Identifier `μετρητής`
-9:41 Identifier `x_1`
-9:45 Identifier `é`
+9:30 Identifier `ان`
+9:33 Identifier `μετρητής`
+9:42 Identifier `x_1`
+9:46 Identifier `é`
 10:2 EndOfFile
 
 error BYN0008: unterminated char literal

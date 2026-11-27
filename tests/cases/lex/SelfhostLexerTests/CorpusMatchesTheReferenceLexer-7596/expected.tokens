@@ -86,10 +86,10 @@
 11:14 BecomeKeyword `become`
 12:1 LetKeyword `let`
 12:5 Identifier `lal`
-12:8 Identifier `et`
-12:11 EffectKeyword `effect`
-12:18 Equals `=`
-12:20 IntegerLiteral `2`
+12:9 Identifier `et`
+12:12 EffectKeyword `effect`
+12:19 Equals `=`
+12:21 IntegerLiteral `2`
 14:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

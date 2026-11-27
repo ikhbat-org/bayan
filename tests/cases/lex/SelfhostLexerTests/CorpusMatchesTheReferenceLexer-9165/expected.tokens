@@ -42,38 +42,38 @@
 11:10 Identifier `x`
 11:11 InterpolationEnd `}`
 11:12 InterpolatedStringEnd `"`
-11:13 InterpolatedStringStart `$"`
-11:15 InterpolatedStringText `a `
-11:17 InterpolationStart `{`
-11:18 Identifier `f`
-11:19 OpenParen `(`
-11:20 InterpolatedStringStart `$"`
-11:22 InterpolatedStringText `b `
-11:24 InterpolationStart `{`
-11:25 Identifier `c`
-11:26 InterpolationEnd `}`
-11:27 InterpolatedStringEnd `"`
-11:28 CloseParen `)`
-11:29 InterpolationEnd `}`
-11:30 InterpolatedStringText `d`
-11:31 InterpolatedStringEnd `"`
-11:32 CloseBrace `}`
-11:33 InterpolatedStringStart `$"`
-11:35 InterpolatedStringText `{{literal}}`
-11:46 InterpolatedStringEnd `"`
-11:48 InterpolatedStringStart `$"`
-11:50 InterpolationStart `{`
-11:51 Identifier `Point`
-11:57 OpenBrace `{`
-11:59 Identifier `x`
-11:61 Equals `=`
-11:63 IntegerLiteral `1`
-11:65 CloseBrace `}`
-11:66 InterpolationEnd `}`
-11:67 InterpolatedStringText `!`
-11:68 InterpolatedStringEnd `"`
-11:70 InterpolatedStringStart `$"`
-11:72 InterpolatedStringEnd `"`
+11:14 InterpolatedStringStart `$"`
+11:16 InterpolatedStringText `a `
+11:18 InterpolationStart `{`
+11:19 Identifier `f`
+11:20 OpenParen `(`
+11:21 InterpolatedStringStart `$"`
+11:23 InterpolatedStringText `b `
+11:25 InterpolationStart `{`
+11:26 Identifier `c`
+11:27 InterpolationEnd `}`
+11:28 InterpolatedStringEnd `"`
+11:29 CloseParen `)`
+11:30 InterpolationEnd `}`
+11:31 InterpolatedStringText `d`
+11:32 InterpolatedStringEnd `"`
+11:33 CloseBrace `}`
+11:34 InterpolatedStringStart `$"`
+11:36 InterpolatedStringText `{{literal}}`
+11:47 InterpolatedStringEnd `"`
+11:49 InterpolatedStringStart `$"`
+11:51 InterpolationStart `{`
+11:52 Identifier `Point`
+11:58 OpenBrace `{`
+11:60 Identifier `x`
+11:62 Equals `=`
+11:64 IntegerLiteral `1`
+11:66 CloseBrace `}`
+11:67 InterpolationEnd `}`
+11:68 InterpolatedStringText `!`
+11:69 InterpolatedStringEnd `"`
+11:71 InterpolatedStringStart `$"`
+11:73 InterpolatedStringEnd `"`
 13:1 EndOfFile
 
 error BYN0011: unit suffix `ms` is not allowed on a binary literal

@@ -39,12 +39,12 @@
 1:69 InterpolatedStringStart `$"`
 1:71 InterpolationStart `{`
 1:72 StringLiteral `$"{�$"`
-1:77 OpenBrace `{`
-1:78 StringLiteral `$"{$"`
-1:83 OpenBrace `{`
-1:84 Identifier `x`
-1:85 CloseBrace `}`
-1:86 StringLiteral `"�if else unless sw�itch case default for in while do break continue return yield defer errdefer using context`
+1:78 OpenBrace `{`
+1:79 StringLiteral `$"{$"`
+1:84 OpenBrace `{`
+1:85 Identifier `x`
+1:86 CloseBrace `}`
+1:87 StringLiteral `"�if else unless sw�itch case default for in while do break continue return yield defer errdefer using context`
 2:2 CharLiteral `'\q'`
 4:1 EndOfFile
 

@@ -1,7 +1,7 @@
 1:1 Identifier `k`
 1:2 Tilde `~`
-1:3 IntegerLiteral `9`
-1:5 EndOfFile
+1:4 IntegerLiteral `9`
+1:6 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)
 

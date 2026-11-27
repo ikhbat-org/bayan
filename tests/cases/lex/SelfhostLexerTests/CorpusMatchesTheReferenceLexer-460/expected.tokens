@@ -3,10 +3,10 @@
 3:1 CharLiteral `'ab'`
 4:1 Identifier `é`
 4:7 Identifier `cmmen`
-4:12 Identifier `t`
-4:14 Star `*`
-4:15 Slash `/`
-4:17 Identifier `a`
+4:13 Identifier `t`
+4:15 Star `*`
+4:16 Slash `/`
+4:18 Identifier `a`
 5:1 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar

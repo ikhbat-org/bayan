@@ -25,19 +25,19 @@
 5:5 LawKeyword `law`
 5:9 Equals `=`
 5:11 IntegerLiteral `3`
-6:1 IntegerLiteral `50`
-6:3 NumericSuffix `dec`
-6:7 IntegerLiteral `1`
-6:8 DotDot `..`
-6:10 IntegerLiteral `2`
-6:12 IntegerLiteral `1`
-6:13 DotDotEquals `..=`
-6:16 IntegerLiteral `3`
-6:18 IntegerLiteral `5`
-6:19 NumericSuffix `e`
-6:21 Identifier `comment`
-6:30 Identifier `l`
-6:32 Identifier `hidden`
+6:2 IntegerLiteral `50`
+6:4 NumericSuffix `dec`
+6:8 IntegerLiteral `1`
+6:9 DotDot `..`
+6:11 IntegerLiteral `2`
+6:13 IntegerLiteral `1`
+6:14 DotDotEquals `..=`
+6:17 IntegerLiteral `3`
+6:19 IntegerLiteral `5`
+6:20 NumericSuffix `e`
+6:22 Identifier `comment`
+6:31 Identifier `l`
+6:33 Identifier `hidden`
 7:1 LetKeyword `let`
 7:5 Identifier `x`
 7:8 Equals `=`
@@ -48,7 +48,7 @@
 7:16 Identifier `y`
 7:18 FloatLiteral `2.5`
 7:21 NumericSuffix `f`
-8:3 EndOfFile
+8:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

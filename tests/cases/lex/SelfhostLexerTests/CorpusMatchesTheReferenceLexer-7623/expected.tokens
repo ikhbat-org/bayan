@@ -45,8 +45,8 @@
 1:88 StringLiteral `$"{$"`
 1:93 OpenBrace `{`
 1:94 StringLiteral `$"{$�{x}"`
-1:102 CloseBrace `}`
-1:103 StringLiteral `"`
+1:103 CloseBrace `}`
+1:104 StringLiteral `"`
 2:2 CStringLiteral `c"a{b}c `
 2:10 EndOfFile
 

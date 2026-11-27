@@ -8,10 +8,10 @@
 2:8 Equals `=`
 2:10 IntegerLiteral `1`
 3:1 StringLiteral `"a��b"`
-3:5 Identifier `a`
-3:7 Greater `>`
-3:8 Greater `>`
-3:10 Identifier `b`
+3:7 Identifier `a`
+3:9 Greater `>`
+3:10 Greater `>`
+3:12 Identifier `b`
 5:1 CharLiteral `' $"stra\u{8} } here"`
 7:1 EndOfFile
 

@@ -39,9 +39,9 @@
 1:66 Identifier `camelCase2`
 1:77 Identifier `بيان`
 1:82 Identifier `μετρητ`
-1:88 Identifier `ής`
-1:91 Identifier `x_1`
-1:95 Identifier `é`
+1:89 Identifier `ής`
+1:92 Identifier `x_1`
+1:96 Identifier `é`
 2:1 EndOfFile
 
 error BYN0002: unexpected character `$`

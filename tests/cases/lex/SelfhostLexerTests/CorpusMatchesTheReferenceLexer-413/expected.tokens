@@ -29,11 +29,11 @@
 4:33 OpenKeyword `open`
 4:38 ExtensibleKeyword `extensible`
 4:49 Identifier `interfac`
-4:57 Identifier `e`
-4:59 DelegateKeyword `delegate`
-4:68 Identifier `extensioQ`
-4:78 DerivationKeyword `derivation`
-4:89 AttributeKeyword `attribute`
+4:58 Identifier `e`
+4:60 DelegateKeyword `delegate`
+4:69 Identifier `extensioQ`
+4:79 DerivationKeyword `derivation`
+4:90 AttributeKeyword `attribute`
 5:2 StringLiteral `"text"`
 5:9 StringLiteral `"ec \"q\" \\ \n"`
 5:26 RawStringLiteral `"""\nafé = 2\n\n`

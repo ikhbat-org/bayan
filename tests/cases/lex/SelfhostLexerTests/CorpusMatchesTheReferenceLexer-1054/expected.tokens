@@ -16,9 +16,9 @@
 1:93 EmbedKeyword `embed`
 1:99 ExternKeyword `extern`
 1:106 UnsafeKeyword `unsafe`
-3:3 Identifier `macro`
-3:9 Identifier `select`
-3:16 BecomeKeyword `become`
+3:6 Identifier `macro`
+3:12 Identifier `select`
+3:19 BecomeKeyword `become`
 4:1 Identifier `l`
 5:1 Identifier `et`
 5:4 Identifier `a`

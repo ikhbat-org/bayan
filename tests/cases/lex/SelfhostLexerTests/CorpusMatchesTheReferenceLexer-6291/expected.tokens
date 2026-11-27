@@ -3,7 +3,7 @@
 3:1 Slash `/`
 3:2 Identifier `d`
 3:4 Identifier `comment`
-3:14 Identifier `idden`
+3:15 Identifier `idden`
 5:1 CloseBrace `}`
 5:2 EndOfFile
 

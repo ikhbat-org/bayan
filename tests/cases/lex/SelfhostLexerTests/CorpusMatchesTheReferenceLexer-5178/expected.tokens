@@ -2,10 +2,10 @@
 1:8 Identifier `S`
 3:2 CaretEquals `^=`
 3:5 LessLessEquals `<<=`
-4:3 LetKeyword `let`
-4:7 Identifier `actor`
-4:13 Equals `=`
-4:15 IntegerLiteral `1`
+4:4 LetKeyword `let`
+4:8 Identifier `actor`
+4:14 Equals `=`
+4:16 IntegerLiteral `1`
     doc `/// Doc line one.`
 7:1 EndOfFile
 

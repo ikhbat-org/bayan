@@ -19,41 +19,41 @@
 8:3 InterpolationStart `{`
 8:5 InterpolatedStringStart `$"`
 8:7 InterpolatedStringText `tot�al `
-8:13 InterpolationStart `{`
-8:14 Identifier `x`
-8:15 InterpolationEnd `}`
-8:16 InterpolatedStringEnd `"`
-8:18 InterpolatedStringStart `$"`
-8:20 InterpolatedStringText `a `
-8:22 InterpolationStart `{`
-8:23 Identifier `f`
-8:24 OpenParen `(`
-8:25 InterpolatedStringStart `$"`
-8:27 InterpolatedStringText `b `
-8:29 InterpolationStart `{`
-8:30 Identifier `c`
-8:31 InterpolationEnd `}`
-8:32 InterpolatedStringEnd `"`
-8:33 CloseParen `)`
-8:34 InterpolationEnd `}`
-8:35 InterpolatedStringText ` d`
-8:37 InterpolatedStringEnd `"`
-8:39 InterpolatedStringStart `$"`
-8:41 InterpolatedStringText `{{literal}}`
-8:52 InterpolatedStringEnd `"`
-8:54 InterpolatedStringStart `$"`
-8:56 InterpolationStart `{`
-8:57 Identifier `Pont`
-8:62 OpenBrace `{`
-8:64 Identifier `x`
-8:66 Equals `=`
-8:68 IntegerLiteral `1`
-8:70 CloseBrace `}`
-8:71 InterpolationEnd `}`
-8:72 InterpolatedStringText `!`
-8:73 InterpolatedStringEnd `"`
-8:75 InterpolatedStringStart `$"`
-8:77 InterpolatedStringEnd `"`
+8:14 InterpolationStart `{`
+8:15 Identifier `x`
+8:16 InterpolationEnd `}`
+8:17 InterpolatedStringEnd `"`
+8:19 InterpolatedStringStart `$"`
+8:21 InterpolatedStringText `a `
+8:23 InterpolationStart `{`
+8:24 Identifier `f`
+8:25 OpenParen `(`
+8:26 InterpolatedStringStart `$"`
+8:28 InterpolatedStringText `b `
+8:30 InterpolationStart `{`
+8:31 Identifier `c`
+8:32 InterpolationEnd `}`
+8:33 InterpolatedStringEnd `"`
+8:34 CloseParen `)`
+8:35 InterpolationEnd `}`
+8:36 InterpolatedStringText ` d`
+8:38 InterpolatedStringEnd `"`
+8:40 InterpolatedStringStart `$"`
+8:42 InterpolatedStringText `{{literal}}`
+8:53 InterpolatedStringEnd `"`
+8:55 InterpolatedStringStart `$"`
+8:57 InterpolationStart `{`
+8:58 Identifier `Pont`
+8:63 OpenBrace `{`
+8:65 Identifier `x`
+8:67 Equals `=`
+8:69 IntegerLiteral `1`
+8:71 CloseBrace `}`
+8:72 InterpolationEnd `}`
+8:73 InterpolatedStringText `!`
+8:74 InterpolatedStringEnd `"`
+8:76 InterpolatedStringStart `$"`
+8:78 InterpolatedStringEnd `"`
 9:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

@@ -16,7 +16,7 @@
 4:28 CharLiteral `'é'`
 4:33 CharLiteral `'\\'`
 4:38 CharLiteral `'\0'`
-    doc `/// // \u{202E}x\r`
+    doc `/// // \u{202E}x`
 7:2 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C

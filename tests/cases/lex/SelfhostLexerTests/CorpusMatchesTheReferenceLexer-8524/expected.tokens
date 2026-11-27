@@ -1,5 +1,5 @@
-1:2 Equals `=`
-1:4 IntegerLiteral `1`
+1:3 Equals `=`
+1:5 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:5 Identifier `café`
 2:10 Equals `=`

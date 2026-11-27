@@ -10,17 +10,17 @@
 2:18 IntegerLiteral `1`
 2:19 DotDot `..`
 2:21 IntegerLiteral `2`
-2:23 IntegerLiteral `1`
-2:24 DotDotEquals `..=`
-2:27 IntegerLiteral `3`
-2:29 IntegerLiteral `5`
-2:30 NumericSuffix `e`
-2:31 Identifier `x`
-2:32 Dot `.`
-2:33 Identifier `y`
-2:35 FloatLiteral `2.5`
-2:38 NumericSuffix `fa`
-2:41 EndOfFile
+2:24 IntegerLiteral `1`
+2:25 DotDotEquals `..=`
+2:28 IntegerLiteral `3`
+2:30 IntegerLiteral `5`
+2:31 NumericSuffix `e`
+2:33 Identifier `x`
+2:34 Dot `.`
+2:35 Identifier `y`
+2:37 FloatLiteral `2.5`
+2:40 NumericSuffix `fa`
+2:43 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x93)
 

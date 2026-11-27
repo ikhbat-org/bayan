@@ -1,5 +1,5 @@
-1:4 StringLiteral `"a\u{2067}b"`
-1:10 Identifier `t`
+1:6 StringLiteral `"a\u{2067}b"`
+1:12 Identifier `t`
     doc `/// Doc line one.\n/// Doc line �wo.`
 3:1 StructKeyword `struct`
 3:8 Identifier `S`

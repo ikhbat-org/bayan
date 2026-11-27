@@ -5,17 +5,17 @@
 1:13 BarEquals `|=`
 1:16 CaretEquals `^=`
 1:19 LessLessEquals `<<=`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 3:2 CloseBrace `}`
 4:1 CloseBrace `}`
 4:3 TestKeyword `test`
 4:8 AssertKeyword `assert`
 4:15 PropertyKeyword `property`
 4:24 FuzzKeyword `fuzz`
-4:29 ModelKeyword `model`
-4:35 ForeachKeyword `foreach`
-4:43 NewKeyword `new`
-4:47 Identifier `gotoL`
+4:30 ModelKeyword `model`
+4:36 ForeachKeyword `foreach`
+4:44 NewKeyword `new`
+4:48 Identifier `gotoL`
 6:1 LetKeyword `let`
 6:5 Identifier `x`
 6:9 IntegerLiteral `1`

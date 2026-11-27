@@ -1,6 +1,6 @@
 1:1 CharLiteral `'`
 2:1 Identifier `b`
-3:2 EndOfFile
+3:3 EndOfFile
 
 error BYN0008: unterminated char literal
 

@@ -18,8 +18,8 @@
 4:10 BecomeKeyword `become`
 5:1 LetKeyword `let`
 5:5 LawKeyword `law`
-5:8 Equals `=`
-5:10 IntegerLiteral `3`
+5:9 Equals `=`
+5:11 IntegerLiteral `3`
 6:2 LetKeyword `let`
 6:6 Identifier `café`
 6:12 Equals `=`

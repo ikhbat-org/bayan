@@ -78,14 +78,14 @@
 7:2 Plus `+`
 7:4 Equals `=`
 7:6 Minus `-`
-7:7 Equals `=`
-7:9 StarEquals `*=`
-7:12 SlashEquals `/=`
-7:15 PercentEquals `%=`
-7:18 AmpEquals `&=`
-7:21 BarEquals `|=`
-7:24 CaretEquals `^=`
-7:27 LessLessEquals `<<=`
+7:8 Equals `=`
+7:10 StarEquals `*=`
+7:13 SlashEquals `/=`
+7:16 PercentEquals `%=`
+7:19 AmpEquals `&=`
+7:22 BarEquals `|=`
+7:25 CaretEquals `^=`
+7:28 LessLessEquals `<<=`
 8:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

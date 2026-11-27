@@ -59,9 +59,9 @@
 3:4 Identifier `y`
 3:6 FloatLiteral `2.5`
 3:9 NumericSuffix `f`
-5:3 Identifier `é`
-5:5 Equals `=`
-5:7 IntegerLiteral `2`
+5:6 Identifier `é`
+5:8 Equals `=`
+5:10 IntegerLiteral `2`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

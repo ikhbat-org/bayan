@@ -1,8 +1,8 @@
 1:1 IntegerLiteral `2`
 1:3 Identifier `بي`
-1:8 Identifier `macro`
-1:14 Identifier `select`
-1:21 BecomeKeyword `become`
+1:10 Identifier `macro`
+1:16 Identifier `select`
+1:23 BecomeKeyword `become`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`

@@ -4,7 +4,7 @@
 4:1 CharLiteral `'\u{D800}'`
 5:1 CharLiteral `'\u{10000}'`
 6:1 CharLiteral `'x`
-9:3 EndOfFile
+9:5 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

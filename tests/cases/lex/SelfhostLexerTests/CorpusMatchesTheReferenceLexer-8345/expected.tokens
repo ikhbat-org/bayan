@@ -1,32 +1,32 @@
 1:1 IntegerLiteral `0xFF`
 1:5 NumericSuffix `s`
-2:3 InterpolatedStringStart `$"`
-2:5 InterpolatedStringText `b `
-2:7 InterpolationStart `{`
-2:8 Identifier `c`
-2:9 InterpolationEnd `}`
-2:10 InterpolatedStringEnd `"`
-2:11 CloseParen `)`
-2:12 CloseBrace `}`
-2:14 Identifier `d`
-2:15 StringLiteral `" $"`
-2:19 OpenBrace `{`
+2:4 InterpolatedStringStart `$"`
+2:6 InterpolatedStringText `b `
+2:8 InterpolationStart `{`
+2:9 Identifier `c`
+2:10 InterpolationEnd `}`
+2:11 InterpolatedStringEnd `"`
+2:12 CloseParen `)`
+2:13 CloseBrace `}`
+2:15 Identifier `d`
+2:16 StringLiteral `" $"`
 2:20 OpenBrace `{`
-2:21 Identifier `literal`
-2:28 CloseBrace `}`
+2:21 OpenBrace `{`
+2:22 Identifier `literal`
 2:29 CloseBrace `}`
-2:30 StringLiteral `" $"`
-2:34 OpenBrace `{`
-2:35 Identifier `Point`
-2:41 OpenBrace `{`
-2:43 Identifier `x`
-2:45 Identifier `u`
-2:47 IntegerLiteral `1`
-2:49 CloseBrace `}`
+2:30 CloseBrace `}`
+2:31 StringLiteral `" $"`
+2:35 OpenBrace `{`
+2:36 Identifier `Point`
+2:42 OpenBrace `{`
+2:44 Identifier `x`
+2:46 Identifier `u`
+2:48 IntegerLiteral `1`
 2:50 CloseBrace `}`
-2:51 Bang `!`
-2:52 StringLiteral `" $"`
-2:56 StringLiteral `"`
+2:51 CloseBrace `}`
+2:52 Bang `!`
+2:53 StringLiteral `" $"`
+2:57 StringLiteral `"`
 4:1 LetKeyword `let`
 4:5 Identifier `café`
 4:10 Equals `=`

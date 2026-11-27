@@ -13,7 +13,7 @@ f, err := strconv.ParseFloat("2.5e-3", 64)</code></pre>
 <p>You pick the width by calling the parser on the type (<code>i8</code>, <code>u16</code>, <code>i64</code>, and so on), and the range is checked for you.</p>
 
 <h2 id="json-encode">Serialize a value to JSON</h2>
-<p><strong>Planned.</strong> The spec derives JSON support from an attribute, <code>@derive(Json)</code> on a struct (sections 5.3 and 7.9), and names <code>Json.encode</code>, which rejects non-finite floats with <code>JsonError.nonFinite</code> (section 6.6). It gives no signature for <code>Json.encode</code>, the derivation mechanism is "not in v0.1", and the compiler has no <code>Json</code>. The spec's declaration:</p>
+<p><strong>Planned.</strong> The spec derives JSON support from an attribute, <code>@derive(Json)</code> on a struct (sections 5.3 and 7.9), and names <code>Json.encode</code>, which rejects non-finite floats with <code>JsonError.nonFinite</code> (section 6.6). The derivation mechanism is not in the compiler yet: <code>import std.json</code> has <code>Json.encode</code> for a <code>JsonValue</code> tree, but nothing derives one from a struct. The spec's declaration:</p>
 <pre><code class="byn">@derive(Json)
 struct SignupForm {
     string username

@@ -60,17 +60,17 @@
 1:93 InterpolatedStringEnd `"`
 1:94 InterpolationEnd `}`
 1:95 InterpolatedStringEnd `"`
-1:96 StringLiteral `"}"`
-1:99 InterpolationEnd `}`
-1:100 InterpolatedStringEnd `"`
-1:101 InterpolationEnd `}`
-1:102 InterpolatedStringEnd `"`
-1:103 InterpolationEnd `}`
-1:104 InterpolatedStringEnd `"`
-1:105 InterpolationEnd `}`
-1:106 InterpolatedStringEnd `"`
-1:107 InterpolationEnd `}`
-1:108 InterpolatedStringEnd `"`
+1:97 StringLiteral `"}"`
+1:100 InterpolationEnd `}`
+1:101 InterpolatedStringEnd `"`
+1:102 InterpolationEnd `}`
+1:103 InterpolatedStringEnd `"`
+1:104 InterpolationEnd `}`
+1:105 InterpolatedStringEnd `"`
+1:106 InterpolationEnd `}`
+1:107 InterpolatedStringEnd `"`
+1:108 InterpolationEnd `}`
+1:109 InterpolatedStringEnd `"`
 5:3 EndOfFile
 
 error BYN0003: unterminated string literal

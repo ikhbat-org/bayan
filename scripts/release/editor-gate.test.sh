@@ -52,7 +52,7 @@ grep -qx 'bayan test --package editors/language-server/src editors/language-serv
 grep -q '^python3 server=.*/bayan-lsp$' "$LOG" || fail "the sessions were not replayed against the built bayan-lsp"
 if grep -q '^dotnet' "$LOG"; then fail "the gate called dotnet: $(grep '^dotnet' "$LOG")"; fi
 grep -q 'dotnet' "$gate" && fail "editor-gate.sh still names dotnet"
-grep -Eq '^npx --yes @vscode/vsce@[0-9]+\.[0-9]+\.[0-9]+ package' "$LOG" || fail "the extension was not packaged"
+grep -q '^npx --no-install vsce package' "$LOG" || fail "the extension was not packaged"
 
 : > "$LOG"; if FAIL_ON=bayan-test bash "$gate" > "$tmp/out" 2> "$tmp/err"; then fail "failing bound blocks passed"; fi
 grep -q "FAILED: .*bayan test --package editors/language-server/src editors/language-server/src/bounds" "$tmp/err" \
@@ -68,13 +68,13 @@ grep -q "bound blocks reported pending" "$tmp/err" || fail "pending bound blocks
 if NONE=1 FAIL_ON= bash "$gate" > /dev/null 2> "$tmp/err"; then fail "a bound run with none passed passed"; fi
 grep -q "bound blocks did not run" "$tmp/err" || fail "a bound run with none passed was not named"
 if FAIL_ON=npx bash "$gate" > /dev/null 2> "$tmp/err"; then fail "a failing vsce package passed"; fi
-grep -q "FAILED: npx --yes @vscode/vsce@" "$tmp/err" || fail "the vsce failure was not named"
+grep -q "FAILED: npx --no-install vsce package" "$tmp/err" || fail "the vsce failure was not named"
 if FAIL_ON=npm bash "$gate" > /dev/null 2> "$tmp/err"; then fail "a failing npm ci passed"; fi
 if VSIX_BYTES=5000 VSIX_MAX_BYTES=1000 FAIL_ON= bash "$gate" > /dev/null 2> "$tmp/err"; then fail "an oversize .vsix passed"; fi
 grep -q "vsix size 5000 > 1000" "$tmp/err" || fail "the size failure was not named: $(cat "$tmp/err")"
 VSIX_BYTES=1000 VSIX_MAX_BYTES=1000 FAIL_ON= bash "$gate" > /dev/null 2>&1 || fail "a .vsix at the bound was refused"
 
-grep -Eq '^vsce=[0-9]+\.[0-9]+\.[0-9]+( |$)' "$gate" || fail "editor-gate.sh does not pin vsce to an exact version"
+grep -q '@vscode/vsce@' "$gate" && fail "editor-gate.sh fetches vsce outside the lockfile"
 
 # Wiring: editor-gate.yml runs the script on push to dev and as a workflow_call; release.yml calls it and `release` needs it.
 g="$root/.github/workflows/editor-gate.yml"; wf="$root/.github/workflows/release.yml"

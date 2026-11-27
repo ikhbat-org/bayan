@@ -7,17 +7,17 @@
 1:29 CaseKeyword `case`
 1:34 DefaultKeyword `default`
 1:42 ForKeyword `for`
-1:46 InKeyword `in`
-1:49 WhileKeyword `while`
-1:55 DoKeyword `do`
-1:58 BreakKeyword `break`
-1:64 ContinueKeyword `continue`
-1:73 ReturnKeyword `return`
-1:80 YieldKeyword `yield`
-1:86 DeferKeyword `defer`
-1:92 ErrdeferKeyword `errdefer`
-1:101 UsingKeyword `using`
-1:107 ContextKeyword `context`
+1:47 InKeyword `in`
+1:50 WhileKeyword `while`
+1:56 DoKeyword `do`
+1:59 BreakKeyword `break`
+1:65 ContinueKeyword `continue`
+1:74 ReturnKeyword `return`
+1:81 YieldKeyword `yield`
+1:87 DeferKeyword `defer`
+1:93 ErrdeferKeyword `errdefer`
+1:102 UsingKeyword `using`
+1:108 ContextKeyword `context`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBD)

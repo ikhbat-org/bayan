@@ -1,0 +1,15 @@
+import std.regex
+
+void main() uses alloc {
+    let word = regex.Regex.parse("\\b[a-z]+\\d+\\b") catch {
+        print("bad pattern")
+        return
+    }
+    let line = "rooms a12 and b7, not 42"
+    print($"{word.matches(line)}")
+    for m in word.findAll(line) {
+        print(m.group(0) ?? "")
+    }
+    print(word.replaced(line, by: "#"))
+    print(regex.Regex.escaped("1+1=2?"))
+}

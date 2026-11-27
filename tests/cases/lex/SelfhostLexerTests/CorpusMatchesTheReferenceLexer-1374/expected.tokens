@@ -1,9 +1,9 @@
 1:1 Identifier `F6`
 1:4 StringLiteral `"{/*`
-2:1 Identifier `et`
-2:4 Identifier `a`
-2:6 Equals `=`
-2:8 StringLiteral `"open`
+2:2 Identifier `et`
+2:5 Identifier `a`
+2:7 Equals `=`
+2:9 StringLiteral `"open`
 4:1 LetKeyword `let`
 4:5 Identifier `a`
 4:7 Equals `=`

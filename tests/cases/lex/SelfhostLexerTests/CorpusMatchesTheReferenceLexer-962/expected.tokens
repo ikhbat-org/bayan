@@ -1,4 +1,4 @@
-1:2 Identifier `hidden`
+1:3 Identifier `hidden`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 Equals `=`
@@ -8,19 +8,19 @@
 6:3 InterpolationStart `{`
 6:4 InterpolationEnd `}`
 6:5 InterpolatedStringEnd `"`
-7:2 Identifier `f`
-7:3 InterpolatedStringStart `$"`
-7:5 InterpolatedStringText `b `
-7:7 InterpolationStart `{`
-7:8 Identifier `c`
-7:9 InterpolationEnd `}`
-7:10 InterpolatedStringEnd `"`
-7:11 CloseParen `)`
-7:12 CloseBrace `}`
-7:14 Identifier `d`
-7:15 StringLiteral `" $"`
-7:19 OpenBrace `{`
-7:21 IntegerLiteral `0b__`
+7:3 Identifier `f`
+7:4 InterpolatedStringStart `$"`
+7:6 InterpolatedStringText `b `
+7:8 InterpolationStart `{`
+7:9 Identifier `c`
+7:10 InterpolationEnd `}`
+7:11 InterpolatedStringEnd `"`
+7:12 CloseParen `)`
+7:13 CloseBrace `}`
+7:15 Identifier `d`
+7:16 StringLiteral `" $"`
+7:20 OpenBrace `{`
+7:22 IntegerLiteral `0b__`
 8:1 LetKeyword `let`
 8:5 Identifier `a`
 8:7 Equals `=`

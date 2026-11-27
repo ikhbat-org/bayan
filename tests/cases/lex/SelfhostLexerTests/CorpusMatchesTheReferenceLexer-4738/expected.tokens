@@ -5,7 +5,7 @@
 2:7 InterpolationStart `{`
 2:8 Identifier `x`
 2:9 Semicolon `;`
-4:1 CharLiteral `'x\r`
+4:1 CharLiteral `'x`
 6:1 EndOfFile
 
 error BYN0003: unterminated string literal

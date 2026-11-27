@@ -1,5 +1,5 @@
 1:1 Identifier `q`
-1:2 CharLiteral `'\r`
+1:2 CharLiteral `'`
 2:1 CharLiteral `'\u{D800}&p`
 2:12 EndOfFile
 

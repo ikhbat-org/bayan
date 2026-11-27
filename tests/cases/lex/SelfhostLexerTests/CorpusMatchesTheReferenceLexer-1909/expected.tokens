@@ -1,15 +1,15 @@
 1:1 StructKeyword `struct`
 1:8 Identifier `uniq`
-1:13 UnionKeyword `union`
-1:19 EnumKeyword `enum`
-1:24 FlagsKeyword `flags`
-1:30 OpenKeyword `open`
-1:35 ExtensibleKeyword `extensible`
-1:46 InterfaceKeyword `interface`
-1:56 DelegateKeyword `delegate`
-1:65 Identifier `exKtension`
-1:76 DerivationKeyword `derivation`
-1:87 AttributeKeyword `attribute`
+1:14 UnionKeyword `union`
+1:20 EnumKeyword `enum`
+1:25 FlagsKeyword `flags`
+1:31 OpenKeyword `open`
+1:36 ExtensibleKeyword `extensible`
+1:47 InterfaceKeyword `interface`
+1:57 DelegateKeyword `delegate`
+1:66 Identifier `exKtension`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
 2:1 CharLiteral `'\u{202E}'`
 2:4 EndOfFile
 

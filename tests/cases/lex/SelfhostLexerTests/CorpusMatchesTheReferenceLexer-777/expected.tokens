@@ -1,5 +1,5 @@
-1:1 IntegerLiteral `0b1`
-1:4 NumericSuffix `ms`
+1:2 IntegerLiteral `0b1`
+1:5 NumericSuffix `ms`
 2:2 Identifier `b`
 3:2 Slash `/`
 4:1 Slash `/`

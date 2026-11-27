@@ -17,7 +17,7 @@
 5:7 Equals `=`
 5:11 IntegerLiteral `2`
 6:1 IntegerLiteral `0b__`
-8:3 EndOfFile
+8:4 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

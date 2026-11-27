@@ -2,10 +2,10 @@
 1:12 Star `*`
 1:13 Slash `/`
 1:15 Identifier `a`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 5:3 Identifier `raw`
 5:7 StringLiteral `"quoted8`
-    doc `/// 0x/* block\r`
+    doc `/// 0x/* block`
 7:1 ErrorKeyword `error`
 7:7 SetKeyword `set`
 7:11 UnitKeyword `unit`

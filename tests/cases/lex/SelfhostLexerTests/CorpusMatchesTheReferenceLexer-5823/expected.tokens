@@ -1,8 +1,8 @@
 1:2 Identifier `_l`
-1:4 Identifier `etQ`
-1:8 Identifier `café`
-1:13 Equals `=`
-1:15 IntegerLiteral `2`
+1:5 Identifier `etQ`
+1:9 Identifier `café`
+1:14 Equals `=`
+1:16 IntegerLiteral `2`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC2)

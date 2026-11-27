@@ -15,8 +15,8 @@
 10:16 Identifier `_`
 11:3 Identifier `hidden`
 12:1 LetKeyword `let`
-12:7 Equals `=`
-12:9 IntegerLiteral `1`
+12:8 Equals `=`
+12:10 IntegerLiteral `1`
 13:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

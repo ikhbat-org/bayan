@@ -3,12 +3,12 @@
 3:5 Identifier `a`
 3:7 Equals `=`
 3:9 IntegerLiteral `1`
-4:4 OpenParen `(`
-4:6 CloseParen `)`
-4:8 OpenBracket `[`
-4:10 CloseBracket `]`
-4:12 OpenBrace `{`
-4:14 CloseBrace `}`
+4:7 OpenParen `(`
+4:9 CloseParen `)`
+4:11 OpenBracket `[`
+4:13 CloseBracket `]`
+4:15 OpenBrace `{`
+4:17 CloseBrace `}`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`
 6:4 EndOfFile

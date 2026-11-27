@@ -1,7 +1,7 @@
 1:1 Identifier `x`
 2:2 OpenBrace `{`
 2:3 OpenBrace `{`
-2:4 EndOfFile
+2:5 EndOfFile
 
 error BYN0002: unexpected character `$`
 

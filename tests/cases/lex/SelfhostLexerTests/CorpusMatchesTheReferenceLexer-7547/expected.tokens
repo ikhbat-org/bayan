@@ -15,8 +15,8 @@
 5:32 MinusMinus `--`
 6:1 Identifier `lest`
 6:6 Identifier `café`
-6:10 Equals `=`
-6:12 IntegerLiteral `2`
+6:11 Equals `=`
+6:13 IntegerLiteral `2`
 7:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

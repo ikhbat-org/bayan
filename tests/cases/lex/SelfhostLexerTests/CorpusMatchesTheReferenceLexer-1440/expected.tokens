@@ -7,9 +7,9 @@
 3:9 Identifier `select`
 3:16 BecomeKeyword `become`
 4:2 IntegerLiteral `0x`
-5:1 InterpolatedStringStart `$"`
-5:3 InterpolationStart `{`
-5:4 EndOfFile
+5:2 InterpolatedStringStart `$"`
+5:4 InterpolationStart `{`
+5:5 EndOfFile
 
 error BYN0002: unexpected character `$`
 

@@ -16,12 +16,12 @@
 2:7 Equals `=`
 2:9 IntegerLiteral `1`
 6:1 IntegerLiteral `0b102`
-    doc `/// Doc lin�e one.\r`
+    doc `/// Doc lin�e one.`
 8:2 IntegerLiteral `00`
 8:4 InterpolationEnd `}`
-8:5 InterpolatedStringText `'\r`
-8:7 InterpolatedStringEnd
-9:1 CharLiteral `'\u\r`
+8:5 InterpolatedStringText `'`
+8:6 InterpolatedStringEnd
+9:1 CharLiteral `'\u`
 10:1 EndOfFile
 
 error BYN0003: unterminated string literal

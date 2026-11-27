@@ -3,10 +3,10 @@
 1:4 InterpolationStart `{`
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
-1:10 Identifier `ητƝ`
-1:13 Identifier `ς`
-1:15 Identifier `x_1`
-1:19 Identifier `é`
+1:11 Identifier `ητƝ`
+1:15 Identifier `ς`
+1:17 Identifier `x_1`
+1:21 Identifier `é`
 2:4 EndOfFile
 
 error BYN0003: unterminated string literal

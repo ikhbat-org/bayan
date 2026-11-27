@@ -33,36 +33,36 @@
 3:38 InterpolationStart `{`
 3:39 InterpolatedStringStart `$"`
 3:41 InterpolatedStringText `�`
-3:41 InterpolationStart `{`
-3:42 Identifier `x`
-3:43 InterpolationEnd `}`
-3:44 InterpolatedStringEnd `"`
-3:45 InterpolationEnd `}`
-3:46 InterpolatedStringEnd `"`
-3:47 InterpolationEnd `}`
-3:48 InterpolatedStringEnd `"`
-3:49 InterpolationEnd `}`
-3:50 InterpolatedStringEnd `"`
-3:51 InterpolationEnd `}`
-3:52 InterpolatedStringEnd `"`
-3:53 InterpolationEnd `}`
-3:54 InterpolatedStringEnd `"`
-3:55 InterpolationEnd `}`
-3:56 InterpolatedStringEnd `"`
-3:57 CloseBrace `}`
-3:58 StringLiteral `"%"`
-3:61 InterpolationEnd `}`
-3:62 InterpolatedStringEnd `"`
-3:63 InterpolationEnd `}`
-3:64 InterpolatedStringEnd `"`
-3:65 InterpolationEnd `}`
-3:66 InterpolatedStringEnd `"`
-3:68 InterpolatedStringStart `$"`
-3:70 InterpolatedStringText `x`
-3:71 InterpolationStart `{`
-3:73 InterpolatedStringStart `$"`
-3:75 InterpolationStart `{`
-3:76 EndOfFile
+3:42 InterpolationStart `{`
+3:43 Identifier `x`
+3:44 InterpolationEnd `}`
+3:45 InterpolatedStringEnd `"`
+3:46 InterpolationEnd `}`
+3:47 InterpolatedStringEnd `"`
+3:48 InterpolationEnd `}`
+3:49 InterpolatedStringEnd `"`
+3:50 InterpolationEnd `}`
+3:51 InterpolatedStringEnd `"`
+3:52 InterpolationEnd `}`
+3:53 InterpolatedStringEnd `"`
+3:54 InterpolationEnd `}`
+3:55 InterpolatedStringEnd `"`
+3:56 InterpolationEnd `}`
+3:57 InterpolatedStringEnd `"`
+3:58 CloseBrace `}`
+3:59 StringLiteral `"%"`
+3:62 InterpolationEnd `}`
+3:63 InterpolatedStringEnd `"`
+3:64 InterpolationEnd `}`
+3:65 InterpolatedStringEnd `"`
+3:66 InterpolationEnd `}`
+3:67 InterpolatedStringEnd `"`
+3:69 InterpolatedStringStart `$"`
+3:71 InterpolatedStringText `x`
+3:72 InterpolationStart `{`
+3:74 InterpolatedStringStart `$"`
+3:76 InterpolationStart `{`
+3:77 EndOfFile
 
 error BYN0002: unexpected character `\`
 

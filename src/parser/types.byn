@@ -101,7 +101,8 @@ i64 scanType(ref Parser p, at i64 index) => scanTypeNested(ref p, at: index, nes
             while p.kindAt(j) == .star && !p.lexed.tokens[j].hasTriviaBefore {
                 j += 1
             }
-            return (end: i, function: false) if j >= p.count || !p.lexed.tokens[j].hasTriviaBefore
+            let closes = p.kindAt(j) == .greater || p.kindAt(j) == .comma || p.kindAt(j) == .closeParen || p.kindAt(j) == .question
+            return (end: i, function: false) if j >= p.count || (!p.lexed.tokens[j].hasTriviaBefore && !closes)
             i = j
         } else if isTypeArrow(ref p, at: i, nested: nested) {
             return scanFunctionType(ref p, at: i, nested: nested)
@@ -202,7 +203,7 @@ ParsedType parseTypeParts(ref Parser p, bool fatArrow = false, bool lists = fals
     return ParsedType.done(parsePrefixPointer(ref p)) if p.kind() == .star
     if p.kind() == .readonlyKeyword {
         let end = scanType(ref p, at: p.pos + 1)
-        if end > 0 && p.kindAt(end - 1) == .star {
+        if end > 0 && (p.kindAt(end - 1) == .star || (p.kindAt(end - 1) == .question && p.kindAt(end - 2) == .star)) {
             let _ = p.advance()
             return parseTypeParts(ref p, readOnlyStart: readOnlyStart >= 0 ? readOnlyStart : start)
         }

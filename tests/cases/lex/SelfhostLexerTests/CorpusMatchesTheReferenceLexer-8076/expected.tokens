@@ -35,25 +35,25 @@
 2:53 InterpolatedStringEnd `"`
 2:54 InterpolationEnd `}`
 2:55 InterpolatedStringText `�`
-2:55 InterpolatedStringEnd `"`
-2:56 InterpolationEnd `}`
-2:57 InterpolatedStringEnd `"`
-2:58 InterpolationEnd `}`
-2:59 InterpolatedStringEnd `"`
-2:60 InterpolationEnd `}`
-2:61 InterpolatedStringEnd `"`
-2:62 InterpolationEnd `}`
-2:63 InterpolatedStringEnd `"`
-2:64 InterpolationEnd `}`
-2:65 InterpolatedStringEnd `"`
-2:66 InterpolationEnd `}`
-2:67 InterpolatedStringEnd `"`
-2:68 InterpolationEnd `}`
-2:69 InterpolatedStringEnd `"`
-2:70 InterpolationEnd `}`
-2:71 InterpolatedStringEnd `"`
-2:72 CloseBrace `}`
-2:73 StringLiteral `"`
+2:56 InterpolatedStringEnd `"`
+2:57 InterpolationEnd `}`
+2:58 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 InterpolationEnd `}`
+2:62 InterpolatedStringEnd `"`
+2:63 InterpolationEnd `}`
+2:64 InterpolatedStringEnd `"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
+2:73 CloseBrace `}`
+2:74 StringLiteral `"`
 4:1 EndOfFile
 
 error BYN0002: unexpected character `$`

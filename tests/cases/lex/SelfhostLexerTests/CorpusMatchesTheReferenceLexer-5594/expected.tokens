@@ -6,9 +6,9 @@
 2:9 Identifier `_x`
 2:12 Identifier `camelCase2`
 2:23 Identifier `بيان`
-2:28 Identifier `ετρητής`
-2:36 Identifier `x_1`
-2:40 Identifier `é`
+2:30 Identifier `ετρητής`
+2:38 Identifier `x_1`
+2:42 Identifier `é`
 4:1 CloseBrace `}`
 4:2 CloseBrace `}`
 4:3 StringLiteral `" $"`

@@ -4,7 +4,7 @@
 2:12 Equals `=`
 2:14 IntegerLiteral `1`
 2:15 Semicolon `;`
-2:17 EndOfFile
+2:18 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar
 

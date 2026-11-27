@@ -3,7 +3,7 @@
 2:1 IntegerLiteral `0b__`
 3:1 IntegerLiteral `1__`
 4:1 IntegerLiteral `0`
-4:2 Identifier `F_`
+4:3 Identifier `F_`
 5:1 IntegerLiteral `0b__`
 6:2 Identifier `a`
 8:5 EndOfFile

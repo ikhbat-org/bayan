@@ -1,5 +1,5 @@
 1:2 RawStringLiteral `"""never closed\na /* never closed\n}\né 1__\n\n//// not a doc comment\n$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}"}"}"}"}"}"}"}"�ρ�`
-7:95 EndOfFile
+7:96 EndOfFile
 
 error BYN0003: unterminated string literal
 

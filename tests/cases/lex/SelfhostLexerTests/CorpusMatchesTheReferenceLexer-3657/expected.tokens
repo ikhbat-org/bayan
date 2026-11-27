@@ -1,7 +1,7 @@
-1:2 Identifier `l`
-1:4 ForeachKeyword `foreach`
-1:12 NewKeyword `new`
-1:16 GotoKeyword `goto`
+1:6 Identifier `l`
+1:8 ForeachKeyword `foreach`
+1:16 NewKeyword `new`
+1:20 GotoKeyword `goto`
 2:1 CharLiteral `'ab'`
 5:1 Identifier `ạ̇`
 5:4 RawStringLiteral `"""never closed\n var xs: List<List<i64>>\n$"a{b}c\n`

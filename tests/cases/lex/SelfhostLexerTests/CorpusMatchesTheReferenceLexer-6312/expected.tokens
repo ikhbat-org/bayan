@@ -2,9 +2,9 @@
 1:5 NumericSuffix `u`
 1:7 IntegerLiteral `0b1`
 1:10 NumericSuffix `u`
-1:11 Identifier `l`
-1:13 IntegerLiteral `7`
-1:14 NumericSuffix `l`
+1:12 Identifier `l`
+1:14 IntegerLiteral `7`
+1:15 NumericSuffix `l`
 3:1 Equals `=`
 3:3 PercentEquals `%=`
 3:6 AmpEquals `&=`

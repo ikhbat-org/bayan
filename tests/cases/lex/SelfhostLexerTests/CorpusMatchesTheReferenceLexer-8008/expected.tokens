@@ -33,12 +33,12 @@
 1:58 Identifier `camelCase2`
 1:69 Identifier `ب`
 1:70 At `@`
-1:71 Identifier `ان`
-1:74 Identifier `μετρητής`
-1:83 Identifier `x_1`
+1:72 Identifier `ان`
+1:75 Identifier `μετρητής`
+1:84 Identifier `x_1`
 2:2 IntegerLiteral `0b102`
 3:2 Identifier `ạ̇`
-3:5 CharLiteral `'x\r`
+3:5 CharLiteral `'x`
 4:2 EndOfFile
 
 error BYN0003: unterminated string literal

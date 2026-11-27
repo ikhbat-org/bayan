@@ -1,8 +1,8 @@
 1:1 Less `<`
-1:4 Identifier `c`
-1:6 Greater `>`
-1:7 GreaterEquals `>=`
-1:10 IntegerLiteral `1`
+1:5 Identifier `c`
+1:7 Greater `>`
+1:8 GreaterEquals `>=`
+1:11 IntegerLiteral `1`
 2:1 IntegerLiteral `0x`
 4:1 Identifier `Å`
 4:3 Identifier `i`

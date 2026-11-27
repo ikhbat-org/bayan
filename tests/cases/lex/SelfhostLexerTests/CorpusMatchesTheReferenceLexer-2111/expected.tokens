@@ -28,13 +28,13 @@
 1:46 InterpolationStart `{`
 1:47 InterpolatedStringStart `$"`
 1:49 InterpolatedStringText `�`
-1:49 InterpolationStart `{`
-1:50 InterpolatedStringStart `$"`
-1:52 InterpolationStart `{`
-1:53 InterpolatedStringStart `$"`
-1:55 InterpolationStart `{`
-1:56 Identifier `x`
-1:58 StringLiteral `"{`
+1:50 InterpolationStart `{`
+1:51 InterpolatedStringStart `$"`
+1:53 InterpolationStart `{`
+1:54 InterpolatedStringStart `$"`
+1:56 InterpolationStart `{`
+1:57 Identifier `x`
+1:59 StringLiteral `"{`
 2:1 Amp `&`
 2:3 AmpAmp `&&`
 2:6 Bar `|`
@@ -51,9 +51,9 @@
 2:32 GreaterEquals `>=`
 2:35 LessLess `<<`
 2:38 Greater `>`
-2:39 Greater `>`
-2:41 Greater `>`
-2:42 GreaterEquals `>=`
+2:40 Greater `>`
+2:42 Greater `>`
+2:43 GreaterEquals `>=`
 4:1 OpenBrace `{`
 4:2 Identifier `_`
 5:1 EndOfFile

@@ -385,7 +385,9 @@ public struct LexResult {
                     if docStart < 0 {
                         docStart = start
                     }
-                    docEnd = pos
+                    docEnd = pos > start && source.bytes[pos - 1] == '\r' ? pos - 1 : pos
+                } else {
+                    docStart = -1
                 }
                 tokenFlags |= triviaBefore
             } else if b == '/' && peek(1) == '*' {
@@ -905,7 +907,7 @@ public struct LexResult {
         let modeStart = modes[depth].start
         let start = pos
         while true {
-            if pos >= source.bytes.length || source.bytes[pos] == '\n' {
+            if pos >= source.bytes.length || source.bytes[pos] == '\n' || (source.bytes[pos] == '\r' && peek(1) == '\n') {
                 addText(start)
                 report(
                     .unterminatedString,
@@ -972,7 +974,8 @@ public struct LexResult {
             return
         }
         var scalars = 0
-        while pos < source.bytes.length && source.bytes[pos] != '\'' && source.bytes[pos] != '\n' {
+        while pos < source.bytes.length && source.bytes[pos] != '\'' && source.bytes[pos] != '\n'
+            && !(source.bytes[pos] == '\r' && peek(1) == '\n') {
             if source.bytes[pos] == '\\' {
                 scanEscape(allowBidi: false)
             } else {
@@ -999,7 +1002,7 @@ public struct LexResult {
     void scanEscape(ref this, bool allowBidi) {
         let start = pos
         pos += 1
-        if pos >= source.bytes.length || source.bytes[pos] == '\n' {
+        if pos >= source.bytes.length || source.bytes[pos] == '\n' || (source.bytes[pos] == '\r' && peek(1) == '\n') {
             report(.invalidEscape, at: TextSpan { start: start, length: 1 }, arg0: "\\")
             return
         }

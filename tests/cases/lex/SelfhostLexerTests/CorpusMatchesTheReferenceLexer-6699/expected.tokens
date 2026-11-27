@@ -1,16 +1,16 @@
-1:6 Comma `,`
-1:8 Dot `.`
-1:10 DotDot `..`
-1:13 DotDotEquals `..=`
-1:17 Colon `:`
-1:19 Question `?`
-1:21 QuestionQuestion `??`
-1:24 QuestionQuestionEquals `??=`
-1:28 Question `?`
-1:30 Equals `=`
-1:32 Arrow `->`
-1:35 At `@`
-1:37 Hash `#`
+1:9 Comma `,`
+1:11 Dot `.`
+1:13 DotDot `..`
+1:16 DotDotEquals `..=`
+1:20 Colon `:`
+1:22 Question `?`
+1:24 QuestionQuestion `??`
+1:27 QuestionQuestionEquals `??=`
+1:31 Question `?`
+1:33 Equals `=`
+1:36 Arrow `->`
+1:39 At `@`
+1:41 Hash `#`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

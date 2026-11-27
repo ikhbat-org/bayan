@@ -36,7 +36,7 @@
 1:56 Identifier `x`
 1:57 CloseBrace `}`
 1:58 StringLiteral `"}"`
-1:65 EndOfFile
+1:69 EndOfFile
 
 error BYN0003: unterminated string literal
 

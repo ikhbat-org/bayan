@@ -9,10 +9,10 @@
 1:22 Greater `>`
 1:23 Greater `>`
 2:2 OpenParen `(`
-2:5 OpenBracket `[`
-2:7 CloseBracket `]`
-2:9 OpenBrace `{`
-2:11 CloseBrace `}`
+2:6 OpenBracket `[`
+2:8 CloseBracket `]`
+2:10 OpenBrace `{`
+2:12 CloseBrace `}`
 3:2 CharLiteral `' b`
 4:2 EndOfFile
 

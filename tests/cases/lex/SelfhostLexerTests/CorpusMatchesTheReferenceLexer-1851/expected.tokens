@@ -4,7 +4,7 @@
 1:6 InterpolationStart `{`
 1:7 InterpolatedStringStart `$"`
 1:9 InterpolatedStringText `� 0 42 1_000_000 0xFF 0x_ff 0b010 0B11 5s 250ms 4KiB 1u 0xFu 0b�1ul 7l`
-1:77 InterpolatedStringEnd
+1:79 InterpolatedStringEnd
 3:1 OpenBrace `{`
 3:3 InterpolatedStringStart `$"`
 3:5 InterpolatedStringText `stray } here`

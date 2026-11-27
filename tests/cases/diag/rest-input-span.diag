@@ -1,0 +1,9 @@
+error BYN1058: `params ReadOnlySpan<i32> items` is an input form; write
+`rest ReadOnlySpan<i32> items`
+
+  1 │ i32 sum(params ReadOnlySpan<i32> items) {
+    │         ^^^^^^ the input form
+    │
+  help: declare the variadic parameter with `rest`
+    │ 1 │ i32 sum(rest ReadOnlySpan<i32> items) {
+    │   │         ++++

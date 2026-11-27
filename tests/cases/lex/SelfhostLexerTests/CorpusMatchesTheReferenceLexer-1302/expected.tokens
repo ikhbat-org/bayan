@@ -24,7 +24,7 @@
 9:1 CharLiteral `'\q'`
 10:1 CharLiteral `'\u{D800}'`
 11:1 CharLiteral `'\u{110000}'`
-12:1 CharLiteral `'x\r`
+12:1 CharLiteral `'x`
 13:2 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier

@@ -1,4 +1,4 @@
-1:4 IntegerLiteral `0x`
+1:9 IntegerLiteral `0x`
 2:1 Identifier `a`
 5:2 EndOfFile
 

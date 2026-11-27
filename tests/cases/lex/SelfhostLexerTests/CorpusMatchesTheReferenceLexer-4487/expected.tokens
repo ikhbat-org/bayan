@@ -11,12 +11,12 @@
 4:5 DotDotEquals `..=`
 4:8 IntegerLiteral `3`
 4:10 IntegerLiteral `5`
-4:11 Identifier `e`
-4:13 Identifier `x`
-4:14 Dot `.`
-4:15 Identifier `y`
-4:17 FloatLiteral `2.5`
-4:20 NumericSuffix `f`
+4:12 Identifier `e`
+4:14 Identifier `x`
+4:15 Dot `.`
+4:16 Identifier `y`
+4:18 FloatLiteral `2.5`
+4:21 NumericSuffix `f`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9F)

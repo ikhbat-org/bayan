@@ -1,5 +1,5 @@
 1:1 CloseParen `)`
-1:3 CharLiteral `'= �`
+1:4 CharLiteral `'= �`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8F)

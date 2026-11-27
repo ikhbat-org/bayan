@@ -1,5 +1,5 @@
 2:1 IntegerLiteral `0x`
-2:3 Identifier `FFs`
+2:4 Identifier `FFs`
 4:1 IntegerLiteral `0x_`
 5:2 CharLiteral `'\u{110000}'`
 6:1 EndOfFile

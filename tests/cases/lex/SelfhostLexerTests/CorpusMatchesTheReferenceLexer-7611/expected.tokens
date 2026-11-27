@@ -3,8 +3,8 @@
 1:7 Equals `=`
 1:9 StringLiteral `""`
 1:11 Identifier `X`
-1:12 NeverKeyword `never`
-1:19 Identifier `losed`
+1:13 NeverKeyword `never`
+1:20 Identifier `losed`
 3:1 CharLiteral `'\u{110000}'`
 5:1 EndOfFile
 

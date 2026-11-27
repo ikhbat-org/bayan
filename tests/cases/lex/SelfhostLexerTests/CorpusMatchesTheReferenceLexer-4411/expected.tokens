@@ -62,7 +62,7 @@
 6:83 InterpolatedStringEnd `"`
 6:84 InterpolationEnd `}`
 6:85 InterpolatedStringEnd `"`
-7:3 EndOfFile
+7:5 EndOfFile
 
 error BYN0002: unexpected character `\u{1F}`
 

@@ -23,10 +23,10 @@
 4:29 Arrow `->`
 4:32 At `@`
 4:34 Hash `#`
-5:4 Identifier `a`
-5:6 Greater `>`
+5:5 Identifier `a`
 5:7 Greater `>`
-5:9 Identifier `b`
+5:8 Greater `>`
+5:10 Identifier `b`
 6:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

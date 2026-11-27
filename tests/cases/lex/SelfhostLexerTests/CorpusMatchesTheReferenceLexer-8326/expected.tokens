@@ -5,9 +5,9 @@
 3:12 Identifier `camelCase2`
 3:23 Identifier `بيان`
 3:28 Identifier `με`
-3:30 Identifier `ητής`
-3:35 Identifier `x_1`
-3:39 Identifier `é`
+3:33 Identifier `ητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
 4:1 Identifier `macro`
 4:7 Identifier `select`
 4:14 BecomeKeyword `become`

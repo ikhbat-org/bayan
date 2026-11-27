@@ -125,7 +125,7 @@
 5:5 Identifier `café`
 5:11 Equals `=`
 5:13 IntegerLiteral `1`
-6:3 Identifier `é`
+6:4 Identifier `é`
 7:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

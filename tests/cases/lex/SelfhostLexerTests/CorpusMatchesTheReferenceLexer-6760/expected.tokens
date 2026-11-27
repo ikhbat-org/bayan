@@ -53,15 +53,15 @@
 2:7 Identifier `select`
 2:14 BecomeKeyword `become`
 4:1 Identifier `_`
-4:4 PlusEquals `+=`
-4:7 MinusEquals `-=`
-4:10 StarEquals `*=`
-4:13 SlashEquals `/=`
-4:16 PercentEquals `%=`
-4:19 AmpEquals `&=`
-4:22 BarEquals `|=`
-4:25 CaretEquals `^=`
-4:28 LessLessEquals `<<=`
+4:5 PlusEquals `+=`
+4:8 MinusEquals `-=`
+4:11 StarEquals `*=`
+4:14 SlashEquals `/=`
+4:17 PercentEquals `%=`
+4:20 AmpEquals `&=`
+4:23 BarEquals `|=`
+4:26 CaretEquals `^=`
+4:29 LessLessEquals `<<=`
 6:1 EndOfFile
 
 error BYN0003: unterminated string literal

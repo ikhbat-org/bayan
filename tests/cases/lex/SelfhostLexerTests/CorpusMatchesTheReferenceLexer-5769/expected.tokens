@@ -3,10 +3,10 @@
 2:4 Identifier `raw`
 2:8 StringLiteral `"quoted"`
 4:1 Identifier `losed`
-5:3 LetKeyword `let`
-5:7 Identifier `c`
-5:9 Equals `=`
-5:11 RawStringLiteral `"""never closed\n\nb\n `
+5:6 LetKeyword `let`
+5:10 Identifier `c`
+5:12 Equals `=`
+5:14 RawStringLiteral `"""never closed\n\nb\n `
 8:2 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar

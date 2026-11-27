@@ -40,7 +40,7 @@
 6:36 CharLiteral `'\0'`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolatedStringText `stray�}� here`
-7:15 InterpolatedStringEnd `"`
+7:16 InterpolatedStringEnd `"`
 8:2 EndOfFile
 
 error BYN0002: unexpected character `\`

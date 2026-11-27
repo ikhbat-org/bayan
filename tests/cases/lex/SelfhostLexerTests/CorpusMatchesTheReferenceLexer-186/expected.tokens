@@ -1,6 +1,6 @@
 1:1 IntegerLiteral `1`
 1:2 NumericSuffix `e`
-3:2 IntegerLiteral `0x`
+3:3 IntegerLiteral `0x`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 InterpolatedStringStart `$"`

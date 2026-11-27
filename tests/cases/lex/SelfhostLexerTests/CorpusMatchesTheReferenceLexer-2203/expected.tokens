@@ -6,7 +6,7 @@
 2:5 Identifier `c`
 2:7 Equals `=`
 2:9 RawStringLiteral `"""never closed\n 0x ���� `
-3:7 EndOfFile
+3:10 EndOfFile
 
 error BYN0012: `actor` is reserved and cannot be used as an identifier
 

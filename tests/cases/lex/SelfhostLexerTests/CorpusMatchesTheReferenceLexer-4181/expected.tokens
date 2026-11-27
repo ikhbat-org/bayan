@@ -70,7 +70,7 @@
 1:92 StringLiteral `"text"`
 1:99 StringLiteral `"esc \"q\" \\ \n"`
 1:117 RawStringLiteral `"""\n 'x\n� `
-3:2 EndOfFile
+3:3 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply
 

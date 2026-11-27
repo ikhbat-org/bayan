@@ -1,7 +1,7 @@
 1:2 LetKeyword `let`
-1:6 Identifier `a`
-1:8 Equals `=`
-1:10 StringLiteral `"o�en`
+1:7 Identifier `a`
+1:9 Equals `=`
+1:11 StringLiteral `"o�en`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFD)

@@ -198,3 +198,16 @@ test "lexer t29: escapes" {
         as: "StringLiteral 0+12;EndOfFile 12+0; BYN0006 1+3 invalid escape sequence `\\u{`; BYN0006 6+3 invalid escape sequence `\\u{`;",
     )
 }
+
+test "lexer low041: CR LF ends a bad escape, an interpolated text and a char without keeping the CR" {
+    assert t29Is("\"abc\\\r\n", as: "StringLiteral 0+5;EndOfFile 7+0; BYN0006 4+1 invalid escape sequence `\\`; BYN0003 0+5 unterminated string literal;")
+    assert t29Is("$\"ab\r\n", as: "InterpolatedStringStart 0+2;InterpolatedStringText 2+2;InterpolatedStringEnd 4+0;EndOfFile 6+0; BYN0003 0+2 unterminated string literal;")
+    assert t29Is("'a\r\n", as: "CharLiteral 0+2;EndOfFile 4+0; BYN0008 0+2 unterminated char literal;")
+}
+
+test "lexer low041: a doc span drops the CR and stops at a plain comment" {
+    let r = lex(SourceText.create("t.byn", from: t29Bytes("/// Summary\r\nx")), by: Keywords.build())
+    assert r.tokens[0].docStart == 0 && r.tokens[0].docLength == 11
+    let s = lex(SourceText.create("t.byn", from: t29Bytes("/// doc1\n// regular\n/// doc2\nx")), by: Keywords.build())
+    assert s.tokens[0].docStart == 20 && s.tokens[0].docLength == 8
+}

@@ -20,7 +20,7 @@
 2:95 EmbedKeyword `embed`
 2:101 ExternKeyword `extern`
 2:108 Identifier `u`
-2:109 Identifier `safe`
+2:110 Identifier `safe`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 InterpolatedStringStart `$"`

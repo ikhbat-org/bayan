@@ -2,43 +2,43 @@
 1:6 ForKeyword `for`
 1:10 InKeyword `in`
 1:13 Identifier `wh`
-2:3 InterpolatedStringStart `$"`
-2:5 InterpolatedStringText `total `
-2:11 InterpolationStart `{`
-2:12 Identifier `x`
-2:13 InterpolationEnd `}`
-2:14 InterpolatedStringEnd `"`
-2:16 InterpolatedStringStart `$"`
-2:18 InterpolatedStringText `a `
-2:20 InterpolationStart `{`
-2:21 Identifier `f`
-2:22 OpenParen `(`
-2:23 InterpolatedStringStart `$"`
-2:25 InterpolatedStringText `b `
-2:27 InterpolationStart `{`
-2:28 Identifier `c`
-2:29 InterpolationEnd `}`
-2:30 InterpolatedStringEnd `"`
-2:31 CloseParen `)`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolatedStringText `total `
+2:14 InterpolationStart `{`
+2:15 Identifier `x`
+2:16 InterpolationEnd `}`
+2:17 InterpolatedStringEnd `"`
+2:19 InterpolatedStringStart `$"`
+2:21 InterpolatedStringText `a `
+2:23 InterpolationStart `{`
+2:24 Identifier `f`
+2:25 OpenParen `(`
+2:26 InterpolatedStringStart `$"`
+2:28 InterpolatedStringText `b `
+2:30 InterpolationStart `{`
+2:31 Identifier `c`
 2:32 InterpolationEnd `}`
-2:33 InterpolatedStringText ` d`
-2:35 InterpolatedStringEnd `"`
-2:37 InterpolatedStringStart `$"`
-2:39 InterpolatedStringText `{{literal}}`
-2:50 InterpolatedStringEnd `"`
-2:52 InterpolatedStringStart `$"`
-2:54 InterpolationStart `{`
-2:55 Identifier `Point`
-2:61 OpenBrace `{`
-2:63 Identifier `x`
-2:65 Equals `=`
-2:67 IntegerLiteral `1`
-2:69 CloseBrace `}`
-2:70 InterpolationEnd `}`
-2:71 InterpolatedStringText `!`
-2:72 InterpolatedStringEnd `"`
-2:74 InterpolatedStringStart `$"`
-2:76 InterpolatedStringEnd `"`
+2:33 InterpolatedStringEnd `"`
+2:34 CloseParen `)`
+2:35 InterpolationEnd `}`
+2:36 InterpolatedStringText ` d`
+2:38 InterpolatedStringEnd `"`
+2:40 InterpolatedStringStart `$"`
+2:42 InterpolatedStringText `{{literal}}`
+2:53 InterpolatedStringEnd `"`
+2:55 InterpolatedStringStart `$"`
+2:57 InterpolationStart `{`
+2:58 Identifier `Point`
+2:64 OpenBrace `{`
+2:66 Identifier `x`
+2:68 Equals `=`
+2:70 IntegerLiteral `1`
+2:72 CloseBrace `}`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringText `!`
+2:75 InterpolatedStringEnd `"`
+2:77 InterpolatedStringStart `$"`
+2:79 InterpolatedStringEnd `"`
 4:1 LetKeyword `let`
 4:5 LawKeyword `law`
 4:9 Equals `=`

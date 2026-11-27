@@ -3,9 +3,9 @@
 1:8 Identifier `closed`
 2:1 Identifier `b`
 4:1 LetKeyword `let`
-4:4 Identifier `actor`
-4:10 Equals `=`
-4:12 IntegerLiteral `1`
+4:5 Identifier `actor`
+4:11 Equals `=`
+4:13 IntegerLiteral `1`
 5:1 LetKeyword `let`
 5:5 Identifier `effet`
 5:11 Equals `=`

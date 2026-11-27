@@ -1,7 +1,7 @@
 1:2 Identifier `V`
-1:4 Identifier `V`
-1:5 IntegerLiteral `1`
-1:6 Dot `.`
+1:5 Identifier `V`
+1:7 IntegerLiteral `1`
+1:8 Dot `.`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)

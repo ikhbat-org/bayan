@@ -62,7 +62,7 @@
 7:87 ErrdeferKeyword `errdefer`
 7:96 UsingKeyword `using`
 7:102 ContextKeyword `context`
-8:2 EndOfFile
+8:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xDF)
 

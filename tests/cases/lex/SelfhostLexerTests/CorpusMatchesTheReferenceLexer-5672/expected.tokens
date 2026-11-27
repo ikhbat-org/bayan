@@ -4,7 +4,7 @@
 1:6 Identifier `b`
 3:1 IntegerLiteral `0_000`
 3:7 IntegerLiteral `0xFFa`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 6:1 EndOfFile
 
 error BYN0002: unexpected character `̇`

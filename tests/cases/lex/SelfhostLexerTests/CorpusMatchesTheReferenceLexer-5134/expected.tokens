@@ -6,8 +6,8 @@
 1:14 Identifier `List`
 1:18 Less `<`
 1:19 Identifier `i6`
-1:21 Greater `>`
 1:22 Greater `>`
+1:23 Greater `>`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8A)

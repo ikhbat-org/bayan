@@ -9,11 +9,11 @@
 4:32 OpenKeyword `open`
 4:37 ExtensibleKeyword `extensible`
 4:48 Identifier `inter`
-4:53 Identifier `ace`
-4:57 DelegateKeyword `delegate`
-4:66 ExtensionKeyword `extension`
-4:76 DerivationKeyword `derivation`
-4:87 AttributeKeyword `attribute`
+4:54 Identifier `ace`
+4:58 DelegateKeyword `delegate`
+4:67 ExtensionKeyword `extension`
+4:77 DerivationKeyword `derivation`
+4:88 AttributeKeyword `attribute`
 5:2 StringLiteral `"`
 6:1 CharLiteral `'ab'`
 7:1 EndOfFile

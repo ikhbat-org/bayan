@@ -1,15 +1,15 @@
-1:1 Identifier `leB`
-1:5 Identifier `a`
-1:7 Equals `=`
-1:9 StringLiteral `"open`
+1:2 Identifier `leB`
+1:6 Identifier `a`
+1:8 Equals `=`
+1:10 StringLiteral `"open`
 3:1 IntegerLiteral `0xFF`
 3:5 NumericSuffix `s`
 4:2 Identifier `ace`
-4:5 DelegateKeyword `delegate`
-4:14 ExtensionKeyword `extension`
-4:24 DerivationKeyword `derivation`
-4:35 Identifier `attr`
-4:40 IntegerLiteral `0x`
+4:6 DelegateKeyword `delegate`
+4:15 ExtensionKeyword `extension`
+4:25 DerivationKeyword `derivation`
+4:36 Identifier `attr`
+4:41 IntegerLiteral `0x`
 6:1 CharLiteral `'\u{202E}'`
 6:5 EndOfFile
 

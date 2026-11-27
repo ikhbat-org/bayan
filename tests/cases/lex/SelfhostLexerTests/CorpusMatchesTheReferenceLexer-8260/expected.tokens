@@ -26,9 +26,9 @@
 2:26 Identifier `i64`
 2:29 Greater `>`
 2:30 Greater `>`
-3:2 InterpolatedStringStart `$"`
-3:4 InterpolatedStringText `stray } here`
-3:16 InterpolatedStringEnd `"`
+3:3 InterpolatedStringStart `$"`
+3:5 InterpolatedStringText `stray } here`
+3:17 InterpolatedStringEnd `"`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)

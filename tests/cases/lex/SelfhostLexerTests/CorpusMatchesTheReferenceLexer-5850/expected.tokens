@@ -1,8 +1,8 @@
 1:4 Identifier `commen`
-1:10 Identifier `t`
-1:12 Star `*`
-1:13 Slash `/`
-1:15 Identifier `a`
+1:11 Identifier `t`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
 2:2 StringLiteral `"a\u{2067}b"`
 2:8 Star `*`
 2:9 Slash `/`

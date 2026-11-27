@@ -71,7 +71,7 @@
 3:5 InterpolatedStringEnd `"`
 5:2 IntegerLiteral `0b1`
 5:5 NumericSuffix `ms`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

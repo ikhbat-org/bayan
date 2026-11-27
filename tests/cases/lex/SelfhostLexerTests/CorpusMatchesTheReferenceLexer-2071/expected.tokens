@@ -12,12 +12,12 @@
 2:25 BarEquals `|=`
 2:28 CaretEquals `^=`
 2:31 LessLessEquals `<<=`
-3:4 OpenParen `(`
-3:6 CloseParen `)`
-3:8 OpenBracket `[`
-3:10 CloseBracket `]`
-3:12 OpenBrace `{`
-3:14 CloseBrace `}`
+3:7 OpenParen `(`
+3:9 CloseParen `)`
+3:11 OpenBracket `[`
+3:13 CloseBracket `]`
+3:15 OpenBrace `{`
+3:17 CloseBrace `}`
 4:1 EndOfFile
 
 error BYN0002: unexpected character `$`

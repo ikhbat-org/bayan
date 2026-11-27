@@ -1,7 +1,7 @@
 1:1 Identifier `x`
 1:4 Identifier `u`
 1:5 Equals `=`
-1:6 IntegerLiteral `1`
+1:7 IntegerLiteral `1`
 2:2 Identifier `Å`
 3:1 EndOfFile
 

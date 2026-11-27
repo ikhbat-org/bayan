@@ -5,7 +5,7 @@
 1:27 CharLiteral `'é'`
 1:31 CharLiteral `'\\'`
 1:36 CharLiteral `'\0'`
-2:2 IntegerLiteral `1__`
+2:5 IntegerLiteral `1__`
 4:2 IntegerLiteral `0x`
     doc `///`
 6:4 EndOfFile

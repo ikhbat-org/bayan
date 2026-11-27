@@ -10,8 +10,8 @@
 4:9 Equals `=`
 4:13 IntegerLiteral `2`
 5:4 Identifier `é`
-5:6 Equals `=`
-5:8 IntegerLiteral `2`
+5:7 Equals `=`
+5:9 IntegerLiteral `2`
 6:1 EndOfFile
 
 error BYN0002: unexpected character ```

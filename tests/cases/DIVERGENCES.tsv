@@ -23,7 +23,7 @@ CliEnvironmentTests.ANonUtf8LocaleOrAsciiFlagUsesAsciiSymbols	Q1117	csharp	no bu
 CliEnvironmentTests.TestResultsAreColoredOnATerminal	Q1117	csharp	no builtin tells a tty or its width (Q1117): the driver reads every terminal as piped; its coloured Terminal(true, true) asserts are not ported, the piped one is (tests/parity/cli-environment/test-results-are-not-colored-when-piped)
 cli/SelfhostDefaultT1Tests/ExplainsEveryDocumentedCode-140	Q1274	driver	BYN2206 explain text: the driver adds the dec(x) sentence (rev 0024, Q1274: dec(x) on any f32/f64 is BYN2206, fix-it 0.025dec or dec.fromF64); the export predates it
 cli/SelfhostDriverT5Tests/LeavesNoLinkByProductAsCliApp-4	Q1018	driver	`-o sub` into an existing directory: the C# printed .NET's exception text `Is a directory : '<path>'`, the driver its IoError text; Q1018 (a) accepts the divergence, expected.stderr rewritten with the driver's output
-CliTests.ParseRendersItsDiagnosticsInTheChosenSymbols	Q940	csharp	the C# prints `error BYN1002: expected an expression, found `}`` with its --> line and an ASCII `|` gutter for `--ascii parse` (exit 1) and for `--ascii parse --ast` after the tree (exit 1); the driver's parse without --ast is a stub that prints `error: `parse` is not available in the self-hosted compiler; use the C# `bayan`` (exit 2), and its parse --ast ignores --ascii and draws `│`; not ported until Q940
+CliTests.ParseRendersItsDiagnosticsInTheChosenSymbols	Q940	csharp	the C# prints `error BYN1002: expected an expression, found `}`` with its --> line and an ASCII `|` gutter for `--ascii parse` (exit 1) and for `--ascii parse --ast` after the tree (exit 1); the driver's parse without --ast matches it, but its parse --ast ignores --ascii and draws `│`; not ported until Q940
 diag/unknown-std-module	f88fcea7f	csharp-dev	changed after v0.3.2 by spec 015 commits that are not ancestors of the export branch (e941dd0c5 std.encoding, 53284fc4f std.regex, f88fcea7f std.fs and std.path): the help line lists the std modules of the tree; the export head lists `std.json` alone
 out/dist	655cb84a3	csharp-dev	changed after v0.3.2 by 655cb84a3 (start 0.3.3-dev, not an ancestor of the export branch): the dist manifest names `bayan 0.3.3-dev`; the export head names `bayan 0.3.2`
 cli/SelfhostDriverT3Tests/ArgumentListAsToolchain-10	Q1285	csharp	expected.stdout holds a wall time (`in 0.59s`) of the export run; the compare word `argv-masked` masks it or leaves the file out, so no re-export gives the same bytes (T59 decision 2026-11-20, finding B)
@@ -252,77 +252,76 @@ cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-84	974e0bc64	driver	audit
 cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-85	974e0bc64	driver	audit 0.4.0 09 #2/#7: a radix hole evaluates its operand once and an over-capacity StrBuf write goes through BYN_WRITE_OVER; the C# at the freeze emitted the operand twice and BYN_WRITE_GROW
 cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-86	974e0bc64	driver	audit 0.4.0 09 #2/#7: a radix hole evaluates its operand once and an over-capacity StrBuf write goes through BYN_WRITE_OVER; the C# at the freeze emitted the operand twice and BYN_WRITE_GROW
 cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-267	974e0bc64	driver	audit 0.4.0 09 #2/#7: a radix hole evaluates its operand once and an over-capacity StrBuf write goes through BYN_WRITE_OVER; the C# at the freeze emitted the operand twice and BYN_WRITE_GROW
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-13	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-15	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-18	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-2	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-20	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-3	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-22	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-2	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-3	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-10	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-13	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-15	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-17	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-19	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-20	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-22	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-23	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-5	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-6	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-7	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-9	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-10	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-2	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-3	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-6	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-7	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-8	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-9	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT5Tests/DispatchAsCliApp	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-10	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-11	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-4	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-9	af9029219	driver	short grouped --help, owner decision 2026-11-16
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-13	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-15	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-18	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-2	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-20	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-3	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-22	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-2	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-3	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-10	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-13	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-15	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-17	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-19	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-20	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-22	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-23	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-5	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-6	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-7	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-9	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-10	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-2	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-3	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-6	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-7	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-8	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT2Tests/DispatchAsCliApp-9	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT5Tests/DispatchAsCliApp	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-10	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-11	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-4	af9029219	driver	version line without (selfhost), owner 2026-11-27
-cli/SelfhostDriverT5Tests/DispatchAsCliApp-9	af9029219	driver	version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-13	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-15	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-18	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-2	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-20	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT12Tests/EveryOtherArmOfRunIsTheCSharps-3	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCli-22	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-2	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/AScriptRunsAndAGlobalOptionBeforeItIsTaken-3	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-10	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-13	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-15	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-17	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-19	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-20	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-22	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-23	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-5	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-6	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-7	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT1Tests/MatchesTheCSharpCli-9	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-10	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-2	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-3	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-6	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-7	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-8	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT2Tests/DispatchAsCliApp-9	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT5Tests/DispatchAsCliApp	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-10	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-11	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-4	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
+cli/SelfhostDriverT5Tests/DispatchAsCliApp-9	af9029219	driver	short grouped --help, owner decision 2026-11-16; version line without (selfhost), owner 2026-11-27
 parity/cli-cli/fmt-is-an-unknown-command-naming-format	af9029219	driver	short grouped --help, owner decision 2026-11-16
 parity/cli-cli/help-lists-the-exit-codes	af9029219	driver	short grouped --help, owner decision 2026-11-16
 parity/cli-cli/no-arguments-is-usage-error	af9029219	driver	short grouped --help, owner decision 2026-11-16
 parity/cli-cli/unknown-command-is-usage-error	af9029219	driver	short grouped --help, owner decision 2026-11-16
 parity/cli-cli/version-prints-version	af9029219	driver	version line without (selfhost), owner 2026-11-27
 parity/cli-environment/doctor-reports-a-healthy-toolchain	af9029219	driver	version line without (selfhost), owner 2026-11-27
+run/io-stdin-flush	bf273e3c4	driver	added after the freeze by bf273e3c4 (not an ancestor of the export branch): the program kills its parent with `kill -9 $PPID` after printing `ready`; under the C# CLI at the export head the flushed line is lost (0 of 5 runs keep it, 2026-11-28); its .stdout is the self-hosted driver's
+sem/SelfhostSemanticsT41Tests/DiagnosticsAreTheCSharps-712	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+sem/SelfhostPathT4Tests/T41CorpusIsTheCSharps-783	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+sem/SelfhostSemanticsParityTests/GoldenParity-diag_moved-while-borrowed.byn	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+sem/SelfhostSemanticsParityTests/CheckParity-diag_moved-while-borrowed.byn	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+sem/SelfhostSemanticsT18Tests/CaseMatches-118	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+sem/SelfhostSemanticsT18Tests/CaseMatches-125	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-map-slot.byn --coverage	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-plain-field-write.byn --coverage	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-map-slot.byn --mutate	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-plain-field-write.byn --mutate	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_map-slot.byn	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_plain-field-write.byn	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-768	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-944	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-map-slot.byn	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-plain-field-write.byn	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+cli/SelfhostDefaultT1Tests/ExplainsEveryDocumentedCode-291	a285b1229	driver	audit 0.4.0 07 #4: passing a protected field (a `requires` rule, a `states` block or `@sealed`) as `ref`/`out`, calling a `ref this` method on it or borrowing it writably is a field write (BYN3208/BYN3216), and the explanation says so; the C# at the freeze explained direct assignment only
+cli/SelfhostDefaultT1Tests/ExplainsEveryDocumentedCode-296	a285b1229	driver	audit 0.4.0 07 #4: passing a protected field (a `requires` rule, a `states` block or `@sealed`) as `ref`/`out`, calling a `ref this` method on it or borrowing it writably is a field write (BYN3208/BYN3216), and the explanation says so; the C# at the freeze explained direct assignment only
+cli/SelfhostDefaultT2Tests/FeaturesMatchesTheCSharpCliOnTheCorpus-741	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+cli/SelfhostDriverT2Tests/CheckAsCliApp-306	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-189	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+cli/SelfhostDriverT5Tests/EmitCAsCliAppOnEveryRunInput-231	f7b3014b8	driver	audit 0.4.0 09 #1/#3: a compound assignment evaluates its target once, so a non-trivial index or slot default is spilled to a temporary; the C# at the freeze evaluated it twice
+emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_moved-while-borrowed.byn --all	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterHarnessTests/DiagnosticOptionsAgree-diag_moved-while-borrowed.byn --diagnostics json	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterHarnessTests/ErrorInputsAgree-diag_moved-while-borrowed.byn	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterT4Tests/Expr_DeclsMatchCSharp	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterT4Tests/Expr_MoreMatchesCSharp-10	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterT4Tests/Expr_MoreMatchesCSharp-11	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterT4Tests/Expr_MoreMatchesCSharp-12	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterT4Tests/Expr_ShownMatchesCSharp	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+emit-c/SelfhostEmitterT4Tests/Expr_ShownMatchesCSharp-3	6daee8019	driver	audit 0.4.0 07 #3: a let-bound list or fixed array no longer converts to a writable Span (BYN2104), and a slice of a non-writable one is a ReadOnlySpan; the C# at the freeze accepted the write
+parse/SelfhostParserT6Tests/LiteralsMatchTheCSharpDecoder-5	0007479eb	driver	a /// doc span drops the CR of a CR LF line ending on its last line as on every other line (0.4.0 audit 03 #5, scanTrivia in src/lexer/lexer.byn), so `/// a\r\n/// b\r\n` decodes to "a\nb"; the C# lexer at csharp-final kept the last CR and decoded it to "a\nb\r", the expected.literals the freeze recorded

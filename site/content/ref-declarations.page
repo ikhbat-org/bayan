@@ -3,16 +3,16 @@ nav: Reference
 order: 30
 template: docs
 ---
-<p>This page covers what you can declare at the top of a file, who can see it, and the attributes and <code>because</code> clauses that go with a declaration. Each rule is shown with a program or the compiler's real error.</p>
+<p>What a file can declare, who can see it, and the attributes and <code>because</code> clauses that go with a declaration. Each rule comes with a program or the compiler's real error.</p>
 
 <h2 id="modules">Modules</h2>
-<p>A directory is a module. Every <code>.byn</code> file in it shares one namespace, so there is no import line between them. A project is built from the directory that holds <code>package.byn</code>. Two files in one directory that both have top-level statements are BYN2015, because the directory has two entry points. <code>bayan check</code> reads the whole directory, not one file.</p>
+<p>A directory is a module. Every <code>.byn</code> file in it shares one namespace, so no import line is needed. A project builds from the directory holding <code>package.byn</code>. Two files with top-level statements in one directory are two entry points (BYN2015). <code>bayan check</code> reads the whole directory, not one file.</p>
 
 <h2 id="module-items">What may appear at the top level</h2>
 <ul>
   <li>Declarations: functions, structs, unions, enums, interfaces, error sets and type aliases.</li>
-  <li>A <code>const</code> with a compile-time value. It is visible to every function in the module.</li>
-  <li>Statements. A file with top-level statements is a script and runs from the first line. Its <code>let</code> and <code>var</code> are locals of that script, so a function declared in the same file cannot read them (BYN2001). Put a value that functions share in a <code>const</code>.</li>
+  <li>A <code>const</code> with a compile-time value, visible to every function in the module.</li>
+  <li>Statements. A file with top-level statements is a script and runs from the first line; its <code>let</code> and <code>var</code> are script locals, unreadable from a function in the same file (BYN2001). A shared value goes in a <code>const</code>.</li>
   <li>A program has one entry point: either a <code>main</code> function or top-level statements, not both (BYN2013).</li>
 </ul>
 <example name="ref-declarations-const"/>
@@ -27,7 +27,7 @@ print($"{clampTo(25)}")</code></pre>
 <span class="gut">    │</span>                           <span class="hl">^^^^^</span></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: module-level <code>var</code> of type <code>Atomic&lt;T&gt;</code>, <code>Mutex&lt;T&gt;</code> or <code>@threadLocal</code>, and <code>static let x = lazy load()</code> for run-once setup, are in the specification. Neither is in the compiler: <code>Atomic</code> is an unknown type and <code>static let</code> is a syntax error. There are no static initializers that run before <code>main</code>.</note>
+<note>Planned: module-level <code>var</code> of type <code>Atomic&lt;T&gt;</code>, <code>Mutex&lt;T&gt;</code> or <code>@threadLocal</code>, and <code>static let x = lazy load()</code> for run-once setup, are specified but not in the compiler: <code>Atomic</code> is an unknown type, <code>static let</code> a syntax error. No static initializer runs before <code>main</code>.</note>
 
 <h2 id="visibility">Visibility</h2>
 <div class="tablewrap"><table>
@@ -38,7 +38,7 @@ print($"{clampTo(25)}")</code></pre>
     <tr><td><code>public</code></td><td>Other packages.</td></tr>
   </tbody>
 </table></div>
-<p>The modifier comes first on a field, a member or a top-level declaration. Reading, writing or naming a <code>private</code> field outside its type is BYN2005. That includes building the struct with a literal that sets it, so give a private field a default.</p>
+<p>The modifier comes first on a field, member or top-level declaration. Reading, writing or naming a <code>private</code> field outside its type is BYN2005, including a struct literal that sets it, so give a private field a default.</p>
 <example name="ref-declarations-visibility"/>
 <pre><code class="byn">struct Account {
     private i32 cents = 0
@@ -60,11 +60,11 @@ print($"{a.cents}")</code></pre>
 <p>Naming rules (BYN51xx) apply to <code>public</code> declarations only. See <a href="ref-naming.html#scope">Naming</a>.</p>
 
 <h2 id="positional">@positional</h2>
-<p><code>@positional</code> on a struct gives it a constructor that takes every field in declaration order. <code>Point(3, 4)</code> means <code>Point { x: 3, y: 4 }</code>. If the struct has a <code>requires</code> rule, the call can fail in the same way the literal can. The attribute takes no arguments and no <code>because</code>. It cannot go on a struct with a <code>states</code> block.</p>
+<p><code>@positional</code> gives a struct a constructor taking every field in declaration order: <code>Point(3, 4)</code> means <code>Point { x: 3, y: 4 }</code>. With a <code>requires</code> rule the call can fail like the literal. It takes no arguments and cannot go on a struct with a <code>states</code> block.</p>
 <example name="ref-declarations-positional"/>
 
 <h2 id="sealed">@sealed</h2>
-<p><code>@sealed</code> on a struct means only its own <code>ref this</code> methods and <code>with</code> may write its fields. A direct write from outside is BYN3216. A struct with a <code>requires</code> rule or a <code>states</code> block has the same protection without the attribute. It takes no arguments and no <code>because</code>.</p>
+<p><code>@sealed</code>: only the struct's own <code>ref this</code> methods and <code>with</code> may write its fields; a direct write from outside is BYN3216. A struct with a <code>requires</code> rule or a <code>states</code> block gets the same protection without the attribute. It takes no arguments.</p>
 <example name="ref-declarations-sealed"/>
 <pre><code class="byn">@sealed
 struct Meter {
@@ -86,14 +86,19 @@ m.n = 5</code></pre>
 </figure>
 
 <h2 id="attributes">Attributes</h2>
-<ul>
-  <li>An attribute starts with <code>@</code> and is camelCase: <code>@positional</code>, <code>@sealed</code>, <code>@exitCode(3)</code>, <code>@cases(…)</code>.</li>
-  <li>It goes on the line before the declaration it applies to.</li>
-  <li>Arguments must be compile-time constants.</li>
-  <li><code>@exitCode(n)</code> on an error case sets the process exit code when that error ends the program. <code>@cases(…)</code> is for tests, in <a href="book-12-testing.html">Testing</a>.</li>
-  <li>An attribute the compiler does not know is BYN2770, and the help lists the ones it does. An attribute on a statement is BYN1016, except <code>@unobservable</code> in tests.</li>
-  <li>A line that starts with <code>[</code> is a collection literal, not an attribute. The form <code>[Name(args)]</code> is rejected (BYN1045).</li>
-</ul>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Written</th><th scope="col">Rule</th></tr></thead>
+  <tbody>
+    <tr><td><code>@name</code></td><td>camelCase after <code>@</code>, as in <code>@positional</code>, <code>@sealed</code>, <code>@exitCode(3)</code> and <code>@cases(…)</code>; on the line above its declaration.</td></tr>
+    <tr><td><code>@name(args)</code></td><td>Arguments must be compile-time constants.</td></tr>
+    <tr><td><code>@exitCode(n)</code></td><td>On an error case, sets the process exit code when that error ends the program.</td></tr>
+    <tr><td><code>@cases(…)</code></td><td>Tests, in <a href="book-12-testing.html">Testing</a>.</td></tr>
+    <tr><td>An unknown attribute</td><td>BYN2770; the help lists the known ones.</td></tr>
+    <tr><td>An attribute on a statement</td><td>BYN1016, except <code>@unobservable</code> in tests.</td></tr>
+    <tr><td>A line starting with <code>[</code></td><td>A collection literal, not an attribute; <code>[Name(args)]</code> is rejected (BYN1045).</td></tr>
+  </tbody>
+</table></div>
+<p>Ordinary attributes take no <code>because</code>.</p>
 <pre><code class="byn">@noEquality
 struct A { i32 x }</code></pre>
 <figure class="diag">
@@ -118,16 +123,19 @@ print("x")</code></pre>
   help: put `@sealed` on a struct</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: <code>@derive(Json, Row, …)</code> and the <code>derivation</code> declaration that builds equality, hashing, <code>Json</code>, <code>Builder</code> and the rest, <code>@noEquality</code>, <code>@noDefault</code>, <code>@threadLocal</code> and user-written attributes (<code>struct attribute Route { string path }</code>). The compiler reports each as an unknown attribute. Equality and hashing already work for every struct whose fields support them.</note>
+<note>Planned: <code>@derive(Json, Row, …)</code> and the <code>derivation</code> declaration (equality, hashing, <code>Json</code>, <code>Builder</code> and the rest), <code>@noEquality</code>, <code>@noDefault</code>, <code>@threadLocal</code> and user-written attributes (<code>struct attribute Route { string path }</code>); each is an unknown attribute today. Equality and hashing already work for every struct whose fields support them.</note>
 
 <h2 id="because">Purpose clauses: because</h2>
-<p>Code that bypasses a safety rule must say why. The reason is a string after <code>because</code>, and leaving it out is BYN8001. Ordinary attributes take no <code>because</code>. Every bypass is a place to look in a review, and the reason is recorded in the source.</p>
-<ul>
-  <li><code>x.trustUnchecked() because "…"</code> turns an <code>Untrusted&lt;T&gt;</code> into a <code>T</code> without validating it.</li>
-  <li><code>@allow(BYN5102) because "…"</code> silences one lint.</li>
-  <li><code>@json(expose) because "…"</code> lets a <code>Secret</code> field be written out.</li>
-  <li><code>unsafe because "…" { … }</code> allows an unsafe operation.</li>
-</ul>
+<p>Code that bypasses a safety rule must say why in a string after <code>because</code>; leaving it out is BYN8001. Each bypass is a place to look in review, and the reason is recorded in the source.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Bypass</th><th scope="col">What it allows</th></tr></thead>
+  <tbody>
+    <tr><td><code>x.trustUnchecked() because "…"</code></td><td><code>Untrusted&lt;T&gt;</code> becomes a <code>T</code> without validating it.</td></tr>
+    <tr><td><code>@allow(BYN5102) because "…"</code></td><td>One lint is silenced.</td></tr>
+    <tr><td><code>@json(expose) because "…"</code></td><td>A <code>Secret</code> field is written out.</td></tr>
+    <tr><td><code>unsafe because "…" { … }</code></td><td>An unsafe operation is allowed.</td></tr>
+  </tbody>
+</table></div>
 <example name="ref-declarations-because"/>
 <pre><code class="byn">let raw: Untrusted&lt;string&gt; = Untrusted("42")
 let s = raw.trustUnchecked()
@@ -154,10 +162,10 @@ public struct P { bool ok }</code></pre>
   help: use `@exitCode(n)` on an error variant or `@cases(...)` on a test</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: only <code>trustUnchecked() because</code> works in the compiler today. <code>@allow</code> is reported as an unknown attribute even with a reason, and <code>@json(expose)</code> and <code>unsafe because</code> are not recognized. <code>bayan audit</code>, which lists every bypass with its reason, is also planned.</note>
+<note>Planned: only <code>trustUnchecked() because</code> works today; <code>@allow</code> is an unknown attribute even with a reason, and <code>@json(expose)</code> and <code>unsafe because</code> are not recognized. <code>bayan audit</code>, which lists every bypass with its reason, is planned.</note>
 
 <h2 id="extensions">Extensions</h2>
-<p>An extension adds members to a type you did not write. It cannot add fields. It is resolved at build time, and a member of the type itself wins over an extension.</p>
+<p>An extension adds members to a type you did not write; it cannot add fields. Resolution happens at build time, and the type's own member wins.</p>
 <pre><code class="byn">extension string {
     public bool isBlank =&gt; trim().isEmpty
 }
@@ -178,4 +186,4 @@ extension static Duration {
 <span class="gut">    │</span>           <span class="hl">^^^^^^</span></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<note>Planned: <code>extension</code> declarations are not in the compiler yet (BYN2022, "not supported in v0.1").</note>
+<note>Planned: <code>extension</code> declarations are not in the compiler yet (BYN2022, shown above).</note>

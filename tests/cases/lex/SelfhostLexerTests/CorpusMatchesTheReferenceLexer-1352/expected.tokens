@@ -15,7 +15,7 @@
 5:78 DerivationKeyword `derivation`
 5:89 AttributeKeyword `attribute`
 6:1 IntegerLiteral `1_`
-    doc `/// Doc line tw�o.\r`
+    doc `/// Doc line tw�o.`
 8:1 EndOfFile
 
 error BYN0010: invalid numeric literal: binary literals use only `0` and `1`

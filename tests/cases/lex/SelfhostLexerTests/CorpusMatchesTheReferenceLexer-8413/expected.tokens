@@ -1,4 +1,4 @@
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 3:1 Plus `+`
 3:3 Minus `-`
 3:5 Star `*`

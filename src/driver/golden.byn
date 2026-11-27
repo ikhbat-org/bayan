@@ -961,12 +961,13 @@ i64 goldenLimitMs(i64 deadline) uses clock {
 }
 
 /// The time limit of case `name` (`<kind>/<case>`): `limitMs`, but at least the 10 minutes of one compile (Toolchain.cs:145 `CompileTimeout`)
-/// for the two SelfhostDefaultT12Tests `dist` cases that cross-build with zig (`--target all`, `--target linux-arm64`), which ran past 60 s on
-/// the Windows runner (019-win8); the C# waited on them with no limit of its own (SelfhostDefaultT12Tests.cs:45 `WaitForExit()`). The same for
+/// for the SelfhostDefaultT12Tests `dist` cases that cross-build with zig (`--target all` twice, `--target linux-arm64`), which ran past 60 s on
+/// the Windows runner (019-win8; `AllTargetsAreBuilt` took 101.6 s on macOS once `all` skipped wasm32 and built six targets); the C# waited on them with no limit of its own (SelfhostDefaultT12Tests.cs:45 `WaitForExit()`). The same for
 /// `out/dist` (`bayan dist` for three targets), which ran past 120 s on the hosted macOS runner (019-macci); the C# ran it in-process with no
 /// limit (OutputTests.cs:124 `Run("dist", p)`).
 i64 goldenCaseLimitMs(string name, for i64 limitMs) {
     let slow = name is "cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2"
+        or "cli/SelfhostDefaultT12Tests/AllTargetsAreBuilt"
         or "cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2"
         or "out/dist"
     return slow && limitMs < 600000 ? 600000 : limitMs
@@ -2457,9 +2458,10 @@ string goldenListing(string root) uses alloc, console, fs {
     return text
 }
 
-test "the two T12 dist cases that cross-build with zig get the 10 minutes of one compile, any other case the limit as given" {
+test "the T12 dist cases that cross-build with zig get the 10 minutes of one compile, any other case the limit as given" {
     assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2", for: 60000) == 600000)
     assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ABadTargetIsRefused-2", for: 60000) == 600000)
+    assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/AllTargetsAreBuilt", for: 60000) == 600000)
     assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt", for: 60000) == 60000)
     assert(goldenCaseLimitMs("cli/SelfhostDefaultT12Tests/ATargetIsBuilt-2", for: 900000) == 900000)
 }
@@ -2560,7 +2562,7 @@ test "lex, parse and typed cases pass over tests/cases" {
 test "diag, manifest and diag-json cases pass over tests/cases" {
     var count: i64 = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "diag", to: ref count).length == 0)
-    assert(count == 893)
+    assert(count == 899)
     count = 0
     assert(goldenFailures(Path.fullPath("tests/cases"), for: "manifest", to: ref count).length == 0)
     assert(count == 21)

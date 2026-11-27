@@ -4,10 +4,10 @@
 1:11 IntegerLiteral `3`
 2:2 IntegerLiteral `0b102`
 3:2 Slash `/`
-3:3 InterpolatedStringStart `$"`
-3:5 InterpolatedStringText `{{`
-3:7 InterpolatedStringEnd `"`
-3:8 EndOfFile
+3:5 InterpolatedStringStart `$"`
+3:7 InterpolatedStringText `{{`
+3:9 InterpolatedStringEnd `"`
+3:10 EndOfFile
 
 error BYN0010: invalid numeric literal: binary literals use only `0` and `1`
 

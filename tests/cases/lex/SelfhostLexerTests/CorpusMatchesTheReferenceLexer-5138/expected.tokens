@@ -38,12 +38,12 @@
 1:59 InterpolatedStringEnd `"`
 1:60 InterpolationEnd `}`
 1:61 InterpolatedStringEnd `"`
-2:3 Identifier `각`
-2:7 CStringLiteral `c"text"`
-2:15 U16StringLiteral `u16"wide"`
-2:25 StringLiteral `"\u{202E} allowed in strings"`
-2:48 StringLiteral `""`
-2:51 StringLiteral `"\u{48}i"`
+2:5 Identifier `각`
+2:9 CStringLiteral `c"text"`
+2:17 U16StringLiteral `u16"wide"`
+2:27 StringLiteral `"\u{202E} allowed in strings"`
+2:50 StringLiteral `""`
+2:53 StringLiteral `"\u{48}i"`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

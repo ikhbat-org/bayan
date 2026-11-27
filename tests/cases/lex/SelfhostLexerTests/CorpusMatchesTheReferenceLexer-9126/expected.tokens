@@ -8,10 +8,10 @@
 2:37 ExtensibleKeyword `extensible`
 2:48 InterfaceKeyword `interface`
 2:58 Identifier `delega`
-2:64 Identifier `e`
-2:66 ExtensionKeyword `extension`
-2:76 DerivationKeyword `derivation`
-2:87 AttributeKeyword `attribute`
+2:65 Identifier `e`
+2:67 ExtensionKeyword `extension`
+2:77 DerivationKeyword `derivation`
+2:88 AttributeKeyword `attribute`
 3:2 Identifier `k`
 3:3 StringLiteral `"`
 4:1 InterpolatedStringStart `$"`

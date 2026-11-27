@@ -3,11 +3,11 @@
 2:4 Greater `>`
 2:5 Greater `>`
 2:7 Identifier `b`
-3:4 InterpolatedStringStart `$"`
-3:6 InterpolatedStringText `x`
-3:7 InterpolationStart `{`
-3:9 InterpolatedStringStart `$"`
-3:11 InterpolationStart `{`
+3:7 InterpolatedStringStart `$"`
+3:9 InterpolatedStringText `x`
+3:10 InterpolationStart `{`
+3:12 InterpolatedStringStart `$"`
+3:14 InterpolationStart `{`
 4:1 CharLiteral `'\u{11000}'`
 6:1 EndOfFile
 

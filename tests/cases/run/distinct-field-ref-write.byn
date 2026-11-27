@@ -1,0 +1,11 @@
+type distinct Id = i64
+
+void set(ref i64 v) {
+    v = 2
+}
+
+void main() {
+    var d = Id(1)
+    set(ref d.value)
+    print($"{d.value}")
+}

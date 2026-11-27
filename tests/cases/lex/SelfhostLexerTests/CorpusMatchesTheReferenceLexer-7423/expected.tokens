@@ -1,8 +1,8 @@
 1:3 Identifier `ȁ`
-1:8 LetKeyword `let`
-1:12 Identifier `c`
-1:14 Equals `=`
-1:18 IntegerLiteral `3`
+1:9 LetKeyword `let`
+1:13 Identifier `c`
+1:15 Equals `=`
+1:19 IntegerLiteral `3`
 2:1 OpenBrace `{`
 3:1 EndOfFile
 

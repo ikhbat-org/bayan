@@ -19,9 +19,9 @@
 4:22 InterpolationEnd `}`
 4:23 InterpolatedStringEnd
 5:1 Identifier `le`
-5:4 Identifier `a`
-5:6 Equals `=`
-5:10 IntegerLiteral `1`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:11 IntegerLiteral `1`
 6:4 IntegerLiteral `0xFF`
 6:8 NumericSuffix `s`
 7:2 EndOfFile

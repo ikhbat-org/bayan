@@ -18,9 +18,9 @@
 6:50 FalseKeyword `false`
 6:56 ComptimeKeyword `comptime`
 6:65 CheckedKeyword `checked`
-7:3 CloseBrace `}`
-7:5 Identifier `here`
-7:9 StringLiteral `"`
+7:4 CloseBrace `}`
+7:6 Identifier `here`
+7:10 StringLiteral `"`
 8:1 InterpolatedStringStart `$"`
 8:3 InterpolatedStringText `open `
 8:8 InterpolationStart `{`

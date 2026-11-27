@@ -73,9 +73,9 @@
 8:1 IntegerLiteral `1__`
 9:1 IntegerLiteral `0xF__`
 9:6 NumericSuffix `l`
-9:8 Identifier `café`
-9:14 Equals `=`
-9:16 IntegerLiteral `1`
+9:12 Identifier `café`
+9:18 Equals `=`
+9:20 IntegerLiteral `1`
 10:1 LetKeyword `let`
 10:5 Identifier `café`
 10:10 Equals `=`

@@ -24,20 +24,18 @@
 1:38 InterpolationStart `{`
 1:39 InterpolatedStringStart `$"`
 1:41 InterpolatedStringText `�`
-1:41 InterpolationStart `{`
-1:42 InterpolatedStringStart `$"`
-1:44 InterpolationStart `{`
-1:45 InterpolatedStringStart `$"`
-1:47 InterpolationStart `{`
-1:48 Identifier `x`
-1:49 InterpolationEnd `}`
-1:50 InterpolatedStringEnd `"`
-1:51 InterpolationEnd `}`
-1:52 InterpolatedStringEnd `"`
-1:53 InterpolationEnd `}`
-1:54 InterpolatedStringEnd `"`
-1:55 InterpolationEnd `}`
-1:56 InterpolatedStringEnd `"`
+1:42 InterpolationStart `{`
+1:43 InterpolatedStringStart `$"`
+1:45 InterpolationStart `{`
+1:46 InterpolatedStringStart `$"`
+1:48 InterpolationStart `{`
+1:49 Identifier `x`
+1:50 InterpolationEnd `}`
+1:51 InterpolatedStringEnd `"`
+1:52 InterpolationEnd `}`
+1:53 InterpolatedStringEnd `"`
+1:54 InterpolationEnd `}`
+1:55 InterpolatedStringEnd `"`
 1:57 InterpolationEnd `}`
 1:58 InterpolatedStringEnd `"`
 1:59 InterpolationEnd `}`
@@ -46,6 +44,8 @@
 1:62 InterpolatedStringEnd `"`
 1:63 InterpolationEnd `}`
 1:64 InterpolatedStringEnd `"`
+1:65 InterpolationEnd `}`
+1:66 InterpolatedStringEnd `"`
 2:1 Identifier `b`
 4:1 EndOfFile
 

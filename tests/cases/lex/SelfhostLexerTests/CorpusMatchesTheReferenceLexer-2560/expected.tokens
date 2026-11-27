@@ -4,10 +4,10 @@
 1:6 Identifier `b`
 2:2 Identifier `é`
 4:3 OpenParen `(`
-4:6 OpenBracket `[`
-4:8 CloseBracket `]`
-4:10 OpenBrace `{`
-4:12 CloseBrace `}`
+4:7 OpenBracket `[`
+4:9 CloseBracket `]`
+4:11 OpenBrace `{`
+4:13 CloseBrace `}`
 6:1 EndOfFile
 
 error BYN0005: identifier `é` is not in Unicode normalization form C

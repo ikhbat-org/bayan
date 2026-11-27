@@ -65,10 +65,10 @@
 4:56 Identifier `awa`
 4:59 Minus `-`
 4:60 Identifier `it`
-6:1 Identifier `ن`
-6:3 Identifier `μετρητής`
-6:12 Identifier `x_1`
-6:16 Identifier `é`
+6:2 Identifier `ن`
+6:4 Identifier `μετρητής`
+6:13 Identifier `x_1`
+6:17 Identifier `é`
 8:1 EndOfFile
 
 error BYN0003: unterminated string literal

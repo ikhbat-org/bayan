@@ -1,8 +1,8 @@
 1:1 LetKeyword `let`
 1:5 Identifier `cafe`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
-1:13 Semicolon `;`
+1:12 Equals `=`
+1:14 IntegerLiteral `1`
+1:15 Semicolon `;`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA3)

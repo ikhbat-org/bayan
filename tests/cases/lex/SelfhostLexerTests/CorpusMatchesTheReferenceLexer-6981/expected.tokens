@@ -18,20 +18,20 @@
 7:5 Identifier `c`
 7:7 Equals `=`
 7:11 IntegerLiteral `3`
-9:3 IsKeyword `is`
-9:6 AndKeyword `and`
-9:10 OrKeyword `or`
-9:13 NotKeyword `not`
-9:17 WithKeyword `with`
-9:22 MoveKeyword `move`
-9:27 RefKeyword `ref`
-9:32 OutKeyword `out`
-9:36 ThisKeyword `this`
-9:41 NullKeyword `null`
-9:46 TrueKeyword `true`
-9:51 Identifier `falsa`
-9:57 ComptimeKeyword `comptime`
-9:66 CheckedKeyword `checked`
+9:5 IsKeyword `is`
+9:8 AndKeyword `and`
+9:12 OrKeyword `or`
+9:15 NotKeyword `not`
+9:19 WithKeyword `with`
+9:24 MoveKeyword `move`
+9:29 RefKeyword `ref`
+9:34 OutKeyword `out`
+9:38 ThisKeyword `this`
+9:43 NullKeyword `null`
+9:48 TrueKeyword `true`
+9:53 Identifier `falsa`
+9:59 ComptimeKeyword `comptime`
+9:68 CheckedKeyword `checked`
 11:1 EndOfFile
 
 error BYN0002: unexpected character `$`

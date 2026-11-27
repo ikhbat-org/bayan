@@ -59,21 +59,21 @@
 1:86 InterpolatedStringEnd `"`
 1:87 InterpolationEnd `}`
 1:88 InterpolatedStringEnd `"`
-1:91 Plus `+`
-1:93 Minus `-`
-1:95 Star `*`
-1:97 Slash `/`
-1:99 Percent `%`
-1:101 Plus `+`
-1:102 Identifier `h`
-1:103 Percent `%`
-1:105 MinusPercent `-%`
-1:108 StarPercent `*%`
-1:111 PlusBar `+|`
-1:114 Bar `|`
-1:116 StarBar `*|`
-1:119 PlusPlus `++`
-1:122 MinusMinus `--`
+1:92 Plus `+`
+1:94 Minus `-`
+1:96 Star `*`
+1:98 Slash `/`
+1:100 Percent `%`
+1:102 Plus `+`
+1:103 Identifier `h`
+1:104 Percent `%`
+1:106 MinusPercent `-%`
+1:109 StarPercent `*%`
+1:112 PlusBar `+|`
+1:115 Bar `|`
+1:117 StarBar `*|`
+1:120 PlusPlus `++`
+1:123 MinusMinus `--`
 2:2 EndOfFile
 
 error BYN0003: unterminated string literal

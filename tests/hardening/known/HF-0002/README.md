@@ -1,0 +1,3 @@
+# HF-0002: a read after a `ref` call in the same expression is unsequenced in the emitted C
+
+`bayan run main.byn` prints 40 with zig/clang and 30 with gcc 12 (wp1 WSL, 51379f861). The emitter writes `byn_add_i64(byn_main__bump(&l0_n), l0_n, …)`: C leaves the order of function-argument evaluation unspecified, and gcc reads `l0_n` before the call. Bayān evaluates operands left to right, so 40 is correct. The audit 0.4.0 09-emitter M4 fix spills a read *before* a `ref` call; the read *after* it is the uncovered side. Golden `run/operand-ref-spill` (last value) fails the same way in every gcc cell.

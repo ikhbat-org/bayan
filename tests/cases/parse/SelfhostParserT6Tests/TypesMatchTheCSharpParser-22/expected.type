@@ -1,2 +1,1 @@
-(named 0..0 0..0 < >) at 0
-BYN1003 0+8 expected a type, found keyword `readonly` [] []
+(ptr 0..14 true (opt 9..13 (ptr 9..12 false (named 9..11 9..11 < >)))) at 5

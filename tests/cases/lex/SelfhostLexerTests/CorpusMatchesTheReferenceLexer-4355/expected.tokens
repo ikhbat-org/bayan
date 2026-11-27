@@ -9,7 +9,7 @@
     doc `/// Doc line one.\n/// Doc line two.`
 6:1 StructKeyword `struct`
 6:8 Identifier `S`
-9:3 EndOfFile
+9:4 EndOfFile
 
 error BYN0002: unexpected character `$`
 

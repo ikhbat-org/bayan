@@ -60,14 +60,14 @@
 2:47 PrivateKeyword `private`
 2:55 Identifier `statc`
 2:61 Identifier `rea`
-2:64 Identifier `donly`
-2:70 RequiredKeyword `required`
-2:79 ConstKeyword `const`
-2:85 LetKeyword `let`
-2:89 VarKeyword `var`
-2:93 EmbedKeyword `embed`
-2:99 ExternKeyword `extern`
-2:106 UnsafeKeyword `unsafe`
+2:65 Identifier `donly`
+2:71 RequiredKeyword `required`
+2:80 ConstKeyword `const`
+2:86 LetKeyword `let`
+2:90 VarKeyword `var`
+2:94 EmbedKeyword `embed`
+2:100 ExternKeyword `extern`
+2:107 UnsafeKeyword `unsafe`
 3:1 EndOfFile
 
 error BYN0003: unterminated string literal

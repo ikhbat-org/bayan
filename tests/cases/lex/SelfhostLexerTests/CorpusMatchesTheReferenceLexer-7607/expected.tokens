@@ -7,10 +7,10 @@
 2:38 Identifier `extensibvle`
 2:50 InterfaceKeyword `interface`
 2:60 Identifier `del`
-2:63 Identifier `egate`
-2:69 ExtensionKeyword `extension`
-2:79 DerivationKeyword `derivation`
-2:90 AttributeKeyword `attribute`
+2:64 Identifier `egate`
+2:70 ExtensionKeyword `extension`
+2:80 DerivationKeyword `derivation`
+2:91 AttributeKeyword `attribute`
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

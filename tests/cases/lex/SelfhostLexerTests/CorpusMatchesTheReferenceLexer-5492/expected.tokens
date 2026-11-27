@@ -7,22 +7,22 @@
 2:6 IntegerLiteral `1_000_000`
 2:16 IntegerLiteral `0xFF`
 2:21 IntegerLiteral `0x_ff`
-2:26 IntegerLiteral `0b1010`
-2:33 IntegerLiteral `0B11`
-2:38 IntegerLiteral `5`
-2:39 NumericSuffix `s`
-2:41 IntegerLiteral `250`
-2:44 NumericSuffix `ms`
-2:47 IntegerLiteral `4`
-2:48 NumericSuffix `KiB`
-2:52 IntegerLiteral `1`
-2:53 NumericSuffix `u`
-2:55 IntegerLiteral `0xFF`
-2:59 NumericSuffix `u`
-2:61 IntegerLiteral `0b1`
-2:64 NumericSuffix `ul`
-2:67 IntegerLiteral `7`
-2:68 NumericSuffix `l`
+2:27 IntegerLiteral `0b1010`
+2:34 IntegerLiteral `0B11`
+2:39 IntegerLiteral `5`
+2:40 NumericSuffix `s`
+2:42 IntegerLiteral `250`
+2:45 NumericSuffix `ms`
+2:48 IntegerLiteral `4`
+2:49 NumericSuffix `KiB`
+2:53 IntegerLiteral `1`
+2:54 NumericSuffix `u`
+2:56 IntegerLiteral `0xFF`
+2:60 NumericSuffix `u`
+2:62 IntegerLiteral `0b1`
+2:65 NumericSuffix `ul`
+2:68 IntegerLiteral `7`
+2:69 NumericSuffix `l`
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xB4)

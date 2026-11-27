@@ -19,7 +19,7 @@
 1:65 NumericSuffix `ul`
 1:68 IntegerLiteral `7`
 1:69 NumericSuffix `l`
-3:2 IntegerLiteral `1__`
+3:6 IntegerLiteral `1__`
 5:1 FloatLiteral `3.1`
 5:5 FloatLiteral `1e5`
 5:9 FloatLiteral `2.5e-3`

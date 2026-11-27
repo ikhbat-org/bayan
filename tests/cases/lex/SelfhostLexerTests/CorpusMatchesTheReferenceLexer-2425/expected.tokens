@@ -3,7 +3,7 @@
 2:5 Identifier `c`
 2:7 Equals `=`
 2:11 IntegerLiteral `3`
-2:15 EndOfFile
+2:16 EndOfFile
 
 error BYN0002: unexpected character ```
 

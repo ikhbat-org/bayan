@@ -1,9 +1,9 @@
 2:1 IntegerLiteral `1__`
 3:2 Identifier `b`
-4:2 LetKeyword `let`
-4:6 Identifier `a`
-4:8 Equals `=`
-4:12 IntegerLiteral `1`
+4:3 LetKeyword `let`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:13 IntegerLiteral `1`
 5:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

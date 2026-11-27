@@ -4,8 +4,8 @@
 3:4 InterpolationStart `{`
 3:5 Identifier `b`
 3:6 InterpolationEnd `}`
-3:7 InterpolatedStringText `c error set unit distinct type import as public private static readonly required const let var embed extern unsafe\r`
-3:122 InterpolatedStringEnd
+3:7 InterpolatedStringText `c error set unit distinct type import as public private static readonly required const let var embed extern unsafe`
+3:121 InterpolatedStringEnd
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

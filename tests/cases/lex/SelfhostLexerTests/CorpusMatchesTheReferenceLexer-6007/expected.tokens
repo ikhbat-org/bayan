@@ -1,25 +1,25 @@
 1:1 Identifier `b`
 2:1 IntegerLiteral `1`
 2:2 NumericSuffix `e`
-2:5 StringLiteral `"{ $"`
-2:10 Identifier `a`
-2:11 OpenBrace `{`
-2:12 Identifier `b`
-2:13 CloseBrace `}`
-2:14 Identifier `c`
-2:16 Comma `,`
-2:18 Dot `.`
-2:20 DotDot `..`
-2:23 DotDotEquals `..=`
-2:28 Question `?`
-2:30 QuestionQuestion `??`
-2:33 QuestionQuestionEquals `??=`
-2:37 QuestionDot `?.`
-2:40 FatArrow `=>`
-2:43 Arrow `->`
-2:46 At `@`
-2:48 Hash `#`
-4:3 EndOfFile
+2:6 StringLiteral `"{ $"`
+2:11 Identifier `a`
+2:12 OpenBrace `{`
+2:13 Identifier `b`
+2:14 CloseBrace `}`
+2:15 Identifier `c`
+2:17 Comma `,`
+2:19 Dot `.`
+2:21 DotDot `..`
+2:24 DotDotEquals `..=`
+2:29 Question `?`
+2:31 QuestionQuestion `??`
+2:34 QuestionQuestionEquals `??=`
+2:38 QuestionDot `?.`
+2:41 FatArrow `=>`
+2:44 Arrow `->`
+2:47 At `@`
+2:49 Hash `#`
+4:5 EndOfFile
 
 error BYN0002: unexpected character `$`
 

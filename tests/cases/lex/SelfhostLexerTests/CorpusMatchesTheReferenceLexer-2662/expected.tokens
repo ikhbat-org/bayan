@@ -23,14 +23,14 @@
 1:34 InterpolationStart `{`
 1:35 InterpolatedStringStart `$"`
 1:37 InterpolatedStringText `�`
-1:37 InterpolationStart `{`
-1:38 InterpolatedStringStart `$"`
-1:40 InterpolationStart `{`
-1:41 InterpolatedStringStart `$"`
-1:43 InterpolationStart `{`
-1:44 Identifier `x`
-1:45 InterpolationEnd `}`
-1:46 InterpolatedStringEnd `"`
+1:38 InterpolationStart `{`
+1:39 InterpolatedStringStart `$"`
+1:41 InterpolationStart `{`
+1:42 InterpolatedStringStart `$"`
+1:44 InterpolationStart `{`
+1:45 Identifier `x`
+1:46 InterpolationEnd `}`
+1:47 InterpolatedStringEnd `"`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8D)

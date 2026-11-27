@@ -21,22 +21,22 @@
 6:37 ImportKeyword `import`
 6:44 AsKeyword `as`
 6:47 Identifier `publ`
-6:51 Identifier `ic`
-6:54 PrivateKeyword `private`
-6:62 StaticKeyword `static`
-6:69 ReadonlyKeyword `readonly`
-6:78 RequiredKeyword `required`
-6:87 ConstKeyword `const`
-6:93 LetKeyword `let`
-6:97 VarKeyword `var`
-6:101 EmbedKeyword `embed`
-6:107 ExternKeyword `extern`
-6:114 UnsafeKeyword `unsafe`
-8:1 LetKeyword `let`
-8:5 Identifier `café`
-8:11 Equals `=`
-8:12 IntegerLiteral `1`
-8:13 Semicolon `;`
+6:52 Identifier `ic`
+6:55 PrivateKeyword `private`
+6:63 StaticKeyword `static`
+6:70 ReadonlyKeyword `readonly`
+6:79 RequiredKeyword `required`
+6:88 ConstKeyword `const`
+6:94 LetKeyword `let`
+6:98 VarKeyword `var`
+6:102 EmbedKeyword `embed`
+6:108 ExternKeyword `extern`
+6:115 UnsafeKeyword `unsafe`
+8:3 LetKeyword `let`
+8:7 Identifier `café`
+8:13 Equals `=`
+8:14 IntegerLiteral `1`
+8:15 Semicolon `;`
 9:1 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`

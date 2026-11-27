@@ -24,11 +24,11 @@
 4:59 Identifier `cOontinue`
 4:69 ReturnKeyword `return`
 4:76 Identifier `yie`
-4:79 Identifier `ld`
-4:82 DeferKeyword `defer`
-4:88 ErrdeferKeyword `errdefer`
-4:97 UsingKeyword `using`
-4:103 ContextKeyword `context`
+4:80 Identifier `ld`
+4:83 DeferKeyword `defer`
+4:89 ErrdeferKeyword `errdefer`
+4:98 UsingKeyword `using`
+4:104 ContextKeyword `context`
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolationStart `{`
 5:5 StringLiteral `"// comment \u{202E} hidden`

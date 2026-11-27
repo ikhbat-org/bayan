@@ -3,8 +3,7 @@ nav: Learn
 order: 1800
 template: docs
 ---
-<p>In this chapter you build <code>bgrep</code>, a small search tool. It takes a pattern and some files, prints the lines that contain the pattern, and sets an exit code so scripts can use it. It uses what you have learned: structs, errors, effects, capabilities and tests. We build it in steps, then split it into a project.</p>
-<p>The behaviour we want:</p>
+<p class="lede">You build <code>bgrep</code>: it takes a pattern and files, prints the matching lines, and sets an exit code scripts can use. It uses structs, errors, effects, capabilities and tests, in steps, then a project.</p>
 <pre><code>bgrep [-i] [-n] [-c] PATTERN FILE...
 
 -i   ignore case
@@ -16,28 +15,27 @@ exit 1: nothing matched
 exit 2: usage error or unreadable file</code></pre>
 
 <h2 id="args">Step 1: read the arguments</h2>
-<p>A command-line program is a <code>main</code> that takes the arguments as a <code>ReadOnlySpan&lt;string&gt;</code>. Parsing them is a plain function that returns an <code>Options</code> value or fails. Bad input is a usage error, so we give it its own error set:</p>
+<p>A command-line program is a <code>main</code> taking its arguments as a <code>ReadOnlySpan&lt;string&gt;</code>; parsing is a plain function returning <code>Options</code> or failing. Bad input is a usage error with its own error set:</p>
 <example name="book-18-args"/>
-<p>Points to notice.</p>
 <ul>
-<li>The error set is a <code>union error</code>. The doc comment above a case is the text the program prints if that case reaches the top of <code>main</code> (you will see it in step 4).</li>
-<li><code>fail .unknownOption(arg)</code> leaves the function with a value that carries the bad flag. <code>fail .missingPattern unless havePattern</code> checks at the end that a pattern was given.</li>
-<li><code>parseArgs</code> says <code>fails UsageError</code>, because the caller must handle it, and <code>uses alloc</code>, because it builds a list of file names.</li>
-<li>The <code>main</code> here uses a built-in list of arguments, so the example runs without any. <code>check</code> shows how to read the cases back with <code>catch switch</code>.</li>
+<li>The error set is a <code>union error</code>; a case's doc comment is what <code>main</code> prints if that case reaches the top (step 4).</li>
+<li><code>fail .unknownOption(arg)</code> carries the bad flag out; <code>fail .missingPattern unless havePattern</code> requires a pattern.</li>
+<li><code>parseArgs</code> says <code>fails UsageError</code> (the caller must handle it) and <code>uses alloc</code> (it builds the file list).</li>
+<li><code>main</code> passes built-in arguments, so the example needs none; <code>check</code> reads the cases with <code>catch switch</code>.</li>
 </ul>
 
 <h2 id="match">Step 2: decide if a line matches</h2>
-<p>Matching belongs to the options, since only they know about <code>-i</code>. It is a method on <code>Options</code>. A method that only reads has no <code>this</code> in its parameter list:</p>
+<p>Matching belongs to <code>Options</code>, since only it knows about <code>-i</code>; a read-only method leaves <code>this</code> out of its parameter list:</p>
 <pre><code class="byn">bool matches(string line) uses alloc {
     if ignoreCase {
         return line.lowercased().contains(pattern.lowercased())
     }
     return line.contains(pattern)
 }</code></pre>
-<p><code>lowercased()</code> makes new strings, so the method says <code>uses alloc</code>.</p>
+<p><code>lowercased()</code> makes new strings, so it says <code>uses alloc</code>.</p>
 
 <h2 id="search">Step 3: search one file</h2>
-<p>The search function takes the text, the options, a name for output and a flag that says whether to prefix lines with the name. Bayan allows one plain parameter, the object. Every other required parameter needs a particle such as <code>by</code>, <code>as</code> or <code>to</code>. Without one:</p>
+<p><code>search</code> takes the text, the options, an output name and whether to prefix lines with it. Bayan allows one plain parameter, the object; the rest need a particle (<code>by</code>, <code>as</code>, <code>to</code>). Without one:</p>
 <pre><code class="byn">i64 search(string text, string name) {
     return text.length + name.length
 }
@@ -64,15 +62,15 @@ void main() uses console {
 
 <span class="gut">✗ build failed: 2 errors, 0 warnings</span>
 <span class="gut">  explain: bayan explain BYN5004</span></pre>
-      <figcaption>Real output from the v0.1 compiler. The path is shortened to <code>two-params.byn</code>.</figcaption>
+      <figcaption>Real output from the compiler. The path is shortened to <code>two-params.byn</code>.</figcaption>
     </figure>
-<p>The fix is in the final program: <code>search(string text, by Options opts, as string name, to bool showName)</code>. A call then reads <code>search(text, by: opts, as: path, to: true)</code>.</p>
-<p>Here is the whole tool in one file. With no arguments it writes a small file and searches it, so you can run it as is. The loop uses <code>text.lines</code>, and <code>Io.readText</code> with a <code>catch</code> that reports the problem on standard error and moves to the next file.</p>
+<p>The final program fixes it: <code>search(string text, by Options opts, as string name, to bool showName)</code>; a call reads <code>search(text, by: opts, as: path, to: true)</code>.</p>
+<p>The whole tool in one file, runnable as is: with no arguments it writes a small file and searches it; the loop uses <code>text.lines</code>, and <code>Io.readText</code>'s <code>catch</code> reports the problem on standard error and moves to the next file.</p>
 <example name="book-18-bgrep"/>
-<p>The demo ran <code>-n -i APPLE</code>. The match ignored case, so <code>Green Apple</code> was found, and <code>-n</code> printed the line numbers. The exit code from <code>main</code> is the return value: 0 here, since two lines matched.</p>
+<p>The demo ran <code>-n -i APPLE</code>: <code>-i</code> matched <code>Green Apple</code>, <code>-n</code> numbered the line. The exit code is <code>main</code>'s return value: 0, two lines matched.</p>
 
 <h2 id="project">Step 4: make it a project</h2>
-<p>Create the project and put the code in modules. A directory is one module, and a <code>public</code> name is visible to the other files in the project.</p>
+<p>Create the project and split the code into modules; a directory is one module, and a <code>public</code> name is visible to the project's other files.</p>
 <pre><code>bayan new bgrep
 bgrep/
   package.byn
@@ -81,9 +79,9 @@ bgrep/
   src/app/search.byn     search
   tests/app.test.byn
   testdata/fruit.txt</code></pre>
-<p>The search reads files, so the package must allow it, as chapter 14 explained. In <code>package.byn</code>:</p>
+<p>The search reads files, so the package must allow it (<a href="book-14-effects.html">chapter 14</a>); in <code>package.byn</code>:</p>
 <pre><code class="byn">capabilities: [.fs],</code></pre>
-<p>Make the types, functions and error set that other files use <code>public</code>, and give each public function its <code>uses</code> clause. Then run it with <code>bayan run</code>. The arguments go after <code>--</code>. These are real runs against two small files in <code>testdata/</code>:</p>
+<p>Mark the types, functions and error set other files use <code>public</code>, and give each public function its <code>uses</code> clause. Run it with <code>bayan run</code>; arguments go after <code>--</code>. Real runs on two files in <code>testdata/</code>:</p>
 <pre><code>$ bayan run -- apple testdata/fruit.txt
 one apple
 three apple pie
@@ -99,10 +97,10 @@ $ bayan run -- -x file
 error: Unknown option.
 $ echo $?
 2</code></pre>
-<p>The last run shows the doc comment from step 1. The error reached the top of <code>main</code>, so the program printed the text of the case and exited. Writing <code>@exitCode(2)</code> above a case sets that exit status. With several files, each line starts with the file name, as the <code>-c</code> run shows.</p>
+<p>The last run shows the doc comment from step 1: the error reached the top of <code>main</code>, so it printed the case's text and exited; <code>@exitCode(2)</code> above a case sets that status. With several files each line starts with the file name (the <code>-c</code> run).</p>
 
 <h2 id="tests">Step 5: test it</h2>
-<p>Tests live in <code>tests/</code> and can call the public functions. <code>assert f() fails Error.case</code> checks that a call fails with a given error.</p>
+<p>Tests live in <code>tests/</code> and can call the public functions; <code>assert f() fails Error.case</code> checks a call fails with the given error.</p>
 <pre><code class="byn">test "parses flags, pattern and files" {
     let args: string[4] = ["-n", "apple", "a.txt", "b.txt"]
     let opts = try parseArgs(args.span)
@@ -122,25 +120,25 @@ test "search counts matching lines" {
     let opts = try parseArgs(args.span)
     assert search("one apple\ntwo\nthree apple\n", by: opts, as: "t.txt", to: false) == 2
 }</code></pre>
-<p>Running <code>bayan test</code> on the full project, with five tests, printed:</p>
+<p><code>bayan test</code> on the project, five tests:</p>
 <pre><code>running 5 tests in 1 module
 
 ◆ 5 passed</code></pre>
 
 <h2 id="next">Where to go next</h2>
-<p>Add a <code>-v</code> flag that inverts the match, or read from standard input when no files are given. The <a href="cookbook-cli.html">CLI cookbook</a> has more on arguments and exit codes.</p>
+<p>Add a <code>-v</code> flag that inverts the match, or read standard input with no files. The <a href="cookbook-cli.html">CLI cookbook</a> covers arguments and exit codes.</p>
 
 <h2 id="quiz">Check your understanding</h2>
-<details class="quiz"><summary>1. The demo in <code>book-18-bgrep</code> prints <code>3:Green Apple</code>. Which flags made the line match and show a number?</summary>
-<p><code>-i</code> let the pattern <code>APPLE</code> match <code>Green Apple</code>, and <code>-n</code> added the line number. Without <code>-i</code> the pattern would not match. <code>-c</code> was not given: it would print a count instead of the lines.</p></details>
-<details class="quiz"><summary>2. What exit code does <code>bgrep zzz fruit.txt</code> return, if no line matches?
+<details class="quiz"><summary>1. The demo in <code>book-18-bgrep</code> prints <code>3:Green Apple</code>. Which flags matched and numbered the line?</summary>
+<p><code>-i</code> let <code>APPLE</code> match <code>Green Apple</code>, <code>-n</code> added the line number; without <code>-i</code> no match, <code>-c</code> would print a count instead.</p></details>
+<details class="quiz"><summary>2. What exit code does <code>bgrep zzz fruit.txt</code> return with no match?
 <ol type="a"><li>0</li><li>1</li><li>2</li></ol></summary>
-<p>b. 0 means a match was found, and 2 is for usage errors and unreadable files. No match is not an error, so it is not 2.</p></details>
+<p>b: 0 is a match, 2 is for usage errors and unreadable files; no match is not an error.</p></details>
 <details class="quiz"><summary>3. Why does <code>search(string text, string name)</code> not compile?</summary>
-<p>It has two unlabeled parameters (BYN5004), and <code>name</code> needs a particle (BYN5006). Keep one object parameter plain and give the other a particle such as <code>as</code>.</p></details>
+<p>Two unlabeled parameters (BYN5004); keep the object plain and give <code>name</code> a particle such as <code>as</code> (BYN5006).</p></details>
 <details class="quiz"><summary>4. The package builds locally but BYN6004 appears when you add <code>Io.readText</code>. What is missing?</summary>
-<p><code>capabilities: [.fs]</code> in <code>package.byn</code>. The functions already say <code>uses fs</code>; the package has not allowed it.</p></details>
+<p><code>capabilities: [.fs]</code> in <code>package.byn</code>: the functions say <code>uses fs</code>; the package has not allowed it.</p></details>
 
 <div class="next-box">
-  <p>Next: <a href="book-19-c.html">19. Talking to C (FFI) and building for other targets</a> covers calling C libraries and producing a binary for a machine other than the one you are on.</p>
+  <p>Next: <a href="book-19-c.html">19. Talking to C (FFI) and building for other targets</a> covers calling C libraries and producing a binary for another machine.</p>
 </div>

@@ -11,7 +11,7 @@
 5:5 Identifier `c`
 5:7 Equals `=`
 5:9 RawStringLiteral `"""R�ver closed\n� `
-6:2 EndOfFile
+6:3 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

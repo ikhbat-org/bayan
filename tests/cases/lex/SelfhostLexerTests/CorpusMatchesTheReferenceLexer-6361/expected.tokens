@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 LawKeyword `law`
 1:9 Equals `=`
-1:10 IntegerLiteral `3`
+1:11 IntegerLiteral `3`
 2:2 IntegerLiteral `0x_`
 4:1 EndOfFile
 

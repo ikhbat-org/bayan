@@ -4,14 +4,14 @@
 1:12 IntegerLiteral `2`
 3:1 IntegerLiteral `0b102`
 4:1 Plus `+`
-4:3 MinusEquals `-=`
-4:6 StarEquals `*=`
-4:9 SlashEquals `/=`
-4:11 PercentEquals `%=`
-4:14 AmpEquals `&=`
-4:17 BarEquals `|=`
-4:20 Equals `=`
-4:22 LessLessEquals `<<=`
+4:4 MinusEquals `-=`
+4:7 StarEquals `*=`
+4:10 SlashEquals `/=`
+4:13 PercentEquals `%=`
+4:16 AmpEquals `&=`
+4:19 BarEquals `|=`
+4:22 Equals `=`
+4:24 LessLessEquals `<<=`
 5:2 EndOfFile
 
 error BYN0010: invalid numeric literal: binary literals use only `0` and `1`

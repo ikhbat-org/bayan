@@ -18,14 +18,14 @@
 5:2 Slash `/`
 5:3 LetKeyword `let`
 5:7 Identifier `l`
-6:2 Less `<`
-6:3 Identifier `L`
-6:4 Minus `-`
-6:5 Identifier `t`
-6:6 Less `<`
-6:7 Identifier `i64`
-6:10 Greater `>`
+6:3 Less `<`
+6:4 Identifier `L`
+6:5 Minus `-`
+6:6 Identifier `t`
+6:7 Less `<`
+6:8 Identifier `i64`
 6:11 Greater `>`
+6:12 Greater `>`
 7:1 Identifier `a`
 7:3 Greater `>`
 7:4 EndOfFile

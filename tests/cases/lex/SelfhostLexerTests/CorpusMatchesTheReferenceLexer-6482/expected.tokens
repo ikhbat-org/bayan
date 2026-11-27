@@ -55,7 +55,7 @@
 1:71 InterpolatedStringEnd `"`
 1:72 InterpolationEnd `}`
 1:73 InterpolatedStringEnd `"`
-1:76 EndOfFile
+1:79 EndOfFile
 
 error BYN0003: unterminated string literal
 

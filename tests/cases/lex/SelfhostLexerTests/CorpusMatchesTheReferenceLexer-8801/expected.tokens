@@ -1,4 +1,4 @@
-    doc `/// 'ab'\r`
+    doc `/// 'ab'`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 InterpolatedStringStart `$"`

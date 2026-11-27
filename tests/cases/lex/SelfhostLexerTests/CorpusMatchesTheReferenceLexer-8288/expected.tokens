@@ -25,16 +25,16 @@
 1:50 InterpolatedStringStart `$"`
 1:52 InterpolationStart `{`
 1:53 Identifier `Po`
-1:55 Identifier `int`
-1:59 OpenBrace `{`
-1:61 Identifier `x`
-1:63 Equals `=`
-1:66 CloseBrace `}`
-1:67 InterpolationEnd `}`
-1:68 InterpolatedStringText `!`
-1:69 InterpolatedStringEnd `"`
-1:71 InterpolatedStringStart `$"`
-1:73 InterpolatedStringEnd `"`
+1:56 Identifier `int`
+1:60 OpenBrace `{`
+1:62 Identifier `x`
+1:64 Equals `=`
+1:67 CloseBrace `}`
+1:68 InterpolationEnd `}`
+1:69 InterpolatedStringText `!`
+1:70 InterpolatedStringEnd `"`
+1:72 InterpolatedStringStart `$"`
+1:74 InterpolatedStringEnd `"`
 3:2 Identifier `a`
 3:4 Greater `>`
 3:5 Greater `>`
@@ -50,7 +50,7 @@
 7:21 BarEquals `|=`
 7:24 CaretEquals `^=`
 7:27 LessLessEquals `<<=`
-9:2 EndOfFile
+9:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAA)
 

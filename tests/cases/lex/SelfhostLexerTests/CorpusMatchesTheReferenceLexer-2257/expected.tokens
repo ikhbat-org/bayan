@@ -1,5 +1,4 @@
 1:1 CharLiteral `'\u{D800}'`
-    doc `/// Doc line two.`
 5:1 LetKeyword `let`
 5:5 Identifier `actor`
 5:11 Equals `=`

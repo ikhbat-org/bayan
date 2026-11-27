@@ -49,7 +49,7 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `stray } here`
 4:15 InterpolatedStringEnd `"`
-5:2 EndOfFile
+5:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

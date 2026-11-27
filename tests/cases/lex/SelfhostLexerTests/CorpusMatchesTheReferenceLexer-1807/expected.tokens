@@ -58,9 +58,9 @@
 2:11 Equals `=`
 2:13 IntegerLiteral `1`
 3:2 CharLiteral `'\q'`
-4:3 CharLiteral `' '`
-4:8 IntegerLiteral `0`
-4:9 CharLiteral `'`
+4:5 CharLiteral `' '`
+4:10 IntegerLiteral `0`
+4:11 CharLiteral `'`
 6:1 InterpolatedStringStart `$"`
 6:3 InterpolationStart `{`
 6:4 InterpolatedStringStart `$"`

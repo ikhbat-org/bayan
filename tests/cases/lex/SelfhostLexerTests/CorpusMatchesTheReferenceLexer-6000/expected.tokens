@@ -9,9 +9,9 @@
 4:3 Greater `>`
 4:4 GreaterEquals `>=`
 4:7 IntegerLiteral `1`
-5:1 MinusBar `-|`
-5:4 StarBar `*|`
-5:7 Plus `+`
+5:2 MinusBar `-|`
+5:5 StarBar `*|`
+5:8 Plus `+`
 6:1 CharLiteral `'ab'`
 9:1 StringLiteral `""`
 9:4 StringLiteral `"\u{48}i"`

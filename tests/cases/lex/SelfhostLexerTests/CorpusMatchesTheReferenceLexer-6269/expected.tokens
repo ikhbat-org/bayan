@@ -3,8 +3,8 @@
 2:5 NumericSuffix `s`
 3:1 IntegerLiteral `0`
 3:2 NumericSuffix `b`
-3:4 Identifier `ere`
-3:7 StringLiteral `"`
+3:6 Identifier `ere`
+3:9 StringLiteral `"`
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolatedStringText `open `
 4:8 InterpolationStart `{`

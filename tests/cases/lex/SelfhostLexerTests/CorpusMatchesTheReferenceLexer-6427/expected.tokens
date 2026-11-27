@@ -4,15 +4,15 @@
 3:12 Equals `=`
 3:14 IntegerLiteral `1`
 4:1 FailsKeyword `fails`
-4:6 TryKeyword `try`
-4:10 CatchKeyword `catch`
-4:16 NeverKeyword `never`
-4:22 NoallocKeyword `noalloc`
-4:30 NosuspendKeyword `nosuspend`
-4:40 Identifier `suspend`
-4:48 Identifier `s`
-4:50 AsyncKeyword `async`
-4:56 AwaitKeyword `await`
+4:7 TryKeyword `try`
+4:11 CatchKeyword `catch`
+4:17 NeverKeyword `never`
+4:23 NoallocKeyword `noalloc`
+4:31 NosuspendKeyword `nosuspend`
+4:41 Identifier `suspend`
+4:49 Identifier `s`
+4:51 AsyncKeyword `async`
+4:57 AwaitKeyword `await`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

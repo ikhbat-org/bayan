@@ -7,10 +7,10 @@
 1:36 OpenKeyword `open`
 1:41 ExtensibleKeyword `extensible`
 1:52 Identifier `interfac`
-1:61 DelegateKeyword `delegate`
-1:70 ExtensionKeyword `extension`
-1:80 DerivationKeyword `derivation`
-1:91 AttributeKeyword `attribute`
+1:62 DelegateKeyword `delegate`
+1:71 ExtensionKeyword `extension`
+1:81 DerivationKeyword `derivation`
+1:92 AttributeKeyword `attribute`
 2:2 IntegerLiteral `0x_`
 3:2 EndOfFile
 

@@ -4,18 +4,18 @@
 1:7 IntegerLiteral `1`
 2:1 Identifier `b`
 3:2 CharLiteral `' '`
-3:6 Identifier `n`
-3:7 CharLiteral `' '`
-3:11 Identifier `u`
-3:12 OpenBrace `{`
-3:13 IntegerLiteral `1`
-3:14 NumericSuffix `F600`
-3:18 CloseBrace `}`
-3:19 CharLiteral `' '`
-3:23 CharLiteral `''`
-3:26 CharLiteral `'é'`
-3:30 CharLiteral `'\\'`
-3:35 CharLiteral `'\0'`
+3:7 Identifier `n`
+3:8 CharLiteral `' '`
+3:12 Identifier `u`
+3:13 OpenBrace `{`
+3:14 IntegerLiteral `1`
+3:15 NumericSuffix `F600`
+3:19 CloseBrace `}`
+3:20 CharLiteral `' '`
+3:24 CharLiteral `''`
+3:27 CharLiteral `'é'`
+3:31 CharLiteral `'\\'`
+3:36 CharLiteral `'\0'`
 5:1 OpenBrace `{`
 5:2 IntegerLiteral `1`
 5:3 NumericSuffix `F600`

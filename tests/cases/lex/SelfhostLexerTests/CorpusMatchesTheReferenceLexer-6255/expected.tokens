@@ -2,9 +2,9 @@
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolatedStringText `{{`
 2:5 InterpolatedStringEnd `"`
-2:8 Identifier `t`
-2:12 Equals `=`
-2:14 IntegerLiteral `2`
+2:12 Identifier `t`
+2:16 Equals `=`
+2:18 IntegerLiteral `2`
 4:2 Identifier `lew`
 4:6 Identifier `café`
 4:12 Equals `=`

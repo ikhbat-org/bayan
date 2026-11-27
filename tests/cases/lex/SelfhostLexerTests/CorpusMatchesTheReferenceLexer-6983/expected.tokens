@@ -5,7 +5,7 @@
 3:4 Identifier `ok`
 3:9 InKeyword `in`
 3:12 Identifier `comment`
-4:2 CharLiteral `'x\r`
+4:6 CharLiteral `'x`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)

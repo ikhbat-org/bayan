@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `c`
 1:7 RawStringLiteral `"""never clos�d\n///��`
-2:5 EndOfFile
+2:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

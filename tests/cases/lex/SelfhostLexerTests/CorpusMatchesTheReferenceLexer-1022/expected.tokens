@@ -1,5 +1,5 @@
 1:1 CharLiteral `''`
-3:2 IntegerLiteral `0x`
+3:6 IntegerLiteral `0x`
 4:2 InterpolatedStringStart `$"`
 4:4 InterpolationStart `{`
 4:5 InterpolatedStringStart `$"`

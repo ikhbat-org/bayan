@@ -4,7 +4,7 @@
 3:1 Identifier `ver`
 3:5 Identifier `closed`
 4:1 Identifier `b`
-6:3 EndOfFile
+6:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC2)
 

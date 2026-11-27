@@ -16,7 +16,7 @@
 5:4 Identifier `comment`
 5:12 Star `*`
 5:13 Slash `/`
-5:15 Identifier `a`
+5:16 Identifier `a`
 7:1 EndOfFile
 
 error BYN0002: unexpected character `\`

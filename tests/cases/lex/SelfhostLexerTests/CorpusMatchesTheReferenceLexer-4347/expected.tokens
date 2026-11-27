@@ -22,7 +22,7 @@
 7:7 Equals `=`
 7:9 StringLiteral `"open`
 9:1 Identifier `x`
-10:4 EndOfFile
+10:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

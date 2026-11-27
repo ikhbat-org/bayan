@@ -1,6 +1,6 @@
-1:2 LawKeyword `law`
-1:5 AmpEquals `&=`
-1:8 IntegerLiteral `3`
+1:3 LawKeyword `law`
+1:6 AmpEquals `&=`
+1:9 IntegerLiteral `3`
 3:2 IntegerLiteral `0`
 3:3 CharLiteral `'`
 4:2 EndOfFile

@@ -1,7 +1,7 @@
-1:2 StructKeyword `struct`
-1:9 Slash `/`
-1:10 Identifier `S`
-1:11 EndOfFile
+1:5 StructKeyword `struct`
+1:12 Slash `/`
+1:13 Identifier `S`
+1:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

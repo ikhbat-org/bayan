@@ -11,10 +11,10 @@
 1:26 StarBar `*|`
 1:29 PlusPlus `++`
 1:32 MinusMinus `--`
-3:4 LetKeyword `let`
-3:8 Identifier `b`
-3:10 Equals `=`
-3:12 StringLiteral `"bad \q escape"`
+3:5 LetKeyword `let`
+3:9 Identifier `b`
+3:11 Equals `=`
+3:13 StringLiteral `"bad \q escape"`
 5:1 AsKeyword `as`
 5:4 PublicKeyword `public`
 5:11 PrivateKeyword `private`

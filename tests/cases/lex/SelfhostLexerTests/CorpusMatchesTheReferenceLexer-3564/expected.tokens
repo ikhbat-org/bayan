@@ -14,8 +14,8 @@
 5:8 IntegerLiteral `1`
 6:1 LetKeyword `let`
 6:5 Identifier `caf`
-6:9 Equals `=`
-6:11 IntegerLiteral `2`
+6:10 Equals `=`
+6:12 IntegerLiteral `2`
 7:2 Identifier `Å`
 7:4 EndOfFile
 

@@ -1,6 +1,6 @@
 1:1 IntegerLiteral `1`
 1:2 NumericSuffix `e`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 2:2 CharLiteral `'a'`
 2:6 CharLiteral `'\n'`
 2:11 CharLiteral `'\u{1F600}'`

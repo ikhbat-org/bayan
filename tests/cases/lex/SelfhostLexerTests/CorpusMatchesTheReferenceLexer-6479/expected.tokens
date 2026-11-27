@@ -1,5 +1,5 @@
 1:1 RawStringLiteral `""" */\n��`
-2:2 EndOfFile
+2:3 EndOfFile
 
 error BYN0003: unterminated string literal
 

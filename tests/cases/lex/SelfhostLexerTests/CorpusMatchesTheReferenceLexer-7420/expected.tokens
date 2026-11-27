@@ -1,8 +1,8 @@
 1:1 StringLiteral `"aⴁ�b"`
-1:7 LetKeyword `let`
-1:11 EffectKeyword `effect`
-1:18 Equals `=`
-1:20 IntegerLiteral `2`
+1:8 LetKeyword `let`
+1:12 EffectKeyword `effect`
+1:19 Equals `=`
+1:21 IntegerLiteral `2`
 3:1 Caret `^`
 3:3 Tilde `~`
 3:5 Bang `!`

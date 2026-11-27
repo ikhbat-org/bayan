@@ -3,10 +3,10 @@
 1:4 InterpolationStart `{`
 1:6 InterpolatedStringStart `$"`
 1:8 InterpolationStart `{`
-1:9 IntegerLiteral `0`
-1:10 InterpolationEnd `}`
-1:11 InterpolatedStringText `' '\'' 'é' '\\' '\0'`
-1:31 InterpolatedStringEnd
+1:10 IntegerLiteral `0`
+1:11 InterpolationEnd `}`
+1:12 InterpolatedStringText `' '\'' 'é' '\\' '\0'`
+1:32 InterpolatedStringEnd
 3:1 Star `*`
 3:2 Slash `/`
 4:1 EndOfFile

@@ -9,8 +9,8 @@
 1:20 PlusBar `+|`
 1:23 MinusBar `-|`
 1:25 StarBar `*|`
-1:28 PlusPlus `++`
-1:31 MinusMinus `--`
+1:29 PlusPlus `++`
+1:32 MinusMinus `--`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBD)

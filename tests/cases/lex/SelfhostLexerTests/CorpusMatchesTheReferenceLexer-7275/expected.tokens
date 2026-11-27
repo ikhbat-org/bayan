@@ -18,7 +18,7 @@
 1:47 Identifier `y`
 1:49 FloatLiteral `2.5`
 1:52 NumericSuffix `f`
-1:54 EndOfFile
+1:55 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC2)
 

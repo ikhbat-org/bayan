@@ -1,6 +1,6 @@
 1:1 CharLiteral `'"{ b`
 2:1 OpenBrace `{`
-2:3 IntegerLiteral `102`
+2:4 IntegerLiteral `102`
 3:1 IntegerLiteral `0xFF`
 3:5 NumericSuffix `s`
 4:1 IntegerLiteral `0b1`
@@ -10,7 +10,7 @@
 7:1 IntegerLiteral `1__`
 8:1 IntegerLiteral `0xF__`
 10:1 IntegerLiteral `0b1`
-10:4 Identifier `ms`
+10:5 Identifier `ms`
 11:1 EndOfFile
 
 error BYN0008: unterminated char literal

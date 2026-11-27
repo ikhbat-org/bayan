@@ -46,34 +46,34 @@
 7:24 InterpolationStart `{`
 7:25 InterpolatedStringStart `$"`
 7:27 InterpolatedStringText `�$`
-7:28 InterpolatedStringEnd `"`
-7:29 OpenBrace `{`
-7:30 InterpolatedStringStart `$"`
-7:32 InterpolationStart `{`
-7:33 InterpolatedStringStart `$"`
-7:35 InterpolationStart `{`
-7:36 InterpolatedStringStart `$"`
-7:38 InterpolationStart `{`
-7:39 InterpolatedStringStart `$"`
-7:41 InterpolationStart `{`
-7:42 InterpolatedStringStart `$"`
-7:44 InterpolationStart `{`
-7:45 InterpolatedStringStart `$"`
-7:47 InterpolationStart `{`
-7:48 InterpolatedStringStart `$"`
-7:50 InterpolationStart `{`
-7:51 StringLiteral `$"{$"`
-7:56 OpenBrace `{`
-7:57 StringLiteral `$"{x}"`
-7:63 CloseBrace `}`
-7:64 StringLiteral `"}"`
-7:67 InterpolationEnd `}`
-7:68 InterpolatedStringEnd `"`
-7:69 InterpolationEnd `}`
-7:70 InterpolatedStringEnd `"`
-7:71 InterpolationEnd `}`
-7:72 InterpolatedStringEnd `"`
-7:74 EndOfFile
+7:29 InterpolatedStringEnd `"`
+7:30 OpenBrace `{`
+7:31 InterpolatedStringStart `$"`
+7:33 InterpolationStart `{`
+7:34 InterpolatedStringStart `$"`
+7:36 InterpolationStart `{`
+7:37 InterpolatedStringStart `$"`
+7:39 InterpolationStart `{`
+7:40 InterpolatedStringStart `$"`
+7:42 InterpolationStart `{`
+7:43 InterpolatedStringStart `$"`
+7:45 InterpolationStart `{`
+7:46 InterpolatedStringStart `$"`
+7:48 InterpolationStart `{`
+7:49 InterpolatedStringStart `$"`
+7:51 InterpolationStart `{`
+7:52 StringLiteral `$"{$"`
+7:57 OpenBrace `{`
+7:58 StringLiteral `$"{x}"`
+7:64 CloseBrace `}`
+7:65 StringLiteral `"}"`
+7:68 InterpolationEnd `}`
+7:69 InterpolatedStringEnd `"`
+7:70 InterpolationEnd `}`
+7:71 InterpolatedStringEnd `"`
+7:72 InterpolationEnd `}`
+7:73 InterpolatedStringEnd `"`
+7:75 EndOfFile
 
 error BYN0003: unterminated string literal
 

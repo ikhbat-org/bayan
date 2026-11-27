@@ -1,4 +1,4 @@
-1:1 CharLiteral `'\'\r`
+1:1 CharLiteral `'\'`
 2:1 CharLiteral `'\u{110000}'`
 4:1 LetKeyword `let`
 4:5 Identifier `a`

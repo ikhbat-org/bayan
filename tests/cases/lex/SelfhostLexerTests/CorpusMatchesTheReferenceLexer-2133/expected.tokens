@@ -1,6 +1,6 @@
 1:1 CharLiteral `' '`
 1:4 Identifier `ab`
-1:6 CharLiteral `'\r`
+1:6 CharLiteral `'`
 2:2 CharLiteral `'\u{110000}'`
 4:1 Identifier `le`
 4:4 Identifier `actor`

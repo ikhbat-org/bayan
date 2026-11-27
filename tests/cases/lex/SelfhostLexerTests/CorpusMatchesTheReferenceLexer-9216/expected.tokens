@@ -1,5 +1,5 @@
 1:1 IntegerLiteral `0x`
-1:3 Identifier `FFs`
+1:4 Identifier `FFs`
 2:1 Identifier `B`
 3:3 Identifier `c`
 3:5 Equals `=`

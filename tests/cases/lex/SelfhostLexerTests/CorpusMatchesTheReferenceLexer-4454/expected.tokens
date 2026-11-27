@@ -12,9 +12,9 @@
 2:29 Arrow `->`
 2:32 At `@`
 2:34 Hash `#`
-5:2 Slash `/`
-5:4 Identifier `comment`
-5:14 Identifier `hidden`
+5:4 Slash `/`
+5:6 Identifier `comment`
+5:16 Identifier `hidden`
 6:3 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

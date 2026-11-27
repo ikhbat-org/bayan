@@ -29,7 +29,7 @@
 1:50 InterpolatedStringEnd `"`
 1:52 InterpolatedStringStart `$"`
 1:54 InterpolatedStringEnd `"`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 6:1 Identifier `_`
 7:1 EndOfFile
 

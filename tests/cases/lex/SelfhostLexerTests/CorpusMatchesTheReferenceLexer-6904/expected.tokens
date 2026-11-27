@@ -17,10 +17,10 @@
 4:1 CharLiteral `'\u{D800}'`
 5:1 CharLiteral `'\u{110000}'`
 6:1 CharLiteral `'x`
-7:2 LetKeyword `let`
-7:6 Identifier `café`
-7:12 Equals `=`
-7:14 IntegerLiteral `1`
+7:3 LetKeyword `let`
+7:7 Identifier `café`
+7:13 Equals `=`
+7:15 IntegerLiteral `1`
 9:1 StructKeyword `struct`
 9:8 UniqueKeyword `unique`
 9:15 UnionKeyword `union`

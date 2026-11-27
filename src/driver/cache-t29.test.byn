@@ -466,3 +466,86 @@ test "driver t29: t9CompileIn keeps the entry another build put under its key fi
     deleteWorkDir(entry)
     deleteWorkDir(work)
 }
+
+test "driver t29: t9TreeSize counts the files of subdirectories" {
+    let dir = t29CacheDir("tree-size")
+    goldenWrite(dir, for: "a", as: "12")
+    goldenWrite(dir, for: "d/e/f", as: "12345")
+    assert (t9TreeSize(dir) catch { panic("size") }) == 7
+    deleteWorkDir(dir)
+}
+
+test "driver t29: t9CompileIn unlinks a directory link the compiler left, keeping its target" {
+    if Target.os == "windows" {
+        todo("`/bin/sh` and `ln -s` are Unix-only")
+    }
+    var d = newDCtx()
+    let key = $"t29-dsym-link-{t9Unique(ref d)}"
+    let entry = Path.combine(t9Programs(), key)
+    let work = t29CacheDir("compile-dsym-link")
+    let kept = t29CacheDir("compile-dsym-target")
+    goldenWrite(kept, for: "keep", as: "x")
+    let built = t9CompileIn(
+        work,
+        by: boundList(
+            ["/bin/sh", "-c", $"while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf ours > \"$2\"; ln -s '{kept}' \"$2.dSYM\"; fi; shift; done"],
+        ),
+        through: boundList([]),
+        from: "int main(void) { return 0; }\n",
+        for: key,
+        as: "a.out",
+        until: "rt.o",
+        at: false,
+        to: ref d,
+    ) catch { panic("compile") }
+    assert built.succeeded && !built.rejected
+    assert Fs.fileExists(Path.combine(kept, "keep"))
+    assert !t9DirectoryExists(Path.combine(entry, "a.out.dSYM"))
+    deleteWorkDir(entry)
+    deleteWorkDir(work)
+    deleteWorkDir(kept)
+}
+
+test "driver t29: t9TreeSize does not enter a link to a directory" {
+    if Target.os == "windows" {
+        todo("`/bin/sh` and `ln -s` are Unix-only")
+    }
+    let dir = t29CacheDir("tree-size-link")
+    goldenWrite(dir, for: "d/a", as: "123")
+    var args = List<string>()
+    args.append("-c")
+    args.append("ln -s .. \"$0/d/up\"")
+    args.append(dir)
+    var env: Map<string, string?> = []
+    let made = Io.run("/bin/sh", args.span, env: env) catch { panic("ln") }
+    assert made.exitCode == 0
+    assert (t9TreeSize(dir) catch { panic("size") }) == 3
+    deleteWorkDir(dir)
+}
+
+test "driver t29: t9CompileIn drops a directory the compiler left beside the program" {
+    if Target.os == "windows" {
+        todo("`/bin/sh` is Unix-only")
+    }
+    var d = newDCtx()
+    let key = $"t29-dsym-{t9Unique(ref d)}"
+    let entry = Path.combine(t9Programs(), key)
+    let work = t29CacheDir("compile-dsym")
+    let built = t9CompileIn(
+        work,
+        by: boundList(
+            ["/bin/sh", "-c", "while [ $# -gt 0 ]; do if [ \"$1\" = -o ]; then printf ours > \"$2\"; mkdir \"$2.dSYM\"; fi; shift; done"],
+        ),
+        through: boundList([]),
+        from: "int main(void) { return 0; }\n",
+        for: key,
+        as: "a.out",
+        until: "rt.o",
+        at: false,
+        to: ref d,
+    ) catch { panic("compile") }
+    assert built.succeeded && !built.rejected
+    assert !t9DirectoryExists(Path.combine(entry, "a.out.dSYM")) && !t9DirectoryExists(Path.combine(work, "a.out.dSYM"))
+    deleteWorkDir(entry)
+    deleteWorkDir(work)
+}

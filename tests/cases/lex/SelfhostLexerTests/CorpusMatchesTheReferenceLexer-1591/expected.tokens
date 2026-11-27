@@ -7,7 +7,7 @@
 3:8 IntegerLiteral `2`
 4:1 LetKeyword `let`
 4:5 Identifier `c`
-4:10 IntegerLiteral `3`
+4:11 IntegerLiteral `3`
 5:2 EndOfFile
 
 error BYN0002: unexpected character ```

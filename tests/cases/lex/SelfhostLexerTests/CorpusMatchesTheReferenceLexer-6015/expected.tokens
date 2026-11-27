@@ -24,7 +24,7 @@
 5:27 StarBar `*|`
 5:30 PlusPlus `++`
 5:33 MinusMinus `--`
-7:3 EndOfFile
+7:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)
 

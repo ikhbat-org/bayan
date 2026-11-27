@@ -1,10 +1,10 @@
 1:1 CharLiteral `'x`
 5:1 OpenParen `(`
-5:3 CloseParen `)`
-5:5 OpenBracket `[`
-5:7 CloseBracket `]`
-5:9 OpenBrace `{`
-5:11 CloseBrace `}`
+5:4 CloseParen `)`
+5:6 OpenBracket `[`
+5:8 CloseBracket `]`
+5:10 OpenBrace `{`
+5:12 CloseBrace `}`
 6:4 EndOfFile
 
 error BYN0008: unterminated char literal

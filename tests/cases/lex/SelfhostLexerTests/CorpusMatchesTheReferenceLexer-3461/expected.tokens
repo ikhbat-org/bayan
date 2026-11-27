@@ -1,7 +1,7 @@
 1:1 Slash `/`
 1:4 Identifier `x`
 4:1 Identifier `ạ̇0`
-4:5 Identifier `b1I02`
+4:6 Identifier `b1I02`
 5:1 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

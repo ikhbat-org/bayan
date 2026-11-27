@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `ca9e`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
     doc `/// Doc line one.`
 5:1 EndOfFile
 

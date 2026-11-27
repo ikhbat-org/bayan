@@ -2,7 +2,7 @@
 1:5 Identifier `c`
 1:7 Equals `=`
 1:9 RawStringLiteral `"""n�ever closed`
-1:24 EndOfFile
+1:25 EndOfFile
 
 error BYN0003: unterminated string literal
 

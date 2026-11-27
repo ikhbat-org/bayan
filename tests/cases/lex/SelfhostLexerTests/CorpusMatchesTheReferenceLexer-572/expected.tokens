@@ -4,13 +4,13 @@
 3:4 CloseBrace `}`
 3:5 Bang `!`
 3:6 StringLiteral `" �$"`
-3:10 StringLiteral `"`
+3:11 StringLiteral `"`
 4:2 LetKeyword `let`
 4:6 Identifier `café`
 4:11 Equals `=`
 4:13 IntegerLiteral `1`
 4:14 Semicolon `;`
-4:17 EndOfFile
+4:18 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

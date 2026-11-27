@@ -1,18 +1,18 @@
-1:1 Identifier `et`
-1:4 Identifier `café`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
-1:13 Semicolon `;`
-1:15 IntegerLiteral `3`
-1:17 FloatLiteral `6E+2`
-1:22 FloatLiteral `1.50`
-1:26 NumericSuffix `dec`
-1:30 IntegerLiteral `1`
-1:31 DotDot `..`
-1:33 IntegerLiteral `2`
-1:35 FloatLiteral `1.5`
-1:38 Equals `=`
-1:41 EndOfFile
+1:2 Identifier `et`
+1:5 Identifier `café`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
+1:14 Semicolon `;`
+1:16 IntegerLiteral `3`
+1:18 FloatLiteral `6E+2`
+1:23 FloatLiteral `1.50`
+1:27 NumericSuffix `dec`
+1:31 IntegerLiteral `1`
+1:32 DotDot `..`
+1:34 IntegerLiteral `2`
+1:36 FloatLiteral `1.5`
+1:39 Equals `=`
+1:42 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)
 

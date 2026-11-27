@@ -22,7 +22,9 @@
 #       VERSION target (`-dev` stripped) or `unscheduled`; every snapshot doc (export, misc, the design rounds, the Sūq
 #       reports and the other dated notes) has a `Snapshot:` line in its first ten lines. Release docs are neither;
 #   (i) every docs/revisions/NNNN-*.md is cited in docs/bayan-feature-history.md and every numbered section of the spec
-#       has a row there (scripts/docs/check-history.sh prints one line per problem).
+#       has a row there (scripts/docs/check-history.sh prints one line per problem);
+#   (j) the writing rules scripts/docs/prose-check.sh checks. Warn-only (plan 022): prints the count and does not fail
+#       until the brevity pass is done.
 set -uo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -130,6 +132,7 @@ while IFS= read -r doc; do
     docs/export/*|docs/misc/*|docs/bayan-design-round-*|docs/suq-*|docs/bayan-reference-app-*|docs/bayan-status-for-suq.md \
     |docs/bayan-brand-brief.md|docs/bayan-additional-concepts.md|docs/bayan-going-public.md|docs/laws-and-decisions.md|docs/design/lessons-from-other-languages.md)
       head -n 10 "$root/$doc" | grep -q '^Snapshot: ' || fail "$doc: no Snapshot: line in the first ten lines (snapshot doc)" ;;
+    docs/assets/*) ;;   # brand kit and images: assets, not docs
     docs/diagnostics/*) ;;   # embedded in `bayan explain` and bootstrap/bayan.c; no header until decided (plan 016)
     *) fail "$doc is not a release, record or snapshot doc; add it to bayan_release_docs (scripts/release/version.sh) or to a kind in check.sh (h)" ;;
   esac
@@ -137,5 +140,11 @@ done < <(cd "$root" && find docs -name '*.md' -type f | LC_ALL=C sort)
 
 # (i) the feature history
 while IFS= read -r line; do fail "$line"; done < <(bash "$root/scripts/docs/check-history.sh" 2>&1 || true)
+
+# (j) the writing rules, warn-only
+if [ -f "$root/scripts/docs/prose-check.sh" ]; then
+  n="$(bash "$root/scripts/docs/prose-check.sh" 2>&1 | grep -c '^prose: ' || true)"
+  [ "$n" = 0 ] || echo "warn: $n prose findings (bash scripts/docs/prose-check.sh lists them; not failing yet, plan 022)"
+fi
 
 exit "$failed"

@@ -5,4 +5,39 @@ Sources: plan 020 runs
 
 One entry per finding, format from `docs/handoffs/2026-11-27-hardening.md` §5. Repros live in `tests/hardening/known/HF-NNNN/`.
 
-None yet.
+```
+HF-0001  Untrusted<bool> assigns to bool without trustUnchecked (string and i64 are rejected with BYN2202)
+  oracle:     H7 safety mutants (scripts/hardening/safety-mutate.sh, kind untrusted-to-trusted; source run/untrusted-clean-facts)
+  repro:      tests/hardening/known/HF-0001/
+  severity:   unsound
+  first seen: 70be08e7e (dev)
+  status:     open
+
+HF-0002  A read after a `ref` call in the same expression is unsequenced in the emitted C (gcc prints 30, zig 40)
+  oracle:     H1 sanitizer matrix, gcc cells on wp1 WSL (golden run/operand-ref-spill, every cell)
+  repro:      tests/hardening/known/HF-0002/
+  severity:   miscompile
+  first seen: 51379f861 (dev)
+  status:     fixed on fix/hf0002-ref-call-read (ce57bc3dd; gcc 12 and clang: run/ 376 passed on wp1 WSL), merge to dev after the audit-040 HIGHs branches
+
+HF-0003  List.sort swaps elements a byte at a time; Fil-C stops on the swapped string pointers (ISO C allows the byte copy)
+  oracle:     H5 Fil-C 0.687 (scripts/hardening/filc.sh; golden run/list-sort)
+  repro:      tests/hardening/known/HF-0003/
+  severity:   crash
+  first seen: 507c90184 (dev)
+  status:     fixed on fix/hf0003-sort-swap-memcpy (95cadacbd; runtime/tests 25 ok incl. new sort-wide.c, break-tested); Fil-C 0.687 on wp1 WSL: run/list-sort passes, all run/ 0 findings; merge after HF-0002
+
+HF-0004  Debug-mode binaries record the build directory: `-g` writes the compiler's cwd as DWARF `DW_AT_comp_dir`
+  oracle:     H2 determinism (scripts/hardening/determinism.sh, binary leg, Linux); goldens run/strbuf-over-debug, run/switch-move-guard,
+              run/switch-move-loop, run/unique-checker-clean (the four `// mode: debug` cases; safe and fast binaries match)
+  repro:      build any `--mode debug` program from two directories and compare; `readelf --debug-dump=info` shows each path
+  severity:   nondeterminism (debug builds only; emitted C matches)
+  first seen: 507c90184 (dev)
+  status:     open, owner call: mapping the cwd to `.` (`-fdebug-prefix-map=<cwd>=.` beside src/driver/cc.byn's `-g`) makes debug
+              builds reproducible, but a debugger then finds sources only when started from the source directory
+```
+
+## Harness notes (not compiler findings)
+
+- **ASan start-up loop on wp1 WSL (2026-11-27).** Kernel 6.18.54.1-microsoft-standard-WSL2, gcc 12: 4 of 30 ASan starts of `runtime/tests/path-relative-cases.c` printed `AddressSanitizer:DEADLYSIGNAL` forever (25.7 GB in 68 min, then `io-read-release` 2.4 GB); 0 of 30 under `setarch $(uname -m) -R`. Address-randomization interplay with the sanitizer runtime, not Bayān code. `sanitize.sh` and `fuzz.sh --afl/--triage` now start under `setarch -R` and `sanitize.sh` caps file size with `ulimit -f`. The first WSL ASan cell was stopped and rerun: 73 timeouts became 0, and the gcc+clang matrix took 5 min (2026-11-27, 507c90184).
+- **`runtime/tests/wait-status.c` doubled its output under Valgrind (2026-11-27).** The child that kills itself with SIGKILL flushed the stdout buffer it inherited, so 4 lines printed twice (11 lines, not 6, on wp1 WSL, Valgrind 3.19). The test now flushes stdout before `fork()`; 6 lines with and without Valgrind. A test artifact, not a runtime finding.

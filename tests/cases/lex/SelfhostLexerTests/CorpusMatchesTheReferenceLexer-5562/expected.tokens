@@ -6,10 +6,10 @@
 3:5 Identifier `a`
 3:7 Equals `=`
 3:11 IntegerLiteral `1`
-5:1 Identifier `et`
-5:4 Identifier `a`
-5:6 Equals `=`
-5:8 IntegerLiteral `1`
+5:2 Identifier `et`
+5:5 Identifier `a`
+5:7 Equals `=`
+5:9 IntegerLiteral `1`
 6:2 IntegerLiteral `1_`
 8:1 IntegerLiteral `0`
 8:2 CloseBrace `}`

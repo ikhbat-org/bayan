@@ -2,9 +2,9 @@
 1:4 Identifier `camelCase2`
 1:15 Identifier `بيانU`
 1:21 Identifier `μετρ`
-1:25 Identifier `τής`
-1:29 Identifier `x_1`
-1:33 Identifier `é`
+1:27 Identifier `τής`
+1:31 Identifier `x_1`
+1:35 Identifier `é`
 4:2 LetKeyword `let`
 4:6 Identifier `café`
 4:12 Equals `=`
@@ -26,22 +26,22 @@
 4:36 InterpolationStart `{`
 4:37 InterpolatedStringStart `$"`
 4:39 InterpolationStart `{`
-4:41 StringLiteral `"{$"`
-4:45 OpenBrace `{`
-4:46 InterpolatedStringStart `$"`
-4:48 InterpolationStart `{`
-4:49 InterpolatedStringStart `$"`
-4:51 InterpolationStart `{`
-4:52 InterpolatedStringStart `$"`
-4:54 InterpolationStart `{`
-4:55 InterpolatedStringStart `$"`
-4:57 InterpolationStart `{`
-4:58 InterpolatedStringStart `$"`
-4:60 InterpolationStart `{`
-4:61 InterpolatedStringStart `$"`
-4:63 InterpolationStart `{`
-4:64 Identifier `x`
-4:66 EndOfFile
+4:42 StringLiteral `"{$"`
+4:46 OpenBrace `{`
+4:47 InterpolatedStringStart `$"`
+4:49 InterpolationStart `{`
+4:50 InterpolatedStringStart `$"`
+4:52 InterpolationStart `{`
+4:53 InterpolatedStringStart `$"`
+4:55 InterpolationStart `{`
+4:56 InterpolatedStringStart `$"`
+4:58 InterpolationStart `{`
+4:59 InterpolatedStringStart `$"`
+4:61 InterpolationStart `{`
+4:62 InterpolatedStringStart `$"`
+4:64 InterpolationStart `{`
+4:65 Identifier `x`
+4:67 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8A)
 

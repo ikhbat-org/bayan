@@ -17,15 +17,15 @@
 3:20 Identifier `i64`
 3:23 Greater `>`
 3:24 Greater `>`
-4:5 Identifier `macro`
-4:11 Identifier `select`
-4:18 BecomeKeyword `become`
+4:8 Identifier `macro`
+4:14 Identifier `select`
+4:21 BecomeKeyword `become`
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolationStart `{`
 5:5 Identifier `a`
 5:6 Slash `/`
-5:8 Identifier `line`
-5:13 Identifier `comment`
+5:9 Identifier `line`
+5:14 Identifier `comment`
 6:2 EndOfFile
 
 error BYN0003: unterminated string literal

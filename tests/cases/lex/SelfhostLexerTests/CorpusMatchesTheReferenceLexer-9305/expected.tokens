@@ -11,14 +11,14 @@
 2:20 EqualsEquals `==`
 2:23 BangEquals `!=`
 2:26 Less `<`
-2:28 LessEquals `<=`
-2:31 Greater `>`
-2:33 GreaterEquals `>=`
-2:36 LessLess `<<`
-2:39 Greater `>`
+2:29 LessEquals `<=`
+2:32 Greater `>`
+2:34 GreaterEquals `>=`
+2:37 LessLess `<<`
 2:40 Greater `>`
-2:42 Greater `>`
-2:43 GreaterEquals `>=`
+2:41 Greater `>`
+2:43 Greater `>`
+2:44 GreaterEquals `>=`
     doc `/// Doc line two.`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolationStart `{`

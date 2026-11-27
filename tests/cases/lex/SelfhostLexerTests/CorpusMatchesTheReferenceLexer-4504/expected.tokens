@@ -5,9 +5,9 @@
 4:8 Equals `=`
 4:10 IntegerLiteral `1`
 5:2 CharLiteral `'ab'`
-6:3 Identifier `a`
-6:5 Equals `=`
-6:7 IntegerLiteral `1`
+6:4 Identifier `a`
+6:6 Equals `=`
+6:8 IntegerLiteral `1`
 7:1 LetKeyword `let`
 7:7 EndOfFile
 

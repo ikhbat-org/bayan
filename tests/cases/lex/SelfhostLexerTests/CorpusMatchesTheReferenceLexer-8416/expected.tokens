@@ -18,22 +18,22 @@
 3:86 Identifier `vation`
 3:93 AttributeKeyword `attribute`
 4:3 StringLiteral `""`
-4:5 StringLiteral `" c"`
-4:9 Identifier `text`
-4:13 StringLiteral `" u16"`
-4:19 Identifier `wide`
-4:23 StringLiteral `" "`
-4:28 Identifier `allowed`
-4:36 InKeyword `in`
-4:39 Identifier `strings`
-4:46 StringLiteral `" "`
-4:49 StringLiteral `" "`
-4:53 Identifier `u`
-4:54 OpenBrace `{`
-4:55 IntegerLiteral `48`
-4:57 CloseBrace `}`
-4:58 Identifier `i`
-4:59 StringLiteral `"`
+4:6 StringLiteral `" c"`
+4:10 Identifier `text`
+4:14 StringLiteral `" u16"`
+4:20 Identifier `wide`
+4:24 StringLiteral `" "`
+4:29 Identifier `allowed`
+4:37 InKeyword `in`
+4:40 Identifier `strings`
+4:47 StringLiteral `" "`
+4:50 StringLiteral `" "`
+4:54 Identifier `u`
+4:55 OpenBrace `{`
+4:56 IntegerLiteral `48`
+4:58 CloseBrace `}`
+4:59 Identifier `i`
+4:60 StringLiteral `"`
 5:2 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

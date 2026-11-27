@@ -5,17 +5,17 @@
 1:23 CaseKeyword `case`
 1:28 DefaultKeyword `default`
 1:36 ForKeyword `for`
-1:40 InKeyword `in`
-1:43 WhileKeyword `while`
-1:49 DoKeyword `do`
-1:52 BreakKeyword `break`
-1:58 Identifier `condinue`
-1:67 ReturnKeyword `return`
-1:74 YieldKeyword `yield`
-1:80 DeferKeyword `defer`
-1:86 ErrdeferKeyword `errdefer`
-1:95 UsingKeyword `using`
-1:101 ContextKeyword `context`
+1:41 InKeyword `in`
+1:44 WhileKeyword `while`
+1:50 DoKeyword `do`
+1:53 BreakKeyword `break`
+1:59 Identifier `condinue`
+1:68 ReturnKeyword `return`
+1:75 YieldKeyword `yield`
+1:81 DeferKeyword `defer`
+1:87 ErrdeferKeyword `errdefer`
+1:96 UsingKeyword `using`
+1:102 ContextKeyword `context`
 2:2 CloseBrace `}`
 2:4 Identifier `here`
 2:8 StringLiteral `"`
@@ -23,7 +23,7 @@
 3:3 InterpolatedStringText `open `
 3:8 InterpolationStart `{`
 3:9 Identifier `x`
-3:11 EndOfFile
+3:15 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9A)
 

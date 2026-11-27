@@ -86,10 +86,10 @@
 2:71 StringLiteral `"}"`
 2:74 CloseBrace `}`
 2:75 StringLiteral `"`
-3:1 Identifier `يان`
-3:5 Identifier `μετρητής`
-3:14 Identifier `x_1`
-3:18 Identifier `é`
+3:2 Identifier `يان`
+3:6 Identifier `μετρητής`
+3:15 Identifier `x_1`
+3:19 Identifier `é`
 4:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

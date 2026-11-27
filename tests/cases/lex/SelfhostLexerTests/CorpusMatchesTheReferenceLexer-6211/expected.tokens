@@ -4,8 +4,8 @@
 1:22 FuzzKeyword `fuzz`
 1:27 ModelKeyword `model`
 1:33 ForeachKeyword `foreach`
-1:41 NewKeyword `new`
-1:45 GotoKeyword `goto`
+1:42 NewKeyword `new`
+1:46 GotoKeyword `goto`
 2:4 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings"""`
 2:51 StringLiteral `"\u{48}i"`
 3:2 LetKeyword `let`

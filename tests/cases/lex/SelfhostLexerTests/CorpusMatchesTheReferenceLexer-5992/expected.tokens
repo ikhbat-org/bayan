@@ -21,7 +21,7 @@
 6:9 InterpolatedStringStart `$"`
 6:11 InterpolationStart `{`
 6:12 StringLiteral `"`
-7:3 EndOfFile
+7:6 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C
 

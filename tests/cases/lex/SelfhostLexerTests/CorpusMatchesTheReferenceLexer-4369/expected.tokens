@@ -1,6 +1,6 @@
 1:2 Identifier `Å`
-1:5 StringLiteral `" $�`
-1:9 EndOfFile
+1:6 StringLiteral `" $�`
+1:10 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals
 

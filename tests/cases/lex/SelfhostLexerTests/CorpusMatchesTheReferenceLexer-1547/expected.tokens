@@ -2,8 +2,8 @@
 1:5 Identifier `café`
 1:11 Equals `=`
 1:13 IntegerLiteral `1`
-2:3 Identifier `quoted`
-2:9 StringLiteral `"`
+2:7 Identifier `quoted`
+2:13 StringLiteral `"`
 3:3 RawStringLiteral `""" c"text" u16"wid let café = 1\r\n c >>= 1\r\n\r\n""never closed\r\n + - * / % +% -% *% +| -| *| ++ --\r\nlet effect = 2\r\n`
 9:1 EndOfFile
 

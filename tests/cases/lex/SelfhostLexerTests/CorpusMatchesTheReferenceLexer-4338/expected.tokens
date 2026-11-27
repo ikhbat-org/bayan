@@ -1,5 +1,5 @@
-1:3 StringLiteral `"a{�c `
-1:9 EndOfFile
+1:4 StringLiteral `"a{�c `
+1:10 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)
 

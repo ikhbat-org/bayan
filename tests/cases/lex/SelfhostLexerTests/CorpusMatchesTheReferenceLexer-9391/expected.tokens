@@ -14,19 +14,19 @@
 12:9 IntegerLiteral `1`
 13:1 Identifier `le`
 14:1 Identifier `é`
-14:6 Comma `,`
-14:8 Dot `.`
-14:10 DotDot `..`
-14:13 DotDotEquals `..=`
-14:17 Colon `:`
-14:19 Question `?`
-14:21 QuestionQuestion `??`
-14:24 QuestionQuestionEquals `??=`
-14:28 QuestionDot `?.`
-14:31 FatArrow `=>`
-14:34 Arrow `->`
-14:37 At `@`
-14:39 Hash `#`
+14:9 Comma `,`
+14:11 Dot `.`
+14:13 DotDot `..`
+14:16 DotDotEquals `..=`
+14:20 Colon `:`
+14:22 Question `?`
+14:24 QuestionQuestion `??`
+14:27 QuestionQuestionEquals `??=`
+14:31 QuestionDot `?.`
+14:34 FatArrow `=>`
+14:37 Arrow `->`
+14:40 At `@`
+14:42 Hash `#`
 15:2 EndOfFile
 
 error BYN0009: a char literal holds exactly one Unicode scalar

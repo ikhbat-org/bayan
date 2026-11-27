@@ -1,6 +1,6 @@
     doc `///�Doc line one.`
-2:3 Slash `/`
-2:4 Identifier `c`
+2:4 Slash `/`
+2:5 Identifier `c`
 4:1 IntegerLiteral `0x`
 4:4 Identifier `Fs`
 6:1 EndOfFile

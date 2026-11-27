@@ -81,14 +81,14 @@
 8:11 NotKeyword `not`
 8:15 WithKeyword `with`
 8:20 MoveKeyword `move`
-8:25 RefKeyword `ref`
-8:29 OutKeyword `out`
-8:33 ThisKeyword `this`
-8:38 NullKeyword `null`
-8:43 TrueKeyword `true`
-8:48 FalseKeyword `false`
-8:54 ComptimeKeyword `comptime`
-8:63 Identifier `checkd`
+8:26 RefKeyword `ref`
+8:30 OutKeyword `out`
+8:34 ThisKeyword `this`
+8:39 NullKeyword `null`
+8:44 TrueKeyword `true`
+8:49 FalseKeyword `false`
+8:55 ComptimeKeyword `comptime`
+8:64 Identifier `checkd`
 10:1 EndOfFile
 
 error BYN0016: interpolated strings are nested too deeply

@@ -15,7 +15,7 @@
 3:1 LetKeyword `let`
 3:5 Identifier `c`
 3:7 Equals `=`
-3:8 RawStringLiteral `"""never closed\n \rab'\n'\q'\n'\du{D800}'\n'\u{1100`
+3:9 RawStringLiteral `"""never closed\n \rab'\n'\q'\n'\du{D800}'\n'\u{1100`
 7:9 EndOfFile
 
 error BYN0002: unexpected character `\`

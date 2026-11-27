@@ -9,13 +9,13 @@
 1:21 CloseBracket `]`
 1:23 OpenBrace `{`
 1:25 CloseBrace `}`
-4:1 Identifier `x́́`
+4:2 Identifier `x́́`
 5:1 IntegerLiteral `0b1`
 5:4 NumericSuffix `ms`
 6:2 LetKeyword `let`
 6:6 Identifier `a`
 6:8 Equals `=`
-7:3 EndOfFile
+7:7 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C
 

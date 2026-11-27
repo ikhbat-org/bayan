@@ -1,0 +1,119 @@
+error BYN3216: `Outer.n` can be written only by `Outer`'s own methods or with `with`: `Outer` has
+`requires`
+
+  34 │     set(ref o.n)
+     │             ^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  35 │     set(ref o.inner.x)
+     │             ^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  36 │     fill(out o.inner)
+     │              ^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  37 │     o.inner.x = -7
+     │     ^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  38 │     o.inner.x += 1
+     │     ^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  39 │     o.inner.x++
+     │     ^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  40 │     o.inner.bump()
+     │     ^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.items` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  41 │     o.items.clear()
+     │     ^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.items` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  42 │     o.items[0] = 3
+     │     ^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.m` can be written only by `Outer`'s own methods or with `with`: `Outer` has
+`requires`
+
+  43 │     o.m["a"] = 1
+     │     ^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  44 │     poke(o.inner)
+     │          ^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inner` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  45 │     let r: dyn ref IBump = o.inner
+     │                            ^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inners` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  47 │     for e: dyn ref IBump in o.inners {
+     │                             ^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inners` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  50 │     o.inners[0].x = 4
+     │     ^^^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`
+
+error BYN3216: `Outer.inners` can be written only by `Outer`'s own methods or with `with`: `Outer`
+has `requires`
+
+  51 │     o.inners[0].bump()
+     │     ^^^^^^^^^^^
+     │
+  help: add a `ref this` method to `Outer`, or build a new value with `with`

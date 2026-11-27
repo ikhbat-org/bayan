@@ -21,14 +21,14 @@
 5:7 CloseBracket `]`
 5:9 OpenBrace `{`
 5:11 CloseBrace `}`
-6:2 Identifier `foo`
-6:6 Identifier `Bar`
-6:10 Identifier `_x`
-6:13 Identifier `camelCase2`
-6:24 Identifier `بيان`
-6:29 Identifier `μετρητής`
-6:38 Identifier `x_1`
-6:42 Identifier `é`
+6:4 Identifier `foo`
+6:8 Identifier `Bar`
+6:12 Identifier `_x`
+6:15 Identifier `camelCase2`
+6:26 Identifier `بيان`
+6:31 Identifier `μετρητής`
+6:40 Identifier `x_1`
+6:44 Identifier `é`
 8:1 EndOfFile
 
 error BYN0001: bidirectional control character U+2069 is not allowed outside string literals

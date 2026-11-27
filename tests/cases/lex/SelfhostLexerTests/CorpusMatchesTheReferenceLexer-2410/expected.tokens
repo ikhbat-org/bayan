@@ -1,6 +1,6 @@
 1:3 Identifier `ᄀV`
-1:5 Identifier `ᆨ`
-1:6 EndOfFile
+1:7 Identifier `ᆨ`
+1:9 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)
 

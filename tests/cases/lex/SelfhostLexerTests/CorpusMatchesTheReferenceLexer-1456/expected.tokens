@@ -3,8 +3,8 @@
 5:3 Identifier `macro`
 5:9 Identifier `select`
 5:16 BecomeKeyword `become`
-7:2 Equals `=`
-7:4 IntegerLiteral `1`
+7:4 Equals `=`
+7:6 IntegerLiteral `1`
 9:1 Identifier `각`
 10:1 EndOfFile
 

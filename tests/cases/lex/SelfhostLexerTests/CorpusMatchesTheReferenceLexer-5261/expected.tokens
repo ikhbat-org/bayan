@@ -2,7 +2,7 @@
 1:5 Identifier `a`
 1:9 IntegerLiteral `1`
 2:1 Identifier `e`
-2:3 EndOfFile
+2:4 EndOfFile
 
 error BYN0002: unexpected character `$`
 

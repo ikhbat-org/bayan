@@ -183,10 +183,10 @@ jobs:
         # The hosted Windows image names its Python `python`; `python3` is not guaranteed there. The parts are the build
         # matrix's for windows-latest: other and golden shards 1 to 12.
         run: |
-          missing=""; : > test-report.txt
+          missing=""; reports=""
           for p in other 1 2 3 4 5 6 7 8 9 10 11 12; do
-            if [ -f "test-report-$p.txt" ]; then cat "test-report-$p.txt" >> test-report.txt; else missing="$missing $p"; fi
+            if [ -f "test-report-$p.txt" ]; then reports="$reports test-report-$p.txt"; else missing="$missing $p"; fi
           done
-          rc=0; python -I scripts/ci/known-failures.py tests/windows-known-failures.txt test-report.txt || rc=$?
+          rc=0; python -I scripts/ci/known-failures.py tests/windows-known-failures.txt $reports || rc=$?
           if [ -n "$missing" ]; then echo "known-failures: no report from the win-x64 job(s):$missing"; exit 1; fi
           exit $rc

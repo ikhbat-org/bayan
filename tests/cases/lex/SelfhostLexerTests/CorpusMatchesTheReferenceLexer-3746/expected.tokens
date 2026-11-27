@@ -26,7 +26,7 @@
 2:53 NumericSuffix `f`
 3:2 CharLiteral `'\u{D800}'`
 5:1 CharLiteral `'x`
-6:3 EndOfFile
+6:4 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)
 

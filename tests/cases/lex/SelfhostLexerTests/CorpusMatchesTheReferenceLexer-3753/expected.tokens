@@ -6,7 +6,7 @@
 2:7 StringLiteral `"quoted"`
 3:1 Identifier `ᄀ`
 3:3 Identifier `P`
-3:4 Identifier `ᆨ`
+3:5 Identifier `ᆨ`
 4:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\r\n�\r\n����\r\n "bad \q escape"\r\nlet c = """`
 9:1 EndOfFile
 

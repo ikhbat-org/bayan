@@ -1,4 +1,4 @@
-1:2 Identifier `hidden`
+1:3 Identifier `hidden`
 2:1 LetKeyword `let`
 2:5 Identifier `x`
 2:8 Equals `=`
@@ -14,13 +14,13 @@
 3:18 Identifier `a`
 4:1 TestKeyword `test`
 4:6 AsKeyword `as`
-4:8 Identifier `srt`
-4:12 PropertyKeyword `property`
-4:21 FuzzKeyword `fuzz`
-4:26 Identifier `moel`
-4:31 ForeachKeyword `foreach`
-4:39 NewKeyword `new`
-4:43 GotoKeyword `goto`
+4:9 Identifier `srt`
+4:13 PropertyKeyword `property`
+4:22 FuzzKeyword `fuzz`
+4:27 Identifier `moel`
+4:32 ForeachKeyword `foreach`
+4:40 NewKeyword `new`
+4:44 GotoKeyword `goto`
 6:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAE)

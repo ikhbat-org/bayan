@@ -4,7 +4,7 @@
 1:5 Identifier `b`
 1:6 InterpolationEnd `}`
 1:7 InterpolatedStringText `c μετρητΣ�ς x_1 é`
-1:23 InterpolatedStringEnd
+1:24 InterpolatedStringEnd
 2:2 Identifier `ay`
 2:5 CloseBrace `}`
 2:7 Identifier `here`

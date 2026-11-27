@@ -24,11 +24,11 @@
 8:59 ContinueKeyword `continue`
 8:68 ReturnKeyword `return`
 8:75 Identifier `yi`
-8:77 Identifier `ld`
-8:80 DeferKeyword `defer`
-8:86 ErrdeferKeyword `errdefer`
-8:95 UsingKeyword `using`
-8:101 Identifier `ontext`
+8:78 Identifier `ld`
+8:81 DeferKeyword `defer`
+8:87 ErrdeferKeyword `errdefer`
+8:96 UsingKeyword `using`
+8:102 Identifier `ontext`
 9:1 IntegerLiteral `1`
 9:3 IntegerLiteral `5`
 9:4 NumericSuffix `s`

@@ -14,9 +14,9 @@
 4:28 PlusPlus `++`
 4:31 MinusMinus `--`
 5:2 LetKeyword `let`
-5:6 Identifier `b`
-5:8 Equals `=`
-5:10 StringLiteral `"bad \q escape"`
+5:7 Identifier `b`
+5:9 Equals `=`
+5:11 StringLiteral `"bad \q escape"`
 7:1 InterpolatedStringStart `$"`
 7:3 InterpolatedStringText `a`
 7:4 InterpolationStart `{`

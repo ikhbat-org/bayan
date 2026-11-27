@@ -33,11 +33,11 @@
 6:43 Identifier `x`
 6:44 InterpolationEnd `}`
 6:45 InterpolatedStringEnd `"`
-7:1 Identifier `ητής`
-7:6 Identifier `x_1`
-7:10 LetKeyword `let`
-7:14 Identifier `actor`
-7:21 IntegerLiteral `0b102`
+7:2 Identifier `ητής`
+7:7 Identifier `x_1`
+7:11 LetKeyword `let`
+7:15 Identifier `actor`
+7:22 IntegerLiteral `0b102`
 8:2 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

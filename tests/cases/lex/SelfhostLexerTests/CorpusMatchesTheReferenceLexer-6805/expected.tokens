@@ -1,8 +1,8 @@
 1:4 Identifier `co`
-1:6 Identifier `mment`
-1:12 Star `*`
-1:13 Slash `/`
-1:15 Identifier `a`
+1:7 Identifier `mment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA3)

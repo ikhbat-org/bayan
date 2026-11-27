@@ -25,7 +25,6 @@
 5:5 Identifier `b`
 5:7 Equals `=`
 5:11 IntegerLiteral `2`
-    doc `/// Doc line one.`
 12:1 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines

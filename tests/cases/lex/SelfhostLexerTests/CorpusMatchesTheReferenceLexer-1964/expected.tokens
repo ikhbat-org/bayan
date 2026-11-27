@@ -8,9 +8,9 @@
 1:15 Dot `.`
 1:16 CharLiteral `'\�q'`
 2:1 IntegerLiteral `0x`
-3:4 Bang `!`
-3:5 StringLiteral `"  /* \u{202D} */`
-3:15 EndOfFile
+3:6 Bang `!`
+3:7 StringLiteral `"  /* \u{202D} */`
+3:17 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFB)
 

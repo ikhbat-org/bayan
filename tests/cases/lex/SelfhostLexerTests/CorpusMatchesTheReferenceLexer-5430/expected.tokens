@@ -24,11 +24,11 @@
 4:54 IntegerLiteral `1`
 4:55 NumericSuffix `u`
 4:57 IntegerLiteral `0xFF`
-4:61 Identifier `u`
-4:63 IntegerLiteral `0b1`
-4:66 NumericSuffix `u`
-4:68 IntegerLiteral `7`
-4:69 NumericSuffix `l`
+4:62 Identifier `u`
+4:64 IntegerLiteral `0b1`
+4:67 NumericSuffix `u`
+4:70 IntegerLiteral `7`
+4:71 NumericSuffix `l`
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

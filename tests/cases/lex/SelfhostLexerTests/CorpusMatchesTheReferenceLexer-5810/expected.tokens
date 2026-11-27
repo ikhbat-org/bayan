@@ -85,7 +85,7 @@
 5:26 StarBar `*|`
 5:29 PlusPlus `++`
 5:32 MinusMinus `--`
-6:3 IntegerLiteral `0x`
+6:5 IntegerLiteral `0x`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

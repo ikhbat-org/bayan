@@ -6,15 +6,15 @@
 4:6 Identifier `x`
 4:9 Equals `=`
 4:11 IntegerLiteral `1`
-5:1 FailsKeyword `fails`
-5:7 TryKeyword `try`
-5:11 CatchKeyword `catch`
-5:17 NeverKeyword `never`
-5:23 NoallocKeyword `noalloc`
-5:31 NosuspendKeyword `nosuspend`
-5:41 SuspendsKeyword `suspends`
-5:50 AsyncKeyword `async`
-5:56 AwaitKeyword `await`
+5:2 FailsKeyword `fails`
+5:8 TryKeyword `try`
+5:12 CatchKeyword `catch`
+5:18 NeverKeyword `never`
+5:24 NoallocKeyword `noalloc`
+5:32 NosuspendKeyword `nosuspend`
+5:42 SuspendsKeyword `suspends`
+5:51 AsyncKeyword `async`
+5:57 AwaitKeyword `await`
 6:2 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

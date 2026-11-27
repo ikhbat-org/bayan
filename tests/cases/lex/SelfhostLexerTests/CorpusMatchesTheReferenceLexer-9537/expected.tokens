@@ -20,9 +20,9 @@
 6:10 PlusPercent `+%`
 6:13 MinusPercent `-%`
 6:16 StarPercent `*%`
-6:19 Bar `|`
-6:21 Minus `-`
-6:23 IntegerLiteral `0b__`
+6:20 Bar `|`
+6:22 Minus `-`
+6:24 IntegerLiteral `0b__`
 8:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

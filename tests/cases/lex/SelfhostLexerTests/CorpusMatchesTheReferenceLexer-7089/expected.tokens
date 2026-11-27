@@ -13,8 +13,8 @@
 3:32 MinusMinus `--`
 4:1 LetKeyword `let`
 4:5 Identifier `a`
-4:7 Equals `=`
-4:9 StringLiteral `"open`
+4:8 Equals `=`
+4:10 StringLiteral `"open`
 5:2 LetKeyword `let`
 5:6 Identifier `b`
 5:8 Equals `=`

@@ -21,11 +21,11 @@
 12:1 IntegerLiteral `0xF__`
 14:1 Identifier `ist`
 14:4 Less `<`
-14:5 Identifier `ist`
-14:8 Less `<`
-14:9 Identifier `i64`
-14:12 Greater `>`
+14:6 Identifier `ist`
+14:9 Less `<`
+14:10 Identifier `i64`
 14:13 Greater `>`
+14:14 Greater `>`
 16:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

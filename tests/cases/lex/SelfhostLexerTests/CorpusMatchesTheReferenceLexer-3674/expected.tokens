@@ -5,7 +5,7 @@
 5:1 LetKeyword `let`
 5:5 Identifier `a`
 5:7 Equals `=`
-5:8 IntegerLiteral `1`
+5:9 IntegerLiteral `1`
 7:1 StringLiteral `"� let a = "`
 7:13 OpenKeyword `open`
 10:1 EndOfFile

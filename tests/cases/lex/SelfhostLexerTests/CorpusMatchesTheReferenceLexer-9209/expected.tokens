@@ -11,10 +11,10 @@
 6:5 NumericSuffix `ms`
 7:2 IntegerLiteral `1`
 7:3 NumericSuffix `e`
-7:5 LetKeyword `let`
-7:9 LawKeyword `law`
-7:13 Equals `=`
-7:15 IntegerLiteral `3`
+7:6 LetKeyword `let`
+7:10 LawKeyword `law`
+7:14 Equals `=`
+7:16 IntegerLiteral `3`
 8:2 BarEquals `|=`
 8:5 CaretEquals `^=`
 8:8 LessLessEquals `<<=`

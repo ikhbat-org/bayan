@@ -7,15 +7,15 @@
 1:20 OpenBrace `{`
 1:21 OpenBrace `{`
 1:22 Identifier `litera`
-1:28 CloseBrace `}`
 1:29 CloseBrace `}`
-1:30 StringLiteral `" $"`
-1:34 OpenBrace `{`
-1:35 Identifier `Po`
-1:38 LetKeyword `let`
-1:42 Identifier `café`
-1:47 Equals `=`
-1:49 IntegerLiteral `2`
+1:30 CloseBrace `}`
+1:31 StringLiteral `" $"`
+1:35 OpenBrace `{`
+1:36 Identifier `Po`
+1:39 LetKeyword `let`
+1:43 Identifier `café`
+1:48 Equals `=`
+1:50 IntegerLiteral `2`
 2:2 OpenBrace `{`
 2:3 IntegerLiteral `110000`
 2:9 CloseBrace `}`

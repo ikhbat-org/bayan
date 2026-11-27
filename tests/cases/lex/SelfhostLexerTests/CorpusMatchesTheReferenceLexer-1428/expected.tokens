@@ -3,8 +3,8 @@
 2:1 StructKeyword `struct`
 2:8 Identifier `S`
 3:2 CharLiteral `'\u{202E}'`
-5:2 Identifier `k`
-5:3 EndOfFile
+5:5 Identifier `k`
+5:6 EndOfFile
 
 error BYN0002: unexpected character `̈́`
 

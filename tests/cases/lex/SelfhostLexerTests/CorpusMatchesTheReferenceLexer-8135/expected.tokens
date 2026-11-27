@@ -1,10 +1,10 @@
-1:2 OpenParen `(`
-1:4 CloseParen `)`
-1:6 OpenBracket `[`
-1:8 CloseBracket `]`
-1:10 OpenBrace `{`
-1:12 CloseBrace `}`
-1:15 EndOfFile
+1:4 OpenParen `(`
+1:6 CloseParen `)`
+1:8 OpenBracket `[`
+1:10 CloseBracket `]`
+1:12 OpenBrace `{`
+1:14 CloseBrace `}`
+1:17 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x80)
 

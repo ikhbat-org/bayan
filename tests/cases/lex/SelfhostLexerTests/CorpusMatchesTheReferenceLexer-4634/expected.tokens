@@ -121,7 +121,7 @@
 5:13 Equals `=`
 5:15 IntegerLiteral `1`
 5:16 Semicolon `;`
-6:1 EndOfFile
+6:2 EndOfFile
 
 error BYN0003: unterminated string literal
 

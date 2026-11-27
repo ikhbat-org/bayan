@@ -16,7 +16,7 @@
 5:7 CloseBracket `]`
 5:9 OpenBrace `{`
 5:11 CloseBrace `}`
-6:1 EndOfFile
+6:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

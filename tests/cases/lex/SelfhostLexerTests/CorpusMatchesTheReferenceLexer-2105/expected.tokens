@@ -15,7 +15,7 @@
 7:20 IntegerLiteral `0`
 7:21 NumericSuffix `B`
 8:1 CharLiteral `'\u{110000}'`
-9:1 EndOfFile
+9:2 EndOfFile
 
 error BYN0002: unexpected character `$`
 

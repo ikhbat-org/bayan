@@ -10,7 +10,7 @@
 3:11 IntegerLiteral `3`
 4:2 LetKeyword `let`
 4:8 Equals `=`
-4:10 IntegerLiteral `2`
+4:11 IntegerLiteral `2`
 5:2 IntegerLiteral `0x_`
 7:1 Identifier `le`
 7:5 Identifier `a`

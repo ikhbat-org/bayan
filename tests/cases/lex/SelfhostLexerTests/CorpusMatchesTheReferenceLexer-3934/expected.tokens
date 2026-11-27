@@ -12,9 +12,9 @@
 1:23 PlusBar `+|`
 1:26 MinusBar `-|`
 1:29 Star `*`
-1:30 Bar `|`
-1:32 PlusPlus `++`
-1:35 MinusMinus `--`
+1:31 Bar `|`
+1:33 PlusPlus `++`
+1:36 MinusMinus `--`
 2:1 Identifier `doc`
 2:5 Identifier `comment`
 3:1 Identifier `b`

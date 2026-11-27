@@ -133,7 +133,7 @@
 4:1 InterpolatedStringStart `$"`
 4:3 InterpolationStart `{`
 4:4 StringLiteral `"`
-5:3 Identifier `Å`
+5:4 Identifier `Å`
 6:2 OpenBrace `{`
 6:3 InterpolatedStringStart `$"`
 6:5 InterpolationStart `{`

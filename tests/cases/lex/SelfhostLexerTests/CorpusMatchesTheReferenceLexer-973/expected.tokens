@@ -1,7 +1,7 @@
 1:5 Identifier `각`
-2:3 Identifier `é`
-2:5 Equals `=`
-2:7 IntegerLiteral `2`
+2:6 Identifier `é`
+2:8 Equals `=`
+2:10 IntegerLiteral `2`
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

@@ -2,9 +2,9 @@
 1:2 StringLiteral `" $"`
 1:6 OpenBrace `{`
 1:7 Identifier `Poin`
-1:13 Identifier `u`
-1:15 Identifier `ᆨ`
-1:17 EndOfFile
+1:15 Identifier `u`
+1:18 Identifier `ᆨ`
+1:20 EndOfFile
 
 error BYN0002: unexpected character `\u{17}`
 

@@ -1,4 +1,4 @@
-1:1 CharLiteral `'x\r`
+1:1 CharLiteral `'x`
 3:1 IntegerLiteral `0xF__`
 6:2 LetKeyword `let`
 6:6 Identifier `c`
@@ -7,7 +7,7 @@
 9:1 StringLiteral `"}"`
 9:4 CloseBrace `}`
 9:5 StringLiteral `"`
-10:3 EndOfFile
+10:7 EndOfFile
 
 error BYN0008: unterminated char literal
 

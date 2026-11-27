@@ -3,7 +3,7 @@
 2:5 Identifier `x`
 2:8 Equals `=`
 2:10 IntegerLiteral `1`
-2:12 EndOfFile
+2:13 EndOfFile
 
 error BYN0003: unterminated string literal
 

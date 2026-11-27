@@ -45,7 +45,7 @@
 2:63 InterpolatedStringEnd `"`
 2:64 InterpolationEnd `}`
 2:65 InterpolatedStringEnd `"`
-2:67 Identifier `ạ̇0xFFs`
+2:71 Identifier `ạ̇0xFFs`
 3:1 IntegerLiteral `1`
 3:2 Dot `.`
 3:3 EndOfFile

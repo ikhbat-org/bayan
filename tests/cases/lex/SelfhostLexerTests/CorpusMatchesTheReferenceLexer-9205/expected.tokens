@@ -3,15 +3,15 @@
 2:6 Identifier `actor`
 2:12 Equals `=`
 2:14 IntegerLiteral `1`
-3:3 PlusEquals `+=`
-3:6 MinusEquals `-=`
-3:9 StarEquals `*=`
-3:12 SlashEquals `/=`
-3:15 PercentEquals `%=`
-3:18 AmpEquals `&=`
-3:21 BarEquals `|=`
-3:24 CaretEquals `^=`
-3:27 LessLessEquals `<<=`
+3:7 PlusEquals `+=`
+3:10 MinusEquals `-=`
+3:13 StarEquals `*=`
+3:16 SlashEquals `/=`
+3:19 PercentEquals `%=`
+3:22 AmpEquals `&=`
+3:25 BarEquals `|=`
+3:28 CaretEquals `^=`
+3:31 LessLessEquals `<<=`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xE2)

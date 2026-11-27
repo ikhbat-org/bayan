@@ -1,0 +1,13 @@
+error BYN5008: `params` is not a particle
+
+  1 │ i32 bare(params ReadOnlySpan xs) {
+    │          ^^^^^^ not a particle
+    │
+  help: choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`
+
+error BYN5008: `params` is not a particle
+
+  4 │ i32 opt(params ReadOnlySpan<i32>? xs) {
+    │         ^^^^^^ not a particle
+    │
+  help: choose one of `from`, `to`, `until`, `through`, `at`, `by`, `for`, `as`

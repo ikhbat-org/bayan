@@ -40,12 +40,12 @@
 1:62 InterpolationEnd `}`
 1:63 InterpolatedStringText `F`
 1:64 InterpolatedStringEnd `"`
-2:2 LetKeyword `let`
-2:6 Identifier `actor`
-2:12 Equals `=`
-2:14 IntegerLiteral `1`
+2:3 LetKeyword `let`
+2:7 Identifier `actor`
+2:13 Equals `=`
+2:15 IntegerLiteral `1`
 5:1 Identifier `a`
-9:4 EndOfFile
+9:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

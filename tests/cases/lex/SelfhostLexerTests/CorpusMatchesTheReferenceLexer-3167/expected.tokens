@@ -24,7 +24,7 @@
 3:37 Identifier `strings`
 3:44 StringLiteral `" "`
 3:47 StringLiteral `" "`
-3:52 EndOfFile
+3:53 EndOfFile
 
 error BYN0002: unexpected character `\u{1F}`
 

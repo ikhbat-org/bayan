@@ -1,5 +1,5 @@
 1:1 CharLiteral `'\u{D800'`
-1:11 EndOfFile
+1:12 EndOfFile
 
 error BYN0006: invalid escape sequence `\u{D800`
 

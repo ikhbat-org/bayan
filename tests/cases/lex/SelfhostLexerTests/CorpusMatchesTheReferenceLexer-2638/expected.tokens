@@ -41,8 +41,8 @@
 4:13 CloseBrace `}`
 4:14 StringLiteral `"}"`
 5:2 Identifier `b`
-6:2 Equals `=`
-6:4 IntegerLiteral `1`
+6:3 Equals `=`
+6:5 IntegerLiteral `1`
 8:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA7)

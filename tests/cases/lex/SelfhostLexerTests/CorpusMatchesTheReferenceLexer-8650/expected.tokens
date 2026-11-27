@@ -1,8 +1,8 @@
-2:3 IntegerLiteral `0xF__`
-3:2 Identifier `a`
-3:4 Greater `>`
-3:5 Greater `>`
-3:7 Identifier `b`
+2:6 IntegerLiteral `0xF__`
+3:5 Identifier `a`
+3:7 Greater `>`
+3:8 Greater `>`
+3:10 Identifier `b`
 5:1 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`

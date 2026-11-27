@@ -1,6 +1,6 @@
 1:1 StringLiteral `"a\u{2067}b�`
 2:1 Identifier `com`
-2:4 Identifier `e`
+2:5 Identifier `e`
 3:1 LetKeyword `let`
 3:6 EndOfFile
 

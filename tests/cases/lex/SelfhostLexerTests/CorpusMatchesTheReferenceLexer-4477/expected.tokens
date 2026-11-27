@@ -5,7 +5,7 @@
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 Equals `=`
-2:9 RawStringLiteral `"""nev\u{5}r closed\n\n\u{2069}\n\u{2069} `
+2:10 RawStringLiteral `"""nev\u{5}r closed\n\n\u{2069}\n\u{2069} `
 5:3 EndOfFile
 
 error BYN0003: unterminated string literal

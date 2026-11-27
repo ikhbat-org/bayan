@@ -1,5 +1,5 @@
 1:2 Dot `.`
-1:4 Identifier `b`
+1:5 Identifier `b`
 2:2 StringLiteral `"text"`
 2:9 StringLiteral `"esc \"q\" \\ \n"`
 2:27 RawStringLiteral `"""\r\n $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}"}"}"}"}" `

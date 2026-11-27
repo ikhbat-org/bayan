@@ -34,10 +34,10 @@
 1:76 Bang `!`
 1:77 StringLiteral `" $"`
 1:81 StringLiteral `"`
-2:1 LetKeyword `let`
-2:5 LawKeyword `law`
-2:9 Equals `=`
-2:11 IntegerLiteral `3`
+2:2 LetKeyword `let`
+2:6 LawKeyword `law`
+2:10 Equals `=`
+2:12 IntegerLiteral `3`
 4:1 Identifier `ạ̇`
 4:4 EndOfFile
 

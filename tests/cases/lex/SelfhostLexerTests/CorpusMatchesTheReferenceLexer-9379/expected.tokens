@@ -7,20 +7,20 @@
 5:7 SetKeyword `set`
 5:11 UnitKeyword `unit`
 5:16 Identifier `distinc`
-5:24 TypeKeyword `type`
-5:29 ImportKeyword `import`
-5:36 AsKeyword `as`
-5:39 PublicKeyword `public`
-5:46 PrivateKeyword `private`
-5:54 StaticKeyword `static`
-5:61 Identifier `redonly`
-5:69 RequiredKeyword `required`
-5:78 ConstKeyword `const`
-5:84 LetKeyword `let`
-5:88 VarKeyword `var`
-5:92 EmbedKeyword `embed`
-5:98 ExternKeyword `extern`
-5:105 UnsafeKeyword `unsafe`
+5:25 TypeKeyword `type`
+5:30 ImportKeyword `import`
+5:37 AsKeyword `as`
+5:40 PublicKeyword `public`
+5:47 PrivateKeyword `private`
+5:55 StaticKeyword `static`
+5:62 Identifier `redonly`
+5:70 RequiredKeyword `required`
+5:79 ConstKeyword `const`
+5:85 LetKeyword `let`
+5:89 VarKeyword `var`
+5:93 EmbedKeyword `embed`
+5:99 ExternKeyword `extern`
+5:106 UnsafeKeyword `unsafe`
 8:1 EndOfFile
 
 error BYN0012: `macro` is reserved and cannot be used as an identifier

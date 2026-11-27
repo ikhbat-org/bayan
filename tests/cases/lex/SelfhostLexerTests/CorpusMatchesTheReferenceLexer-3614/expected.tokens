@@ -7,7 +7,7 @@
 3:1 Identifier `n`
 3:3 Identifier `strings`
 3:10 RawStringLiteral `""" "\u{48}i � `
-3:24 EndOfFile
+3:25 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -1,5 +1,5 @@
 1:1 Identifier `x́́`
-    doc `///\r`
+    doc `///`
 3:1 LetKeyword `let`
 3:5 Identifier `x`
 3:8 Equals `=`

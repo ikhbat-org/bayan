@@ -37,15 +37,15 @@
 1:53 InterpolatedStringEnd `"`
 1:55 StringLiteral `"}"`
     doc `/// Doc line two.`
-3:1 FailsKeyword `fails`
-3:7 TryKeyword `try`
-3:11 CatchKeyword `catch`
-3:17 NeverKeyword `never`
-3:23 NoallocKeyword `noalloc`
-3:31 NosuspendKeyword `nosuspend`
-3:41 SuspendsKeyword `suspends`
-3:50 AsyncKeyword `async`
-3:56 AwaitKeyword `await`
+3:2 FailsKeyword `fails`
+3:8 TryKeyword `try`
+3:12 CatchKeyword `catch`
+3:18 NeverKeyword `never`
+3:24 NoallocKeyword `noalloc`
+3:32 NosuspendKeyword `nosuspend`
+3:42 SuspendsKeyword `suspends`
+3:51 AsyncKeyword `async`
+3:57 AwaitKeyword `await`
 12:2 EndOfFile
 
 error BYN0003: unterminated string literal

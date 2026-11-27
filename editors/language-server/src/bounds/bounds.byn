@@ -531,6 +531,38 @@ test "16 messages of 2 MiB read and 16 written grow the resident set by less tha
     assert(after - read < limit)
 }
 
+test "reading past 16 bad-JSON bodies of 256 KiB keeps the tree of one of them in the message arena: each is read as its own message" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` read the resident set; Windows has neither")
+    }
+    // A long array cut off by a stray byte: the parse builds its tree before it fails.
+    let junk = $"[{"1,".repeated(1 << 17)}x"
+    var input = List<u8>()
+    for _ in 0..16 {
+        for b in framed(junk) {
+            input.append(b)
+        }
+    }
+    for b in framed("{}") {
+        input.append(b)
+    }
+    var t = transport.Transport.reading(input.copy(), at: 64 << 20)
+    var warm = transport.Transport.reading(framed(junk), at: 64 << 20)
+    using let warmArena = Arena()
+    provide allocator: warmArena {
+        let _ = warm.read()
+    }
+    let before = residentKb()
+    var during: i64 = 0
+    using let arena = Arena()
+    provide allocator: arena {
+        let _ = t.read()
+        during = residentKb()
+    }
+    print($"resident set {before} KB, {during} KB after the first read")
+    assert(during - before < 65536)
+}
+
 test "1,000 edits to one open document do not grow the resident set" {
     if Target.os == "windows" {
         todo("`sh` and `ps` read the resident set; Windows has neither")

@@ -1,0 +1,17 @@
+// 0.4.0 audit 04-parser #4 and #5: a `*` closing a type before `)`, and the span of a top-level statement with attributes.
+
+test "parser low041: a pointer type closes before a paren" {
+    let got = t29Brief("var y = (u8*)x\n")
+    assert got == "Var y = (cast u8* x)\n[BYN1067 9+3]\n[BYN1057 8+5]\n"
+}
+
+test "parser low041: a global statement span starts at its attributes" {
+    var p = t3ParserOf("@unobservable because \"r\"\nx = 1\n")
+    let unit = parseCompilationUnit(ref p)
+    switch unit.members[0] {
+        case .globalStatement(let g):
+            assert g.value.span.start == 0
+        default:
+            assert false
+    }
+}

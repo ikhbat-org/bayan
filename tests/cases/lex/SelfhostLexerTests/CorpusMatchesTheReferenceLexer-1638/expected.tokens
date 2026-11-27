@@ -1,10 +1,10 @@
 1:1 CharLiteral `'\u{D800}'`
 2:1 OpenParen `(`
-2:3 CloseParen `)`
-2:5 OpenBracket `[`
-2:7 CloseBracket `]`
-2:9 OpenBrace `{`
-2:11 CloseBrace `}`
+2:4 CloseParen `)`
+2:6 OpenBracket `[`
+2:8 CloseBracket `]`
+2:10 OpenBrace `{`
+2:12 CloseBrace `}`
 3:1 EndOfFile
 
 error BYN0013: `\u{D800}` is not a Unicode scalar value

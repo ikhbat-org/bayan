@@ -1,13 +1,13 @@
 1:1 TestKeyword `test`
 1:6 AssertKeyword `assert`
 1:13 Identifier `prope`
-1:18 Identifier `ty`
-1:21 FuzzKeyword `fuzz`
-1:26 ModelKeyword `model`
-1:32 ForeachKeyword `foreach`
-1:40 NewKeyword `new`
-1:44 Identifier `go`
-1:47 Identifier `to`
+1:19 Identifier `ty`
+1:22 FuzzKeyword `fuzz`
+1:27 ModelKeyword `model`
+1:33 ForeachKeyword `foreach`
+1:41 NewKeyword `new`
+1:45 Identifier `go`
+1:48 Identifier `to`
 2:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBC)

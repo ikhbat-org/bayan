@@ -12,8 +12,8 @@
 3:5 EffectKeyword `effect`
 3:12 Equals `=`
 3:14 IntegerLiteral `2`
-5:1 CharLiteral `'\r`
-6:1 CharLiteral `'\r`
+5:1 CharLiteral `'`
+6:1 CharLiteral `'`
 7:1 PlusEquals `+=`
 7:4 MinusEquals `-=`
 7:7 StarEquals `*=`

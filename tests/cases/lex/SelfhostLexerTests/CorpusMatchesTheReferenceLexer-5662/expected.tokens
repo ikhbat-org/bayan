@@ -99,13 +99,13 @@
 5:29 Identifier `e`
 5:31 PlusPlus `++`
 5:34 Minus `-`
-5:40 CharLiteral `'a'`
-5:44 CharLiteral `'\n'`
-5:49 CharLiteral `'\u{1F600}'`
-5:61 CharLiteral `'\''`
-5:66 CharLiteral `'é'`
-5:70 CharLiteral `'\\'`
-5:75 CharLiteral `'\0B'`
+5:48 CharLiteral `'a'`
+5:52 CharLiteral `'\n'`
+5:57 CharLiteral `'\u{1F600}'`
+5:69 CharLiteral `'\''`
+5:74 CharLiteral `'é'`
+5:78 CharLiteral `'\\'`
+5:83 CharLiteral `'\0B'`
 6:2 EndOfFile
 
 error BYN0005: identifier `ạ̇` is not in Unicode normalization form C

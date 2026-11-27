@@ -1,8 +1,8 @@
-1:2 Equals `=`
-1:4 Identifier `a`
-1:5 Greater `>`
-1:6 Greater `>`
-1:8 Identifier `b`
+1:3 Equals `=`
+1:5 Identifier `a`
+1:7 Greater `>`
+1:8 Greater `>`
+1:10 Identifier `b`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x81)

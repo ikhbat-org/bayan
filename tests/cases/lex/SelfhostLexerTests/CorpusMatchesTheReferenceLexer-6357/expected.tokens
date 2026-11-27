@@ -1,5 +1,5 @@
 1:1 IntegerLiteral `0x`
-3:3 EndOfFile
+3:5 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

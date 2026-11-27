@@ -1,0 +1,13 @@
+struct S {
+    List<i64> xs
+    i64 count
+    void log(ref this, ReadOnlySpan<i64> s) {
+        this.count += 1
+        print($"{s[0]}")
+    }
+}
+void main() {
+    var obj = S { xs: List<i64>(), count: 0 }
+    obj.xs.append(5)
+    obj.log(obj.xs.span)
+}

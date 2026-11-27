@@ -10,15 +10,15 @@
 1:44 NumericSuffix `ms`
 1:47 IntegerLiteral `4`
 1:48 NumericSuffix `Ki`
-1:50 Identifier `B`
-1:52 IntegerLiteral `1`
-1:53 NumericSuffix `u`
-1:55 IntegerLiteral `0xFF`
-1:59 NumericSuffix `u`
-1:61 IntegerLiteral `0b1`
-1:64 NumericSuffix `ul`
-1:67 IntegerLiteral `7`
-1:68 NumericSuffix `l`
+1:51 Identifier `B`
+1:53 IntegerLiteral `1`
+1:54 NumericSuffix `u`
+1:56 IntegerLiteral `0xFF`
+1:60 NumericSuffix `u`
+1:62 IntegerLiteral `0b1`
+1:65 NumericSuffix `ul`
+1:68 IntegerLiteral `7`
+1:69 NumericSuffix `l`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9A)

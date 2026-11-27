@@ -6,7 +6,7 @@
 6:5 NumericSuffix `s`
 7:1 IntegerLiteral `0b1`
 7:4 NumericSuffix `ms`
-8:1 Identifier `x_`
+8:2 Identifier `x_`
 9:1 IntegerLiteral `0b__`
 10:1 IntegerLiteral `1__`
 11:1 IntegerLiteral `0xF__`

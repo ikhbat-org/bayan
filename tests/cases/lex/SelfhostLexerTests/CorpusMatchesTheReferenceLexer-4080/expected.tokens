@@ -9,11 +9,11 @@
 3:2 Identifier `c`
 3:4 GreaterEquals `>=`
 3:7 IntegerLiteral `1`
-4:3 StringLiteral `"}"`
-4:6 CloseBrace `}`
-4:7 StringLiteral `"}$"`
-4:11 OpenBrace `{`
-4:12 Identifier `a`
+4:5 StringLiteral `"}"`
+4:8 CloseBrace `}`
+4:9 StringLiteral `"}$"`
+4:13 OpenBrace `{`
+4:14 Identifier `a`
 5:3 EndOfFile
 
 error BYN0001: bidirectional control character U+2067 is not allowed outside string literals

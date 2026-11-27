@@ -3,7 +3,7 @@
 1:9 IntegerLiteral `2`
 2:2 IntegerLiteral `1__`
 3:2 CharLiteral `'  "" c"text" u16"wide" "\u{202E} allowed in strings" "V" "\u{48}i"`
-4:1 EndOfFile
+4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)
 

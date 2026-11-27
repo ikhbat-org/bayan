@@ -25,7 +25,7 @@
 2:53 DerivationKeyword `derivation`
 2:64 Identifier `at1e`
 2:69 CharLiteral `'\u{110000}'`
-4:1 EndOfFile
+4:2 EndOfFile
 
 error BYN0013: `\u{110000}` is not a Unicode scalar value
 

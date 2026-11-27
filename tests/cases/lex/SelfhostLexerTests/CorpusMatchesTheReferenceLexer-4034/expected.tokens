@@ -1,7 +1,7 @@
-1:4 Identifier `comment`
-1:12 Star `*`
-1:13 Slash `/`
-1:15 Identifier `a`
+1:5 Identifier `comment`
+1:13 Star `*`
+1:14 Slash `/`
+1:16 Identifier `a`
 3:1 IntegerLiteral `2`
 5:1 CharLiteral `'x`
 7:1 LetKeyword `let`
@@ -11,13 +11,13 @@
 9:1 InterpolatedStringStart `$"`
 9:3 InterpolatedStringText `stray } here`
 9:15 InterpolatedStringEnd `"`
-10:1 TestKeyword `test`
-10:6 Identifier `assertproperty`
-10:21 FuzzKeyword `fuzz`
-10:26 ModelKeyword `model`
-10:32 ForeachKeyword `foreach`
-10:40 NewKeyword `new`
-10:44 GotoKeyword `goto`
+10:2 TestKeyword `test`
+10:7 Identifier `assertproperty`
+10:22 FuzzKeyword `fuzz`
+10:27 ModelKeyword `model`
+10:33 ForeachKeyword `foreach`
+10:41 NewKeyword `new`
+10:45 GotoKeyword `goto`
 12:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xAE)

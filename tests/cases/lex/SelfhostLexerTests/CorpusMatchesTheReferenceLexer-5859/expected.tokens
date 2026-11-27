@@ -25,8 +25,8 @@
 5:1 Identifier `dden`
 6:1 LetKeyword `let`
 6:5 Identifier `xʁ`
-6:8 Equals `=`
-6:10 IntegerLiteral `1`
+6:9 Equals `=`
+6:11 IntegerLiteral `1`
 8:1 LetKeyword `let`
 8:7 Equals `=`
 8:9 IntegerLiteral `2`

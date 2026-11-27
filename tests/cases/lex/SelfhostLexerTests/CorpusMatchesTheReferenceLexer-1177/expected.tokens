@@ -3,12 +3,12 @@
 4:8 Equals `=`
 4:10 IntegerLiteral `1`
 6:1 CharLiteral `'��'`
-6:4 OpenParen `(`
-6:6 CloseParen `)`
-6:8 OpenBracket `[`
-6:10 CloseBracket `]`
-6:12 OpenBrace `{`
-6:14 CloseBrace `}`
+6:6 OpenParen `(`
+6:8 CloseParen `)`
+6:10 OpenBracket `[`
+6:12 CloseBracket `]`
+6:14 OpenBrace `{`
+6:16 CloseBrace `}`
 7:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

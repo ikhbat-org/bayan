@@ -2,7 +2,7 @@
 1:5 Identifier `x`
 1:8 Equals `=`
 1:10 IntegerLiteral `1`
-2:2 CharLiteral `'\r`
+2:2 CharLiteral `'`
 3:1 Plus `+`
 3:2 Identifier `P`
 3:4 MinusEquals `-=`

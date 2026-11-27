@@ -1,0 +1,20 @@
+// os: unix
+// `bayan run` remembers a script by its path too: the same bytes run again from where they were moved panic with the new path, not
+// the remembered program's (audit 0.4.0 chunk 10 #2).
+void main() uses alloc, console, env, fs, process fails IoError {
+    let exe = Env.get("BAYAN_EXE") ?? "bayan"
+    var env = Map<string, string?>()
+    env["BAYAN_CACHE"] = Path.fullPath("cache")
+    try Io.createDirectory("here")
+    try Io.createDirectory("there")
+    try Io.writeFile("here/tool.byn", "#!/usr/bin/env bayan\npanic(\"moved\")\n".bytes)
+    let first: string[2] = ["run", "here/tool.byn"]
+    let before = try Io.run(exe, first.span, env: env)
+    print($"exit {before.exitCode}")
+    print(before.stderr)
+    try Fs.rename("here/tool.byn", to: "there/moved.byn")
+    let second: string[2] = ["run", "there/moved.byn"]
+    let after = try Io.run(exe, second.span, env: env)
+    print($"exit {after.exitCode}")
+    print(after.stderr)
+}

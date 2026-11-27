@@ -16,7 +16,7 @@
 3:5 StringLiteral `"text"`
 3:12 StringLiteral `"esc \"q\" \\ \n"`
 3:30 RawStringLiteral `"""\n� // li�e comment\n� é `
-5:5 EndOfFile
+5:6 EndOfFile
 
 error BYN0008: unterminated char literal
 

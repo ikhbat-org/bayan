@@ -323,6 +323,9 @@ public ParsedUri parseUri(string uri) uses alloc {
     }
     let path = p < e ? unescaped(uri[p..e]) : "/"
     let pb = path.bytes
+    for c in pb {
+        return ParsedUri { kind: .invalid } if c == 0
+    }
     if pb.length >= 3 && pb[0] == '/' && isSchemeByte(pb[1], as: true) && pb[2] == ':' && (pb.length == 3 || pb[3] == '/') {
         return ParsedUri { kind: .file, localPath: path[1..path.length] }
     }
@@ -486,11 +489,13 @@ string trimEndingSeparator(string p) {
 /// `p` with `\` written as `/` on Windows, where both are directory separators; on Unix `\` is a file-name byte and stays.
 string slashed(string p) uses alloc => Target.os == "windows" ? p.replaced("\\", by: "/") : p
 
-/// `RealPath`: `full` with every symbolic link along it resolved; a part that cannot be resolved (missing) is kept as written.
-string realPath(string full) uses alloc, fs {
+/// `RealPath`: `full` with every symbolic link along it resolved; a part that cannot be resolved (missing) is kept as written. More
+/// than `left` missing parts are kept as written, so a crafted URI cannot grow the recursion.
+string realPath(string full, i64 left = 256) uses alloc, fs {
     let r = Fs.realPath(full) catch {
+        return full if left == 0
         let dir = Path.directoryName(full) ?? return full
-        return Path.combine(realPath(dir), Path.fileName(full))
+        return Path.combine(realPath(dir, left - 1), Path.fileName(full))
     }
     return r
 }
@@ -803,7 +808,7 @@ public struct Workspace {
         let at = slotOf(k)
         let known = at >= 0
         return false if known && docs[at].isOpen
-        return false if !known && (isExcludedKey(k) || isLink(full))
+        return false if (!known && isExcludedKey(k)) || isLink(full)
         // Sized before it is read, as Workspace.cs checks FileInfo.Length; the length is checked again, the file can grow between.
         let size = Fs.fileSize(full) catch { return false }
         if size > maxFileBytes {
@@ -880,9 +885,11 @@ public struct Workspace {
 
     /// Indexes a directory created or moved in under a root, with the rules of `indexFolder`; it does not become a root.
     public void loadFolder(ref this, string path) uses alloc, console, fs {
-        let full = realPath(trimEndingSeparator(Path.fullPath(path)))
-        // `isExcluded` looks at the directories above a file, so ask about a file inside this one.
-        return if !dirExists(full) || isExcluded(Path.combine(full, "_.byn")) || isLink(full)
+        let given = trimEndingSeparator(Path.fullPath(path))
+        let full = realPath(given)
+        // `isExcluded` looks at the directories above a file, so ask about a file inside this one. The link test is on the path as given,
+        // as `full` is already resolved.
+        return if isExcluded(Path.combine(full, "_.byn")) || isLink(given) || !dirExists(full)
         walk(full)
     }
 
@@ -1297,9 +1304,12 @@ public i64 utf16Length(string s) {
     return n
 }
 
-/// `Directory.Exists`.
+/// `Directory.Exists`. A folder with a name that is not UTF-8 exists, though `listDir` cannot list it.
 public bool dirExists(string path) uses alloc, fs {
-    let _ = Io.listDir(path) catch { return false }
+    let _ = Io.listDir(path) catch switch {
+        IoError.invalidUtf8 => return true,
+        IoError e => return false,
+    }
     return true
 }
 
@@ -1351,4 +1361,75 @@ test "removeFolder removes the documents under a deleted folder and no sibling; 
     let removed = ws.removeFolder(fileUri(dir))
     assert(removed.length == 1 && removed[0] == fileUri(file))
     assert(ws.slots().length == 1)
+}
+
+test "a file URI with an escaped NUL is invalid, so key() does not reach Path.fullPath" {
+    assert(parseUri("file:///tmp/a%00b.byn").kind is .invalid)
+    var ws = Workspace.create()
+    assert(ws.key("file:///tmp/a%00b.byn") == "file:///tmp/a%00b.byn")
+}
+
+test "realPath of a path with thousands of missing parts returns in bounded depth and keeps the path" {
+    var p = "/tmp/bayan-no-such-dir"
+    for _ in 0..3000 {
+        p = $"{p}/a"
+    }
+    // Past the cap the path is kept as written, where /tmp would otherwise resolve (/private/tmp on macOS).
+    assert(realPath(p) == p)
+}
+
+/// Makes `link` a symbolic link to `target` with `ln`; false where there is none (Windows).
+bool linked(string link, to string target) uses fs, alloc, process {
+    return false if Target.os == "windows"
+    let args: string[3] = ["-s", target, link]
+    let _ = Io.run("ln", args.span) catch { return false }
+    return true
+}
+
+/// Makes `dir` an empty directory with `rm` and `mkdir`; none on Windows, where the leftovers stay.
+void freshDir(string dir) uses fs, alloc, process {
+    let rm: string[2] = ["-rf", dir]
+    let _ = Io.run("rm", rm.span) catch { return }
+    let mk: string[2] = ["-p", dir]
+    let _ = Io.run("mkdir", mk.span) catch { return }
+}
+
+test "loadFolder does not enter a symbolic link to a directory" {
+    let base = Path.fullPath("tmp/lsp-low5")
+    freshDir(base)
+    freshDir(Path.combine(base, "outside"))
+    freshDir(Path.combine(base, "ws"))
+    Io.writeFile(Path.combine(base, "outside/a.byn"), "outsideFn() {}\n".bytes) catch { return }
+    if linked(Path.combine(base, "ws/link_dir"), to: Path.combine(base, "outside")) {
+        var ws = Workspace.create()
+        ws.loadFolder(Path.combine(base, "ws/link_dir"))
+        assert(ws.slots().length == 0)
+    }
+}
+
+test "load does not re-read an indexed file that was swapped for a symbolic link" {
+    let base = Path.fullPath("tmp/lsp-low8")
+    freshDir(base)
+    freshDir(Path.combine(base, "src"))
+    let file = Path.combine(base, "src/a.byn")
+    let outside = Path.combine(base, "x.byn")
+    Io.writeFile(file, "a() {}\n".bytes) catch { return }
+    Io.writeFile(outside, "bb() {}\n".bytes) catch { return }
+    var ws = Workspace.create()
+    let _ = ws.loadFromDisk(file)
+    assert(ws.slots().length == 1)
+    let rm: string[2] = ["-f", file]
+    let _ = Io.run("rm", rm.span) catch { return }
+    if linked(file, to: outside) {
+        let _ = ws.loadFromDisk(file)
+        assert(ws.docs[ws.slots()[0]].text.length == 7)
+    }
+}
+
+test "dirExists is true for a folder that holds a name that is not UTF-8" {
+    let base = Path.fullPath("tmp/lsp-low6")
+    freshDir(base)
+    let sh: string[2] = ["-c", "touch \"$(printf 'tmp/lsp-low6/a\\377b')\""]
+    let _ = Io.run("sh", sh.span) catch { return }
+    assert(dirExists(base))
 }

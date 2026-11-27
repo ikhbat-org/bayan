@@ -34,25 +34,25 @@
 2:49 StringLiteral `$"{$"`
 2:54 OpenBrace `{`
 2:55 StringLiteral `$"{$�{$"`
-2:62 OpenBrace `{`
-2:63 Identifier `x`
-2:64 CloseBrace `}`
-2:65 StringLiteral `"}"`
-2:68 CloseBrace `}`
-2:69 StringLiteral `"}"`
-2:72 InterpolationEnd `}`
-2:73 InterpolatedStringEnd `"`
-2:74 InterpolationEnd `}`
-2:75 InterpolatedStringEnd `"`
-2:76 InterpolationEnd `}`
-2:77 InterpolatedStringEnd `"`
-2:78 InterpolationEnd `}`
-2:79 InterpolatedStringEnd `"`
-2:80 InterpolationEnd `}`
-2:81 InterpolatedStringEnd `"`
-2:82 InterpolationEnd `}`
-2:83 InterpolatedStringEnd `"`
-2:84 EndOfFile
+2:63 OpenBrace `{`
+2:64 Identifier `x`
+2:65 CloseBrace `}`
+2:66 StringLiteral `"}"`
+2:69 CloseBrace `}`
+2:70 StringLiteral `"}"`
+2:73 InterpolationEnd `}`
+2:74 InterpolatedStringEnd `"`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringEnd `"`
+2:77 InterpolationEnd `}`
+2:78 InterpolatedStringEnd `"`
+2:79 InterpolationEnd `}`
+2:80 InterpolatedStringEnd `"`
+2:81 InterpolationEnd `}`
+2:82 InterpolatedStringEnd `"`
+2:83 InterpolationEnd `}`
+2:84 InterpolatedStringEnd `"`
+2:85 EndOfFile
 
 error BYN0003: unterminated string literal
 

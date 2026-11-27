@@ -57,19 +57,19 @@
 3:83 InterpolatedStringEnd `"`
 3:84 InterpolationEnd `}`
 3:85 InterpolatedStringEnd `"`
-3:86 StringLiteral `"}"`
-3:89 InterpolationEnd `}`
-3:90 InterpolatedStringEnd `"`
-3:91 InterpolationEnd `}`
-3:92 InterpolatedStringEnd `"`
-3:93 InterpolationEnd `}`
-3:94 InterpolatedStringEnd `"`
-3:95 Comma `,`
-3:96 InterpolationEnd `}`
-3:97 InterpolatedStringEnd `"`
-3:98 InterpolationEnd `}`
-3:99 InterpolatedStringEnd `"`
-3:101 EndOfFile
+3:87 StringLiteral `"}"`
+3:90 InterpolationEnd `}`
+3:91 InterpolatedStringEnd `"`
+3:92 InterpolationEnd `}`
+3:93 InterpolatedStringEnd `"`
+3:94 InterpolationEnd `}`
+3:95 InterpolatedStringEnd `"`
+3:96 Comma `,`
+3:97 InterpolationEnd `}`
+3:98 InterpolatedStringEnd `"`
+3:99 InterpolationEnd `}`
+3:100 InterpolatedStringEnd `"`
+3:102 EndOfFile
 
 error BYN0008: unterminated char literal
 

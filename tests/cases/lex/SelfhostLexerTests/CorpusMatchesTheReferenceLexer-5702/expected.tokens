@@ -28,8 +28,8 @@
 2:94 EmbedKeyword `embed`
 2:100 ExternKeyword `extern`
 2:107 UnsafeKeyword `unsafe`
-3:2 Identifier `x_1`
-3:6 Identifier `é`
+3:3 Identifier `x_1`
+3:7 Identifier `é`
 4:1 LetKeyword `let`
 4:5 Identifier `c`
 4:7 Equals `=`
@@ -41,8 +41,8 @@
 5:2 InterpolatedStringStart `$"`
 5:4 InterpolationStart `{`
 5:5 Identifier `a`
-5:8 InterpolatedStringStart `$"`
-5:10 InterpolationStart `{`
+5:10 InterpolatedStringStart `$"`
+5:12 InterpolationStart `{`
 7:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x82)

@@ -9,7 +9,7 @@
 3:6 Identifier `b`
 3:7 InterpolationEnd `}`
 3:8 InterpolatedStringText `� b`
-3:10 InterpolatedStringEnd
+3:11 InterpolatedStringEnd
 4:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)

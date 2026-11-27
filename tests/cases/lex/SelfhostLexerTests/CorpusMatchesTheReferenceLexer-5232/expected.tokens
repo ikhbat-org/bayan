@@ -1,6 +1,6 @@
 1:1 Identifier `a`
-1:5 StructKeyword `struct`
-1:12 Identifier `S`
+1:6 StructKeyword `struct`
+1:13 Identifier `S`
 2:2 LetKeyword `let`
 2:6 Identifier `café`
 2:11 Equals `=`

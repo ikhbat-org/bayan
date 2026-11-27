@@ -22,7 +22,7 @@
 1:70 NumericSuffix `l`
 2:2 CharLiteral `' += -= *= /= %= &= |= ^= <<=`
 3:1 CloseBrace `}`
-3:4 Identifier `hidden`
+3:6 Identifier `hidden`
 4:1 LetKeyword `let`
 4:5 Identifier `x`
 4:8 Equals `=`

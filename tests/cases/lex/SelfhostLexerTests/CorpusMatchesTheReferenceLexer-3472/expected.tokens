@@ -1,11 +1,11 @@
-1:1 CharLiteral `'x\r`
+1:1 CharLiteral `'x`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 StringLiteral `"0`
 3:1 LetKeyword `let`
 3:5 Identifier `a`
 3:7 Equals `=`
-3:9 StringLiteral `"o�pen`
+3:10 StringLiteral `"o�pen`
 4:1 EndOfFile
 
 error BYN0008: unterminated char literal

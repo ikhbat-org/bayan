@@ -4,7 +4,7 @@
 2:13 InterpolationStart `{`
 2:14 Identifier `x`
 2:15 StringLiteral `";`
-3:4 EndOfFile
+3:6 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

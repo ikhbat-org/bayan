@@ -3,7 +3,7 @@
 1:11 Equals `=`
 1:13 IntegerLiteral `1`
 1:14 Semicolon `;`
-1:18 Identifier `b__`
+1:22 Identifier `b__`
     doc `///"text" "esc \"q\" \\ \n" """`
 2:3 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n`
 3:1 EndOfFile

@@ -1,5 +1,5 @@
 1:1 IntegerLiteral `1_`
-3:2 StringLiteral `"a{b}� b`
+3:3 StringLiteral `"a{b}� b`
 5:1 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

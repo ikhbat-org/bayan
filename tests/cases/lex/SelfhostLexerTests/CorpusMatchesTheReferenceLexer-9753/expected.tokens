@@ -27,20 +27,20 @@
 5:16 IntegerLiteral `0xFF`
 5:21 IntegerLiteral `0x_ff`
 5:27 IntegerLiteral `0b101`
-5:32 IntegerLiteral `0`
-5:34 IntegerLiteral `0B11`
-5:39 IntegerLiteral `5`
-5:40 NumericSuffix `s`
-5:42 IntegerLiteral `250`
-5:45 NumericSuffix `ms`
-5:48 IntegerLiteral `4`
-5:49 NumericSuffix `KiB`
-5:53 IntegerLiteral `1`
-5:54 NumericSuffix `u0xFFu`
-5:61 IntegerLiteral `0b1`
-5:64 NumericSuffix `ul`
-5:67 IntegerLiteral `7`
-5:68 NumericSuffix `l`
+5:33 IntegerLiteral `0`
+5:35 IntegerLiteral `0B11`
+5:40 IntegerLiteral `5`
+5:41 NumericSuffix `s`
+5:43 IntegerLiteral `250`
+5:46 NumericSuffix `ms`
+5:49 IntegerLiteral `4`
+5:50 NumericSuffix `KiB`
+5:54 IntegerLiteral `1`
+5:55 NumericSuffix `u0xFFu`
+5:62 IntegerLiteral `0b1`
+5:65 NumericSuffix `ul`
+5:68 IntegerLiteral `7`
+5:69 NumericSuffix `l`
 6:2 EndOfFile
 
 error BYN0002: unexpected character `\u{0}`

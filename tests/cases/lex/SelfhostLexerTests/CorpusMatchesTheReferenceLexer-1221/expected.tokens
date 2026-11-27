@@ -1,8 +1,8 @@
-1:1 Identifier `comment`
-1:11 Identifier `t`
-1:13 Identifier `x`
-1:16 Equals `=`
-1:18 IntegerLiteral `1`
+1:2 Identifier `comment`
+1:12 Identifier `t`
+1:14 Identifier `x`
+1:17 Equals `=`
+1:19 IntegerLiteral `1`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x85)

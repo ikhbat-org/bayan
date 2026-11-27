@@ -10,9 +10,9 @@
 5:12 Identifier `camelCase2`
 5:23 Identifier `بيان`
 5:28 Identifier `μετρ`
-5:32 Identifier `τής`
-5:36 Identifier `x_1`
-5:40 Identifier `é`
+5:33 Identifier `τής`
+5:37 Identifier `x_1`
+5:41 Identifier `é`
 7:4 EndOfFile
 
 error BYN0003: unterminated string literal

@@ -3,13 +3,13 @@
 3:4 InterpolationStart `{`
 3:5 InterpolationEnd `}`
 3:6 InterpolatedStringEnd `"`
-3:9 CharLiteral `'a'`
-3:13 CharLiteral `'\n'`
-3:18 CharLiteral `'\u{1F600}'`
-3:30 CharLiteral `'\''`
-3:35 CharLiteral `'é'`
-3:39 CharLiteral `'\\'`
-3:44 CharLiteral `'\0'`
+3:10 CharLiteral `'a'`
+3:14 CharLiteral `'\n'`
+3:19 CharLiteral `'\u{1F600}'`
+3:31 CharLiteral `'\''`
+3:36 CharLiteral `'é'`
+3:40 CharLiteral `'\\'`
+3:45 CharLiteral `'\0'`
 5:1 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines

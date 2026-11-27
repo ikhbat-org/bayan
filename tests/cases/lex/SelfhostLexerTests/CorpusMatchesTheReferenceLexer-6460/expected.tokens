@@ -1,5 +1,5 @@
     doc `/// Doc line two.`
-2:4 IntegerLiteral `1__`
+2:7 IntegerLiteral `1__`
 4:1 LetKeyword `let`
 4:5 Identifier `c`
 4:7 Equals `=`

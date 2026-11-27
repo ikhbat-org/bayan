@@ -11,7 +11,7 @@
 1:27 StarBar `*|`
 1:30 PlusPlus `++`
 1:33 MinusMinus `--`
-2:11 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n/* block\n`
+2:12 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\n\n/* block\n`
 5:1 EndOfFile
 
 error BYN0002: unexpected character `\u{6}`

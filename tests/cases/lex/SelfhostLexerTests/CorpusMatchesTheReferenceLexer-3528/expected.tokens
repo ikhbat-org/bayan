@@ -1,6 +1,6 @@
-1:1 Identifier `ητής`
-1:6 Identifier `x_1`
-1:10 Identifier `é`
+1:2 Identifier `ητής`
+1:7 Identifier `x_1`
+1:11 Identifier `é`
     doc `/// Doc line on�e.`
 3:2 Identifier `_`
 3:3 CharLiteral `'\u{D800}'`

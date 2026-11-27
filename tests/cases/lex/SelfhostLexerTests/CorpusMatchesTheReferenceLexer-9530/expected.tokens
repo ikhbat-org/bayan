@@ -1,7 +1,7 @@
 1:1 StringLiteral `"e`
 2:1 IntegerLiteral `0x`
 3:1 Identifier `g`
-3:3 EndOfFile
+3:4 EndOfFile
 
 error BYN0003: unterminated string literal
 

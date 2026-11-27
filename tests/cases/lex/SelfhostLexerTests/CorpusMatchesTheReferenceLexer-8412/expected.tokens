@@ -1,5 +1,5 @@
-1:2 Caret `^`
-1:4 EndOfFile
+1:4 Caret `^`
+1:8 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9C)
 

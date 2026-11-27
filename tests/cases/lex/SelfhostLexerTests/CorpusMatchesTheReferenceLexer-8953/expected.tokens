@@ -8,7 +8,7 @@
 2:1 CharLiteral `'\q'`
 4:1 IntegerLiteral `0b1`
 4:4 NumericSuffix `ms`
-5:3 IntegerLiteral `0x`
+5:4 IntegerLiteral `0x`
 6:1 Identifier `b`
 8:1 Star `*`
 8:2 Slash `/`

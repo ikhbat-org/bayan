@@ -15,20 +15,20 @@
 1:46 IntegerLiteral `5`
 1:47 NumericSuffix `e`
 1:49 Identifier `x`
-1:50 Dot `.`
-1:51 Identifier `y`
-1:53 FloatLiteral `2.5`
-1:56 NumericSuffix `f`
+1:51 Dot `.`
+1:52 Identifier `y`
+1:54 FloatLiteral `2.5`
+1:57 NumericSuffix `f`
     doc `/// x́́ let a = $ `
 3:1 LetKeyword `let`
 3:5 Identifier `b`
 3:7 Equals `=`
 3:11 IntegerLiteral `2`
 4:1 Identifier `l`
-4:2 Identifier `t`
-4:4 Identifier `c`
-4:6 Equals `=`
-4:10 IntegerLiteral `3`
+4:3 Identifier `t`
+4:5 Identifier `c`
+4:7 Equals `=`
+4:11 IntegerLiteral `3`
 5:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC3)

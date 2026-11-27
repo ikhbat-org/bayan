@@ -4,7 +4,7 @@
 1:10 IntegerLiteral `1`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolatedStringText `�}`
-2:5 InterpolatedStringEnd `"`
+2:6 InterpolatedStringEnd `"`
 4:1 IntegerLiteral `0x`
 5:2 Identifier `Åt`
 5:6 Identifier `b`

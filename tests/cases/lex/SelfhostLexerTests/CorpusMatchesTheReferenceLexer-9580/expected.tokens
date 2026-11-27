@@ -1,4 +1,4 @@
-1:1 CharLiteral `'x\r`
+1:1 CharLiteral `'x`
 2:1 InterpolatedStringStart `$"`
 2:3 InterpolationStart `{`
 2:4 Identifier `a`

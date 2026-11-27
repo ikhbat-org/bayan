@@ -4,13 +4,13 @@
 3:1 IntegerLiteral `0b__`
 4:1 IntegerLiteral `1__`
 5:1 IntegerLiteral `0xF__`
-6:1 CharLiteral `'a'`
-6:5 CharLiteral `'\n'`
-6:10 CharLiteral `'\u{1F600}'`
-6:22 CharLiteral `'\''`
-6:27 CharLiteral `'é'`
-6:31 CharLiteral `'\\'`
-6:36 CharLiteral `'\0'`
+6:2 CharLiteral `'a'`
+6:7 CharLiteral `'\n'`
+6:12 CharLiteral `'\u{1F600}'`
+6:24 CharLiteral `'\''`
+6:29 CharLiteral `'é'`
+6:33 CharLiteral `'\\'`
+6:38 CharLiteral `'\0'`
 7:2 IntegerLiteral `0`
 7:3 NumericSuffix `bEms`
 8:1 EndOfFile

@@ -41,9 +41,9 @@
 1:68 InterpolatedStringEnd `"`
 1:69 InterpolationEnd `}`
 1:70 InterpolatedStringText `}�}`
-1:72 InterpolatedStringEnd `"`
-1:73 InterpolationEnd `}`
-1:74 InterpolatedStringEnd `"`
+1:73 InterpolatedStringEnd `"`
+1:74 InterpolationEnd `}`
+1:75 InterpolatedStringEnd `"`
 2:1 Identifier `ul`
 2:4 IntegerLiteral `7`
 2:5 NumericSuffix `l`

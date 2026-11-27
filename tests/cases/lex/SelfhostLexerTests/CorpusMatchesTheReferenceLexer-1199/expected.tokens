@@ -106,9 +106,9 @@
 5:17 NeverKeyword `never`
 5:23 NoallocKeyword `noalloc`
 5:31 NosuspendKeyword `nosuspend`
-5:41 SuspendsKeyword `suspends`
-5:50 AsyncKeyword `async`
-5:56 AwaitKeyword `await`
+5:42 SuspendsKeyword `suspends`
+5:51 AsyncKeyword `async`
+5:57 AwaitKeyword `await`
 6:2 Identifier `c`
 6:4 Greater `>`
 6:5 GreaterEquals `>=`

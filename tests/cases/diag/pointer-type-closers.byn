@@ -1,0 +1,5 @@
+var a: List<u8*> = List<u8*>()
+void f((u8*, i32) -> void cb, u8*? d, readonly u8*? e) {}
+struct S {
+    u8*? p
+}

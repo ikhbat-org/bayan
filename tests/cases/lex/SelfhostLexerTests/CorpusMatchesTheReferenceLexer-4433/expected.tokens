@@ -11,7 +11,7 @@
 1:79 DerivationKeyword `derivation`
 1:90 AttributeKeyword `attribute`
 3:1 CharLiteral `'\u{D800}'`
-6:5 IntegerLiteral `0xF__`
+6:9 IntegerLiteral `0xF__`
 8:1 PlusEquals `+=`
 8:4 MinusEquals `-=`
 8:7 StarEquals `*=`

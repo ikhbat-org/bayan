@@ -5,7 +5,7 @@
 3:8 Equals `=`
 3:9 Identifier `z`
 3:12 IntegerLiteral `1`
-    doc `/// D 0b13ms\r`
+    doc `/// D 0b13ms`
 5:2 EndOfFile
 
 error BYN0002: unexpected character `$`

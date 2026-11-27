@@ -23,11 +23,11 @@
 5:7 TryKeyword `try`
 5:11 CatchKeyword `catch`
 5:17 NeverKeyword `never`
-5:24 Identifier `oalloc`
-5:31 NosuspendKeyword `nosuspend`
-5:41 SuspendsKeyword `suspends`
-5:50 AsyncKeyword `async`
-5:56 AwaitKeyword `await`
+5:25 Identifier `oalloc`
+5:32 NosuspendKeyword `nosuspend`
+5:42 SuspendsKeyword `suspends`
+5:51 AsyncKeyword `async`
+5:57 AwaitKeyword `await`
 6:2 EndOfFile
 
 error BYN0003: unterminated string literal

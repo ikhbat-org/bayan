@@ -85,15 +85,15 @@
 4:94 InterpolatedStringEnd `"`
 4:95 InterpolationEnd `}`
 4:96 InterpolatedStringEnd `"`
-4:98 LetKeyword `let`
-4:102 Identifier `a`
-4:104 Equals `=`
-4:108 IntegerLiteral `1`
+4:102 LetKeyword `let`
+4:106 Identifier `a`
+4:108 Equals `=`
+4:112 IntegerLiteral `1`
 5:2 LetKeyword `let`
 5:6 Identifier `b`
 5:8 Equals `=`
 5:12 IntegerLiteral `2`
-6:3 EndOfFile
+6:7 EndOfFile
 
 error BYN0003: unterminated string literal
 

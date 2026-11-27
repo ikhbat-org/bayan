@@ -2,9 +2,9 @@
 2:2 Identifier `t`
 2:4 Identifier `c`
 2:6 Equals `=`
-2:7 StringLiteral `"\u{16}"`
-2:10 NeverKeyword `never`
-2:16 Identifier `closed`
+2:8 StringLiteral `"\u{16}"`
+2:11 NeverKeyword `never`
+2:17 Identifier `closed`
 4:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0b`

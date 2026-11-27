@@ -1,5 +1,5 @@
-1:3 Identifier `e`
-1:4 Dot `.`
+1:6 Identifier `e`
+1:7 Dot `.`
     doc `/// Doc line t comment */ a\n/// Doc line one.\n/// Do`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolationStart `{`

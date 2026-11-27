@@ -18,7 +18,7 @@
 3:26 StarBar `*|`
 3:29 PlusPlus `++`
 3:32 Minus `-`
-4:2 OpenBrace `{`
+4:4 OpenBrace `{`
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

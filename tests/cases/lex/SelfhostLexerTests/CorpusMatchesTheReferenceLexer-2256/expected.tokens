@@ -26,10 +26,10 @@
 3:29 Arrow `->`
 3:32 At `@`
 3:34 Hash `#`
-4:2 LetKeyword `let`
-4:6 Identifier `b`
-4:8 Equals `=`
-4:10 StringLiteral `"bad \q escape"`
+4:3 LetKeyword `let`
+4:7 Identifier `b`
+4:9 Equals `=`
+4:11 StringLiteral `"bad \q escape"`
 5:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

@@ -1,6 +1,6 @@
 1:1 Identifier `Å`
 2:5 RawStringLiteral `""" c"text" u16"wide" "\u{202E} allowed in strings" "" "\u{48}i"\né �v�`
-3:6 EndOfFile
+3:7 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C
 

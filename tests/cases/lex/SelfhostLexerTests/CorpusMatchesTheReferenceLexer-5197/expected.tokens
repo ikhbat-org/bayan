@@ -3,7 +3,7 @@
 2:8 Identifier `select`
 2:15 BecomeKeyword `become`
 3:2 CloseBrace `}`
-3:3 CharLiteral `' ( ) [ ] { }\r`
+3:3 CharLiteral `' ( ) [ ] { }`
 6:1 LetKeyword `let`
 6:5 Identifier `café`
 6:10 Equals `=`

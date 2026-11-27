@@ -2,11 +2,11 @@
 1:5 Identifier `Bar`
 1:9 Identifier `_x`
 1:12 Identifier `camelC`
-1:18 Identifier `ase2`
-1:23 Identifier `بيان`
-1:28 Identifier `μετρητής`
-1:37 Identifier `x_1`
-1:41 Identifier `é`
+1:19 Identifier `ase2`
+1:25 Identifier `بيان`
+1:30 Identifier `μετρητής`
+1:39 Identifier `x_1`
+1:43 Identifier `é`
 2:2 IntegerLiteral `0b1`
 2:5 NumericSuffix `ul`
 2:8 IntegerLiteral `7`

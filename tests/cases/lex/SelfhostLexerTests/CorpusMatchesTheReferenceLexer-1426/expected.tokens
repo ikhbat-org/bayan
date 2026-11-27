@@ -19,10 +19,10 @@
 1:65 NumericSuffix `ul`
 1:68 IntegerLiteral `7`
 1:69 NumericSuffix `l`
-4:2 LetKeyword `let`
-4:6 Identifier `a`
-4:8 Equals `=`
-4:10 StringLiteral `"open,`
+4:3 LetKeyword `let`
+4:7 Identifier `a`
+4:9 Equals `=`
+4:11 StringLiteral `"open,`
 5:2 Identifier `b`
 6:1 EndOfFile
 

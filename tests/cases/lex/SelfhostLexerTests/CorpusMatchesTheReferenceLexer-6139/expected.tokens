@@ -3,7 +3,7 @@
 1:4 InterpolatedStringText `x`
 1:5 InterpolationStart `{`
 1:7 StringLiteral `"{�`
-1:9 EndOfFile
+1:10 EndOfFile
 
 error BYN0003: unterminated string literal
 

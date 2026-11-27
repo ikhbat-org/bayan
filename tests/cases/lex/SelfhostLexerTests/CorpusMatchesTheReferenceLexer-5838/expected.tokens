@@ -1,7 +1,7 @@
-1:2 LetKeyword `let`
-1:6 Identifier `b`
-1:8 Equals `=`
-1:12 IntegerLiteral `2`
+1:4 LetKeyword `let`
+1:8 Identifier `b`
+1:10 Equals `=`
+1:14 IntegerLiteral `2`
 2:1 ErrorKeyword `error`
 2:7 SetKeyword `set`
 2:11 UnitKeyword `unit`

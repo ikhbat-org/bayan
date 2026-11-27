@@ -4,7 +4,7 @@
 1:7 CloseBracket `]`
 1:9 OpenBrace `{`
 1:11 CloseBrace `}`
-2:2 Identifier `ạ̇`
+2:4 Identifier `ạ̇`
 3:1 StructKeyword `struct`
 3:8 UniqueKeyword `unique`
 3:15 UnionKeyword `union`

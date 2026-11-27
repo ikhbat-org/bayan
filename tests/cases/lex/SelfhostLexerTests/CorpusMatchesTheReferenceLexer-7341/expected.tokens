@@ -2,11 +2,11 @@
 1:5 Identifier `x`
 1:8 Equals `=`
 1:10 IntegerLiteral `1`
-2:4 LetKeyword `let`
-2:8 Identifier `café`
-2:14 Equals `=`
-2:16 IntegerLiteral `1`
-2:17 Semicolon `;`
+2:6 LetKeyword `let`
+2:10 Identifier `café`
+2:16 Equals `=`
+2:18 IntegerLiteral `1`
+2:19 Semicolon `;`
 3:1 Equals `=`
 3:3 IntegerLiteral `1`
 4:1 LetKeyword `let`

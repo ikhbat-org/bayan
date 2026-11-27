@@ -3,8 +3,8 @@
 1:4 Greater `>`
 1:6 Identifier `b`
 5:1 Identifier `macr`
-5:6 Identifier `select`
-5:13 BecomeKeyword `become`
+5:7 Identifier `select`
+5:14 BecomeKeyword `become`
 6:1 LetKeyword `let`
 6:5 Identifier `l`
 6:6 At `@`

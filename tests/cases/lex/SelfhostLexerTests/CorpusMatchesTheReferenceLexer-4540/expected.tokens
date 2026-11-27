@@ -19,7 +19,7 @@
 1:29 OpenBrace `{`
 1:30 Identifier `literal`
 1:37 CloseBrace `}`
-1:38 StringLiteral `" c >>= 1`
+1:39 StringLiteral `" c >>= 1`
 2:2 LetKeyword `let`
 2:6 Identifier `actor`
 2:12 Equals `=`
@@ -28,7 +28,7 @@
 3:4 Greater `>`
 3:5 Greater `>`
 3:7 Identifier `b`
-6:3 EndOfFile
+6:5 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x9E)
 

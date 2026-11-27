@@ -71,7 +71,7 @@
 6:29 Arrow `->`
 6:32 At `@`
 6:34 Hash `#`
-7:4 EndOfFile
+7:5 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

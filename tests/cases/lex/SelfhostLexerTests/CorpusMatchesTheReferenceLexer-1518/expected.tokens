@@ -2,7 +2,7 @@
 1:5 Identifier `café`
 1:10 Equals `=`
 1:12 IntegerLiteral `2`
-2:5 EndOfFile
+2:8 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xEC)
 

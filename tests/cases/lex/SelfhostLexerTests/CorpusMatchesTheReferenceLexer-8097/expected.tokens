@@ -3,7 +3,6 @@
 2:12 Star `*`
 2:13 Slash `/`
 2:15 Identifier `a`
-    doc `/// Doc line one.`
 5:1 Identifier `F`
 5:3 IntegerLiteral `0x_ff`
 5:9 IntegerLiteral `0b1010`

@@ -32,7 +32,7 @@
 2:51 StringLiteral `"`
 3:3 IntegerLiteral `1`
 5:1 CharLiteral `'`
-7:2 EndOfFile
+7:3 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits
 

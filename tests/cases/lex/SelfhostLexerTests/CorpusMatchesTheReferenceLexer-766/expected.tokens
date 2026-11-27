@@ -1,6 +1,6 @@
-1:2 Identifier `ετρητής`
-1:10 Identifier `x_1`
-1:14 Identifier `é`
+1:3 Identifier `ετρητής`
+1:11 Identifier `x_1`
+1:15 Identifier `é`
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 Equals `=`

@@ -19,10 +19,10 @@
 1:101 ExternKeyword `extern`
 1:108 UnsafeKeyword `unsafe`
 2:1 IntegerLiteral `0x`
-4:3 LetKeyword `let`
-4:7 Identifier `c`
-4:9 Equals `=`
-4:11 RawStringLiteral `"""never closed\n\n/// Doc line two.\n $"{�\n`
+4:7 LetKeyword `let`
+4:11 Identifier `c`
+4:13 Equals `=`
+4:15 RawStringLiteral `"""never closed\n\n/// Doc line two.\n $"{�\n`
 8:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

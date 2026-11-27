@@ -8,7 +8,7 @@
 1:13 Dot `.`
 1:14 Identifier `y`
 1:16 IntegerLiteral `2`
-1:19 Identifier `xF__`
+1:20 Identifier `xF__`
 2:2 Identifier `xFFs`
 3:1 IntegerLiteral `0b1`
 3:4 NumericSuffix `ms`

@@ -576,7 +576,9 @@ BStmt bindIncDec(ref Binder b, through ref Ctx c, for in parser.IncDecStmt i) {
 
 /// J78 (O11, revision 0007): a field of a struct with `requires`, states or `@sealed` is written only by its own
 /// methods (BYN3216 elsewhere); there, a field of a struct with `requires` is BYN3208, since the rules are checked at
-/// construction. A constructor sets fields freely, and plain data is written anywhere.
+/// construction. A constructor sets fields freely, and plain data is written anywhere. `checkWritable` asks it for
+/// every field on a written place, so `ref`/`out` arguments, `ref this` calls, `dyn ref` borrows and nested writes are
+/// covered.
 bool t39CheckFieldWrite(ref Binder b, through ref Ctx c, for BExpr target, at TextSpan span) {
     return true if boundKind(target) != .field
     let field = c.bFields[boundIndex(target)].field
@@ -617,6 +619,53 @@ bool t39CheckFieldWrite(ref Binder b, through ref Ctx c, for BExpr target, at Te
     return false
 }
 
+/// Whether `t39CheckFieldWrite` allows writing `target`, without reporting diagnostics or marking `written`.
+bool t39CanWriteField(ref Binder b, through ref Ctx c, for BExpr target) {
+    return true if boundKind(target) != .field
+    let field = c.bFields[boundIndex(target)].field
+    let owner = c.fields[field].owner
+    let ownerDecl = c.structs[owner].template != -1 ? c.structs[owner].template : owner
+    var own = false
+    if b.owner != -1 {
+        let s = b.owner
+        own = s == owner || (c.structs[s].template != -1 ? c.structs[s].template : s) == ownerDecl
+    }
+    if !own {
+        return t39Invariant(ref c, for: ownerDecl) is null
+    }
+    return (b.fn != -1 && c.functions[b.fn].kind == .constructor) || !c.checksOf.contains(ownerDecl)
+}
+
+/// Walks through a `ReadOnlySpan` slice chain to report BYN3216 / BYN3208 when the slice's underlying place is a
+/// field protected by `requires`, states or `@sealed`. Returns true if no protected field blocked the write.
+bool t39CheckSliceFieldWrite(ref Binder b, through ref Ctx c, for BExpr e, at TextSpan span) {
+    let i = boundIndex(e)
+    switch boundKind(e) {
+        case .slice:
+            let sliced = c.bSlices[i].target
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: sliced, at: span) if boundKind(sliced) == .slice
+            return true if kindOf(exprType(in c, for: sliced)) == .span
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: sliced, at: span)
+        case .field:
+            return false if !t39CheckFieldWrite(ref b, through: ref c, for: e, at: span)
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: c.bFields[i].receiver, at: span)
+        case .tupleElement:
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: c.bTupleElements[i].receiver, at: span)
+        case .index:
+            let indexed = c.bIndexes[i].target
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: indexed, at: span) if boundKind(indexed) == .slice
+            return true if kindOf(exprType(in c, for: indexed)) == .span
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: indexed, at: span)
+        case .builtinCall:
+            let member = c.bBuiltinCalls[i].member
+            return t39CheckSliceFieldWrite(ref b, through: ref c, for: c.bBuiltinCalls[i].receiver, at: span) if member is .mapIndexSet
+                or .mapSlot
+            return true
+        default:
+            return true
+    }
+}
+
 /// Why BYN3216 protects `s`'s fields, the first of `requires`, states and `@sealed`; null for plain data.
 string? t39Invariant(ref Ctx c, for StructId s) {
     let file = c.structs[s].file
@@ -638,6 +687,10 @@ string? t39Invariant(ref Ctx c, for StructId s) {
             for a in n.value.attributes {
                 return "is `@sealed`" if t11Text(in c, from: file, at: a.name) == "sealed"
             }
+            return null
+        case .typeAliasDecl(let a):
+            // A `type distinct` has no states and no `@sealed`; its `requires` guard `value` like a struct's.
+            return "has `requires`" if a.value.requiresClauses.length > 0
             return null
         default:
             panic("internal error: a struct without a struct declaration")
@@ -800,6 +853,7 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
                 )
                 return false
             }
+            return false if !t39CheckFieldWrite(ref b, through: ref c, for: target, at: span)
             return checkWritable(ref b, through: ref c, for: receiver, at: span, by: why)
         case .tupleElement:
             return checkWritable(ref b, through: ref c, for: c.bTupleElements[i].receiver, at: span, by: why)
@@ -808,6 +862,8 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
             let tt = exprType(in c, for: indexed)
             if kindOf(tt) == .span {
                 if c.spanTypes[typeIndex(tt)].readOnly {
+                    return false if boundKind(indexed) == .slice
+                        && !t39CheckSliceFieldWrite(ref b, through: ref c, for: indexed, at: span)
                     report(
                         ref b,
                         through: ref c,
@@ -861,6 +917,55 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
     }
 }
 
+/// Whether `target` at `span` is a writable place, without reporting diagnostics or marking `written` / `thisWrites`.
+bool isWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpan span) {
+    let written = writtenLocal(ref c, for: target)
+    if written != -1 {
+        if (c.locals[written].guardSpan is { } g) && span.start >= g.start && span.end <= g.end {
+            return false
+        }
+    }
+    let i = boundIndex(target)
+    switch boundKind(target) {
+        case .local:
+            let l = c.bLocals[i].local
+            return false if c.locals[l].borrowsSubject && isUnique(ref c, for: c.locals[l].type)
+            let kind = c.locals[l].kind
+            let byRef = c.locals[l].isParameter && (c.locals[l].modifier is .refKeyword or .outKeyword)
+            return kind == .varKeyword || kind == .temp || byRef
+        case .thisRef:
+            return true if b.fn != -1 && c.functions[b.fn].kind == .constructor
+            return b.fn != -1
+                && c.functions[b.fn].kind == .method
+                && !c.functions[b.fn].isStatic
+                && c.functions[b.fn].isMutating
+        case .field:
+            let field = c.bFields[i].field
+            let receiver = c.bFields[i].receiver
+            return false if fieldIsReadonly(ref c, by: field)
+                && !(b.fn != -1
+                && c.functions[b.fn].kind == .constructor
+                && c.functions[b.fn].owner == c.fields[field].owner
+                && boundKind(receiver) == .thisRef)
+            return false if !t39CanWriteField(ref b, through: ref c, for: target)
+            return isWritable(ref b, through: ref c, for: receiver, at: span)
+        case .tupleElement:
+            return isWritable(ref b, through: ref c, for: c.bTupleElements[i].receiver, at: span)
+        case .index:
+            let indexed = c.bIndexes[i].target
+            let tt = exprType(in c, for: indexed)
+            return !c.spanTypes[typeIndex(tt)].readOnly if kindOf(tt) == .span
+            return isWritable(ref b, through: ref c, for: indexed, at: span)
+        case .builtinCall:
+            let member = c.bBuiltinCalls[i].member
+            return isWritable(ref b, through: ref c, for: c.bBuiltinCalls[i].receiver, at: span) if member is .mapIndexSet
+                or .mapSlot
+            return false
+        default:
+            return false
+    }
+}
+
 /// The local a write lands in, even when the write is rejected (`x.f`, `x[i]`, a tuple element of `x`); -1 for none.
 LocalId writtenLocal(ref Ctx c, for BExpr e) {
     let i = boundIndex(e)
@@ -869,8 +974,15 @@ LocalId writtenLocal(ref Ctx c, for BExpr e) {
         case .field: return writtenLocal(ref c, for: c.bFields[i].receiver)
         case .tupleElement: return writtenLocal(ref c, for: c.bTupleElements[i].receiver)
         case .index:
-            return -1 if kindOf(exprType(in c, for: c.bIndexes[i].target)) == .span
-            return writtenLocal(ref c, for: c.bIndexes[i].target)
+            let indexed = c.bIndexes[i].target
+            return writtenLocal(ref c, for: indexed) if boundKind(indexed) == .slice
+            return -1 if kindOf(exprType(in c, for: indexed)) == .span
+            return writtenLocal(ref c, for: indexed)
+        case .slice:
+            let sliced = c.bSlices[i].target
+            return writtenLocal(ref c, for: sliced) if boundKind(sliced) == .slice
+            return -1 if kindOf(exprType(in c, for: sliced)) == .span
+            return writtenLocal(ref c, for: sliced)
         case .builtinCall:
             let member = c.bBuiltinCalls[i].member
             return writtenLocal(ref c, for: c.bBuiltinCalls[i].receiver) if member is .mapIndexSet or .mapSlot

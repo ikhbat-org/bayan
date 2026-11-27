@@ -51,7 +51,7 @@
 2:80 InterpolatedStringEnd `"`
 2:81 InterpolationEnd `}`
 2:82 InterpolatedStringEnd `"`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 4:2 StringLiteral `"a\u{2067}b"`
 5:1 InterpolatedStringStart `$"`
 5:3 InterpolationStart `{`

@@ -44,7 +44,6 @@
 3:4 LawKeyword `law`
 3:8 Equals `=`
 3:10 IntegerLiteral `3`
-    doc `/// Do line one.`
 9:1 EndOfFile
 
 error BYN0003: unterminated string literal

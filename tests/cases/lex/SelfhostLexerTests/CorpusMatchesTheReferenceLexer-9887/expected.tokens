@@ -1,20 +1,20 @@
 1:3 StringLiteral `"�"`
-1:5 StringLiteral `" c"`
-1:9 Identifier `text`
-1:13 StringLiteral `" u16"`
-1:19 Identifier `wide`
-1:23 StringLiteral `" "`
-1:28 Identifier `allowed`
-1:36 InKeyword `in`
-1:39 Identifier `strings`
-1:46 StringLiteral `" "`
-1:49 StringLiteral `" "`
-1:53 Identifier `u`
-1:54 OpenBrace `{`
-1:55 IntegerLiteral `48`
-1:57 CloseBrace `}`
-1:58 Identifier `i`
-1:59 StringLiteral `"`
+1:6 StringLiteral `" c"`
+1:10 Identifier `text`
+1:14 StringLiteral `" u16"`
+1:20 Identifier `wide`
+1:24 StringLiteral `" "`
+1:29 Identifier `allowed`
+1:37 InKeyword `in`
+1:40 Identifier `strings`
+1:47 StringLiteral `" "`
+1:50 StringLiteral `" "`
+1:54 Identifier `u`
+1:55 OpenBrace `{`
+1:56 IntegerLiteral `48`
+1:58 CloseBrace `}`
+1:59 Identifier `i`
+1:60 StringLiteral `"`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolationStart `{`
 3:4 InterpolatedStringStart `$"`
@@ -73,8 +73,8 @@
 3:73 InterpolatedStringEnd `"`
 3:74 InterpolationEnd `}`
 3:75 InterpolatedStringEnd `"`
-4:4 Equals `=`
-4:6 IntegerLiteral `1`
+4:6 Equals `=`
+4:8 IntegerLiteral `1`
 5:1 LetKeyword `let`
 5:5 Identifier `café`
 5:10 Equals `=`

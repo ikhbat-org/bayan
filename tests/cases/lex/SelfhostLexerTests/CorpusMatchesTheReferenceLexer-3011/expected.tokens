@@ -3,7 +3,7 @@
 3:1 Identifier `en`
 3:4 OpenBrace `{`
 3:5 Identifier `x`
-3:6 StringLiteral `";`
+3:7 StringLiteral `";`
 4:2 Identifier `ạ̇`
 4:5 EndOfFile
 

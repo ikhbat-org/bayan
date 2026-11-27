@@ -29,7 +29,7 @@
 5:17 PublicKeyword `public`
 5:24 PrivateKeyword `private`
 5:32 StaticKeyword `static`
-6:1 IntegerLiteral `0b102`
+6:2 IntegerLiteral `0b102`
 7:1 FloatLiteral `3.14`
 7:6 FloatLiteral `1e5`
 7:10 FloatLiteral `2.5e-3`

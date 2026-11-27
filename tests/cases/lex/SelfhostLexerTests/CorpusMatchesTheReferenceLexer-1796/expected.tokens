@@ -8,11 +8,11 @@
 3:9 Identifier `x`
 3:10 StringLiteral `";`
 4:2 CharLiteral `''`
-5:4 Identifier `macro`
-5:10 Identifier `sel`
-5:13 Amp `&`
-5:14 Identifier `ct`
-5:17 Identifier `becmome`
+5:5 Identifier `macro`
+5:11 Identifier `sel`
+5:14 Amp `&`
+5:15 Identifier `ct`
+5:18 Identifier `becmome`
 6:1 Identifier `Å`
 6:4 RawStringLiteral `"""\u{0} `
 6:9 EndOfFile

@@ -40,7 +40,7 @@
 1:64 InterpolatedStringEnd `"`
 2:1 IntegerLiteral `0b__`
 4:1 IntegerLiteral `0xF__`
-5:2 IntegerLiteral `0xF__`
+5:3 IntegerLiteral `0xF__`
 7:1 CharLiteral `'\q'`
 9:2 EndOfFile
 

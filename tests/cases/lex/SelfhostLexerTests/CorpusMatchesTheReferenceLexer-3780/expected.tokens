@@ -3,7 +3,7 @@
 1:9 IntegerLiteral `2`
 2:2 IntegerLiteral `1`
 2:3 Dot `.`
-2:6 IntegerLiteral `1`
+2:7 IntegerLiteral `1`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolationStart `{`
 3:5 StringLiteral `"if else unless switch case default for in while do break continue return yield defer errdefer using context`

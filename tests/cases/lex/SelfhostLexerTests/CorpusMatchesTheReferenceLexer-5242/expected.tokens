@@ -2,10 +2,10 @@
 1:4 Identifier `V`
 1:5 StringLiteral `""`
 1:8 CStringLiteral `c"t�ext"`
-1:16 U16StringLiteral `u16"wide"`
-1:26 StringLiteral `"\u{202E} allowed in strings"`
-1:49 StringLiteral `""`
-1:52 StringLiteral `"\u{48}i"`
+1:17 U16StringLiteral `u16"wide"`
+1:27 StringLiteral `"\u{202E} allowed in strings"`
+1:50 StringLiteral `""`
+1:53 StringLiteral `"\u{48}i"`
 2:1 StructKeyword `struct`
 2:8 Identifier `S`
 5:1 IntegerLiteral `5`

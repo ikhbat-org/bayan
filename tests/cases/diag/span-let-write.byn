@@ -1,0 +1,43 @@
+struct Holder {
+    i64[2] arr
+    List<i64> xs
+    readonly i64[2] ro
+
+    void bad() {
+        writeSpan(this.arr)
+        this.arr[0..2][0] = 99
+    }
+}
+
+void writeSpan(Span<i64> s) {
+    s[0] = 99
+}
+
+void paramList(List<i64> xs) {
+    writeSpan(xs)
+    xs[0..2][0] = 99
+}
+
+void main() {
+    let a: i64[2] = [1, 2]
+    a[0..2][0] = 99
+    writeSpan(a)
+    writeSpan(a[0..2])
+    let _ = a.mutableSpan()
+
+    let xs: List<i64> = [1, 2]
+    xs[0..2][0] = 99
+    writeSpan(xs)
+    writeSpan(xs[0..2])
+    let _ = xs.mutableSpan()
+
+    let h = Holder { arr: [1, 2], xs: [1, 2], ro: [1, 2] }
+    writeSpan(h.arr)
+    writeSpan(h.xs)
+    h.arr[0..2][0] = 99
+    let _ = h.arr.mutableSpan()
+
+    var mh = Holder { arr: [1, 2], xs: [1, 2], ro: [1, 2] }
+    writeSpan(mh.ro)
+    mh.ro[0..2][0] = 99
+}

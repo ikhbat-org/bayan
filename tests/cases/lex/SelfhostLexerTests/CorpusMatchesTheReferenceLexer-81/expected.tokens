@@ -11,7 +11,7 @@
 7:13 Slash `/`
 7:15 Identifier `a`
     doc `///� Doc line �`
-8:15 EndOfFile
+8:16 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

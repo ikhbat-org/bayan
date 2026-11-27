@@ -1,4 +1,4 @@
-1:3 CharLiteral `'x`
+1:4 CharLiteral `'x`
 2:1 Identifier `N`
 6:5 EndOfFile
 

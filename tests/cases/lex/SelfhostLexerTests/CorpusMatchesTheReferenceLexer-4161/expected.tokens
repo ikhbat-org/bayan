@@ -16,7 +16,7 @@
 1:94 EmbedKeyword `embed`
 1:100 ExternKeyword `extern`
 1:107 UnsafeKeyword `unsafe`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 5:2 OutKeyword `out`
 5:6 Identifier `th`
 5:9 EndOfFile

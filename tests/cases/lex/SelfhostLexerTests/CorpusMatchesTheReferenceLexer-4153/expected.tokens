@@ -10,7 +10,7 @@
 4:22 IntegerLiteral `0`
 4:23 At `@`
 4:24 Identifier `x_ff`
-4:28 IntegerLiteral `0b101`
+4:29 IntegerLiteral `0b101`
 5:1 Identifier `x́́`
 5:5 Greater `>`
 5:6 GreaterEquals `>=`

@@ -63,20 +63,20 @@
 3:76 InterpolatedStringEnd `"`
 3:78 IntegerLiteral `0b__`
 4:4 Identifier `ạ̇i`
-4:8 Identifier `s`
-4:10 AndKeyword `and`
-4:14 OrKeyword `or`
-4:17 NotKeyword `not`
-4:21 WithKeyword `with`
-4:26 MoveKeyword `move`
-4:31 RefKeyword `ref`
-4:35 OutKeyword `out`
-4:39 ThisKeyword `this`
-4:44 NullKeyword `null`
-4:49 TrueKeyword `true`
-4:54 FalseKeyword `false`
-4:60 ComptimeKeyword `comptime`
-4:69 CheckedKeyword `checked`
+4:9 Identifier `s`
+4:11 AndKeyword `and`
+4:15 OrKeyword `or`
+4:18 NotKeyword `not`
+4:22 WithKeyword `with`
+4:27 MoveKeyword `move`
+4:32 RefKeyword `ref`
+4:36 OutKeyword `out`
+4:40 ThisKeyword `this`
+4:45 NullKeyword `null`
+4:50 TrueKeyword `true`
+4:55 FalseKeyword `false`
+4:61 ComptimeKeyword `comptime`
+4:70 CheckedKeyword `checked`
 5:2 EndOfFile
 
 error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal

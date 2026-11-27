@@ -39,7 +39,7 @@
 1:65 InterpolatedStringEnd `"`
 2:1 IntegerLiteral `1`
 2:3 Identifier `é`
-3:5 EndOfFile
+3:6 EndOfFile
 
 error BYN0005: identifier `Å` is not in Unicode normalization form C
 

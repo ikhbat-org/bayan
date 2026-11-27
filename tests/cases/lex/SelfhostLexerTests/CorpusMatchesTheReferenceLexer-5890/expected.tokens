@@ -3,7 +3,7 @@
 2:1 Identifier `b1`
 2:4 Identifier `s`
 4:1 CharLiteral `'\u{D800}'`
-4:11 StringLiteral `"`
+4:12 StringLiteral `"`
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

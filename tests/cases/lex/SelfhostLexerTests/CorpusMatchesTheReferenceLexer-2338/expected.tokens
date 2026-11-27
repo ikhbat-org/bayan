@@ -17,7 +17,7 @@
 1:95 UsingKeyword `using`
 1:101 ContextKeyword `context`
 3:2 Identifier `a`
-    doc `/// Doc line one.\r\n/// Doc line two.\r`
+    doc `/// Doc line one.\r\n/// Doc line two.`
 6:1 StructKeyword `struct`
 6:8 Identifier `S`
 9:1 EndOfFile

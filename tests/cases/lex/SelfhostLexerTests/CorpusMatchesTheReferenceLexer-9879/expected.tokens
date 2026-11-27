@@ -72,10 +72,10 @@
 4:5 LawKeyword `law`
 4:9 Equals `=`
 4:11 IntegerLiteral `3`
-6:3 LetKeyword `let`
-6:7 Identifier `a`
-6:9 Equals `=`
-6:11 StringLiteral `"open`
+6:4 LetKeyword `let`
+6:8 Identifier `a`
+6:10 Equals `=`
+6:12 StringLiteral `"open`
 7:1 EndOfFile
 
 error BYN0003: unterminated string literal

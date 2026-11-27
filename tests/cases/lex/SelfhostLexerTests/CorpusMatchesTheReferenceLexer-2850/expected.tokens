@@ -11,9 +11,9 @@
 1:29 Arrow `->`
 1:32 At `@`
 1:34 Hash `#`
-2:3 InterpolatedStringStart `$"`
-2:5 InterpolationStart `{`
-2:6 StringLiteral `" '\u{D800}'`
+2:5 InterpolatedStringStart `$"`
+2:7 InterpolationStart `{`
+2:8 StringLiteral `" '\u{D800}'`
 3:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xED)

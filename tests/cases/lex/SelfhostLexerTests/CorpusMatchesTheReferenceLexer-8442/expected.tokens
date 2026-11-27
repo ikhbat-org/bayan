@@ -22,10 +22,10 @@
 2:32 Greater `>`
 2:34 GreaterEquals `>=`
 2:37 LessLess `<<`
-2:39 Greater `>`
 2:40 Greater `>`
-2:42 Greater `>`
-2:43 GreaterEquals `>=`
+2:41 Greater `>`
+2:43 Greater `>`
+2:44 GreaterEquals `>=`
 4:1 IntegerLiteral `0b102`
 6:1 Equals `=`
 6:3 IntegerLiteral `2`

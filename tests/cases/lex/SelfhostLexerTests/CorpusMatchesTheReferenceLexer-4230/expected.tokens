@@ -1,13 +1,13 @@
 1:1 CharLiteral `'a'`
-1:5 CharLiteral `'\n'`
-1:10 CharLiteral `'\u{1F600}'`
-1:22 CharLiteral `'\''`
-1:27 CharLiteral `'é'`
-1:31 CharLiteral `'\\'`
-1:35 CharLiteral `'\0'`
+1:6 CharLiteral `'\n'`
+1:11 CharLiteral `'\u{1F600}'`
+1:23 CharLiteral `'\''`
+1:28 CharLiteral `'é'`
+1:32 CharLiteral `'\\'`
+1:36 CharLiteral `'\0'`
 2:2 IntegerLiteral `0x`
 2:5 Identifier `é`
-    doc `/// Doc line one.\r`
+    doc `/// Doc line one.`
 3:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x83)

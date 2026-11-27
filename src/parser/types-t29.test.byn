@@ -68,7 +68,7 @@ test "parser t29: rare type forms" {
     let expected = """
             <missing> @0 [BYN1003 0+8]
             <missing> @0 [BYN1003 0+8]
-            <missing> @0 [BYN1003 0+8]
+            u8*? @4 [BYN1067 9+3]
             <missing> @0 [BYN1003 0+8]
             <missing> @0 [BYN1003 0+8]
             <missing> @0 [BYN1003 0+8]

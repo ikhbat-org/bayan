@@ -47,7 +47,7 @@
 2:2 CharLiteral `' $"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}"}"}""stray } here"`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `opfails try catch never noallo� nosuspend suspends async await`
-3:64 InterpolatedStringEnd
+3:65 InterpolatedStringEnd
 4:2 EndOfFile
 
 error BYN0003: unterminated string literal

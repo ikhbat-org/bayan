@@ -2,7 +2,7 @@
 2:1 Identifier `b`
 4:4 InKeyword `in`
 4:7 Identifier `comment`
-5:3 EndOfFile
+5:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFE)
 

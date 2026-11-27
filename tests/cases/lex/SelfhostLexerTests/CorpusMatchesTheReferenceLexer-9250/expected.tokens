@@ -1,48 +1,48 @@
-1:3 Identifier `foo`
-1:7 Identifier `Bar`
-1:11 Identifier `_x`
-1:14 Identifier `camelCase2`
-1:25 Identifier `بيان`
-1:30 Identifier `μετρητής`
-1:39 Identifier `x_1`
-1:43 Identifier `é`
-2:4 InterpolatedStringStart `$"`
-2:6 InterpolatedStringText `tota�l `
-2:13 InterpolationStart `{`
-2:14 Identifier `x`
-2:15 InterpolationEnd `}`
-2:16 InterpolatedStringEnd `"`
-2:18 InterpolatedStringStart `$"`
-2:20 InterpolatedStringText `a `
-2:22 InterpolationStart `{`
-2:23 Identifier `f`
-2:24 OpenParen `(`
-2:25 InterpolatedStringStart `$"`
-2:27 InterpolatedStringText `b `
-2:29 InterpolationStart `{`
-2:30 Identifier `c`
-2:31 InterpolationEnd `}`
-2:32 InterpolatedStringEnd `"`
-2:33 CloseParen `)`
-2:34 InterpolationEnd `}`
-2:35 InterpolatedStringText ` d`
-2:37 InterpolatedStringEnd `"`
-2:39 InterpolatedStringStart `$"`
-2:41 InterpolatedStringText `{{literal}}`
-2:52 InterpolatedStringEnd `"`
-2:54 InterpolatedStringStart `$"`
-2:56 InterpolationStart `{`
-2:57 Identifier `Point`
-2:63 OpenBrace `{`
-2:65 Identifier `x`
-2:67 Equals `=`
-2:69 IntegerLiteral `1`
-2:71 CloseBrace `}`
-2:72 InterpolationEnd `}`
-2:73 InterpolatedStringText `!`
-2:74 InterpolatedStringEnd `"`
-2:76 InterpolatedStringStart `$"`
-2:78 InterpolatedStringEnd `"`
+1:5 Identifier `foo`
+1:9 Identifier `Bar`
+1:13 Identifier `_x`
+1:16 Identifier `camelCase2`
+1:27 Identifier `بيان`
+1:32 Identifier `μετρητής`
+1:41 Identifier `x_1`
+1:45 Identifier `é`
+2:6 InterpolatedStringStart `$"`
+2:8 InterpolatedStringText `tota�l `
+2:15 InterpolationStart `{`
+2:16 Identifier `x`
+2:17 InterpolationEnd `}`
+2:18 InterpolatedStringEnd `"`
+2:20 InterpolatedStringStart `$"`
+2:22 InterpolatedStringText `a `
+2:24 InterpolationStart `{`
+2:25 Identifier `f`
+2:26 OpenParen `(`
+2:27 InterpolatedStringStart `$"`
+2:29 InterpolatedStringText `b `
+2:31 InterpolationStart `{`
+2:32 Identifier `c`
+2:33 InterpolationEnd `}`
+2:34 InterpolatedStringEnd `"`
+2:35 CloseParen `)`
+2:36 InterpolationEnd `}`
+2:37 InterpolatedStringText ` d`
+2:39 InterpolatedStringEnd `"`
+2:41 InterpolatedStringStart `$"`
+2:43 InterpolatedStringText `{{literal}}`
+2:54 InterpolatedStringEnd `"`
+2:56 InterpolatedStringStart `$"`
+2:58 InterpolationStart `{`
+2:59 Identifier `Point`
+2:65 OpenBrace `{`
+2:67 Identifier `x`
+2:69 Equals `=`
+2:71 IntegerLiteral `1`
+2:73 CloseBrace `}`
+2:74 InterpolationEnd `}`
+2:75 InterpolatedStringText `!`
+2:76 InterpolatedStringEnd `"`
+2:78 InterpolatedStringStart `$"`
+2:80 InterpolatedStringEnd `"`
 4:1 Identifier `afé`
 4:5 Equals `=`
 4:7 IntegerLiteral `2`

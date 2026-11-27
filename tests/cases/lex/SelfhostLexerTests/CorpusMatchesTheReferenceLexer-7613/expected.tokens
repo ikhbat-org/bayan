@@ -5,9 +5,9 @@
 2:2 IntegerLiteral `1`
 2:3 Dot `.`
 3:1 IntegerLiteral `1_`
-5:3 Identifier `letKcafé`
-5:12 Equals `=`
-5:14 IntegerLiteral `2`
+5:4 Identifier `letKcafé`
+5:13 Equals `=`
+5:15 IntegerLiteral `2`
 6:1 EndOfFile
 
 error BYN0006: invalid escape sequence `\q`

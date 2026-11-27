@@ -1,4 +1,4 @@
-1:2 IntegerLiteral `1_8`
+1:4 IntegerLiteral `1_8`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolationStart `{`
 2:5 LetKeyword `let`

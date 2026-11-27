@@ -13,9 +13,9 @@
 2:77 Identifier `deriva`
 2:84 Identifier `ion`
 2:88 AttributeKeyword `attribute`
-4:2 InterpolatedStringStart `$"`
-4:4 InterpolatedStringText `s�ray } here`
-4:15 InterpolatedStringEnd `"`
+4:6 InterpolatedStringStart `$"`
+4:8 InterpolatedStringText `s�ray } here`
+4:20 InterpolatedStringEnd `"`
 6:1 CharLiteral `''`
 9:2 Identifier `comment`
 9:12 Identifier `hidden`

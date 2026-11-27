@@ -3,10 +3,10 @@
 1:7 Equals `=`
 1:11 IntegerLiteral `3`
 2:1 Identifier `b`
-3:3 InterpolatedStringStart `$"`
-3:5 InterpolationStart `{`
-3:6 StringLiteral `"`
-3:7 EndOfFile
+3:8 InterpolatedStringStart `$"`
+3:10 InterpolationStart `{`
+3:11 StringLiteral `"`
+3:12 EndOfFile
 
 error BYN0002: unexpected character `\u{7}`
 

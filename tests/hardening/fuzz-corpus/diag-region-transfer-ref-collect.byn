@@ -1,0 +1,8 @@
+void collect(ref List<i64> xs, to ref List<ReadOnlySpan<i64>> v) { v.append(xs.span) }
+void main() {
+    var xs = List<i64>()
+    xs.append(1)
+    var v = List<ReadOnlySpan<i64>>()
+    collect(ref xs, to: ref v)
+    print($"{v[0][0]}")
+}

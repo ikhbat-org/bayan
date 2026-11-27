@@ -1,8 +1,8 @@
-1:3 Identifier `x`
-1:4 OpenBrace `{`
-1:6 InterpolatedStringStart `$"`
-1:8 InterpolationStart `{`
-1:10 EndOfFile
+1:4 Identifier `x`
+1:5 OpenBrace `{`
+1:7 InterpolatedStringStart `$"`
+1:9 InterpolationStart `{`
+1:11 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA3)
 

@@ -54,11 +54,11 @@
 1:71 InterpolationStart `{`
 1:73 InterpolatedStringStart `$"`
 1:75 InterpolationStart `{`
-2:2 InterpolatedStringStart `$"`
-2:4 InterpolatedStringEnd `"`
+2:3 InterpolatedStringStart `$"`
+2:5 InterpolatedStringEnd `"`
 4:1 Identifier `A`
 4:3 Bar `|`
-4:4 EndOfFile
+4:5 EndOfFile
 
 error BYN0003: unterminated string literal
 

@@ -4,9 +4,9 @@
 1:10 SlashEquals `/=`
 1:13 PercentEquals `%=`
 1:16 AmpEquals `&=`
-1:19 BarEquals `|=`
-1:22 CaretEquals `^=`
-1:25 LessLessEquals `<<=`
+1:20 BarEquals `|=`
+1:23 CaretEquals `^=`
+1:26 LessLessEquals `<<=`
 3:1 Identifier `ar`
 3:4 Identifier `_x`
 3:7 Identifier `camelCase2`

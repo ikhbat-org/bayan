@@ -35,10 +35,10 @@
 1:51 InterpolatedStringEnd `"`
 1:52 InterpolationEnd `}`
 1:53 InterpolatedStringEnd `"`
-1:56 InterpolatedStringStart `$"`
-1:58 InterpolationStart `{`
-1:59 InterpolationEnd `}`
-1:60 InterpolatedStringEnd `"`
+1:59 InterpolatedStringStart `$"`
+1:61 InterpolationStart `{`
+1:62 InterpolationEnd `}`
+1:63 InterpolatedStringEnd `"`
 2:1 Identifier `ock`
 3:1 At `@`
 3:5 Identifier `comment`

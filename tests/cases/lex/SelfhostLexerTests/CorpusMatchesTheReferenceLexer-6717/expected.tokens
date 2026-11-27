@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `1_`
-3:3 OpenBrace `{`
-3:4 CloseBrace `}`
-3:5 StringLiteral `"a >> b`
+3:4 OpenBrace `{`
+3:6 CloseBrace `}`
+3:7 StringLiteral `"a >> b`
 5:3 StringLiteral `"text"`
 5:10 StringLiteral `"esc \"q\" \\ \n"`
 5:28 RawStringLiteral `"""\ntest assert property fuzz model foreach new g�to\n`

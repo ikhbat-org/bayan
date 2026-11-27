@@ -24,9 +24,9 @@
 4:66 Identifier `etension`
 4:75 DerivationKeyword `derivation`
 4:86 AttributeKeyword `attribute`
-5:1 Identifier `τής`
-5:5 Identifier `x_1`
-5:9 Identifier `é`
+5:2 Identifier `τής`
+5:6 Identifier `x_1`
+5:10 Identifier `é`
 6:1 CharLiteral `'`
 6:2 EndOfFile
 

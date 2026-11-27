@@ -5,12 +5,12 @@
 1:26 FlagsKeyword `flags`
 1:32 OpenKeyword `open`
 1:37 Identifier `ext`
-1:40 Identifier `nsible`
-1:47 InterfaceKeyword `interface`
-1:57 DelegateKeyword `delegate`
-1:66 Identifier `extensijn`
-1:76 DerivationKeyword `derivation`
-1:87 AttributeKeyword `attribute`
+1:41 Identifier `nsible`
+1:48 InterfaceKeyword `interface`
+1:58 DelegateKeyword `delegate`
+1:67 Identifier `extensijn`
+1:77 DerivationKeyword `derivation`
+1:88 AttributeKeyword `attribute`
 2:1 IntegerLiteral `0b1`
 2:4 NumericSuffix `ms`
 4:2 EndOfFile

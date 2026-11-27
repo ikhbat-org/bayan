@@ -1,0 +1,7 @@
+type distinct Id = i64
+
+void main() {
+    var d = Id(1)
+    d.value = -1
+    print($"{d.value}")
+}

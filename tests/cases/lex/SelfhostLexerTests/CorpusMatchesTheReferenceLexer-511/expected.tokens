@@ -1,10 +1,10 @@
 2:2 DerivationKeyword `derivation`
 2:13 AttributeKeyword `attribute`
-2:22 ErrorKeyword `error`
-2:28 SetKeyword `set`
-2:32 UnitKeyword `unit`
-2:37 Identifier `distinc`
-2:45 Identifier `Å`
+2:23 ErrorKeyword `error`
+2:29 SetKeyword `set`
+2:33 UnitKeyword `unit`
+2:38 Identifier `distinc`
+2:46 Identifier `Å`
 3:44 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xFF)

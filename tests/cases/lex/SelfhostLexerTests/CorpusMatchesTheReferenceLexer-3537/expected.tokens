@@ -2,7 +2,7 @@
 1:5 NumericSuffix `s`
 3:5 Identifier `comment`
 3:13 Star `*`
-3:16 Identifier `a`
+3:17 Identifier `a`
 5:1 EndOfFile
 
 error BYN0011: unit suffix `s` is not allowed on a hexadecimal literal

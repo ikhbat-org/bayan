@@ -2,25 +2,25 @@
 
 Version: 0.4.1 (matches `bayan --version`)
 
-How work on the compiler is done. The spec (`docs/bayan-spec.md`) is the source of truth for the language; `AGENTS.md` holds the short agent rules. This file keeps only what neither of them says. The milestones are in `docs/bayan-milestones.md`.
+How compiler work is done. The language: `docs/bayan-spec.md`; agent rules: `AGENTS.md`; this file holds only what neither says. Milestones: `docs/bayan-milestones.md`.
 
 ## Ground rules
 
-- `docs/bayan-spec.md` is the source of truth, and Appendix A of the spec lists settled decisions: see `AGENTS.md`. Spec gaps go to `docs/bayan-questions.md`, with the most conservative option implemented until the question is answered.
-- Update `docs/bayan-progress-log.md` at the end of every working session (see `AGENTS.md`).
-- Prefer small, test-backed steps. Every milestone has acceptance criteria; a milestone isn't done until they pass in CI.
+- The spec (`docs/bayan-spec.md`) is the source of truth; Appendix A holds settled decisions (`AGENTS.md`). Gaps go to `docs/bayan-questions.md`; implement the most conservative option until answered.
+- Update `docs/bayan-progress-log.md` at the end of every working session.
+- Small, test-backed steps; a milestone must pass its CI acceptance criteria.
 
 ## Stack and constraints
 
-The stack and lexer rules are in `AGENTS.md`. Beyond those:
+Stack and lexer rules are in `AGENTS.md`; beyond them:
 
-- Hand-written lexer and recursive-descent parser with Pratt-style expression parsing.
-- C output is **C11** and is compiled with `zig cc` (found on `PATH`, or via the `BAYAN_CC` environment variable). Default flags: `-std=c11 -fwrapv -ffp-contract=off` (`-fwrapv` applies to `fast` builds; `debug`/`safe` use checked arithmetic; see M4).
-- Target platforms for CI: Linux x64, macOS arm64, Windows x64.
+- Hand-written lexer; recursive-descent parser with Pratt-style expressions.
+- C output is **C11**, compiled by `zig cc` from `PATH` (else `cc`, `clang` or `gcc`) or by `BAYAN_CC`. Defaults: `-std=c11 -fwrapv -ffp-contract=off`; `fast` wraps, `debug`/`safe` check (M4).
+- CI targets: Linux x64, macOS arm64, Windows x64.
 
 ## Repository layout
 
-The main directories (the top level also holds `bench/`, `dist/`, `editors/`, `scripts/`, `site/`, `suq/` and `work/`):
+Other top-level directories: `bench/`, `dist/`, `editors/`, `scripts/`, `site/`, `suq/`, `work/`.
 
 ```
 bayan/
@@ -46,7 +46,7 @@ bayan/
     tally-lite/…
 ```
 
-Plan 017 (2026-11-15) moved the tree; the last commit before it is `3c3ccc82`. Done specs, plans and other records keep the old paths. `git log --follow` follows a file across the move.
+Plan 017 (2026-11-15) moved the tree (last pre-move commit `3c3ccc82`); done records keep old paths, `git log --follow` crosses it.
 
 | Before | After |
 |---|---|
@@ -58,15 +58,16 @@ Plan 017 (2026-11-15) moved the tree; the last commit before it is `3c3ccc82`. D
 | `selfhost/` | `src/` |
 | `tests/cases/`, `tests/parity/` | unchanged |
 
-Spec 019b removed `csharp/`, `src/tests/*.cs`, `Bayan.slnx`, the C# language server and the two C# tools; they are kept in the tag `csharp-final` (`docs/decisions/2026-11-23-011-csharp-archive.md`).
+<!-- prose-check: off -->
+Spec 019b removed `csharp/`, `src/tests/*.cs`, `Bayan.slnx`, the C# language server and the two C# tools, kept in tag `csharp-final` (`docs/decisions/2026-11-23-011-csharp-archive.md`).
+<!-- prose-check: on -->
 
 ## Conventions
 
 ### Diagnostics
 
-- Every diagnostic has a code `BYN####`, a span, a message, an optional **help** line, and an optional **fix** (replacement text plus span).
-- Code ranges: see `AGENTS.md`.
-- Rendered format (snapshot-tested):
+- Every diagnostic: a `BYN####` code, span, message, optional **help** and optional **fix** (replacement text plus span). Code ranges: `AGENTS.md`.
+- Rendered (snapshot-tested):
 
 ```
 error BYN2104: `total` is immutable
@@ -78,39 +79,51 @@ error BYN2104: `total` is immutable
      │  9 │     var total = 0;
 ```
 
-- Each code has `docs/diagnostics/BYN####.md` (why it exists, an example, the fix). `bayan explain BYN2104` prints it.
+- `docs/diagnostics/BYN####.md` per code (why, example, fix); `bayan explain BYN2104` prints it.
 
 ### Golden tests
 
-- One input file per case; expected output beside it. `bash scripts/test.sh` runs everything.
-- Updating expected files: see `AGENTS.md`; the diffs are reviewed like code.
-- What needs a `diag/` or `run/` case: see `AGENTS.md`.
+- One input per case, expected output beside it; `bash scripts/test.sh` runs all.
+- Expected files (diffs reviewed like code) and what needs a `diag/` or `run/` case: `AGENTS.md`.
 
 ### C emission
 
 - Names: `byn_<module>_<name>`; struct `T` → `typedef struct byn_<module>_T byn_<module>_T;`.
-- `string` → `typedef struct { const uint8_t* ptr; int64_t len; } byn_str;`. Literals are static arrays.
+- `string` → `typedef struct { const uint8_t* ptr; int64_t len; } byn_str;`, literals static arrays.
 - `Span<T>` → `{ T* ptr; int64_t len; }`, one instantiation per element type.
-- Panics: `byn_panic(const char* msg, const char* file, int line)` prints `panic: <msg>` plus location and calls `abort()`.
-- `debug`/`safe`: arithmetic through `__builtin_add_overflow` and friends, panicking on overflow. `fast`: plain arithmetic with `-fwrapv`.
-- **Bounds checks in every mode** (spec principle 9). Remove only checks the compiler proves redundant (start with `for (let i in 0..xs.length) xs[i]`).
-- Emit `#line` directives so debuggers point at `.byn` lines.
+- `byn_panic(const char* msg, const char* file, int line)` prints `panic: <msg>` and location, then `abort()`.
+- `debug`/`safe`: `__builtin_add_overflow` and friends, panicking on overflow; `fast`: plain arithmetic, `-fwrapv`.
+- **Bounds checks in every mode** (spec principle 9); remove only checks proven redundant (start with `for (let i in 0..xs.length) xs[i]`).
+- Emit `#line` so debuggers show `.byn` lines.
 
 ## Testing the compiler itself
 
-- Golden tests for every phase (above).
-- The lexer and parser are the compiler's untrusted-input surface. The C# fuzzer (`tools/Bayan.SyntaxFuzz`) left with the C# compiler; a Bayān fuzzer is not written yet.
-- Mutation testing finds weak tests: `bayan test --mutate` (spec 013). Mutation runs go to wp1 or wlt1.
-- Reproducibility: CI compiles `examples/` twice and compares the emitted C byte-for-byte.
+- Golden tests for every phase, above.
+<!-- prose-check: off -->
+- The lexer and parser face untrusted input. The C# fuzzer (`tools/Bayan.SyntaxFuzz`) left with the C# compiler; no Bayān one yet.
+<!-- prose-check: on -->
+- Mutation: `bayan test --mutate` (spec 013); runs go to wp1/wlt1.
+- Reproducibility: CI compiles `examples/` twice and diffs the C bytes.
 
 ## Before a push
 
-The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` reaches it through `scripts/test.sh` (its `scripts` part) and runs no script test of its own. Run it on macOS under the system bash, the bash the macOS job uses. With no group it runs both: `unix` (ci splits it into `fast`, in the other-parts job, and `slow`, its own job) and `docs`, which ci runs only on Linux:
+The ci job's script tests are one list, `scripts/ci/script-tests.sh`; `.github/workflows/ci.yml` reaches it through `scripts/test.sh` (its `scripts` part) and runs no script test of its own. Run it under macOS's system bash, as the macOS job does. With no group it runs both `unix` (ci splits it into `fast`, the other-parts job, and `slow`, its own job) and `docs` (Linux only):
 
 ```
 /bin/bash scripts/ci/script-tests.sh
 ```
 
-Pushes to `dev` or `main` run `scripts/ci/pre-push.sh <sha>` through the machine's git pre-push hook: it checks the pushed commit out under `tmp/pre-push/`, runs the script tests there, and refuses the push if they fail (`--no-verify` on the push bypasses it once). To run it by hand, use `scripts/ci/pre-push.sh HEAD`; a tree that already passed is skipped.
+Pushes to `dev` or `main` run `scripts/ci/pre-push.sh <sha>` through git's pre-push hook: the hook checks the pushed commit out under `tmp/pre-push/`, runs the script tests there, and refuses the push if they fail (`--no-verify` bypasses it once). By hand: `scripts/ci/pre-push.sh HEAD`; a tree that already passed is skipped.
 
-macOS ships bash 3.2. It parses the body of `$( … )`, `<( … )` and `>( … )` only when the line runs, and a bare `pat)` case arm there closes the substitution, so `bash -n` passes and the script dies later. Inside a substitution, write every case pattern as `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` file on every OS.
+macOS ships bash 3.2: a `$( … )`, `<( … )` or `>( … )` body parses only when its line runs, so a bare `pat)` case arm closes the substitution; `bash -n` passes and the script dies later. Inside one, write `(pat)`. `scripts/ci/bash32-parse.test.sh` enforces this on every tracked `.sh` on every OS.
+
+## Writing docs
+
+These rules cover every user-facing page (`README.md`, `site/content/`, `bootstrap/README.md`, `editors/README.md`, release docs with a `Version:` header); records keep their text (handoffs, audits, plans, decisions, revisions, progress log, released `CHANGELOG.md` sections).
+
+1. A pattern over a list: `bayan-<version>-<os>-<arch>.tar.gz` (`.zip` on Windows), not six archive names.
+2. Say each thing once, where a reader looks for it; link from elsewhere.
+3. The current version only; history lives in `CHANGELOG.md`.
+4. Bayān on its own terms: no comparison with another language explains a rule; the `from-*.page` guides are the exception.
+5. Show, then tell: a real-world example first (code when the point is code), a table for two or more dimensions, a diagram when one beats a paragraph.
+6. Clear, plain words: short sentences, the concrete thing named, no filler; `scripts/docs/prose-words.txt` lists the rejected words.

@@ -745,6 +745,24 @@ test "emitter t29: isTrivial, isRepeatable, isLvalue and anyNode on made-up node
     assert !anyNode(in c, through: in l, for: other, by: .readsLocalMovedBy(moved))
 }
 
+test "emitter t29: a call writing a local by ref is stored before a later operand reads it" {
+    let source = """
+        i64 bump(ref i64 n) {
+            n = 20
+            return 20
+        }
+
+        void main() {
+            var n: i64 = 10
+            let e = bump(ref n) + n
+            print($"{e}")
+        }
+        """
+    let emitted = t29Emit(source)
+    assert emitted.contains("    t2 = byn_main__bump(&l0_n);\n")
+    assert emitted.contains("    l1_e = byn_add_i64(t2, l0_n, byn_file_0, 8);\n")
+}
+
 test "emitter t29: states, interface slots by ref, out, failing and never, and function values emit" {
     let source = """
         union error E {
@@ -1011,4 +1029,64 @@ test "emitter t29: become stores a negative state tag" {
         tags.append($"{line}\n") if line.contains(".tag = ")
     }
     assert tags.finish() == "    l0_p = ((bynt_main__Lamp){INT64_C(1), .tag = 0});\n    (*self).tag = ((int32_t)-3);\n"
+}
+
+test "emitter t29: compound assignment spills a this-rooted index mutated by rhs" {
+    let emitted = t29Emit(
+        """
+        struct P {
+            i64 x = 0
+        }
+
+        struct S {
+            List<P> xs
+            i64 k = 0
+
+            i64 bump(ref this) {
+                this.k += 1
+                return 5
+            }
+
+            void run(ref this) {
+                this.xs[this.k].x += this.bump()
+                this.xs[this.k].x += 1
+            }
+        }
+
+        void main() {
+            var s = S { xs: [P { x: 1 }, P { x: 2 }], k: 0 }
+            s.run()
+        }
+        """,
+    )
+    assert emitted.contains(
+        "    t0 = (*self).k;\n#line 15 \"t29.byn\"\n    t1 = (*bynh_at_list_main__P((*self).xs, (int64_t)t0, false, byn_file_0, 15)).x;\n#line 15 \"t29.byn\"\n    t2 = byn_main__S__bump(&(*self));\n#line 15 \"t29.byn\"\n    (*bynh_at_list_main__P((*self).xs, (int64_t)t0, false, byn_file_0, 15)).x = byn_add_i64(t1, t2, byn_file_0, 15);\n",
+    )
+    assert emitted.contains(
+        "    (*bynh_at_list_main__P((*self).xs, (int64_t)(*self).k, false, byn_file_0, 16)).x = byn_add_i64((*bynh_at_list_main__P((*self).xs, (int64_t)(*self).k, false, byn_file_0, 16)).x, INT64_C(1), byn_file_0, 16);\n",
+    )
+}
+
+test "emitter t29: array for-loop spills an index mutated by the loop body" {
+    let emitted = t29Emit(
+        """
+        void main() {
+            var i: i64 = 0
+            let j: i64 = 0
+            let arrs: List<i64[2]> = [[1, 2], [3, 4]]
+            var sum: i64 = 0
+            for v in arrs[i] {
+                i = 1
+                sum += v
+            }
+            for w in arrs[j] {
+                sum += w
+            }
+            print($"{sum}")
+        }
+        """,
+    )
+    assert emitted.contains("    t6 = l0_i;\n")
+    assert emitted.contains("        l5_v = (*bynh_at_list_arr2_i64(l2_arrs, (int64_t)t6, false, byn_file_0, 6)).v[t7];\n")
+    assert emitted.contains("        l8_w = (*bynh_at_list_arr2_i64(l2_arrs, (int64_t)l1_j, false, byn_file_0, 10)).v[t9];\n")
 }

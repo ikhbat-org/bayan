@@ -4,7 +4,7 @@
 2:10 Identifier `x`
 2:11 StringLiteral `";`
 3:7 Identifier `n`
-    doc `/// let café = 1;\r`
+    doc `/// let café = 1;`
 4:1 OpenParen `(`
 4:3 CloseParen `)`
 4:5 OpenBracket `[`

@@ -105,8 +105,10 @@ public struct Transport {
         }
     }
 
-    /// The next message, or null at the end of input. A body that is not JSON is logged and skipped.
+    /// The next message, or null at the end of input. A body that is not JSON is logged and read as the JSON `null`, which the caller
+    /// ignores: skipping it here would keep every skipped body in the caller's message arena until a good message arrived.
     public JsonDocument? read(ref this) uses alloc, console {
+        var skip = List<u8>()
         while true {
             var contentLength: i64 = -1
             while true {
@@ -122,9 +124,10 @@ public struct Transport {
             }
             if contentLength > maxMessage {
                 Io.stderr.write($"bayan-lsp: message of {contentLength} bytes dropped, over the {maxMessage} byte limit\n")
-                var skip = List<u8>()
-                for _ in 0..chunk {
-                    skip.append(0)
+                if skip.length == 0 {
+                    for _ in 0..chunk {
+                        skip.append(0)
+                    }
                 }
                 var left = contentLength
                 while left > 0 {
@@ -147,7 +150,11 @@ public struct Transport {
             let doc = JsonDocument.parse(move body) catch switch {
                 .syntax(let message, let offset) => {
                     Io.stderr.write($"bayan-lsp: bad message skipped: {message} at byte {offset}\n")
-                    continue
+                    var none = List<u8>()
+                    for c in "null".bytes {
+                        none.append(c)
+                    }
+                    return JsonDocument.parse(move none) catch { return null }
                 },
             }
             return doc

@@ -21,46 +21,46 @@
 1:69 IntegerLiteral `7`
 1:70 NumericSuffix `l`
 2:2 StringLiteral `"a\u{2067}b"`
-2:8 InterpolatedStringStart `$"`
-2:10 InterpolatedStringText `total `
-2:16 InterpolationStart `{`
-2:17 Identifier `x`
-2:18 InterpolationEnd `}`
-2:19 InterpolatedStringEnd `"`
-2:21 InterpolatedStringStart `$"`
-2:23 InterpolatedStringText `a `
-2:25 InterpolationStart `{`
-2:26 Identifier `f`
-2:27 OpenParen `(`
-2:28 InterpolatedStringStart `$"`
-2:30 InterpolatedStringText `b `
-2:32 InterpolationStart `{`
-2:33 Identifier `c`
-2:34 InterpolationEnd `}`
-2:35 InterpolatedStringEnd `"`
-2:36 CloseParen `)`
-2:37 InterpolationEnd `}`
-2:38 InterpolatedStringText ` d`
-2:40 InterpolatedStringEnd `"`
-2:42 InterpolatedStringStart `$"`
-2:44 InterpolationStart `{`
-2:45 Identifier `literal`
-2:52 InterpolationEnd `}`
-2:53 InterpolatedStringText `}`
-2:54 InterpolatedStringEnd `"`
-2:56 InterpolatedStringStart `$"`
-2:58 InterpolationStart `{`
-2:59 Identifier `Point`
-2:65 OpenBrace `{`
-2:67 Identifier `x`
-2:69 Equals `=`
-2:71 IntegerLiteral `1`
-2:73 CloseBrace `}`
-2:74 InterpolationEnd `}`
-2:75 InterpolatedStringText `!`
-2:76 InterpolatedStringEnd `"`
-2:78 InterpolatedStringStart `$"`
-2:80 InterpolatedStringEnd `"`
+2:9 InterpolatedStringStart `$"`
+2:11 InterpolatedStringText `total `
+2:17 InterpolationStart `{`
+2:18 Identifier `x`
+2:19 InterpolationEnd `}`
+2:20 InterpolatedStringEnd `"`
+2:22 InterpolatedStringStart `$"`
+2:24 InterpolatedStringText `a `
+2:26 InterpolationStart `{`
+2:27 Identifier `f`
+2:28 OpenParen `(`
+2:29 InterpolatedStringStart `$"`
+2:31 InterpolatedStringText `b `
+2:33 InterpolationStart `{`
+2:34 Identifier `c`
+2:35 InterpolationEnd `}`
+2:36 InterpolatedStringEnd `"`
+2:37 CloseParen `)`
+2:38 InterpolationEnd `}`
+2:39 InterpolatedStringText ` d`
+2:41 InterpolatedStringEnd `"`
+2:43 InterpolatedStringStart `$"`
+2:45 InterpolationStart `{`
+2:46 Identifier `literal`
+2:53 InterpolationEnd `}`
+2:54 InterpolatedStringText `}`
+2:55 InterpolatedStringEnd `"`
+2:57 InterpolatedStringStart `$"`
+2:59 InterpolationStart `{`
+2:60 Identifier `Point`
+2:66 OpenBrace `{`
+2:68 Identifier `x`
+2:70 Equals `=`
+2:72 IntegerLiteral `1`
+2:74 CloseBrace `}`
+2:75 InterpolationEnd `}`
+2:76 InterpolatedStringText `!`
+2:77 InterpolatedStringEnd `"`
+2:79 InterpolatedStringStart `$"`
+2:81 InterpolatedStringEnd `"`
 6:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xCE)

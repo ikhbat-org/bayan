@@ -76,9 +76,9 @@
 4:25 NoallocKeyword `noalloc`
 4:33 NosuspendKeyword `nosuspend`
 4:43 Identifier `suspen`
-4:49 Identifier `ds`
-4:52 AsyncKeyword `async`
-4:58 AwaitKeyword `await`
+4:50 Identifier `ds`
+4:53 AsyncKeyword `async`
+4:59 AwaitKeyword `await`
     doc `/// Doc line one.`
 8:1 EndOfFile
 

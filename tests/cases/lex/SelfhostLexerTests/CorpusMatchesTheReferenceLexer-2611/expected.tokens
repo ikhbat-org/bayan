@@ -4,9 +4,9 @@
 3:12 Identifier `camelCase2`
 3:23 Identifier `بيان`
 3:28 Identifier `με`
-3:30 Identifier `τρητής`
-3:37 Identifier `x_1`
-3:41 Identifier `é`
+3:31 Identifier `τρητής`
+3:38 Identifier `x_1`
+3:42 Identifier `é`
 4:2 Identifier `b`
 5:2 IntegerLiteral `1`
 5:3 Dot `.`

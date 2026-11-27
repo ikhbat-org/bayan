@@ -1,4 +1,4 @@
-    doc `/// \r`
+    doc `/// `
 2:2 Identifier `et`
 2:5 EffectKeyword `effect`
 2:12 Equals `=`
@@ -24,17 +24,17 @@
 8:11 IntegerLiteral `3`
 9:1 StructKeyword `struct`
 9:8 Identifier `uni`
-9:11 Identifier `que`
-9:15 UnionKeyword `union`
-9:21 EnumKeyword `enum`
-9:26 FlagsKeyword `flags`
-9:32 OpenKeyword `open`
-9:37 ExtensibleKeyword `extensible`
-9:48 InterfaceKeyword `interface`
-9:58 DelegateKeyword `delegate`
-9:67 ExtensionKeyword `extension`
-9:77 DerivationKeyword `derivation`
-9:88 AttributeKeyword `attribute`
+9:12 Identifier `que`
+9:16 UnionKeyword `union`
+9:22 EnumKeyword `enum`
+9:27 FlagsKeyword `flags`
+9:33 OpenKeyword `open`
+9:38 ExtensibleKeyword `extensible`
+9:49 InterfaceKeyword `interface`
+9:59 DelegateKeyword `delegate`
+9:68 ExtensionKeyword `extension`
+9:78 DerivationKeyword `derivation`
+9:89 AttributeKeyword `attribute`
 11:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xDF)

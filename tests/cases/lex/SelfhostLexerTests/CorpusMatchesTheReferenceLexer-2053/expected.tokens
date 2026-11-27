@@ -1,7 +1,7 @@
 1:1 Identifier `Å`
 1:4 LetKeyword `let`
-1:10 Equals `=`
-1:12 IntegerLiteral `1`
+1:11 Equals `=`
+1:13 IntegerLiteral `1`
 2:1 IntegerLiteral `1_`
 4:1 EndOfFile
 

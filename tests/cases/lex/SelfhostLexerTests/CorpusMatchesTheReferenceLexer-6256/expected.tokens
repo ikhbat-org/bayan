@@ -19,7 +19,7 @@
 2:48 Identifier `y`
 2:50 FloatLiteral `2.5`
 2:53 NumericSuffix `f`
-    doc `///\r`
+    doc `///`
 5:1 CharLiteral `'x`
 7:1 EndOfFile
 

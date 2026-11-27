@@ -1,5 +1,5 @@
-1:3 Equals `=`
-1:5 StringLiteral `"bad \q escap`
+1:4 Equals `=`
+1:6 StringLiteral `"bad \q escap`
 2:1 LetKeyword `let`
 2:5 Identifier `s`
 2:7 Equals `=`
@@ -87,31 +87,31 @@
 4:18 InterpolationStart `{`
 4:19 Identifier `f`
 4:20 OpenParen `(`
-4:21 InterpolatedStringStart `$"`
-4:23 InterpolatedStringText `b `
-4:25 InterpolationStart `{`
-4:26 Identifier `c`
-4:27 InterpolationEnd `}`
-4:28 InterpolatedStringEnd `"`
-4:29 InterpolationEnd `}`
-4:30 InterpolatedStringText ` �d`
-4:33 InterpolatedStringEnd `"`
-4:35 InterpolatedStringStart `$"`
-4:37 InterpolatedStringText `{{literal}}`
-4:48 InterpolatedStringEnd `"`
-4:50 InterpolatedStringStart `$"`
-4:52 InterpolationStart `{`
-4:53 Identifier `Point`
-4:59 OpenBrace `{`
-4:61 Identifier `x`
-4:63 Equals `=`
-4:65 IntegerLiteral `1`
-4:67 CloseBrace `}`
-4:68 InterpolationEnd `}`
-4:69 InterpolatedStringText `!`
-4:70 InterpolatedStringEnd `"`
-4:72 InterpolatedStringStart `$"`
-4:74 InterpolatedStringEnd `"`
+4:22 InterpolatedStringStart `$"`
+4:24 InterpolatedStringText `b `
+4:26 InterpolationStart `{`
+4:27 Identifier `c`
+4:28 InterpolationEnd `}`
+4:29 InterpolatedStringEnd `"`
+4:30 InterpolationEnd `}`
+4:31 InterpolatedStringText ` �d`
+4:34 InterpolatedStringEnd `"`
+4:36 InterpolatedStringStart `$"`
+4:38 InterpolatedStringText `{{literal}}`
+4:49 InterpolatedStringEnd `"`
+4:51 InterpolatedStringStart `$"`
+4:53 InterpolationStart `{`
+4:54 Identifier `Point`
+4:60 OpenBrace `{`
+4:62 Identifier `x`
+4:64 Equals `=`
+4:66 IntegerLiteral `1`
+4:68 CloseBrace `}`
+4:69 InterpolationEnd `}`
+4:70 InterpolatedStringText `!`
+4:71 InterpolatedStringEnd `"`
+4:73 InterpolatedStringStart `$"`
+4:75 InterpolatedStringEnd `"`
 5:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xC0)

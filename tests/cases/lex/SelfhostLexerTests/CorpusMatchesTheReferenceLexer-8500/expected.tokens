@@ -3,7 +3,7 @@
 1:7 Equals `=`
 1:9 Identifier `R`
 1:10 StringLiteral `"bd \q escape"`
-2:3 Identifier `ހ`
+2:4 Identifier `ހ`
 3:1 LetKeyword `let`
 3:5 Identifier `actor`
 3:11 Equals `=`

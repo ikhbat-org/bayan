@@ -2,7 +2,7 @@
 3:2 CharLiteral `' '`
 3:7 CharLiteral `' '`
 3:11 IntegerLiteral `0`
-3:12 CharLiteral `'\r`
+3:12 CharLiteral `'`
 4:1 LetKeyword `let`
 4:5 EffectKeyword `effect`
 4:12 Equals `=`

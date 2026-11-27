@@ -8,10 +8,10 @@
 1:17 CharLiteral `''`
 1:20 CharLiteral `'é'`
 1:24 CharLiteral `'�\\'`
-1:29 CharLiteral `'\0'`
+1:30 CharLiteral `'\0'`
 2:2 InterpolatedStringStart `$"`
 2:4 InterpolatedStringText `str�y } here`
-2:15 InterpolatedStringEnd `"`
+2:16 InterpolatedStringEnd `"`
 4:1 Identifier `b`
 5:1 EndOfFile
 

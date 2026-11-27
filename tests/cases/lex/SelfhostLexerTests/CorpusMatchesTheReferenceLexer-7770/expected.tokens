@@ -12,7 +12,7 @@
 2:39 OpenBrace `{`
 2:41 Identifier `x`
 2:43 Equals `=`
-3:3 EndOfFile
+3:6 EndOfFile
 
 error BYN0003: unterminated string literal
 

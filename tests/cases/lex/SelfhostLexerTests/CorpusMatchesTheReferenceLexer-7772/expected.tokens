@@ -1,6 +1,6 @@
 1:1 IntegerLiteral `0`
-1:2 IntegerLiteral `1`
-1:4 IntegerLiteral `2`
+1:3 IntegerLiteral `1`
+1:5 IntegerLiteral `2`
 2:3 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x83)

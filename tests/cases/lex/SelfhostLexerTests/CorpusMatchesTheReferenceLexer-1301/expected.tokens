@@ -13,10 +13,10 @@
 1:80 ConstKeyword `const`
 1:86 Identifier `le`
 1:90 Identifier `v`
-1:91 Identifier `r`
-1:93 EmbedKeyword `embed`
-1:99 ExternKeyword `extern`
-1:106 UnsafeKeyword `unsafe`
+1:92 Identifier `r`
+1:94 EmbedKeyword `embed`
+1:100 ExternKeyword `extern`
+1:107 UnsafeKeyword `unsafe`
 2:2 RawStringLiteral `"""\n  raw "quoted"\n  """`
 4:7 CStringLiteral `c"text"`
 4:15 U16StringLiteral `u16"wide"`

@@ -109,7 +109,12 @@ Decl parseDeclaration(ref Parser p, bool topLevel, for TextSpan? structName) {
     var doc = docOf(ref p, for: first)
     let startIndex = p.pos
     let start = first.start
-    let attributes = parseAttributes(ref p)
+    let attributesAt = p.pos
+    let attributesPrevEnd = p.prevEnd
+    let diagnosticsAt = p.lexed.diagnostics.length
+    let syntaxErrorsAt = p.syntaxErrors
+    let lastErrorAt = p.lastErrorAt
+    var attributes = parseAttributes(ref p)
     if doc is null {
         doc = docOf(ref p, for: p.current())
     }
@@ -255,6 +260,18 @@ Decl parseDeclaration(ref Parser p, bool topLevel, for TextSpan? structName) {
             arg1: p.describe(p.current()),
         )
     } else {
+        // A statement takes its own `@` attributes (BYN1069, BYN8001), so parse them again as the statement's,
+        // with the first pass's diagnostics dropped so the second reports each once.
+        if p.kindAt(attributesAt) == .at {
+            while p.lexed.diagnostics.length > diagnosticsAt {
+                let _ = p.lexed.diagnostics.removeLast()
+            }
+            p.syntaxErrors = syntaxErrorsAt
+            p.lastErrorAt = lastErrorAt
+            p.prevEnd = attributesPrevEnd
+            p.pos = attributesAt
+            attributes = List<AttributeSyntax>()
+        }
         let statement = parseStatement(ref p)
         let span = stmtSpan(in statement)
         decl = Decl.globalStatement(
@@ -1427,7 +1444,8 @@ List<Param> parseParamsWith(
                 if rest {
                     let _ = p.advance()
                 }
-                if !rest && atContextual(ref p, as: "params") && isVariadicArray(ref p, at: p.pos + 1) {
+                if !rest && atContextual(ref p, as: "params")
+                        && (isVariadicArray(ref p, at: p.pos + 1) || isParamsSpan(ref p, at: p.pos + 1)) {
                     list.append(parseParamsInput(ref p, at: start))
                 } else {
                     var particle: TextSpan? = null
@@ -1576,9 +1594,49 @@ bool isVariadicArray(ref Parser p, at i64 index) {
     return end > 0 && p.kindAt(end) == .openBracket && p.kindAt(end + 1) == .closeBracket && isName(p.kindAt(end + 2))
 }
 
-/// `params T[] xs`, the BYN1058 input form for `rest ReadOnlySpan<T> xs`.
+/// Whether `ReadOnlySpan<T> name` starts at `index`: the `params` keyword on the span itself.
+/// Only `ReadOnlySpan<…>` ending at its `>` counts: `ReadOnlySpan xs` and `ReadOnlySpan<T>? xs` keep the BYN5008 path.
+bool isParamsSpan(ref Parser p, at i64 index) {
+    let after = scanType(ref p, at: index)
+    return p.textOf(p.lexed.tokens[index]) == "ReadOnlySpan" && p.kindAt(index + 1) == .less && after > 0
+        && p.kindAt(after - 1) == .greater && isName(p.kindAt(after))
+}
+
+/// `params T[] xs`, the BYN1058 input form for `rest ReadOnlySpan<T> xs`; also `params ReadOnlySpan<T> xs`.
 Param parseParamsInput(ref Parser p, at i64 start) {
     let keyword = p.advance()
+    if isParamsSpan(ref p, at: p.pos) {
+        let type = parseType(ref p)
+        let name = expectName(ref p, what: "a parameter name")
+        var elementText = ""
+        switch type {
+            case .namedType(let n):
+                if n.value.args.length > 0 {
+                    elementText = p.lexed.source.getText(typeSpan(in n.value.args[0]))
+                }
+            default:
+                elementText = ""
+        }
+        let _ = p.reportFix(
+            .restInput,
+            at: spanOf(keyword),
+            through: spanOf(keyword),
+            by: "rest",
+            arg0: p.lexed.source.getText(TextSpan.fromBounds(start, until: name.end)),
+            arg1: elementText,
+            arg2: p.lexed.source.getText(name),
+            label: "the input form",
+            help: "declare the variadic parameter with `rest`",
+        )
+        return Param {
+            span: p.spanFrom(start),
+            modifier: .none,
+            type: move type,
+            name: name,
+            defaultKeyword: .none,
+            rest: true,
+        }
+    }
     let element = parseType(ref p)
     let _ = p.advance()
     let _ = p.advance()

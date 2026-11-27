@@ -3,7 +3,7 @@
 1:9 InterpolationStart `{`
 1:10 Identifier `x`
 1:11 StringLiteral `";`
-4:4 EndOfFile
+4:6 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF0)
 

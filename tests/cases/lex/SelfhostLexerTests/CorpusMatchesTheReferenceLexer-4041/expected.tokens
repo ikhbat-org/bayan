@@ -1,8 +1,8 @@
 1:1 StringLiteral `""`
-2:2 IntegerLiteral `1`
-2:3 Dot `.`
-2:5 RawStringLiteral `""" `
-2:9 EndOfFile
+2:5 IntegerLiteral `1`
+2:6 Dot `.`
+2:8 RawStringLiteral `""" `
+2:12 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF4)
 

@@ -3,7 +3,7 @@
 1:4 StringLiteral `" is and or not with move ref out this null true false comptime checked`
 4:1 InterpolationEnd `}`
 4:2 InterpolatedStringText `}! ��`
-4:6 InterpolatedStringEnd
+4:7 InterpolatedStringEnd
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

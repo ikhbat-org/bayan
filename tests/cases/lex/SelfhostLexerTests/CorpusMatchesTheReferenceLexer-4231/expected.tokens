@@ -2,7 +2,7 @@
 1:5 NumericSuffix `s`
 2:1 Star `*`
 2:2 Slash `/`
-3:3 Identifier `t`
+3:5 Identifier `t`
 4:1 TestKeyword `test`
 4:6 AssertKeyword `assert`
 4:13 Identifier `poperty`

@@ -11,8 +11,8 @@
 1:43 TrueKeyword `true`
 1:48 FalseKeyword `false`
 1:54 Identifier `com`
-1:57 Identifier `time`
-1:62 CheckedKeyword `checked`
+1:58 Identifier `time`
+1:63 CheckedKeyword `checked`
 2:1 IntegerLiteral `0xF__`
 3:2 Identifier `Å`
 4:1 LetKeyword `let`

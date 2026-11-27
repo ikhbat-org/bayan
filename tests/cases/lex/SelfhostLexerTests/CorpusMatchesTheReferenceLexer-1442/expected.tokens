@@ -33,11 +33,9 @@
 3:65 NumericSuffix `ul`
 3:68 IntegerLiteral `7`
 3:69 NumericSuffix `l`
-4:3 StringLiteral `"{$"`
-4:7 OpenBrace `{`
-4:8 Identifier `x`
-4:9 CloseBrace `}`
-4:10 StringLiteral `"}"`
+4:7 StringLiteral `"{$"`
+4:11 OpenBrace `{`
+4:12 Identifier `x`
 4:13 CloseBrace `}`
 4:14 StringLiteral `"}"`
 4:17 CloseBrace `}`
@@ -45,7 +43,9 @@
 4:21 CloseBrace `}`
 4:22 StringLiteral `"}"`
 4:25 CloseBrace `}`
-4:26 StringLiteral `" �`
+4:26 StringLiteral `"}"`
+4:29 CloseBrace `}`
+4:30 StringLiteral `" �`
 5:1 Identifier `foo`
 5:5 Identifier `Bar`
 5:9 Identifier `_x`

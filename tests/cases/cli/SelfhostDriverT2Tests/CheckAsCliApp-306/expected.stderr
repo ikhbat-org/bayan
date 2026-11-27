@@ -22,6 +22,17 @@ error BYN3006: `s` is moved while `sp` still borrows it
      │
   help: finish using `sp` first, or copy what it needs before moving `s`
 
+error BYN2104: `none` is immutable
+  --> <repo>/tmp/t2/diag/moved-while-borrowed/moved-while-borrowed.byn:56:45
+
+  56 │     let sp: Span<i64> = items(ref slot, by: none)
+     │                                             ^^^^ it is borrowed as `Span<i64>`; declared with
+     │                                                  `let` on line 55
+     │
+  help: declare it with `var` if it should change
+     │ 55 │     var none: i64[1] = [0]
+     │    │     +++
+
 error BYN3006: `slot` is moved while `sp` still borrows it
   --> <repo>/tmp/t2/diag/moved-while-borrowed/moved-while-borrowed.byn:57:12
 
@@ -38,5 +49,5 @@ error BYN3006: `xs` is moved while `sp` still borrows it
      │
   help: finish using `sp` first, or copy what it needs before moving `xs`
 
-✗ build failed: 5 errors, 0 warnings
+✗ build failed: 6 errors, 0 warnings
   explain: bayan explain BYN3006

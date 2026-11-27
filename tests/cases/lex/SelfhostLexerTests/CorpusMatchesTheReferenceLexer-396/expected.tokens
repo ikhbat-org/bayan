@@ -1,6 +1,6 @@
 1:1 Identifier `ạ̇`
-1:7 Identifier `Å`
-1:10 IntegerLiteral `0xF__`
+1:10 Identifier `Å`
+1:13 IntegerLiteral `0xF__`
 3:1 CharLiteral `'\u{110000}'`
 4:2 EndOfFile
 

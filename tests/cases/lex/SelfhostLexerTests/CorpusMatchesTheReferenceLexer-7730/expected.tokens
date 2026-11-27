@@ -4,7 +4,7 @@
 1:5 Identifier `b`
 1:6 InterpolationEnd `}`
 1:7 InterpolatedStringText `c ��`
-1:10 InterpolatedStringEnd
+1:11 InterpolatedStringEnd
 2:4 Identifier `r`
 2:6 Identifier `cl`
 3:1 LetKeyword `let`

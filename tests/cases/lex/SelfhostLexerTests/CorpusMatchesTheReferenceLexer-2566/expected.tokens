@@ -45,7 +45,7 @@
 3:11 IntegerLiteral `2`
 4:1 LetKeyword `let`
 4:5 Identifier `c`
-5:2 Identifier `Å`
+5:4 Identifier `Å`
 6:1 CharLiteral `'\u{202E}'`
 7:1 EndOfFile
 

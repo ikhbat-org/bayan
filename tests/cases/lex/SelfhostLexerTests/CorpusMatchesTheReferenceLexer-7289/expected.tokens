@@ -8,8 +8,8 @@
 3:5 Identifier `b`
 3:7 Equals `=`
 3:9 StringLiteral `"bad \q esc�pe"`
-3:23 Identifier `A`
-3:25 EndOfFile
+3:25 Identifier `A`
+3:27 EndOfFile
 
 error BYN0001: bidirectional control character U+2067 is not allowed outside string literals
 

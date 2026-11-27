@@ -2,8 +2,8 @@
 1:5 Identifier `café`
 1:10 Equals `=`
 1:12 IntegerLiteral `2`
-2:2 Equals `=`
-2:4 IntegerLiteral `1`
+2:3 Equals `=`
+2:5 IntegerLiteral `1`
 3:1 InterpolatedStringStart `$"`
 3:3 InterpolatedStringText `total `
 3:9 InterpolationStart `{`

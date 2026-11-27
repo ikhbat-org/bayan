@@ -64,16 +64,16 @@
 5:71 InterpolationEnd `}`
 5:72 InterpolatedStringEnd `"`
 5:73 CloseBrace `}`
-5:74 StringLiteral `"}"`
-5:77 InterpolationEnd `}`
-5:78 InterpolatedStringEnd `"`
-5:79 InterpolationEnd `}`
-5:80 InterpolatedStringEnd `"`
-5:81 InterpolatedStringStart `$"`
-5:83 InterpolatedStringText `open `
-5:88 InterpolationStart `{`
-5:89 Identifier `x`
-5:90 StringLiteral `";`
+5:75 StringLiteral `"}"`
+5:78 InterpolationEnd `}`
+5:79 InterpolatedStringEnd `"`
+5:80 InterpolationEnd `}`
+5:81 InterpolatedStringEnd `"`
+5:82 InterpolatedStringStart `$"`
+5:84 InterpolatedStringText `open `
+5:89 InterpolationStart `{`
+5:90 Identifier `x`
+5:91 StringLiteral `";`
 6:1 EndOfFile
 
 error BYN0005: identifier `café` is not in Unicode normalization form C

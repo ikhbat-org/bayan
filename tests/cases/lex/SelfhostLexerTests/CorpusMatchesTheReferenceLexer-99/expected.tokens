@@ -25,10 +25,10 @@
 4:9 Identifier `_x`
 4:12 Identifier `camelCase2`
 4:23 Identifier `ب`
-4:24 Identifier `ان`
-4:27 Identifier `μετρητής`
-4:36 Identifier `x_1`
-4:40 Identifier `é`
+4:26 Identifier `ان`
+4:29 Identifier `μετρητής`
+4:38 Identifier `x_1`
+4:42 Identifier `é`
 6:1 LetKeyword `let`
 6:7 Equals `=`
 6:9 IntegerLiteral `2`

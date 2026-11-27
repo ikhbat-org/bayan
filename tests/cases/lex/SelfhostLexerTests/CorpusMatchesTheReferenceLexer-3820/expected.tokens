@@ -1,8 +1,8 @@
 1:1 CharLiteral `'\u{110000}'`
 3:1 Slash `/`
 3:4 Identifier `B`
-3:6 Star `*`
-3:7 Slash `/`
+3:7 Star `*`
+3:8 Slash `/`
 4:1 CharLiteral `'\q'`
 5:2 EndOfFile
 

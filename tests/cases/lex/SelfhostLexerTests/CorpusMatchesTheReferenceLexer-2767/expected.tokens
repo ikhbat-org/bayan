@@ -1,4 +1,4 @@
-    doc `/// not a doc comment\r`
+    doc `/// not a doc comment`
 2:1 TestKeyword `test`
 2:6 AssertKeyword `assert`
 2:13 PropertyKeyword `property`

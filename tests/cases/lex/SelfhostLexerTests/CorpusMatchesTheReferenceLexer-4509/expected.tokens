@@ -22,11 +22,11 @@
 3:4 IntegerLiteral `800`
 3:7 CloseBrace `}`
 3:8 CharLiteral `'�'`
-3:11 Identifier `u`
-3:12 OpenBrace `{`
-3:13 IntegerLiteral `110000`
-3:19 CloseBrace `}`
-3:20 CharLiteral `'`
+3:12 Identifier `u`
+3:13 OpenBrace `{`
+3:14 IntegerLiteral `110000`
+3:20 CloseBrace `}`
+3:21 CharLiteral `'`
 4:1 CharLiteral `'$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{$"{x}}"}"}"}"}"}"}}"}"}"}"}"}"}"}"`
 5:1 StringLiteral `"`
 6:1 EndOfFile

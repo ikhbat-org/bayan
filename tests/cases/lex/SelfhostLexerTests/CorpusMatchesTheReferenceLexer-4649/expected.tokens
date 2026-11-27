@@ -6,10 +6,10 @@
 2:4 CloseBracket `]`
 2:5 IntegerLiteral `1`
 2:6 Dot `.`
-3:9 Identifier `a`
-3:11 Greater `>`
-3:12 Greater `>`
-3:14 Identifier `b`
+3:13 Identifier `a`
+3:15 Greater `>`
+3:16 Greater `>`
+3:18 Identifier `b`
 4:1 EndOfFile
 
 error BYN0002: unexpected character ```

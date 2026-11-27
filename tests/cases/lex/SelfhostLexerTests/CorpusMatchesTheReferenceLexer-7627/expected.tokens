@@ -1,8 +1,8 @@
 1:1 IntegerLiteral `2`
 2:1 Identifier `mac`
-2:4 Identifier `ro`
-2:7 Identifier `select`
-2:14 BecomeKeyword `become`
+2:5 Identifier `ro`
+2:8 Identifier `select`
+2:15 BecomeKeyword `become`
 3:1 LetKeyword `let`
 3:5 LawKeyword `law`
 3:9 Equals `=`

@@ -94,10 +94,10 @@
 7:67 ReturnKeyword `return`
 7:74 YieldKeyword `yield`
 7:80 Identifier `def`
-7:83 Identifier `er`
-7:86 ErrdeferKeyword `errdefer`
-7:95 UsingKeyword `using`
-7:101 ContextKeyword `context`
+7:84 Identifier `er`
+7:87 ErrdeferKeyword `errdefer`
+7:96 UsingKeyword `using`
+7:102 ContextKeyword `context`
 8:2 EndOfFile
 
 error BYN0010: invalid numeric literal: `_` must sit between digits

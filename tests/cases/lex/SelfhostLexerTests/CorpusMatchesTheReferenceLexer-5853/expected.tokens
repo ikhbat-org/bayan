@@ -1,19 +1,19 @@
-1:1 Identifier `é`
-1:3 CharLiteral `'n'`
-1:7 CharLiteral `'\u{1F600}'`
-1:19 CharLiteral `'\''`
-1:24 CharLiteral `'é'`
-1:28 CharLiteral `'\\'`
-1:33 CharLiteral `'\0'`
+1:3 Identifier `é`
+1:5 CharLiteral `'n'`
+1:9 CharLiteral `'\u{1F600}'`
+1:21 CharLiteral `'\''`
+1:26 CharLiteral `'é'`
+1:30 CharLiteral `'\\'`
+1:35 CharLiteral `'\0'`
 2:3 Identifier `foo`
 2:7 Identifier `Bar`
 2:11 Identifier `_x`
 2:14 Identifier `camelCase2`
 2:25 Identifier `بيان`
 2:30 Identifier `μh`
-2:32 Identifier `τρητής`
-2:39 Identifier `x_1`
-2:43 Identifier `é`
+2:33 Identifier `τρητής`
+2:40 Identifier `x_1`
+2:44 Identifier `é`
 4:1 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBB)

@@ -275,6 +275,7 @@ void byn_main__main(void) {
     uint32_t l16_c = {0};
     byn_str t17 = {0};
     int64_t t18 = {0};
+    bynt_main__Tally t19 = {0};
 #line 11 "map-slot.byn"
     l0_words = ((bynt_map_str_i64){{.alloc = byn_context}, NULL, NULL});
 #line 12 "map-slot.byn"
@@ -441,7 +442,9 @@ break_3:;
 #line 39 "map-slot.byn"
         l16_c = byn_str_next(t17, &t18);
 #line 39 "map-slot.byn"
-        (*bynh_slot_map_rune_main__Tally(&l15_tallies, l16_c, ((bynt_main__Tally){INT64_C(0), BYN_STR("new", 3)}))).hits = byn_add_i64((*bynh_slot_map_rune_main__Tally(&l15_tallies, l16_c, ((bynt_main__Tally){INT64_C(0), BYN_STR("new", 3)}))).hits, INT64_C(1), byn_file_0, 39);
+        t19 = ((bynt_main__Tally){INT64_C(0), BYN_STR("new", 3)});
+#line 39 "map-slot.byn"
+        (*bynh_slot_map_rune_main__Tally(&l15_tallies, l16_c, t19)).hits = byn_add_i64((*bynh_slot_map_rune_main__Tally(&l15_tallies, l16_c, t19)).hits, INT64_C(1), byn_file_0, 39);
     continue_6:;
     }
 break_5:;
@@ -469,7 +472,7 @@ break_5:;
         byn_w_println(w);
     }
 }
-#line 473 "main.c"
+#line 476 "main.c"
 
 void byn_main__Tally__formatInto(bynt_main__Tally* self, byn_writer* p_sb) {
 #line 6 "map-slot.byn"
@@ -490,7 +493,7 @@ void byn_main__Tally__formatInto(bynt_main__Tally* self, byn_writer* p_sb) {
         }
     }
 }
-#line 494 "main.c"
+#line 497 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};

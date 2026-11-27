@@ -6,7 +6,7 @@
 1:23 StringLiteral `""`
 1:25 NeverKeyword `never`
 1:31 Identifier `closed`
-2:4 Identifier `_`
+2:7 Identifier `_`
 3:2 EndOfFile
 
 error BYN0001: bidirectional control character U+202E is not allowed outside string literals

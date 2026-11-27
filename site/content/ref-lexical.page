@@ -3,17 +3,13 @@ nav: Reference
 order: 10
 template: docs
 ---
-<p>This page lists how Bayan reads source text: files, comments, literals, keywords and where a statement ends. Each rule is stated once, with a small program. A diagnostic code in brackets is what the compiler reports when you break the rule.</p>
+<p>How Bayan reads source text: files, comments, literals, keywords and where a statement ends. A bracketed code is the compiler's diagnostic.</p>
 
 <h2 id="source-text">Source text</h2>
-<p>A source file is UTF-8 text with the extension <code>.byn</code>. Identifiers are normalized to NFC, and any script may be used in them, Arabic included.</p>
-<ul>
-  <li>A bidirectional control character (U+202A to U+202E, U+2066 to U+2069) outside a string literal is an error. It would let the source show different text from what the compiler reads.</li>
-  <li>A project can turn on a lint that flags identifiers mixing scripts, such as a Cyrillic letter inside a Latin word. It is off by default.</li>
-</ul>
+<p>A source file is UTF-8 with the extension <code>.byn</code>; identifiers are normalized to NFC and may use any script, Arabic included. A bidirectional control character (U+202A to U+202E, U+2066 to U+2069) outside a string literal is an error: it would let the source show different text from what the compiler reads. An optional project lint, off by default, flags identifiers that mix scripts, such as a Cyrillic letter in a Latin word.</p>
 
 <h2 id="comments">Comments</h2>
-<p>A comment starts with <code>//</code> and runs to the end of the line. There is no other comment form. <code>/* … */</code> is rejected with a fix that rewrites it as <code>//</code> lines (BYN1047).</p>
+<p>A comment is <code>//</code> to the end of the line; there is no other form. <code>/* … */</code> is rejected with a fix that rewrites it as <code>//</code> lines (BYN1047).</p>
 <pre><code class="byn">/* not allowed */
 let a = 1
 print($"{a}")</code></pre>
@@ -31,12 +27,12 @@ print($"{a}")</code></pre>
 </figure>
 
 <h2 id="doc-comments">Doc comments</h2>
-<p>A comment that starts with <code>///</code> documents the declaration after it. The text is Markdown. The first line is the summary: tools show it alone, and <code>$"{e}"</code> on an error prints it. Code blocks inside a doc comment are meant to run as tests.</p>
-<note>Planned: running the code blocks of a doc comment as tests is not in the compiler yet. The comment itself is accepted today.</note>
+<p>A <code>///</code> comment documents the next declaration in Markdown. Its first line is the summary, shown alone by tools and printed by <code>$"{e}"</code> on an error; code blocks inside it are meant to run as tests.</p>
+<note>Planned: the doc-comment code blocks do not run as tests yet; the comment is accepted today.</note>
 <example name="ref-lexical-doc"/>
 
 <h2 id="integers">Integer literals</h2>
-<p>An integer is written in decimal, in hexadecimal with <code>0x</code> or in binary with <code>0b</code>. An underscore may separate digits. The literal has no type of its own until the place where it is used gives it one. A literal that does not fit that type is an error at the literal (BYN2203).</p>
+<p>An integer is decimal, hexadecimal (<code>0x</code>) or binary (<code>0b</code>); an underscore may separate digits. A literal takes the type of its use, and one that does not fit is an error at the literal (BYN2203).</p>
 <pre><code class="byn">void main() {
     let b: u8 = 300
     print($"{b}")
@@ -51,24 +47,24 @@ print($"{a}")</code></pre>
   help: use a value from 0 to 255, the range of `u8`</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>An unannotated <code>let</code> or <code>var</code> that starts from a literal takes <code>i32</code> when the value fits. A <code>var</code> that starts from a literal and is later compared with, assigned from or passed as a typed integer takes that integer type instead, so <code>var i = 0</code> followed by <code>while i &lt; xs.length</code> makes <code>i</code> an <code>i64</code>.</p>
+<p>An unannotated <code>let</code> or <code>var</code> from a literal is <code>i32</code> when the value fits. A <code>var</code> later compared with, assigned from or passed as a typed integer takes that type instead, so <code>var i = 0</code> then <code>while i &lt; xs.length</code> makes <code>i</code> an <code>i64</code>.</p>
 
 <h2 id="floats">Float literals</h2>
-<p>A float has a point, an exponent or both: <code>3.14</code>, <code>1e5</code>, <code>2.5e-3</code>. An <code>e</code> followed by a digit or a sign is an exponent. Without an annotation a float is an <code>f64</code>.</p>
-<p>Floats print as the shortest digits that read back as the same value. Fixed notation is used from <code>1e-5</code> up to but not including <code>1e15</code>. Outside that range the exponent form is used, in lowercase with no <code>+</code> and no leading zeros (<code>1e20</code>, <code>1.5e-7</code>). A whole value prints without a point (<code>42</code>).</p>
+<p>A float has a point, an exponent or both: <code>3.14</code>, <code>1e5</code>, <code>2.5e-3</code>. An <code>e</code> followed by a digit or a sign is an exponent; without an annotation a float is an <code>f64</code>.</p>
+<p>A float prints as the shortest digits that read back as the same value: fixed notation from <code>1e-5</code> up to but not including <code>1e15</code>; otherwise the exponent form, lowercase with no <code>+</code> or leading zeros (<code>1e20</code>, <code>1.5e-7</code>). A whole value prints without a point (<code>42</code>).</p>
 
 <h2 id="suffixes">Numeric suffixes</h2>
-<p>The suffixes <code>u</code>, <code>l</code>, <code>ul</code> and <code>f</code> are reserved for the built-in number types. A decimal literal is written <code>1.50dec</code>.</p>
-<note>Planned: the <code>dec</code> suffix is not in the compiler yet (BYN2022). Unit suffixes such as <code>5s</code> or <code>4KiB</code> are described in <a href="ref-types.html#units">Types</a>; they are not in the compiler yet either.</note>
+<p>The suffixes <code>u</code>, <code>l</code>, <code>ul</code> and <code>f</code> are reserved for the built-in number types; a decimal literal is written <code>1.50dec</code>.</p>
+<note>Planned: the <code>dec</code> suffix is not in the compiler yet (BYN2022). Unit suffixes such as <code>5s</code> or <code>4KiB</code> (<a href="ref-types.html#units">Types</a>) are not in the compiler yet either.</note>
 <example name="ref-lexical-numbers"/>
 
 <h2 id="runes">Rune literals</h2>
-<p>A rune is one Unicode scalar value in single quotes: <code>'a'</code>, <code>'\n'</code>, <code>'\u{1F600}'</code>. It is 32 bits wide. Runes compare with <code>&lt;</code> and <code>==</code> by value.</p>
+<p>A rune is one Unicode scalar value in single quotes: <code>'a'</code>, <code>'\n'</code>, <code>'\u{1F600}'</code>. It is 32 bits wide and compares with <code>&lt;</code> and <code>==</code> by value.</p>
 
 <h2 id="strings">String literals</h2>
-<p>A string literal is text in double quotes. The usual escapes work (<code>\n</code>, <code>\t</code>, <code>\"</code>, <code>\\</code>). Text between triple quotes is raw and may span lines. A literal lives in the program's read-only data and costs no allocation.</p>
+<p>A string literal is text in double quotes. The usual escapes work (<code>\n</code>, <code>\t</code>, <code>\"</code>, <code>\\</code>); text between triple quotes is raw and may span lines. A literal lives in read-only data and costs no allocation.</p>
 <example name="ref-lexical-text"/>
-<p>Strings do not join with <code>+</code>. That would hide an allocation. Use interpolation instead (BYN2209).</p>
+<p>Strings do not join with <code>+</code>; that would hide an allocation. Use interpolation instead (BYN2209).</p>
 <pre><code class="byn">void main() {
     let s = "a"
     let t = s + "b"
@@ -88,10 +84,10 @@ print($"{a}")</code></pre>
 </figure>
 
 <h2 id="interpolated">Interpolated strings</h2>
-<p><code>$"total {x}"</code> writes expressions inside braces. A format option is a named argument after a comma: <code>{n, as: .hex}</code>. Formatting rules are in <a href="ref-expressions.html#interpolation">Expressions</a>.</p>
+<p><code>$"total {x}"</code> writes expressions inside braces; a format option is a named argument after a comma: <code>{n, as: .hex}</code>. Formatting rules are in <a href="ref-expressions.html#interpolation">Expressions</a>.</p>
 
 <h2 id="other-literals">Collection, struct and tuple literals</h2>
-<p>These are covered where they are used, because their type comes from context: <code>[1, 2, 3]</code> and <code>["Aisha": 500]</code> in <a href="ref-types.html#collections">Types</a>, <code>{ x: 1, y: 2 }</code> in <a href="ref-expressions.html#target-typed">Expressions</a>, and <code>(1, "a")</code> in <a href="ref-types.html#tuples">Types</a>.</p>
+<p>Their type comes from context, so each is covered where used: <code>[1, 2, 3]</code> and <code>["Aisha": 500]</code> in <a href="ref-types.html#collections">Types</a>, <code>{ x: 1, y: 2 }</code> in <a href="ref-expressions.html#target-typed">Expressions</a>, and <code>(1, "a")</code> in <a href="ref-types.html#tuples">Types</a>.</p>
 <note>Planned: byte strings <code>b"text"</code>, C strings <code>c"text"</code> and UTF-16 strings <code>u16"text"</code> are in the specification but not in the compiler yet.</note>
 
 <h2 id="keywords">Keywords</h2>
@@ -108,7 +104,7 @@ print($"{a}")</code></pre>
     <tr><td>Held back</td><td><code>actor macro select ensures Gc gc</code></td></tr>
   </tbody>
 </table></div>
-<p>The C# primitive names <code>sbyte byte short ushort int uint long ulong nint nuint float double</code> are reserved in every project. Lowercase type names belong to the language.</p>
+<p>The primitive names <code>sbyte byte short ushort int uint long ulong nint nuint float double</code> are reserved in every project; lowercase type names belong to the language.</p>
 <pre><code class="byn">void main() {
     let reserved = 1
     let int = 2
@@ -126,22 +122,26 @@ print($"{a}")</code></pre>
 <p>There is no <code>goto</code>. <code>foreach</code>, <code>errdefer</code> and <code>delegate</code> are not keywords; <code>new</code> is accepted and removed by the formatter.</p>
 
 <h2 id="contextual">Words that are keywords in one place</h2>
-<p>These words act as keywords only where a declaration needs them. Everywhere else they are ordinary names for locals, parameters, fields, functions and variants: <code>error unit distinct open extensible type effect law derivation attribute embed</code>.</p>
-<p>Some more words are special in one position only:</p>
-<ul>
-  <li><code>failing</code> and <code>panicking</code> after <code>defer</code>.</li>
-  <li><code>unlikely</code> and <code>never</code> after <code>if</code>.</li>
-  <li><code>it</code> inside a lambda argument and inside a <code>requires</code> clause.</li>
-  <li><code>bench</code> and <code>measure</code> in benchmarks.</li>
-  <li><code>states</code> at the start of a member when a <code>{</code> follows, and <code>becomes</code> after a parameter list.</li>
-  <li><code>pattern</code> after <code>=</code> in a <code>const</code> declaration.</li>
-  <li>The effect names <code>alloc suspend net fs clock random env process console</code> inside a <code>uses</code> clause.</li>
-  <li>The particles <code>from to until through at by for as</code> are labels, not keywords. <code>for</code> and <code>as</code> stay reserved and are allowed only in label position, as in <code>for:</code>.</li>
-</ul>
+<p>These words are keywords only where a declaration needs them; elsewhere they are ordinary names of locals, parameters, fields, functions and variants: <code>error unit distinct open extensible type effect law derivation attribute embed</code>.</p>
+<p>More words are special in one position:</p>
+<div class="tablewrap"><table>
+  <thead><tr><th scope="col">Words</th><th scope="col">Special in</th></tr></thead>
+  <tbody>
+    <tr><td><code>failing</code>, <code>panicking</code></td><td>after <code>defer</code></td></tr>
+    <tr><td><code>unlikely</code>, <code>never</code></td><td>after <code>if</code></td></tr>
+    <tr><td><code>it</code></td><td>inside a lambda argument and inside a <code>requires</code> clause</td></tr>
+    <tr><td><code>bench</code>, <code>measure</code></td><td>in benchmarks</td></tr>
+    <tr><td><code>states</code></td><td>at the start of a member when a <code>{</code> follows</td></tr>
+    <tr><td><code>becomes</code></td><td>after a parameter list</td></tr>
+    <tr><td><code>pattern</code></td><td>after <code>=</code> in a <code>const</code> declaration</td></tr>
+    <tr><td>the effect names <code>alloc suspend net fs clock random env process console</code></td><td>inside a <code>uses</code> clause</td></tr>
+    <tr><td>the particles <code>from to until through at by for as</code></td><td>labels, not keywords; <code>for</code> and <code>as</code> stay reserved and are allowed only in label position, as in <code>for:</code></td></tr>
+  </tbody>
+</table></div>
 <example name="ref-lexical-names"/>
 
 <h2 id="statement-end">Where a statement ends</h2>
-<p>There is no <code>;</code>. A newline after a complete statement ends it. A semicolon is rejected with a fix that removes it (BYN1040).</p>
+<p>There is no <code>;</code>: a newline after a complete statement ends it, and a semicolon is rejected with a fix that removes it (BYN1040).</p>
 <pre><code class="byn">void main() {
     let a = 1;
     print($"{a}")
@@ -158,14 +158,14 @@ print($"{a}")</code></pre>
 <span class="gut">    │</span>   │              -</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<p>A statement continues onto the next line in three cases.</p>
+<p>A statement continues when:</p>
 <ul>
-  <li><strong>The line ends with an operator.</strong> A binary operator, <code>,</code>, <code>=</code>, <code>=&gt;</code> or <code>{</code> at the end of a line means the statement is not finished.</li>
-  <li><strong>The break is inside brackets.</strong> Newlines inside <code>( )</code> and <code>[ ]</code> are ignored, and so are blank lines.</li>
-  <li><strong>The next line starts with a joining word.</strong> These are <code>.</code>, <code>?.</code>, <code>??</code>, <code>except</code>, <code>requires</code>, <code>expects</code>, <code>where</code>, <code>becomes</code>, <code>fails</code>, <code>uses</code>, <code>catch</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>and</code> and <code>or</code>.</li>
+  <li>the line ends with a binary operator, <code>,</code>, <code>=</code>, <code>=&gt;</code> or <code>{</code>;</li>
+  <li>the break is inside <code>( )</code> or <code>[ ]</code>, where newlines and blank lines are ignored;</li>
+  <li>the next line starts with a joining word: <code>.</code>, <code>?.</code>, <code>??</code>, <code>except</code>, <code>requires</code>, <code>expects</code>, <code>where</code>, <code>becomes</code>, <code>fails</code>, <code>uses</code>, <code>catch</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>and</code> or <code>or</code>.</li>
 </ul>
 <example name="ref-lexical-lines"/>
-<p>A line that starts with <code>(</code>, <code>[</code> or <code>-</code> always begins a new statement. A line that starts with any other operator, such as <code>+</code>, does too, and is an error because its value is unused.</p>
+<p>A line starting with <code>(</code>, <code>[</code> or <code>-</code> begins a new statement; any other operator, such as <code>+</code>, does too and is an error because its value is unused.</p>
 <pre><code class="byn">void main() {
     let v = 10
     let w = v
@@ -183,9 +183,8 @@ print($"{a}")</code></pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
 <ul>
-  <li>Comment lines do not break a continuation.</li>
-  <li>Outside brackets, a blank line always ends a statement.</li>
-  <li><code>return</code>, <code>break</code>, <code>continue</code> and <code>fail</code> take their operand on the same line. A postfix <code>if</code> or <code>unless</code> stays on the line of its statement (BYN1042).</li>
+  <li>Comment lines do not break a continuation; outside brackets, a blank line always ends a statement.</li>
+  <li><code>return</code>, <code>break</code>, <code>continue</code> and <code>fail</code> take their operand on the same line, and a postfix <code>if</code> or <code>unless</code> stays on its statement's line (BYN1042).</li>
 </ul>
 <pre><code class="byn">void main() {
     let x = 3
@@ -205,9 +204,7 @@ print($"{a}")</code></pre>
 <span class="gut">    │</span>   │ -------</pre>
   <figcaption>The compiler’s message for this program.</figcaption>
 </figure>
-<ul>
-  <li><code>else</code> follows <code>}</code> on the same line (BYN1041).</li>
-</ul>
+<p><code>else</code> follows <code>}</code> on the same line (BYN1041).</p>
 <pre><code class="byn">void main() {
     var n = 1
     if n &gt; 0 { n += 1 }
@@ -228,7 +225,7 @@ print($"{a}")</code></pre>
 </figure>
 
 <h2 id="unused-values">Unused values</h2>
-<p>A call whose value is not used is an error (BYN3201). A bare expression that is not a call, an assignment or <code>++</code>/<code>--</code> is an error too (BYN1012). Together these catch a line that was split by mistake. To drop a value on purpose, assign it to <code>_</code>.</p>
+<p>A call whose value is not used is BYN3201; a bare expression that is not a call, an assignment or <code>++</code>/<code>--</code> is BYN1012, above. Together they catch a line split by mistake; to drop a value, assign it to <code>_</code>.</p>
 <pre><code class="byn">i32 f() =&gt; 1
 
 void main() {

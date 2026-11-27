@@ -5,13 +5,13 @@
 1:19 MoveKeyword `move`
 1:24 RefKeyword `ref`
 1:28 Identifier `ou`
-1:30 Identifier `t`
-1:32 ThisKeyword `this`
-1:37 NullKeyword `null`
-1:42 TrueKeyword `true`
-1:47 FalseKeyword `false`
-1:53 ComptimeKeyword `comptime`
-1:62 CheckedKeyword `checked`
+1:31 Identifier `t`
+1:33 ThisKeyword `this`
+1:38 NullKeyword `null`
+1:43 TrueKeyword `true`
+1:48 FalseKeyword `false`
+1:54 ComptimeKeyword `comptime`
+1:63 CheckedKeyword `checked`
 2:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xBF)

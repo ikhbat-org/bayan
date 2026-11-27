@@ -83,3 +83,19 @@ f4df25e34e8b1eb30fcc7d3835c8f69bfb56ee9c  # 0.4.1 audit mediums: chore(worker): 
 cff51e75ab15092ddac5d344e133975cee0454ad  # 0.4.1 audit mediums: test: expected output and run-c pin of run/operand-ref-spill
 88a06f01d3e66791f83154ad947c24484031996d  # 0.4.1 audit mediums: test: expected files of run/ctor-panic-handler-ref-this and 
 75e9adfa030e68c4a514cdddb0d3063a13b18a44  # 0.4.1 ci fix: move 8 parse-error diag cases into package dirs (renames .byn with their .diag)
+f7b3014b80b5611135a02ccb72e8ca25b7ea300d  # 0.4.2 audit 040: chore(worker): h041-emit: No commits were made. My instructi
+6daee80199335d3ed885a3e238677d1fb0347e04  # 0.4.2 audit 040: chore(worker): h041-span: The fix is implemented and both br
+7eab05d997bcb74f3ef168806213586ba2843c30  # 0.4.2 audit 040: test(golden): sem cases over the frozen moved-while-borrowed
+ab450d53a97292f838f46eb06b4413e0434d4a90  # 0.4.2 audit 040: test(golden): emit run-c lists the span-views-mutability cas
+8ceb7ac22f78e6f3c38951d333338b81f6399287  # 0.4.2 audit 040: chore(worker): h2-script-key-imports: I implemented option X
+0b0c46c67c0ddbf8cf3fe1c50ce1807101e0207e  # 0.4.2 audit 040: test(golden): LiteralsMatchTheCSharpDecoder-5 takes the doc 
+a285b1229536aee40132dc3e95a447d484805843  # 0.4.2 audit 040: chore(worker): h2-requires-ref-out: The fix is in, as design
+f7a58f6ffef7dce90b1d4d07197e09cf4df3c9fa  # 0.4.2 audit 040: chore(bootstrap): regenerate the C seed and run-c hashes aft
+7ddb6fc44f2fe27dabca4867ee666382aad12190  # 0.4.2 audit 040: chore(worker): h2-distinct: All five criteria (D1 to D5) are
+3dd4734170a4d4171f399b6948ecbc591dffd9e8  # 0.4.2 audit 040: test(golden): re-record the 15 goldens the audit 040 HIGH fi
+7b157a4042bb89cd3a931c83120becd4e4bae1a1  # 0.4.2 audit 040: chore(worker): h2fix-sem: Testing the stage1 rebuild in the 
+cfdf2314f62340f9214c4060ccdc30474254abcd  # 0.4.2 audit 040: chore(worker): h2fix-emit: Waiting for the initial stage1 bu
+9523fad33b4abae43e5f56a658626d400130253f  # 0.4.2 audit 040: fix: regenerate bootstrap and record emit checksums for the 
+eafa3409e2f4c433b7eebbcc180b5178d7c2a822  # 0.4.2 audit 040: test: pin Span arguments from non-places (Q1289); review LOW
+c031c2e2cba484bcfaf9a6fc283267bea09a04d5  # 0.4.0 audit chunk 17: d17-code worker commit: lex --json/parse refusals, dist --target all wasm32 skip, with their regenerated cli goldens
+313c3a484f2b8938d0a2793c7d4d768b120d54c8  # 0.4.2 hardening: chore(worker): hf0002: HF-0002 is fixed: bump(ref n) + n now

@@ -55,7 +55,7 @@
 1:71 InterpolatedStringEnd `"`
 1:72 InterpolationEnd `}`
 1:73 InterpolatedStringText `�`
-1:73 InterpolatedStringEnd
+1:74 InterpolatedStringEnd
 2:1 LetKeyword `let`
 2:5 Identifier `c`
 2:7 Equals `=`

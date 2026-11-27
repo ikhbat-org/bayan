@@ -1,5 +1,5 @@
 1:1 Identifier `ruct`
-1:5 Identifier `S`
+1:6 Identifier `S`
 3:2 InterpolatedStringStart `$"`
 3:4 InterpolationStart `{`
 3:5 InterpolationEnd `}`

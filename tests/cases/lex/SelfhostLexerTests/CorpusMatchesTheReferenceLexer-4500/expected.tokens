@@ -6,7 +6,7 @@
 1:11 CloseBrace `}`
 2:2 StringLiteral `"text"`
 2:9 StringLiteral `"es� \"q\" \\ \n"`
-2:26 RawStringLiteral `"""\n\nb\nÅ\nfoo Bar _x camelCase2 بيان μετρητής x_1 é\n '\u{110000}'\n `
+2:27 RawStringLiteral `"""\n\nb\nÅ\nfoo Bar _x camelCase2 بيان μετρητής x_1 é\n '\u{110000}'\n `
 8:2 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xA0)

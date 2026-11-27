@@ -30,25 +30,25 @@
 4:2 IntegerLiteral `0`
 4:4 IntegerLiteral `42`
 4:7 IntegerLiteral `1_000_00`
-4:15 IntegerLiteral `0`
-4:17 IntegerLiteral `0xFF`
-4:22 IntegerLiteral `0xff`
-4:27 IntegerLiteral `0b1010`
-4:34 IntegerLiteral `0B11`
-4:39 IntegerLiteral `5`
-4:40 NumericSuffix `s`
-4:42 IntegerLiteral `250`
-4:45 NumericSuffix `ms`
-4:48 IntegerLiteral `4`
-4:49 NumericSuffix `KiB`
-4:53 IntegerLiteral `1`
-4:54 NumericSuffix `u`
-4:56 IntegerLiteral `0xFF`
-4:60 NumericSuffix `u`
-4:62 IntegerLiteral `0b1`
-4:65 NumericSuffix `ul`
-4:68 IntegerLiteral `7`
-4:69 NumericSuffix `l`
+4:16 IntegerLiteral `0`
+4:18 IntegerLiteral `0xFF`
+4:23 IntegerLiteral `0xff`
+4:28 IntegerLiteral `0b1010`
+4:35 IntegerLiteral `0B11`
+4:40 IntegerLiteral `5`
+4:41 NumericSuffix `s`
+4:43 IntegerLiteral `250`
+4:46 NumericSuffix `ms`
+4:49 IntegerLiteral `4`
+4:50 NumericSuffix `KiB`
+4:54 IntegerLiteral `1`
+4:55 NumericSuffix `u`
+4:57 IntegerLiteral `0xFF`
+4:61 NumericSuffix `u`
+4:63 IntegerLiteral `0b1`
+4:66 NumericSuffix `ul`
+4:69 IntegerLiteral `7`
+4:70 NumericSuffix `l`
 5:1 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`

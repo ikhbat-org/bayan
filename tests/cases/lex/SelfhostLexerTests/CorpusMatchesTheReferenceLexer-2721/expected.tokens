@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `0x`
 3:1 Identifier `xF__`
 4:2 Hash `#`
-4:4 EndOfFile
+4:5 EndOfFile
 
 error BYN0010: invalid numeric literal: expected digits after `0x`
 

@@ -1,22 +1,22 @@
 1:1 StringLiteral `"`
 2:1 Identifier `ạ̇`
 3:3 StringLiteral `""`
-3:5 StringLiteral `" c"`
-3:9 Identifier `text`
-3:13 StringLiteral `" u16"`
-3:19 Identifier `wide`
-3:23 StringLiteral `" "`
-3:28 Identifier `allowed`
-3:36 InKeyword `in`
-3:39 Identifier `strings`
-3:46 StringLiteral `" "`
-3:49 StringLiteral `" "`
-3:53 Identifier `u`
-3:54 OpenBrace `{`
-3:55 IntegerLiteral `48`
-3:57 CloseBrace `}`
-3:58 Identifier `i`
-3:59 StringLiteral `"`
+3:6 StringLiteral `" c"`
+3:10 Identifier `text`
+3:14 StringLiteral `" u16"`
+3:20 Identifier `wide`
+3:24 StringLiteral `" "`
+3:29 Identifier `allowed`
+3:37 InKeyword `in`
+3:40 Identifier `strings`
+3:47 StringLiteral `" "`
+3:50 StringLiteral `" "`
+3:54 Identifier `u`
+3:55 OpenBrace `{`
+3:56 IntegerLiteral `48`
+3:58 CloseBrace `}`
+3:59 Identifier `i`
+3:60 StringLiteral `"`
 5:1 EndOfFile
 
 error BYN0003: unterminated string literal

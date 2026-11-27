@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
 1:5 Identifier `caf`
 1:11 Equals `=`
-1:12 IntegerLiteral `2`
+1:13 IntegerLiteral `2`
 2:2 Identifier `Å`
 2:4 CharLiteral `''`
 3:1 EndOfFile

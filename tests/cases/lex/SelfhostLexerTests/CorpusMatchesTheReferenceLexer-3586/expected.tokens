@@ -22,11 +22,11 @@
 5:5 Identifier `Bar`
 5:9 Identifier `_`
 5:12 Identifier `camelCase`
-5:21 IntegerLiteral `2`
-5:23 Identifier `بيان`
-5:28 Identifier `μετρητής`
-5:37 Identifier `x_1`
-5:41 Identifier `é`
+5:22 IntegerLiteral `2`
+5:24 Identifier `بيان`
+5:29 Identifier `μετρητής`
+5:38 Identifier `x_1`
+5:42 Identifier `é`
 10:1 EndOfFile
 
 error BYN0003: unterminated string literal

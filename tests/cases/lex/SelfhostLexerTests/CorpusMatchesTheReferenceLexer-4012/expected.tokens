@@ -8,7 +8,7 @@
 2:2 IntegerLiteral `6`
 2:3 StringLiteral `"wide"`
 2:10 StringLiteral `"\u{202E} allo\u{19}w �� `
-2:22 EndOfFile
+2:23 EndOfFile
 
 error BYN0003: unterminated string literal
 

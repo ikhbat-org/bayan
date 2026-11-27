@@ -36,7 +36,7 @@
 1:73 InterpolatedStringEnd `"`
 1:75 InterpolatedStringStart `$"`
 1:77 InterpolatedStringEnd `"`
-    doc `/// Doc line two.\r`
+    doc `/// Doc line two.`
 4:1 EndOfFile
 
 error BYN0004: unterminated block comment

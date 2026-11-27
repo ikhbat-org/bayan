@@ -1,7 +1,7 @@
 1:9 Identifier `macro`
 1:15 Identifier `select`
 1:22 Identifier `bec`
-1:25 Identifier `ome`
+1:26 Identifier `ome`
 2:2 EndOfFile
 
 error BYN1047: `/* */` is an input form; write `//` lines

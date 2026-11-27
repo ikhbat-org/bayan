@@ -32,7 +32,7 @@
 10:65 NumericSuffix `ul`
 10:68 IntegerLiteral `7`
 10:69 NumericSuffix `l`
-11:3 EndOfFile
+11:4 EndOfFile
 
 error BYN0005: identifier `각` is not in Unicode normalization form C
 

@@ -1,0 +1,15 @@
+error BYN3216: `Percent.value` can be written only by `Percent`'s own methods or with `with`:
+`Percent` has `requires`
+
+  4 │     p.value = 200
+    │     ^^^^^^^^^^^^^
+    │
+  help: add a `ref this` method to `Percent`, or build a new value with `with`
+
+error BYN3216: `Percent.value` can be written only by `Percent`'s own methods or with `with`:
+`Percent` has `requires`
+
+  12 │     bump(ref p.value)
+     │              ^^^^^^^
+     │
+  help: add a `ref this` method to `Percent`, or build a new value with `with`

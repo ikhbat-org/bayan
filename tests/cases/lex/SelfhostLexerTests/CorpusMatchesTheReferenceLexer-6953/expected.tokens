@@ -1,7 +1,7 @@
 1:1 IntegerLiteral `1_`
     doc `///    comment */ a`
-4:2 Equals `=`
-4:4 IntegerLiteral `1`
+4:3 Equals `=`
+4:5 IntegerLiteral `1`
 5:1 LetKeyword `let`
 5:5 Identifier `café`
 5:10 Equals `=`

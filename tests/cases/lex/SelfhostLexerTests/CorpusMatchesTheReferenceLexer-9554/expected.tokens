@@ -5,15 +5,15 @@
 4:8 UniqueKeyword `unique`
 4:15 UnionKeyword `union`
 4:21 EnumKeyword `enum`
-4:25 FlagsKeyword `flags`
-4:31 Identifier `opeZ`
-4:36 Identifier `extens`
-4:42 Identifier `ble`
-4:46 InterfaceKeyword `interface`
-4:56 DelegateKeyword `delegate`
-4:65 ExtensionKeyword `extension`
-4:75 DerivationKeyword `derivation`
-4:86 AttributeKeyword `attribute`
+4:26 FlagsKeyword `flags`
+4:32 Identifier `opeZ`
+4:37 Identifier `extens`
+4:44 Identifier `ble`
+4:48 InterfaceKeyword `interface`
+4:58 DelegateKeyword `delegate`
+4:67 ExtensionKeyword `extension`
+4:77 DerivationKeyword `derivation`
+4:88 AttributeKeyword `attribute`
 6:1 StringLiteral `"`
 7:1 EndOfFile
 

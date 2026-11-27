@@ -1,6 +1,6 @@
 2:1 Identifier `lock`
-3:3 Identifier `comment`
-3:11 EndOfFile
+3:4 Identifier `comment`
+3:12 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0x8E)
 

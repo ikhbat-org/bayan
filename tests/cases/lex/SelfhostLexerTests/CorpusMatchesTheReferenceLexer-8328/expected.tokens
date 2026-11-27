@@ -1,5 +1,5 @@
 1:1 StringLiteral `"{ 0}'`
-2:1 CharLiteral `'x\r`
+2:1 CharLiteral `'x`
 3:2 ErrorKeyword `error`
 3:8 SetKeyword `set`
 3:12 UnitKeyword `unit`

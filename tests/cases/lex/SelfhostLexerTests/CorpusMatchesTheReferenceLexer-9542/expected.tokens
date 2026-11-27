@@ -1,7 +1,7 @@
 1:1 LetKeyword `let`
-1:4 Identifier `aw`
-1:7 Equals `=`
-1:11 IntegerLiteral `1`
+1:5 Identifier `aw`
+1:8 Equals `=`
+1:12 IntegerLiteral `1`
 2:2 Identifier `wed`
 2:6 InKeyword `in`
 2:10 EndOfFile

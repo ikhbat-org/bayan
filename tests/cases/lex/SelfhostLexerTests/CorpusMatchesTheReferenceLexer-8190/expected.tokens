@@ -10,7 +10,7 @@
 1:56 AwaitKeyword `await`
 2:1 Identifier `t`
 3:1 Identifier `uct`
-3:4 Identifier `S`
+3:5 Identifier `S`
 5:1 Identifier `b`
 7:1 EndOfFile
 

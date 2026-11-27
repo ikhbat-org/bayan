@@ -34,18 +34,18 @@
 2:52 InterpolatedStringEnd `"`
 2:53 CloseBrace `}`
 2:54 StringLiteral `"}�}"`
-2:58 InterpolationEnd `}`
-2:59 InterpolatedStringEnd `"`
-2:60 CloseBrace `}`
-2:61 StringLiteral `"}"`
-2:64 InterpolationEnd `}`
-2:65 InterpolatedStringEnd `"`
-2:66 InterpolationEnd `}`
-2:67 InterpolatedStringEnd `"`
-2:68 InterpolationEnd `}`
-2:69 InterpolatedStringEnd `"`
-2:70 InterpolationEnd `}`
-2:71 InterpolatedStringEnd `"`
+2:59 InterpolationEnd `}`
+2:60 InterpolatedStringEnd `"`
+2:61 CloseBrace `}`
+2:62 StringLiteral `"}"`
+2:65 InterpolationEnd `}`
+2:66 InterpolatedStringEnd `"`
+2:67 InterpolationEnd `}`
+2:68 InterpolatedStringEnd `"`
+2:69 InterpolationEnd `}`
+2:70 InterpolatedStringEnd `"`
+2:71 InterpolationEnd `}`
+2:72 InterpolatedStringEnd `"`
 3:1 CharLiteral `'`
 3:2 EndOfFile
 

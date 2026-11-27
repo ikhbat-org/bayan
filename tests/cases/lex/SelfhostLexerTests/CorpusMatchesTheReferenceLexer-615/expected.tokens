@@ -43,10 +43,10 @@
 2:70 InterpolatedStringText `x`
 2:71 InterpolationStart `{`
 2:73 StringLiteral `$"{( ) [ ] { }`
-4:2 LetKeyword `let`
-4:6 Identifier `b`
-4:8 Equals `=`
-4:12 IntegerLiteral `2`
+4:3 LetKeyword `let`
+4:7 Identifier `b`
+4:9 Equals `=`
+4:13 IntegerLiteral `2`
 5:1 CharLiteral `'ab'`
 6:2 EndOfFile
 

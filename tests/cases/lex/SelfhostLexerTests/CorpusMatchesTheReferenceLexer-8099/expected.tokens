@@ -15,8 +15,8 @@
 4:5 Identifier `café`
 4:11 Equals `=`
 4:13 IntegerLiteral `1`
-6:3 IntegerLiteral `0xFF`
-6:7 NumericSuffix `s`
+6:7 IntegerLiteral `0xFF`
+6:11 NumericSuffix `s`
 7:2 Identifier `é`
 8:1 StringLiteral `"{`
 9:1 EndOfFile

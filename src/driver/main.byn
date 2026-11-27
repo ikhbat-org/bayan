@@ -360,7 +360,7 @@ i32 run(ReadOnlySpan<string> args, through ref DCtx d) {
         case "lex":
             return lexCommand(in kept)
         case "parse":
-            return parseCommand(in kept)
+            return parseCommand(in kept, by: d)
         case "types":
             return typesCommand(in kept, by: in d)
         case "format":
@@ -608,7 +608,7 @@ bool refuseLibrary(semantics.Ctx compiled, by string command) {
 
 /// R3 (spec Q4): one stderr line naming `what`.
 i32 refuse(string what) {
-    Io.stderr.write($"error: `{what}` is not available in the self-hosted compiler; use the C# `bayan`\n")
+    Io.stderr.write($"error: `{what}` is not available in this version of `bayan`\n")
     return exitUsage
 }
 

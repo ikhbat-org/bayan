@@ -27,8 +27,8 @@
 3:71 NumericSuffix `l`
 5:1 LetKeyword `let`
 5:5 Identifier `a`
-5:7 Equals `=`
-5:9 IntegerLiteral `1`
+5:8 Equals `=`
+5:10 IntegerLiteral `1`
 6:1 LetKeyword `let`
 6:5 Identifier `café`
 6:11 Equals `=`

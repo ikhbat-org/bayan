@@ -16,7 +16,7 @@
 4:1 IntegerLiteral `1`
 4:2 Dot `.`
 4:4 StringLiteral `"`
-5:1 Identifier `en`
+5:2 Identifier `en`
 6:1 LetKeyword `let`
 6:5 Identifier `b`
 6:7 LetKeyword `let`

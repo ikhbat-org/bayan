@@ -18,7 +18,7 @@
 5:3 InterpolationStart `{`
 5:4 InterpolationEnd `}`
 5:5 InterpolatedStringEnd `"`
-5:8 EndOfFile
+5:10 EndOfFile
 
 error BYN0002: unexpected character `\`
 

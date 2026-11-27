@@ -5,8 +5,8 @@
 1:7 Identifier `y`
 1:9 FloatLiteral `2.5`
 1:12 NumericSuffix `f`
-3:3 IntegerLiteral `1`
-3:4 Dot `.`
+3:7 IntegerLiteral `1`
+3:8 Dot `.`
 4:1 CloseBrace `}`
 5:1 Identifier `en`
 6:1 LetKeyword `let`
@@ -34,8 +34,8 @@
 8:65 NumericSuffix `ul`
 8:68 IntegerLiteral `7`
 8:69 NumericSuffix `l`
-9:3 RawStringLiteral `"""`
-9:6 EndOfFile
+9:4 RawStringLiteral `"""`
+9:7 EndOfFile
 
 error BYN0015: source is not valid UTF-8 (byte 0xF8)
 

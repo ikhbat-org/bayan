@@ -1,8 +1,8 @@
 1:1 Identifier `x`
-1:6 LetKeyword `let`
-1:10 Identifier `a`
-1:12 Equals `=`
-1:14 IntegerLiteral `1`
+1:7 LetKeyword `let`
+1:11 Identifier `a`
+1:13 Equals `=`
+1:15 IntegerLiteral `1`
 2:1 LetKeyword `let`
 2:6 Equals `=`
     doc `///� Doc line one.`
