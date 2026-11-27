@@ -1,1 +1,1 @@
-{ "namingExempt": ["docs/diagnostics/"] }
+{ "namingExempt": ["docs/diagnostics/", "docs/DIAGNOSTICS.md", "docs/RELEASING.md", "docs/STATUS.md", "docs/export/"] }

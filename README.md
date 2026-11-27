@@ -2,8 +2,8 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="site-prototypes/brand/mascot/bayan-hoopoe-dark.svg">
-    <img src="site-prototypes/brand/mascot/bayan-hoopoe-light.svg" alt="Bayān, the hoopoe mascot" width="160">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/mascot/bayan-hoopoe-dark.svg">
+    <img src="docs/assets/brand/mascot/bayan-hoopoe-light.svg" alt="Bayān, the hoopoe mascot" width="160">
   </picture>
 </p>
 
