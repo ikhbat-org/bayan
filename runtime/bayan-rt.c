@@ -1334,12 +1334,15 @@ uint16_t* byn_utf16_copy(byn_str s, int64_t* len, byn_alloc* to) {
 
 /* Insertion sort on short runs, then in-place merges by rotation (SymMerge): stable, O(n log² n), no scratch memory. */
 
+/* Swaps through memcpy, not a byte loop: Fil-C keeps a pointer's capability only when it is copied whole (HF-0003). */
 static void byn_sort_reverse(uint8_t* p, int64_t i, int64_t j, int64_t size) {
+    void* t[8]; /* pointer-typed so a copied pointer lands aligned */
     for (j--; i < j; i++, j--)
-        for (int64_t k = 0; k < size; k++) {
-            uint8_t t = p[i * size + k];
-            p[i * size + k] = p[j * size + k];
-            p[j * size + k] = t;
+        for (int64_t k = 0; k < size; k += (int64_t)sizeof t) {
+            size_t n = size - k < (int64_t)sizeof t ? (size_t)(size - k) : sizeof t;
+            memcpy(t, p + i * size + k, n);
+            memcpy(p + i * size + k, p + j * size + k, n);
+            memcpy(p + j * size + k, t, n);
         }
 }
 
