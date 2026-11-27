@@ -378,6 +378,29 @@ test "bound: a build tags the cache data it owns as a cache directory" {
     assert(tagged)
 }
 
+test "run: a script that imports a module of its own runs the edited module and is not remembered" {
+    if Target.os == "windows" {
+        todo("`sh` and `ps` sample the resident set; Windows has neither")
+    }
+    let exe = boundExe()
+    let root = boundFresh("script-imports")
+    goldenWrite(root, for: "tool.byn", as: "#!/usr/bin/env bayan\nimport helper\nprint(helper.h())\n")
+    goldenWrite(root, for: "helper/h.byn", as: "public string h() {\n    return \"v1\"\n}\n")
+    let none = List<string>()
+    let first = boundStart(boundList([exe, "run", "tool.byn"]), at: root, as: none)
+    print(first.stderr)
+    goldenWrite(root, for: "helper/h.byn", as: "public string h() {\n    return \"v2\"\n}\n")
+    let second = boundStart(boundList([exe, "run", "tool.byn"]), at: root, as: none)
+    print(second.stderr)
+    let pointers = boundFiles(Path.combine(Path.combine(Path.combine(root, "cache"), "v1"), "scripts"))
+    deleteWorkDir(root)
+    assert(first.exit == 0)
+    assert(first.stdout == "v1\n")
+    assert(second.exit == 0)
+    assert(second.stdout == "v2\n")
+    assert(pointers.length == 0)
+}
+
 // ── M6, F13 ──────────────────────────────────────────────────────────────────
 
 test "bound: a build sweeps stale temporary and staging directories" {

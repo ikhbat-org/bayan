@@ -10,7 +10,7 @@ cases	manifest	21
 cases	new	3
 cases	out	3
 cases	parse	928
-cases	run	381
+cases	run	382
 cases	sem	6350
 cases	style	22
 cases	typed	18
@@ -48966,6 +48966,7 @@ file	ba8fd92887eacb3efa931efbf957ae83f9060f94	tests/cases/run/requires.stderr
 file	8eb2b089bcedbed5a7015aade2e8ce550f86df20	tests/cases/run/requires.stdout
 file	6588a50057fa4488ad7e0f7795fa046f7d4895ad	tests/cases/run/rest.stdout
 file	15ad70fcc59c1f122ec75aa61fc655006386f1fc	tests/cases/run/round2-names.stdout
+file	86e5677f9995eb1c03431c0724ef98143bd378ec	tests/cases/run/script-run-moved-panic.stdout
 file	99930eaa6748cc8c91e5ca9deab802f2616d271e	tests/cases/run/self-hosting-lambdas.stdout
 file	af07cc12f23f14ae5257758129a8814b0245c8fe	tests/cases/run/self-hosting-shape.stdout
 file	4b70aed92b2a2a31aacd11cbb93908c4c0a63775	tests/cases/run/selfhost-symbol-tables.stdout
