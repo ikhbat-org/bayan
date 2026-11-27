@@ -83,3 +83,4 @@ f4df25e34e8b1eb30fcc7d3835c8f69bfb56ee9c  # 0.4.1 audit mediums: chore(worker): 
 cff51e75ab15092ddac5d344e133975cee0454ad  # 0.4.1 audit mediums: test: expected output and run-c pin of run/operand-ref-spill
 88a06f01d3e66791f83154ad947c24484031996d  # 0.4.1 audit mediums: test: expected files of run/ctor-panic-handler-ref-this and 
 75e9adfa030e68c4a514cdddb0d3063a13b18a44  # 0.4.1 ci fix: move 8 parse-error diag cases into package dirs (renames .byn with their .diag)
+c031c2e2cba484bcfaf9a6fc283267bea09a04d5  # 0.4.0 audit chunk 17: d17-code worker commit: lex --json/parse refusals, dist --target all wasm32 skip, with their regenerated cli goldens
