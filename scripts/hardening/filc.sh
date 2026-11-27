@@ -2,8 +2,9 @@
 # Plan 020 step 3: the golden run/ cases through $BAYAN_EXE with the runtime and program built by the Fil-C clang (install-filc.sh,
 # or $FILC_CC), via cc-wrap.sh, in tmp/hardening/filc-cell/ (the golden runner's child cache is $PWD/tmp/cache). First an audit
 # pass over the runtime C for constructs Fil-C treats badly (inline asm, pointer/integer casts). A finding is a case whose exit
-# differs from its expected one (a `failed ` line in the golden output) and whose stderr, kept under the cell's log dir, names Fil-C:
-# the marker is "filc panic" or "Fil-C" (case-insensitive "filc"), which covers Fil-C's "filc safety error"/"filc panic" text.
+# differs from its expected one (a `failed `/`timed out ` entry in the golden output, whose detail carries the case's stderr, kept in
+# the cell's log/golden.txt) and whose entry matches the marker, the case-insensitive extended regex "filc (panic|safety)" (Fil-C's
+# "filc panic"/"filc safety error" text).
 # Output: audit count, golden counts, finding names; logs in the cell dir. Exits 0 when it ran, 1 on harness failure, 2 on usage.
 usage() { echo "usage: BAYAN_EXE=<driver> $0 [--only <case filter>] (default filter run/)" >&2; exit 2; }
 
@@ -46,8 +47,10 @@ if [ "$gp" = 0 ] && [ "$gf" = 0 ] && [ $rc != 0 ]; then
     echo "filc: the golden runner did not run (exit $rc), see $dir/log/golden.txt"; tail -n 3 "$dir/log/golden.txt"
     exit 1
 fi
-findings=$(grep -ciE 'filc panic|fil-c|filc safety' "$dir/log/golden.txt")
+awk '/^(passed|failed|skipped|timed out) /{n=($1=="failed"||$1=="timed")?$0:""; sub(/^(failed|timed out) /,"",n); next}
+    n!="" && tolower($0) ~ /filc (panic|safety)/ {print n; n=""}' "$dir/log/golden.txt" >"$dir/log/findings.txt"
+findings=$(wc -l <"$dir/log/findings.txt" | tr -d ' ')
 echo "filc: golden $gp passed, $gf failed; findings $findings"
 sed -nE "s/^(failed|timed out) /  golden \1 /p" "$dir/log/golden.txt"
-grep -iE 'filc panic|fil-c|filc safety' "$dir/log/golden.txt" | cut -c1-160 | sed 's/^/  finding: /'
+sed 's/^/  finding /' "$dir/log/findings.txt"
 exit 0
