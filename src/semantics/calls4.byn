@@ -861,6 +861,54 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
     }
 }
 
+/// Whether `target` at `span` is a writable place, without reporting diagnostics or marking `written` / `thisWrites`.
+bool isWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpan span) {
+    let written = writtenLocal(ref c, for: target)
+    if written != -1 {
+        if (c.locals[written].guardSpan is { } g) && span.start >= g.start && span.end <= g.end {
+            return false
+        }
+    }
+    let i = boundIndex(target)
+    switch boundKind(target) {
+        case .local:
+            let l = c.bLocals[i].local
+            return false if c.locals[l].borrowsSubject && isUnique(ref c, for: c.locals[l].type)
+            let kind = c.locals[l].kind
+            let byRef = c.locals[l].isParameter && (c.locals[l].modifier is .refKeyword or .outKeyword)
+            return kind == .varKeyword || kind == .temp || byRef
+        case .thisRef:
+            return true if b.fn != -1 && c.functions[b.fn].kind == .constructor
+            return b.fn != -1
+                && c.functions[b.fn].kind == .method
+                && !c.functions[b.fn].isStatic
+                && c.functions[b.fn].isMutating
+        case .field:
+            let field = c.bFields[i].field
+            let receiver = c.bFields[i].receiver
+            return false if fieldIsReadonly(ref c, by: field)
+                && !(b.fn != -1
+                && c.functions[b.fn].kind == .constructor
+                && c.functions[b.fn].owner == c.fields[field].owner
+                && boundKind(receiver) == .thisRef)
+            return isWritable(ref b, through: ref c, for: receiver, at: span)
+        case .tupleElement:
+            return isWritable(ref b, through: ref c, for: c.bTupleElements[i].receiver, at: span)
+        case .index:
+            let indexed = c.bIndexes[i].target
+            let tt = exprType(in c, for: indexed)
+            return !c.spanTypes[typeIndex(tt)].readOnly if kindOf(tt) == .span
+            return isWritable(ref b, through: ref c, for: indexed, at: span)
+        case .builtinCall:
+            let member = c.bBuiltinCalls[i].member
+            return isWritable(ref b, through: ref c, for: c.bBuiltinCalls[i].receiver, at: span) if member is .mapIndexSet
+                or .mapSlot
+            return false
+        default:
+            return false
+    }
+}
+
 /// The local a write lands in, even when the write is rejected (`x.f`, `x[i]`, a tuple element of `x`); -1 for none.
 LocalId writtenLocal(ref Ctx c, for BExpr e) {
     let i = boundIndex(e)
@@ -869,8 +917,15 @@ LocalId writtenLocal(ref Ctx c, for BExpr e) {
         case .field: return writtenLocal(ref c, for: c.bFields[i].receiver)
         case .tupleElement: return writtenLocal(ref c, for: c.bTupleElements[i].receiver)
         case .index:
-            return -1 if kindOf(exprType(in c, for: c.bIndexes[i].target)) == .span
-            return writtenLocal(ref c, for: c.bIndexes[i].target)
+            let indexed = c.bIndexes[i].target
+            return writtenLocal(ref c, for: indexed) if boundKind(indexed) == .slice
+            return -1 if kindOf(exprType(in c, for: indexed)) == .span
+            return writtenLocal(ref c, for: indexed)
+        case .slice:
+            let sliced = c.bSlices[i].target
+            return writtenLocal(ref c, for: sliced) if boundKind(sliced) == .slice
+            return -1 if kindOf(exprType(in c, for: sliced)) == .span
+            return writtenLocal(ref c, for: sliced)
         case .builtinCall:
             let member = c.bBuiltinCalls[i].member
             return writtenLocal(ref c, for: c.bBuiltinCalls[i].receiver) if member is .mapIndexSet or .mapSlot

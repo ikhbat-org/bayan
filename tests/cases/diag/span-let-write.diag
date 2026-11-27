@@ -1,0 +1,133 @@
+warning BYN5014: `bad` is not a known verb, noun or adjective
+
+  6 │     void bad() {
+    │          ^^^
+    │
+  help: add it to `grammar` in package.byn: `nouns: ["bad"]`, `verbs: ["bad"]` or
+        `adjectives: ["bad"]`
+
+error BYN2115: `bad` modifies `this` but is not declared `ref this`
+
+  7 │         writeSpan(this.arr)
+    │                   ^^^^^^^^ `this` is modified here
+    │
+  help: declare it `ref this` as the first parameter
+    │ 6 │     void bad(ref this) {
+    │   │              ++++++++
+
+error BYN2106: cannot modify this value
+
+  8 │         this.arr[0..2][0] = 99
+    │         ^^^^^^^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2104: `xs` is immutable
+
+  17 │     writeSpan(xs)
+     │               ^^ it is borrowed as `Span<i64>`; parameters are immutable
+     │
+  help: copy it into a local `var`, or take it by `ref` if the caller's value should change
+
+error BYN2106: cannot modify this value
+
+  18 │     xs[0..2][0] = 99
+     │     ^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2106: cannot modify this value
+
+  23 │     a[0..2][0] = 99
+     │     ^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2104: `a` is immutable
+
+  24 │     writeSpan(a)
+     │               ^ it is borrowed as `Span<i64>`; declared with `let` on line 22
+     │
+  help: declare it with `var` if it should change
+     │ 22 │     var a: i64[2] = [1, 2]
+     │    │     +++
+
+error BYN2202: expected `Span<i64>`, found `ReadOnlySpan<i64>`
+
+  25 │     writeSpan(a[0..2])
+     │               ^^^^^^^
+
+error BYN2104: `a` is immutable
+
+  26 │     let _ = a.mutableSpan()
+     │             ^ `mutableSpan` modifies it; declared with `let` on line 22
+     │
+  help: declare it with `var` if it should change
+     │ 22 │     var a: i64[2] = [1, 2]
+     │    │     +++
+
+error BYN2106: cannot modify this value
+
+  29 │     xs[0..2][0] = 99
+     │     ^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2104: `xs` is immutable
+
+  30 │     writeSpan(xs)
+     │               ^^ it is borrowed as `Span<i64>`; declared with `let` on line 28
+     │
+  help: declare it with `var` if it should change
+     │ 28 │     var xs: List<i64> = [1, 2]
+     │    │     +++
+
+error BYN2202: expected `Span<i64>`, found `ReadOnlySpan<i64>`
+
+  31 │     writeSpan(xs[0..2])
+     │               ^^^^^^^^
+
+error BYN2104: `xs` is immutable
+
+  32 │     let _ = xs.mutableSpan()
+     │             ^^ `mutableSpan` modifies it; declared with `let` on line 28
+     │
+  help: declare it with `var` if it should change
+     │ 28 │     var xs: List<i64> = [1, 2]
+     │    │     +++
+
+error BYN2104: `h` is immutable
+
+  35 │     writeSpan(h.arr)
+     │               ^^^^^ it is borrowed as `Span<i64>`; declared with `let` on line 34
+     │
+  help: declare it with `var` if it should change
+     │ 34 │     var h = Holder { arr: [1, 2], xs: [1, 2], ro: [1, 2] }
+     │    │     +++
+
+error BYN2104: `h` is immutable
+
+  36 │     writeSpan(h.xs)
+     │               ^^^^ it is borrowed as `Span<i64>`; declared with `let` on line 34
+     │
+  help: declare it with `var` if it should change
+     │ 34 │     var h = Holder { arr: [1, 2], xs: [1, 2], ro: [1, 2] }
+     │    │     +++
+
+error BYN2106: cannot modify this value
+
+  37 │     h.arr[0..2][0] = 99
+     │     ^^^^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
+
+error BYN2104: `h` is immutable
+
+  38 │     let _ = h.arr.mutableSpan()
+     │             ^^^^^ `mutableSpan` modifies it; declared with `let` on line 34
+     │
+  help: declare it with `var` if it should change
+     │ 34 │     var h = Holder { arr: [1, 2], xs: [1, 2], ro: [1, 2] }
+     │    │     +++
+
+error BYN2105: field `ro` is readonly
+
+  41 │     writeSpan(mh.ro)
+     │               ^^^^^
+     │
+  help: set `readonly` fields only in a constructor or a struct literal
+
+error BYN2106: cannot modify this value
+
+  42 │     mh.ro[0..2][0] = 99
+     │     ^^^^^^^^^^^^^^ a `ReadOnlySpan` cannot be written through
