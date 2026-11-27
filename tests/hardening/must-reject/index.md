@@ -30,7 +30,6 @@ Spec: `docs/bayan-spec.md` §9.4 (rules 1-8), §3.16 (lambda capture). Codes: BY
 ### Gaps
 
 - Borrow passed to a fiber outliving the referent, BYN3217: no case (spec §9.4 rule 8, second sub-bullet; fibers are not in 0.x, §13).
-- `arena.reset()` needs exclusive access: no case shows a reset while a borrow is alive (spec §9.4 rule 6).
 
 ## `ref` and `out` escape
 
@@ -113,7 +112,7 @@ Spec: `docs/bayan-spec.md` §9.4 rule 5. Codes: BYN3004, BYN3005, BYN3006, BYN27
 
 ### Gaps
 
-- `arena.reset()` while borrowed: see regions Gaps (spec §9.4 rule 6).
+- none found (`arena.reset()` while borrowed is shown by diag/mutated-while-borrowed and diag/region-provide-this-field, BYN3004).
 
 ## Effects and capabilities (`uses`)
 
@@ -142,10 +141,11 @@ Spec: `docs/bayan-spec.md` §14. Codes: BYN6002, BYN6003, BYN6004, BYN6005.
 
 ## `Untrusted<T>` taint
 
-Spec: `docs/bayan-spec.md` §15.1. Codes: BYN2786, BYN8006.
+Spec: `docs/bayan-spec.md` §15.1. Codes: BYN2786, BYN2787, BYN8006.
 
 - diag/run-untrusted: BYN2786
 - diag/run-batch-untrusted: BYN2786
+- diag/trust-reason: BYN2787
 - diag/expects-reads-untrusted: BYN8006
 
 ### Gaps
