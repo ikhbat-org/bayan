@@ -71,7 +71,7 @@ jobs:
         shell: bash
         run: |
           for b in hash parse; do
-            r=$(grep "^$b " tmp/bench-table.txt | grep -o '([0-9.]*x)' | head -n1 | tr -d '(x)')
+            r=$(grep -E "^$b +[0-9.]+ ms \([0-9.]+x\)" tmp/bench-table.txt | grep -oE '\([0-9.]+x\)' | head -n1 | tr -d '(x)')
             [ -n "$r" ] || { echo "$b: no Bayan ratio in the table"; exit 1; }
             echo "$b $r"
           done > tmp/bench-ratios.txt
