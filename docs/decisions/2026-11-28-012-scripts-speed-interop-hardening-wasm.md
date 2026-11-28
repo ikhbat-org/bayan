@@ -39,3 +39,20 @@ C interop is to match or beat Zig's: header import, C ABI types and linker flags
 ## 6. Benchmarks
 
 Go joins C, Rust and Zig in `bench/run.sh`, with more programs, run nightly on GitHub Actions (owner 2026-11-28), within GitHub's limits: two jobs a night, 30 min each, skipped when `dev` has not moved; gated on the Bayān/C ratio.
+
+## 7. Reuse before writing (owner 2026-11-28)
+
+Goal: far fewer one-off `tmp/` scripts, and fewer tokens spent rewriting the same job.
+
+```
+need a script → search → found? ── yes → run it with arguments
+                   │                 └─ almost → add a parameter to it
+                   └─ no → write a parameterized Bayān script in tools/<area>/
+```
+
+- **Search first.** `mcp__semble__search` over the repo with the job in plain words, then `deno run -A ~/.claude/tools/structure-audit.js --scripts` (lists every script with its `what:` line). A new script is written only when neither finds one.
+- **Extend, don't copy.** A script that nearly fits gains a flag or argument; a second script doing the same job with other values is a review finding.
+- **Parameterized.** Hosts, paths, shas, counts, filters and limits are arguments or flags with defaults, never edited into the body. `--help` prints the usage.
+- **Organized by area.** Bayān scripts live in `tools/<area>/<verb-noun>.byn` (areas follow `scripts/`: `ci`, `docs`, `release`, `selfhost`, `hardening`, `quality`, `bench`, `hosts`); the 16 flat `tools/*.byn` files move into areas when the shell-port spec runs.
+- **Findable.** Every script opens with two comment lines, `what: <one line>` and `usage: <command with its flags>`, which the finder and semble rank on. 76 existing scripts lack `what:`; the port spec adds it as each is touched.
+- **`tmp/` is for output, not tools.** A multi-step command that would have been a throwaway `tmp/x.sh` becomes a parameterized script in the repo when its job can recur (a host run, a gate, a measurement); a true one-off reuses the fixed slot `tmp/run/x.sh`.
