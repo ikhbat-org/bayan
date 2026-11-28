@@ -18,10 +18,10 @@ Tests: `bash bench/run.test.sh`, `bash bench/baseline.test.sh`, `bash bench/fric
 
 ## Nightly run
 
-`.github/workflows/bench-nightly.yml` runs `bench/run.sh` once a day on `dev`, and on demand. It uses two jobs, `ubuntu-latest` and `macos-latest`, each limited to 30 minutes. If `dev` has not moved since the last good run, a job stops at once with "no new commits".
+`.github/workflows/bench-nightly.yml` runs `bench/run.sh` once a day on `dev`, and on demand. GitHub fires a schedule only from the default branch, so the nightly starts once the workflow is on `main`; dispatch it from `main` as well (cache entries saved by a run on `dev` are not visible to runs on `main`). It uses two jobs, `ubuntu-latest` and `macos-latest`, each limited to 30 minutes. If `dev` has not moved since the last good run, a job stops at once with "no new commits".
 
-- Results: the table and the ratios are an artifact of the run, kept 14 days. The last good ratios and sha are kept in an `actions/cache` entry per OS.
-- Gate: a run fails when Bayan/C on `hash` or `parse` is more than 10% worse than the last stored ratio for that OS. Raw times are printed, never gated. The first run on an OS passes and stores its ratios. A failed run stores nothing.
+- Results: the table and the ratios are an artifact of the run, kept 14 days. The baseline ratios and the last good sha are kept in an `actions/cache` entry per OS (expires after 7 days unused; the next run then stores a new baseline).
+- Gate: a run fails when Bayan/C on `hash` or `parse` is more than 10% worse than the baseline for that OS. Raw times are printed, never gated. The baseline is fixed: the first run on an OS stores it, and only a dispatch with `rebaseline` checked replaces it (after an accepted slowdown, or to clear a red night). A failed run stores nothing.
 
 Sample table (a local run at `c7bb68e0f`, with the Go column):
 
