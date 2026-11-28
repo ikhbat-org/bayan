@@ -143,6 +143,39 @@ test "calls4 t29: compound assignments that do not apply" {
     assert t29s2bDiags(in c) == expected
 }
 
+test "calls4 t29: a slice passed as a Span writes the local it slices" {
+    let text = """
+        struct Row {
+            List<i32> items
+        }
+
+        i32 sum(ReadOnlySpan<i32> xs) => xs.length > 0 ? xs[0] : 0
+
+        void curve(Span<i32> xs) {
+            xs[0] = 1
+        }
+
+        void main() {
+            var a: List<i32> = [1, 2, 3]
+            curve(a[1..3])
+            var b: List<i32> = [1, 2, 3]
+            curve(b[1..][0..1])
+            var r = Row { items: [1, 2, 3] }
+            curve(r.items[0..2])
+            var g: List<i32> = [1, 2, 3]
+            let gs: Span<i32> = g[0..2]
+            var h: List<i32> = [1, 2, 3]
+            let hs = h[0..2]
+            hs[0] = 1
+            var f: List<i32> = [1, 2, 3]
+            let fs = f[0..2]
+            print($"{sum(f[1..3])} {sum(fs)} {gs.length}")
+        }
+        """
+    let c = t29s2bCompile(text)
+    assert t29s2bDiags(in c) == "BYN2311 `f` is never reassigned; declare it with `let`\n"
+}
+
 test "calls4 t29: writes through things that cannot change" {
     let text = """
         struct Id {

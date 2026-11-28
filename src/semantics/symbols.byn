@@ -258,6 +258,8 @@ public struct LocalSymbol {
     public TextSpan? keywordSpan    = null
     public TextSpan? guardSpan      = null
     public bool      written        = false
+    /// The local a writable `Span` local views (`xs` for `let j = xs[0..2]`), written when `j` is; -1 for none.
+    public LocalId   spanSource     = -1
     /// `ParameterSymbol`'s fields:
     public bool      isParameter    = false
     public parser.ParamModifier modifier = .none

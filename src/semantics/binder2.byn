@@ -966,6 +966,16 @@ BStmt bindLocalDecl(ref Binder b, through ref Ctx c, for in parser.LocalDecl d) 
         b.pending[local] = d.span.start
     }
     c.locals[local].isUsing = d.usingKeyword
+    if init != -1 && kindOf(type) == .span && !c.spanTypes[typeIndex(type)].readOnly {
+        let viewed = spanViewed(ref c, for: init)
+        if viewed != -1 {
+            c.locals[local].spanSource = viewed
+            // A declared `Span` needs a writable place, which a `let` would not give (BYN2311).
+            if declared != -1 {
+                c.locals[viewed].written = true
+            }
+        }
+    }
     if state != -1 {
         learnState(ref b, for: local, as: state)
     }
