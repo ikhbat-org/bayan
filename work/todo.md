@@ -1530,3 +1530,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - lib/std/path/glob.byn:31-58: each unclosed `{` rescans to the end of the pattern, so n unclosed braces cost O(n²) per `expandMatches` (same review).
 - `ref m.slot(k)` cannot be passed as a writable `Span` argument (`fill(ref m.slot("a"))`: BYN2306, plus BYN2785 when the value is `List<T>`); once it can, add it to BYN2106's help (handoff docs/audits/2026-11-28-decisions-0.4.md item 8).
 - BYN2785 on `Map<K, List<T>>.slot(k)` looks like a bug: §9.3 treats an empty list as `List`'s empty value (`take()` leaves one), so `slot` should insert an empty list, not fail with "`slot` needs a default value" (seen in `src/semantics/calls2-t29.test.byn:121`, probe `fill(ref m.slot("a"))`; handoff docs/audits/2026-11-28-decisions-0.4.md item 8).
+- `docs/bayan-grammar.md:168` says "as in C#": Bayān is never framed by C# (owner rule); reword. Found by 026 T1 writer 2026-11-28.
