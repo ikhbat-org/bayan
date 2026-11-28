@@ -13,3 +13,9 @@ After round 3's documentation deliverables, `docs/bayan-spec.md`, `docs/bayan-gr
 - Precedence (revision 0022): an unapplied revision outranks the SPEC text it changes. Addenda, drafts, plans and owner decisions take effect when a revision records them. Between two revisions, the later one wins. Addenda folded before revision 0022 (handoff addenda 001 and 002, design round 3 addendum 1) stay as applied.
 - Compatibility (revision 0022): adding or narrowing an `expects` or `requires` on a released public function or type is a breaking change (SPEC §19.4).
 - Syntax freeze (revision 0023): until the 0.3.0 release tag exists, no revision adds, removes or renames a keyword, operator, clause or grammar form; 0024 (numeric conversions) is the last one admitted. Errata, status tags, consistency fixes and removals of unbuilt text are allowed.
+
+## Index
+
+| Revision | Title | Status |
+|---|---|---|
+| [0027](0027-untrusted-sources.md) | `Untrusted<T>` on every outside-data source | proposed (number provisional) |
