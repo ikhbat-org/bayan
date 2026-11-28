@@ -237,7 +237,7 @@ warning BYN5103: a line starting with `.` joins the statement above; indent it d
   help: indent it deeper than the line its statement starts on
     │ 9 │         .length
     │   │     ++++
-… and 202 more errors (use --all to show them)
+… and 221 more errors (use --all to show them)
 
-✗ build failed: 222 errors, 4 warnings
+✗ build failed: 241 errors, 4 warnings
   explain: bayan explain BYN8001
