@@ -22,13 +22,13 @@ code that makes its code live (`scripts/ci/diagnostic-codes.test.sh` needs page 
 ## Gate
 - [ ] T1 Prerequisites — files: `docs/bayan-progress-log.md` — covers: D1 — done when: spec 026 has landed
   (`extensible` on `IoError` in `src/semantics/builtins.byn`) and spec 028 has landed (`Duration`, `Uptime`, unit
-  literals bound); BYN1081–BYN1084, BYN6009–BYN6013 and BYN3220 are free in `docs/DIAGNOSTICS.md`; L051–L057 are
+  literals bound); BYN1081–BYN1084, BYN6009–BYN6013 and BYN3220 are free in `docs/DIAGNOSTICS.md`; L059–L065 (028 takes L051–L058) are
   free in `docs/laws/README.md`; the result is logged; if a check fails, work stops
 
 ## Spec and documents (plan T1)
 - [ ] T2 Reserve codes and law numbers — files: `docs/diagnostics-allocated.txt`, `docs/laws/README.md` — covers: R14
   — done when: `plan` rows for the ten codes with the plan's names and draft messages; a reserved row
-  `L051–L057 | 027 concurrency`; `bash scripts/docs/check.sh` passes — after: T1
+  `L059–L065 | 027 concurrency`; `bash scripts/docs/check.sh` passes — after: T1
 - [ ] T3 Spec revision — files: `docs/revisions/<next>-concurrency.md` (new; next free number after spec 026's 0025)
   — covers: R1, R2, R3, R4, R5, R6, R6b, R7, R8, R8b, R9, R10, R11, R12, R12b, R12c, R13, R14, R20, D1, D2, D3, D4,
   D5, D6, D7, D8 — done when: the sections of `docs/revisions/README.md` (Problem, Decision, Sections, Codes, Sūq
@@ -510,36 +510,36 @@ code that makes its code live (`scripts/ci/diagnostic-codes.test.sh` needs page 
 
 ## Laws
 Enact tasks may run any time after T2. A prove task names the case `/prove` tags as the law's test.
-- [ ] T144 enact L051 no-child-outlives-its-scope — files: `docs/laws/051-no-child-outlives-its-scope.md` (new) —
+- [ ] T144 enact L059 no-child-outlives-its-scope — files: `docs/laws/059-no-child-outlives-its-scope.md` (new) —
   covers: R2 — done when: drafted with `/laws new` and the owner has set `status: enacted` — after: T2
-- [ ] T145 prove L051 via /prove — files: `docs/laws/051-no-child-outlives-its-scope.md`,
+- [ ] T145 prove L059 via /prove — files: `docs/laws/059-no-child-outlives-its-scope.md`,
   `tests/cases/run/scope-return-cancels.{byn,stdout}` — covers: R2 — done when: `proof` and `check` are filled and
   `laws-check.js --run` holds — after: T62, T144
-- [ ] T146 enact L052 cancel-caught-only-by-its-scope — files: `docs/laws/052-cancel-caught-only-by-its-scope.md`
+- [ ] T146 enact L060 cancel-caught-only-by-its-scope — files: `docs/laws/060-cancel-caught-only-by-its-scope.md`
   (new) — covers: R6, R6b — done when: as T144 — after: T2
-- [ ] T147 prove L052 via /prove — files: `docs/laws/052-cancel-caught-only-by-its-scope.md`,
+- [ ] T147 prove L060 via /prove — files: `docs/laws/060-cancel-caught-only-by-its-scope.md`,
   `tests/cases/run/cancel-source-outer-and-inner.{byn,stdout}` — covers: R6, R6b — done when: as T145 — after: T83,
   T146
-- [ ] T148 enact L053 child-process-never-survives-its-owner — files:
-  `docs/laws/053-child-process-never-survives-its-owner.md` (new) — covers: R10 — done when: as T144 — after: T2
-- [ ] T149 prove L053 via /prove — files: `docs/laws/053-child-process-never-survives-its-owner.md`,
+- [ ] T148 enact L061 child-process-never-survives-its-owner — files:
+  `docs/laws/061-child-process-never-survives-its-owner.md` (new) — covers: R10 — done when: as T144 — after: T2
+- [ ] T149 prove L061 via /prove — files: `docs/laws/061-child-process-never-survives-its-owner.md`,
   `tests/cases/run/child-drop-kills.{byn,stdout}` — covers: R10 — done when: as T145 — after: T123, T125, T148
-- [ ] T150 enact L054 live-children-never-exceed-the-limit — files:
-  `docs/laws/054-live-children-never-exceed-the-limit.md` (new) — covers: R4 — done when: as T144 — after: T2
-- [ ] T151 prove L054 via /prove — files: `docs/laws/054-live-children-never-exceed-the-limit.md`,
+- [ ] T150 enact L062 live-children-never-exceed-the-limit — files:
+  `docs/laws/062-live-children-never-exceed-the-limit.md` (new) — covers: R4 — done when: as T144 — after: T2
+- [ ] T151 prove L062 via /prove — files: `docs/laws/062-live-children-never-exceed-the-limit.md`,
   `tests/cases/run/scope-limit.{byn,stdout}` — covers: R4 — done when: as T145 — after: T63, T150
-- [ ] T152 enact L055 sibling-borrows-are-exclusive — files: `docs/laws/055-sibling-borrows-are-exclusive.md` (new) —
+- [ ] T152 enact L063 sibling-borrows-are-exclusive — files: `docs/laws/063-sibling-borrows-are-exclusive.md` (new) —
   covers: R2 — done when: as T144 — after: T2
-- [ ] T153 prove L055 via /prove — files: `docs/laws/055-sibling-borrows-are-exclusive.md`,
+- [ ] T153 prove L063 via /prove — files: `docs/laws/063-sibling-borrows-are-exclusive.md`,
   `tests/cases/diag/spawn-ref-used-by-parent.{byn,diag}` — covers: R2 — done when: as T145 — after: T51, T152
-- [ ] T154 enact L056 no-os-lock-across-a-suspend-point — files:
-  `docs/laws/056-no-os-lock-across-a-suspend-point.md` (new) — covers: R18 — done when: as T144 — after: T2
-- [ ] T155 prove L056 via /prove — files: `docs/laws/056-no-os-lock-across-a-suspend-point.md`,
+- [ ] T154 enact L064 no-os-lock-across-a-suspend-point — files:
+  `docs/laws/064-no-os-lock-across-a-suspend-point.md` (new) — covers: R18 — done when: as T144 — after: T2
+- [ ] T155 prove L064 via /prove — files: `docs/laws/064-no-os-lock-across-a-suspend-point.md`,
   `docs/specs/027-concurrency/027-plan.md` (the phase 2 case T142 names) — covers: R18 — done when: as T145 — after:
   T142, T154
-- [ ] T156 enact L057 fiber-stays-on-its-worker — files: `docs/laws/057-fiber-stays-on-its-worker.md` (new) — covers:
+- [ ] T156 enact L065 fiber-stays-on-its-worker — files: `docs/laws/065-fiber-stays-on-its-worker.md` (new) — covers:
   R15 — done when: as T144 — after: T2
-- [ ] T157 prove L057 via /prove — files: `docs/laws/057-fiber-stays-on-its-worker.md`,
+- [ ] T157 prove L065 via /prove — files: `docs/laws/065-fiber-stays-on-its-worker.md`,
   `docs/specs/027-concurrency/027-plan.md` (the phase 2 case T142 names) — covers: R15 — done when: as T145 — after:
   T142, T156
 
@@ -589,8 +589,8 @@ Enact tasks may run any time after T2. A prove task names the case `/prove` tags
 ## Questions
 1. No criteria file was found in the worktree or `~/.claude/tmp/`; the tasks follow the criteria in the task message
    and `~/.claude/commands/tasks.md`.
-2. Law numbers: T2 reserves L051–L057, but spec 028 (which lands first) has unnumbered law candidates that may claim
-   L051 first. If so, T1 shifts this range past 028's.
+2. Law numbers: T2 reserves L059–L065, but spec 028 (which lands first) has unnumbered law candidates that may claim
+   L059 first. If so, T1 shifts this range past 028's.
 3. The plan asks for these without naming paths; the names marked "(new, named here)" are proposals: the
    inferred-suspend case (T67, from Risks), the `Io.Simulated` `test` blocks (T99–T101, T120), the stdin-flags script
    (T109), the Windows streaming case (T123), the P1–P4 tests and benchmark (T134–T138, including a new `cli/` class
@@ -604,7 +604,7 @@ Enact tasks may run any time after T2. A prove task names the case `/prove` tags
    follows option (b) of the first; T121, T122 and T131's `read(max:)` block wait on the second.
 8. The plan names no runtime C test (`runtime/tests/`) for the switch, scheduler or channels; T25–T29 rely on `run/`
    cases and the existing runtime part.
-9. L056 (R18) and L057 (R15) test phase 2 behaviour that has no code task or case yet: T155 and T157 depend only on
+9. L064 (R18) and L065 (R15) test phase 2 behaviour that has no code task or case yet: T155 and T157 depend only on
    the T142 planning task and name `027-plan.md` in place of a case. Until T142 adds the phase 2 code task and case,
    they cannot depend on the code they test; T142 should rewrite both with those.
 10. The plan names no case for `cancel:` with `timeout:`/`until:` (R5's option precedence); T158's
