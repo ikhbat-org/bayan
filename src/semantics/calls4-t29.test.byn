@@ -228,14 +228,26 @@ test "calls4 t29: every arm of a Span argument writes the local it slices" {
     let text = """
         i32 sum(ReadOnlySpan<i32> xs) => xs.length > 0 ? xs[0] : 0
 
+        union error E {
+            bad
+        }
+
         void curve(Span<i32> xs) {
             xs[0] = 1
+        }
+
+        Span<i32> pick(Span<i32> xs, by i32 n) fails E {
+            fail .bad if n == 0
+            return xs
         }
 
         void main() {
             var a: List<i32> = [1, 2, 3]
             let flag = a.length > 1
             curve(flag ? a[0..1] : a[1..2])
+            var k: List<i32> = [1, 2, 3]
+            var m: List<i32> = [1, 2, 3]
+            curve(pick(m[0..1], by: 1) catch k[0..1])
             var b: List<i32> = [1, 2, 3]
             var e: List<i32> = [1, 2, 3]
             curve((flag ? b[0..1] : e[0..1]))

@@ -1015,7 +1015,8 @@ LocalId spanViewed(ref Ctx c, for BExpr e) {
     }
 }
 
-/// Marks written every local a `Span` value can view: each arm of a `?:`, `switch` or `??` and the operand of a `move`.
+/// Marks written every local a `Span` value can view: each arm of a `?:`, `switch` or `??`, the operand and
+/// handler of a `catch`, and the operand of a `move`. Parentheses bind to their inner expression.
 void markSpanViewed(ref Ctx c, for BExpr e) {
     let i = boundIndex(e)
     switch boundKind(e) {
@@ -1029,6 +1030,9 @@ void markSpanViewed(ref Ctx c, for BExpr e) {
         case .coalesce:
             markSpanViewed(ref c, for: c.bCoalesces[i].left)
             markSpanViewed(ref c, for: c.bCoalesces[i].right)
+        case .catchExpr:
+            markSpanViewed(ref c, for: c.bCatches[i].operand)
+            markSpanViewed(ref c, for: c.bCatches[i].handler)
         case .moveExpr: markSpanViewed(ref c, for: c.bMoves[i].operand)
         default:
             let viewed = spanViewed(ref c, for: e)
