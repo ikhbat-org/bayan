@@ -1,0 +1,185 @@
+string l038Package(string style) =>
+    $"Package {{ name: \"local/l038\", version: \"0.1.0\"{style == "" ? "" : $", style: Style {{ {style} }}"} }}\n"
+
+GoldenOutcome l038Run(string exe, by string command, at string root, for string file, through ref string failure)
+        uses alloc, clock, fs, process {
+    var args = List<string>()
+    args.append(command)
+    args.append(command == "build" ? "--emit-c" : file)
+    return goldenChild(exe, by: in args, at: root, from: in List<u8>(), through: ref failure)
+}
+
+i64 l038Digits(string line, at i64 start) {
+    var i = start
+    while i < line.length && line.bytes[i] >= 0x30 && line.bytes[i] <= 0x39 {
+        i += 1
+    }
+    return i
+}
+
+string l038Positions(string c) uses alloc {
+    var text = StrBuf()
+    for line in goldenLines(goldenLf(c)) {
+        // rule 1: a `#line <n> "<file>"` directive is dropped
+        continue if line.startsWith("#line ")
+        var from: i64 = 0
+        var i: i64 = 0
+        while i < line.length {
+            let rest = line[i..line.length]
+            var end: i64 = -1
+            if rest.startsWith("w->line = ") {
+                // rule 2: `w->line = <n>`, the source line a writer reports, becomes `w->line = L`
+                end = i + "w->line = ".length
+            } else if rest.startsWith("byn_file_") {
+                // rule 3: `byn_file_<k>, <n>`, the file and line a runtime failure call reports, becomes `byn_file_<k>, L`
+                let k = l038Digits(line, at: i + "byn_file_".length)
+                if k + 2 < line.length && line[k..k + 2] == ", " && l038Digits(line, at: k + 2) > k + 2 {
+                    end = k + 2
+                }
+            }
+            if end >= 0 {
+                text.append(line[from..end])
+                text.append("L")
+                from = l038Digits(line, at: end)
+                i = from
+            } else {
+                i += 1
+            }
+        }
+        text.append(line[from..line.length])
+        text.append("\n")
+    }
+    return text.finish()
+}
+
+string l038FirstDifference(string a, as string b) uses alloc {
+    let x = goldenLines(a)
+    let y = goldenLines(b)
+    var i: i64 = 0
+    while i < x.length && i < y.length && x[i] == y[i] {
+        i += 1
+    }
+    let left = i < x.length ? x[i] : "<end>"
+    let right = i < y.length ? y[i] : "<end>"
+    return $"line {i + 1}: `{left}` against `{right}`"
+}
+
+string l038Check(string exe, for string name, as string style, to ref i64 pairs, through ref string failure)
+        uses alloc, clock, fs, process {
+    let source = Io.readText(Path.combine(Path.fullPath("tests/cases/run"), name)) catch ""
+    let scratch = Path.combine(Path.combine(Path.fullPath("tmp"), "l038"), name[0..name.length - ".byn".length])
+    let original = Path.combine(scratch, "original")
+    let formatted = Path.combine(scratch, "formatted")
+    let file = $"src/app/{name}"
+    deleteWorkDir(scratch)
+    for root in [original, formatted] {
+        goldenWrite(root, for: "package.byn", as: l038Package(style))
+        goldenWrite(root, for: file, as: source)
+    }
+    let label = $"run/{name}, style {style == "" ? "default" : $"{{ {style} }}"}"
+    if l038Run(exe, by: "format", at: formatted, for: file, through: ref failure).exitCode != 0 {
+        deleteWorkDir(scratch)
+        return ""
+    }
+    pairs += 1
+    let first = Io.readText(Path.combine(formatted, file)) catch ""
+    let again = l038Run(exe, by: "format", at: formatted, for: file, through: ref failure)
+    if again.exitCode != 0 {
+        return $"L038 counterexample: {label}: the second format exits {again.exitCode}:\n{again.stderr}"
+    }
+    let second = Io.readText(Path.combine(formatted, file)) catch ""
+    if second != first {
+        return $"L038 counterexample: {label}: the second format differs from the first at {l038FirstDifference(first, as: second)}"
+    }
+    let before = l038Run(exe, by: "build", at: original, for: file, through: ref failure)
+    let after = l038Run(exe, by: "build", at: formatted, for: file, through: ref failure)
+    if before.exitCode != 0 || after.exitCode != 0 {
+        return $"L038 counterexample: {label}: build --emit-c exits {before.exitCode} on the original and {after.exitCode} on the formatted program:\n{before.stderr}{after.stderr}"
+    }
+    let c = l038Positions(before.stdout)
+    let d = l038Positions(after.stdout)
+    if c != d {
+        return $"L038 counterexample: {label}: the emitted C of the original and the formatted program differs at {l038FirstDifference(c, as: d)}"
+    }
+    deleteWorkDir(scratch)
+    return ""
+}
+
+// L038: formatting twice gives the same bytes, and the formatted program's C is the original's apart from source positions
+test "L038: each run/*.byn case formats idempotently and keeps its emitted C under the default style" {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    var names = Io.listDir(Path.fullPath("tests/cases/run")) catch List<string>()
+    names.sort()
+    var pairs: i64 = 0
+    var mismatch = ""
+    for name in names {
+        continue if !name.endsWith(".byn") || name.endsWith(".test.byn")
+        continue if goldenOsSkip(Path.combine(Path.fullPath("tests/cases/run"), name))
+        mismatch = l038Check(exe, for: name, as: "", to: ref pairs, through: ref failure)
+        break if mismatch != "" || failure != ""
+    }
+    print(mismatch) if mismatch != ""
+    print(failure) if failure != ""
+    assert(failure == "" && mismatch == "")
+    assert(pairs >= 350)
+}
+
+// L038: formatting twice gives the same bytes, and the formatted program's C is the original's apart from source positions
+@cases(("symbols", "sized"), ("symbols", "csharp"), ("words", "sized"), ("words", "csharp"))
+test "L038: a fixed set of run/*.byn cases formats idempotently and keeps its emitted C under each layout style" (
+    string booleans,
+    string primitives
+) {
+    var failure = ""
+    let exe = goldenExe(through: ref failure)
+    assert(failure == "")
+    let cases = [
+        "data-enums",
+        "dyn-ref-fails",
+        "enums",
+        "errors-catch",
+        "errors-catch-block",
+        "for-try",
+        "generics-types",
+        "int-parse",
+        "map-many",
+        "null-narrowing",
+        "self-hosting-lambdas",
+        "std-json",
+        "structs",
+        "style-fix-conditions-patterns",
+        "style-fix-optionals-bind",
+        "suq-money",
+        "suq-order",
+        "suq-packing",
+        "suq-quote",
+        "switch-move",
+        "unions",
+        "validation-violations",
+    ]
+    var pairs: i64 = 0
+    var mismatch = ""
+    for align in ["runs", "none"] {
+        for trailingCommas in ["multiline", "never"] {
+            for indent in ["4", "2"] {
+                for width in ["120", "60"] {
+                    let style = $"booleans: .{booleans}, primitives: .{primitives}, align: .{align}, trailingCommas: .{trailingCommas}, indent: {indent}, width: {width}"
+                    for stem in cases {
+                        mismatch = l038Check(exe, for: $"{stem}.byn", as: style, to: ref pairs, through: ref failure)
+                        break if mismatch != "" || failure != ""
+                    }
+                    break if mismatch != "" || failure != ""
+                }
+                break if mismatch != "" || failure != ""
+            }
+            break if mismatch != "" || failure != ""
+        }
+        break if mismatch != "" || failure != ""
+    }
+    print(mismatch) if mismatch != ""
+    print(failure) if failure != ""
+    assert(failure == "" && mismatch == "")
+    assert(pairs == 16 * cases.length)
+}
