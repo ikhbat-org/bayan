@@ -13,6 +13,9 @@
 # WIN_HOST (default wp1) is the Windows host: the ssh/scp target, and tmp/<host>/ for the bundle, the record and the cache, so two hosts
 # run at once without sharing a file (preflight.sh reads tmp/wp1). On wlt1 the remote command first puts zig on PATH.
 # WIN_THREADS=N adds `--jobs N` to scripts/test.sh. BAYAN_TEST_TIME_SCALE (default 3) is passed through.
+# BAYAN_TEST_TIMEOUT_MS (default 300000, the limit ci.yml gives each golden case and test block) is passed through; under the runner's
+# own 60 s default the L023 block (31 s alone on wlt1) timed out in a full bayan part there (2026-11-28). A non-default value is part
+# of the cache key.
 # WIN_TRX is dropped: scripts/test.sh writes no trx.
 # WIN_PERF_SCHEME (default: wlt1's Performance plan ae098e76-5b05-4954-be35-3c535b591fce, none on other hosts) is the power plan
 # the host runs under while a run is in flight; it idles on WIN_IDLE_SCHEME (default SCHEME_BALANCED). Each run holds
@@ -26,13 +29,16 @@ BR=$1; FILT=$2; H=${WIN_HOST:-wp1}; WB=${WIN_BASH:-'C:\home\apps\Git\bin\bash.ex
 case $H in ''|*[!A-Za-z0-9_-]*) echo "wp1-test: bad WIN_HOST $H"; exit 2;; esac
 case ${WIN_THREADS-1} in ''|*[!0-9]*|0) echo "wp1-test: bad WIN_THREADS ${WIN_THREADS-} (a positive integer)"; exit 2;; esac
 case $FILT in golden|bayan|parity|scripts|runtime) :;; *) echo "wp1-test: bad part $FILT (golden, bayan, parity, scripts, runtime)"; exit 2;; esac
+TMO=${BAYAN_TEST_TIMEOUT_MS:-300000}
+case $TMO in *[!0-9]*) echo "wp1-test: bad BAYAN_TEST_TIMEOUT_MS $TMO (milliseconds)"; exit 2;; esac
+KEY=$FILT; [ "$TMO" = 300000 ] || KEY="$FILT timeout $TMO"
 PERF=${WIN_PERF_SCHEME-}; [ -n "${WIN_PERF_SCHEME+x}" ] || { [ "$H" != wlt1 ] || PERF=ae098e76-5b05-4954-be35-3c535b591fce; }
 IDLE=${WIN_IDLE_SCHEME:-SCHEME_BALANCED}
 for x in "$PERF" "$IDLE"; do case $x in *[!A-Za-z0-9_-]*) echo "wp1-test: bad power scheme $x"; exit 2;; esac; done
 SHA=$(git rev-parse --verify -q "$BR^{commit}") || { echo "wp1-test: no branch $BR"; exit 2; }
 S=${SHA:0:8}; R=C:/home/code/extrode.com/bayan/tmp; OUT=tmp/$H/$SHA.out
 mkdir -p "tmp/$H/cache"
-TREE=$(git rev-parse "$SHA^{tree}"); CACHE=tmp/$H/cache/$TREE-$(printf '%s' "$FILT" | shasum | cut -c1-16).out
+TREE=$(git rev-parse "$SHA^{tree}"); CACHE=tmp/$H/cache/$TREE-$(printf '%s' "$KEY" | shasum | cut -c1-16).out
 if [ -f "$CACHE" ]; then
   { echo "cached: $CACHE"; cat "$CACHE"; } > "$OUT"
   echo "wp1-test: tree $TREE with this part already passed; reusing the cached result $CACHE (run for $(sed -n 's/^sha: //p' "$CACHE" | head -1)), $H not run"
@@ -50,7 +56,7 @@ fi
 XTRA=""; [ -z "${WIN_THREADS:-}" ] || XTRA=" --jobs $WIN_THREADS"
 CMD="$PRE""Set-Location '$R'; if (Test-Path '$S') { if (-not (Test-Path '$S.wp1-test')) { Write-Output 'wp1-test: $R/$S exists and wp1-test.sh did not create it'; exit 3 }; Remove-Item -Recurse -Force '$S' }; \
 New-Item -ItemType File -Force '$S.wp1-test' | Out-Null; git clone -q -b $BR $S.bundle $S; if (\$LASTEXITCODE) { exit \$LASTEXITCODE }; \
-Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; & '$WB' -c '${CCX}exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $FILT$XTRA'; exit \$LASTEXITCODE"
+Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; \$env:BAYAN_TEST_TIMEOUT_MS = '$TMO'; & '$WB' -c '${CCX}exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $FILT$XTRA'; exit \$LASTEXITCODE"
 printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh %s "%s"\n' "$BR" "$SHA" "$FILT" "$H" "$CMD" > "$OUT"
 scp -q "tmp/$H/$S.bundle" "$H:/$R/" >> "$OUT" 2>&1; rc=$?
 # Holders live in the main checkout's tmp/ (shared by every worktree, as the host is); one older than 12 h or with a dead pid is

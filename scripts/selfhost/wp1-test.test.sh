@@ -33,6 +33,8 @@ rm -f "$aux/scp-fail"; printf 'test: all passed\n' > "$aux/ssh-out"; echo 0 > "$
 w1=$(cat "tmp/wp1/$sha.out"); wl=$(WIN_HOST=wlt1 WIN_THREADS=2 w feat/x "$F"); wla=$(cat "$aux/ssh-args")
 [ "$(cat "tmp/wp1/$sha.out")" = "$w1" ] && [ -f "tmp/wlt1/$sha.out" ] && [ -f "tmp/wlt1/$s.bundle" ] && [ -n "$(ls tmp/wlt1/cache)" ] && wlown=1 || wlown=0
 badth=$(WIN_THREADS=x w feat/x "$F")
+w feat/x "$F" > /dev/null; rm -f "$aux/ssh-args"; tmo=$(CACHE_KEEP=1 BAYAN_TEST_TIMEOUT_MS=90000 w feat/x "$F"); tmoa=$(cat "$aux/ssh-args" 2>/dev/null || true)
+badtmo=$(BAYAN_TEST_TIMEOUT_MS=9s w feat/x "$F")
 # wlt1 runs under its Performance plan and goes back to Balanced after; wp1 and an empty WIN_PERF_SCHEME never switch; a live holder
 # keeps the plan (no switch back); a scheme with a quote is refused
 rm -f "$aux/ssh-power"; WIN_HOST=wlt1 w feat/x scripts > /dev/null; pwl=$(cat "$aux/ssh-power" 2>/dev/null || true)
@@ -80,7 +82,7 @@ fail() { echo "FAIL: $1"; echo "$2"; exit 1; }
 has() { grep -qxF -- "$2" <<< "$1"; }
 [ "$scpa" = "-q tmp/wp1/$s.bundle wp1:/$R/" ] || fail "scp ran '$scpa'" "$good"
 CMD=${ssha#wp1 }
-for p in "Set-Location '$R';" "git clone -q -b feat/x $s.bundle $s;" "Set-Location '$s'; if ((git rev-parse HEAD) -ne '$sha') { Write-Output 'wp1-test: feat/x moved after $sha was resolved; the clone is not $sha'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '3'; & 'C:\\home\\apps\\Git\\bin\\bash.exe' -c 'unset CC; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $F'; exit \$LASTEXITCODE"; do
+for p in "Set-Location '$R';" "git clone -q -b feat/x $s.bundle $s;" "Set-Location '$s'; if ((git rev-parse HEAD) -ne '$sha') { Write-Output 'wp1-test: feat/x moved after $sha was resolved; the clone is not $sha'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '3'; \$env:BAYAN_TEST_TIMEOUT_MS = '300000'; & 'C:\\home\\apps\\Git\\bin\\bash.exe' -c 'unset CC; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $F'; exit \$LASTEXITCODE"; do
   [[ $ssha == "wp1 "*"$p"* ]] || fail "ssh ran '$ssha', without '$p'" "$good"; done
 grep -q "^$sha refs/heads/feat/x$" <<< "$bundled" || fail "the bundle does not hold feat/x" "$bundled"
 [ "$(head -4 <<< "$gout")" = "$(printf 'branch: feat/x\nsha: %s\nfilter: %s\ncommand: ssh wp1 "%s"' "$sha" "$F" "$CMD")" ] || fail "the .out header is wrong" "$gout"
@@ -106,6 +108,8 @@ has "$wl" "rc=0" || fail "a wlt1 run failed" "$wl"
 # R28: no dotnet in the remote command, which builds with bootstrap-build.sh and then runs scripts/test.sh
 [[ $ssha != *dotnet* && $ssha == *scripts/bootstrap-build.sh*BAYAN_EXE=*scripts/test.sh* ]] || fail "the remote command has dotnet, or lacks bootstrap-build.sh then scripts/test.sh ('$ssha')" "$good"
 has "$badth" "wp1-test: bad WIN_THREADS x (a positive integer)" && has "$badth" "rc=2" || fail "a bad WIN_THREADS was not refused" "$badth"
+has "$tmo" "rc=0" && [[ $tmoa == *"\$env:BAYAN_TEST_TIMEOUT_MS = '90000';"* ]] || fail "a non-default BAYAN_TEST_TIMEOUT_MS hit the default's cache or did not reach the remote env ('$tmoa')" "$tmo"
+has "$badtmo" "wp1-test: bad BAYAN_TEST_TIMEOUT_MS 9s (milliseconds)" && has "$badtmo" "rc=2" || fail "a bad BAYAN_TEST_TIMEOUT_MS was not refused" "$badtmo"
 [ "$pwl" = "$(printf 'wlt1 powercfg /setactive ae098e76-5b05-4954-be35-3c535b591fce\nwlt1 powercfg /setactive SCHEME_BALANCED')" ] || fail "wlt1 did not run under Performance and go back to Balanced ('$pwl')" "$wl"
 [ -z "$pwnone" ] || fail "wp1 or an empty WIN_PERF_SCHEME switched the power plan ('$pwnone')" "$good"
 [ "$pwheld" = "wlt1 powercfg /setactive ae098e76-5b05-4954-be35-3c535b591fce" ] && [ $pruned = 1 ] || fail "a live holder did not keep the plan, or a dead holder was not pruned ('$pwheld')" "$wl"
