@@ -1,5 +1,5 @@
 # 023 — Spec catch-up: build what the spec describes
-Status: draft
+Status: approved (owner 2026-11-16 order; open questions resolved 2026-11-17)
 Release: unscheduled
 Sources: docs/bayan-spec.md; docs/STATUS.md; docs/bayan-roadmap.md; user 2026-11-16 (order 019 → catch-up → 020; a reviewable catch-up spec)
 Created: 2026-11-16
@@ -143,9 +143,8 @@ The six phases order items by: (1) unblocking spec 015 tooling ports (`T14`–`T
 ## Open questions
 Each open question names a place where `docs/bayan-spec.md` is not concrete enough to build from today, together with the conservative option that held until the user decided. Every question below is now resolved, and the resolution replaces the option:
 
-- **OQ1 (`dec` representation and rounding, §3.1, §6.2, rev 0024):** §3.1 names `dec` and `1.50dec`, and Q1274 settles `dec(0.1)` and `dec(f64)`, but the bit width, scale range and division rounding mode of `dec` are not in the spec. *Conservative option:* 128-bit fixed-scale decimal (96-bit signed integer coefficient, scale 0..28, banker's rounding to nearest-even on division, trapping on overflow).
+- **OQ1 (`dec` representation and rounding, §3.1, §6.2, rev 0024):** §3.1 names `dec` and `1.50dec`, and Q1274 settles `dec(0.1)` and `dec(f64)`, but the bit width, scale range and division rounding mode of `dec` are not in the spec. *Conservative option:* 128-bit fixed-scale decimal (96-bit unsigned integer coefficient plus a sign bit, scale 0..28, banker's rounding to nearest-even on division, trapping on overflow).
   *Resolved:* closed by revision 0024 (status done, text written 2026-11-17): `dec` is built from §3.1 and `docs/bayan-spec.md` as written, with a 96-bit unsigned coefficient plus a sign bit, scale 0..=28, one rounding to nearest with ties to even, and a trap on overflow and division by zero (owner, 2026-11-17, Fable's recommendation).
-  - The 'signed coefficient' wording above is out of date.
 - **OQ2 (`checked(expr)` scope, §6.2):** §6.2 says `checked(expr)` evaluates a whole expression with overflow detection and returns `T?`, without stating whether calls to user functions inside `expr` are also converted from trapping to `null` or only arithmetic and narrowing operators written in `expr`. *Conservative option:* `checked(expr)` covers `+`, `-`, `*`, `/`, `%`, unary `-` and narrowing conversions `T(x)` syntactically inside `expr`; calls inside `expr` keep their own semantics.
   *Resolved:* `checked(expr)` covers only the operators and narrowing conversions written inside the parentheses; calls keep their own behaviour, and division by zero still traps. The same operators on `dec` are covered, and a `checked(...)` that holds no covered operator gets a warning (R8) (owner, 2026-11-17, Fable's recommendation).
 - **OQ3 (`Secret<T>` zeroing and Layer 1/2 sinks, §15.1, §15.2):** §15.2 says `Secret<T>` is zeroed on dispose, and §15.1 lists sink types (`Sql`, `Html`, `PathSegment`, `Url`, `HeaderValue`, `Arg`), which are not all in `core`. *Conservative option:* `Secret<T>` allows `T` to be `string` or fixed-size byte/integer arrays, zeroes heap or inline bytes via a volatile wipe on `dispose`, and restricts `Untrusted<T>` sink checks in `core` to `Io.run`/`Io.runBatch` (already built), `PathSegment` and `Regex.parse` until `std.db` and web packages declare their sink types.

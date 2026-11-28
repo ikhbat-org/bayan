@@ -165,7 +165,7 @@ Arabic puts the head first and its modifiers after. Bayan follows the same order
 | Declaration | The kind, then modifiers | `struct unique File`, `type distinct Sku = string`, `union error ShipError` |
 | Local binding | `let` or `var`, then the name, then the type | `let w: Grams = 0g` |
 
-The declarations themselves (fields, parameters, return types, payloads) keep the type first, as in C#:
+The declarations themselves (fields, parameters, return types, payloads) keep the type first:
 
 ```csharp
 struct Item {
