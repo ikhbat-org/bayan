@@ -264,7 +264,6 @@ Every member that `BuiltinMembers.cs` binds, so each is built; `HasMethod` adds 
 | FormatSpec | `width` | property | `BuiltinMembers.cs:43` |
 | IoInput | `readAll` | method | `BuiltinMembers.cs:131` |
 | IoInput | `readAllBytes` | method | `BuiltinMembers.cs:137` |
-| IoInput | `read` | method | `src/semantics/builtins.byn:363` |
 | IoStream | `write` | method | `BuiltinMembers.cs:129` |
 | List | `append` | method | `BuiltinMembers.cs:94` |
 | List | `clear` | method | `BuiltinMembers.cs:95` |

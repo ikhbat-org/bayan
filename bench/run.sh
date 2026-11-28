@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# bench/run.sh: the same hashing and parsing programs in Bayan, C, Rust and Zig, plus the self-hosted lexer
+# bench/run.sh: the same hashing and parsing programs in Bayan, C, Rust, Zig and Go, plus the self-hosted lexer
 # (Bayan only), each timing its own work loop. Prints a table (median of BENCH_RUNS runs, ratio to C) and
 # writes it to bench/results/<commit>.txt. Not a CI gate.
 #
@@ -68,7 +68,7 @@ measure() {
     rm -f "$T/res/$bench.$lang.note"
 }
 
-for b in hash parse lexer; do for l in bayan c rust zig; do : > "$T/res/$b.$l"; rm -f "$T/res/$b.$l.note"; done; done
+for b in hash parse lexer; do for l in bayan c rust zig go; do : > "$T/res/$b.$l"; rm -f "$T/res/$b.$l.note"; done; done
 
 # --- build and run ---
 for b in hash parse; do
@@ -88,6 +88,10 @@ for b in hash parse; do
     if ! command -v zig >/dev/null 2>&1; then note $b zig "n/a (no zig)"
     elif zig build-exe -lc "bench/programs/zig/$b.zig" -O ReleaseFast --cache-dir "$T/zig-cache" --global-cache-dir "$T/zig-global" -femit-bin="$T/bin/zig-$b" 2>"$T/bin/zig-$b.log"; then measure $b zig "$T/bin/zig-$b"
     else note $b zig "n/a (build failed)"; fi
+    # Go
+    if ! command -v go >/dev/null 2>&1; then note $b go "n/a (no go)"
+    elif go build -o "$T/bin/go-$b" "bench/programs/go/$b.go" 2>"$T/bin/go-$b.log"; then measure $b go "$T/bin/go-$b"
+    else note $b go "n/a (build failed)"; fi
 done
 
 # Lexer: src/semantics/*.byn concatenated in name order (every file of the largest self-hosted module).
@@ -96,15 +100,15 @@ if [ -n "$bayan_note" ]; then note lexer bayan "$bayan_note"
 elif "$bayan" build src/lexer/main.byn --mode fast -o "$T/bin/bayan-lexer" >"$T/bin/bayan-lexer.log" 2>&1; then
     measure lexer bayan "$T/bin/bayan-lexer" --time "$T/lexer-input.byn"
 else note lexer bayan "n/a (build failed)"; fi
-for l in c rust zig; do note lexer $l "n/a (no port)"; done
+for l in c rust zig go; do note lexer $l "n/a (no port)"; done
 
 # --- checksums must agree per benchmark ---
 status=0
 for b in hash parse; do
-    sums=$(for l in bayan c rust zig; do [ -s "$T/res/$b.$l" ] && { read -r _ s < "$T/res/$b.$l"; echo "$s"; }; done | sort -u | wc -l | tr -d ' ')
+    sums=$(for l in bayan c rust zig go; do [ -s "$T/res/$b.$l" ] && { read -r _ s < "$T/res/$b.$l"; echo "$s"; }; done | sort -u | wc -l | tr -d ' ')
     if [ "$sums" -gt 1 ]; then
         echo "bench/run.sh: checksums disagree for '$b':" >&2
-        for l in bayan c rust zig; do [ -s "$T/res/$b.$l" ] && echo "  $l: $(cat "$T/res/$b.$l")" >&2; done
+        for l in bayan c rust zig go; do [ -s "$T/res/$b.$l" ] && echo "  $l: $(cat "$T/res/$b.$l")" >&2; done
         status=1
     fi
 done
@@ -121,13 +125,13 @@ cell() { # <bench> <lang>
         cat "$T/res/$1.$2.note" 2>/dev/null || echo "n/a"
     fi
 }
-checksum() { local f s l; for l in c bayan rust zig; do f="$T/res/$1.$l"; if [ -s "$f" ]; then read -r _ s < "$f"; echo "$s"; return; fi; done; echo "-"; }
+checksum() { local f s l; for l in c bayan rust zig go; do f="$T/res/$1.$l"; if [ -s "$f" ]; then read -r _ s < "$f"; echo "$s"; return; fi; done; echo "-"; }
 
 table() {
     echo "bayan bench $commit ($(uname -sm), median of $runs runs, ratio to C, lower is better)"
-    printf '%-8s %-24s %-24s %-24s %-24s %s\n' benchmark bayan c rust zig checksum
+    printf '%-8s %-24s %-24s %-24s %-24s %-24s %s\n' benchmark bayan c rust zig go checksum
     for b in hash parse lexer; do
-        printf '%-8s %-24s %-24s %-24s %-24s %s\n' "$b" "$(cell $b bayan)" "$(cell $b c)" "$(cell $b rust)" "$(cell $b zig)" "$(checksum $b)"
+        printf '%-8s %-24s %-24s %-24s %-24s %-24s %s\n' "$b" "$(cell $b bayan)" "$(cell $b c)" "$(cell $b rust)" "$(cell $b zig)" "$(cell $b go)" "$(checksum $b)"
     done
 }
 table | tee "$results/$commit.txt"
