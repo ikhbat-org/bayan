@@ -1,6 +1,6 @@
 # 0027 — `Untrusted<T>` on every outside-data source
 
-Status: proposed (2026-11-28; awaiting owner on the Decisions needed below; number provisional: 0025 is spec 026, 0026 is held by spec 028)
+Status: decided (owner 2026-11-28: all A, with the amendments to D1, D3 and D6 below; not yet built; number provisional: 0025 is spec 026, 0026 is held by spec 028)
 Release: unscheduled
 Sources: SPEC §15.1, §7.9; owner answer on `Untrusted` chunk reads, 2026-11-27 (`docs/specs/027-concurrency/027-plan.md` "Needs decision" 2); owner decision 2026-11-28 (`docs/audits/2026-11-28-decisions-0.4.md` §2.2 and §6 item 2: option (c) dropped, `i64 Io.stdin.read(to:)` stays, process output has the same shape, `Untrusted` on chunked reads waits for one revision covering every §15.1 source)
 
@@ -19,13 +19,13 @@ Settled by the owner (2026-11-28), and only this:
 - A chunked read of process output (spec 027) takes the same shape as `Io.stdin.read(to:)`.
 - How a chunked read is marked `Untrusted` is decided in this revision, once, for every §15.1 source together, not one source at a time.
 
-Everything else below is a proposal. The "Proposed" column follows the recommendation in each Decisions-needed item; none of it is settled.
+Decided by the owner (2026-11-28): option A in every item under Decisions, with three amendments (D1, D3, D6). The "Decided" column below follows them.
 
 ### Sources
 
 Counts are grep matches in `.byn` and `.diag` files on 2026-11-28, in the order `src/` / `lib/` / `tools/` / `examples/` / `tests/cases/`. They count call sites only. Process output counts `.stdout`/`.stderr` member uses not on `Io.` (an upper bound: it includes golden-expectation fields such as `expected.stdout`).
 
-| §15.1 source | Today (path:symbol) | Proposed | Counts |
+| §15.1 source | Today (path:symbol) | Decided | Counts |
 |---|---|---|---|
 | Request query | not built (`std.http`) | `Untrusted<string>? Request.query(string name)` (as Sūq `catalog.byn:38` writes it) | 0 / 0 / 0 / 0 / 0 |
 | Request body | not built | `Untrusted<ReadOnlySpan<u8>> Request.body` (Sūq `accounts.byn:59`) | 0 / 0 / 0 / 0 / 0 |
@@ -36,7 +36,7 @@ Counts are grep matches in `.byn` and `.diag` files on 2026-11-28, in the order 
 | Third-party API responses | not built | response body `Untrusted<ReadOnlySpan<u8>>`, header values `Untrusted<string>?`, status code clean (non-text scalar) | 0 / 0 / 0 / 0 / 0 |
 | Files from user-chosen paths | `src/semantics/builtins.byn:214` `List<u8> Io.readFile(string path)`, `:223` `string Io.readText(string path)`, `:268` `List<string> Io.listDir(string path)`, `:579` `string Fs.realPath(string path)`, all `fails IoError` | an overload of each taking `Untrusted<string> path` and returning `Untrusted<…>` of the same result; a `string` path keeps the plain result (D4) | `readText` 192 / 1 / 26 / 0 / 15; `readFile` 65 / 0 / 8 / 0 / 13; `listDir` 77 / 2 / 8 / 0 / 5; `realPath` 9 / 3 / 7 / 0 / 6 |
 | stdin, whole | `builtins.byn:1397` `Result<string, IoError> Io.stdin.readAll()`; `:353` `List<u8> Io.stdin.readAllBytes() fails IoError` | `Result<Untrusted<string>, IoError> Io.stdin.readAll()`; `Untrusted<List<u8>> Io.stdin.readAllBytes() fails IoError` | `readAll` 2 / 0 / 0 / 0 / 5; `readAllBytes` 6 / 0 / 0 / 0 / 6 |
-| stdin, chunked | `builtins.byn:364` `i64 Io.stdin.read(to: Span<u8> buffer) fails IoError` | `i64 Io.stdin.read(to: Untrusted<Span<u8>> buffer) fails IoError` (D1 option A) | 3 / 0 / 0 / 0 / 2 |
+| stdin, chunked | `builtins.byn:364` `i64 Io.stdin.read(to: Span<u8> buffer) fails IoError` | `i64 Io.stdin.read(to: Untrusted<Span<u8>> buffer) fails IoError` (D1 option A; a plain `Span<u8>` is BYN2202) | `read(to:` 3 / 0 / 0 / 0 / 2 |
 | Command-line arguments | `src/semantics/compile.byn:990` `main(ReadOnlySpan<string> args)` (BYN2771) | `main(ReadOnlySpan<Untrusted<string>> args)` (D5) | 11 / 0 / 16 / 0 / 26 |
 | Child process output, whole (owner, 2026-11-27) | `builtins.byn:1009-1013` `ProcessResult.stdout`, `.stderr`: `string`; `:60` `IoError.signaled(i32, string stdout, string stderr)`, `.timeout(Millis, string stdout, string stderr)` | `ProcessResult.stdout`, `.stderr`: `Untrusted<string>`; `exitCode` stays `i32`; `signaled(i32 signal, Untrusted<string> stdout, Untrusted<string> stderr)`, `timeout(Millis after, Untrusted<string> stdout, Untrusted<string> stderr)` (D8) | `.stdout`/`.stderr` 520 / 1 / 38 / 0 / 33; `.signaled(` 13 / 0 / 0 / 0 / 5; `.timeout(` 16 / 0 / 1 / 0 / 24 (`Io.run(` 76 / 6 / 21 / 0 / 62, `Io.runBatch(` 2 / 0 / 0 / 0 / 11) |
 | Child process output, chunked | not built (spec 027 `ChildReader`) | `i64 ChildReader.read(to: Untrusted<Span<u8>> buffer)`, the same shape as stdin (owner); `readLine(max:)` keeps 027's `Untrusted<string>?` | 0 / 0 / 0 / 0 / 0 |
@@ -49,7 +49,7 @@ Counts are grep matches in `.byn` and `.diag` files on 2026-11-28, in the order 
 
 The proposal changes builtin signatures and binding rules only. It adds no keyword, operator, clause or grammar form, so revision 0023's syntax freeze allows it.
 
-## Decisions needed
+## Decisions
 
 ### D1. How a chunked read into a caller buffer is marked
 
@@ -76,7 +76,13 @@ The proposal changes builtin signatures and binding rules only. It adds no keywo
   ```
   Pros: no declaration at the call site. Cons: the type of `input` changes without a visible annotation; it needs a flow analysis the compiler does not have; aliases of the buffer (another span over the same list) escape the mark.
 
-Recommendation: **A**. It is the only option that keeps the mark in a type and needs no new analysis.
+Decided: A. Amendment (owner): `read(to:)` rejects a plain `Span<u8>` (BYN2202, per D9), and `readAll` and `readAllBytes` return `Untrusted` in this same revision, not a later one. Every whole-stream read in the spec and `lib/std` is covered: `Io.stdin.readAll` and `Io.stdin.readAllBytes`. `ChildReader` (spec 027) has chunked reads only (`read`, `readLine`) and no whole-stream read; whole child output comes through `ProcessResult` (D8).
+
+| Read | Before | After | Counts (`src/` / `lib/` / `tools/` / `examples/` / `tests/cases/`) |
+|---|---|---|---|
+| `Io.stdin.read(to:)` | `Span<u8>` buffer | `Untrusted<Span<u8>>` buffer; plain `Span<u8>` is BYN2202 | 3 / 0 / 0 / 0 / 2 |
+| `Io.stdin.readAll()` | `Result<string, IoError>` | `Result<Untrusted<string>, IoError>` | 2 / 0 / 0 / 0 / 5 |
+| `Io.stdin.readAllBytes()` | `List<u8> … fails IoError` | `Untrusted<List<u8>> … fails IoError` | 6 / 0 / 0 / 0 / 6 |
 
 ### D2. Which operations carry the mark to their result
 
@@ -90,7 +96,7 @@ Recommendation: **A**. It is the only option that keeps the mark in a type and n
 - **Option B: nothing lifts.** Every use needs `trustUnchecked` first. Pros: nothing to build. Cons: at the counts above (several hundred sites), `trustUnchecked` stops meaning anything and `bayan audit` lists noise.
 - **Option C: every call lifts, user functions included.** Pros: least migration. Cons: a function can no longer state that it takes only trusted input, so sinks written in Bayān lose their check.
 
-Recommendation: **A**.
+Decided: A.
 
 ### D3. Untrusted data into effectful builtins
 
@@ -101,7 +107,13 @@ Recommendation: **A**.
   Pros: no new rule; every write of outside data is visible as a `trustUnchecked`. Cons: writing downloaded bytes or echoing input needs a `trustUnchecked` per write.
 - **Option B: data arguments lift, path arguments become a sink.** The bytes of `writeFile` accept `Untrusted`; its path, and every path of the other calls, reject it like BYN2786. Pros: fewer `trustUnchecked` for plain copying. Cons: a new per-parameter sink list; the line between data and path parameters has to be specified for each builtin.
 
-Recommendation: **A** now; B can be added later without breaking code.
+Decided: A. Amendment (owner): file writes never escape. `Io.writeFile` and the other file effects given an `Untrusted` argument stay BYN2202. BYN2202's help text, when the argument is `Untrusted`, reads: "write the text to the terminal or a log, which escape control characters, or call `trustUnchecked() because "…"` if these are raw bytes you have checked". It names escaped output as the fix for text and `trustUnchecked` only for raw bytes.
+
+Interplay with D6: an `Untrusted` string given to `Io.stdout.write` or `Io.stderr.write` is escaped, not rejected, so those two drop out of option A's BYN2202 list; the file effects keep it. `Untrusted<List<u8>>` (raw bytes) to `Io.stdout.write` has no text to escape and stays BYN2202.
+```bayan
+try Io.writeFile("out.txt", text)   // text: Untrusted<string> → BYN2202 (no escaping on files)
+Io.stdout.write(text)               // escaped, accepted (D6)
+```
 
 ### D4. File reads with an `Untrusted` path
 
@@ -112,7 +124,7 @@ Recommendation: **A** now; B can be added later without breaking code.
   Pros: a CLI that reads the file its user names works with no ceremony. Cons: `../../etc/passwd` from a remote source is not stopped until BYN8004 is built.
 - **Option B: the path parameter is a BYN2786 sink now.** Pros: traversal blocked today. Cons: every tool that reads a file named on its command line needs a `trustUnchecked` per read, or one per `main`.
 
-Recommendation: **A**, since §15.1 already assigns path segments to BYN8004.
+Decided: A.
 
 ### D5. `main` arguments
 
@@ -126,18 +138,33 @@ Recommendation: **A**, since §15.1 already assigns path segments to BYN8004.
 - **Option B: both forms accepted; the `string` form is a warning with the same fix-it.** Pros: no break. Cons: two forms of `main` stay in the language; the warning form keeps argv untyped.
 - **Option C: arguments stay trusted;** §15.1 drops them from the source list. Pros: no migration. Cons: option injection through argv into `Io.run` (BYN2786's own example) goes unchecked.
 
-Recommendation: **A**; all callers in the repository are updated in the same commit.
+Decided: A; all callers in the repository are updated in the same commit.
 
 ### D6. Formatting `{u}`
 
-- **Option A: `{u}` formats `T` with control characters escaped, as `log` does (§14).** BYN2225 no longer fires for `Untrusted<T>`, or for optionals and collections of it. `{u, as: .debug}` is unchanged.
-  ```bayan
-  print($"got {u}")   // "\x1b[2J" prints as \u{1B}[2J
-  ```
-  Pros: builds the existing §15.1 bullet; error messages can show input. Cons: output differs from the raw bytes, so a program that must echo input exactly needs `trustUnchecked`.
+- **Option A: `{u}` formats `T` with control characters escaped, as `log` does (§14).**
 - **Option B: keep BYN2225.** Pros: nothing to build. Cons: every message that shows input needs `trustUnchecked`.
 
-Recommendation: **A**.
+Decided: A, amended (owner). Interpolation does not escape. An interpolated string with any `Untrusted` part (also an optional or collection of one) is `Untrusted<string>`, and the text is kept as is. Escaping happens where text reaches a terminal or log sink: `Io.stdout` and `Io.stderr` writes, `print`, `log`. BYN2225 no longer fires for `Untrusted<T>`. `{u, as: .debug}` is unchanged.
+
+Escape set (applied by the sink to an `Untrusted<string>`; trusted strings are written as they are). §14 says `log` "escapes control characters" and names no form, so this revision fixes it as `\u{X}`: the code point in uppercase hex, no leading zeros.
+
+| Code points | Treatment |
+|---|---|
+| U+000A (`\n`), U+0009 (`\t`) | kept as is |
+| other C0, U+0000–U+001F | escaped, `\u{1B}` form |
+| DEL, U+007F | escaped |
+| C1, U+0080–U+009F | escaped |
+| bidi overrides, U+202A–U+202E, and isolates, U+2066–U+2069 | escaped |
+| everything else | kept as is |
+
+```bayan
+let msg = $"got {u}"           // msg: Untrusted<string>; holds the raw text
+print(msg)                     // u = "\u{1B}[2J" (ESC) prints \u{1B}[2J, not a screen clear
+print($"name {u}")             // u = "a\u{202E}b" prints a\u{202E}b; the override does not reorder the line
+Io.stdout.write(msg)           // escaped the same way
+```
+Pros: builds the existing §15.1 bullet; error messages can show input; a built string still carries the mark to a file or process sink. Cons: terminal output differs from the raw bytes, so a program that must echo input exactly writes it as bytes after `trustUnchecked`.
 
 ### D7. Removing the mark by construction
 
@@ -148,7 +175,7 @@ Recommendation: **A**.
   Pros: builds §15.1 "only construction of a type with `requires` removes it"; gives a checked way out. Cons: one more binding rule.
 - **Option B: `trustUnchecked` stays the only way out.** Pros: nothing to build. Cons: validated input still needs an unchecked escape.
 
-Recommendation: **A**.
+Decided: A.
 
 ### D8. Process output payloads
 
@@ -160,7 +187,7 @@ Recommendation: **A**.
   Pros: the same bytes have the same type whether the child exits or is stopped. Cons: code that matches on `.timeout(_, out, err)` changes too (16 / 0 / 1 / 0 / 24).
 - **Option B: only `ProcessResult` is wrapped.** Pros: smaller change. Cons: the same child output is trusted when it comes through an error payload.
 
-Recommendation: **A**.
+Decided: A.
 
 ### D9. A new diagnostic code
 
@@ -171,7 +198,7 @@ Recommendation: **A**.
 
 ## Sections
 
-If the recommendations are accepted:
+As decided (owner, 2026-11-28):
 
 - SPEC header: `Revisions applied: 0001–0027`.
 - SPEC §15.1, the "Sources" bullet: the Sources table, child process output added to the source list, and `Env.get` named as trusted.
@@ -179,7 +206,7 @@ If the recommendations are accepted:
 - SPEC §15.1, the "Filtering" bullet: D7's `try T(u)`.
 - SPEC §15.1, the "Processes" bullet: D8.
 - SPEC §15.1, the "Standard streams" bullet: the new types of `readAll`, `readAllBytes` and `read(to:)`. Drop "For now `readAll` returns a plain `string`, not `Untrusted<string>`."
-- SPEC §15.1, the "Terminal output" bullet: D6.
+- SPEC §15.1, the "Terminal output" bullet: D6 (an interpolated string with an `Untrusted` part is `Untrusted<string>`; terminal and log sinks escape per the D6 table) and D3 (file writes never escape).
 - SPEC §15.1, the "Implemented so far" bullet: drop "Sources are not yet wrapped."
 - SPEC §7.9: no change. `fromJson(Untrusted<string> body)` now takes `try Io.stdin.readAll()` directly.
 - `docs/STATUS.md:30`: `Untrusted<T>` becomes `partial` until this is built, with evidence updated to `src/semantics/`. The IoInput and ProcessResult stdlib rows take the new types.
@@ -193,8 +220,8 @@ Checked in `src/semantics/codes.byn` (2026-11-28): the 8000–8999 range holds o
 | Code | Change |
 |---|---|
 | BYN2771 | D5 A: message becomes "`main` must return `void` or `i32` and take nothing or `ReadOnlySpan<Untrusted<string>> args`". New fix-it from `ReadOnlySpan<string>`. Page updated. |
-| BYN2225 | D6 A: the `Untrusted<T>` cases retire. The `Box` case (no `formatInto`) stays. |
-| BYN2202 | No change in meaning. It is the error for an `Untrusted` argument to a non-lifting function (D2, D3), including `read(to:)` given a plain `Span<u8>` (D1 A). Its help names `Untrusted(…)` for the buffer. |
+| BYN2225 | D6 A: the `Untrusted<T>` cases retire (interpolation yields `Untrusted<string>`). The `Box` case (no `formatInto`) stays. |
+| BYN2202 | No change in meaning. It is the error for an `Untrusted` argument to a non-lifting function (D2) or a file effect (D3), including `read(to:)` given a plain `Span<u8>` (D1 A). Help text: for the buffer, `Untrusted(…)`; for an `Untrusted` argument to a file effect, escaped terminal output for text and `trustUnchecked` only for raw bytes (D3). |
 | BYN2786 | Unchanged; under D3 B it would gain path parameters. |
 | BYN8004 | Stays reserved (spec-only). D4 A leaves untrusted file paths to it. |
 | BYN8006 | Meaning unchanged. It fires on more programs: an `expects` reading `args`, stdin or process output now reads an `Untrusted` value. |
@@ -214,7 +241,7 @@ Call-site counts are in the Sources table.
 - Runtime: no change. `Untrusted<T>` has `T`'s C representation (§15.1), so `byn_io_read_stdin_some` and `ProcessResult` stay as they are.
 - `bootstrap/` is regenerated after the self-hosted compiler builds the change.
 
-Golden cases a build needs (under the recommendations; names are new unless they exist today):
+Golden cases a build needs (as decided; names are new unless they exist today):
 
 | Case | Kind | Covers |
 |---|---|---|
@@ -224,7 +251,7 @@ Golden cases a build needs (under the recommendations; names are new unless they
 | `diag/expects-reads-untrusted` | existing, updated | BYN8006 on an `expects` reading `args` |
 | `diag/untrusted-read-plain-span` | new | BYN2202 for `Io.stdin.read(to:)` given `Span<u8>` (D1) |
 | `diag/untrusted-user-function-arg` | new | BYN2202 for `Untrusted<string>` into a user `string` parameter (D2) |
-| `diag/untrusted-effectful-write` | new | BYN2202 for `Io.writeFile` and `Io.stdout.write` given `Untrusted` (D3) |
+| `diag/untrusted-effectful-write` | new | BYN2202 for `Io.writeFile` given `Untrusted<string>` or `Untrusted<List<u8>>`, and `Io.stdout.write` given `Untrusted<List<u8>>` (D3) |
 | `diag/untrusted-struct-field` | new | BYN2202 for an `Untrusted` struct-literal field (D7) |
 | `diag/untrusted-process-output-sink` | new | BYN2786 for `r.stdout` passed as an `Io.run` argument (D8) |
 | `run/main-args` | existing, updated | new `main` type (D5) |
@@ -235,9 +262,9 @@ Golden cases a build needs (under the recommendations; names are new unless they
 | `run/untrusted-parse-stays` | new | `try i32.parse(u)` is `Untrusted<i32>` (D2) |
 | `run/untrusted-read-file-path` | new | `Io.readText(Untrusted path)` returns `Untrusted<string>` (D4) |
 | `run/untrusted-requires-construct` | new | `try Email(u)` gives a trusted `Email` (D7) |
-| `run/untrusted-format-escaped` | new | `{u}` with control characters prints escaped (D6) |
+| `run/untrusted-format-escaped` | new | interpolation with `{u}` is `Untrusted<string>`; `print`, `log` and `Io.stdout.write` escape the D6 set (ESC, U+202E) and keep `\n`, `\t` |
 | `run/untrusted-process-output` | new | `ProcessResult.stdout` compared and lifted (D8) |
 
 ## Diff
 
-The changes apply to §15.1 as listed under Sections, with the text taken from the accepted options. No other SPEC section changes.
+The changes apply to §15.1 as listed under Sections, with the text taken from the decided options. No other SPEC section changes.
