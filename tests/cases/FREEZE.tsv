@@ -1,7 +1,7 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
 cases	cli	4489
-cases	diag	905
+cases	diag	907
 cases	diag-json	2
 cases	emit	3
 cases	emit-c	7797
@@ -14875,6 +14875,8 @@ file	7a835be13eb347cf878d34ac1979f8e061af5411	tests/cases/diag/semicolon-input.d
 file	e357a47a9fe409e4ced3aef8328707002bda0383	tests/cases/diag/shadowing.diag
 file	67cd6d6ec9bdb307ff55e71718eb31d9c716e870	tests/cases/diag/single-state-inline.diag
 file	3e6f6c72777a9db972ced631669dc4fb995bdd26	tests/cases/diag/single-state-local-alias.diag
+file	43a0771097789fc92d8b06100c4c2b1e7339e47a	tests/cases/diag/slice-readonly-span-argument-still-lint.diag
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/diag/slice-span-argument-writes-var.diag
 file	59f04b0ca29afd6bcf88ee4e3e41e86293f2273e	tests/cases/diag/span-arg-not-a-place.diag
 file	fb50cc51cda4703e19ea60b7c1a1e3fbb5c5b427	tests/cases/diag/span-let-write.diag
 file	44fc04e5fddfb51aa8f1e75d39c3c9ff2a63dbef	tests/cases/diag/span-parameter-never-written.diag

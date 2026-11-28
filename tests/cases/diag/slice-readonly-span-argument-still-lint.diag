@@ -1,0 +1,17 @@
+warning BYN2311: `scores` is never reassigned; declare it with `let`
+
+  10 │     var scores: List<i32> = [72, 91, 85]
+     │         ^^^^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 10 │     let scores: List<i32> = [72, 91, 85]
+     │    │     +++
+
+warning BYN2311: `marks` is never reassigned; declare it with `let`
+
+  11 │     var marks: List<i32> = [1, 2, 3]
+     │         ^^^^^
+     │
+  help: declare it with `let` to tell the reader the value never changes
+     │ 11 │     let marks: List<i32> = [1, 2, 3]
+     │    │     +++
