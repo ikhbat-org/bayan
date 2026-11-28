@@ -14,6 +14,9 @@
 # run at once without sharing a file (preflight.sh reads tmp/wp1). On wlt1 the remote command first puts zig on PATH.
 # WIN_THREADS=N adds `--jobs N` to scripts/test.sh. BAYAN_TEST_TIME_SCALE (default 3) is passed through.
 # WIN_TRX is dropped: scripts/test.sh writes no trx.
+# WIN_PERF_SCHEME (default: wlt1's Performance plan ae098e76-5b05-4954-be35-3c535b591fce, none on other hosts) is the power plan
+# the host runs under while a run is in flight; it idles on WIN_IDLE_SCHEME (default SCHEME_BALANCED). Each run holds
+# tmp/<host>/perf-holders/<pid>; the last run to finish (dead holders pruned) switches the host back. Empty: no switch.
 # WIN_CC sets CC for the remote run (e.g. 'zig cc'); unset, the remote run unsets CC, since wp1's user environment points CC at a
 # removed tdm-gcc (2026-11-18), and bootstrap-build.sh then picks cc or zig.
 set -u
@@ -46,6 +49,13 @@ New-Item -ItemType File -Force '$S.wp1-test' | Out-Null; git clone -q -b $BR $S.
 Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; & '$WB' -c '${CCX}exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $FILT$XTRA'; exit \$LASTEXITCODE"
 printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh %s "%s"\n' "$BR" "$SHA" "$FILT" "$H" "$CMD" > "$OUT"
 scp -q "tmp/$H/$S.bundle" "$H:/$R/" >> "$OUT" 2>&1; rc=$?
+PERF=${WIN_PERF_SCHEME-}; [ -n "${WIN_PERF_SCHEME+x}" ] || { [ "$H" != wlt1 ] || PERF=ae098e76-5b05-4954-be35-3c535b591fce; }
+IDLE=${WIN_IDLE_SCHEME:-SCHEME_BALANCED}
+for x in "$PERF" "$IDLE"; do case $x in *[!A-Za-z0-9_-]*) echo "wp1-test: bad power scheme $x"; exit 2;; esac; done
+HD="tmp/$H/perf-holders"
+perf_off() { rm -f "$HD/$$"; for p in "$HD"/*; do [ -e "$p" ] || continue; kill -0 "${p##*/}" 2>/dev/null || rm -f "$p"; done
+  [ -n "$(ls -A "$HD" 2>/dev/null)" ] || ssh "$H" "powercfg /setactive $IDLE" > /dev/null 2>&1 || true; }
+if [ $rc = 0 ] && [ -n "$PERF" ]; then mkdir -p "$HD"; : > "$HD/$$"; trap perf_off EXIT; ssh "$H" "powercfg /setactive $PERF" > /dev/null 2>&1 || true; fi
 [ $rc = 0 ] && { ssh "$H" "$CMD" >> "$OUT" 2>&1; rc=$?; }
 echo "exit $rc" >> "$OUT"
 tail -4 "$OUT"
