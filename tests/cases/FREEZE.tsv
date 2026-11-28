@@ -1,6 +1,6 @@
 tag	v0.3.2	984aa479d5e5e9833402cf9975a43a956333145b
 export	chore/019-export	e0cf66ea9ebbd67ec455c8e2d5b0a3666592cf85
-cases	cli	4489
+cases	cli	4490
 cases	diag	907
 cases	diag-json	2
 cases	emit	3
@@ -6896,6 +6896,9 @@ file	573541ac9702dd3969c9bc859d2b91ec1f7e6e56	tests/cases/cli/SelfhostDriverFixT
 file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverFixTests/FixAsStage2/expected.stderr
 file	49c2a0722edfb0752510abb41dcd3782f0a6c58e	tests/cases/cli/SelfhostDriverFixTests/FixAsStage2/expected.stdout
 file	3b2b87332a416cad531c613a3e0b0e37c4b65209	tests/cases/cli/SelfhostDriverFixTests/FixAsStage2/expected.tree
+file	0cfbf08886fca9a91cb753ec8734c84fcbe52c9f	tests/cases/cli/SelfhostDriverModeTests/ABuildWithModeSmallIsAUsageError/expected.exitcode
+file	e9ad37613dc942e605aefe4e01a383fcbbd6857c	tests/cases/cli/SelfhostDriverModeTests/ABuildWithModeSmallIsAUsageError/expected.stderr
+file	e69de29bb2d1d6434b8b29ae775ad8c2e48c5391	tests/cases/cli/SelfhostDriverModeTests/ABuildWithModeSmallIsAUsageError/expected.stdout
 file	0cfbf08886fca9a91cb753ec8734c84fcbe52c9f	tests/cases/cli/SelfhostDriverMutateTests/MutateDeepSiteMapsAsCliAppDoes-2/expected.exitcode
 file	a782594afb66591bc9c701b81038fb3b87d3ce24	tests/cases/cli/SelfhostDriverMutateTests/MutateDeepSiteMapsAsCliAppDoes-2/expected.report
 file	bef6b1b928d18dd71091526e6cf1474ba9d36189	tests/cases/cli/SelfhostDriverMutateTests/MutateDeepSiteMapsAsCliAppDoes-2/expected.stderr
