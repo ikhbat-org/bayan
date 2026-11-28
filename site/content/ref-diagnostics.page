@@ -2066,7 +2066,7 @@ id.value = 2</code></pre>
 </figure>
 
 <h3 id="byn2106">BYN2106: modifying a temporary or read-only value</h3>
-<p><strong>Why.</strong> Only variables, fields of variables, and elements of lists, arrays and spans can be written. A call result is a temporary copy, and the bytes of a string are read-only.</p>
+<p><strong>Why.</strong> Only variables, fields of variables, and elements of lists, arrays and spans can be written. A call result is a temporary copy, and the bytes of a string are read-only. Passing a call result or a map value as a <code>Span&lt;T&gt;</code>, as in <code>fill(make())</code>, is a write too, and so is writing through a slice of a <code>let</code>.</p>
 <p><strong>Fix.</strong> Store the value in a <code>var</code> first, or copy the bytes into a buffer you own.</p>
 <p>A program that triggers it:</p>
 <pre><code class="byn">let s = "abc"

@@ -2,6 +2,27 @@
 
 ## [Unreleased]
 
+### Added
+- `bayan --help` prints a short help grouped by task, and `bayan help <command>` (or `<command> --help`) prints that command's options.
+- `bayan parse <file>` without `--ast` checks syntax: diagnostics on stderr, exit 1 if any. `bayan lex --json <file>` prints the lexer's JSON.
+- Laws L031 (no exit code on a failed wait) and L038 (format is idempotent and meaning-preserving) are enacted.
+
+### Changed
+- A writable `Span` argument must be a writable place (Q1289, breaking). A function result or a map value passed as `Span<T>` is BYN2106 (`fill(make())`, `fill(m["a"])`); before, a temporary was accepted.
+- A slice of a value that is not a writable place (a `let`, a parameter, a readonly field, a temporary, a map value) is a `ReadOnlySpan`: writing through it is BYN2106, passing it as `Span<T>` is BYN2202 (audit 07 #3). A slice of a `var` stays writable.
+- A `let` list or array passed as `Span<T>` is BYN2104, as a direct element write is (audit 07 #3).
+- `bayan dist --target all` skips `wasm32` with a note; `--target wasm32` still fails with BYN4001.
+- The version line is `bayan <version>`, without `(selfhost)`.
+
+### Fixed
+- An operand read after a call that takes it by `ref` or `ref this` sees the call's effect: `bump(ref n) + n` adds the new `n` (HF-0002).
+- The `requires` field check (BYN3216, BYN3208) covers `ref` and `out` arguments and nested fields (audit 07 #4).
+- A field write on a `type distinct` value no longer panics the checker; its `requires` clauses are checked as a struct's are.
+- The implicit string-to-bytes conversion and compound assignment through `xs[i].f` evaluate their operand once (audit 09 #1, #3).
+- `bayan run` no longer starts a stale binary after a script's imported module changes: the cache key adds the script's full path and `--package` root, and a script that imports a module of its own is not remembered; its C compile is still cached (audit 10 #2, Q1288).
+- `List.sort` swaps elements with `memcpy`, so it runs under Fil-C (HF-0003).
+- Audit LOWs in the lexer, parser, driver, std glob and regex, language server and release archives (audit 03 #1, #2, #4, #5; 04 #4–#6; 10 #5, #9, #10; 13 #5, #7, #9; 14 #3–#5, #7, #8; 15 #1, #2, #5).
+
 ## [0.4.1] - 2026-11-27
 
 A prerelease of fixes from the 0.4.0 release audit (`docs/misc/2026-11-25-v0.4.0-audit.md`): 15 of its 20 HIGH findings and a batch of its MEDIUMs.

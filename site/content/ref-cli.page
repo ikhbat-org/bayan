@@ -116,7 +116,7 @@ arg: two</code></pre>
 <p>A program sets its exit code by returning an <code>i32</code> from <code>main</code>:</p>
 <example name="cli-exit"/>
 <p><code>bayan run</code> exits 1 when compilation fails and 4 when the toolchain fails. After the program starts, <code>bayan run</code> exits with the program's own code, unchanged. That means it cannot tell a build failure from a program that exits 1. When the difference matters, run <code>bayan build</code> first, or read <code>--diagnostics json</code>. A program that panics ends with the abort status (134 on macOS and Linux).</p>
-<p>Compiled programs are cached, so a second run of an unchanged program starts at once. A script is remembered by its exact bytes, mode and compiler version.</p>
+<p>Compiled programs are cached, so a second run of an unchanged program starts at once. A script is remembered by its exact bytes, full path, <code>--package</code> root, mode and compiler version. A script that imports a module of its own is checked again on each run, so an edit to the module is never missed; its C compile still comes from the cache.</p>
 
 <h3 id="test"><code>bayan test &lt;path&gt;</code></h3>
 <p>Builds the tests and runs each one in its own process. A test is a <code>test "name" { … }</code> block in a <code>.test.byn</code> file; the book's <a href="book-12-testing.html">testing chapter</a> covers writing them.</p>
@@ -148,7 +148,7 @@ running 1 test in 1 module
 
 <h3 id="dist"><code>bayan dist [&lt;dir&gt;]</code></h3>
 <pre><code>bayan dist [dir] [--target t|all] [--mode m] [--force] [--allow-dirty]</code></pre>
-<p>Builds release binaries for the targets listed in the manifest's <code>dist.targets</code>, or for <code>--target</code> (<code>all</code> means every target), into <code>dist/&lt;version&gt;/&lt;target&gt;/</code>. It also writes:</p>
+<p>Builds release binaries for the targets listed in the manifest's <code>dist.targets</code>, or for <code>--target</code> (<code>all</code> means every target but <code>wasm32</code>, which it skips with a note), into <code>dist/&lt;version&gt;/&lt;target&gt;/</code>. It also writes:</p>
 <ul>
 <li><code>SHA256SUMS</code>, in <code>sha256sum</code> format.</li>
 <li><code>BUILDINFO.json</code>: package, version, compiler, mode, targets, source commit and whether the tree was dirty, and a hash of the inputs. It holds no timestamps, so the same inputs give the same file.</li>
