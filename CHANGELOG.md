@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-11-28
+
+All five 0.4.0 audit HIGHs left open in 0.4.1 are fixed, each with a regression golden that fails on 0.4.1.
+
+### Known limits
+- Audit 05 #8 (`become` payloads) is still fixed in part: a payload that borrows a parameter is missing from the caller's summary, and `lowerBecome` does not free the old payload (`work/todo.md`).
+- The Known limits of 0.4.0 still apply.
+
 ### Added
 - `bayan --help` prints a short help grouped by task, and `bayan help <command>` (or `<command> --help`) prints that command's options.
 - `bayan parse <file>` without `--ast` checks syntax: diagnostics on stderr, exit 1 if any. `bayan lex --json <file>` prints the lexer's JSON.
@@ -24,6 +32,12 @@
 - `List.sort` swaps elements with `memcpy`, so it runs under Fil-C (HF-0003).
 - BYN2311 no longer tells you to declare a `var` with `let` when a slice of it is written through a `Span` (`curve(scores[1..3], by: 5)`, `let j: Span<i32> = xs[0..2]`); following that advice made the program fail to compile. A slice that is only read still gets the warning.
 - Audit LOWs in the lexer, parser, driver, std glob and regex, language server and release archives (audit 03 #1, #2, #4, #5; 04 #4–#6; 10 #5, #9, #10; 13 #5, #7, #9; 14 #3–#5, #7, #8; 15 #1, #2, #5).
+
+### Revisions
+- none
+
+### Status changes
+- BYN2106 (cannot modify this value) (Features): new, built
 
 ## [0.4.1] - 2026-11-27
 

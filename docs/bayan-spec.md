@@ -1,6 +1,6 @@
 # Bayān — Language Specification
 
-Version: 0.4.1 (matches `bayan --version`)
+Version: 0.4.2 (matches `bayan --version`)
 Revisions applied: 0001–0024
 
 > **Status:** normative for `bayan 0.4` unless a section says otherwise. It describes the language as designed; a `(not in 0.4)` or `(partial in 0.4: …)` tag marks what `bayan 0.4` does not implement yet.

@@ -497,7 +497,7 @@ per-target `latest/` that every build replaces, while `bayan dist` writes `dist/
 `dist/latest/`.
 
 ```sh
-scripts/dist.sh                                # this host: dist/macos-arm64/0.4.1/bayan
+scripts/dist.sh                                # this host: dist/macos-arm64/0.4.2/bayan
 scripts/dist.sh --rid linux-x64                # another target, cross-built through zig
 ```
 

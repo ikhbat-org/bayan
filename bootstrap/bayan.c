@@ -212001,7 +212001,7 @@ byn_str byn_main__t9Key(byn_str p_mode, bynt_opt_str p_target, bynt_list_str p_c
 #line 316 "driver/cache.byn"
     l0_sb = byn_strbuf_grow(byn_context);
 #line 317 "driver/cache.byn"
-    (void)byn_w_str(&l0_sb, BYN_STR("0.4.1", 5));
+    (void)byn_w_str(&l0_sb, BYN_STR("0.4.2", 5));
 #line 318 "driver/cache.byn"
     (void)byn_w_str(&l0_sb, BYN_STR("\000", 1));
 #line 319 "driver/cache.byn"
@@ -215284,7 +215284,7 @@ byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str 
 #line 1192 "driver/cache.byn"
     (void)byn_w_str(&l0_sb, BYN_STR("\000", 1));
 #line 1193 "driver/cache.byn"
-    (void)byn_w_str(&l0_sb, BYN_STR("0.4.1", 5));
+    (void)byn_w_str(&l0_sb, BYN_STR("0.4.2", 5));
 #line 1194 "driver/cache.byn"
     (void)byn_w_str(&l0_sb, BYN_STR("\000", 1));
 #line 1195 "driver/cache.byn"
@@ -215326,7 +215326,7 @@ byn_str byn_main__scriptKey(bynt_span_u8 p_script, byn_str p_mode, bynt_opt_str 
 
 byn_str byn_main__compilerBuild(void) {
 #line 1217 "driver/cache.byn"
-    return BYN_STR("0.4.1", 5);
+    return BYN_STR("0.4.2", 5);
 }
 #line 215332 "main.c"
 
@@ -221681,7 +221681,7 @@ byn_str byn_main__distBuildInfo(byn_str p_name, byn_str p_release, byn_str p_mod
         w->file = byn_file_98;
         w->line = 409;
         byn_w_str(w, BYN_STR("  \042compiler\042: \042bayan ", 21));
-        byn_w_str(w, BYN_STR("0.4.1", 5));
+        byn_w_str(w, BYN_STR("0.4.2", 5));
         byn_w_str(w, BYN_STR("\042,\012", 3));
     }
 #line 410 "driver/dist.byn"
@@ -222126,7 +222126,7 @@ int32_t byn_main__doctorCommand(bynt_main__DCtx p_d) {
         byn_writer* w = &t1;
         w->file = byn_file_99;
         w->line = 55;
-        byn_w_str(w, BYN_STR("0.4.1", 5));
+        byn_w_str(w, BYN_STR("0.4.2", 5));
     }
 #line 55 "driver/doctor.byn"
     (void)bynh_add_list_main__T5Check(&l0_checks, ((bynt_main__T5Check){((byn_main_T5Level)0), BYN_STR("bayan", 5), byn_strbuf_str(t1), ((bynt_opt_str){0})}));
@@ -233774,7 +233774,7 @@ byn_str byn_main__goldenStyleMask(byn_str p_text, byn_str p_dir, byn_str p_cache
         l0_t = t13;
     }
 #line 1670 "driver/golden.byn"
-    t14 = byn_str_replaced(byn_str_replaced(byn_str_replaced(l0_t, byn_main__t5HostTarget(), BYN_STR("<host>", 6), byn_context, byn_file_104, 1670), BYN_STR("0.4.1", 5), BYN_STR("<version>", 9), byn_context, byn_file_104, 1670), BYN_STR(".exe", 4), BYN_STR("", 0), byn_context, byn_file_104, 1670);
+    t14 = byn_str_replaced(byn_str_replaced(byn_str_replaced(l0_t, byn_main__t5HostTarget(), BYN_STR("<host>", 6), byn_context, byn_file_104, 1670), BYN_STR("0.4.2", 5), BYN_STR("<version>", 9), byn_context, byn_file_104, 1670), BYN_STR(".exe", 4), BYN_STR("", 0), byn_context, byn_file_104, 1670);
 #line 1670 "driver/golden.byn"
     l0_t = t14;
 #line 1672 "driver/golden.byn"
@@ -241794,7 +241794,7 @@ byn_str byn_main__goldenCliVersionLine(byn_str p_line) {
         w->file = byn_file_105;
         w->line = 926;
         byn_w_str(w, BYN_STR("bayan ", 6));
-        byn_w_str(w, BYN_STR("0.4.1", 5));
+        byn_w_str(w, BYN_STR("0.4.2", 5));
     }
 #line 926 "driver/goldenexport.byn"
     if (byn_str_eq(p_line, byn_strbuf_str(t0))) {
@@ -255700,7 +255700,7 @@ byn_str byn_main__versionLine(void) {
         w->file = byn_file_108;
         w->line = 324;
         byn_w_str(w, BYN_STR("bayan ", 6));
-        byn_w_str(w, BYN_STR("0.4.1", 5));
+        byn_w_str(w, BYN_STR("0.4.2", 5));
     }
 #line 324 "driver/main.byn"
     return byn_strbuf_str(t0);
