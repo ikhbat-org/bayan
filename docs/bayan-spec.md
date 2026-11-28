@@ -184,7 +184,7 @@ C# primitive names are accepted per project (`style.primitives: .sized | .csharp
 
 Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). BYN1030 is retired; the C# primitive names stay reserved words, so none can be declared as an identifier (revision 0001).
 
-**`dec` (decimal arithmetic; not in 0.3).**
+**`dec` (decimal arithmetic; not in 0.4).**
 - **Representation:** a 128-bit value with a .NET-compatible layout: a 96-bit unsigned integer coefficient (`0` to `2^96 - 1`, `79_228_162_514_264_337_593_543_950_335`), a sign bit, and a scale `0..=28` (divisor `10^scale`). The C ABI layout matches .NET `System.Decimal` and database numeric columns directly.
 - **Literals and scale:** written with the `dec` suffix on an integer or decimal literal (`2.50dec`, `85dec`, `0.025dec`; no exponent, no hex or binary). A literal preserves its written trailing fractional zeros in its scale: `1.50dec` has scale 2, prints `1.50` (`string(1.50dec)` is `"1.50"`), and compares equal to `1.5dec` (`1.50dec == 1.5dec` is `true`, and `<`, `<=`, `>`, `>=` compare numerical values). A literal with more than 28 fractional digits or a coefficient above `2^96 - 1` is a compile error.
 - **Arithmetic, rounding and overflow:** `+`, `-`, `*`, `/`, `%` and unary `-` operate on `dec`. Addition and subtraction keep the larger of the operands' scales, multiplication adds scales, and division uses the scale needed for the quotient, each capped at 28; when a result exceeds 96 bits of coefficient or 28 fractional digits and can be brought in range by discarding fractional digits, it rounds once to nearest, ties to even. Overflow (a magnitude above `(2^96 - 1)` at scale 0) and division by zero trap in every build mode (§0, §17); `+% -% *%` and `+| -| *|` do not apply to `dec`.
@@ -264,7 +264,7 @@ void main() {
 - No stored lambdas keyed by symbol (`Map<Symbol, () -> void>` is BYN2822, §3.16): key a `Map<Symbol, i32>` and switch on the value.
 - A lambda cannot capture a `Map` (BYN2780): pass the symbol table as a parameter.
 
-### 3.4 Units and distinct types (partial in 0.4: `type distinct` only; `unit` declarations and unit suffixes are not in 0.3)
+### 3.4 Units and distinct types (partial in 0.4: `type distinct` only; `unit` declarations and unit suffixes are not in 0.4)
 
 ```csharp
 unit Seconds(s): i64             // name, literal symbol, storage
@@ -298,7 +298,7 @@ type distinct UserId = i64       // a unit without arithmetic
 - **`Map` keys:** an integer type, `rune`, `bool`, `string`, a plain enum, `Symbol` (§3.3), a tuple whose elements are all keys, or a struct whose fields are all keys and which is not `@noEquality`. Two keys are equal when `==` says so (§6.7). A struct or tuple that is not a key is BYN2831, naming the first field or element that rules it out and its type; any other key type (a float, an optional, an enum with data, a collection) is BYN2760. A type parameter used as a key is checked at each instantiation. A key hashes its value only: a `Symbol` its ID, a `string` its text, a tuple or struct its parts in declaration order, never padding bytes, so two `==` keys built apart are one entry.
 - `xs.remove(from: start, until: end)` removes the elements in `[start, end)` and keeps the order of the rest; `xs.remove(from: start, through: end)` includes `end`; `xs.remove(at: range)` takes a range. `start > end` or `end > xs.length` panics (`slice out of range`). Like `append` and `removeLast`, they are structural modifications (§9.4 rule 5).
 - A module-level `const T[N]` with literal or constant elements is static data in `.rodata` when `T` is a number type, `bool`, `rune` or `string` (`const names: string[2] = ["a", "b"]`); it can be indexed, iterated and asked its `.length`. Any other module-level `const` array is BYN2229.
-- **Typed indices (opt-in; not in 0.3: `List<T, I>` is BYN2023 and there is no `Index` type).** There are no automatic `T.Count` or `T.Index` types. A collection may take an index type as a second parameter, keyed by the collection rather than the element type, so parallel arrays share one:
+- **Typed indices (opt-in; not in 0.4: `List<T, I>` is BYN2023 and there is no `Index` type).** There are no automatic `T.Count` or `T.Index` types. A collection may take an index type as a second parameter, keyed by the collection rather than the element type, so parallel arrays share one:
 
   ```csharp
   type distinct RowId = Index
@@ -313,7 +313,7 @@ type distinct UserId = i64       // a unit without arithmetic
   Plain `List<T>` keeps plain `Index`, and `0..xs.length` works as before. Typed collections expose `.indices`; `xs[^1]` resolves against the collection's own index type. Indexing with another index type is an error (BYN3210, spec-only).
 
 > Round 3 §9: typed indices catch mixed-up indices in parallel arrays without imposing a type per element type. Codes: BYN3210.
-- **`StrBuf`** is the string builder and the target of every `xInto(ref StrBuf)` (§5.2): `StrBuf(capacity: n)` allocates from `context.allocator`; `StrBuf.over(stackalloc u8[n] uninit)` uses the stack first and spills to the allocator only if outgrown; `append(x)`, `append($"…")` (interpolation writes straight into the buffer), `appendRepeated(c, by: n)`; `buf.view` is a borrowed string view, no allocation; `buf.finish()` returns the text as a loan on the buffer, without copying (revision 0018). The buffer stays usable: `append` and `appendRepeated` keep text taken earlier valid, because growth moves to a fresh block and leaves the old one. While a string from `view` or `finish()` is live, `clear` and `insert` (BYN3004) and `take` (BYN3006) are refused (partial in 0.4: `StrBuf.over` takes a plain `stackalloc u8[n]`; `uninit` is not in 0.3, §9.5).
+- **`StrBuf`** is the string builder and the target of every `xInto(ref StrBuf)` (§5.2): `StrBuf(capacity: n)` allocates from `context.allocator`; `StrBuf.over(stackalloc u8[n] uninit)` uses the stack first and spills to the allocator only if outgrown; `append(x)`, `append($"…")` (interpolation writes straight into the buffer), `appendRepeated(c, by: n)`; `buf.view` is a borrowed string view, no allocation; `buf.finish()` returns the text as a loan on the buffer, without copying (revision 0018). The buffer stays usable: `append` and `appendRepeated` keep text taken earlier valid, because growth moves to a fresh block and leaves the old one. While a string from `view` or `finish()` is live, `clear` and `insert` (BYN3004) and `take` (BYN3006) are refused (partial in 0.4: `StrBuf.over` takes a plain `stackalloc u8[n]`; `uninit` is not in 0.4, §9.5).
 
 > Round 2 §11, §12, §15: `append` replaces `add` on ordered collections; `finish()` and `view` replace `asString()`; C# type names are accepted in type positions (BYN1030 is retired). Codes: none. Round 3 deliverable 4 restores `length` as the size name.
 - Every allocator-backed collection (`List`, `Map`, `Set`, `Pool`) and `StrBuf` is **`unique`** (§3.11): assigning or storing one moves it, and a copy is explicit, `xs.copy(to: alloc)`. Reading without owning goes through `ReadOnlySpan<T>`, a read-only parameter or `ref`.
@@ -573,7 +573,7 @@ type OrderFilter = Order -> bool
 - A stored lambda is non-capturing (a function pointer) or an explicit `dyn (A -> B)` allocated from `context.allocator`.
 - `move () => …` moves captures in. Capturing a `var` follows the borrow rules (§9.4).
 - No multicast delegates; `Event<T>` replaces `event` (§16).
-- 0.3 ships the subset below (spec 007); the rest of this section is not in 0.3.
+- 0.4 ships the subset below (spec 007); the rest of this section is not in 0.4.
 
 > Round 2 §8: one function-type syntax and one shorthand (`it`); `.member` keeps a single meaning; storage cost is explicit. Codes: BYN1028, BYN2029.
 
@@ -606,7 +606,7 @@ void main() {
 ```
 
 - **Function types** `A -> B`, `(A, B) -> C`, `() -> void`, with `uses e, f` and then `fails E, F` after the return type (the other order is BYN1065). `->` is right-associative; `?` and `[N]` bind to the type they follow (`A -> B?` returns `B?`). Two function types are the same type when parameters, return, error sets and effects are equal; there is no variance. A type displays in source form, error sets with their type arguments (`() -> Form fails ValidationError<Form>`); a bare `ValidationError` is BYN2023 and an unknown effect BYN6003.
-- **Placement:** a parameter type (parenthesized before the name, `by (Token -> bool) p`, or through an alias), a `type` alias target and a local's type (`let f: Pred = isBig`). A field, property, return type, constant, union or error payload, type argument, or an optional, span, list, map, array or tuple of a function type is BYN2822, so the stored `(Line -> Money uses net) pricer` above is not in 0.3. Aliases take no type parameters: `type Predicate<T>` is later; spell one alias per type.
+- **Placement:** a parameter type (parenthesized before the name, `by (Token -> bool) p`, or through an alias), a `type` alias target and a local's type (`let f: Pred = isBig`). A field, property, return type, constant, union or error payload, type argument, or an optional, span, list, map, array or tuple of a function type is BYN2822, so the stored `(Line -> Money uses net) pricer` above is not in 0.4. Aliases take no type parameters: `type Predicate<T>` is later; spell one alias per type.
 - **Named functions as values:** a module-level, non-generic function whose signature matches exactly. Particles are part of the name, not the type: `i32 clamp(i32 x, to i32 max)` is a `(i32, i32) -> i32`. A built-in, generic function, method, constructor or variant named as a value is BYN2824 (wrap it in a lambda); a signature mismatch is BYN2202 showing both signatures. `Panic.handler` keeps its own rule (§7.6).
 - **Lambdas** are `x => …`, `(a, b) => …` or `() => …` with an expression or block body. Parameters are names only; a typed, modified or particle-labelled parameter is BYN1001. A lambda takes its parameter types, return type and error sets from the function type expected where it appears: none expected is BYN2218, a parameter count that differs is BYN2820. `return`, `break`, `continue` and `defer` in the body are the lambda's own; a non-`void` expression body where `void` is returned is BYN3201.
 - **`it`:** an argument that mentions `it`, where a one-parameter function type is expected, is a lambda with the parameter `it`. A second `it` shorthand inside it, or one inside a `requires` rule (where `it` is the checked value), is BYN2029; name one lambda. `.member` where a function type is expected is BYN2823 with a fix to `it.member`.
@@ -765,7 +765,7 @@ Users may create roots, never patterns. Derived members are generated only when 
 
 **Derived effects:** `-ed` adds `alloc` only for types that own heap memory (`xs.sorted()` on a list allocates; `v.normalized()` on a `Vec3` and `x.clamped(…)` on a scalar copy without allocating), the allocating form derived from `xInto` adds `alloc`, and `tryX` keeps the original's effects (§14). `bayan expand` will show them (§21.2).
 
-**Noun patterns (types, `PascalCase`)** (not in 0.4: no noun type is derived; the `derivation` mechanism is not in 0.3, §5.3):
+**Noun patterns (types, `PascalCase`)** (not in 0.4: no noun type is derived; the `derivation` mechanism is not in 0.4, §5.3):
 
 | Pattern | Arabic source | Meaning |
 |---|---|---|
@@ -968,7 +968,7 @@ No user-defined operator symbols. Operator implementations must not allocate, su
 | `f32` → `u64` | Explicit (`u64(x)`); truncates toward zero, saturates to `u64`'s bounds (`0` for negative), `nan` becomes `0`. `u64.tryFrom(x)` returns `u64?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f32` → `usize` | Explicit (`usize(x)`); truncates toward zero, saturates to `usize`'s bounds (`0` for negative), `nan` becomes `0`. `usize.tryFrom(x)` returns `usize?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f32` → `f64` | Implicit (lossless widening) |
-| `f32` → `dec` | Rejected: `dec(x)` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(x, digits: n)` on a runtime value; not in 0.3, §3.1) |
+| `f32` → `dec` | Rejected: `dec(x)` is BYN2206 (fix-it `0.1dec` on a literal, `dec.fromF64(x, digits: n)` on a runtime value; not in 0.4, §3.1) |
 | `f64` → `i8` | Explicit (`i8(x)`); truncates toward zero, saturates to `i8`'s bounds, `nan` becomes `0`. `i8.tryFrom(x)` returns `i8?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f64` → `i16` | Explicit (`i16(x)`); truncates toward zero, saturates to `i16`'s bounds, `nan` becomes `0`. `i16.tryFrom(x)` returns `i16?` (`null` on `nan`, out of range or a nonzero fraction) |
 | `f64` → `i32` | Explicit (`i32(x)`); truncates toward zero, saturates to `i32`'s bounds, `nan` becomes `0`. `i32.tryFrom(x)` returns `i32?` (`null` on `nan`, out of range or a nonzero fraction) |
@@ -1551,7 +1551,7 @@ xs.remove(from: 2, until: 5)
 
 > Round 3 §15, O6, O12: a particle names the argument's role, so call sites read as sentences and swapped arguments become label mismatches; `until` and `through` name the two ends of a range, and a repeated particle would make a label ambiguous. Codes: BYN5004, BYN5005, BYN5006, BYN5008, BYN5013.
 
-**Overloading.** Overloads may differ by particle set (`move(from:to:)` vs `move(_, by:)`) ; type-based overloads are not in 0.3 (rule 1, BYN2006). The checks run at the **declaration**, so a call never needs C#-style ambiguity resolution:
+**Overloading.** Overloads may differ by particle set (`move(from:to:)` vs `move(_, by:)`) ; type-based overloads are not in 0.4 (rule 1, BYN2006). The checks run at the **declaration**, so a call never needs C#-style ambiguity resolution:
 
 1. (not in 0.4: type overloads) Until overloads exist, two same-name functions with different parameter types are a BYN2006 duplicate declaration, never first- or last-wins. Overloads that differ only by type must not overlap through any implicit conversion (finer units, integer widening, state widening). `void f(Grams g)` beside `void f(Kilograms k)` is an error, because `Kilograms` converts to `Grams` (BYN3213).
 2. (not in 0.4: type overloads, rule 1) Overloads may not differ only by function-type parameters, since `it` lambdas need one target type.
@@ -2371,7 +2371,7 @@ Diagnostic numbers are allocated at merge:
 |---|---|
 | debug, safe, fast, small | Traps |
 
-Overflow is a bug and traps in every build mode, for integers and `dec` alike (`dec` is not in 0.3, §3.1). `+% -% *%` wrap; `+| -| *|` saturate; compound forms `+%=` etc. (integers only). The compiler removes checks it can prove unnecessary (loop counters, values of distinct types with `requires` ranges; not in 0.3).
+Overflow is a bug and traps in every build mode, for integers and `dec` alike (`dec` is not in 0.4, §3.1). `+% -% *%` wrap; `+| -| *|` saturate; compound forms `+%=` etc. (integers only). The compiler removes checks it can prove unnecessary (loop counters, values of distinct types with `requires` ranges; not in 0.4).
 
 Floats are IEEE 754; C is emitted with `-ffp-contract=off`; `@fastMath` opts in per function at run time and is ignored during comptime evaluation, so a `@fastMath` function's comptime and runtime results may differ (§12.4). Derived equality on structs containing floats uses IEEE `totalOrder` (so a struct containing NaN equals itself, and `0.0` and `-0.0` differ there, unlike `==`); floats and types containing them are not `Map` keys (§3.5, BYN2760, BYN2831). (rev 0024)
 
@@ -2644,7 +2644,7 @@ Incremental rebuild under 100 ms on a reference project; cold-build budget track
 
 ### 21.4 Projects, outputs and VCS
 
-**Projects.** `bayan new <name>` creates an app: `package.byn`, `README.md`, `.gitignore` (`/out/`, `/dist/`, `/gen/`; `package.lock.byn` stays committed; not in 0.3: no lockfile is written), `.gitattributes` (LF; `*.byn linguist-language=C#`), `.editorconfig`, `src/app/main.byn`, `tests/app.test.byn`, `testdata/` and `docs/`. `--lib` puts the code in `src/<name>/<name>.byn` and tests in `tests/<name>.test.byn`; `--script` writes a single `<name>.byn` starting with `#!/usr/bin/env bayan` and `#:io threaded`, with no manifest and no git. `bayan init` does the same in an existing directory, adding only missing files and listing the ones it skipped; it refuses a directory that has a `package.byn`. `--ci github` adds `.github/workflows/bayan.yml`. A fresh project builds and passes its tests with no edits.
+**Projects.** `bayan new <name>` creates an app: `package.byn`, `README.md`, `.gitignore` (`/out/`, `/dist/`, `/gen/`; `package.lock.byn` stays committed; not in 0.4: no lockfile is written), `.gitattributes` (LF; `*.byn linguist-language=C#`), `.editorconfig`, `src/app/main.byn`, `tests/app.test.byn`, `testdata/` and `docs/`. `--lib` puts the code in `src/<name>/<name>.byn` and tests in `tests/<name>.test.byn`; `--script` writes a single `<name>.byn` starting with `#!/usr/bin/env bayan` and `#:io threaded`, with no manifest and no git. `bayan init` does the same in an existing directory, adding only missing files and listing the ones it skipped; it refuses a directory that has a `package.byn`. `--ci github` adds `.github/workflows/bayan.yml`. A fresh project builds and passes its tests with no edits.
 
 **Names.** A project directory is named in kebab-case (`my-app`) or camelCase (`myApp`). The package name is `local/<kebab-case>` until published; a library's module is the camelCase form, so it can be imported.
 
