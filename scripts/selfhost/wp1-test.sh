@@ -16,7 +16,8 @@
 # WIN_TRX is dropped: scripts/test.sh writes no trx.
 # WIN_PERF_SCHEME (default: wlt1's Performance plan ae098e76-5b05-4954-be35-3c535b591fce, none on other hosts) is the power plan
 # the host runs under while a run is in flight; it idles on WIN_IDLE_SCHEME (default SCHEME_BALANCED). Each run holds
-# tmp/<host>/perf-holders/<pid>; the last run to finish (dead holders pruned) switches the host back. Empty: no switch.
+# <main checkout>/tmp/<host>/perf-holders/<pid> (shared by all worktrees); the last run to finish switches the host back (holders
+# with a dead pid or older than 12 h are dropped). Empty: no switch.
 # WIN_CC sets CC for the remote run (e.g. 'zig cc'); unset, the remote run unsets CC, since wp1's user environment points CC at a
 # removed tdm-gcc (2026-11-18), and bootstrap-build.sh then picks cc or zig.
 set -u
@@ -25,6 +26,9 @@ BR=$1; FILT=$2; H=${WIN_HOST:-wp1}; WB=${WIN_BASH:-'C:\home\apps\Git\bin\bash.ex
 case $H in ''|*[!A-Za-z0-9_-]*) echo "wp1-test: bad WIN_HOST $H"; exit 2;; esac
 case ${WIN_THREADS-1} in ''|*[!0-9]*|0) echo "wp1-test: bad WIN_THREADS ${WIN_THREADS-} (a positive integer)"; exit 2;; esac
 case $FILT in golden|bayan|parity|scripts|runtime) :;; *) echo "wp1-test: bad part $FILT (golden, bayan, parity, scripts, runtime)"; exit 2;; esac
+PERF=${WIN_PERF_SCHEME-}; [ -n "${WIN_PERF_SCHEME+x}" ] || { [ "$H" != wlt1 ] || PERF=ae098e76-5b05-4954-be35-3c535b591fce; }
+IDLE=${WIN_IDLE_SCHEME:-SCHEME_BALANCED}
+for x in "$PERF" "$IDLE"; do case $x in *[!A-Za-z0-9_-]*) echo "wp1-test: bad power scheme $x"; exit 2;; esac; done
 SHA=$(git rev-parse --verify -q "$BR^{commit}") || { echo "wp1-test: no branch $BR"; exit 2; }
 S=${SHA:0:8}; R=C:/home/code/extrode.com/bayan/tmp; OUT=tmp/$H/$SHA.out
 mkdir -p "tmp/$H/cache"
@@ -49,12 +53,13 @@ New-Item -ItemType File -Force '$S.wp1-test' | Out-Null; git clone -q -b $BR $S.
 Set-Location '$S'; if ((git rev-parse HEAD) -ne '$SHA') { Write-Output 'wp1-test: $BR moved after $SHA was resolved; the clone is not $SHA'; exit 4 }; \$env:BAYAN_TEST_TIME_SCALE = '${BAYAN_TEST_TIME_SCALE:-3}'; & '$WB' -c '${CCX}exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only $FILT$XTRA'; exit \$LASTEXITCODE"
 printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh %s "%s"\n' "$BR" "$SHA" "$FILT" "$H" "$CMD" > "$OUT"
 scp -q "tmp/$H/$S.bundle" "$H:/$R/" >> "$OUT" 2>&1; rc=$?
-PERF=${WIN_PERF_SCHEME-}; [ -n "${WIN_PERF_SCHEME+x}" ] || { [ "$H" != wlt1 ] || PERF=ae098e76-5b05-4954-be35-3c535b591fce; }
-IDLE=${WIN_IDLE_SCHEME:-SCHEME_BALANCED}
-for x in "$PERF" "$IDLE"; do case $x in *[!A-Za-z0-9_-]*) echo "wp1-test: bad power scheme $x"; exit 2;; esac; done
-HD="tmp/$H/perf-holders"
-perf_off() { rm -f "$HD/$$"; for p in "$HD"/*; do [ -e "$p" ] || continue; kill -0 "${p##*/}" 2>/dev/null || rm -f "$p"; done
-  [ -n "$(ls -A "$HD" 2>/dev/null)" ] || ssh "$H" "powercfg /setactive $IDLE" > /dev/null 2>&1 || true; }
+# Holders live in the main checkout's tmp/ (shared by every worktree, as the host is); one older than 12 h or with a dead pid is
+# dropped. A holder that appears while the switch back is in flight sends Performance again.
+HD="$(git worktree list --porcelain | sed -n "1s/^worktree //p")/tmp/$H/perf-holders"
+held() { local p n=0; for p in "$HD"/*; do [ -e "$p" ] || continue
+    if ! kill -0 "${p##*/}" 2>/dev/null || [ -n "$(find "$p" -mmin +720 2>/dev/null)" ]; then rm -f "$p"; else n=1; fi; done; [ $n = 1 ]; }
+perf_off() { rm -f "$HD/$$"; held && return 0; ssh "$H" "powercfg /setactive $IDLE" > /dev/null 2>&1 || true
+  ! held || ssh "$H" "powercfg /setactive $PERF" > /dev/null 2>&1 || true; }
 if [ $rc = 0 ] && [ -n "$PERF" ]; then mkdir -p "$HD"; : > "$HD/$$"; trap perf_off EXIT; ssh "$H" "powercfg /setactive $PERF" > /dev/null 2>&1 || true; fi
 [ $rc = 0 ] && { ssh "$H" "$CMD" >> "$OUT" 2>&1; rc=$?; }
 echo "exit $rc" >> "$OUT"
