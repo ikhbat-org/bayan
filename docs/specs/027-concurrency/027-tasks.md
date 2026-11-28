@@ -56,8 +56,8 @@ code that makes its code live (`scripts/ci/diagnostic-codes.test.sh` needs page 
   trivia; each directive's span and text reach the parser; no `lex/` expected file changes; `diag/io-threaded-input`
   (T19) reads them — after: T6
 - [ ] T8 New nodes — files: `src/parser/nodes.byn` — covers: R2, R3, R6, R7 — done when: `ScopeStmt` with its
-  options, `ShieldStmt`, `SpawnExpr` and `DeferKind.canceling` (line 781) exist; no `parse/` expected file changes —
-  after: T7
+  options, `ShieldStmt`, `SpawnExpr`, `DeferKind.canceling` (line 781) and an `#:io` mode field on `CompilationUnit`
+  (line 164) exist; no `parse/` expected file changes — after: T7
 - [ ] T9 Dump the new nodes — files: `src/parser/dump.byn`, `src/parser/dump2.byn` — covers: R2, R3, R6, R7 — done
   when: each new node prints in the parse dump; existing `parse/` files unchanged — after: T8
 - [ ] T10 `scope` and `shield` statements — files: `src/parser/stmts.byn` (`parseStatement`, line 57;
@@ -308,6 +308,10 @@ code that makes its code live (`scripts/ci/diagnostic-codes.test.sh` needs page 
   continues outward; both attached scopes unwind — after: T81
 - [ ] T84 Source returned from a child — files: `tests/cases/run/cancel-source-returned-from-child.{byn,stdout}` (new)
   — covers: R6b — done when: the cell survives the child — after: T81
+- [ ] T158 `cancel:` with a deadline — files: `tests/cases/run/scope-cancel-and-timeout.{byn,stdout}` (new, named
+  here) — covers: R5, R6b — done when: `scope(cancel: s, timeout: 1s)` whose source is canceled first ends normally
+  and control continues after it; with `timeout: 50ms` and no cancel it fails `DeadlineError.exceeded`; the same
+  holds with `until:` — after: T71, T81
 
 ## Channels (plan T9)
 - [ ] T85 Runtime channels — files: `runtime/bayan-rt.c`, `runtime/bayan-rt.h` — covers: R9, D5 — done when:
@@ -546,9 +550,9 @@ Enact tasks may run any time after T2. A prove task names the case `/prove` tags
 | R2 | T3, T4, T8, T9, T10, T24, T25, T29, T47, T48, T49, T50, T51, T53, T56, T58, T61, T62, T68, T69, T115, T144, T145, T152, T153 |
 | R3 | T3, T4, T8, T9, T12, T29, T31, T33, T34, T35, T37, T40, T50, T52, T56, T57, T58, T59, T60 |
 | R4 | T3, T4, T10, T29, T34, T35, T38, T63, T64, T150, T151 |
-| R5 | T3, T4, T5, T10, T32, T38, T70, T71, T72, T73, T74, T93, T99, T100 |
+| R5 | T3, T4, T5, T10, T32, T38, T70, T71, T72, T73, T74, T93, T99, T100, T158 |
 | R6 | T3, T4, T8, T9, T14, T29, T43, T44, T45, T46, T55, T65, T66, T67, T146, T147 |
-| R6b | T3, T4, T10, T31, T38, T53, T80, T81, T82, T83, T84, T136, T146, T147 |
+| R6b | T3, T4, T10, T31, T38, T53, T80, T81, T82, T83, T84, T136, T146, T147, T158 |
 | R7 | T3, T4, T8, T9, T10, T11, T38, T76, T77, T78, T79 |
 | R8 | T3, T4, T5, T6, T25, T26, T31, T55, T65, T67, T70, T71, T75, T93, T99 |
 | R8b | T3, T4, T5, T42, T112 |
@@ -600,3 +604,8 @@ Enact tasks may run any time after T2. A prove task names the case `/prove` tags
    follows option (b) of the first; T121, T122 and T131's `read(max:)` block wait on the second.
 8. The plan names no runtime C test (`runtime/tests/`) for the switch, scheduler or channels; T25–T29 rely on `run/`
    cases and the existing runtime part.
+9. L056 (R18) and L057 (R15) test phase 2 behaviour that has no code task or case yet: T155 and T157 depend only on
+   the T142 planning task and name `027-plan.md` in place of a case. Until T142 adds the phase 2 code task and case,
+   they cannot depend on the code they test; T142 should rewrite both with those.
+10. The plan names no case for `cancel:` with `timeout:`/`until:` (R5's option precedence); T158's
+    `run/scope-cancel-and-timeout` is a proposal.
