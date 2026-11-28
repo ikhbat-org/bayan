@@ -77,6 +77,7 @@ Small, clear, and could be picked up without a design decision.
 - Audit 0.4.0 mediums LOW, m-lex: docs/laws/002-lexer-never-panics.md proof notes still say 21 lex cases / 10,021 inputs; the test now counts 23 (shebang, bom-shebang). Update the notes when the law owner next touches L002.
 - Audit 0.4.0 chunk 07 #4 follow-up: a `ref this` call on a `requires`/states/`@sealed` field inside a generic instance is not checked for BYN3216/BYN3208; `checkMutation` (src/semantics/generics.byn:1365) takes only the `checkGuardWrite` path when `functionIsInstance(fn)`.
 - Audit 0.4.0 chunk 07 #4 follow-up: `mutableSpan` taken from a `requires`/states/`@sealed` field is not covered; `checkWritable` stops at an index into a `Span` (src/semantics/calls4.byn, `.index` case), so writes through the span skip BYN3216/BYN3208. Untested.
+- Parity cli-cli/check-reports-errors and types-reports-errors check the whole tests/cases/diag/ folder, so every new parser-level diag case shifts their error count (222 → 241 on 2026-11-28 from pointer-type-closers, rest-input-span-bare, top-level-statement-attribute*; owner chose to update the two count lines). Pin the input (a fixed folder) when next touched.
 
 ## Later
 
