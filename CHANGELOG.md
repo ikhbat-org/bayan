@@ -20,6 +20,7 @@
 - A field write on a `type distinct` value no longer panics the checker; its `requires` clauses are checked as a struct's are.
 - The implicit string-to-bytes conversion and compound assignment through `xs[i].f` evaluate their operand once (audit 09 #1, #3).
 - `bayan run` no longer starts a stale binary after a script's imported module changes: the cache key adds the script's full path and `--package` root, and a script that imports a module of its own is not remembered; its C compile is still cached (audit 10 #2, Q1288).
+- In debug mode a `StrBuf.over(span)` no longer panics "second owner of StrBuf": debug mode does not claim the bytes it borrows, so `var b = StrBuf.over(xs.mutableSpan())` then `b.append("hi")` runs (audit 09 M7).
 - `List.sort` swaps elements with `memcpy`, so it runs under Fil-C (HF-0003).
 - Audit LOWs in the lexer, parser, driver, std glob and regex, language server and release archives (audit 03 #1, #2, #4, #5; 04 #4–#6; 10 #5, #9, #10; 13 #5, #7, #9; 14 #3–#5, #7, #8; 15 #1, #2, #5).
 
