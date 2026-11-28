@@ -4,6 +4,8 @@
 # Only a directory with its .wp1-test marker is a candidate (wp1-test.sh made it); the newest KEEP (default 5) per host
 # are kept, and so are the bundles of kept ones; anything written in the last 24 h is skipped (a run may be in
 # flight). Unmarked directories are never touched. Everything else is listed.
+# Unmarked <sha8>-sp checkouts (the old shard runner) are removed by scripts/cleanup/unattended-2026-11-19.sh --execute --remove-remote;
+# cache, asan-tests and task-named dirs are left alone.
 # Local leftovers, clean at ca937344b, not removed here: .worktrees/worker-tasks027, .worktrees/worker-tasks028
 # (remove with: git worktree remove .worktrees/worker-tasks027; same for 028).
 # Dry run by default. Removing needs both --execute (-e) and --delete-remote-clones (the clones cannot be restored,
