@@ -6,6 +6,8 @@ Created: 2026-11-09
 
 `std.time` gives Bayān value types, units, arithmetic, clocks, zones, formatting and parsing for points on the timeline and civil calendar dates. `docs/bayan-spec.md` §16.5 is the normative text; this spec holds the full decision record, the gates and the phases. Where the two disagree, fix the spec.
 
+Overlap with spec 028 (2026-11-28): spec 028 owns time units, `Duration`, `Uptime` and gate G1. Where this spec and 028 differ on those, 028 wins; this spec keeps the calendar types, zones, formatting and parsing.
+
 Rules for anyone working from this spec:
 - Parked. Start only when Sy schedules it or all gates pass. It is not part of the revision-0021 work, round-4 §10 or spec 013 T19, and must not block or rebase in-flight work or edit files in-flight branches touch.
 - No diagnostic numbers here. Allocate at merge in the ranges in the Diagnostics table; grep `docs/diagnostics/` and the descriptor files first, as round 3 did.
@@ -18,7 +20,7 @@ State re-checked on this branch (dev at 0.3.0 preparation, 2026-11-14).
 
 | Gate | Needed by | Check | State |
 | --- | --- | --- | --- |
-| G1 Unit suffix lookup lands (lexer suffix-to-unit; BYN3203 and BYN3205 raised) | Phase 2 | `5s` binds as `Seconds`; a bare literal is rejected | not met: neither code exists in `csharp/` or `docs/diagnostics/` |
+| G1 Unit suffix lookup lands (lexer suffix-to-unit; BYN3203 and BYN3205 raised) | Phase 2 | `5s` binds as `Seconds`; a bare literal is rejected | not met (re-checked 2026-11-28): `src/lexer/lexer.byn` lexes a numeric suffix as a token (`.numericSuffix`) but nothing maps it to a unit type, and neither BYN3203 nor BYN3205 exists in `src/` or `docs/diagnostics/`. Spec 028 builds this gate (028 Goals) |
 | G2 Particle checks land (5.3e) | Phase 2 | BYN5006-family active | met: BYN5006 `ParameterNeedsParticle` in `DiagnosticCodes.cs` |
 | G3 `union error` binds (5.3b) | Phase 3 | `catch switch` with whole-value arms works | met on the evidence of `catch switch` and `union error` in `tests/cases/run/` (for example `self-hosting-lambdas.byn`); confirm whole-value arms (`.case name => …`) before Phase 3 |
 | G4 `uses` and `provide` land | Phase 2 | `provide clock: …` compiles | met: `tests/cases/run/lambda-uses-provide.byn` |
