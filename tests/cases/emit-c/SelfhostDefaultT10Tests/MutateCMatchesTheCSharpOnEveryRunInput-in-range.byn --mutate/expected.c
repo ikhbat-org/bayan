@@ -140,10 +140,11 @@ void byn_main__main(void) {
     int64_t t8 = {0};
     int32_t t9 = {0};
     bool t10 = {0};
-    bynt_opt_i32 l11_limit = {0};
-    int32_t t12 = {0};
+    bool t11 = {0};
+    bynt_opt_i32 l12_limit = {0};
     int32_t t13 = {0};
-    bool t14 = {0};
+    int32_t t14 = {0};
+    bool t15 = {0};
 #line 1 "in-range.byn"
     l0_n = (byn_mutant_is(6) ? ((int32_t)8) : (byn_mutant_is(7) ? ((int32_t)6) : ((int32_t)7)));
 #line 2 "in-range.byn"
@@ -209,37 +210,39 @@ void byn_main__main(void) {
 #line 15 "in-range.byn"
     t9 = l5_calls;
 #line 15 "in-range.byn"
+    t11 = ((t9 >= ((int32_t)0)) && (t9 <= byn_main__next(&l5_calls)));
+#line 15 "in-range.byn"
     {
         uint8_t wb[256];
         byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 15};
         byn_writer* w = &wv;
         byn_w_bool(w, t10);
         byn_w_str(w, BYN_STR(" ", 1));
-        byn_w_bool(w, ((t9 >= ((int32_t)0)) && (t9 <= byn_main__next(&l5_calls))));
+        byn_w_bool(w, t11);
         byn_w_str(w, BYN_STR(" ", 1));
         byn_w_i64(w, (int64_t)(l5_calls));
         byn_w_println(w);
     }
 #line 16 "in-range.byn"
-    l11_limit = ((bynt_opt_i32){0});
-#line 17 "in-range.byn"
-    t12 = l0_n;
-#line 17 "in-range.byn"
-    t14 = ((t12 >= ((int32_t)0)) && (t12 <= (l11_limit.has ? l11_limit.value : ((int32_t)10))));
+    l12_limit = ((bynt_opt_i32){0});
 #line 17 "in-range.byn"
     t13 = l0_n;
+#line 17 "in-range.byn"
+    t15 = ((t13 >= ((int32_t)0)) && (t13 <= (l12_limit.has ? l12_limit.value : ((int32_t)10))));
+#line 17 "in-range.byn"
+    t14 = l0_n;
 #line 17 "in-range.byn"
     {
         uint8_t wb[256];
         byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 17};
         byn_writer* w = &wv;
-        byn_w_bool(w, t14);
+        byn_w_bool(w, t15);
         byn_w_str(w, BYN_STR(" ", 1));
-        byn_w_bool(w, ((t13 >= ((int32_t)0)) && (t13 < (l11_limit.has ? l11_limit.value : ((int32_t)7)))));
+        byn_w_bool(w, ((t14 >= ((int32_t)0)) && (t14 < (l12_limit.has ? l12_limit.value : ((int32_t)7)))));
         byn_w_println(w);
     }
 }
-#line 243 "main.c"
+#line 246 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};

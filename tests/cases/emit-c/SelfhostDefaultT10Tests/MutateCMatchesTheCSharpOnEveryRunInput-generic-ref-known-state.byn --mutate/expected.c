@@ -102,29 +102,32 @@ int64_t byn_main__touch__main__Order(bynt_main__Order p_v, bynt_main__Order* p_x
 
 void byn_main__main(void) {
     bynt_main__Order l0_o = {0};
+    int64_t t1 = {0};
 #line 12 "generic-ref-known-state.byn"
     l0_o = ((bynt_main__Order){(byn_mutant_is(1) ? INT64_C(2) : (byn_mutant_is(2) ? INT64_C(0) : INT64_C(1))), .tag = 1, .u.paid = {(byn_mutant_is(3) ? INT64_C(6) : (byn_mutant_is(4) ? INT64_C(4) : INT64_C(5)))}});
 #line 13 "generic-ref-known-state.byn"
     if ((l0_o.tag == ((int32_t)1))) {
 #line 14 "generic-ref-known-state.byn"
+        t1 = byn_main__touch__main__Order(((bynt_main__Order){INT64_C(2), .tag = 0}), &l0_o);
+#line 14 "generic-ref-known-state.byn"
         {
             uint8_t wb[256];
             byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 14};
             byn_writer* w = &wv;
-            byn_w_i64(w, (int64_t)(byn_main__touch__main__Order(((bynt_main__Order){INT64_C(2), .tag = 0}), &l0_o)));
+            byn_w_i64(w, (int64_t)(t1));
             byn_w_str(w, BYN_STR(" ", 1));
             byn_w_i64(w, (int64_t)(l0_o.u.paid.payment));
             byn_w_println(w);
         }
     }
 }
-#line 122 "main.c"
+#line 125 "main.c"
 
 int64_t byn_main__touch__main__Order(bynt_main__Order p_v, bynt_main__Order* p_x) {
 #line 10 "generic-ref-known-state.byn"
     return (byn_mutant_is(5) ? INT64_C(1) : (byn_mutant_is(6) ? INT64_C(-1) : INT64_C(0)));
 }
-#line 128 "main.c"
+#line 131 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};

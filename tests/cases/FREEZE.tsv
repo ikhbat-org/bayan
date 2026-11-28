@@ -15196,7 +15196,7 @@ file	5c48894e781c8b7a657fb291cc4206a480bc181a	tests/cases/emit-c/SelfhostDefault
 file	15446921f2fc2f59aafe497f0a04d2638ce2215f	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-fail-statement.byn --coverage/expected.c
 file	28bef7055dce2e4c03cd5ac387eaf2b9876c587e	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-float-format.byn --coverage/expected.c
 file	efb03b2e7b5c2e9fa257452b37c221d9b9fb6531	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-float-try-parse.byn --coverage/expected.c
-file	69526789c12bf8926915c2d8eec10625f4e47e1e	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-for-constraint.byn --coverage/expected.c
+file	ef222507e77a8ce2ce08729a228ef6be97775b98	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-for-constraint.byn --coverage/expected.c
 file	c78970a42e75dab460e6005b7ad06a372b906734	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-for-dyn-ref-array.byn --coverage/expected.c
 file	cb26806ac3241dd804d317547ac733382c66506a	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-for-dyn-ref-list.byn --coverage/expected.c
 file	4a676ab142c2466a605395cb273f1649d5be0a72	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-for-dyn-ref-mutate.byn --coverage/expected.c
@@ -15230,7 +15230,7 @@ file	3cccbfec43ab29d222bc17783936393ee28f9459	tests/cases/emit-c/SelfhostDefault
 file	5221a1d0a96c539a38bbd82641a0408fefe47bfe	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-fs-set-modified.byn --coverage/expected.c
 file	386a35d7dad56cd19044ccb6ccb64ba7d54866a6	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-function-type-key-nested-fails.byn --coverage/expected.c
 file	4635a41caabf777837aaf3938489f2c397c82b10	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-function-value-receiver-once.byn --coverage/expected.c
-file	ac35c6b26e40d9e6f8cb82fe827e7358d81d8be3	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-generic-ref-known-state.byn --coverage/expected.c
+file	8e7d55aaf37bf2f7a1af27265f59648781e576e2	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-generic-ref-known-state.byn --coverage/expected.c
 file	0e72ffb459bc8a83b0a521d0a6c82d7d71781746	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-generics-functions.byn --coverage/expected.c
 file	01a89f4c06aa513f195eabfa61bb7ff0ac3c2179	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-generics-types.byn --coverage/expected.c
 file	131e959146a9ce366ea454fd40fcfe790a33a10c	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-generics-var-literal-rollback.byn --coverage/expected.c
@@ -15239,7 +15239,7 @@ file	e5b9397020c38b4dba58c1460cf30edeb3c96ea7	tests/cases/emit-c/SelfhostDefault
 file	fd1576837fc7bf5cd05297f4e5a6c89b80bc0336	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-hex-encode.byn --coverage/expected.c
 file	ff3159fd301852958ad1605d0e764fffde5ad0a1	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-if-never-return.byn --coverage/expected.c
 file	40831bb72217f890df1c929387392a7b84da7639	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-if-never.byn --coverage/expected.c
-file	472e0983ee5c39cb0b7441b9b6d059cbb1ff5d60	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-in-range.byn --coverage/expected.c
+file	ac61302e746ec8eb5e806e828623a05324e6f93a	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-in-range.byn --coverage/expected.c
 file	47881c4151c455eeb3a2c946ed5981b5b2c9f11f	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-int-parse.byn --coverage/expected.c
 file	88af98d55a00a385cf2723967b32aa6124632066	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-int-try-parse.byn --coverage/expected.c
 file	4e1fb84bf3ef5994642cf2fc4331290dda21a66f	tests/cases/emit-c/SelfhostDefaultT10Tests/CoverageCMatchesTheCSharpOnEveryRunInput-interface-associated-type-early.byn --coverage/expected.c
@@ -15561,7 +15561,7 @@ file	df1e8f407e1fbf9534cf2a12ea44bbc0f6465ee6	tests/cases/emit-c/SelfhostDefault
 file	3b7675147b0985b7e61fbd2d4ea48f32ae27f03d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-fail-statement.byn --mutate/expected.c
 file	5dedc8bbcf7fdda79cd0299027bbd250ea79c0b2	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-float-format.byn --mutate/expected.c
 file	c3565ab9e140a3f6db1d016758f37191605a1b61	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-float-try-parse.byn --mutate/expected.c
-file	388838c3fc466645f3c942bdac0ed745882375ce	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-for-constraint.byn --mutate/expected.c
+file	df7888384511d105ede348ba425bf818c6ceba2d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-for-constraint.byn --mutate/expected.c
 file	f8a39c86f6e0914a9753ea5b2687f37fb6e10276	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-for-dyn-ref-array.byn --mutate/expected.c
 file	5919b77748d2b5c87909d143d9a2c922b1cd0e0b	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-for-dyn-ref-list.byn --mutate/expected.c
 file	54385d2187cbfcb316ed2941c7364160e9942b01	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-for-dyn-ref-mutate.byn --mutate/expected.c
@@ -15595,7 +15595,7 @@ file	5e1be590e99f8e58763e28e4ca6bcd5d1ad74048	tests/cases/emit-c/SelfhostDefault
 file	a9a4f48f04ba00caa42906d5501b075df0d57f13	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-fs-set-modified.byn --mutate/expected.c
 file	38ac31a968df73a84e28c0b81bad7c49fbae1a12	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-function-type-key-nested-fails.byn --mutate/expected.c
 file	930f7db58ed84fd58c322647a13bb90d3197daff	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-function-value-receiver-once.byn --mutate/expected.c
-file	6cf30759d3264498fa9a040443d6dc95c2454380	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-generic-ref-known-state.byn --mutate/expected.c
+file	d900e8664afb4743df2a043b52b4bc50595a8d71	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-generic-ref-known-state.byn --mutate/expected.c
 file	947717b11e64e434342a265ed6b0964118cdc589	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-generics-functions.byn --mutate/expected.c
 file	e17c474cb0b545405146a6ffdcda2d629af2f026	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-generics-types.byn --mutate/expected.c
 file	4c837626342cefb80d72a4b2bad65db134d71748	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-generics-var-literal-rollback.byn --mutate/expected.c
@@ -15604,7 +15604,7 @@ file	dba33d2dc1b92f5b1eb1f94074535ac25161a9b9	tests/cases/emit-c/SelfhostDefault
 file	d4a4daddf9d327aba24399531550a49a2580be7d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-hex-encode.byn --mutate/expected.c
 file	7b47ddcc470ea1f43d542fc56e7576e09d3b2685	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-if-never-return.byn --mutate/expected.c
 file	c7eea693340a376ca9419e234bf00457fd0aa5fe	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-if-never.byn --mutate/expected.c
-file	a496e035fcae8ee38be392aa2c2256f944775090	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-in-range.byn --mutate/expected.c
+file	e47b7c05ec34bf4a32492c2b7b66550b4ac3984d	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-in-range.byn --mutate/expected.c
 file	400267c01d171e1b4a1c1b69c6bb8721d219a170	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-int-parse.byn --mutate/expected.c
 file	08a0eb87666c16463c2fee17ab92763c779d8d59	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-int-try-parse.byn --mutate/expected.c
 file	a823385920f7f58bec72a4a0cf771c3ae7054505	tests/cases/emit-c/SelfhostDefaultT10Tests/MutateCMatchesTheCSharpOnEveryRunInput-interface-associated-type-early.byn --mutate/expected.c
@@ -22219,7 +22219,7 @@ file	fe99e2c06cf45fc246c8f04db8e2b84d3c781f58	tests/cases/emit-c/SelfhostEmitter
 file	70074b8b697874a6528d982709536d894f0204cf	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_fail-statement.byn/expected.c
 file	9acc826fa646e33f74d0eff9f09c9c84cc2a5ff7	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_float-format.byn/expected.c
 file	4d15f341ffc72c3825381822d02d32ba753439e2	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_float-try-parse.byn/expected.c
-file	32a17618974ffc5dde75e8fbb96aef9d213561df	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_for-constraint.byn/expected.c
+file	12cfa0ec8b83cecadb603f570014ab8fb7508b9f	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_for-constraint.byn/expected.c
 file	725aa019224fd78f59623180b8f1bed8e4fb8764	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_for-dyn-ref-array.byn/expected.c
 file	771be60da5133a3516f1c148f526c11bdc5f3efb	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_for-dyn-ref-list.byn/expected.c
 file	82bcdad874d52b1f492a9adbcd111927f0bbc23c	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_for-dyn-ref-mutate.byn/expected.c
@@ -22253,7 +22253,7 @@ file	00b3a9c24df8d5e9ffd8dfdd9c57debf63ac45dd	tests/cases/emit-c/SelfhostEmitter
 file	27b0e6c28e9d903cae3106f7a49d351f8088cdf1	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_fs-set-modified.byn/expected.c
 file	b261676cf12e0386db393d23a743d787a7348df2	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_function-type-key-nested-fails.byn/expected.c
 file	47c374a036a9b54813cb78c3dbc1b110e89f5b40	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_function-value-receiver-once.byn/expected.c
-file	9b6bafdfff1bce807d09e39bd0872c4bfd976748	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_generic-ref-known-state.byn/expected.c
+file	2b74caaadc4d479c5ebdab40b94195eb8f363fd9	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_generic-ref-known-state.byn/expected.c
 file	0a5e0049327545298f9842626f5c3113c436c9bf	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_generics-functions.byn/expected.c
 file	8a2d089a956c622f9a0d662ee1ae5b7d49545229	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_generics-types.byn/expected.c
 file	eca9d9bcc49b6bfb7f4abc7634f633b0ff604c1a	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_generics-var-literal-rollback.byn/expected.c
@@ -22262,7 +22262,7 @@ file	fb164da5d9e044d969b702feb621e8a539c93729	tests/cases/emit-c/SelfhostEmitter
 file	cf3fc4a722cebc5f61ec0b264e80ee3c5427cb9c	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_hex-encode.byn/expected.c
 file	b6de3a5622e8aee5ec985d3d6bcdd7d37142c921	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_if-never-return.byn/expected.c
 file	e5e31f17d065a965b28d889400f44b512e8b227e	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_if-never.byn/expected.c
-file	9a7943c2c2b3aecc5d19347c788f894e5d3e8694	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_in-range.byn/expected.c
+file	2b8900f2aa4c89c3903e8d9a0fb120c4405bd4a5	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_in-range.byn/expected.c
 file	fdafa0f449509d28d34979572226a258b4e2e62d	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_int-parse.byn/expected.c
 file	359337d59645d44769acce2613d748551c8a8a07	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_int-try-parse.byn/expected.c
 file	896a4470be1d6c205637cf046973efd72b1fb29f	tests/cases/emit-c/SelfhostEmitterParityTests/RunInputsEmitTheSameC-run_interface-associated-type-early.byn/expected.c
@@ -23035,7 +23035,7 @@ file	35066b8279dcffc3aabb4a2e7dd74a41a95fec15	tests/cases/emit-c/SelfhostEmitter
 file	f0b48f26e35080d87631b486c27f291e8ddf77ae	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-241/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-242/expected.sections
 file	c8bd43af56f94184c6e05948f1d590d2e50a6d55	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-243/expected.sections
-file	e6adbc53390d90775f5bd425145416bcff241273	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-244/expected.sections
+file	94afd21fe475650f6179df67936494cee78f811b	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-244/expected.sections
 file	08ef52d758816d4d5105186a22d10997590f91cb	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-245/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-246/expected.sections
 file	c8bd43af56f94184c6e05948f1d590d2e50a6d55	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-247/expected.sections
@@ -23186,7 +23186,7 @@ file	5f26d9f457228d058c464ee81e4babaee0fc5a20	tests/cases/emit-c/SelfhostEmitter
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-378/expected.sections
 file	c8bd43af56f94184c6e05948f1d590d2e50a6d55	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-379/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-38/expected.sections
-file	d6574f7374297c4afe3daf030b0ff0dcda903c10	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-380/expected.sections
+file	26ebbca8ef75f82f5cb63737feaba7ca6223ae7a	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-380/expected.sections
 file	5caef8247247ee31326f3dbe6a5246d91b8d3857	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-381/expected.sections
 file	e400fbe484615b0dfa49a2515d866c2d244affb5	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-382/expected.sections
 file	f93e651927e3bfe7edc8445a7a8833529d5406b9	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-383/expected.sections
@@ -23226,7 +23226,7 @@ file	17fdd72adadd5d4883febea3077bfb7be7379661	tests/cases/emit-c/SelfhostEmitter
 file	62cb57a378a70a25ec990ffa9410276f57321551	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-413/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-414/expected.sections
 file	c8bd43af56f94184c6e05948f1d590d2e50a6d55	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-415/expected.sections
-file	c193be56c70e9456cad0cd850331d8cb227cdf49	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-416/expected.sections
+file	2878fe093d95ba833ecca0bcbf1b1b5c76270ef4	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-416/expected.sections
 file	7fff6262b3defb64ed443e1d65975721f01a02e3	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-417/expected.sections
 file	844143c09a510950be653eb9be1ea6602fc2aaaa	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-418/expected.sections
 file	c8bd43af56f94184c6e05948f1d590d2e50a6d55	tests/cases/emit-c/SelfhostEmitterT11Tests/Corpus_MatchesCSharp-419/expected.sections
@@ -23982,7 +23982,7 @@ file	5b9727a7aaa2b82c5dc95748004b276f4a81c44d	tests/cases/emit-c/SelfhostEmitter
 file	ee2db6763479318c3515c33686c8c7b9662bbf83	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-fail-statement.byn/expected.c
 file	90480f2d683bc416dbcd0bf325ba1929e2135b7d	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-float-format.byn/expected.c
 file	98bf45462585322653521fc029bfb8aa63cc7b06	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-float-try-parse.byn/expected.c
-file	8e8678e4282270bab7bc21adfc052e324064ccb7	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-for-constraint.byn/expected.c
+file	4e5638d5536e5a391dabb95746d315c60f53be32	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-for-constraint.byn/expected.c
 file	5cc6589ba1ab6c4bb2468782967f00d629fa4b65	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-for-dyn-ref-array.byn/expected.c
 file	d7c08ba420db0488f65a7a613701afcb20a4c4bd	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-for-dyn-ref-list.byn/expected.c
 file	79ba28a37bec48f0fd040a1176143ecfdd3d2506	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-for-dyn-ref-mutate.byn/expected.c
@@ -24016,7 +24016,7 @@ file	f3d7e153474cfb575117f099a110348045d8f43c	tests/cases/emit-c/SelfhostEmitter
 file	69af7f89189086dd1b89754be0572f7cd02b4cf4	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-fs-set-modified.byn/expected.c
 file	cefb10498426ba3c1c0e9338abe96c19106c9773	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-function-type-key-nested-fails.byn/expected.c
 file	41a53489e8c34911bf70adb5e2e120d09b34235f	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-function-value-receiver-once.byn/expected.c
-file	19ba9efbe531991307588000ea110dad4fc3f63f	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-generic-ref-known-state.byn/expected.c
+file	adf5a372539c19e9c94819dd29abbb571b3901fa	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-generic-ref-known-state.byn/expected.c
 file	08a665d39fb15d64b7889c4b5a338aae86cdfe75	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-generics-functions.byn/expected.c
 file	490723346d97f1aae7418d2bfb997feec3c2e789	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-generics-types.byn/expected.c
 file	8ad22eb260feb90858f8b151843afdab8db1b512	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-generics-var-literal-rollback.byn/expected.c
@@ -24025,7 +24025,7 @@ file	7691a06d0f14c7b6e17dde69b98b8bb8f53a9ee6	tests/cases/emit-c/SelfhostEmitter
 file	8c445b3e5787fec880c3158ec99350265310b9ec	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-hex-encode.byn/expected.c
 file	aa9b6b8d0e8927c61b5b1c7a26c7f8ba72725dde	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-if-never-return.byn/expected.c
 file	22fe59fe6e1bb7dd5291ca2d225ca035b729cc17	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-if-never.byn/expected.c
-file	5ebc19e994abb6681b5378174450cb530aa7c4b6	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-in-range.byn/expected.c
+file	5cd79bc16e60e91d9fcdb71e5a621ccfbd07dd15	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-in-range.byn/expected.c
 file	d251cb035aa845c181f431a538893e3d5a55f2f1	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-int-parse.byn/expected.c
 file	58990b911a0a3ffa24c5e01f5d469e3881892f7d	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-int-try-parse.byn/expected.c
 file	6262e625c254709cf4d56e2c733b22ff58d22eca	tests/cases/emit-c/SelfhostEmitterT22Tests/Corpus_LocalsMatchCSharp-interface-associated-type-early.byn/expected.c

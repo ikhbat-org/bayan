@@ -1,5 +1,5 @@
 == locals
-main: e
+main: e t
 count:
 get:
 current:

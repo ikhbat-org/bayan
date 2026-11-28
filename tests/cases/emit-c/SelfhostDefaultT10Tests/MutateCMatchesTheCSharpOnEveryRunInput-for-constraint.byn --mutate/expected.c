@@ -108,6 +108,7 @@ int64_t byn_main__moves__main__Ints(bynt_main__Ints* p_items);
 
 void byn_main__main(void) {
     bynt_main__Ints l0_e = {0};
+    int64_t t1 = {0};
 #line 34 "for-constraint.byn"
     if (byn_mutant_is(1)) {
     } else {
@@ -125,35 +126,37 @@ void byn_main__main(void) {
 #line 35 "for-constraint.byn"
     l0_e = ((bynt_main__Ints){INT64_C(-1)});
 #line 36 "for-constraint.byn"
+    t1 = byn_main__moves__main__Ints(&l0_e);
+#line 36 "for-constraint.byn"
     {
         uint8_t wb[256];
         byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 36};
         byn_writer* w = &wv;
-        byn_w_i64(w, (int64_t)(byn_main__moves__main__Ints(&l0_e)));
+        byn_w_i64(w, (int64_t)(t1));
         byn_w_str(w, BYN_STR(" ", 1));
         byn_w_i64(w, (int64_t)(l0_e.at));
         byn_w_println(w);
     }
 }
-#line 139 "main.c"
+#line 142 "main.c"
 
 int64_t byn_main__Digits__get_count(bynt_main__Digits* self) {
 #line 4 "for-constraint.byn"
     return (byn_mutant_is(2) ? INT64_C(4) : (byn_mutant_is(3) ? INT64_C(2) : INT64_C(3)));
 }
-#line 145 "main.c"
+#line 148 "main.c"
 
 int64_t byn_main__Digits__get(bynt_main__Digits* self, int64_t p_index) {
 #line 5 "for-constraint.byn"
     return (byn_mutant_is(4) ? byn_div_i64(p_index, (byn_mutant_is(5) ? INT64_C(11) : (byn_mutant_is(6) ? INT64_C(9) : INT64_C(10))), byn_file_0, 5) : byn_mul_i64(p_index, (byn_mutant_is(5) ? INT64_C(11) : (byn_mutant_is(6) ? INT64_C(9) : INT64_C(10))), byn_file_0, 5));
 }
-#line 151 "main.c"
+#line 154 "main.c"
 
 int64_t byn_main__Ints__get_current(bynt_main__Ints* self) {
 #line 11 "for-constraint.byn"
     return (*self).at;
 }
-#line 157 "main.c"
+#line 160 "main.c"
 
 bool byn_main__Ints__moveNext(bynt_main__Ints* self) {
     int64_t t0 = {0};
@@ -179,7 +182,7 @@ bool byn_main__Ints__moveNext(bynt_main__Ints* self) {
 #line 14 "for-constraint.byn"
     return (byn_mutant_is(11) ? ((bool){0}) : (byn_mutant_is(12) ? ((*self).at <= (byn_mutant_is(14) ? INT64_C(3) : (byn_mutant_is(15) ? INT64_C(1) : INT64_C(2)))) : (byn_mutant_is(13) ? ((*self).at >= (byn_mutant_is(14) ? INT64_C(3) : (byn_mutant_is(15) ? INT64_C(1) : INT64_C(2)))) : ((*self).at < (byn_mutant_is(14) ? INT64_C(3) : (byn_mutant_is(15) ? INT64_C(1) : INT64_C(2)))))));
 }
-#line 183 "main.c"
+#line 186 "main.c"
 
 int64_t byn_main__steps__main__Digits(bynt_main__Digits p_items) {
     int64_t l0_s = {0};
@@ -229,7 +232,7 @@ break_1:;
 #line 23 "for-constraint.byn"
     return (byn_mutant_is(22) ? ((int64_t){0}) : l0_s);
 }
-#line 233 "main.c"
+#line 236 "main.c"
 
 int64_t byn_main__moves__main__Ints(bynt_main__Ints* p_items) {
     int64_t l0_s = {0};
@@ -271,7 +274,7 @@ break_1:;
 #line 31 "for-constraint.byn"
     return (byn_mutant_is(29) ? ((int64_t){0}) : l0_s);
 }
-#line 275 "main.c"
+#line 278 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
