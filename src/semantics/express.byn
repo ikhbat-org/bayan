@@ -136,6 +136,13 @@ BExpr convert(
             or .typeRef
     }
     let vt = exprType(in c, for: value)
+    // A `Span` passed as a writable `Span` argument can change the local it views, so that local is written (BYN2311).
+    if argument && vt == target && kindOf(vt) == .span && !c.spanTypes[typeIndex(vt)].readOnly {
+        let written = spanViewed(ref c, for: value)
+        if written != -1 {
+            c.locals[written].written = true
+        }
+    }
     return value if vt == target || isError(target) || isError(vt)
     // Every node below is built on `value.Syntax`: its span and syntax facts.
     let at = nodeSpan(in c, for: value)
