@@ -194,7 +194,7 @@ Decided: A.
 - **Option A: none.** A plain `Span<u8>` given to `read(to:)`, and an `Untrusted` argument to a non-lifting function, are BYN2202, whose help names `Untrusted(…)` for the buffer.
 - **Option B: a new code in 8000–8999 for "chunked read needs an `Untrusted` buffer"** (BYN8007, free: see Codes). Pros: a page of its own for the most common migration error. Cons: one more code for a case BYN2202 already describes.
 
-Recommendation: **A**.
+Decided: A.
 
 ## Sections
 
