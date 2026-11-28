@@ -62,6 +62,7 @@ int64_t byn_main__moves__main__Ints(bynt_main__Ints* p_items);
 
 void byn_main__main(void) {
     bynt_main__Ints l0_e = {0};
+    int64_t t1 = {0};
 #line 34 "for-constraint.byn"
     {
         uint8_t wb[256];
@@ -73,35 +74,37 @@ void byn_main__main(void) {
 #line 35 "for-constraint.byn"
     l0_e = ((bynt_main__Ints){INT64_C(-1)});
 #line 36 "for-constraint.byn"
+    t1 = byn_main__moves__main__Ints(&l0_e);
+#line 36 "for-constraint.byn"
     {
         uint8_t wb[256];
         byn_writer wv = {wb, 256, 0, ((byn_builtin_Stream)0) == 1 ? BYN_WRITE_STDERR : BYN_WRITE_STDOUT, byn_file_0, 36};
         byn_writer* w = &wv;
-        byn_w_i64(w, (int64_t)(byn_main__moves__main__Ints(&l0_e)));
+        byn_w_i64(w, (int64_t)(t1));
         byn_w_str(w, BYN_STR(" ", 1));
         byn_w_i64(w, (int64_t)(l0_e.at));
         byn_w_println(w);
     }
 }
-#line 87 "main.c"
+#line 90 "main.c"
 
 int64_t byn_main__Digits__get_count(bynt_main__Digits* self) {
 #line 4 "for-constraint.byn"
     return INT64_C(3);
 }
-#line 93 "main.c"
+#line 96 "main.c"
 
 int64_t byn_main__Digits__get(bynt_main__Digits* self, int64_t p_index) {
 #line 5 "for-constraint.byn"
     return byn_mul_i64(p_index, INT64_C(10), byn_file_0, 5);
 }
-#line 99 "main.c"
+#line 102 "main.c"
 
 int64_t byn_main__Ints__get_current(bynt_main__Ints* self) {
 #line 11 "for-constraint.byn"
     return (*self).at;
 }
-#line 105 "main.c"
+#line 108 "main.c"
 
 bool byn_main__Ints__moveNext(bynt_main__Ints* self) {
 #line 13 "for-constraint.byn"
@@ -109,7 +112,7 @@ bool byn_main__Ints__moveNext(bynt_main__Ints* self) {
 #line 14 "for-constraint.byn"
     return ((*self).at < INT64_C(2));
 }
-#line 113 "main.c"
+#line 116 "main.c"
 
 int64_t byn_main__steps__main__Digits(bynt_main__Digits p_items) {
     int64_t l0_s = {0};
@@ -141,7 +144,7 @@ break_1:;
 #line 23 "for-constraint.byn"
     return l0_s;
 }
-#line 145 "main.c"
+#line 148 "main.c"
 
 int64_t byn_main__moves__main__Ints(bynt_main__Ints* p_items) {
     int64_t l0_s = {0};
@@ -165,7 +168,7 @@ break_1:;
 #line 31 "for-constraint.byn"
     return l0_s;
 }
-#line 169 "main.c"
+#line 172 "main.c"
 
 int main(int argc, char** argv) {
     byn_err err = {0};
