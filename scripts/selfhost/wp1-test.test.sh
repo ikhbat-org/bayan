@@ -12,7 +12,7 @@ git init -q -b base && git config user.email t@t && git config user.name t
 printf 'tmp/\n' > .gitignore; printf 'x\n' > a.txt; git add -A && git commit -qm "test: base"
 git branch feat/x
 printf '#!/bin/bash\necho "$*" > "$AUX/scp-args"; [ -f "$AUX/scp-fail" ] && { echo "scp: lost"; exit 3; }; exit 0\n' > "$aux/bin/scp"
-printf '#!/bin/bash\necho "$*" > "$AUX/ssh-args"; cat "$AUX/ssh-out"; exit "$(cat "$AUX/ssh-rc")"\n' > "$aux/bin/ssh"
+printf '#!/bin/bash\ncase "$2" in powercfg*) echo "$*" >> "$AUX/ssh-power"; exit 0;; esac\necho "$*" > "$AUX/ssh-args"; cat "$AUX/ssh-out"; exit "$(cat "$AUX/ssh-rc")"\n' > "$aux/bin/ssh"
 chmod +x "$aux/bin/scp" "$aux/bin/ssh"; export AUX=$aux
 w() { [ -n "${CACHE_KEEP:-}" ] || rm -rf tmp/wp1/cache; PATH="$aux/bin:$PATH" /bin/bash "$root/scripts/selfhost/wp1-test.sh" "$@" 2>&1 && echo "rc=0" || echo "rc=$?"; }
 sha=$(git rev-parse feat/x); tree=$(git rev-parse 'feat/x^{tree}'); s=${sha:0:8}; R=C:/home/code/extrode.com/bayan/tmp
@@ -33,6 +33,13 @@ rm -f "$aux/scp-fail"; printf 'test: all passed\n' > "$aux/ssh-out"; echo 0 > "$
 w1=$(cat "tmp/wp1/$sha.out"); wl=$(WIN_HOST=wlt1 WIN_THREADS=2 w feat/x "$F"); wla=$(cat "$aux/ssh-args")
 [ "$(cat "tmp/wp1/$sha.out")" = "$w1" ] && [ -f "tmp/wlt1/$sha.out" ] && [ -f "tmp/wlt1/$s.bundle" ] && [ -n "$(ls tmp/wlt1/cache)" ] && wlown=1 || wlown=0
 badth=$(WIN_THREADS=x w feat/x "$F")
+# wlt1 runs under its Performance plan and goes back to Balanced after; wp1 and an empty WIN_PERF_SCHEME never switch; a live holder
+# keeps the plan (no switch back); a scheme with a quote is refused
+rm -f "$aux/ssh-power"; WIN_HOST=wlt1 w feat/x scripts > /dev/null; pwl=$(cat "$aux/ssh-power" 2>/dev/null || true)
+rm -f "$aux/ssh-power"; w feat/x runtime > /dev/null; WIN_HOST=wlt1 WIN_PERF_SCHEME= w feat/x parity > /dev/null; pwnone=$(cat "$aux/ssh-power" 2>/dev/null || true)
+rm -f "$aux/ssh-power"; mkdir -p tmp/wlt1/perf-holders; : > "tmp/wlt1/perf-holders/$$"; : > tmp/wlt1/perf-holders/999999
+rm -rf tmp/wlt1/cache; WIN_HOST=wlt1 w feat/x scripts > /dev/null; pwheld=$(cat "$aux/ssh-power" 2>/dev/null || true); [ ! -e tmp/wlt1/perf-holders/999999 ] && pruned=1 || pruned=0
+rm -rf tmp/wlt1/perf-holders tmp/wlt1/cache; badps=$(WIN_PERF_SCHEME="a'b" w feat/x "$F")
 # the remote command itself, run by pwsh with wp1's tmp/ at $aux/remote and a fake Git Bash (WIN_BASH): a re-run replaces the clone it made,
 # a directory it did not make is left alone (exit 3)
 rm -f "$aux/scp-fail"; mkdir "$aux/remote"; printf 'test: all passed\n' > "$aux/ssh-out"
@@ -42,6 +49,7 @@ cp "$2" "$AUX/remote/"
 EOF
 cat > "$aux/bin/ssh" <<'EOF'
 #!/bin/bash
+case "$1" in powercfg*) exit 0;; esac; case "$2" in powercfg*) exit 0;; esac
 R=C:/home/code/extrode.com/bayan/tmp; c=${2//"$R"/$AUX/remote}
 exec pwsh -NoProfile -NonInteractive -Command "$c"
 EOF
@@ -92,6 +100,10 @@ has "$wl" "rc=0" || fail "a wlt1 run failed" "$wl"
 # R28: no dotnet in the remote command, which builds with bootstrap-build.sh and then runs scripts/test.sh
 [[ $ssha != *dotnet* && $ssha == *scripts/bootstrap-build.sh*BAYAN_EXE=*scripts/test.sh* ]] || fail "the remote command has dotnet, or lacks bootstrap-build.sh then scripts/test.sh ('$ssha')" "$good"
 has "$badth" "wp1-test: bad WIN_THREADS x (a positive integer)" && has "$badth" "rc=2" || fail "a bad WIN_THREADS was not refused" "$badth"
+[ "$pwl" = "$(printf 'wlt1 powercfg /setactive ae098e76-5b05-4954-be35-3c535b591fce\nwlt1 powercfg /setactive SCHEME_BALANCED')" ] || fail "wlt1 did not run under Performance and go back to Balanced ('$pwl')" "$wl"
+[ -z "$pwnone" ] || fail "wp1 or an empty WIN_PERF_SCHEME switched the power plan ('$pwnone')" "$good"
+[ "$pwheld" = "wlt1 powercfg /setactive ae098e76-5b05-4954-be35-3c535b591fce" ] && [ $pruned = 1 ] || fail "a live holder did not keep the plan, or a dead holder was not pruned ('$pwheld')" "$wl"
+has "$badps" "wp1-test: bad power scheme a'b" && has "$badps" "rc=2" || fail "a bad WIN_PERF_SCHEME was not refused" "$badps"
 has "$pw" "rc=0" && [[ $dargs == "-c unset CC; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only bayan --jobs 3 " ]] || fail "pwsh did not pass the build and test script to Git Bash ('$dargs')" "$pw"
 has "$pwc" "rc=0" && [[ $dargsc == "-c export CC='zig cc'; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only runtime " ]] || fail "WIN_CC did not reach Git Bash as CC ('$dargsc')" "$pwc"
 has "$badcc" "wp1-test: bad WIN_CC a;b" && has "$badcc" "rc=2" || fail "a bad WIN_CC was not refused" "$badcc"
