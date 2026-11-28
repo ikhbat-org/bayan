@@ -1533,3 +1533,4 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - scripts/cleanup/session-2026-11-28.sh: the dry-run list and the --execute delete are separate ssh calls, so a clone that starts a run between them can be removed; recheck the 24 h window inside the delete loop (review 066acde10fca..ecfb1afdd, LOW).
 - docs/specs/027-concurrency/027-tasks.md T94 lists `after: T93, T98`, a dependency on a later-numbered task; renumber or reorder when 027 tasks are next edited (review 066acde10fca..ecfb1afdd, LOW).
 - docs/specs/020-test-result-cache: the unmerged revision on docs/020-shell-cache uses L051–L056, taken by 028; renumber to L066–L071 before it lands (review 066acde10fca..ecfb1afdd, HIGH, handled in the 020 revision).
+- docs/revisions/0027-untrusted-sources.md (branch docs/untrusted-revision): lands only after revisions 0025 and 0026 and with the spec headers at 0001–0027; revert 446a2b706 (the back-out) before re-merging (2026-11-28).
