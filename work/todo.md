@@ -8,6 +8,7 @@ Keep it honest rather than tidy. A backlog that only contains things someone int
 wish list; the value is in recording the ones nobody has got to yet.
 
 ## Now-ish
+- 2026-11-28 runtime/tests/run.sh on musl (zig cc -target x86_64-linux-musl, wp1 WSL): io-read-release.c prints "unsupported" (its heap probe covers macOS and glibc only, as its header says) and run.sh counts that as FAIL; make run.sh skip it there, or add a musl heap probe.
 - 2026-11-28 L038 proof findings: under `booleans: .words`, `bayan format` leaves `||` inside `!( ... )` unconverted (run/suq-order.byn:139 becomes `not (state is .draft || state is .placed)`); and no run case spells `and`/`or`/`not`, so words-to-symbols respelling has no corpus case (src/driver/l038.test.byn).
 
 Small, clear, and could be picked up without a design decision.
