@@ -37,6 +37,7 @@ Status values:
 | `because` | SPEC §15 | built | BYN8001 (`BinderCalls.cs:32`, `Parser.cs:676`); `diag/missing-because.diag`, `diag/because-unchecked.diag`, `parse/because.byn:1` |
 | particles | GRAMMAR | built | `Lexicon.cs:98`, `Particles.cs:28`, `BinderCalls.cs:425`; `diag/argument-needs-particle.diag` |
 | units | SPEC §3.4 | spec-only | `Builtins.cs:187` ("units are spec-only"); a suffix is reported Unsupported at `BinderExpressions.cs:415` and `src/semantics/express.byn:653`; `unit Seconds(s): i64` does not parse; see AUDIT A16 |
+| BYN2106 (cannot modify this value) | SPEC §10, §16; Q1289 | built | A writable `Span` or `ref` argument must be a writable place: a call result or map value (`fill(make())`, `fill(m["a"])`) is BYN2106 since 0.4.2; in-place change of a map element is `ref m.slot(k)` (§16), which cannot yet be passed as a writable `Span` (BYN2306, BYN2785 for `List<T>` values); `diag/field-write-slice.diag`, `diag/for-dyn-ref-readonly-span.diag`, `src/semantics/calls2-t29.test.byn:121` |
 | `dec` | SPEC §3.1, §6.2; rev 0024 | spec-only | SPEC §3.1 and §6.2 are tagged (not in 0.4); not lexed or bound (`TypeResolver.cs:214`, rev 0024) |
 | effects (`uses`) | SPEC §14 | built | `EffectAnalysis.cs:18`; `parse/clauses-line-start.byn:5`; 7 codes BYN60xx, `DiagnosticCodes.cs:354-361` |
 | `provide` | SPEC §14 | partial | Only `alloc` (and `allocator`) is supported (`Binder.cs:1425-1440`); other handlers are reported Unsupported (:1433); `parse/provide-become.byn:2`; see AUDIT A10, A32 |
