@@ -184,7 +184,7 @@ C# primitive names are accepted per project (`style.primitives: .sized | .csharp
 
 Lowercase type names are reserved for the language. C interop types: `c_int`, `c_long`, `c_char`, … (`c_long` follows the platform). BYN1030 is retired; the C# primitive names stay reserved words, so none can be declared as an identifier (revision 0001).
 
-**`dec` (decimal arithmetic; not in 0.3).**
+**`dec` (decimal arithmetic; not in 0.4).**
 - **Representation:** a 128-bit value with a .NET-compatible layout: a 96-bit unsigned integer coefficient (`0` to `2^96 - 1`, `79_228_162_514_264_337_593_543_950_335`), a sign bit, and a scale `0..=28` (divisor `10^scale`). The C ABI layout matches .NET `System.Decimal` and database numeric columns directly.
 - **Literals and scale:** written with the `dec` suffix on an integer or decimal literal (`2.50dec`, `85dec`, `0.025dec`; no exponent, no hex or binary). A literal preserves its written trailing fractional zeros in its scale: `1.50dec` has scale 2, prints `1.50` (`string(1.50dec)` is `"1.50"`), and compares equal to `1.5dec` (`1.50dec == 1.5dec` is `true`, and `<`, `<=`, `>`, `>=` compare numerical values). A literal with more than 28 fractional digits or a coefficient above `2^96 - 1` is a compile error.
 - **Arithmetic, rounding and overflow:** `+`, `-`, `*`, `/`, `%` and unary `-` operate on `dec`. Addition and subtraction keep the larger of the operands' scales, multiplication adds scales, and division uses the scale needed for the quotient, each capped at 28; when a result exceeds 96 bits of coefficient or 28 fractional digits and can be brought in range by discarding fractional digits, it rounds once to nearest, ties to even. Overflow (a magnitude above `(2^96 - 1)` at scale 0) and division by zero trap in every build mode (§0, §17); `+% -% *%` and `+| -| *|` do not apply to `dec`.
@@ -264,7 +264,7 @@ void main() {
 - No stored lambdas keyed by symbol (`Map<Symbol, () -> void>` is BYN2822, §3.16): key a `Map<Symbol, i32>` and switch on the value.
 - A lambda cannot capture a `Map` (BYN2780): pass the symbol table as a parameter.
 
-### 3.4 Units and distinct types (partial in 0.4: `type distinct` only; `unit` declarations and unit suffixes are not in 0.3)
+### 3.4 Units and distinct types (partial in 0.4: `type distinct` only; `unit` declarations and unit suffixes are not in 0.4)
 
 ```csharp
 unit Seconds(s): i64             // name, literal symbol, storage
@@ -2371,7 +2371,7 @@ Diagnostic numbers are allocated at merge:
 |---|---|
 | debug, safe, fast, small | Traps |
 
-Overflow is a bug and traps in every build mode, for integers and `dec` alike (`dec` is not in 0.3, §3.1). `+% -% *%` wrap; `+| -| *|` saturate; compound forms `+%=` etc. (integers only). The compiler removes checks it can prove unnecessary (loop counters, values of distinct types with `requires` ranges; not in 0.3).
+Overflow is a bug and traps in every build mode, for integers and `dec` alike (`dec` is not in 0.4, §3.1). `+% -% *%` wrap; `+| -| *|` saturate; compound forms `+%=` etc. (integers only). The compiler removes checks it can prove unnecessary (loop counters, values of distinct types with `requires` ranges; not in 0.3).
 
 Floats are IEEE 754; C is emitted with `-ffp-contract=off`; `@fastMath` opts in per function at run time and is ignored during comptime evaluation, so a `@fastMath` function's comptime and runtime results may differ (§12.4). Derived equality on structs containing floats uses IEEE `totalOrder` (so a struct containing NaN equals itself, and `0.0` and `-0.0` differ there, unlike `==`); floats and types containing them are not `Map` keys (§3.5, BYN2760, BYN2831). (rev 0024)
 
