@@ -1,8 +1,8 @@
 # Bayān roadmap
 
-Version: 0.4.1 (matches `bayan --version`)
+Version: 0.4.2 (matches `bayan --version`)
 
-State of `dev` at 6fae880df, 2026-11-27. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
+State of `dev` at 9fa89d84c, 2026-11-28. This file is kept live: it is updated whenever an order or state below changes, and checked at every release (`docs/RELEASING.md`, Cutting a release; `scripts/release/cut.sh` refuses a roadmap dated before the previous release). Release history is in [CHANGELOG.md](../CHANGELOG.md). What Bayān will not do is in [bayan-not-planned.md](bayan-not-planned.md). Optional improvements with no commitment are in [bayan-nice-to-have.md](bayan-nice-to-have.md).
 
 Bayān compiles itself. Release 0.3.0 made the self-hosted compiler the `bayan` you download (`CHANGELOG.md`, 0.3.0). Release 0.4.0 completes the .NET exit (spec 019): the compiler, its tests and the language server are Bayān, built from `bootstrap/bayan.c` with a C compiler, and the C# compiler is archived as the tag `csharp-final`. The next goals are spec 023 (catch-up), sabk and the tooling ports.
 
@@ -17,6 +17,7 @@ Bayān compiles itself. Release 0.3.0 made the self-hosted compiler the `bayan` 
 | 0.3.2 | 2026-11-16 | `v0.3.2` | shipped | `CHANGELOG.md` `[0.3.2]` |
 | 0.4.0 | 2026-11-24 | `v0.4.0` | tagged; the GitHub release stays a draft | `CHANGELOG.md` `[0.4.0]` |
 | 0.4.1 | 2026-11-27 | `v0.4.1` | prerelease | `CHANGELOG.md` `[0.4.1]` |
+| 0.4.2 | 2026-11-28 | `v0.4.2` | cut; the owner tags and pushes | `CHANGELOG.md` `[0.4.2]` |
 
 ### 0.1.0: the C# compiler (M0 — Skeleton to M12 — CLI completeness and machine-readable output)
 
@@ -80,13 +81,27 @@ Source: `CHANGELOG.md` `[0.4.0]`, `docs/specs/019-dotnet-exit/019-tasks.md`. 019
 
 Source: `CHANGELOG.md` `[0.4.1]`, `docs/misc/2026-11-25-v0.4.0-audit.md`, `docs/plans/2026-11-25-019-audit-040-highs.md`. 15 of the audit's 20 HIGH findings (region, ownership, effects, typestate, `fail` narrowing, raw strings, evals sandbox) and a batch of its MEDIUMs are fixed. The five open HIGHs (07 #3, 07 #4, 09 #1, 09 #3, 10 #2) are the first item of 0.4.2.
 
+### 0.4.2: the last five 0.4.0 audit HIGHs
+
+Source: `CHANGELOG.md` `[0.4.2]`. All 20 audit HIGHs are now fixed. Each of the five fixed here has a regression golden that fails on 0.4.1:
+
+| HIGH | What broke | Golden |
+|---|---|---|
+| 07 #3 | a mutable `Span` wrote through a `let` | `diag/span-let-write`, `diag/span-arg-not-a-place` |
+| 07 #4 | `requires` field checks missed `ref`/`out` and nested fields | `diag/checked-field-write-indirect`, `diag/field-write-outside-indirect` |
+| 09 #1 | string-to-bytes evaluated its operand twice | `run/string-to-bytes-once` |
+| 09 #3 | compound assignment through `xs[i].f` evaluated twice | `run/compound-assign-target-once` |
+| 10 #2 | `bayan run` started a stale binary | `run/script-run-moved-panic` (path), `cli/SelfhostDefaultT9Tests/AScriptThatImportsAModuleOfItsOwnRunsTheEditedModule-script-imports` (import); the `--package` part has a `cache.byn` test block, no golden |
+
+Also in 0.4.2: short `bayan --help` and `bayan help <command>`, `bayan parse` syntax check, laws L031 and L038 enacted.
+
 ## Next releases
 
 The order below follows the sources where they give one and the dependencies where they do not. Nothing here has a calendar date. The syntax freeze of revision 0023 is over: it ended when 019a landed on `dev` at e57839016, 2026-11-23 (spec 019 R29; `docs/revisions/0023-syntax-freeze-provisional-sections.md`).
 
 | Order | Item | State today | Source |
 |---|---|---|---|
-| 0 | 0.4.2, the five open 0.4.0 audit HIGHs | Reproduced on `dev` 6fae880df, 2026-11-27; designs in progress | `docs/misc/2026-11-25-v0.4.0-audit.md` (HIGH rows 07 #3, 07 #4, 09 #1, 09 #3, 10 #2), `CHANGELOG.md` `[0.4.1]` Known limits |
+| 0 | 0.4.2, the five open 0.4.0 audit HIGHs | **Done in 0.4.2** (2026-11-28): all five fixed, each with a regression golden that fails on 0.4.1 (see the 0.4.2 section above) | `docs/misc/2026-11-25-v0.4.0-audit.md` (HIGH rows 07 #3, 07 #4, 09 #1, 09 #3, 10 #2), `CHANGELOG.md` `[0.4.1]` Known limits |
 | 1 | Revision 0024, numeric conversions | text written and applied (rev 0024); implementation not started | `docs/revisions/0024-numeric-conversions-and-dec.md`, `docs/bayan-spec.md` line 8, `docs/decisions/2026-11-14-004-answered-questions.md` Questions 1274, `docs/plans/2026-11-12-008-release-prep-and-process.md` |
 | 2 | Plan 015, Q31 memory follow-ups | Phases A, B and D are merged into `dev`; phase C (emit arena) is deferred by the user. Left open: the LOWs below | `docs/plans/2026-11-14-015-q31-followups.md`, `docs/bayan-progress-log.md` (2026-11-14), `work/todo.md` lines 776–800 |
 | 3 | Spec 019, the .NET exit, in two parts | **Done with the removal commit 493d3fd78 (`chore(019b): remove the C# compiler`, 2026-11-24).** 019a landed on `dev` at e57839016, 2026-11-23 (`dotnet test` no longer runs on `dev`; the syntax freeze of revision 0023 is over); 019b archived the C# compiler as the tag `csharp-final` and removed it. **019a**: C# test outputs become goldens, the language server moves to Bayān, CI builds from `bootstrap/bayan.c`. **019b**: the C# compiler is archived (an annotated tag `csharp-final` and a decision doc with the restore command, removal in its own commit) and stays frozen for diverse double-compiling. Estimate 4–7 weeks for both | `docs/specs/019-dotnet-exit/019-spec.md`, `019-plan.md`, `019-tasks.md`; `docs/bayan-milestones.md` (Target: zero dependencies), `docs/decisions/2026-11-16-006-after-022-roadmap-decisions.md` (proposed) |

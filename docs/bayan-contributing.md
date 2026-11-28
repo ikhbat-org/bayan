@@ -1,6 +1,6 @@
 # Working on Bayān: rules, stack, layout and conventions
 
-Version: 0.4.1 (matches `bayan --version`)
+Version: 0.4.2 (matches `bayan --version`)
 
 How compiler work is done. The language: `docs/bayan-spec.md`; agent rules: `AGENTS.md`; this file holds only what neither says. Milestones: `docs/bayan-milestones.md`.
 

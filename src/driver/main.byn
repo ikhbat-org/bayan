@@ -12,7 +12,7 @@ const exitTestFailure: i32 = 3
 const exitToolchain: i32   = 4
 
 /// Toolchain.CompilerVersion (Toolchain.cs:33).
-const version: string = "0.4.1"
+const version: string = "0.4.2"
 
 /// `bayan --help`, `-h` and `help` (owner decision 2026-11-16): one line per command; `commandHelp` has each command's options.
 /// `mutate` and `cache` are left out to stay within 28 lines: `bayan help test` and `bayan help clean` name them, and
