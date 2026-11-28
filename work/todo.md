@@ -8,6 +8,8 @@ Keep it honest rather than tidy. A backlog that only contains things someone int
 wish list; the value is in recording the ones nobody has got to yet.
 
 ## Now-ish
+- 2026-11-28 BYN2311 slice lint, left after review d63f899..888f2e3 (low): a Span captured by a lambda and written there (`let s = b[0..2]; let f = () => curve(s)`) still warns for `b`; block, `try` and `catch` expressions are not followed by `spanViewed` (src/semantics/calls4.byn); a `var s` passed by `ref Span` gets BYN2311 for `s` next to BYN2202 (probe p6b, tmp/rv-probe/). Owner: BYN2311 follow-up.
+- 2026-11-28 DIVERGENCES.tsv row diag/slice-span-argument-writes-var says the C# reports BYN2311 for a, b, r, d, e, g, h and k; not checked against a csharp-final build (review d63f899..888f2e3, low). Check when the ddc job's C# CLI is next built.
 - 2026-11-28 runtime/tests/run.sh on musl (zig cc -target x86_64-linux-musl, wp1 WSL): io-read-release.c prints "unsupported" (its heap probe covers macOS and glibc only, as its header says) and run.sh counts that as FAIL; make run.sh skip it there, or add a musl heap probe.
 - 2026-11-28 L038 proof findings: under `booleans: .words`, `bayan format` leaves `||` inside `!( ... )` unconverted (run/suq-order.byn:139 becomes `not (state is .draft || state is .placed)`); and no run case spells `and`/`or`/`not`, so words-to-symbols respelling has no corpus case (src/driver/l038.test.byn).
 
