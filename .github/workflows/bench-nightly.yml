@@ -1,20 +1,28 @@
 # Nightly benchmark (bench/run.sh: Bayan, C, Rust, Zig, Go) on dev. GitHub limits kept: 2 jobs a night (ubuntu-latest and
 # macos-latest, no other matrix), each at most 30 minutes; a night with no new commit on dev exits early after one git fetch;
 # results are an artifact kept 14 days. The gate is on ratios, not raw times (hosted runners vary): a run fails when
-# Bayan/C on hash or parse is more than 10% worse than the last stored ratio for that OS. The first run passes and stores.
+# Bayan/C on hash or parse is more than 10% worse than the baseline for that OS. The baseline is fixed: the first run stores
+# it and only a dispatch with rebaseline=true replaces it (a per-run baseline would let small regressions add up). The
+# schedule fires only from the default branch (main), so the nightly starts once this file is on main; dispatch from main
+# too, since cache entries saved on dev are not visible to runs on main. A baseline unused for 7 days expires.
 name: bench-nightly
 
 on:
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
+    inputs:
+      rebaseline:
+        description: Store this run's ratios as the new baseline (after an accepted change)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
   group: bench-nightly
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   bench:
@@ -57,6 +65,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: stable
+          cache: false
       # Rust and cc come from the runner image.
       - name: Benchmark
         if: env.SKIP != '1'
@@ -71,12 +80,12 @@ jobs:
         shell: bash
         run: |
           for b in hash parse; do
-            r=$(grep -E "^$b +[0-9.]+ ms \([0-9.]+x\)" tmp/bench-table.txt | grep -oE '\([0-9.]+x\)' | head -n1 | tr -d '(x)')
-            [ -n "$r" ] || { echo "$b: no Bayan ratio in the table"; exit 1; }
+            r=$(grep -E "^$b +[0-9.]+ ms \([0-9.]+x\)" tmp/bench-table.txt | grep -oE '\([0-9.]+x\)' | head -n1 | tr -d '(x)' || true)
+            [ -n "$r" ] || { echo "$b: no Bayan ratio in the table" >&2; exit 1; }
             echo "$b $r"
           done > tmp/bench-ratios.txt
           status=0
-          if [ -f tmp/bench-state/ratios.txt ]; then
+          if [ -f tmp/bench-state/ratios.txt ] && [ "${{ inputs.rebaseline }}" != "true" ]; then
             while read -r b new; do
               old=$(awk -v b="$b" '$1 == b { print $2 }' tmp/bench-state/ratios.txt)
               [ -n "$old" ] || { echo "$b: no stored ratio, stored now"; continue; }
@@ -87,10 +96,10 @@ jobs:
               fi
             done < tmp/bench-ratios.txt
           else
-            echo "first run on this OS: nothing to compare, storing"
+            echo "first run on this OS or rebaseline: nothing to compare, storing"
+            cp tmp/bench-ratios.txt tmp/bench-state/ratios.txt
           fi
           [ $status -eq 0 ] || exit 1
-          cp tmp/bench-ratios.txt tmp/bench-state/ratios.txt
           echo "$SHA" > tmp/bench-state/sha.txt
       - name: Upload the results
         if: always() && env.SKIP != '1'
