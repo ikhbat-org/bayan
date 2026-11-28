@@ -37,7 +37,7 @@ Status values:
 | `because` | SPEC §15 | built | BYN8001 (`BinderCalls.cs:32`, `Parser.cs:676`); `diag/missing-because.diag`, `diag/because-unchecked.diag`, `parse/because.byn:1` |
 | particles | GRAMMAR | built | `Lexicon.cs:98`, `Particles.cs:28`, `BinderCalls.cs:425`; `diag/argument-needs-particle.diag` |
 | units | SPEC §3.4 | spec-only | `Builtins.cs:187` ("units are spec-only"); a suffix is reported Unsupported at `BinderExpressions.cs:415` and `src/semantics/express.byn:653`; `unit Seconds(s): i64` does not parse; see AUDIT A16 |
-| `dec` | SPEC §3.1, §6.2; rev 0024 | spec-only | SPEC §3.1 and §6.2 are tagged (not in 0.3); not lexed or bound (`TypeResolver.cs:214`, rev 0024) |
+| `dec` | SPEC §3.1, §6.2; rev 0024 | spec-only | SPEC §3.1 and §6.2 are tagged (not in 0.4); not lexed or bound (`TypeResolver.cs:214`, rev 0024) |
 | effects (`uses`) | SPEC §14 | built | `EffectAnalysis.cs:18`; `parse/clauses-line-start.byn:5`; 7 codes BYN60xx, `DiagnosticCodes.cs:354-361` |
 | `provide` | SPEC §14 | partial | Only `alloc` (and `allocator`) is supported (`Binder.cs:1425-1440`); other handlers are reported Unsupported (:1433); `parse/provide-become.byn:2`; see AUDIT A10, A32 |
 | `rest` | SPEC §2.4, §8 | built | `Parser.cs:1436`, `:1471`; `BinderCalls.cs:382`; `RegionAnalysis.cs:159`; `run/rest.byn:3` |
@@ -263,6 +263,7 @@ Every member that `BuiltinMembers.cs` binds, so each is built; `HasMethod` adds 
 | FormatSpec | `width` | property | `BuiltinMembers.cs:43` |
 | IoInput | `readAll` | method | `BuiltinMembers.cs:131` |
 | IoInput | `readAllBytes` | method | `BuiltinMembers.cs:137` |
+| IoInput | `read` | method | `src/semantics/builtins.byn:363` |
 | IoStream | `write` | method | `BuiltinMembers.cs:129` |
 | List | `append` | method | `BuiltinMembers.cs:94` |
 | List | `clear` | method | `BuiltinMembers.cs:95` |
