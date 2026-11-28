@@ -23,14 +23,14 @@ Tests: `bash bench/run.test.sh`, `bash bench/baseline.test.sh`, `bash bench/fric
 - Results: the table and the ratios are an artifact of the run, kept 14 days. The last good ratios and sha are kept in an `actions/cache` entry per OS.
 - Gate: a run fails when Bayan/C on `hash` or `parse` is more than 10% worse than the last stored ratio for that OS. Raw times are printed, never gated. The first run on an OS passes and stores its ratios. A failed run stores nothing.
 
-Sample table (`bench/results/32330daf.txt`, made before the Go column was added, so it has no `go` column):
+Sample table (a local run at `c7bb68e0f`, with the Go column):
 
 ```
-bayan bench 32330daf (Darwin arm64, median of 5 runs, ratio to C, lower is better)
-benchmark bayan                    c                        rust                     zig                      checksum
-hash     240.1 ms (1.05x)         229.5 ms (1.00x)         229.3 ms (1.00x)         231.7 ms (1.01x)         12143377579992967301
-parse    46.5 ms (0.75x)          61.6 ms (1.00x)          33.9 ms (0.55x)          79.9 ms (1.30x)          14091657157103084200
-lexer    9.8 ms (n/a)             n/a (no port)            n/a (no port)            n/a (no port)            -
+bayan bench c7bb68e0f (Darwin arm64, median of 5 runs, ratio to C, lower is better)
+benchmark bayan                    c                        rust                     zig                      go                       checksum
+hash     174.2 ms (1.01x)         173.0 ms (1.00x)         176.8 ms (1.02x)         172.8 ms (1.00x)         175.3 ms (1.01x)         12143377579992967301
+parse    30.5 ms (0.66x)          46.2 ms (1.00x)          21.9 ms (0.47x)          69.5 ms (1.50x)          34.4 ms (0.75x)          14091657157103084200
+lexer    11.5 ms (n/a)            n/a (no port)            n/a (no port)            n/a (no port)            n/a (no port)            -
 ```
 
 ## Notes
