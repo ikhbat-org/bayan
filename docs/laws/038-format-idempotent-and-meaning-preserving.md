@@ -1,13 +1,14 @@
 ---
 id: L038
 title: Format is idempotent and meaning-preserving
-status: proposed
+status: enacted
 release: unscheduled
 sources: spec 022 R4
 kind: property
 scope: src/driver/format.byn, src/driver/layout.byn
 proof: src/driver/l038.test.byn
 check: bash scripts/ci/bootstrap-check.sh >/dev/null && BAYAN_EXE=$PWD/tmp/bootstrap-check/bayan tmp/bootstrap-check/bayan test --package src src/driver --only 'L038:'
+enacted: 2026-11-28
 ---
 
 ## Statement
@@ -18,4 +19,4 @@ A source and a `style`, with the first line where the second format differs from
 
 ## Proof notes
 
-Proven 2026-11-28 by `src/driver/l038.test.byn` (5 `L038:` blocks): 380 single-file `run/` cases under the default style, and 22 named cases under all 64 combinations of `booleans`, `primitives`, `align`, `trailingCommas`, `indent` (4/2) and `width` (120/60). Emitted C is compared after dropping `#line` and replacing the line in `w->line = <n>` and `byn_file_<k>, <n>` with `L`. Mutation: `formatCommand` writing the first `+` as `-` made all 5 blocks fail, the first with `L038 counterexample: run/call-result-ref-plain-struct.byn ... byn_add_i64 against byn_sub_i64`. Breaks inside `formatFile` or the layout are not reachable by the second-format check, since `formatFile` loops until the bytes stop changing; no run case spells `and`/`or`/`not`, so words-to-symbols respelling is not exercised. Status stays proposed: the owner approved the wording 2026-11-28 and enacts.
+Proven 2026-11-28 by `src/driver/l038.test.byn` (5 `L038:` blocks): 380 single-file `run/` cases under the default style, and 22 named cases under all 64 combinations of `booleans`, `primitives`, `align`, `trailingCommas`, `indent` (4/2) and `width` (120/60). Emitted C is compared after dropping `#line` and replacing the line in `w->line = <n>` and `byn_file_<k>, <n>` with `L`. Mutation: `formatCommand` writing the first `+` as `-` made all 5 blocks fail, the first with `L038 counterexample: run/call-result-ref-plain-struct.byn ... byn_add_i64 against byn_sub_i64`. Breaks inside `formatFile` or the layout are not reachable by the second-format check, since `formatFile` loops until the bytes stop changing; no run case spells `and`/`or`/`not`, so words-to-symbols respelling is not exercised. The owner approved the wording and enacted it on 2026-11-28.
