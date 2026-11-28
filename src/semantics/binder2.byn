@@ -974,6 +974,9 @@ BStmt bindLocalDecl(ref Binder b, through ref Ctx c, for in parser.LocalDecl d) 
             if declared != -1 {
                 c.locals[viewed].written = true
             }
+        } else {
+            // Arms viewing different locals leave no single `spanSource`: each is written now.
+            markSpanViewed(ref c, for: init)
         }
     }
     if state != -1 {

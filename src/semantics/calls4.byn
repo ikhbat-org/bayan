@@ -421,6 +421,10 @@ BStmt bindAssign(ref Binder b, through ref Ctx c, for in parser.AssignStmt a) {
             at: valueSpan,
             constrains: !pending,
         )
+        // A `Span` place needs a writable slice, which a `let` would not give (BYN2311).
+        if targetType != -1 && kindOf(targetType) == .span && !c.spanTypes[typeIndex(targetType)].readOnly {
+            markSpanViewed(ref c, for: converted)
+        }
         return recordAssignSyntax(
             ref c,
             for: addAssign(ref c, from: BAssign { span: a.span, target: target, value: converted }),
@@ -874,10 +878,7 @@ bool checkWritable(ref Binder b, through ref Ctx c, for BExpr target, at TextSpa
                     )
                     return false
                 }
-                let viewed = spanViewed(ref c, for: indexed)
-                if viewed != -1 {
-                    c.locals[viewed].written = true
-                }
+                markSpanViewed(ref c, for: indexed)
                 return true
             }
             return checkWritable(ref b, through: ref c, for: indexed, at: span, by: why)
@@ -1006,7 +1007,38 @@ LocalId spanViewed(ref Ctx c, for BExpr e) {
             return spanViewed(ref c, for: sliced) if boundKind(sliced) == .slice
                 || kindOf(exprType(in c, for: sliced)) == .span
             return writtenLocal(ref c, for: sliced)
+        case .conditional:
+            let whenTrue = spanViewed(ref c, for: c.bConditionals[i].whenTrue)
+            return whenTrue == spanViewed(ref c, for: c.bConditionals[i].whenFalse) ? whenTrue : -1
+        case .moveExpr: return spanViewed(ref c, for: c.bMoves[i].operand)
         default: return -1
+    }
+}
+
+/// Marks written every local a `Span` value can view: each arm of a `?:`, `switch` or `??`, the operand and
+/// handler of a `catch`, and the operand of a `move`. Parentheses bind to their inner expression.
+void markSpanViewed(ref Ctx c, for BExpr e) {
+    let i = boundIndex(e)
+    switch boundKind(e) {
+        case .conditional:
+            markSpanViewed(ref c, for: c.bConditionals[i].whenTrue)
+            markSpanViewed(ref c, for: c.bConditionals[i].whenFalse)
+        case .switchExpr:
+            for k in 0..c.bSwitchExprs[i].arms.length {
+                markSpanViewed(ref c, for: c.bSwitchExprs[i].arms[k].value)
+            }
+        case .coalesce:
+            markSpanViewed(ref c, for: c.bCoalesces[i].left)
+            markSpanViewed(ref c, for: c.bCoalesces[i].right)
+        case .catchExpr:
+            markSpanViewed(ref c, for: c.bCatches[i].operand)
+            markSpanViewed(ref c, for: c.bCatches[i].handler)
+        case .moveExpr: markSpanViewed(ref c, for: c.bMoves[i].operand)
+        default:
+            let viewed = spanViewed(ref c, for: e)
+            if viewed != -1 {
+                c.locals[viewed].written = true
+            }
     }
 }
 
