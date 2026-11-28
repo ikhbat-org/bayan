@@ -1,0 +1,4 @@
+build
+--mode
+small
+<repo>/tmp/t5/self/failures/arithmetic.byn
