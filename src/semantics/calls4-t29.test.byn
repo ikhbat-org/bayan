@@ -176,6 +176,95 @@ test "calls4 t29: a slice passed as a Span writes the local it slices" {
     assert t29s2bDiags(in c) == "BYN2311 `f` is never reassigned; declare it with `let`\n"
 }
 
+test "calls4 t29: a slice assigned to a Span local writes the local it slices" {
+    let text = """
+        void curve(Span<i32> xs) {
+            xs[0] = 1
+        }
+
+        void main() {
+            var a: List<i32> = [1, 2, 3]
+            var b: List<i32> = [1, 2, 3]
+            var s: Span<i32> = b[0..1]
+            s = a[0..2]
+            s[0] = 5
+            var c: List<i32> = [1, 2, 3]
+            var t = c[0..1]
+            var d: List<i32> = [1, 2, 3]
+            t = d[0..2]
+            curve(t)
+            var e: List<i32> = [1, 2, 3]
+            var u: ReadOnlySpan<i32> = e[0..1]
+            u = e[1..2]
+            print($"{s.length} {u[0]}")
+        }
+        """
+    let c = t29s2bCompile(text)
+    assert t29s2bDiags(in c) == "BYN2311 `e` is never reassigned; declare it with `let`\n"
+}
+
+test "calls4 t29: a Span passed by ref writes the local it views" {
+    let text = """
+        void reset(ref Span<i32> xs) {
+            xs[0] = 0
+        }
+
+        i32 peek(ref ReadOnlySpan<i32> xs) => xs[0]
+
+        void main() {
+            var a: List<i32> = [1, 2, 3]
+            var s = a[0..2]
+            reset(ref s)
+            var b: List<i32> = [1, 2, 3]
+            var t: ReadOnlySpan<i32> = b[0..2]
+            print($"{peek(ref t)} {s.length}")
+        }
+        """
+    let c = t29s2bCompile(text)
+    assert t29s2bDiags(in c) == "BYN2311 `b` is never reassigned; declare it with `let`\n"
+}
+
+test "calls4 t29: every arm of a Span argument writes the local it slices" {
+    let text = """
+        i32 sum(ReadOnlySpan<i32> xs) => xs.length > 0 ? xs[0] : 0
+
+        union error E {
+            bad
+        }
+
+        void curve(Span<i32> xs) {
+            xs[0] = 1
+        }
+
+        Span<i32> pick(Span<i32> xs, by i32 n) fails E {
+            fail .bad if n == 0
+            return xs
+        }
+
+        void main() {
+            var a: List<i32> = [1, 2, 3]
+            let flag = a.length > 1
+            curve(flag ? a[0..1] : a[1..2])
+            var k: List<i32> = [1, 2, 3]
+            var m: List<i32> = [1, 2, 3]
+            curve(pick(m[0..1], by: 1) catch k[0..1])
+            var b: List<i32> = [1, 2, 3]
+            var e: List<i32> = [1, 2, 3]
+            curve((flag ? b[0..1] : e[0..1]))
+            var d: List<i32> = [1, 2, 3]
+            curve(a.length switch { 3 => d[0..1], _ => d[1..2] })
+            var f: List<i32> = [1, 2, 3]
+            var g: List<i32> = [1, 2, 3]
+            let s = flag ? f[0..1] : g[0..1]
+            s[0] = 2
+            var h: List<i32> = [1, 2, 3]
+            print($"{sum(flag ? h[0..1] : h[1..2])}")
+        }
+        """
+    let c = t29s2bCompile(text)
+    assert t29s2bDiags(in c) == "BYN2311 `h` is never reassigned; declare it with `let`\n"
+}
+
 test "calls4 t29: writes through things that cannot change" {
     let text = """
         struct Id {

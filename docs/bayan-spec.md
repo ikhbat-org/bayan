@@ -1597,7 +1597,7 @@ public bool isEmpty => lines.isEmpty          // read-only: the default
 - Calling a `ref this` member on a `let` is an error with a fix to `var`.
 - Passing for mutation uses `ref` at the call site: `fill(ref cart)`.
 - Mutating a value while it is borrowed (for example, inside `for line in cart.lines`) is an error (§9.4 rule 5).
-- Element access on a `var` `List` or `Map` yields the stored value in place, with no silent copy: `stats.getOrAdd("api").record(12ms)` changes the stored value. On a `let` collection it is the `let` error above.
+- Indexing a `List` or `Map` reads the element: `m["a"]` is a value, and passing it where a writable `Span` or `ref` is expected is BYN2106. To change a stored element in place, call a `ref this` member on it or take `ref map.slot(k)` (§16), with no silent copy: `stats.getOrAdd("api").record(12ms)` changes the stored value. On a `let` collection it is the `let` error above.
 
 > Round 2 §9: mutation is declared, not inferred, so a signature tells the reader what a call can change. Codes: BYN2104, BYN2115, BYN2116, BYN2117.
 

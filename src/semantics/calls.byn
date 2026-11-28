@@ -1700,6 +1700,10 @@ BExpr t20BindArgument(ref Binder b, through ref Ctx c, for parser.Argument arg, 
             at: valueSpan,
             by: $"it is passed as `{wanted == .refKeyword ? "ref" : "out"}`",
         )
+        // A `ref Span` callee can write through the `Span`, so the local it views is written (BYN2311).
+        if wanted == .refKeyword && kindOf(placeType) == .span && !c.spanTypes[typeIndex(placeType)].readOnly {
+            markSpanViewed(ref c, for: place)
+        }
         return place
     }
     return t20BindArgumentValue(ref b, through: ref c, for: arg, as: ptype, by: callee)

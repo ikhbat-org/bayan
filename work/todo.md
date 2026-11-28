@@ -8,6 +8,8 @@ Keep it honest rather than tidy. A backlog that only contains things someone int
 wish list; the value is in recording the ones nobody has got to yet.
 
 ## Now-ish
+- 2026-11-28 BYN2311 slice lint, left after review d63f899..888f2e3 (low): a Span captured by a lambda and written there (`let s = b[0..2]; let f = () => curve(s)`) still warns for `b`; block, `try` and `catch` expressions are not followed by `spanViewed` (src/semantics/calls4.byn); a `var s` passed by `ref Span` gets BYN2311 for `s` next to BYN2202 (probe p6b, tmp/rv-probe/). Owner: BYN2311 follow-up.
+- 2026-11-28 DIVERGENCES.tsv row diag/slice-span-argument-writes-var says the C# reports BYN2311 for a, b, r, d, e, g, h and k; not checked against a csharp-final build (review d63f899..888f2e3, low). Check when the ddc job's C# CLI is next built.
 - 2026-11-28 runtime/tests/run.sh on musl (zig cc -target x86_64-linux-musl, wp1 WSL): io-read-release.c prints "unsupported" (its heap probe covers macOS and glibc only, as its header says) and run.sh counts that as FAIL; make run.sh skip it there, or add a musl heap probe.
 - 2026-11-28 L038 proof findings: under `booleans: .words`, `bayan format` leaves `||` inside `!( ... )` unconverted (run/suq-order.byn:139 becomes `not (state is .draft || state is .placed)`); and no run case spells `and`/`or`/`not`, so words-to-symbols respelling has no corpus case (src/driver/l038.test.byn).
 
@@ -1526,3 +1528,5 @@ LOW (019 T31, 2026-11-18): each law's proof: line still names a csharp/ or src/t
 - lib/std/regex/regex.byn:482: the `[:` check accepts a `:]` anywhere later in the pattern, not only inside the current set, so `[[:a]b:]` and `[[:]x:]` still get `unsupported POSIX class @1` where RE2/Go accept them (review of the 0.4.0 audit LOW batch 2, b36ccf5e3^..085131097).
 - editors/language-server/src/workspace/workspace.byn, test "realPath of a path with thousands of missing parts…": fails with the depth cap reverted only where /tmp is a symlink (macOS); on Linux it passes either way, and it checks the result, not the depth (same review).
 - lib/std/path/glob.byn:31-58: each unclosed `{` rescans to the end of the pattern, so n unclosed braces cost O(n²) per `expandMatches` (same review).
+- `ref m.slot(k)` cannot be passed as a writable `Span` argument (`fill(ref m.slot("a"))`: BYN2306, plus BYN2785 when the value is `List<T>`); once it can, add it to BYN2106's help (handoff docs/audits/2026-11-28-decisions-0.4.md item 8).
+- BYN2785 on `Map<K, List<T>>.slot(k)` looks like a bug: §9.3 treats an empty list as `List`'s empty value (`take()` leaves one), so `slot` should insert an empty list, not fail with "`slot` needs a default value" (seen in `src/semantics/calls2-t29.test.byn:121`, probe `fill(ref m.slot("a"))`; handoff docs/audits/2026-11-28-decisions-0.4.md item 8).
