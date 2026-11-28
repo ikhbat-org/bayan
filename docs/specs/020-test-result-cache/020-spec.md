@@ -40,7 +40,7 @@ Two partial mechanisms exist. Test selection by changed files (plan 008 B) picks
 ## Requirements
 
 Unit and key
-- R1 The unit of reuse is a **test unit**: a named group of tests that `scripts/test.sh` schedules and reports as one (a golden class folder, a Bayān package, a parity tool, a script-test group, or the runtime C tests). A result is recorded and reused for whole units only; the report still lists every test in it.
+- R1 The unit of reuse is a **test unit**: a named group of tests that `scripts/test.sh` schedules and reports as one (a golden class folder, or for a kind with top-level files the kind's "top-level files" group (no test belongs to two units), a Bayān package, a parity tool, a script-test group, or the runtime C tests). A result is recorded and reused for whole units only; the report still lists every test in it.
 - R2 A recorded result is keyed on the unit's **declared inputs**, by content (SHA-256): the `BAYAN_EXE` binary; `runtime/`; `lib/std/`; the unit's own files (its case folder, package, parity case folder or script-test group) and every `tests/cases/inputs/` entry that its `input.tsv` points to (resolved when the key is computed); every other file or executable the declared list names for its kind; the toolchain identity (R5); the allow-listed environment (R4); and the tool's own digest (R8). The declared lists are human-kept, per unit kind, one row per input with a reason, and are proven every night (R27), not trusted.
 - R3 Under verification (R27), paths the unit itself created before reading them are not reads outside its list. A unit that writes to a version-controlled file, or reads a file and then writes it, is barred.
 - R4 Inputs that no list can name are covered by construction instead: a run whose results may be recorded is given a fixed environment made only of an allow-list of variables, and every allow-listed value is in the key. A variable not on the list does not exist for the unit.
@@ -60,7 +60,7 @@ Gates
 - R14 Where reuse is allowed (the full-suite run before a merge to `dev`, and local runs), it composes with selection: selection chooses the units asked for; the cache then decides, per asked unit, run or reuse. The cache never removes a unit from a run and never reads the selection map.
 
 Verification
-- R15 **Shadow comparison.** Every nightly full run records its passes into the nightly job's own store (reuse stays off, R13) and computes, without using it, what the cache would have answered for each unit from that store. A unit the cache would have reused and that did not pass is a soundness failure: the run fails, names the unit and the entry, the unit is barred and its entries are removed. Only a human re-admits it.
+- R15 **Shadow comparison.** Every nightly full run records its passes into the nightly job's own store (`BAYAN_RESULT_CACHE=record`, reuse stays off, R13) and computes, without using it, what the cache would have answered for each unit from that store as it stood before this run recorded anything (snapshot first, record after). A unit the cache would have reused and that did not pass is a soundness failure: the run fails, names the unit and the entry, the unit is barred and its entries are removed. Only a human re-admits it.
 - R16 **Sampled rerun.** Every run with reuse on reruns a sample of its hits (at least 5%, never fewer than one unit, chosen from the commit so it is repeatable) and applies R15's rule to them.
 - R17 Every entry carries a checksum over its whole content. An entry that fails it, cannot be parsed, or has an unknown format version is deleted and counts as a miss.
 - R18 **Mutation check.** For every declared input kind of R2, every allow-listed variable and every fingerprint part, a test changes exactly that one thing after a recorded pass and requires a miss.
@@ -75,7 +75,7 @@ Storage
 
 Visibility and control
 - R24 Every report states "N reused from cache, M run", and for each reused unit: its tests, and the commit, date and host of the recorded run. A reused test is never printed as if it had run.
-- R25 One switch turns reuse and recording off for a run. The default outside the runs named in R14 is off.
+- R25 One switch, `BAYAN_RESULT_CACHE`, has three values: `off` (no reuse, no recording), `on` (reuse and recording) and `record` (record, never reuse). `record` is used only by the nightly job (R13, R15); every other gate in R13 is `off`. The default outside the runs named in R14 is off.
 - R26 A unit that fails under verification's trace is rerun once untraced, and that second result is the one reported; it is never stored. The traced run's reads are still compared (R27).
 
 ## Bounded risk (accepted by the owner, 2026-11-28)
@@ -86,7 +86,7 @@ A declared list can miss an input. Until a nightly verification sees the read an
 - Given an admitted unit, when one byte of one declared input changes, or one byte of the C compiler's or zig's executable or root, or one allow-listed variable, then the unit runs (R18).
 - Given a unit whose declared list lacks a file it reads, when the nightly verification runs, then the night fails naming the unit and the path, and once the printed `bar` row is committed no host reuses that unit (R27).
 - Given a unit that reads a file through a grandchild process built without the system C library, when it is verified, then that file is in the observed list (R19).
-- Given a store in which every unit is marked passed for wrong inputs, when a release, nightly, laws or `main` gate runs, then every unit runs and a failing test fails the gate (R13, R20).
+- Given a store in which every unit is marked passed for wrong inputs, when a release, nightly, laws or `main` gate runs, then every unit runs and a failing test fails the gate (R13, R20). For the nightly the store is the one it would read (the pre-run snapshot); its own recorded entries do not count as reuse.
 - Given a nightly where a unit the cache would have reused fails, then the nightly fails with a soundness message, and the next run with reuse on runs that unit (R15).
 - Given a unit that opens a network connection or writes a version-controlled file under verification, then it is barred and the report says why (R3, R11).
 - Given a host where the key cannot be computed, when reuse is switched on, then the run says the cache is unavailable there and runs everything (R12).

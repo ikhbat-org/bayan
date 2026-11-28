@@ -120,7 +120,7 @@ Slots: "(proposed)" marks a dependency-order proposal. A slot without it comes f
 |---|---|---|---|---|---|
 | 015 | Tooling | decided (2026-11-02); ports wait for 012 (S1) | T12–T15, T17 of 17 | 012 (done); `std.regex` (T14) before T15; `Io.run` streaming (Q1141) before T17 | After spec 019 (proposed) |
 | 019 | .NET exit | approved (text drafted 2026-11-17, owner to review) | 78 of 78 tasks | 0.3.0 tag | After 0.3.0 (`docs/decisions/2026-11-14-004-answered-questions.md`) |
-| 020 | Test-result cache | approved | 0 of 30 tasks | Task 1 measures key cost and reusable share per host and gates the rest | Task 1 go/no-go next (`docs/specs/020-test-result-cache/020-spec.md` decision 4) |
+| 020 | Test-result cache | approved | 30 of 30 tasks | Task 1 measures key cost and reusable share per host and gates the rest | Task 1 go/no-go next (`docs/specs/020-test-result-cache/020-spec.md` decision 4) |
 | 011 | Self-hosted emitter | draft (rev 3) | T16, the batch mutation run for `tests/quality-baseline.json` | mutation CI (disabled) | No slot |
 | 012 | Self-hosted bootstrap | approved | T22, the driver batch mutation; parked by the user 2026-11-06 | mutation CI (disabled) | No slot |
 | 001 | Self-hosted lexer | implemented (laws L001–L004 await enactment) (`docs/specs/001-self-hosted-lexer/001-spec.md` line 2) | T25, T27, T29, T31: prove L001–L004 via /prove, all unticked (`docs/specs/001-self-hosted-lexer/001-tasks.md` lines 49, 51, 53, 55). The laws are enacted (`docs/laws/001-lexer-equivalence.md` and 002–004 say `status: enacted`), though T24, T26, T28, T30 are unticked | T25 needs T21, T27 needs T21, T29 needs T16, T31 needs T13 | no slot |
