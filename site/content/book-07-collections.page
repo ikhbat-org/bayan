@@ -124,6 +124,7 @@ template: docs
 <example name="book-07-array"/>
 <p><code>sum</code> reads its input, so it takes a <code>ReadOnlySpan&lt;i32&gt;</code> and works on the array <code>days</code> and the list <code>scores</code> without conversion. <code>curve</code> changes its input, so it takes a <code>Span&lt;i32&gt;</code>; the caller writes <code>scores.mutableSpan()</code>, which counts as a change and needs a <code>var</code>. <code>scores.span</code> is read-only and works on a <code>let</code>.</p>
 <p>A range in brackets cuts a view out of a list or span without copying; <code>scores[1..3]</code> is the second and third elements. A range past the end panics with <code>slice out of range</code>.</p>
+<p>A slice is writable only when what it cuts is: <code>curve(scores[1..3], by: 5)</code> works because <code>scores</code> is a <code>var</code>, while <code>days[0..2]</code> is a <code>ReadOnlySpan</code>, so <code>curve(days[0..2], by: 5)</code> is BYN2202. A function result or a map value cannot be passed as a <code>Span</code> either (BYN2106): store it in a <code>var</code> first.</p>
 <p>A fixed array whose elements are numbers, <code>bool</code>, <code>rune</code> or <code>string</code> can be a module-level <code>const</code>, stored as static data.</p>
 
 <h2 id="maps">Maps</h2>
