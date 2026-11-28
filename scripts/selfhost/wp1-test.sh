@@ -16,7 +16,8 @@
 # WIN_TRX is dropped: scripts/test.sh writes no trx.
 # WIN_PERF_SCHEME (default: wlt1's Performance plan ae098e76-5b05-4954-be35-3c535b591fce, none on other hosts) is the power plan
 # the host runs under while a run is in flight; it idles on WIN_IDLE_SCHEME (default SCHEME_BALANCED). Each run holds
-# tmp/<host>/perf-holders/<pid>; the last run to finish (dead holders pruned) switches the host back. Empty: no switch.
+# <main checkout>/tmp/<host>/perf-holders/<pid> (shared by all worktrees); the last run to finish switches the host back (holders
+# with a dead pid or older than 12 h are dropped). Empty: no switch.
 # WIN_CC sets CC for the remote run (e.g. 'zig cc'); unset, the remote run unsets CC, since wp1's user environment points CC at a
 # removed tdm-gcc (2026-11-18), and bootstrap-build.sh then picks cc or zig.
 set -u
@@ -54,7 +55,7 @@ printf 'branch: %s\nsha: %s\nfilter: %s\ncommand: ssh %s "%s"\n' "$BR" "$SHA" "$
 scp -q "tmp/$H/$S.bundle" "$H:/$R/" >> "$OUT" 2>&1; rc=$?
 # Holders live in the main checkout's tmp/ (shared by every worktree, as the host is); one older than 12 h or with a dead pid is
 # dropped. A holder that appears while the switch back is in flight sends Performance again.
-HD="$(cd "$(git rev-parse --git-common-dir)/.." && pwd)/tmp/$H/perf-holders"
+HD="$(git worktree list --porcelain | sed -n "1s/^worktree //p")/tmp/$H/perf-holders"
 held() { local p n=0; for p in "$HD"/*; do [ -e "$p" ] || continue
     if ! kill -0 "${p##*/}" 2>/dev/null || [ -n "$(find "$p" -mmin +720 2>/dev/null)" ]; then rm -f "$p"; else n=1; fi; done; [ $n = 1 ]; }
 perf_off() { rm -f "$HD/$$"; held && return 0; ssh "$H" "powercfg /setactive $IDLE" > /dev/null 2>&1 || true

@@ -45,7 +45,7 @@ rm -f "$aux/ssh-power"; mkdir -p tmp/wlt1/perf-holders; : > tmp/wlt1/perf-holder
 rm -rf tmp/wlt1/cache; WIN_HOST=wlt1 w feat/x scripts > /dev/null; pwstale=$(cat "$aux/ssh-power" 2>/dev/null || true)
 rm -f "$aux/ssh-power"; : > "tmp/wlt1/perf-holders/$$"; git worktree add -q "$aux/wt" -b feat/wt feat/x; cd "$aux/wt"
 WIN_HOST=wlt1 w feat/wt scripts > /dev/null; pwwt=$(cat "$aux/ssh-power" 2>/dev/null || true); cd "$r"
-rm -rf tmp/wlt1/perf-holders; WIN_HOST=wlt1 w feat/x scripts > /dev/null; [ -n "$(ls tmp/wlt1/cache)" ] || echo "no wlt1 cache seeded"; badpsc=$(CACHE_KEEP=1 WIN_HOST=wlt1 WIN_PERF_SCHEME="a'b" w feat/x scripts)
+rm -rf tmp/wlt1/perf-holders; [ -n "$(ls tmp/wlt1/cache)" ] && seeded=1 || seeded=0; badpsc=$(CACHE_KEEP=1 WIN_HOST=wlt1 WIN_PERF_SCHEME="a'b" w feat/x scripts)
 # the remote command itself, run by pwsh with wp1's tmp/ at $aux/remote and a fake Git Bash (WIN_BASH): a re-run replaces the clone it made,
 # a directory it did not make is left alone (exit 3)
 rm -f "$aux/scp-fail"; mkdir "$aux/remote"; printf 'test: all passed\n' > "$aux/ssh-out"
@@ -113,7 +113,7 @@ has "$badps" "wp1-test: bad power scheme a'b" && has "$badps" "rc=2" || fail "a 
 has "$nr1" "rc=0" && has "$nr2" "rc=0" || fail "the runs behind the no-switch check did not reach the remote run" "$nr1 $nr2"
 [ "$pwstale" = "$(printf 'wlt1 powercfg /setactive ae098e76-5b05-4954-be35-3c535b591fce\nwlt1 powercfg /setactive SCHEME_BALANCED')" ] || fail "a 12 h old holder or a dotfile kept wlt1 on Performance ('$pwstale')" "$wl"
 [ "$pwwt" = "wlt1 powercfg /setactive ae098e76-5b05-4954-be35-3c535b591fce" ] || fail "a run from a linked worktree ignored the main checkout's holder ('$pwwt')" "$wl"
-has "$badpsc" "wp1-test: bad power scheme a'b" && has "$badpsc" "rc=2" || fail "a bad WIN_PERF_SCHEME was not refused on a cache hit" "$badpsc"
+[ $seeded = 1 ] && has "$badpsc" "wp1-test: bad power scheme a'b" && has "$badpsc" "rc=2" || fail "a bad WIN_PERF_SCHEME was not refused on a cache hit" "$badpsc"
 has "$pw" "rc=0" && [[ $dargs == "-c unset CC; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only bayan --jobs 3 " ]] || fail "pwsh did not pass the build and test script to Git Bash ('$dargs')" "$pw"
 has "$pwc" "rc=0" && [[ $dargsc == "-c export CC='zig cc'; exe=\$(bash scripts/bootstrap-build.sh) || exit 1; BAYAN_EXE=\$exe bash scripts/test.sh --only runtime " ]] || fail "WIN_CC did not reach Git Bash as CC ('$dargsc')" "$pwc"
 has "$badcc" "wp1-test: bad WIN_CC a;b" && has "$badcc" "rc=2" || fail "a bad WIN_CC was not refused" "$badcc"
