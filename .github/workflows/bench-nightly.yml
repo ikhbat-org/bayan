@@ -1,0 +1,105 @@
+# Nightly benchmark (bench/run.sh: Bayan, C, Rust, Zig, Go) on dev. GitHub limits kept: 2 jobs a night (ubuntu-latest and
+# macos-latest, no other matrix), each at most 30 minutes; a night with no new commit on dev exits early after one git fetch;
+# results are an artifact kept 14 days. The gate is on ratios, not raw times (hosted runners vary): a run fails when
+# Bayan/C on hash or parse is more than 10% worse than the last stored ratio for that OS. The first run passes and stores.
+name: bench-nightly
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bench-nightly
+  cancel-in-progress: true
+
+jobs:
+  bench:
+    name: bench ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      # As ci.yml, but the tip of dev: a scheduled run starts on the default branch.
+      - name: Checkout dev
+        shell: bash
+        run: |
+          git init -q .
+          git fetch -q --depth=1 --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" dev
+          git checkout -q --detach FETCH_HEAD
+          echo "SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      # The last good run's state (ratios.txt and sha.txt): the newest cache with this prefix; a run that fails the gate saves nothing.
+      - name: Restore the last state
+        uses: actions/cache@v4
+        with:
+          path: tmp/bench-state
+          key: bench-state-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: bench-state-${{ runner.os }}-
+      - name: Skip when dev has not moved
+        shell: bash
+        run: |
+          if [ -f tmp/bench-state/sha.txt ] && [ "$(cat tmp/bench-state/sha.txt)" = "$SHA" ]; then
+            echo "no new commits: dev is still at $SHA"
+            echo "SKIP=1" >> "$GITHUB_ENV"
+          fi
+      - name: Install zig
+        if: env.SKIP != '1'
+        shell: bash
+        run: bash scripts/ci/install-zig.sh "$RUNNER_TEMP/zig" >> "$GITHUB_PATH"
+      - name: Install Go
+        if: env.SKIP != '1'
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+      # Rust and cc come from the runner image.
+      - name: Benchmark
+        if: env.SKIP != '1'
+        shell: bash
+        run: |
+          mkdir -p tmp/bench-state
+          BENCH_RESULTS=tmp/bench-out bash bench/run.sh 2>&1 | tee tmp/bench-table.txt
+          [ "${PIPESTATUS[0]}" -eq 0 ]
+      # Gate: Bayan/C per program against the stored ratio; raw times are only printed above.
+      - name: Gate on ratios
+        if: env.SKIP != '1'
+        shell: bash
+        run: |
+          for b in hash parse; do
+            r=$(grep "^$b " tmp/bench-table.txt | grep -o '([0-9.]*x)' | head -n1 | tr -d '(x)')
+            [ -n "$r" ] || { echo "$b: no Bayan ratio in the table"; exit 1; }
+            echo "$b $r"
+          done > tmp/bench-ratios.txt
+          status=0
+          if [ -f tmp/bench-state/ratios.txt ]; then
+            while read -r b new; do
+              old=$(awk -v b="$b" '$1 == b { print $2 }' tmp/bench-state/ratios.txt)
+              [ -n "$old" ] || { echo "$b: no stored ratio, stored now"; continue; }
+              if awk -v n="$new" -v o="$old" 'BEGIN { exit !(n > o * 1.10) }'; then
+                echo "FAIL $b: Bayan/C $new is more than 10% worse than the stored $old"; status=1
+              else
+                echo "ok   $b: Bayan/C $new, stored $old"
+              fi
+            done < tmp/bench-ratios.txt
+          else
+            echo "first run on this OS: nothing to compare, storing"
+          fi
+          [ $status -eq 0 ] || exit 1
+          cp tmp/bench-ratios.txt tmp/bench-state/ratios.txt
+          echo "$SHA" > tmp/bench-state/sha.txt
+      - name: Upload the results
+        if: always() && env.SKIP != '1'
+        uses: actions/upload-artifact@v7
+        with:
+          name: bench-${{ runner.os }}-${{ github.run_id }}
+          path: |
+            tmp/bench-out/
+            tmp/bench-table.txt
+            tmp/bench-ratios.txt
+          retention-days: 14
+          if-no-files-found: ignore
